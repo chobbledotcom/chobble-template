@@ -41,6 +41,34 @@ const testScopedEntry = (varName, globalValue) => (inputValue) => {
   return inputToScopedEntry(getComputedStyle(document.documentElement))(input);
 };
 
+/**
+ * Curried: parse a theme with :root + scope declaration, return the parsed scope.
+ * (scopeBlock) => (scopeName) => parsed scope vars
+ */
+const parsedScope = (scopeBlock) => (scopeName) =>
+  parseThemeContent(`:root { --color-bg: #fff; }\n${scopeBlock}`).scopes[
+    scopeName
+  ];
+
+/**
+ * Curried: assert shouldIncludeScopedVar returns expected result.
+ * (expected) => (scopedValue, globalValue) => void
+ */
+const expectIncluded = (scopedValue, globalValue) =>
+  expect(shouldIncludeScopedVar(scopedValue, globalValue)).toBe(true);
+
+const expectExcluded = (scopedValue, globalValue) =>
+  expect(shouldIncludeScopedVar(scopedValue, globalValue)).toBe(false);
+
+/**
+ * Set up a form in the DOM and return the formEl helper.
+ * Curried: (formId, html) => formEl function
+ */
+const setupForm = (formId, html) => {
+  document.body.innerHTML = `<form id="${formId}">${html}</form>`;
+  return createFormEl(formId);
+};
+
 // ============================================
 // Unit Tests - parseThemeContent (CSS parsing)
 // ============================================
@@ -107,55 +135,37 @@ describe("theme-editor", () => {
   });
 
   test("Parses header scope variables", () => {
-    const theme = `
-:root { --color-bg: #fff; }
-header { --color-text: #ffffff; --color-bg: #333; }
-      `;
-    const result = parseThemeContent(theme);
-    expect(result.scopes.header).toEqual({
-      "--color-text": "#ffffff",
-      "--color-bg": "#333",
-    });
+    expect(
+      parsedScope("header { --color-text: #ffffff; --color-bg: #333; }")(
+        "header",
+      ),
+    ).toEqual({ "--color-text": "#ffffff", "--color-bg": "#333" });
   });
 
   test("Parses nav scope variables", () => {
-    const theme = `
-:root { --color-bg: #fff; }
-nav { --color-link: #00ff00; }
-      `;
-    const result = parseThemeContent(theme);
-    expect(result.scopes.nav).toEqual({ "--color-link": "#00ff00" });
+    expect(parsedScope("nav { --color-link: #00ff00; }")("nav")).toEqual({
+      "--color-link": "#00ff00",
+    });
   });
 
   test("Parses article scope variables", () => {
-    const theme = `
-:root { --color-bg: #fff; }
-article { --color-bg: #f0f0f0; }
-      `;
-    const result = parseThemeContent(theme);
-    expect(result.scopes.article).toEqual({ "--color-bg": "#f0f0f0" });
+    expect(parsedScope("article { --color-bg: #f0f0f0; }")("article")).toEqual({
+      "--color-bg": "#f0f0f0",
+    });
   });
 
   test("Parses form scope variables", () => {
-    const theme = `
-:root { --color-bg: #fff; }
-form { --border: 1px solid #ccc; }
-      `;
-    const result = parseThemeContent(theme);
-    expect(result.scopes.form).toEqual({ "--border": "1px solid #ccc" });
+    expect(parsedScope("form { --border: 1px solid #ccc; }")("form")).toEqual({
+      "--border": "1px solid #ccc",
+    });
   });
 
   test("Parses button multi-selector scope variables", () => {
-    const theme = `
-:root { --color-bg: #fff; }
-button,
-.button,
-input[type="submit"] {
-  --color-bg: #007bff;
-}
-      `;
-    const result = parseThemeContent(theme);
-    expect(result.scopes.button).toEqual({ "--color-bg": "#007bff" });
+    expect(
+      parsedScope(
+        'button,\n.button,\ninput[type="submit"] {\n  --color-bg: #007bff;\n}',
+      )("button"),
+    ).toEqual({ "--color-bg": "#007bff" });
   });
 
   test("Parses body_classes comment", () => {
@@ -213,32 +223,28 @@ input[type="submit"] {
   // ============================================
 
   test("Returns true when scoped value differs from global", () => {
-    expect(shouldIncludeScopedVar("#ff0000", "#ffffff")).toBe(true);
-    expect(shouldIncludeScopedVar("#000000", "#ffffff")).toBe(true);
-    expect(shouldIncludeScopedVar("3px solid #000", "2px solid #000")).toBe(
-      true,
-    );
+    expectIncluded("#ff0000", "#ffffff");
+    expectIncluded("#000000", "#ffffff");
+    expectIncluded("3px solid #000", "2px solid #000");
   });
 
   test("Returns false when scoped value equals global", () => {
-    expect(shouldIncludeScopedVar("#ffffff", "#ffffff")).toBe(false);
-    expect(shouldIncludeScopedVar("2px solid #333", "2px solid #333")).toBe(
-      false,
-    );
+    expectExcluded("#ffffff", "#ffffff");
+    expectExcluded("2px solid #333", "2px solid #333");
   });
 
   test("Returns false for empty/null values", () => {
-    expect(shouldIncludeScopedVar("", "#ffffff")).toBe(false);
-    expect(shouldIncludeScopedVar(null, "#ffffff")).toBe(false);
-    expect(shouldIncludeScopedVar(undefined, "#ffffff")).toBe(false);
+    expectExcluded("", "#ffffff");
+    expectExcluded(null, "#ffffff");
+    expectExcluded(undefined, "#ffffff");
   });
 
   test("Black (#000000) is included when it differs from global", () => {
     // This tests the bug fix: black should be preserved when intentionally set
-    expect(shouldIncludeScopedVar("#000000", "#ffffff")).toBe(true);
-    expect(shouldIncludeScopedVar("#000000", "#333333")).toBe(true);
+    expectIncluded("#000000", "#ffffff");
+    expectIncluded("#000000", "#333333");
     // But excluded when global is also black
-    expect(shouldIncludeScopedVar("#000000", "#000000")).toBe(false);
+    expectExcluded("#000000", "#000000");
   });
 
   // ============================================
@@ -246,33 +252,29 @@ input[type="submit"] {
   // ============================================
 
   test("Scope filtering only includes values that differ from global", () => {
-    // Test through shouldIncludeScopedVar - the production API
-    expect(shouldIncludeScopedVar("#ff0000", "#ffffff")).toBe(true); // Different
-    expect(shouldIncludeScopedVar("#ffffff", "#ffffff")).toBe(false); // Same
-    expect(shouldIncludeScopedVar("#0000ff", "#000000")).toBe(true); // Different
+    expectIncluded("#ff0000", "#ffffff");
+    expectExcluded("#ffffff", "#ffffff");
+    expectIncluded("#0000ff", "#000000");
   });
 
   test("Scope filtering returns false when values match global", () => {
-    expect(shouldIncludeScopedVar("#ffffff", "#ffffff")).toBe(false);
-    expect(shouldIncludeScopedVar("#000000", "#000000")).toBe(false);
-    expect(shouldIncludeScopedVar("2px solid #333", "2px solid #333")).toBe(
-      false,
-    );
+    expectExcluded("#ffffff", "#ffffff");
+    expectExcluded("#000000", "#000000");
+    expectExcluded("2px solid #333", "2px solid #333");
   });
 
   test("Scope filtering includes all values when none match global", () => {
-    // Each check is independent - verify each case
-    expect(shouldIncludeScopedVar("#ff0000", "#ffffff")).toBe(true);
-    expect(shouldIncludeScopedVar("#00ff00", "#000000")).toBe(true);
+    expectIncluded("#ff0000", "#ffffff");
+    expectIncluded("#00ff00", "#000000");
   });
 
   test("Scope filtering includes values when global is undefined", () => {
-    expect(shouldIncludeScopedVar("#ff0000", undefined)).toBe(true);
+    expectIncluded("#ff0000", undefined);
   });
 
   test("Scope filtering excludes empty values regardless of global", () => {
-    expect(shouldIncludeScopedVar("", "#ffffff")).toBe(false);
-    expect(shouldIncludeScopedVar(null, "#ffffff")).toBe(false);
+    expectExcluded("", "#ffffff");
+    expectExcluded(null, "#ffffff");
   });
 
   // ============================================
@@ -543,45 +545,38 @@ header {
   // ============================================
 
   test("createFormEl returns function that queries form elements", () => {
-    document.body.innerHTML = `
-      <form id="theme-form">
-        <input id="color-bg" type="color" value="#ffffff">
-        <input id="color-text" type="color" value="#000000">
-      </form>
-    `;
-
-    const formEl = createFormEl("theme-form");
-
+    const formEl = setupForm(
+      "theme-form",
+      `
+      <input id="color-bg" type="color" value="#ffffff">
+      <input id="color-text" type="color" value="#000000">
+    `,
+    );
     expect(formEl("color-bg")?.id).toBe("color-bg");
     expect(formEl("color-text")?.id).toBe("color-text");
     expect(formEl("non-existent")).toBe(null);
   });
 
   test("isControlEnabled returns true when no checkbox exists", () => {
-    document.body.innerHTML = `
-      <form id="test-form">
-        <input id="color-bg" type="color" value="#ffffff">
-      </form>
-    `;
-
-    const formEl = createFormEl("test-form");
-    const input = formEl("color-bg");
-
-    expect(isControlEnabled(formEl)(input)).toBe(true);
+    const formEl = setupForm(
+      "test-form",
+      `
+      <input id="color-bg" type="color" value="#ffffff">
+    `,
+    );
+    expect(isControlEnabled(formEl)(formEl("color-bg"))).toBe(true);
   });
 
   test("isControlEnabled returns checkbox state when checkbox exists", () => {
-    document.body.innerHTML = `
-      <form id="test-form">
-        <input id="color-bg" type="color" value="#ffffff">
-        <input id="color-bg-enabled" type="checkbox" checked>
-        <input id="color-text" type="color" value="#000000">
-        <input id="color-text-enabled" type="checkbox">
-      </form>
-    `;
-
-    const formEl = createFormEl("test-form");
-
+    const formEl = setupForm(
+      "test-form",
+      `
+      <input id="color-bg" type="color" value="#ffffff">
+      <input id="color-bg-enabled" type="checkbox" checked>
+      <input id="color-text" type="color" value="#000000">
+      <input id="color-text-enabled" type="checkbox">
+    `,
+    );
     expect(isControlEnabled(formEl)(formEl("color-bg"))).toBe(true);
     expect(isControlEnabled(formEl)(formEl("color-text"))).toBe(false);
   });
@@ -622,16 +617,16 @@ header {
   });
 
   test("collectActiveClasses toggles body classes based on selection", () => {
-    document.body.innerHTML = `
-      <form id="test-form">
-        <select id="header-style">
-          <option value="">None</option>
-          <option value="header-dark">Dark Header</option>
-          <option value="header-light">Light Header</option>
-        </select>
-      </form>
-    `;
-    const formEl = createFormEl("test-form");
+    const formEl = setupForm(
+      "test-form",
+      `
+      <select id="header-style">
+        <option value="">None</option>
+        <option value="header-dark">Dark Header</option>
+        <option value="header-light">Light Header</option>
+      </select>
+    `,
+    );
     formEl("header-style").value = "header-dark";
     expect(collectActiveClasses(formEl)(formEl("header-style"))).toEqual([
       "header-dark",
@@ -640,33 +635,28 @@ header {
   });
 
   test("collectActiveClasses returns empty when checkbox control is disabled", () => {
-    document.body.innerHTML = `
-      <form id="test-form">
-        <select id="header-style"><option value="header-dark">Dark</option></select>
-        <input id="header-style-enabled" type="checkbox">
-      </form>
-    `;
-    const formEl = createFormEl("test-form");
+    const formEl = setupForm(
+      "test-form",
+      `
+      <select id="header-style"><option value="header-dark">Dark</option></select>
+      <input id="header-style-enabled" type="checkbox">
+    `,
+    );
     formEl("header-style").value = "header-dark";
     expect(collectActiveClasses(formEl)(formEl("header-style"))).toEqual([]);
     expect(document.body.classList.contains("header-dark")).toBe(false);
   });
 
   test("collectActiveClasses returns empty array when no option selected", () => {
-    document.body.innerHTML = `
-      <form id="test-form">
-        <select id="header-style">
-          <option value="" selected>None</option>
-          <option value="header-dark">Dark</option>
-        </select>
-      </form>
-    `;
-
-    const formEl = createFormEl("test-form");
-    const select = formEl("header-style");
-
-    const classes = collectActiveClasses(formEl)(select);
-
-    expect(classes).toEqual([]);
+    const formEl = setupForm(
+      "test-form",
+      `
+      <select id="header-style">
+        <option value="" selected>None</option>
+        <option value="header-dark">Dark</option>
+      </select>
+    `,
+    );
+    expect(collectActiveClasses(formEl)(formEl("header-style"))).toEqual([]);
   });
 });

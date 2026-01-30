@@ -61,6 +61,39 @@ const setupQuoteSteps = (options = {}) => {
   };
 };
 
+// ----------------------------------------
+// Curried test helpers to reduce duplication
+// ----------------------------------------
+
+/**
+ * Curried: (step0Content) => expectedStep
+ * Sets up quote steps with given content, clicks next, returns current step.
+ */
+const clickNextWith = (step0Content) => {
+  const { container, nextBtn } = setupQuoteSteps({ step0Content });
+  nextBtn.click();
+  return container.dataset.currentStep;
+};
+
+/** Curried: (step0Content) => asserts navigation was blocked (stayed on step 0) */
+const expectBlocked = (step0Content) =>
+  expect(clickNextWith(step0Content)).toBe("0");
+
+/** Curried: (step0Content) => asserts navigation was allowed (moved to step 1) */
+const expectAllowed = (step0Content) =>
+  expect(clickNextWith(step0Content)).toBe("1");
+
+/**
+ * Curried: (options) => (recapId) => innerHTML of that recap element
+ * Sets up quote steps, navigates to the recap step, returns a query helper.
+ */
+const navigateToRecap = (options) => {
+  const { nextBtn } = setupQuoteSteps(options);
+  nextBtn.click(); // to step 1
+  nextBtn.click(); // to step 2 (recap)
+  return (recapId) => document.getElementById(recapId).innerHTML;
+};
+
 describe("quote-steps", () => {
   // ----------------------------------------
   // Initialization behavior
@@ -208,108 +241,67 @@ describe("quote-steps", () => {
   // ----------------------------------------
   describe("validation", () => {
     test("blocks navigation when required text field is empty", () => {
-      const { container, nextBtn } = setupQuoteSteps({
-        step0Content: '<input type="text" required value="" />',
-      });
-      nextBtn.click();
-      expect(container.dataset.currentStep).toBe("0");
+      expectBlocked('<input type="text" required value="" />');
     });
 
     test("allows navigation when required text field is filled", () => {
-      const { container, nextBtn } = setupQuoteSteps({
-        step0Content: '<input type="text" required value="filled" />',
-      });
-      nextBtn.click();
-      expect(container.dataset.currentStep).toBe("1");
+      expectAllowed('<input type="text" required value="filled" />');
     });
 
     test("allows navigation when field is not required", () => {
-      const { container, nextBtn } = setupQuoteSteps({
-        step0Content: '<input type="text" value="" />',
-      });
-      nextBtn.click();
-      expect(container.dataset.currentStep).toBe("1");
+      expectAllowed('<input type="text" value="" />');
     });
 
     test("validates email format", () => {
-      const { container, nextBtn } = setupQuoteSteps({
-        step0Content: '<input type="email" required value="not-an-email" />',
-      });
-      nextBtn.click();
-      expect(container.dataset.currentStep).toBe("0");
+      expectBlocked('<input type="email" required value="not-an-email" />');
     });
 
     test("accepts valid email", () => {
-      const { container, nextBtn } = setupQuoteSteps({
-        step0Content:
-          '<input type="email" required value="test@example.com" />',
-      });
-      nextBtn.click();
-      expect(container.dataset.currentStep).toBe("1");
+      expectAllowed('<input type="email" required value="test@example.com" />');
     });
 
     test("blocks navigation when required radio is unchecked", () => {
-      const { container, nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <fieldset>
-            <legend>Choice</legend>
-            <input type="radio" name="choice" value="A" required />
-            <input type="radio" name="choice" value="B" />
-          </fieldset>
-        `,
-      });
-      nextBtn.click();
-      expect(container.dataset.currentStep).toBe("0");
+      expectBlocked(`
+        <fieldset>
+          <legend>Choice</legend>
+          <input type="radio" name="choice" value="A" required />
+          <input type="radio" name="choice" value="B" />
+        </fieldset>
+      `);
     });
 
     test("allows navigation when required radio is checked", () => {
-      const { container, nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <fieldset>
-            <legend>Choice</legend>
-            <input type="radio" name="choice" value="A" required checked />
-            <input type="radio" name="choice" value="B" />
-          </fieldset>
-        `,
-      });
-      nextBtn.click();
-      expect(container.dataset.currentStep).toBe("1");
+      expectAllowed(`
+        <fieldset>
+          <legend>Choice</legend>
+          <input type="radio" name="choice" value="A" required checked />
+          <input type="radio" name="choice" value="B" />
+        </fieldset>
+      `);
     });
 
     test("allows navigation when radio is not required and unchecked", () => {
-      const { container, nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <fieldset>
-            <legend>Choice</legend>
-            <input type="radio" name="choice" value="A" />
-            <input type="radio" name="choice" value="B" />
-          </fieldset>
-        `,
-      });
-      nextBtn.click();
-      expect(container.dataset.currentStep).toBe("1");
+      expectAllowed(`
+        <fieldset>
+          <legend>Choice</legend>
+          <input type="radio" name="choice" value="A" />
+          <input type="radio" name="choice" value="B" />
+        </fieldset>
+      `);
     });
 
     test("validates multiple required fields", () => {
-      const { container, nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <input type="text" required value="filled" />
-          <input type="email" required value="" />
-        `,
-      });
-      nextBtn.click();
-      expect(container.dataset.currentStep).toBe("0");
+      expectBlocked(`
+        <input type="text" required value="filled" />
+        <input type="email" required value="" />
+      `);
     });
 
     test("passes when all multiple required fields are valid", () => {
-      const { container, nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <input type="text" required value="filled" />
-          <input type="email" required value="test@example.com" />
-        `,
-      });
-      nextBtn.click();
-      expect(container.dataset.currentStep).toBe("1");
+      expectAllowed(`
+        <input type="text" required value="filled" />
+        <input type="email" required value="test@example.com" />
+      `);
     });
   });
 
@@ -320,72 +312,70 @@ describe("quote-steps", () => {
     const INVALID_TEXT_INPUT =
       '<input id="test" type="text" required value="" />';
 
-    // Setup that triggers validation error on a text input
-    const triggerValidationError = () => {
-      const { nextBtn } = setupQuoteSteps({ step0Content: INVALID_TEXT_INPUT });
+    /** Trigger validation error with given content, click next, return queried element */
+    const triggerErrorAndQuery = (step0Content) => (selector) => {
+      const { nextBtn } = setupQuoteSteps({ step0Content });
       nextBtn.click();
-      return document.getElementById("test");
+      return document.querySelector(selector);
     };
 
+    const triggerTextFieldError = triggerErrorAndQuery(INVALID_TEXT_INPUT);
+
+    /** Assert element has field-error class */
+    const expectFieldError = (el) =>
+      expect(el.classList.contains("field-error")).toBe(true);
+
+    /** Assert element does not have field-error class */
+    const expectNoFieldError = (el) =>
+      expect(el.classList.contains("field-error")).toBe(false);
+
     test("adds error class to invalid field", () => {
-      const field = triggerValidationError();
-      expect(field.classList.contains("field-error")).toBe(true);
+      expectFieldError(triggerTextFieldError("#test"));
     });
 
     test("adds error class to field wrapper (label)", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <label>
-            Name
-            <input id="test" type="text" required value="" />
-          </label>
-        `,
-      });
-      nextBtn.click();
-      const wrapper = document.querySelector("label");
-      expect(wrapper.classList.contains("field-error")).toBe(true);
+      const query = triggerErrorAndQuery(`
+        <label>
+          Name
+          <input id="test" type="text" required value="" />
+        </label>
+      `);
+      expectFieldError(query("label"));
     });
 
     test("adds error class to fieldset for invalid radio", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <fieldset>
-            <legend>Choice</legend>
-            <input type="radio" name="choice" value="A" required />
-          </fieldset>
-        `,
-      });
-      nextBtn.click();
-      const fieldset = document.querySelector("fieldset");
-      expect(fieldset.classList.contains("field-error")).toBe(true);
+      const query = triggerErrorAndQuery(`
+        <fieldset>
+          <legend>Choice</legend>
+          <input type="radio" name="choice" value="A" required />
+        </fieldset>
+      `);
+      expectFieldError(query("fieldset"));
     });
 
     test("clears error class on input event", () => {
-      const field = triggerValidationError();
-      expect(field.classList.contains("field-error")).toBe(true);
+      const field = triggerTextFieldError("#test");
+      expectFieldError(field);
 
       field.value = "fixed";
       field.dispatchEvent(new Event("input"));
-      expect(field.classList.contains("field-error")).toBe(false);
+      expectNoFieldError(field);
     });
 
     test("clears error class on radio change event", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <fieldset>
-            <legend>Choice</legend>
-            <input type="radio" name="choice" value="A" required />
-            <input type="radio" name="choice" value="B" />
-          </fieldset>
-        `,
-      });
-      nextBtn.click();
-      const radio = document.querySelector('input[type="radio"]');
-      expect(radio.classList.contains("field-error")).toBe(true);
+      const query = triggerErrorAndQuery(`
+        <fieldset>
+          <legend>Choice</legend>
+          <input type="radio" name="choice" value="A" required />
+          <input type="radio" name="choice" value="B" />
+        </fieldset>
+      `);
+      const radio = query('input[type="radio"]');
+      expectFieldError(radio);
 
       radio.checked = true;
       radio.dispatchEvent(new Event("change"));
-      expect(radio.classList.contains("field-error")).toBe(false);
+      expectNoFieldError(radio);
     });
 
     test("scrolls first invalid field into view", () => {
@@ -408,8 +398,12 @@ describe("quote-steps", () => {
   // Recap population behavior
   // ----------------------------------------
   describe("recap population", () => {
+    /** Shorthand: navigate to recap with step0Content, return recap-event innerHTML */
+    const eventRecap = (step0Content) =>
+      navigateToRecap({ step0Content })("recap-event");
+
     test("populates recap with text field values on final step", () => {
-      const { nextBtn } = setupQuoteSteps({
+      const recap = navigateToRecap({
         step0Content: `
           <label for="event_date">Event Date</label>
           <input type="date" id="event_date" value="2025-06-15" />
@@ -419,158 +413,107 @@ describe("quote-steps", () => {
           <input type="text" id="contact_name" value="Jane Doe" />
         `,
       });
-      nextBtn.click(); // to step 1
-      nextBtn.click(); // to step 2 (recap)
-
-      const recapEvent = document.getElementById("recap-event");
-      const recapContact = document.getElementById("recap-contact");
-      expect(recapEvent.innerHTML).toContain("2025-06-15");
-      expect(recapContact.innerHTML).toContain("Jane Doe");
+      expect(recap("recap-event")).toContain("2025-06-15");
+      expect(recap("recap-contact")).toContain("Jane Doe");
     });
 
     test("populates recap with field labels", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <label for="event_date">Event Date</label>
-          <input type="date" id="event_date" value="2025-06-15" />
-        `,
-      });
-      nextBtn.click();
-      nextBtn.click();
-
-      const recapEvent = document.getElementById("recap-event");
-      expect(recapEvent.innerHTML).toContain("Event Date");
+      expect(
+        eventRecap(`
+        <label for="event_date">Event Date</label>
+        <input type="date" id="event_date" value="2025-06-15" />
+      `),
+      ).toContain("Event Date");
     });
 
     test("extracts label text without nested elements", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <label for="event_type">
-            Type of Event
-            <select id="event_type">
-              <option value="">Select</option>
-              <option value="Wedding" selected>Wedding</option>
-            </select>
-          </label>
-        `,
-      });
-      nextBtn.click();
-      nextBtn.click();
-
-      const recapEvent = document.getElementById("recap-event");
-      expect(recapEvent.innerHTML).toContain("Type of Event");
-      expect(recapEvent.innerHTML).not.toContain("<select");
+      const html = eventRecap(`
+        <label for="event_type">
+          Type of Event
+          <select id="event_type">
+            <option value="">Select</option>
+            <option value="Wedding" selected>Wedding</option>
+          </select>
+        </label>
+      `);
+      expect(html).toContain("Type of Event");
+      expect(html).not.toContain("<select");
     });
 
     test("shows select option text in recap", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <label for="event_type">Type</label>
-          <select id="event_type">
-            <option value="">Select</option>
-            <option value="wedding" selected>Wedding Celebration</option>
-          </select>
-        `,
-      });
-      nextBtn.click();
-      nextBtn.click();
-
-      const recapEvent = document.getElementById("recap-event");
-      expect(recapEvent.innerHTML).toContain("Wedding Celebration");
+      expect(
+        eventRecap(`
+        <label for="event_type">Type</label>
+        <select id="event_type">
+          <option value="">Select</option>
+          <option value="wedding" selected>Wedding Celebration</option>
+        </select>
+      `),
+      ).toContain("Wedding Celebration");
     });
 
     test("populates recap with radio selection", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <fieldset>
-            <legend>Contact Preference</legend>
-            <input type="radio" name="contact_pref" value="Email" checked />
-            <input type="radio" name="contact_pref" value="Phone" />
-          </fieldset>
-        `,
-      });
-      nextBtn.click();
-      nextBtn.click();
-
-      const recapEvent = document.getElementById("recap-event");
-      expect(recapEvent.innerHTML).toContain("Contact Preference");
-      expect(recapEvent.innerHTML).toContain("Email");
+      const html = eventRecap(`
+        <fieldset>
+          <legend>Contact Preference</legend>
+          <input type="radio" name="contact_pref" value="Email" checked />
+          <input type="radio" name="contact_pref" value="Phone" />
+        </fieldset>
+      `);
+      expect(html).toContain("Contact Preference");
+      expect(html).toContain("Email");
     });
 
     test("omits empty fields from recap", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <label for="notes">Notes</label>
-          <input type="text" id="notes" value="" />
-        `,
-      });
-      nextBtn.click();
-      nextBtn.click();
-
-      const recapEvent = document.getElementById("recap-event");
-      expect(recapEvent.innerHTML).not.toContain("Notes");
+      expect(
+        eventRecap(`
+        <label for="notes">Notes</label>
+        <input type="text" id="notes" value="" />
+      `),
+      ).not.toContain("Notes");
     });
 
     test("omits unchecked radio groups from recap", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <fieldset>
-            <legend>Optional Choice</legend>
-            <input type="radio" name="optional" value="A" />
-            <input type="radio" name="optional" value="B" />
-          </fieldset>
-        `,
-      });
-      nextBtn.click();
-      nextBtn.click();
-
-      const recapEvent = document.getElementById("recap-event");
-      expect(recapEvent.innerHTML).not.toContain("Optional Choice");
+      expect(
+        eventRecap(`
+        <fieldset>
+          <legend>Optional Choice</legend>
+          <input type="radio" name="optional" value="A" />
+          <input type="radio" name="optional" value="B" />
+        </fieldset>
+      `),
+      ).not.toContain("Optional Choice");
     });
 
     test("uses field id as label when no label element exists", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content:
+      expect(
+        eventRecap(
           '<input type="text" id="orphan_field" value="test value" />',
-      });
-      nextBtn.click();
-      nextBtn.click();
-
-      const recapEvent = document.getElementById("recap-event");
-      expect(recapEvent.innerHTML).toContain("orphan_field");
+        ),
+      ).toContain("orphan_field");
     });
 
     test("uses radio name as label when no legend exists", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content:
+      expect(
+        eventRecap(
           '<input type="radio" name="orphan_radio" value="checked" checked />',
-      });
-      nextBtn.click();
-      nextBtn.click();
-
-      const recapEvent = document.getElementById("recap-event");
-      expect(recapEvent.innerHTML).toContain("orphan_radio");
+        ),
+      ).toContain("orphan_radio");
     });
 
     test("deduplicates radio inputs with same name", () => {
-      const { nextBtn } = setupQuoteSteps({
-        step0Content: `
-          <fieldset>
-            <legend>Choice</legend>
-            <input type="radio" name="choice" value="A" />
-            <input type="radio" name="choice" value="B" checked />
-            <input type="radio" name="choice" value="C" />
-          </fieldset>
-        `,
-      });
-      nextBtn.click();
-      nextBtn.click();
-
-      const recapEvent = document.getElementById("recap-event");
+      const html = eventRecap(`
+        <fieldset>
+          <legend>Choice</legend>
+          <input type="radio" name="choice" value="A" />
+          <input type="radio" name="choice" value="B" checked />
+          <input type="radio" name="choice" value="C" />
+        </fieldset>
+      `);
       // Should only show "Choice" once with value "B"
-      const choiceMatches = recapEvent.innerHTML.match(/Choice/g);
+      const choiceMatches = html.match(/Choice/g);
       expect(choiceMatches.length).toBe(1);
-      expect(recapEvent.innerHTML).toContain("B");
+      expect(html).toContain("B");
     });
   });
 
