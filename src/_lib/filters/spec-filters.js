@@ -1,15 +1,33 @@
 import specsIconsRaw from "#data/specs-icons.json" with { type: "json" };
+import { getIcon } from "#media/iconify.js";
 import { memoizedInlineAsset } from "#media/inline-asset.js";
 import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { mapObject } from "#toolkit/fp/object.js";
 
-// Apply defaults at load time so we don't need ?? at point of use
-const specsIcons = mapObject((key, config) => [
-  key,
-  { highlight: false, list_items: false, ...config },
-])(specsIconsRaw);
+// Apply defaults and pre-compute iconify cache paths at load time
+const specsIcons = mapObject((key, config) => {
+  const [prefix, ...nameParts] = config.icon.split(":");
+  const name = nameParts
+    .join(":")
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
+  const assetPath = `icons/iconify/${prefix.trim().toLowerCase()}/${name}.svg`;
+  return [key, { highlight: false, list_items: false, ...config, assetPath }];
+})(specsIconsRaw);
 
 const specsIconsOrder = Object.keys(specsIcons);
+
+/**
+ * Pre-fetch all spec icons from the Iconify API to the local cache.
+ * Must be called before computeSpecs is used so that the synchronous
+ * memoizedInlineAsset can read the cached SVG files from disk.
+ * @returns {Promise<void>}
+ */
+const prefetchSpecIcons = async () => {
+  const icons = Object.values(specsIcons).map((config) => config.icon);
+  await Promise.all(icons.map((icon) => getIcon(icon)));
+};
 
 /**
  * @typedef {Object} ComputedSpec
@@ -40,7 +58,7 @@ const computeSpecs = memoizeByRef((specs) =>
     const config = specsIcons[normalized];
     return {
       ...spec,
-      icon: config ? memoizedInlineAsset(`icons/${config.icon}`) : "",
+      icon: config ? memoizedInlineAsset(config.assetPath) : "",
       highlight: config ? config.highlight : false,
       list_items: config ? config.list_items : false,
     };
@@ -82,4 +100,9 @@ const getListItemSpecs = (specs) => {
     .slice(0, 2);
 };
 
-export { computeSpecs, getHighlightedSpecs, getListItemSpecs };
+export {
+  computeSpecs,
+  getHighlightedSpecs,
+  getListItemSpecs,
+  prefetchSpecIcons,
+};
