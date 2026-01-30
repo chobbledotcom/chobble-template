@@ -9,7 +9,7 @@
           rel="noopener noreferrer"
           aria-label="{{ social[0] }}"
         >
-          {{ "icons/" | append: social[0] | downcase | append: ".svg" | inline_asset }}
+          {{ social[0] | socialIcon }}
         </a>
       </li>
     {%- endif -%}

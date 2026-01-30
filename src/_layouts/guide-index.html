@@ -9,7 +9,7 @@ layout: base
   {%- for category in collections.guide-categories -%}
   <li>
     {%- if category.data.icon -%}
-    {{ category.data.icon | inline_asset }}
+    {{ category.data.icon | renderIcon }}
     {%- endif -%}
     <a href="{{ category.url }}#content">{{ category.data.title }}</a>
     {%- if category.data.subtitle -%}
