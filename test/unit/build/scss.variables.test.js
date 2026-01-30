@@ -24,7 +24,7 @@ const ISOLATED_FILES = [
   "_mixins.scss",
 ];
 
-// Directories that have their own isolated CSS (design-system for landing pages)
+// Directories that have their own isolated CSS (design-system for block-based pages)
 const ISOLATED_DIRS = ["design-system/"];
 
 // ============================================
