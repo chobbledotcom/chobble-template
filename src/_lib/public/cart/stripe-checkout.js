@@ -2,6 +2,7 @@
 // Handles the redirect flow: checks cart and redirects to Stripe or homepage
 
 import { getCart, getCheckoutItems } from "#public/utils/cart-utils.js";
+import { postJson } from "#public/utils/http.js";
 
 function showStatusError(message) {
   const statusMessage = document.getElementById("status-message");
@@ -10,22 +11,8 @@ function showStatusError(message) {
 }
 
 const createStripeSession = async (checkoutApiUrl, items) => {
-  const response = await fetch(checkoutApiUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ items }),
-  }).catch(() => null);
-
-  if (!response)
-    return {
-      error: "Failed to connect. Please check your internet and try again.",
-    };
-  if (!response.ok) {
-    const data = await response.json().catch(() => ({}));
-    return { error: data.error || "Failed to create checkout session" };
-  }
-  const session = await response.json().catch(() => null);
-  if (!session?.url) return { error: "Invalid response from server" };
+  const session = await postJson(checkoutApiUrl, { items });
+  if (!session?.url) return { error: "Failed to create checkout session" };
   return { url: session.url };
 };
 

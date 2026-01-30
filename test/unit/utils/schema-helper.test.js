@@ -13,7 +13,31 @@ import {
   buildProductMeta,
 } from "#utils/schema-helper.js";
 
-// Helper to test buildProductMeta with mock reviews
+// ----------------------------------------
+// Curried test helpers to reduce duplication
+// ----------------------------------------
+
+/** Curried: (overrides) => buildBaseMeta result */
+const baseMeta = (overrides = {}) => buildBaseMeta(createSchemaData(overrides));
+
+/** Curried: (overrides) => buildProductMeta result */
+const productMeta = (overrides = {}) =>
+  buildProductMeta(createProductSchemaData(overrides));
+
+/** Curried: (overrides) => buildPostMeta result */
+const postMeta = (overrides = {}) =>
+  buildPostMeta(createPostSchemaData(overrides));
+
+/** Curried: (overrides) => buildOrganizationMeta result */
+const orgMeta = (overrides = {}) =>
+  buildOrganizationMeta(
+    createSchemaData({ pageUrl: "/", title: "Home", ...overrides }),
+  );
+
+/** Curried: (price input) => stripped price string from offers */
+const strippedPrice = (price) => productMeta({ price }).offers.price;
+
+/** Build productMeta with mock reviews from specs */
 const testProductMeta = (reviewSpecs) => {
   const mockReviews = reviewSpecs.map((spec) =>
     createMockReview({
@@ -22,96 +46,63 @@ const testProductMeta = (reviewSpecs) => {
       ...(spec.date && { date: new Date(spec.date) }),
     }),
   );
-  const data = createProductSchemaData({
-    reviews: mockReviews,
-    tags: ["products"],
-  });
-  return buildProductMeta(data);
+  return productMeta({ reviews: mockReviews, tags: ["products"] });
 };
 
 describe("buildBaseMeta", () => {
   test("returns basic meta with url, title, and description", () => {
-    const data = createSchemaData({
+    const result = baseMeta({
       pageUrl: "/test-page/",
       title: "Test Page",
       meta_description: "A test description",
     });
-
-    const result = buildBaseMeta(data);
-
     expect(result.title).toBe("Test Page");
     expect(result.description).toBe("A test description");
     expect(result.url.includes("/test-page/")).toBe(true);
   });
 
   test("uses subtitle as description when meta_description is not provided", () => {
-    const data = createSchemaData({ subtitle: "A subtitle" });
-
-    const result = buildBaseMeta(data);
-
-    expect(result.description).toBe("A subtitle");
+    expect(baseMeta({ subtitle: "A subtitle" }).description).toBe("A subtitle");
   });
 
   test("includes image from header_image", () => {
-    const data = createSchemaData({ header_image: "test-image.jpg" });
-
-    const result = buildBaseMeta(data);
-
+    const result = baseMeta({ header_image: "test-image.jpg" });
     expect(result.image).toBeTruthy();
     expect(result.image.src.includes("test-image.jpg")).toBe(true);
   });
 
   test("includes image from image field when header_image is not provided", () => {
-    const data = createSchemaData({ image: "fallback-image.jpg" });
-
-    const result = buildBaseMeta(data);
-
+    const result = baseMeta({ image: "fallback-image.jpg" });
     expect(result.image).toBeTruthy();
     expect(result.image.src.includes("fallback-image.jpg")).toBe(true);
   });
 
   test("handles absolute URL images (http://)", () => {
-    const data = createSchemaData({
-      header_image: "http://other.com/image.jpg",
-    });
-
-    const result = buildBaseMeta(data);
-
-    expect(result.image.src).toBe("http://other.com/image.jpg");
+    expect(
+      baseMeta({ header_image: "http://other.com/image.jpg" }).image.src,
+    ).toBe("http://other.com/image.jpg");
   });
 
   test("handles absolute URL images (https://)", () => {
-    const data = createSchemaData({
-      header_image: "https://other.com/image.jpg",
-    });
-
-    const result = buildBaseMeta(data);
-
-    expect(result.image.src).toBe("https://other.com/image.jpg");
+    expect(
+      baseMeta({ header_image: "https://other.com/image.jpg" }).image.src,
+    ).toBe("https://other.com/image.jpg");
   });
 
   test("handles images with leading slash", () => {
-    const data = createSchemaData({ header_image: "/images/photo.jpg" });
-
-    const result = buildBaseMeta(data);
-
-    expect(result.image.src).toBe("https://example.com/images/photo.jpg");
+    expect(baseMeta({ header_image: "/images/photo.jpg" }).image.src).toBe(
+      "https://example.com/images/photo.jpg",
+    );
   });
 
   test("prepends /images/ for plain image filenames", () => {
-    const data = createSchemaData({ header_image: "photo.jpg" });
-
-    const result = buildBaseMeta(data);
-
-    expect(result.image.src).toBe("https://example.com/images/photo.jpg");
+    expect(baseMeta({ header_image: "photo.jpg" }).image.src).toBe(
+      "https://example.com/images/photo.jpg",
+    );
   });
 
   test("does not include image when none provided", () => {
-    const data = createSchemaData();
-
-    const result = buildBaseMeta(data);
-
-    expect(result.image).toBeUndefined();
+    expect(baseMeta().image).toBeUndefined();
   });
 
   test("includes FAQs when provided", () => {
@@ -119,52 +110,35 @@ describe("buildBaseMeta", () => {
       { question: "Q1", answer: "A1" },
       { question: "Q2", answer: "A2" },
     ];
-    const data = createSchemaData({ faqs });
-
-    const result = buildBaseMeta(data);
-
-    expect(result.faq).toEqual(faqs);
+    expect(baseMeta({ faqs }).faq).toEqual(faqs);
   });
 
   test("does not include empty FAQs array", () => {
-    const data = createSchemaData({ faqs: [] });
-
-    const result = buildBaseMeta(data);
-
-    expect(result.faq).toBeUndefined();
+    expect(baseMeta({ faqs: [] }).faq).toBeUndefined();
   });
 
   test("preserves metaComputed properties", () => {
-    const data = createSchemaData({
-      metaComputed: { customField: "custom value", anotherField: 123 },
-    });
-
-    const result = buildBaseMeta(data);
-
     expectObjectProps({
       customField: "custom value",
       anotherField: 123,
-    })(result);
+    })(
+      baseMeta({
+        metaComputed: { customField: "custom value", anotherField: 123 },
+      }),
+    );
   });
 });
 
 describe("buildProductMeta", () => {
   test("returns product meta with name and brand", () => {
-    const data = createProductSchemaData();
-
-    const result = buildProductMeta(data);
-
     expectObjectProps({
       name: "Test Product",
       brand: "Test Store",
-    })(result);
+    })(productMeta());
   });
 
   test("includes offers when price is provided", () => {
-    const data = createProductSchemaData({ price: "29.99" });
-
-    const result = buildProductMeta(data);
-
+    const result = productMeta({ price: "29.99" });
     expect(result.offers).toBeTruthy();
     expect(result.offers.price).toBe("29.99");
     expect(result.offers.priceCurrency).toBe("GBP");
@@ -173,43 +147,23 @@ describe("buildProductMeta", () => {
   });
 
   test("strips currency symbols from price", () => {
-    const data = createProductSchemaData({ price: "£29.99" });
-
-    const result = buildProductMeta(data);
-
-    expect(result.offers.price).toBe("29.99");
+    expect(strippedPrice("£29.99")).toBe("29.99");
   });
 
   test("strips dollar sign from price", () => {
-    const data = createProductSchemaData({ price: "$49.99" });
-
-    const result = buildProductMeta(data);
-
-    expect(result.offers.price).toBe("49.99");
+    expect(strippedPrice("$49.99")).toBe("49.99");
   });
 
   test("strips euro sign from price", () => {
-    const data = createProductSchemaData({ price: "€39.99" });
-
-    const result = buildProductMeta(data);
-
-    expect(result.offers.price).toBe("39.99");
+    expect(strippedPrice("€39.99")).toBe("39.99");
   });
 
   test("strips commas from price", () => {
-    const data = createProductSchemaData({ price: "1,299.99" });
-
-    const result = buildProductMeta(data);
-
-    expect(result.offers.price).toBe("1299.99");
+    expect(strippedPrice("1,299.99")).toBe("1299.99");
   });
 
   test("does not include offers when price is not provided", () => {
-    const data = createProductSchemaData();
-
-    const result = buildProductMeta(data);
-
-    expect(result.offers).toBeUndefined();
+    expect(productMeta().offers).toBeUndefined();
   });
 
   test("includes reviews and rating when tags and collections.reviews are provided", () => {
@@ -217,7 +171,6 @@ describe("buildProductMeta", () => {
       { name: "Reviewer 1", rating: 5 },
       { name: "Reviewer 2", rating: 4, date: "2024-02-20" },
     ]);
-
     expect(result.reviews).toBeTruthy();
     expect(result.reviews.length).toBe(2);
     expect(result.rating).toBeTruthy();
@@ -231,58 +184,38 @@ describe("buildProductMeta", () => {
       { name: "Reviewer 1", rating: 5 },
       { name: "Reviewer 2", rating: 3, date: "2024-02-20" },
     ]);
-
     expect(result.rating.ratingValue).toBe("4.0");
   });
 
   test("formats review with author and rating", () => {
-    const mockReviews = [
-      createMockReview({
-        name: "John Doe",
-        rating: 5,
-        date: new Date("2024-06-15"),
-      }),
-    ];
-    const data = createProductSchemaData({
-      reviews: mockReviews,
-      tags: ["products"],
-    });
-
-    const result = buildProductMeta(data);
-
+    const result = testProductMeta([
+      { name: "John Doe", rating: 5, date: "2024-06-15" },
+    ]);
     expect(result.reviews[0].author).toBe("John Doe");
     expect(result.reviews[0].rating).toBe(5);
     expect(result.reviews[0].date).toBe("2024-06-15");
   });
 
   test("defaults review rating to 5 when not specified", () => {
-    const mockReviews = [
-      {
-        data: { name: "Reviewer", products: ["test"] },
-        date: new Date("2024-01-15"),
-      },
-    ];
-    const data = createProductSchemaData({
-      reviews: mockReviews,
+    const result = productMeta({
+      reviews: [
+        {
+          data: { name: "Reviewer", products: ["test"] },
+          date: new Date("2024-01-15"),
+        },
+      ],
       tags: ["products"],
     });
-
-    const result = buildProductMeta(data);
-
     expect(result.reviews[0].rating).toBe(5);
   });
 
   test("does not include reviews and rating when no matching reviews", () => {
-    const mockReviews = [
-      createMockReview({ name: "Reviewer", items: ["other-product"] }),
-    ];
-    const data = createProductSchemaData({
-      reviews: mockReviews,
+    const result = productMeta({
+      reviews: [
+        createMockReview({ name: "Reviewer", items: ["other-product"] }),
+      ],
       tags: ["products"],
     });
-
-    const result = buildProductMeta(data);
-
     expect(result.reviews).toBeUndefined();
     expect(result.rating).toBeUndefined();
   });
@@ -290,35 +223,21 @@ describe("buildProductMeta", () => {
 
 describe("buildPostMeta", () => {
   test("returns post meta with author", () => {
-    const data = createPostSchemaData({ author: "John Author" });
-
-    const result = buildPostMeta(data);
-
+    const result = postMeta({ author: "John Author" });
     expect(result.author).toBeTruthy();
     expect(result.author.name).toBe("John Author");
   });
 
   test("uses site name as author when author not provided", () => {
-    const data = createPostSchemaData();
-
-    const result = buildPostMeta(data);
-
-    expect(result.author.name).toBe("Test Site");
+    expect(postMeta().author.name).toBe("Test Site");
   });
 
   test("includes datePublished from page.date", () => {
-    const data = createPostSchemaData();
-
-    const result = buildPostMeta(data);
-
-    expect(result.datePublished).toBe("2024-03-15");
+    expect(postMeta().datePublished).toBe("2024-03-15");
   });
 
   test("includes publisher with name and logo", () => {
-    const data = createPostSchemaData({ siteLogo: "/custom-logo.png" });
-
-    const result = buildPostMeta(data);
-
+    const result = postMeta({ siteLogo: "/custom-logo.png" });
     expect(result.publisher).toBeTruthy();
     expect(result.publisher.name).toBe("Test Site");
     expect(result.publisher.logo).toBeTruthy();
@@ -328,40 +247,25 @@ describe("buildPostMeta", () => {
   });
 
   test("uses default logo path when site.logo not provided", () => {
-    const data = createPostSchemaData();
-
-    const result = buildPostMeta(data);
-
-    expect(result.publisher.logo.src.includes("/images/logo.png")).toBe(true);
+    expect(postMeta().publisher.logo.src.includes("/images/logo.png")).toBe(
+      true,
+    );
   });
 
   test("does not include datePublished when page.date is not provided", () => {
-    const data = createPostSchemaData({ date: null });
-
-    const result = buildPostMeta(data);
-
-    expect(result.datePublished).toBeUndefined();
+    expect(postMeta({ date: null }).datePublished).toBeUndefined();
   });
 });
 
 describe("buildOrganizationMeta", () => {
   test("returns organization meta with base properties", () => {
-    const data = createSchemaData({
-      pageUrl: "/",
-      title: "Home",
-      siteName: "Test Organization",
-    });
-
-    const result = buildOrganizationMeta(data);
-
+    const result = orgMeta({ siteName: "Test Organization" });
     expect(result.title).toBe("Home");
     expect(result.url).toBeTruthy();
   });
 
   test("includes organization from metaComputed when available", () => {
-    const data = createSchemaData({
-      pageUrl: "/",
-      title: "Home",
+    const result = orgMeta({
       siteName: "Test Organization",
       metaComputed: {
         organization: {
@@ -371,36 +275,20 @@ describe("buildOrganizationMeta", () => {
         },
       },
     });
-
-    const result = buildOrganizationMeta(data);
-
     expect(result.organization).toBeTruthy();
     expect(result.organization.name).toBe("Test Org");
     expect(result.organization.telephone).toBe("+1234567890");
   });
 
   test("does not include organization when metaComputed.organization is not set", () => {
-    const data = createSchemaData({
-      pageUrl: "/",
-      title: "Home",
-      siteName: "Test Organization",
-      metaComputed: {},
-    });
-
-    const result = buildOrganizationMeta(data);
-
-    expect(result.organization).toBeUndefined();
+    expect(
+      orgMeta({ siteName: "Test Organization", metaComputed: {} }).organization,
+    ).toBeUndefined();
   });
 
   test("does not include organization when metaComputed is not set", () => {
-    const data = createSchemaData({
-      pageUrl: "/",
-      title: "Home",
-      siteName: "Test Organization",
-    });
-
-    const result = buildOrganizationMeta(data);
-
-    expect(result.organization).toBeUndefined();
+    expect(
+      orgMeta({ siteName: "Test Organization" }).organization,
+    ).toBeUndefined();
   });
 });
