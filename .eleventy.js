@@ -23,6 +23,8 @@ import { configureTags } from "#collections/tags.js";
 import { configureAreaList } from "#eleventy/area-list.js";
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { configureCollectionLookup } from "#eleventy/collection-lookup.js";
+// Validation
+import { configureCollectionValidation } from "#eleventy/validate-collections.js";
 // Eleventy plugins
 import { configureCacheBuster } from "#eleventy/cache-buster.js";
 import { configureCachedBlock } from "#eleventy/cached-block.js";
@@ -62,6 +64,9 @@ export default async function (eleventyConfig) {
   eleventyConfig
     .addPassthroughCopy("src/assets")
     .addPassthroughCopy({ "src/assets/favicon/*": "/" });
+
+  // Static analysis: validates template collection references before build
+  configureCollectionValidation(eleventyConfig);
 
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
