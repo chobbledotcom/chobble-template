@@ -22,6 +22,7 @@
     "max_images": null
   },
   "timezone": null,
+  "show_product_review_counts": true,
   "reviews_truncate_limit": null,
   "rating_stars_uses_svg": true,
   "list_item_fields": null,

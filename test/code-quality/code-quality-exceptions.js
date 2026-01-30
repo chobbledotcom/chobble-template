@@ -337,7 +337,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 // grandfathered usages that should be refactored over time.
 const ALLOWED_OR_FALLBACKS = frozenSet([
   // src/_lib/config - config boundary validation
-  "src/_lib/config/helpers.js:46", // products || {} - defensive at config boundary
+  "src/_lib/config/helpers.js:47", // products || {} - defensive at config boundary
 
   // src/_lib/eleventy - build-time generation with optional data
   "src/_lib/eleventy/ical.js:42", // subtitle || meta_description || "" - optional event description
