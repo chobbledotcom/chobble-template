@@ -16,7 +16,7 @@
           "list": true,
           "label": "Features",
           "fields": {
-            "icon": { "type": "string", "label": "Icon (HTML entity)" },
+            "icon": { "type": "string", "label": "Icon (Iconify ID or HTML entity)" },
             "title": { "type": "string", "label": "Title", "required": true },
             "description": { "type": "string", "label": "Description", "required": true }
           }

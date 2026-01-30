@@ -1,5 +1,6 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
+import socialIcons from "#data/social-icons.json" with { type: "json" };
 import { dedupeAsync } from "#toolkit/fp/memoize.js";
 import { createHtml } from "#utils/dom-builder.js";
 
@@ -102,13 +103,33 @@ const renderIcon = async (icon) => {
 };
 
 /**
+ * Look up a social platform's Iconify icon ID from social-icons.json and return the SVG.
+ *
+ * @param {string} platform - Social platform name (e.g., "Github", "Facebook")
+ * @param {string} [baseDir] - Base directory for icon cache (defaults to process.cwd())
+ * @returns {Promise<string>} SVG content
+ * @throws {Error} If no icon is defined for the platform in social-icons.json
+ */
+const socialIcon = async (platform, baseDir) => {
+  const key = String(platform).toLowerCase().trim();
+  const iconId = socialIcons[key];
+  if (!iconId) {
+    throw new Error(
+      `No social icon defined for "${platform}". Add an entry for "${key}" in src/_data/social-icons.json`,
+    );
+  }
+  return getIcon(iconId, baseDir);
+};
+
+/**
  * Configure the icon filters for Eleventy.
  *
  * Usage in templates:
  *   {{ "hugeicons:help-circle" | icon }}     - Get raw SVG for Iconify icon
- *   {{ "mdi:home" | renderIcon }}            - Auto-detect and render any icon type
+ *   {{ "hugeicons:home-01" | renderIcon }}    - Auto-detect and render any icon type
  *   {{ "/images/icon.svg" | renderIcon }}    - Renders as <img> tag
  *   {{ "&#128640;" | renderIcon }}           - Passes through as-is
+ *   {{ "Github" | socialIcon }}              - Look up social icon from social-icons.json
  *
  * Icons are cached to src/assets/icons/iconify/ and can be committed to git.
  *
@@ -117,4 +138,5 @@ const renderIcon = async (icon) => {
 export const configureIconify = (eleventyConfig) => {
   eleventyConfig.addAsyncFilter("icon", getIcon);
   eleventyConfig.addAsyncFilter("renderIcon", renderIcon);
+  eleventyConfig.addAsyncFilter("socialIcon", socialIcon);
 };

@@ -14,7 +14,7 @@ const SAMPLE_SVG =
 const ICONS_SUBDIR = "src/assets/icons/iconify";
 
 // Extract async filters once
-const { icon, renderIcon } =
+const { icon, renderIcon, socialIcon } =
   withConfiguredMock(configureIconify)().asyncFilters;
 
 describe("iconify", () => {
@@ -191,6 +191,48 @@ describe("iconify", () => {
       withSubDirAsync("render-iconify", "", async () =>
         withMockFetch(SAMPLE_SVG, {}, async () => {
           const result = await renderIcon("test:icon");
+          expect(result).toBe(SAMPLE_SVG);
+        }),
+      ));
+  });
+
+  describe("socialIcon filter", () => {
+    test("Registers socialIcon as an async filter", () => {
+      expect(typeof socialIcon).toBe("function");
+    });
+
+    test("Throws for platform not in social-icons.json", async () => {
+      await expect(socialIcon("NonExistentPlatform")).rejects.toThrow(
+        /No social icon defined for "NonExistentPlatform"/,
+      );
+    });
+
+    test("Throws with helpful message suggesting to add entry", async () => {
+      await expect(socialIcon("Myspace")).rejects.toThrow(
+        /Add an entry for "myspace" in src\/_data\/social-icons\.json/,
+      );
+    });
+
+    test("Looks up icon for known platform and fetches SVG", () =>
+      withSubDirAsync("social-icon-fetch", "", async ({ tempDir }) =>
+        withMockFetch(SAMPLE_SVG, {}, async () => {
+          const result = await socialIcon("Github", tempDir);
+          expect(result).toBe(SAMPLE_SVG);
+        }),
+      ));
+
+    test("Normalizes platform name to lowercase", () =>
+      withSubDirAsync("social-icon-case", "", async ({ tempDir }) =>
+        withMockFetch(SAMPLE_SVG, {}, async () => {
+          const result = await socialIcon("GITHUB", tempDir);
+          expect(result).toBe(SAMPLE_SVG);
+        }),
+      ));
+
+    test("Trims whitespace from platform name", () =>
+      withSubDirAsync("social-icon-trim", "", async ({ tempDir }) =>
+        withMockFetch(SAMPLE_SVG, {}, async () => {
+          const result = await socialIcon("  Github  ", tempDir);
           expect(result).toBe(SAMPLE_SVG);
         }),
       ));
