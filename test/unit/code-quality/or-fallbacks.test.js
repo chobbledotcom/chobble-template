@@ -16,12 +16,7 @@
  *   const config = loadConfig();  // Fail fast if missing
  */
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_OR_FALLBACKS } from "#test/code-quality/code-quality-exceptions.js";
-import {
-  assertNoViolations,
-  createCodeChecker,
-  expectNoStaleExceptions,
-} from "#test/code-scanner.js";
+import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
 
 const THIS_FILE = "test/unit/code-quality/or-fallbacks.test.js";
@@ -64,7 +59,6 @@ const { find, analyze } = createCodeChecker({
       return true;
     }),
   excludeFiles: [THIS_FILE],
-  allowlist: ALLOWED_OR_FALLBACKS,
   extractData: (line) => {
     const match = line.match(DETAILS_EXTRACTOR);
     return match ? { fallback: match[1] } : { fallback: "unknown" };
@@ -134,13 +128,5 @@ describe("or-fallbacks", () => {
       fixHint:
         "set defaults in collections/computed data, or throw an error instead of masking the problem",
     });
-  });
-
-  test("ALLOWED_OR_FALLBACKS entries still exist", () => {
-    expectNoStaleExceptions(
-      ALLOWED_OR_FALLBACKS,
-      OR_FALLBACK_PATTERNS,
-      "ALLOWED_OR_FALLBACKS",
-    );
   });
 });

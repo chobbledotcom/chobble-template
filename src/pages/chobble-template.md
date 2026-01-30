@@ -1,4 +1,5 @@
 ---
+layout: design-system-base.html
 title: Chobble Template - Modern Static Site Generator for Small Businesses
 meta_title: Chobble Template - Complete Eleventy Starter for Small Business Websites
 meta_description: A free, open-source Eleventy template with e-commerce, 10 themes, 14 content types, and everything small businesses need to succeed online.
@@ -184,7 +185,7 @@ blocks:
 
   # Performance Split
   - type: split
-    section_class: ""
+    section_class: gradient
     container: true
     title: Fast. Really Fast.
     reveal_content: left

@@ -82,9 +82,10 @@ export default {
     if (image) return image;
     if (hasTag(data, "reviews")) return null;
     const config = data.config || getConfig();
-    return config.placeholder_images
-      ? getPlaceholderForPath(data.page.url)
-      : null;
+    if (!config.placeholder_images) return null;
+    const url = data.page?.url;
+    if (typeof url !== "string") return null;
+    return getPlaceholderForPath(url);
   },
 
   /**
@@ -140,7 +141,7 @@ export default {
 
   /**
    * Validates and applies default values to blocks. Works for any content
-   * with blocks, not just landing pages.
+   * with blocks.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {Array|undefined} Blocks with defaults applied
    * @throws {Error} If any block contains unknown keys

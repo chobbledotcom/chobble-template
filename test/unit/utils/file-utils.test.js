@@ -73,7 +73,6 @@ describe("file-utils", () => {
       expect(typeof mockConfig.filters.escape_html).toBe("function");
       expect(typeof mockConfig.asyncShortcodes.render_snippet).toBe("function");
       expect(typeof mockConfig.shortcodes.read_file).toBe("function");
-      expect(typeof mockConfig.shortcodes.read_code).toBe("function");
     });
   });
 
@@ -139,27 +138,6 @@ describe("file-utils", () => {
     test("Returns empty string for missing file", () => {
       testWithEmptyDir("read_file-missing", (mockConfig) => {
         expect(mockConfig.shortcodes.read_file("nonexistent.txt")).toBe("");
-      });
-    });
-  });
-
-  describe("read_code shortcode", () => {
-    test("Reads and escapes file content", () => {
-      testWithFile(
-        "read_code",
-        "test.html",
-        "<div>Hello</div>",
-        (mockConfig) => {
-          expect(mockConfig.shortcodes.read_code("test.html")).toBe(
-            "&lt;div&gt;Hello&lt;/div&gt;",
-          );
-        },
-      );
-    });
-
-    test("Returns empty string for missing file", () => {
-      testWithEmptyDir("read_code-missing", (mockConfig) => {
-        expect(mockConfig.shortcodes.read_code("nonexistent.txt")).toBe("");
       });
     });
   });

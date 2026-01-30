@@ -6,6 +6,7 @@ import { sortItems } from "#utils/sorting.js";
 
 export default {
   eleventyComputed: {
+    subtitle: (data) => data.subtitle || "",
     pdfFilename: (data) => buildPdfFilename(data.site.name, data.page.fileSlug),
     eleventyNavigation: (data) =>
       withNavigationAnchor(data, {

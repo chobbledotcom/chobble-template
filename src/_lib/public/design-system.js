@@ -66,7 +66,7 @@ const init = () => {
     });
   }
 
-  // Initialize sliders within design system with landing page defaults
+  // Initialize sliders within design system with default settings
   initSliders(`${SCOPE} .slider-container`, {
     itemSelector: ":scope > *",
     defaultWidth: 340,

@@ -36,9 +36,8 @@ describe("thumbnail-placeholder", () => {
       expect(getPlaceholderForPath(path)).toBe(getPlaceholderForPath(path));
     });
 
-    test("handles empty and null input", () => {
+    test("handles empty input", () => {
       expect(getPlaceholderForPath("")).toMatch(/\.svg$/);
-      expect(getPlaceholderForPath(null)).toMatch(/\.svg$/);
     });
 
     test("distributes paths across placeholders", () => {

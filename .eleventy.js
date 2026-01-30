@@ -10,7 +10,6 @@ import { configureCollectionUtils } from "#utils/collection-utils.js";
 import { configureCategories } from "#collections/categories.js";
 import { configureEvents } from "#collections/events.js";
 import { configureGuides } from "#collections/guides.js";
-import { configureLandingPages } from "#collections/landing-pages.js";
 import { configureLocations } from "#collections/locations.js";
 import { configureNews } from "#collections/news.js";
 import { configureMenus } from "#collections/menus.js";
@@ -91,7 +90,6 @@ export default async function (eleventyConfig) {
   configureGuides(eleventyConfig);
   configureHtmlTransform(eleventyConfig, processAndWrapImage);
   configureICal(eleventyConfig);
-  configureLandingPages(eleventyConfig);
   configureLinkList(eleventyConfig);
   await configureImages(eleventyConfig);
   configurePdf(eleventyConfig);

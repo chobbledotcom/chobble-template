@@ -67,13 +67,6 @@ const renderSnippet = memoize(
   { cacheKey: cacheKeyFromArgs },
 );
 
-const escapeHtml = (str) =>
-  str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-
 const configureFileUtils = (eleventyConfig) => {
   const mdRenderer = new markdownIt({ html: true });
 
@@ -81,7 +74,13 @@ const configureFileUtils = (eleventyConfig) => {
 
   eleventyConfig.addFilter("file_missing", (name) => !fileExists(name));
 
-  eleventyConfig.addFilter("escape_html", escapeHtml);
+  eleventyConfig.addFilter("escape_html", (str) =>
+    str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;"),
+  );
 
   eleventyConfig.addAsyncShortcode(
     "render_snippet",
@@ -91,10 +90,6 @@ const configureFileUtils = (eleventyConfig) => {
 
   eleventyConfig.addShortcode("read_file", (relativePath) =>
     readFileContent(relativePath),
-  );
-
-  eleventyConfig.addShortcode("read_code", (relativePath) =>
-    escapeHtml(readFileContent(relativePath)),
   );
 };
 

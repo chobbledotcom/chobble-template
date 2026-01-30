@@ -23,12 +23,12 @@ const getPdfRenderer = memoize(
 );
 
 function buildMenuPdfData(menu, menuCategories, menuItems) {
-  const items = menuItems || [];
+  const items = menuItems;
 
   const categories = pipe(
     filter((cat) => cat.data.menus?.includes(menu.fileSlug)),
     sort(sortItems),
-  )(menuCategories || []);
+  )(menuCategories);
 
   const itemsInCategory = (category) =>
     pipe(
@@ -36,7 +36,7 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
       map((item) => ({
         name: item.data.name,
         price: item.data.price,
-        description: item.data.description || "",
+        description: item.data.description,
         dietarySymbols: pipe(
           map((k) => k.symbol),
           join(" "),
@@ -71,7 +71,7 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
   return {
     businessName: site.name,
     menuTitle: menu.data.title,
-    subtitle: menu.data.subtitle || "",
+    subtitle: menu.data.subtitle,
     categories: pdfCategories,
     dietaryKeyString,
     hasDietaryKeys: allDietaryKeys.length > 0,

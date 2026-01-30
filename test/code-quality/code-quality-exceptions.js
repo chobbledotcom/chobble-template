@@ -256,12 +256,8 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/collections/products.js:94",
   "src/_lib/collections/search.js:26",
   "src/_lib/eleventy/ical.js:42",
-  "src/_lib/eleventy/ical.js:43",
-  "src/_lib/eleventy/pdf.js:39",
-  "src/_lib/eleventy/pdf.js:74",
-  "src/_lib/filters/filter-core.js:186",
-  "src/_lib/filters/filter-core.js:197",
-  "src/_lib/filters/filter-core.js:203",
+  "src/_lib/filters/filter-core.js:196",
+  "src/_lib/filters/filter-core.js:202",
   "src/_lib/utils/schema-helper.js:145",
   "src/_lib/utils/schema-helper.js:150",
 ]);
@@ -314,8 +310,8 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/category-product-filters.js:210", // Normalize null/undefined filters from templates
   "src/_lib/filters/filter-core.js:141",
   "src/_lib/filters/filter-core.js:142",
-  "src/_lib/filters/filter-core.js:197",
-  "src/_lib/filters/filter-core.js:203",
+  "src/_lib/filters/filter-core.js:196",
+  "src/_lib/filters/filter-core.js:202",
   "src/_lib/filters/item-filters.js:156", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
@@ -328,42 +324,6 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/utils/sorting.js:67", // eleventyNavigation.order (separate from item order)
 ]);
 
-// ============================================
-// OR fallback exceptions (|| [], || {}, || "", || null, || 0)
-// ============================================
-
-// Files that use || fallback patterns. Defaults should be set in collections
-// or computed data, not scattered throughout the codebase. These are
-// grandfathered usages that should be refactored over time.
-const ALLOWED_OR_FALLBACKS = frozenSet([
-  // src/_lib/config - config boundary validation
-  "src/_lib/config/helpers.js:47", // products || {} - defensive at config boundary
-
-  // src/_lib/eleventy - build-time generation with optional data
-  "src/_lib/eleventy/ical.js:42", // subtitle || meta_description || "" - optional event description
-  "src/_lib/eleventy/ical.js:43", // event_location || "" - optional location field
-  "src/_lib/eleventy/pdf.js:26", // menuItems || [] - menu may have no items
-  "src/_lib/eleventy/pdf.js:31", // menuCategories || [] - menu may have no categories
-  "src/_lib/eleventy/pdf.js:39", // description || "" - optional item description
-  "src/_lib/eleventy/pdf.js:74", // subtitle || "" - optional menu subtitle
-
-  // src/_lib/filters - cascading field access for display
-  "src/_lib/filters/filter-core.js:186", // title || name || "" - items have title OR name
-
-  // src/_lib/media - image processing
-  "src/_lib/media/thumbnail-placeholder.js:23", // itemPath || "" - path used for color generation
-  "src/_lib/media/unused-images.js:35", // .match() || [] - regex returns null on no match
-
-  // src/_lib/utils - mock filter attributes for fast builds
-  "src/_lib/utils/mock-filter-attributes.js:15", // inputPath || "" - handle undefined/null input
-
-  // src/_lib/utils - serialization utilities
-  "src/_lib/utils/product-cart-data.js:125", // max_quantity || null - explicit null in JSON
-  "src/_lib/utils/product-cart-data.js:126", // sku || null - explicit null in JSON
-  "src/_lib/utils/product-cart-data.js:127", // days || null - explicit null in JSON
-  "src/_lib/utils/schema-helper.js:109", // image cascade || null - intentional "first available or null"
-]);
-
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_PROCESS_CWD,
@@ -374,5 +334,4 @@ export {
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
   ALLOWED_NULLISH_COALESCING,
-  ALLOWED_OR_FALLBACKS,
 };
