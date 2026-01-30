@@ -41,7 +41,7 @@
       scrollbar-width: thin;
       scrollbar-color: var(--color-text-muted) transparent;
 
-      @include reduced-motion {
+      @include breakpoint.reduced-motion {
         scroll-behavior: auto;
       }
 

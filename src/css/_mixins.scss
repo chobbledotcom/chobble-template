@@ -336,42 +336,6 @@
 }
 
 // =============================================================================
-// MEDIA QUERY HELPERS
-// =============================================================================
-
-// Legacy aliases - delegate to breakpoints module
-@mixin mobile-only {
-  @include breakpoint.down("md") {
-    @content;
-  }
-}
-
-@mixin tablet-up {
-  @include breakpoint.up("md") {
-    @content;
-  }
-}
-
-@mixin desktop-up {
-  @include breakpoint.up("lg") {
-    @content;
-  }
-}
-
-@mixin large-desktop {
-  @include breakpoint.up("xl") {
-    @content;
-  }
-}
-
-// Reduced motion
-@mixin reduced-motion {
-  @include breakpoint.reduced-motion {
-    @content;
-  }
-}
-
-// =============================================================================
 // UTILITY MIXINS
 // =============================================================================
 
