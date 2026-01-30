@@ -1,7 +1,7 @@
-import { contentTypeData } from "#utils/content-type-data.js";
+import { linkableContent } from "#utils/linkable-content.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 
-export default contentTypeData("guide", {
+export default linkableContent("guide", {
   eleventyNavigation: (data) => {
     if (data.eleventyNavigation) {
       return withNavigationAnchor(data, data.eleventyNavigation);

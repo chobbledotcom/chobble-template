@@ -15,7 +15,7 @@
 import strings from "#data/strings.js";
 import { buildPermalink } from "#utils/slug-utils.js";
 
-const contentTypeData = (type, extraComputed = {}) => {
+const linkableContent = (type, extraComputed = {}) => {
   const nameKey = `${type}_name`;
   const dirKey = `${type}_permalink_dir`;
 
@@ -27,11 +27,11 @@ const contentTypeData = (type, extraComputed = {}) => {
 
   return {
     eleventyComputed: {
-      ...(strings[nameKey] ? { navigationParent: () => strings[nameKey] } : {}),
+      navigationParent: () => strings[nameKey],
       permalink: (data) => buildPermalink(data, strings[dirKey]),
       ...extraComputed,
     },
   };
 };
 
-export { contentTypeData };
+export { linkableContent };

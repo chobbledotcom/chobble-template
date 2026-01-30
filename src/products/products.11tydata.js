@@ -5,7 +5,7 @@ import {
   getHighlightedSpecs,
   getListItemSpecs,
 } from "#filters/spec-filters.js";
-import { contentTypeData } from "#utils/content-type-data.js";
+import { linkableContent } from "#utils/linkable-content.js";
 import {
   buildCartAttributes,
   computeOptions,
@@ -25,7 +25,7 @@ const getDefaultMaxQuantity = (data) => {
   return config.default_max_quantity;
 };
 
-export default contentTypeData("product", {
+export default linkableContent("product", {
   categories: (data) => (data.categories || []).map(normaliseSlug),
   gallery: computeGallery,
   product_mode: (data) => getProductMode(data),

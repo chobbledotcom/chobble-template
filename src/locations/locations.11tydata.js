@@ -1,11 +1,11 @@
 import strings from "#data/strings.js";
-import { contentTypeData } from "#utils/content-type-data.js";
+import { linkableContent } from "#utils/linkable-content.js";
 import {
   buildNavigation,
   withNavigationAnchor,
 } from "#utils/navigation-utils.js";
 
-export default contentTypeData("location", {
+export default linkableContent("location", {
   parentLocation: (data) => {
     const regex = new RegExp(
       `/${strings.location_permalink_dir}/([^/]+)/[^/]+\\.md$`,
