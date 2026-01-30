@@ -218,6 +218,17 @@ describe("customise-cms collections", () => {
     expect(resolved.length).toBe(2);
   });
 
+  test("snippets collection is both internal and required", () => {
+    const snippets = COLLECTIONS.find((c) => c.name === "snippets");
+    expect(snippets.internal).toBe(true);
+    expect(snippets.required).toBe(true);
+  });
+
+  test("getRequiredCollections includes snippets", () => {
+    const required = getRequiredCollections();
+    expect(required.some((c) => c.name === "snippets")).toBe(true);
+  });
+
   test("resolveDependencies removes duplicates", () => {
     const selected = ["products", "categories", "products"];
     const resolved = resolveDependencies(selected);
@@ -444,6 +455,22 @@ describe("customise-cms generator", () => {
     expect(pagesSection).not.toContain("name: specs");
     expect(pagesSection).not.toContain("name: features");
     expect(pagesSection).not.toContain("name: redirect_from");
+  });
+
+  test("generatePagesYaml always includes snippets collection", () => {
+    const config = createTestConfig({ collections: ["pages"] });
+    const yaml = generatePagesYaml(config);
+
+    expect(yaml).not.toContain("name: snippets");
+
+    // When snippets is in collections list, it appears
+    const configWithSnippets = createTestConfig({
+      collections: ["pages", "snippets"],
+    });
+    const yamlWithSnippets = generatePagesYaml(configWithSnippets);
+
+    expect(yamlWithSnippets).toContain("name: snippets");
+    expect(yamlWithSnippets).toContain("path: src/snippets");
   });
 
   test("generatePagesYaml includes file-based configurations", () => {
@@ -1316,6 +1343,13 @@ describe("customise-cms CLI", () => {
     expect(config.features.permalinks).toBe(true);
     expect(config.features.faqs).toBe(true);
     expect(config.features.galleries).toBe(true);
+  });
+
+  test("buildConfigFromCli always includes snippets in collections", () => {
+    const config = buildConfigFromCli({ collections: "products" });
+
+    expect(config.collections).toContain("snippets");
+    expect(config.collections).toContain("pages");
   });
 
   test("buildConfigFromCli with --collections parses comma-separated list", () => {

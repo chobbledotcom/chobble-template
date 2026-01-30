@@ -206,6 +206,7 @@ export const COLLECTIONS = [
     supportsTabs: false,
     supportsAddOns: false,
     internal: true,
+    required: true,
   },
 ];
 
