@@ -88,13 +88,6 @@ const toViolation = (file) => (v) => ({
   reason: `nested .${v.method}() inside iteration — likely O(n*m)`,
 });
 
-/** Analyze source files for nested array lookup violations. */
-const analyzeNestedLookups = () => ({
-  violations: SRC_JS_FILES().flatMap((file) =>
-    findNestedLookups(readSource(file)).map(toViolation(file)),
-  ),
-});
-
 describe("nested-array-lookup", () => {
   describe("findNestedLookups", () => {
     test("detects .find() inside .map() callback", () => {
@@ -206,7 +199,9 @@ describe("nested-array-lookup", () => {
   });
 
   test("No nested array lookups in source files", () => {
-    const { violations } = analyzeNestedLookups();
+    const violations = SRC_JS_FILES().flatMap((file) =>
+      findNestedLookups(readSource(file)).map(toViolation(file)),
+    );
 
     assertNoViolations(violations, {
       singular: "nested array lookup",
