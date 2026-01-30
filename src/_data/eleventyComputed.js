@@ -140,7 +140,7 @@ export default {
 
   /**
    * Validates and applies default values to blocks. Works for any content
-   * with blocks, not just landing pages.
+   * with blocks.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {Array|undefined} Blocks with defaults applied
    * @throws {Error} If any block contains unknown keys

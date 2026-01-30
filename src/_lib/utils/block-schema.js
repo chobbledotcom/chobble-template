@@ -1,5 +1,5 @@
 /**
- * Block schema definitions for landing page blocks.
+ * Block schema definitions for design system blocks.
  *
  * Each block type has a set of allowed keys. Unknown keys will cause
  * a build error to catch typos like "video_url" instead of "video_id".
