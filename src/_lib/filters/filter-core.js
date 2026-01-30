@@ -16,7 +16,7 @@ import {
 } from "#toolkit/fp/grouping.js";
 import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { mapBoth, toObject } from "#toolkit/fp/object.js";
-import { compareBy, compareStrings, descending } from "#toolkit/fp/sorting.js";
+import { compareBy, descending } from "#toolkit/fp/sorting.js";
 import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -58,9 +58,10 @@ export const parseFilterAttributes = (filterAttributes) =>
   filterAttributes ? parseFilterAttributesInner(filterAttributes) : {};
 
 /**
- * Convert filter object to URL path segment
+ * Convert filter object to URL path segment.
  * { size: "small", capacity: "3" } => "capacity/3/size/small"
- * Keys are sorted alphabetically
+ * Keys are sorted alphabetically for a stable URL regardless of object key order.
+ *
  * @param {FilterSet | null | undefined} filters - Filter object
  * @returns {string} URL path segment
  */
@@ -68,13 +69,12 @@ export const filterToPath = (filters) => {
   if (!filters || Object.keys(filters).length === 0) return "";
 
   return pipe(
-    sort(compareStrings),
     flatMap((key) => [
       encodeURIComponent(key),
       encodeURIComponent(filters[key]),
     ]),
     join("/"),
-  )(Object.keys(filters));
+  )(Object.keys(filters).sort());
 };
 
 /**
@@ -234,6 +234,13 @@ export const toSortedPath = (filters, sortKey) => {
 };
 
 /**
+ * Per-items cache for matched results. Uses memoizeByRef so each items
+ * array gets its own Map, and the Map is garbage collected when the
+ * items array is no longer referenced.
+ */
+const getMatchCache = memoizeByRef(() => new Map());
+
+/**
  * Get items that match a set of filters (without sorting).
  *
  * Results are cached per items array and filter path. When the same filter
@@ -242,26 +249,15 @@ export const toSortedPath = (filters, sortKey) => {
  * combinations × 5 sort options = 65,000 pages, this avoids ~52,000
  * redundant scans.
  *
- * The WeakMap is keyed by the items array reference, so each product set
- * (e.g. "all products" vs "products in category X") gets its own cache,
- * and the cache is automatically cleaned up when the items array is
- * garbage collected.
- *
  * @param {EleventyCollectionItem[]} items - All items
  * @param {FilterSet} filters - Filter object (can be empty)
  * @param {Object} lookup - Lookup table from buildItemLookup
  * @returns {EleventyCollectionItem[]} Matching items (unsorted)
  */
-const alreadyMatchedItems = new WeakMap();
-
 export const getMatchingItems = (items, filters, lookup) => {
   if (!filters || Object.keys(filters).length === 0) return items;
 
-  if (!alreadyMatchedItems.has(items)) {
-    alreadyMatchedItems.set(items, new Map());
-  }
-  const cache = alreadyMatchedItems.get(items);
-
+  const cache = getMatchCache(items);
   const path = filterToPath(filters);
   const cached = cache.get(path);
   if (cached) return cached;
