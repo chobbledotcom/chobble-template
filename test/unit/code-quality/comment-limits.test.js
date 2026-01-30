@@ -46,9 +46,6 @@ const JSDOC_TYPE_PATTERNS = [
   /@satisfies\b/,
 ];
 
-const isJSDocTypeLine = (line) =>
-  JSDOC_TYPE_PATTERNS.some((pattern) => pattern.test(line));
-
 const COMMENT_PATTERNS = {
   singleLine: /^\s*\/\//,
   blockStart: /^\s*\/\*/,
@@ -59,8 +56,6 @@ const COMMENT_PATTERNS = {
 const isBlockEnd = (line) => COMMENT_PATTERNS.blockEnd.test(line);
 const isBlockStart = (line) => COMMENT_PATTERNS.blockStart.test(line);
 const isSingleLine = (line) => COMMENT_PATTERNS.singleLine.test(line);
-const isJSDocStart = (line) => COMMENT_PATTERNS.jsdocStart.test(line);
-const isSingleLineBlock = (line) => isBlockStart(line) && isBlockEnd(line);
 
 const findHeaderEndLine = (lines) => {
   let headerEndLine = 0;
@@ -68,26 +63,21 @@ const findHeaderEndLine = (lines) => {
 
   for (const { line, num } of lines) {
     const trimmed = line.trim();
-
     if (trimmed === "") continue;
-
     if (inBlockComment) {
       headerEndLine = num;
       if (isBlockEnd(trimmed)) inBlockComment = false;
       continue;
     }
-
     if (isBlockStart(trimmed)) {
       headerEndLine = num;
       if (!isBlockEnd(trimmed)) inBlockComment = true;
       continue;
     }
-
     if (isSingleLine(trimmed)) {
       headerEndLine = num;
       continue;
     }
-
     break;
   }
 
@@ -101,32 +91,29 @@ const countInlineComments = (lines, headerEndLine) => {
 
   for (const { line, num } of lines) {
     if (num <= headerEndLine) continue;
-
     const trimmed = line.trim();
-
     if (inJSDocBlock) {
       if (isBlockEnd(trimmed)) inJSDocBlock = false;
       continue;
     }
-
     if (inRegularBlock) {
       inlineComments.push({ lineNumber: num, line: trimmed });
       if (isBlockEnd(trimmed)) inRegularBlock = false;
       continue;
     }
-
-    if (isJSDocStart(trimmed)) {
+    if (COMMENT_PATTERNS.jsdocStart.test(trimmed)) {
       if (!isBlockEnd(trimmed)) inJSDocBlock = true;
       continue;
     }
-
     if (isBlockStart(trimmed)) {
       inlineComments.push({ lineNumber: num, line: trimmed });
       if (!isBlockEnd(trimmed)) inRegularBlock = true;
       continue;
     }
-
-    if (isSingleLine(trimmed) && !isJSDocTypeLine(trimmed)) {
+    if (
+      isSingleLine(trimmed) &&
+      !JSDOC_TYPE_PATTERNS.some((pattern) => pattern.test(trimmed))
+    ) {
       inlineComments.push({ lineNumber: num, line: trimmed });
     }
   }
@@ -158,16 +145,6 @@ const expectExcessiveComments = (source, expectedCount) => {
 };
 
 const THIS_FILE = "test/unit/code-quality/comment-limits.test.js";
-
-const getExcessiveCommentViolations = () =>
-  analyzeFiles(
-    combineFileLists([SRC_JS_FILES()], [THIS_FILE]),
-    (source, relativePath) =>
-      findExcessiveComments(source).map((v) => ({
-        ...v,
-        file: relativePath,
-      })),
-  );
 
 describe("comment-limits", () => {
   test("Allows header comment block at file start", () => {
@@ -297,7 +274,14 @@ const b = 2;
   });
 
   test("No excessive inline comments in src/ files", () => {
-    const violations = getExcessiveCommentViolations();
+    const violations = analyzeFiles(
+      combineFileLists([SRC_JS_FILES()], [THIS_FILE]),
+      (source, relativePath) =>
+        findExcessiveComments(source).map((v) => ({
+          ...v,
+          file: relativePath,
+        })),
+    );
     assertNoViolations(violations, {
       singular: "file with excessive comments",
       plural: "files with excessive comments",

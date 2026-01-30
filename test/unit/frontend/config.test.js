@@ -32,6 +32,7 @@ describe("config", () => {
       "placeholder_images",
       "enable_theme_switcher",
       "timezone",
+      "show_product_review_counts",
       "reviews_truncate_limit",
       "rating_stars_uses_svg",
       "list_item_fields",

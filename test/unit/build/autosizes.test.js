@@ -28,33 +28,6 @@ const BASE_HTML = `
 </html>`;
 
 // ============================================
-// Mock PerformanceObserver injection script
-// ============================================
-
-const createPerformanceObserverScript = (supportsPaint = true) => `
-window.PerformanceObserver = class {
-  static supportedEntryTypes = ${supportsPaint ? '["paint"]' : "[]"};
-  constructor(callback) {
-    this.callback = callback;
-    this.observing = false;
-  }
-  observe() {
-    this.observing = true;
-    setTimeout(() => {
-      if (this.observing) {
-        this.callback({
-          getEntriesByName: (name) => name === "first-contentful-paint" ? [{ name }] : []
-        }, this);
-      }
-    }, 0);
-  }
-  disconnect() {
-    this.observing = false;
-  }
-};
-`;
-
-// ============================================
 // Test Setup Helper
 // ============================================
 
@@ -62,7 +35,6 @@ window.PerformanceObserver = class {
  * Execute script in window context using Node's vm module
  */
 const execScript = (window, script) => {
-  // Create a context with all necessary window properties
   const context = vm.createContext({
     window,
     document: window.document,
@@ -110,7 +82,29 @@ const createAutosizesTestEnv = (options = {}) => {
   });
 
   if (hasPerfObserver) {
-    execScript(window, createPerformanceObserverScript(supportsPaint));
+    const perfObserverScript = `
+window.PerformanceObserver = class {
+  static supportedEntryTypes = ${supportsPaint ? '["paint"]' : "[]"};
+  constructor(callback) {
+    this.callback = callback;
+    this.observing = false;
+  }
+  observe() {
+    this.observing = true;
+    setTimeout(() => {
+      if (this.observing) {
+        this.callback({
+          getEntriesByName: (name) => name === "first-contentful-paint" ? [{ name }] : []
+        }, this);
+      }
+    }, 0);
+  }
+  disconnect() {
+    this.observing = false;
+  }
+};
+`;
+    execScript(window, perfObserverScript);
   }
 
   const img = window.document.createElement("img");

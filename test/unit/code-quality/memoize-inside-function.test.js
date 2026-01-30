@@ -33,21 +33,6 @@ const findMemoizeInsideFunction = createBraceDepthScanner({
   skipLine: isCommentLine,
 });
 
-/** Build violation entry from a match */
-const toMemoizeViolation = (file) => (v) => ({
-  file,
-  line: v.lineNumber,
-  code: v.line,
-  reason: `memoize() called at brace depth ${v.braceDepth} - cache won't persist between calls`,
-});
-
-/** Analyze source files for memoize-inside-function violations. */
-const analyzeMemoizeInsideFunction = () => ({
-  violations: SRC_JS_FILES().flatMap((file) =>
-    findMemoizeInsideFunction(readSource(file)).map(toMemoizeViolation(file)),
-  ),
-});
-
 describe("memoize-inside-function", () => {
   describe("findMemoizeInsideFunction", () => {
     test("detects memoize inside a function", () => {
@@ -112,7 +97,14 @@ const secondViolation = () => {
   });
 
   test("No memoize() calls inside functions in source files", () => {
-    const { violations } = analyzeMemoizeInsideFunction();
+    const violations = SRC_JS_FILES().flatMap((file) =>
+      findMemoizeInsideFunction(readSource(file)).map((v) => ({
+        file,
+        line: v.lineNumber,
+        code: v.line,
+        reason: `memoize() called at brace depth ${v.braceDepth} - cache won't persist between calls`,
+      })),
+    );
 
     assertNoViolations(violations, {
       singular: "memoize() call inside function",

@@ -80,21 +80,16 @@ const extractFunctionNames = (source) => {
 };
 
 /**
- * Check if a file path is in an excluded directory.
+ * Find all duplicate function names (appearing in 2+ different files).
  */
-const isExcludedFile = (filePath) =>
-  [...EXCLUDED_DIRS].some((dir) => filePath.startsWith(`${dir}/`));
+const findDuplicateMethods = () => {
+  const allFiles = ALL_JS_FILES();
 
-/**
- * Build a map of function names to their locations across all files.
- * Returns Map<functionName, Array<{file, line}>>
- */
-const buildFunctionLocationMap = (files) => {
+  // Build location map
   const locationMap = new Map();
-
-  for (const file of files) {
+  for (const file of allFiles) {
     if (file === THIS_FILE) continue;
-    if (isExcludedFile(file)) continue;
+    if ([...EXCLUDED_DIRS].some((dir) => file.startsWith(`${dir}/`))) continue;
 
     const source = readSource(file);
     const functions = extractFunctionNames(source);
@@ -106,16 +101,6 @@ const buildFunctionLocationMap = (files) => {
       locationMap.get(func.name).push({ file, line: func.line });
     }
   }
-
-  return locationMap;
-};
-
-/**
- * Find all duplicate function names (appearing in 2+ different files).
- */
-const findDuplicateMethods = () => {
-  const allFiles = ALL_JS_FILES();
-  const locationMap = buildFunctionLocationMap(allFiles);
   const duplicates = [];
   const allowed = [];
 
@@ -153,23 +138,6 @@ const findDuplicateMethods = () => {
   }));
 
   return { violations, allowed, duplicates };
-};
-
-/**
- * Print detailed duplicate report for analysis.
- */
-const printDuplicateReport = (duplicates) => {
-  console.log(`\n${"=".repeat(60)}`);
-  console.log(`DUPLICATE FUNCTION NAMES: ${duplicates.length} found`);
-  console.log(`${"=".repeat(60)}\n`);
-
-  for (const dup of duplicates) {
-    console.log(`"${dup.name}" - ${dup.fileCount} files:`);
-    for (const loc of dup.locations) {
-      console.log(`  - ${loc.file}:${loc.line}`);
-    }
-    console.log("");
-  }
 };
 
 // ============================================
@@ -210,9 +178,17 @@ function actual() {}
   test("No duplicate function names across files", () => {
     const { violations, duplicates } = findDuplicateMethods();
 
-    // Print detailed report for analysis
     if (duplicates.length > 0) {
-      printDuplicateReport(duplicates);
+      console.log(`\n${"=".repeat(60)}`);
+      console.log(`DUPLICATE FUNCTION NAMES: ${duplicates.length} found`);
+      console.log(`${"=".repeat(60)}\n`);
+      for (const dup of duplicates) {
+        console.log(`"${dup.name}" - ${dup.fileCount} files:`);
+        for (const loc of dup.locations) {
+          console.log(`  - ${loc.file}:${loc.line}`);
+        }
+        console.log("");
+      }
     }
 
     assertNoViolations(violations, {

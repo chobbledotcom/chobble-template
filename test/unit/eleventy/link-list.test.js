@@ -2,14 +2,12 @@ import { describe, expect, test } from "bun:test";
 import { configureLinkList, linkList } from "#eleventy/link-list.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
-const createItem = (slug, title, url) => ({
-  fileSlug: slug,
-  url,
-  data: { title },
-});
-
 const createCollection = (items) =>
-  items.map(([slug, title, url]) => createItem(slug, title, url));
+  items.map(([slug, title, url]) => ({
+    fileSlug: slug,
+    url,
+    data: { title },
+  }));
 
 describe("link-list", () => {
   test("Registers linkList filter with Eleventy", () => {

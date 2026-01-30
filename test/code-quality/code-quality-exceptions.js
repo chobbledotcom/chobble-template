@@ -185,24 +185,9 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
   "src/_lib/public/theme/theme-editor-lib.js",
-  "test/integration/build/image.test.js",
-  "test/integration/test-site-factory.test.js",
-  "test/unit/build/autosizes.test.js",
-  "test/unit/build/scss.variables.test.js",
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/duplicate-methods.test.js",
-  "test/unit/code-quality/function-length.test.js",
   "test/unit/code-quality/html-in-js.test.js",
-  "test/unit/code-quality/inline-type-annotations.test.js",
-  "test/unit/code-quality/knip.test.js",
-  "test/unit/code-quality/memoize-inside-function.test.js",
-  "test/unit/code-quality/test-quality.test.js",
-  "test/unit/code-quality/test-only-exports.test.js",
-  "test/unit/code-quality/try-catch-usage.test.js",
-  "test/unit/collections/news.test.js",
-  "test/unit/collections/reviews.test.js",
-  "test/unit/eleventy/link-list.test.js", // Factory helpers for test fixtures
-  "test/unit/frontend/quote-steps.test.js",
 ]);
 
 // ============================================
@@ -352,7 +337,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 // grandfathered usages that should be refactored over time.
 const ALLOWED_OR_FALLBACKS = frozenSet([
   // src/_lib/config - config boundary validation
-  "src/_lib/config/helpers.js:46", // products || {} - defensive at config boundary
+  "src/_lib/config/helpers.js:47", // products || {} - defensive at config boundary
 
   // src/_lib/eleventy - build-time generation with optional data
   "src/_lib/eleventy/ical.js:42", // subtitle || meta_description || "" - optional event description
