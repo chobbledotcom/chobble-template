@@ -89,6 +89,16 @@ export default {
   },
 
   /**
+   * Relationship array fields - ensure always arrays so downstream code
+   * (createArrayFieldIndexer, etc.) never encounters undefined.
+   */
+  categories: (data) => data.categories ?? [],
+  events: (data) => data.events ?? [],
+  locations: (data) => data.locations ?? [],
+  products: (data) => data.products ?? [],
+  properties: (data) => data.properties ?? [],
+
+  /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {number} Sort order (9999 if not defined, sorts last)
    */

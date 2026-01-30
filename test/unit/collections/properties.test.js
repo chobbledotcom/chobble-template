@@ -75,7 +75,7 @@ describe("properties", () => {
       ["Property 1", ["springfield", "shelbyville"]],
       ["Property 2", ["capital-city"]],
       ["Property 3", ["springfield"]],
-      ["Property 4", undefined],
+      ["Property 4", []],
     );
     expectResultTitles(getPropertiesByLocation(props, "springfield"), [
       "Property 1",
@@ -85,8 +85,8 @@ describe("properties", () => {
 
   test("Handles properties without locations", () => {
     const props = withLoc(
-      ["Property 1", undefined],
-      ["Property 2", null],
+      ["Property 1", []],
+      ["Property 2", []],
       ["Property 3", []],
     );
     expect(getPropertiesByLocation(props, "springfield").length).toBe(0);

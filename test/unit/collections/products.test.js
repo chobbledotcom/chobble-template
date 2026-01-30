@@ -209,7 +209,7 @@ describe("products", () => {
       const { filters } = setupProductsConfig();
       const testProducts = categoryProduct(
         ["Product 1", []],
-        ["Product 2", null],
+        ["Product 2", []],
         ["Product 3", []],
       );
 
@@ -279,7 +279,7 @@ describe("products", () => {
         ["Product 1", ["summer-sale", "black-friday"]],
         ["Product 2", ["winter-sale"]],
         ["Product 3", ["summer-sale"]],
-        ["Product 4", undefined],
+        ["Product 4", []],
       );
 
       const result = filters.getProductsByEvent(testProducts, "summer-sale");

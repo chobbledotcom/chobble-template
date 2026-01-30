@@ -82,7 +82,7 @@ export const buildUIWithLookup = (
   currentSortKey = "default",
   count = 2,
 ) => {
-  const filters = currentFilters ? currentFilters : {};
+  const filters = currentFilters;
 
   if (Object.keys(filterData.attributes).length === 0) {
     return { hasFilters: false };
