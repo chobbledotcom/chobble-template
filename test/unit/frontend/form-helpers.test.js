@@ -7,51 +7,22 @@ import {
 import { expectObjectProps, expectProp } from "#test/test-utils.js";
 
 describe("form-helpers", () => {
-  // getFieldTemplate function tests
   describe("getFieldTemplate", () => {
-    test("returns textarea template for textarea type", () => {
-      const result = getFieldTemplate({ type: "textarea" });
-      expect(result).toBe("form-field-textarea.html");
-    });
-
-    test("returns select template for select type", () => {
-      const result = getFieldTemplate({ type: "select" });
-      expect(result).toBe("form-field-select.html");
-    });
-
-    test("returns radio template for radio type", () => {
-      const result = getFieldTemplate({ type: "radio" });
-      expect(result).toBe("form-field-radio.html");
-    });
-
-    test("returns input template for text type", () => {
-      const result = getFieldTemplate({ type: "text" });
-      expect(result).toBe("form-field-input.html");
-    });
-
-    test("returns input template for email type", () => {
-      const result = getFieldTemplate({ type: "email" });
-      expect(result).toBe("form-field-input.html");
-    });
-
-    test("returns input template for date type", () => {
-      const result = getFieldTemplate({ type: "date" });
-      expect(result).toBe("form-field-input.html");
-    });
-
-    test("returns input template for tel type", () => {
-      const result = getFieldTemplate({ type: "tel" });
-      expect(result).toBe("form-field-input.html");
+    test.each([
+      { type: "textarea", expected: "form-field-textarea.html" },
+      { type: "select", expected: "form-field-select.html" },
+      { type: "radio", expected: "form-field-radio.html" },
+      { type: "text", expected: "form-field-input.html" },
+      { type: "email", expected: "form-field-input.html" },
+      { type: "date", expected: "form-field-input.html" },
+      { type: "tel", expected: "form-field-input.html" },
+      { type: "unknown", expected: "form-field-input.html" },
+    ])("returns $expected for $type type", ({ type, expected }) => {
+      expect(getFieldTemplate({ type })).toBe(expected);
     });
 
     test("returns input template when type is undefined", () => {
-      const result = getFieldTemplate({});
-      expect(result).toBe("form-field-input.html");
-    });
-
-    test("returns input template for unknown type", () => {
-      const result = getFieldTemplate({ type: "unknown" });
-      expect(result).toBe("form-field-input.html");
+      expect(getFieldTemplate({})).toBe("form-field-input.html");
     });
   });
 

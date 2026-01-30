@@ -6,28 +6,15 @@ import {
 
 describe("external-links transform", () => {
   describe("isExternalUrl", () => {
-    test("returns true for HTTPS URLs", () => {
-      expect(isExternalUrl("https://example.com")).toBe(true);
-    });
-
-    test("returns true for HTTP URLs", () => {
-      expect(isExternalUrl("http://example.com")).toBe(true);
-    });
-
-    test("returns false for relative URLs", () => {
-      expect(isExternalUrl("/about")).toBe(false);
-    });
-
-    test("returns false for hash links", () => {
-      expect(isExternalUrl("#section")).toBe(false);
-    });
-
-    test("returns false for mailto links", () => {
-      expect(isExternalUrl("mailto:test@example.com")).toBe(false);
-    });
-
-    test("returns false for tel links", () => {
-      expect(isExternalUrl("tel:01234567890")).toBe(false);
+    test.each([
+      { url: "https://example.com", expected: true, label: "HTTPS URL" },
+      { url: "http://example.com", expected: true, label: "HTTP URL" },
+      { url: "/about", expected: false, label: "relative URL" },
+      { url: "#section", expected: false, label: "hash link" },
+      { url: "mailto:test@example.com", expected: false, label: "mailto link" },
+      { url: "tel:01234567890", expected: false, label: "tel link" },
+    ])("returns $expected for $label", ({ url, expected }) => {
+      expect(isExternalUrl(url)).toBe(expected);
     });
   });
 
@@ -93,16 +80,9 @@ describe("external-links transform", () => {
       expect(result).toContain('id="link1"');
     });
 
-    test("does nothing when config is null", () => {
+    test.each([null, undefined])("does nothing when config is %p", (config) => {
       const html = '<a href="https://example.com">Link</a>';
-      const result = addExternalLinkAttrs(html, null);
-
-      expect(result).not.toContain('target="_blank"');
-    });
-
-    test("does nothing when config is undefined", () => {
-      const html = '<a href="https://example.com">Link</a>';
-      const result = addExternalLinkAttrs(html, undefined);
+      const result = addExternalLinkAttrs(html, config);
 
       expect(result).not.toContain('target="_blank"');
     });
@@ -141,24 +121,21 @@ describe("external-links transform", () => {
       expect(result).toContain('target="_blank"');
     });
 
-    test("overwrites existing target attribute on external links", () => {
-      const html = '<a href="https://example.com" target="_self">Link</a>';
+    test.each([
+      { attr: "target", expected: "_blank", old: "_self" },
+      { attr: "rel", expected: "noopener noreferrer", old: "author" },
+    ])("overwrites existing $attr attribute on external links", ({
+      attr,
+      expected,
+      old,
+    }) => {
+      const html = `<a href="https://example.com" ${attr}="${old}">Link</a>`;
       const result = addExternalLinkAttrs(html, {
         externalLinksTargetBlank: true,
       });
 
-      expect(result).toContain('target="_blank"');
-      expect(result).not.toContain('target="_self"');
-    });
-
-    test("overwrites existing rel attribute on external links", () => {
-      const html = '<a href="https://example.com" rel="author">Link</a>';
-      const result = addExternalLinkAttrs(html, {
-        externalLinksTargetBlank: true,
-      });
-
-      expect(result).toContain('rel="noopener noreferrer"');
-      expect(result).not.toContain('rel="author"');
+      expect(result).toContain(`${attr}="${expected}"`);
+      expect(result).not.toContain(`${attr}="${old}"`);
     });
   });
 });
