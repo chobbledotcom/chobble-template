@@ -106,7 +106,7 @@ const renderIcon = async (icon) => {
  *
  * Usage in templates:
  *   {{ "hugeicons:help-circle" | icon }}     - Get raw SVG for Iconify icon
- *   {{ "mdi:home" | renderIcon }}            - Auto-detect and render any icon type
+ *   {{ "hugeicons:home-01" | renderIcon }}    - Auto-detect and render any icon type
  *   {{ "/images/icon.svg" | renderIcon }}    - Renders as <img> tag
  *   {{ "&#128640;" | renderIcon }}           - Passes through as-is
  *

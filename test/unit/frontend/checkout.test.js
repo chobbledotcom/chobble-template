@@ -44,6 +44,12 @@ const liquid = new Liquid({
   extname: ".html",
 });
 
+// Register icon filter used by cart-icon.html
+liquid.registerFilter(
+  "icon",
+  () => '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>',
+);
+
 // Read and render actual Liquid templates
 const renderTemplate = async (templatePath, data = {}) => {
   const fullPath = path.join(rootDir, templatePath);
