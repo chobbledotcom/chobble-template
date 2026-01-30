@@ -7,14 +7,15 @@
 // =============================================================================
 // All styles are scoped to .design-system to avoid affecting other page content
 
-.design-system {
-  // ===========================================================================
-  // CSS CUSTOM PROPERTIES (scoped)
-  // ===========================================================================
-  // Default values for all design system CSS variables.
-  // Themes override these by setting the same variables in theme.scss.
-  // Compile-time customization via _theme-variables.scss SCSS overrides.
+// =============================================================================
+// CSS CUSTOM PROPERTIES (at :root for theme overridability)
+// =============================================================================
+// All design system CSS variables are declared at :root so that theme.scss
+// (loaded last in bundle.scss) can override them at the same specificity level
+// via cascade order. If these were scoped inside .design-system (0-1-0), they
+// would beat :root overrides (0-0-1), making theme changes impossible.
 
+:root {
   --color-bg: #{$color-bg};
   --color-bg-alt: #{$color-bg-alt};
   --color-card-bg: #{$color-card-bg};
@@ -29,9 +30,9 @@
   --font-family-body: #{$font-sans};
   --font-family-heading: #{$font-sans};
   --font-family-mono: #{$font-mono};
+}
 
-  // ===========================================================================
-  // BASE RESET (scoped)
+.design-system {
   // ===========================================================================
   // Zero out all margins and paddings. Spacing is controlled exclusively
   // through flexbox/grid gap at the container level.
