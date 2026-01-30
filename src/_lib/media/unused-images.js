@@ -32,7 +32,7 @@ export const extractUsedImages = (inputDir, imageFiles, file) => {
   const contentImages = pipe(
     map(extractFilename),
     filter(isValidImageName),
-  )(content.match(IMAGE_REF_PATTERN) || []);
+  )(Array.from(content.matchAll(IMAGE_REF_PATTERN), (m) => m[0]));
 
   return [...frontmatterImages, ...contentImages];
 };

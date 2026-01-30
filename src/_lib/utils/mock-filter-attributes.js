@@ -11,8 +11,8 @@ import { hashString } from "#media/thumbnail-placeholder.js";
  * @param {string} inputPath - The file path of the item
  * @returns {Array<{name: string, value: string}>}
  */
-const generateMockFilterAttributes = (inputPath) => {
-  const hash = hashString(inputPath || "");
+const generateMockFilterAttributes = (inputPath = "") => {
+  const hash = hashString(inputPath);
   return [
     { name: "Foo Attribute", value: hash % 2 === 0 ? "foo" : "bar" },
     { name: "Bar Attribute", value: hash % 3 === 0 ? "foo" : "bar" },

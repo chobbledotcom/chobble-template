@@ -20,7 +20,7 @@ const getPlaceholderForPath = (itemPath) =>
     (hash) => hash % PLACEHOLDER_COLORS.length,
     (index) => PLACEHOLDER_COLORS[index],
     (color) => `images/placeholders/${color}.svg`,
-  )(itemPath || "");
+  )(itemPath);
 
 const configureThumbnailPlaceholder = (eleventyConfig) => {
   eleventyConfig.addFilter("thumbnailPlaceholder", getPlaceholderForPath);

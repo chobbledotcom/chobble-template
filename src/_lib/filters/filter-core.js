@@ -182,8 +182,7 @@ export const countMatches = (lookup, filters, totalItems) =>
 // ============================================================================
 
 /** @param {EleventyCollectionItem} item */
-const getName = (item) =>
-  (item.data.title || item.data.name || "").toLowerCase();
+const getName = (item) => (item.data.title || item.data.name).toLowerCase();
 
 /**
  * Available sort options with display label and comparator.
