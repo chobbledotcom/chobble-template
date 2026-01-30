@@ -254,7 +254,6 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/collections/categories.js:65",
   "src/_lib/collections/events.js:23",
   "src/_lib/collections/products.js:94",
-  "src/_lib/collections/search.js:26",
   "src/_lib/eleventy/ical.js:42",
   "src/_lib/filters/filter-core.js:196",
   "src/_lib/filters/filter-core.js:202",
@@ -300,19 +299,13 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/build/scss.js:23", // Lazy module loading pattern
   "src/_lib/build/theme-compiler.js:51", // Theme variables extraction fallback
 
-  // src/_lib/eleventy - Eleventy plugins
-  "src/_lib/eleventy/capture.js:32",
-  "src/_lib/eleventy/capture.js:39",
-
-  // src/_lib/filters - URL-based filtering, normalize template inputs
-  "src/_lib/filters/category-product-filters.js:146", // Default empty array for categories without products
-  "src/_lib/filters/category-product-filters.js:205", // Default empty array for pages lookup
-  "src/_lib/filters/category-product-filters.js:210", // Normalize null/undefined filters from templates
-  "src/_lib/filters/filter-core.js:141",
+  // src/_lib/filters - URL-based filtering
+  "src/_lib/filters/category-product-filters.js:212", // Liquid template boundary (currentFilters from template can be null)
+  "src/_lib/filters/filter-core.js:141", // Lazy init nested lookup (??= avoids object-mutation violation)
   "src/_lib/filters/filter-core.js:142",
   "src/_lib/filters/filter-core.js:196",
   "src/_lib/filters/filter-core.js:202",
-  "src/_lib/filters/item-filters.js:156", // Normalize null/undefined filters from templates
+  "src/_lib/filters/item-filters.js:143", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:104",
@@ -320,7 +313,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions
-  "src/_lib/utils/collection-utils.js:82",
+  "src/_lib/utils/collection-utils.js:82", // CMS boundary: frontmatter array fields may be null before eleventyComputed
   "src/_lib/utils/sorting.js:67", // eleventyNavigation.order (separate from item order)
 ]);
 

@@ -30,7 +30,6 @@ const itemFilterConfigs = [
     collections: {
       pages: "filteredProductPages",
       redirects: "filterRedirects",
-      attributes: "filterAttributes",
     },
     uiDataFilterName: "buildFilterUIData",
   },

@@ -143,7 +143,7 @@ const computeAllCategoryData = memoizeByRef(
     const grouped = productsByCategory(products);
 
     const categoryData = mapFilter((category) =>
-      buildCategoryData(category.fileSlug, grouped[category.fileSlug] ?? []),
+      buildCategoryData(category.fileSlug, grouped[category.fileSlug]),
     )(categories);
 
     return {
@@ -202,7 +202,9 @@ const categoryFilterData = (
   const filterData = categoryFilterAttrs[categorySlug];
   if (!filterData) return { hasFilters: false };
 
-  const categoryPages = pagesByCategory(filteredPages)[categorySlug] ?? [];
+  const categoryPages = pagesByCategory(filteredPages)[categorySlug];
+  if (!categoryPages) return { hasFilters: false };
+
   const baseUrl = `/categories/${categorySlug}`;
 
   return buildFilterUIData(

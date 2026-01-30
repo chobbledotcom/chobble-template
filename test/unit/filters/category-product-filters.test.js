@@ -81,7 +81,7 @@ describe("category-product-filters", () => {
 
   describe("categoryFilterData", () => {
     test("Returns hasFilters false when category has no filter data", () => {
-      const result = categoryFilterData({}, "widgets", null, []);
+      const result = categoryFilterData({}, "widgets", {}, []);
       expect(result.hasFilters).toBe(false);
     });
 
@@ -89,7 +89,7 @@ describe("category-product-filters", () => {
       const result = categoryFilterData(
         widgetFilterAttrs(),
         "widgets",
-        null,
+        {},
         widgetFilteredPages(),
       );
       expect(result.hasFilters).toBe(true);
@@ -107,7 +107,7 @@ describe("category-product-filters", () => {
       const result = categoryFilterData(
         widgetFilterAttrs(["small", "large"]),
         "widgets",
-        null,
+        {},
         mixedPages,
         "default",
         10, // count > 1 to show filters
@@ -122,7 +122,7 @@ describe("category-product-filters", () => {
       const result = categoryFilterData(
         widgetFilterAttrs(["small"]), // Only 1 size option
         "widgets",
-        null,
+        {},
         widgetFilteredPages(["size/small"]),
         "default",
         10,

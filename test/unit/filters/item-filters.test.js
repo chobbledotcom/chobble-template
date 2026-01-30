@@ -71,7 +71,7 @@ const typeSizeData = () =>
 /** Common item with Pet Friendly and Type attributes */
 const petTypeItem = (petValue = "Yes", typeValue = "Cottage") =>
   filterItem(
-    null,
+    "Test Item",
     filterAttr("Pet Friendly", petValue),
     filterAttr("Type", typeValue),
   );
@@ -184,7 +184,9 @@ describe("item-filters", () => {
   describe("attributes collection", () => {
     test("returns attributes and display lookup structure", () => {
       const { getAttributes } = setupConfig();
-      const testItems = [filterItem(null, filterAttr("Pet Friendly", "Yes"))];
+      const testItems = [
+        filterItem("Test Item", filterAttr("Pet Friendly", "Yes")),
+      ];
 
       const attrs = getAttributes(testItems);
 
@@ -196,7 +198,7 @@ describe("item-filters", () => {
       const { getAttributes } = setupConfig();
       const testItems = [
         filterItem(
-          null,
+          "Test Item",
           filterAttr("Pet Friendly", "Yes"),
           filterAttr("Beach Access", "Private Beach"),
         ),
@@ -212,7 +214,7 @@ describe("item-filters", () => {
       const { getAttributes } = setupConfig();
       const testItems = [
         filterItem(
-          null,
+          "Test Item",
           filterAttr("Pet Friendly", "Yes"),
           filterAttr("Type", "Cottage"),
         ),
@@ -231,8 +233,8 @@ describe("item-filters", () => {
     test("first capitalization wins for duplicate keys in display lookup", () => {
       const { getAttributes } = setupConfig();
       const testItems = [
-        filterItem(null, filterAttr("Pet Friendly", "YES")),
-        filterItem(null, filterAttr("pet friendly", "yes")),
+        filterItem("Item A", filterAttr("Pet Friendly", "YES")),
+        filterItem("Item B", filterAttr("pet friendly", "yes")),
       ];
 
       const attrs = getAttributes(testItems);
@@ -247,7 +249,7 @@ describe("item-filters", () => {
       const { getAttributes } = setupConfig();
       const testItems = [
         filterItem("No filters"),
-        filterItem(null, filterAttr("Size", "Large")),
+        filterItem("Has filters", filterAttr("Size", "Large")),
       ];
 
       const attrs = getAttributes(testItems);
@@ -262,12 +264,12 @@ describe("item-filters", () => {
       const { getAttributes } = setupConfig();
       const testItems = [
         filterItem(
-          null,
+          "Cottage",
           filterAttr("Type", "Cottage"),
           filterAttr("Bedrooms", "2"),
         ),
         filterItem(
-          null,
+          "Apartment",
           filterAttr("Type", "Apartment"),
           filterAttr("Bedrooms", "3"),
         ),
@@ -281,7 +283,9 @@ describe("item-filters", () => {
 
     test("handles whitespace in attribute names and values via slugify", () => {
       const { getAttributes } = setupConfig();
-      const testItems = [filterItem(null, filterAttr("  Size  ", "  Large  "))];
+      const testItems = [
+        filterItem("Test Item", filterAttr("  Size  ", "  Large  ")),
+      ];
 
       const attrs = getAttributes(testItems);
 
@@ -315,7 +319,9 @@ describe("item-filters", () => {
 
     test("generates paths for single filter values", () => {
       const { getPages } = setupConfig();
-      const testItems = [filterItem(null, filterAttr("Type", "Cottage"))];
+      const testItems = [
+        filterItem("Test Item", filterAttr("Type", "Cottage")),
+      ];
 
       const pagesResult = getPages(testItems);
       const paths = pagesResult.map((p) => p.path);
@@ -449,7 +455,11 @@ describe("item-filters", () => {
     test("generates redirects for partial paths", () => {
       const { getRedirects } = setupConfig({ permalinkDir: "items" });
       const testItems = [
-        filterItem(null, filterAttr("Type", "A"), filterAttr("Size", "Large")),
+        filterItem(
+          "Test Item",
+          filterAttr("Type", "A"),
+          filterAttr("Size", "Large"),
+        ),
       ];
 
       const redirects = getRedirects(testItems);
@@ -461,7 +471,7 @@ describe("item-filters", () => {
 
     test("redirects point to search URLs", () => {
       const { getRedirects } = setupConfig({ permalinkDir: "items" });
-      const testItems = [filterItem(null, filterAttr("Type", "A"))];
+      const testItems = [filterItem("Test Item", filterAttr("Type", "A"))];
 
       const redirects = getRedirects(testItems);
 
@@ -473,7 +483,7 @@ describe("item-filters", () => {
 
     test("generates redirects for attribute keys without values", () => {
       const { getRedirects } = setupConfig({ permalinkDir: "products" });
-      const testItems = [filterItem(null, filterAttr("Type", "A"))];
+      const testItems = [filterItem("Test Item", filterAttr("Type", "A"))];
 
       const redirects = getRedirects(testItems);
 
@@ -505,7 +515,7 @@ describe("item-filters", () => {
       });
       const validPages = pages(["type/a"]);
 
-      const result = mock.getFilter("testUI")(data, null, validPages);
+      const result = mock.getFilter("testUI")(data, {}, validPages);
 
       expect(result.clearAllUrl).toBe("/my-items/#content");
     });
@@ -514,7 +524,7 @@ describe("item-filters", () => {
       const { getUIData } = setupConfig();
       const data = filterData({});
 
-      const result = getUIData(data, null, []);
+      const result = getUIData(data, {}, []);
 
       expect(result.hasFilters).toBe(false);
     });
@@ -536,7 +546,7 @@ describe("item-filters", () => {
         "size/small/type/cottage",
       ]);
 
-      const result = getUIData(data, null, validPages);
+      const result = getUIData(data, {}, validPages);
 
       expect(result.hasFilters).toBe(true);
       expect(result.hasActiveFilters).toBe(false);
@@ -585,7 +595,7 @@ describe("item-filters", () => {
         },
       });
       const validPages = pages(["type/cottage", "type/apartment"]);
-      const result = getUIData(data, null, validPages);
+      const result = getUIData(data, {}, validPages);
 
       // groups[0] is sort (always 5 options), groups[1] is type
       const typeGroup = result.groups.find((g) => g.name === "type");
@@ -602,7 +612,7 @@ describe("item-filters", () => {
       // Only type/cottage is valid, size/small is not
       const validPages = pages(["type/cottage"]);
 
-      const result = getUIData(data, null, validPages);
+      const result = getUIData(data, {}, validPages);
 
       // sort is shown (count defaults to 2), but type is hidden (only 1 option)
       // size is excluded (no valid options)
@@ -621,7 +631,7 @@ describe("item-filters", () => {
       });
       const validPages = pages(["type/cottage", "type/villa"]);
 
-      const result = getUIData(data, null, validPages);
+      const result = getUIData(data, {}, validPages);
 
       // sort + type (type has 2 options)
       expect(result.groups.length).toBe(2);

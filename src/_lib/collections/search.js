@@ -23,7 +23,8 @@ const buildProductKeywordMap = memoizeByRef((products) =>
           .replace(/-/g, " "),
       ),
       (categoryKeywords) => [
-        ...(product.data.keywords || []),
+        product.data.title.toLowerCase(),
+        ...product.data.keywords,
         ...categoryKeywords,
       ],
       unique,
