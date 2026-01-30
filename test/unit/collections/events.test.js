@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { categoriseEvents, configureEvents } from "#collections/events.js";
+import { categoriseEvents } from "#collections/categorise-events.js";
+import { configureEvents } from "#collections/events.js";
 import { expectResultTitles, getCollectionFrom } from "#test/test-utils.js";
 import {
   createEvent,
@@ -274,6 +275,28 @@ describe("featuredEvents collection", () => {
     const result = getFeatured({ events, products });
     expect(result).toHaveLength(1);
     expect(result[0].data.thumbnail).toBe("thumb.jpg");
+  });
+});
+
+describe("categorisedEvents collection", () => {
+  const getCategorised =
+    getCollectionFrom("categorisedEvents")(configureEvents);
+
+  test("returns categorised events object", () => {
+    const events = createEvents([
+      { title: "Future Event" },
+      { title: "Past Event", daysOffset: -30 },
+      { title: "Weekly Meeting", recurring: "Every Monday" },
+    ]);
+    const result = getCategorised({ events, products: [] });
+    expect(result.upcoming).toHaveLength(1);
+    expect(result.past).toHaveLength(1);
+    expect(result.regular).toHaveLength(1);
+  });
+
+  test("returns empty categories when no events", () => {
+    const result = getCategorised({ events: [], products: [] });
+    expectEventCounts(result, {});
   });
 });
 

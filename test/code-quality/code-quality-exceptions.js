@@ -253,7 +253,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 
 const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/collections/categories.js:65",
-  "src/_lib/collections/events.js:35",
+  "src/_lib/collections/categorise-events.js:27",
   "src/_lib/collections/products.js:94",
   "src/_lib/collections/search.js:26",
   "src/_lib/eleventy/ical.js:42",
