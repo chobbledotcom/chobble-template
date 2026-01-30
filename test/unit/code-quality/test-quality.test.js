@@ -69,102 +69,6 @@ const extractTestNames = (source, relativePath) =>
 // Helper: Check if name matches any vague pattern
 const isVagueName = (name) => VAGUE_NAME_PATTERNS.some((p) => p.test(name));
 
-/**
- * Check for vague test names.
- * Pure: () => violations[]
- */
-const findVagueTestNames = () =>
-  analyzeFiles(TEST_FILES(), (source, relativePath) =>
-    filterMap(
-      (tc) => isVagueName(tc.name),
-      createViolation(
-        (tc) => `Vague test name "${tc.name}" - use descriptive name`,
-      ),
-    )(extractTestNames(source, relativePath)),
-  );
-
-/**
- * Check for test names with multiple "and"s suggesting multiple concerns.
- * Pure: () => violations[]
- */
-const findMultiConcernTestNames = () =>
-  analyzeFiles(
-    TEST_FILES().filter((f) => !AND_NAME_EXCEPTIONS.has(f)),
-    (source, relativePath) =>
-      filterMap(
-        (tc) => {
-          const andCount = (tc.name.match(/-and-/g) || []).length;
-          return andCount >= 2;
-        },
-        createViolation((tc) => {
-          const andCount = (tc.name.match(/-and-/g) || []).length;
-          return `Test name has ${andCount} "and"s - consider splitting`;
-        }),
-      )(extractTestNames(source, relativePath)),
-  );
-
-/**
- * Check for asyncTest without real await operations.
- * Pure: () => violations[]
- */
-const findAsyncTestsWithoutAwait = () =>
-  analyzeFiles(TEST_FILES(), (source, relativePath) => {
-    const lines = source.split("\n");
-
-    return scanLines(source, (line, lineNum) => {
-      if (!/asyncTest:\s*async/.test(line)) return null;
-
-      const lineIndex = lineNum - 1;
-
-      // Find test name by searching backwards (inline)
-      const searchRange = lines.slice(Math.max(0, lineIndex - 10), lineIndex);
-      const nameMatch = searchRange
-        .reverse()
-        .map((l) => l.match(/name:\s*["']([^"']+)["']/))
-        .find((m) => m !== null);
-      const testName = nameMatch ? nameMatch[1] : "unknown";
-
-      // Extract function body using brace counting (inline)
-      const extractState = lines.slice(lineIndex).reduce(
-        (state, l) => {
-          if (state.done) return state;
-          const braceChanges = [...l].reduce(
-            (acc, char) => ({
-              depth: acc.depth + (char === "{" ? 1 : char === "}" ? -1 : 0),
-              started: acc.started || char === "{",
-            }),
-            { depth: state.depth, started: state.started },
-          );
-          return {
-            body: [...state.body, l],
-            depth: braceChanges.depth,
-            started: braceChanges.started,
-            done: braceChanges.started && braceChanges.depth === 0,
-          };
-        },
-        { body: [], depth: 0, started: false, done: false },
-      );
-      const funcBody = extractState.body.join("\n");
-
-      // Check if function body has real await operations (inline)
-      const awaitMatches = funcBody.match(/await\s+[^;,\n]+/g) || [];
-      const hasRealAwait = awaitMatches.some(
-        (expr) =>
-          !expr.includes("Promise.resolve") && !expr.includes("Promise.reject"),
-      );
-
-      return hasRealAwait
-        ? null
-        : createViolation(
-            () => 'asyncTest without await - use sync "test" instead',
-          )({
-            file: relativePath,
-            line: lineNum,
-            name: testName,
-          });
-    });
-  });
-
 // ============================================
 // Assertion Analysis (Pattern-Based)
 // ============================================
@@ -178,34 +82,6 @@ const ASSERTION_PATTERNS = [
   ],
   [/assert\.ok\s*\([^,)]+\)\s*[;,)]?\s*$/, "ok"],
 ];
-
-/**
- * Check for assertions without descriptive messages.
- * Section 4: Clear Failure Semantics
- * Pure: () => violations[]
- */
-const findAssertionsWithoutMessages = () =>
-  analyzeFiles(
-    TEST_FILES().filter((f) => !f.includes("code-quality/")),
-    (source, relativePath) =>
-      scanLines(source, (line, lineNum) => {
-        const trimmed = line.trim();
-        const match = ASSERTION_PATTERNS.find(([pattern]) =>
-          pattern.test(trimmed),
-        );
-
-        return match
-          ? createViolation(
-              () => `assert.${match[1]} missing message parameter`,
-            )({
-              file: relativePath,
-              line: lineNum,
-              code:
-                trimmed.substring(0, 50) + (trimmed.length > 50 ? "..." : ""),
-            })
-          : null;
-      }),
-  );
 
 // ============================================
 // Tautological Assertion Detection (Functional)
@@ -258,17 +134,6 @@ const findTautologiesInSource = (source, relativePath) => {
     }),
   );
 };
-
-/**
- * Check for tautological assertions.
- * Section 2: Not Tautological
- * Pure: () => violations[]
- */
-const findTautologicalAssertions = () =>
-  analyzeFiles(
-    TEST_FILES().filter((f) => !f.includes("code-quality/")),
-    findTautologiesInSource,
-  );
 
 // ============================================
 // Test Cases
@@ -362,7 +227,14 @@ describe("module", () => {
   });
 
   test("No tests have vague names (Section 4)", () => {
-    const violations = findVagueTestNames();
+    const violations = analyzeFiles(TEST_FILES(), (source, relativePath) =>
+      filterMap(
+        (tc) => isVagueName(tc.name),
+        createViolation(
+          (tc) => `Vague test name "${tc.name}" - use descriptive name`,
+        ),
+      )(extractTestNames(source, relativePath)),
+    );
     assertNoViolations(violations, {
       singular: "vague test name",
       fixHint: "use descriptive test names",
@@ -370,7 +242,20 @@ describe("module", () => {
   });
 
   test("No tests have multiple 'and's (Section 6)", () => {
-    const violations = findMultiConcernTestNames();
+    const violations = analyzeFiles(
+      TEST_FILES().filter((f) => !AND_NAME_EXCEPTIONS.has(f)),
+      (source, relativePath) =>
+        filterMap(
+          (tc) => {
+            const andCount = (tc.name.match(/-and-/g) || []).length;
+            return andCount >= 2;
+          },
+          createViolation((tc) => {
+            const andCount = (tc.name.match(/-and-/g) || []).length;
+            return `Test name has ${andCount} "and"s - consider splitting`;
+          }),
+        )(extractTestNames(source, relativePath)),
+    );
     assertNoViolations(violations, {
       singular: "multi-concern test",
       fixHint: "split tests that test multiple things",
@@ -378,7 +263,60 @@ describe("module", () => {
   });
 
   test("asyncTest functions have real await (Section 9)", () => {
-    const violations = findAsyncTestsWithoutAwait();
+    const violations = analyzeFiles(TEST_FILES(), (source, relativePath) => {
+      const lines = source.split("\n");
+
+      return scanLines(source, (line, lineNum) => {
+        if (!/asyncTest:\s*async/.test(line)) return null;
+
+        const lineIndex = lineNum - 1;
+
+        const searchRange = lines.slice(Math.max(0, lineIndex - 10), lineIndex);
+        const nameMatch = searchRange
+          .reverse()
+          .map((l) => l.match(/name:\s*["']([^"']+)["']/))
+          .find((m) => m !== null);
+        const testName = nameMatch ? nameMatch[1] : "unknown";
+
+        const extractState = lines.slice(lineIndex).reduce(
+          (state, l) => {
+            if (state.done) return state;
+            const braceChanges = [...l].reduce(
+              (acc, char) => ({
+                depth: acc.depth + (char === "{" ? 1 : char === "}" ? -1 : 0),
+                started: acc.started || char === "{",
+              }),
+              { depth: state.depth, started: state.started },
+            );
+            return {
+              body: [...state.body, l],
+              depth: braceChanges.depth,
+              started: braceChanges.started,
+              done: braceChanges.started && braceChanges.depth === 0,
+            };
+          },
+          { body: [], depth: 0, started: false, done: false },
+        );
+        const funcBody = extractState.body.join("\n");
+
+        const awaitMatches = funcBody.match(/await\s+[^;,\n]+/g) || [];
+        const hasRealAwait = awaitMatches.some(
+          (expr) =>
+            !expr.includes("Promise.resolve") &&
+            !expr.includes("Promise.reject"),
+        );
+
+        return hasRealAwait
+          ? null
+          : createViolation(
+              () => 'asyncTest without await - use sync "test" instead',
+            )({
+              file: relativePath,
+              line: lineNum,
+              name: testName,
+            });
+      });
+    });
     assertNoViolations(violations, {
       singular: "asyncTest without await",
       plural: "asyncTests without await",
@@ -387,7 +325,27 @@ describe("module", () => {
   });
 
   test("Assertions have descriptive messages (Section 4)", () => {
-    const violations = findAssertionsWithoutMessages();
+    const violations = analyzeFiles(
+      TEST_FILES().filter((f) => !f.includes("code-quality/")),
+      (source, relativePath) =>
+        scanLines(source, (line, lineNum) => {
+          const trimmed = line.trim();
+          const match = ASSERTION_PATTERNS.find(([pattern]) =>
+            pattern.test(trimmed),
+          );
+
+          return match
+            ? createViolation(
+                () => `assert.${match[1]} missing message parameter`,
+              )({
+                file: relativePath,
+                line: lineNum,
+                code:
+                  trimmed.substring(0, 50) + (trimmed.length > 50 ? "..." : ""),
+              })
+            : null;
+        }),
+    );
     assertNoViolations(violations, {
       singular: "assertion without message",
       plural: "assertions without messages",
@@ -396,7 +354,10 @@ describe("module", () => {
   });
 
   test("No tautological set-then-assert patterns (Section 2)", () => {
-    const violations = findTautologicalAssertions();
+    const violations = analyzeFiles(
+      TEST_FILES().filter((f) => !f.includes("code-quality/")),
+      findTautologiesInSource,
+    );
     assertNoViolations(violations, {
       singular: "tautological assertion",
       fixHint: "test actual behavior, not just set-then-check patterns",

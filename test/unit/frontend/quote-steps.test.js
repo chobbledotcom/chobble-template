@@ -9,9 +9,9 @@ import {
 } from "#test/unit/frontend/quote-steps-utils.js";
 
 /**
- * Create HTML for testing quote steps navigation
+ * Initialize quote steps and return commonly-used elements
  */
-const createQuoteStepsHtml = (options = {}) => {
+const setupQuoteSteps = (options = {}) => {
   const currentStep = options.currentStep ?? 0;
   const step0Content =
     options.step0Content ?? '<input type="text" required value="filled" />';
@@ -19,7 +19,7 @@ const createQuoteStepsHtml = (options = {}) => {
     options.step1Content ?? '<input id="contact_name" type="text" />';
   const includeBackToItems = options.includeBackToItems ?? false;
 
-  return `
+  document.body.innerHTML = `
     ${indicatorTemplate}
     <div class="quote-steps" data-current-step="${currentStep}">
       <div class="quote-steps-progress" data-completed-steps="1"></div>
@@ -40,13 +40,6 @@ const createQuoteStepsHtml = (options = {}) => {
       <button class="quote-step-submit">Submit</button>
     </div>
   `;
-};
-
-/**
- * Initialize quote steps and return commonly-used elements
- */
-const setupQuoteSteps = (options = {}) => {
-  document.body.innerHTML = createQuoteStepsHtml(options);
   const container = document.querySelector(".quote-steps");
   container.scrollIntoView = mock(() => {});
   initQuoteSteps();
@@ -83,14 +76,11 @@ const expectBlocked = (step0Content) =>
 const expectAllowed = (step0Content) =>
   expect(clickNextWith(step0Content)).toBe("1");
 
-/**
- * Curried: (options) => (recapId) => innerHTML of that recap element
- * Sets up quote steps, navigates to the recap step, returns a query helper.
- */
+/** Curried: (options) => (recapId) => innerHTML of that recap element */
 const navigateToRecap = (options) => {
   const { nextBtn } = setupQuoteSteps(options);
-  nextBtn.click(); // to step 1
-  nextBtn.click(); // to step 2 (recap)
+  nextBtn.click();
+  nextBtn.click();
   return (recapId) => document.getElementById(recapId).innerHTML;
 };
 

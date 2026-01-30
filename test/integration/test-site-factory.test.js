@@ -9,11 +9,11 @@ import {
 import { expectAsyncThrows, rootDir } from "#test/test-utils.js";
 
 /** Minimal page file for tests that just need a valid site */
-const minimalPage = () => ({
+const MINIMAL_PAGE = {
   path: "pages/index.md",
   frontmatter: { title: "Home", permalink: "/" },
   content: "Home",
-});
+};
 
 /** Basic test page file with common defaults */
 const factoryTestPage = (options = {}) => ({
@@ -144,7 +144,7 @@ describe("test-site-factory", () => {
     let site;
 
     beforeAll(async () => {
-      site = await createTestSite({ files: [minimalPage()] });
+      site = await createTestSite({ files: [MINIMAL_PAGE] });
     });
 
     afterAll(() => site?.cleanup());
@@ -181,11 +181,7 @@ describe("test-site-factory", () => {
     beforeAll(async () => {
       site = await createTestSite({
         files: [
-          {
-            path: "pages/index.md",
-            frontmatter: { title: "Home", permalink: "/" },
-            content: "Home",
-          },
+          MINIMAL_PAGE,
           {
             path: "pages/test.md",
             frontmatter: { title: "Test Page", permalink: "/test/" },

@@ -40,20 +40,6 @@ const extractUsedVariables = createExtractor(
 /** Extract --name: definitions from files */
 const extractDefinedVariables = createExtractor(/^\s*(--[a-z][a-z0-9-]*):/gm);
 
-/**
- * Find all undefined variables (used but not defined)
- * Excludes variables consumed via JavaScript
- */
-const findUndefinedVariables = (used, defined) => {
-  const undefinedVars = [];
-  for (const variable of used) {
-    if (!defined.has(variable) && !CONSUMED_VIA_JS.includes(variable)) {
-      undefinedVars.push(variable);
-    }
-  }
-  return undefinedVars.sort();
-};
-
 // ============================================
 // Load data for tests
 // ============================================
@@ -76,10 +62,9 @@ const scssFiles = allScssFiles.filter(
 const usedVariables = extractUsedVariables(scssFiles);
 const definedVariables = extractDefinedVariables(`${rootDir}/${STYLE_FILE}`);
 const allDefinedVariables = extractDefinedVariables(scssFiles);
-const undefinedVariables = findUndefinedVariables(
-  usedVariables,
-  definedVariables,
-);
+const undefinedVariables = [...usedVariables]
+  .filter((v) => !definedVariables.has(v) && !CONSUMED_VIA_JS.includes(v))
+  .sort();
 
 // ============================================
 // Test cases

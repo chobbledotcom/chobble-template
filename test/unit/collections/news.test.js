@@ -10,31 +10,12 @@ import {
   expectResultTitles,
 } from "#test/test-utils.js";
 
-// ============================================
-// Functional Test Fixture Builders
-// ============================================
-
-/**
- * Create a news post item with date.
- * @param {string} title - Post title
- * @param {string} dateStr - Date string (YYYY-MM-DD format)
- * @param {Object} options - Additional options (no_index, etc.)
- */
-const newsPostItem = (title, dateStr, options = {}) => ({
-  data: {
-    title,
-    ...options,
-  },
-  date: new Date(dateStr),
-});
-
-/**
- * Create news posts from an array of [title, dateStr, options] tuples
- */
+/** Create news posts from an array of [title, dateStr, options] tuples */
 const newsPostItems = (tuples) =>
-  tuples.map(([title, dateStr, options]) =>
-    newsPostItem(title, dateStr, options),
-  );
+  tuples.map(([title, dateStr, options = {}]) => ({
+    data: { title, ...options },
+    date: new Date(dateStr),
+  }));
 
 describe("news-collection", () => {
   test("Creates collection excluding no_index posts", () => {

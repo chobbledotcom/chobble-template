@@ -85,21 +85,6 @@ const IMPORT_PATTERN = /import\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/g;
 const ELEVENTY_REGISTRATION_PATTERN =
   /eleventyConfig\.(?:addFilter|addAsyncFilter|addShortcode|addAsyncShortcode|addCollection|addTransform)\s*\(\s*["'][^"']+["']\s*,\s*([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
 
-/**
- * Extract function names registered with Eleventy in a source file.
- * These are considered "production usage" since they're used via templates.
- * @param {string} source - Source code to scan
- * @returns {Set<string>} - Set of function names registered with Eleventy
- */
-const extractEleventyRegistrations = (source) => {
-  const registered = new Set();
-  const matches = source.matchAll(ELEVENTY_REGISTRATION_PATTERN);
-  for (const match of matches) {
-    registered.add(match[1]);
-  }
-  return registered;
-};
-
 // Matches: import name from "path" (default imports)
 const DEFAULT_IMPORT_PATTERN =
   /import\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s+from\s*["']([^"']+)["']/g;
@@ -140,25 +125,6 @@ const extractImports = (source) => {
 };
 
 /**
- * Build a map of exports for each src/ and packages/ file.
- * @returns {Map<string, Set<string>>} - Map of file path to exported names
- */
-const buildExportsMap = () => {
-  const exportsMap = new Map();
-  const allFiles = SRC_JS_FILES();
-
-  for (const file of allFiles) {
-    const source = readSource(file);
-    const exports = extractExports(source);
-    if (exports.size > 0) {
-      exportsMap.set(file, exports);
-    }
-  }
-
-  return exportsMap;
-};
-
-/**
  * Build a map tracking where each export is imported from.
  * @param {string[]} files - Files to scan for imports
  * @returns {Map<string, Set<string>>} - Map of "file:export" to set of importing files
@@ -184,93 +150,6 @@ const buildImportUsageMap = (files) => {
   }
 
   return usageMap;
-};
-
-/**
- * Build a map of exports registered with Eleventy for each src/ file.
- * These are functions passed to addFilter, addShortcode, addCollection, etc.
- * @returns {Map<string, Set<string>>} - Map of file path to registered function names
- */
-const buildEleventyRegistrationMap = () => {
-  const registrationMap = new Map();
-  const srcFiles = SRC_JS_FILES();
-
-  for (const file of srcFiles) {
-    const source = readSource(file);
-    const registrations = extractEleventyRegistrations(source);
-    if (registrations.size > 0) {
-      registrationMap.set(file, registrations);
-    }
-  }
-
-  return registrationMap;
-};
-
-/**
- * Analyze for test-only exports.
- * Returns exports from src/ and packages/ that are only imported in test/ files.
- */
-const analyzeTestOnlyExports = () => {
-  const testFiles = TEST_FILES().filter((f) => f !== THIS_FILE);
-
-  // Production files: src/, packages/, and .eleventy.js
-  const productionFiles = [...SRC_JS_FILES(), ".eleventy.js"];
-
-  // Build exports map for all src/packages files
-  const exportsMap = buildExportsMap();
-
-  // Build import usage from production files
-  const srcImportUsage = buildImportUsageMap(productionFiles);
-
-  // Build import usage from test files
-  const testImportUsage = buildImportUsageMap(testFiles);
-
-  // Build Eleventy registration map - functions registered with addFilter, etc.
-  // count as "production usage" since they're used via templates
-  const eleventyRegistrations = buildEleventyRegistrationMap();
-
-  const violations = [];
-  const allowed = [];
-
-  // Check each export from src/
-  for (const [file, exports] of exportsMap) {
-    // Get functions registered with Eleventy in this file
-    const registeredInFile = eleventyRegistrations.get(file) || new Set();
-
-    for (const exportName of exports) {
-      const key = `${file}:${exportName}`;
-
-      // Check if used in src/ (production) via import
-      const usedInSrc = srcImportUsage.has(key);
-
-      // Check if registered with Eleventy (counts as production usage)
-      const registeredWithEleventy = registeredInFile.has(exportName);
-
-      // Check if used in test/
-      const usedInTest = testImportUsage.has(key);
-
-      // If only used in test (not imported in src, not registered with Eleventy)
-      if (!usedInSrc && !registeredWithEleventy && usedInTest) {
-        const testFilesUsing = [...testImportUsage.get(key)];
-
-        const violation = {
-          file,
-          line: 0, // We don't track line numbers for exports
-          code: exportName,
-          reason: `Export "${exportName}" is only imported in test files`,
-          testFiles: testFilesUsing,
-        };
-
-        if (ALLOWED_TEST_ONLY_EXPORTS.has(key)) {
-          allowed.push(violation);
-        } else {
-          violations.push(violation);
-        }
-      }
-    }
-  }
-
-  return { violations, allowed };
 };
 
 // ============================================
@@ -419,7 +298,51 @@ import { orig as alias } from "#utils/test.js";
   });
 
   test("No test-only exports outside allowlist", () => {
-    const { violations } = analyzeTestOnlyExports();
+    const testFiles = TEST_FILES().filter((f) => f !== THIS_FILE);
+    const productionFiles = [...SRC_JS_FILES(), ".eleventy.js"];
+
+    const exportsMap = new Map();
+    for (const file of SRC_JS_FILES()) {
+      const source = readSource(file);
+      const exports = extractExports(source);
+      if (exports.size > 0) exportsMap.set(file, exports);
+    }
+
+    const srcImportUsage = buildImportUsageMap(productionFiles);
+    const testImportUsage = buildImportUsageMap(testFiles);
+
+    const eleventyRegistrations = new Map();
+    for (const file of SRC_JS_FILES()) {
+      const source = readSource(file);
+      const registered = new Set();
+      for (const match of source.matchAll(ELEVENTY_REGISTRATION_PATTERN)) {
+        registered.add(match[1]);
+      }
+      if (registered.size > 0) eleventyRegistrations.set(file, registered);
+    }
+
+    const violations = [];
+    for (const [file, exports] of exportsMap) {
+      const registeredInFile = eleventyRegistrations.get(file) || new Set();
+      for (const exportName of exports) {
+        const key = `${file}:${exportName}`;
+        const usedInSrc = srcImportUsage.has(key);
+        const registeredWithEleventy = registeredInFile.has(exportName);
+        const usedInTest = testImportUsage.has(key);
+
+        if (!usedInSrc && !registeredWithEleventy && usedInTest) {
+          if (!ALLOWED_TEST_ONLY_EXPORTS.has(key)) {
+            violations.push({
+              file,
+              line: 0,
+              code: exportName,
+              reason: `Export "${exportName}" is only imported in test files`,
+              testFiles: [...testImportUsage.get(key)],
+            });
+          }
+        }
+      }
+    }
 
     assertNoViolations(violations, {
       singular: "test-only export",

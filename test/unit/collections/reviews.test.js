@@ -27,12 +27,10 @@ const { reviews } = collections;
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 
 // Fixture builders
-const rev = (title, dateStr, options = {}) => ({
+const revs = map(([title, dateStr, options = {}]) => ({
   ...baseItem(title, options),
   date: new Date(dateStr),
-});
-
-const revs = map(([title, dateStr, options]) => rev(title, dateStr, options));
+}));
 
 /** Create n reviews for a product */
 const revsFor = (productId, count, rating = 5, monthPrefix = "01") =>
@@ -53,22 +51,12 @@ const prodRevs = (productId, ratings) =>
     ]),
   );
 
-/** Create paired reviews and products for truncate limit testing */
-const truncatePair = (productSpecs) => ({
-  reviews: productSpecs.flatMap(({ slug, count, rating, monthPrefix }) =>
-    revsFor(slug, count, rating, monthPrefix),
-  ),
-  products: productSpecs.map(({ slug, title }) =>
-    createProduct({ slug, title }),
-  ),
-});
-
 /**
  * Create limit test data with products above and below truncate threshold.
  * @param {boolean} aAboveLimit - whether product-a should be above limit
  */
-const limitData = (aAboveLimit = true) =>
-  truncatePair([
+const limitData = (aAboveLimit = true) => {
+  const specs = [
     {
       slug: "product-a",
       title: "Product A",
@@ -83,7 +71,14 @@ const limitData = (aAboveLimit = true) =>
       rating: 4,
       monthPrefix: "02",
     },
-  ]);
+  ];
+  return {
+    reviews: specs.flatMap(({ slug, count, rating, monthPrefix }) =>
+      revsFor(slug, count, rating, monthPrefix),
+    ),
+    products: specs.map(({ slug, title }) => createProduct({ slug, title })),
+  };
+};
 
 describe("reviews", () => {
   test("Creates reviews collection excluding hidden and sorted newest first", () => {

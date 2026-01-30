@@ -33,87 +33,6 @@ const IGNORED_FUNCTIONS = frozenSet([
 // Test helper to join source code lines
 const testSource = (lines) => lines.join("\n");
 
-/**
- * Calculate "own lines" for each function by subtracting nested function lines.
- * A nested function is one that starts and ends within another function's range.
- * Optimized using pipe() and combined filter+reduce in single pass.
- */
-const calculateOwnLines = (functions) =>
-  pipe(
-    map((func) => {
-      // Combine filter+reduce in single pass to count nested lines
-      const nestedLines = functions.reduce((sum, other) => {
-        // Check if other function is nested within this function
-        const isNested =
-          other !== func &&
-          other.startLine > func.startLine &&
-          other.endLine < func.endLine;
-
-        return isNested ? sum + other.lineCount : sum;
-      }, 0);
-
-      return {
-        ...func,
-        ownLines: func.lineCount - nestedLines,
-      };
-    }),
-  )(functions);
-
-/**
- * Analyze the codebase for overly long functions.
- * Returns violations using functional composition.
- */
-const analyzeFunctionLengths = () =>
-  pipe(
-    filter((f) => !f.startsWith("src/_lib/public/")),
-    flatMap((relativePath) => {
-      const fullPath = path.join(rootDir, relativePath);
-      const source = fs.readFileSync(fullPath, "utf-8");
-      const functions = calculateOwnLines(extractFunctions(source));
-
-      return pipe(
-        filterMap(
-          (func) =>
-            func.ownLines > MAX_LINES && !IGNORED_FUNCTIONS.has(func.name),
-          (func) => ({
-            name: func.name,
-            lineCount: func.ownLines,
-            file: relativePath,
-            startLine: func.startLine,
-          }),
-        ),
-      )(functions);
-    }),
-  )(SRC_JS_FILES());
-
-/**
- * Format violations for readable output.
- */
-const formatLengthViolations = (violations) => {
-  if (violations.length === 0) {
-    return "No function length violations found.";
-  }
-
-  // Sort by line count (descending) without mutating
-  const sorted = violations.toSorted((a, b) => b.lineCount - a.lineCount);
-
-  const formatFunctions = pluralize("function");
-  const lines = [
-    `Found ${formatFunctions(violations.length)} exceeding ${MAX_LINES} lines:\n`,
-    ...sorted.flatMap((v) => [
-      `  ${v.name} (${v.lineCount} lines)`,
-      `    └─ ${v.file}:${v.startLine}`,
-    ]),
-    "",
-    `Preferred maximum: ${PREFERRED_LINES} lines`,
-    `Hard limit: ${MAX_LINES} lines`,
-    "",
-    "Consider refactoring long functions into smaller, focused units.",
-  ];
-
-  return lines.join("\n");
-};
-
 describe("function-length", () => {
   test("extractFunctions finds simple function declarations", () => {
     const source = testSource([
@@ -266,11 +185,55 @@ describe("function-length", () => {
   });
 
   test(`Check functions do not exceed ${MAX_LINES} lines`, () => {
-    const violations = analyzeFunctionLengths();
+    const calculateOwnLines = (functions) =>
+      pipe(
+        map((func) => {
+          const nestedLines = functions.reduce((sum, other) => {
+            const isNested =
+              other !== func &&
+              other.startLine > func.startLine &&
+              other.endLine < func.endLine;
+            return isNested ? sum + other.lineCount : sum;
+          }, 0);
+          return { ...func, ownLines: func.lineCount - nestedLines };
+        }),
+      )(functions);
 
-    // Log violations for visibility
+    const violations = pipe(
+      filter((f) => !f.startsWith("src/_lib/public/")),
+      flatMap((relativePath) => {
+        const fullPath = path.join(rootDir, relativePath);
+        const source = fs.readFileSync(fullPath, "utf-8");
+        const functions = calculateOwnLines(extractFunctions(source));
+        return pipe(
+          filterMap(
+            (func) =>
+              func.ownLines > MAX_LINES && !IGNORED_FUNCTIONS.has(func.name),
+            (func) => ({
+              name: func.name,
+              lineCount: func.ownLines,
+              file: relativePath,
+              startLine: func.startLine,
+            }),
+          ),
+        )(functions);
+      }),
+    )(SRC_JS_FILES());
+
     if (violations.length > 0) {
-      console.log(`\n${formatLengthViolations(violations)}\n`);
+      const sorted = violations.toSorted((a, b) => b.lineCount - a.lineCount);
+      const formatFunctions = pluralize("function");
+      const lines = [
+        `Found ${formatFunctions(violations.length)} exceeding ${MAX_LINES} lines:\n`,
+        ...sorted.flatMap((v) => [
+          `  ${v.name} (${v.lineCount} lines)`,
+          `    └─ ${v.file}:${v.startLine}`,
+        ]),
+        "",
+        `Preferred maximum: ${PREFERRED_LINES} lines`,
+        `Hard limit: ${MAX_LINES} lines`,
+      ];
+      console.log(`\n${lines.join("\n")}\n`);
     }
 
     expect(violations.length).toBe(0);
