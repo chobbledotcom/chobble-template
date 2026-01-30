@@ -27,6 +27,7 @@ const getDefaultMaxQuantity = (data) => {
 
 export default linkableContent("product", {
   categories: (data) => (data.categories || []).map(normaliseSlug),
+  keywords: (data) => data.keywords || [],
   gallery: computeGallery,
   product_mode: (data) => getProductMode(data),
   options: (data) =>

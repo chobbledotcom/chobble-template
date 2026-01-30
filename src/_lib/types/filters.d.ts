@@ -95,7 +95,7 @@ export type FilterConfigOptions = {
   collections: {
     pages: string;
     redirects: string;
-    attributes: string;
+    attributes?: string;
   };
   uiDataFilterName: string;
 };
