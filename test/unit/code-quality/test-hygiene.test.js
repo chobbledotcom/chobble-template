@@ -64,7 +64,15 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   // quote-steps.test.js - test fixture factory and setup helpers
   "createQuoteStepsHtml",
   "setupQuoteSteps",
-  "triggerValidationError",
+  // quote-steps.test.js - curried validation and recap helpers
+  "clickNextWith",
+  "expectBlocked",
+  "expectAllowed",
+  "navigateToRecap",
+  "eventRecap",
+  "triggerErrorAndQuery",
+  "expectFieldError",
+  "expectNoFieldError",
   // quote-steps-utils.js - shared test helpers for progress tests
   "testIndicatorStates",
   // quote-price-utils.test.js - DOM setup, fixtures, and template rendering
@@ -80,6 +88,10 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   // theme-editor.test.js - functional test helpers
   "roundTripTheme",
   "testScopedEntry",
+  "parsedScope",
+  "expectIncluded",
+  "expectExcluded",
+  "setupForm",
   // item-filters.test.js - mock eleventy config with getters
   "mockConfig",
   // item-filters.test.js - test setup helper with collection accessors
@@ -209,7 +221,12 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "findReferencesInJs",
   // naming-conventions.test.js - test fixture string
   "getUserById",
-  // schema-helper.test.js - test fixtures
+  // schema-helper.test.js - curried builder helpers and test fixtures
+  "baseMeta",
+  "productMeta",
+  "postMeta",
+  "orgMeta",
+  "strippedPrice",
   "testProductMeta",
   // duplicate-methods.test.js - analysis helpers
   "extractFunctionNames",
