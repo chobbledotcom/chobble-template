@@ -23,7 +23,10 @@ const IGNORED_PROPERTIES = frozenSet(["size", "length"]);
 const ADD_COLLECTION_PATTERN = /\.addCollection\(\s*"([^"]+)"/g;
 
 /** Match "tags": ["name"] in directory data JSON files */
-const TAG_PATTERN = /"tags"\s*:\s*\[\s*"([^"]+)"\s*\]/g;
+const TAG_ARRAY_PATTERN = /"tags"\s*:\s*\[\s*"([^"]+)"\s*\]/g;
+
+/** Match "tags": "name" in directory data JSON files */
+const TAG_STRING_PATTERN = /"tags"\s*:\s*"([^"]+)"/g;
 
 /** Match collections.NAME (dot notation) in templates */
 const DOT_ACCESS_PATTERN = /collections\.([a-zA-Z_][\w-]*)/g;
@@ -82,7 +85,16 @@ const buildRegisteredNames = (srcDir) => {
       (n) => n.endsWith(".js"),
       ADD_COLLECTION_PATTERN,
     ),
-    ...extractNamesFromFiles(srcDir, (n) => n.endsWith(".json"), TAG_PATTERN),
+    ...extractNamesFromFiles(
+      srcDir,
+      (n) => n.endsWith(".json"),
+      TAG_ARRAY_PATTERN,
+    ),
+    ...extractNamesFromFiles(
+      srcDir,
+      (n) => n.endsWith(".json"),
+      TAG_STRING_PATTERN,
+    ),
     ...filterNames,
     ...extractAllMatches(filterSource, CATEGORY_KEY_PATTERN),
     ...filterNames
