@@ -53,27 +53,37 @@ const indexProductsByEvent = createArrayFieldIndexer("events");
 
 /**
  * Create the events collection with inherited thumbnails from products.
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @returns {EventCollectionItem[]}
+ * Memoised by collectionApi reference so derived collections reuse the result.
  */
-const createEventsCollection = (collectionApi) => {
-  const events = getEventsFromApi(collectionApi);
-  if (events.length === 0) return [];
+const createEventsCollection = (() => {
+  const cache = new WeakMap();
+  return (collectionApi) => {
+    const cached = cache.get(collectionApi);
+    if (cached) return cached;
 
-  const products = getProductsFromApi(collectionApi);
-  const productsByEvent = indexProductsByEvent(products);
-
-  return events.map((event) => {
-    if (!event.data.thumbnail) {
-      const thumb = findFromChildren(
-        productsByEvent[event.fileSlug],
-        (p) => p.data.thumbnail,
-      );
-      if (thumb) event.data.thumbnail = thumb;
+    const events = getEventsFromApi(collectionApi);
+    if (events.length === 0) {
+      cache.set(collectionApi, events);
+      return events;
     }
-    return event;
-  });
-};
+
+    const products = getProductsFromApi(collectionApi);
+    const productsByEvent = indexProductsByEvent(products);
+
+    const result = events.map((event) => {
+      if (!event.data.thumbnail) {
+        const thumb = findFromChildren(
+          productsByEvent[event.fileSlug],
+          (p) => p.data.thumbnail,
+        );
+        if (thumb) event.data.thumbnail = thumb;
+      }
+      return event;
+    });
+    cache.set(collectionApi, result);
+    return result;
+  };
+})();
 
 const configureEvents = (eleventyConfig) => {
   eleventyConfig.addCollection("events", createEventsCollection);
