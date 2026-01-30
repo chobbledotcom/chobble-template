@@ -114,7 +114,7 @@ const buildListingUI = (ctx, productCount) =>
  * Returns null if category has no products or no filter attributes.
  */
 const buildCategoryData = (slug, products) => {
-  if (!products || products.length === 0) return null;
+  if (products.length === 0) return null;
 
   const sortedProducts = [...products].sort(sortItems);
   const combinations = generateFilterCombinations(sortedProducts);
@@ -209,7 +209,7 @@ const categoryFilterData = (
 
   return buildFilterUIData(
     filterData,
-    currentFilters,
+    currentFilters ?? {},
     getBasePaths(categoryPages),
     baseUrl,
     currentSortKey,

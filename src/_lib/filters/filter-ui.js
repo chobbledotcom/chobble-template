@@ -76,7 +76,7 @@ export const buildFilterPageBase = (combo, displayLookup) => ({
  */
 export const buildUIWithLookup = (
   filterData,
-  currentFilters = {},
+  currentFilters,
   pathLookup,
   baseUrl,
   currentSortKey = "default",
@@ -172,7 +172,7 @@ export const buildUIWithLookup = (
  */
 export const buildFilterUIData = (
   filterData,
-  currentFilters = {},
+  currentFilters,
   validPages,
   baseUrl,
   currentSortKey = "default",
