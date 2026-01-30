@@ -7,13 +7,27 @@
 // =============================================================================
 // All styles are scoped to .design-system to avoid affecting other page content
 
+// =============================================================================
+// FONT CUSTOM PROPERTIES (at :root for theme overridability)
+// =============================================================================
+// Font variables are declared at :root so that theme.scss (loaded last in
+// bundle.scss) can override them at the same specificity level via cascade order.
+// If these were scoped inside .design-system, the higher specificity (0-1-0)
+// would beat :root overrides (0-0-1), making theme font changes impossible.
+
+:root {
+  --font-family-body: #{$font-sans};
+  --font-family-heading: #{$font-sans};
+  --font-family-mono: #{$font-mono};
+}
+
 .design-system {
   // ===========================================================================
   // CSS CUSTOM PROPERTIES (scoped)
   // ===========================================================================
-  // Default values for all design system CSS variables.
-  // Themes override these by setting the same variables in theme.scss.
-  // Compile-time customization via _theme-variables.scss SCSS overrides.
+  // Default values for design system CSS variables.
+  // Color variables stay scoped to .design-system to avoid affecting other
+  // page content. Font variables are at :root (above) for theme overridability.
 
   --color-bg: #{$color-bg};
   --color-bg-alt: #{$color-bg-alt};
@@ -26,9 +40,6 @@
   --color-secondary: #{$color-secondary};
   --color-accent: #{$color-accent};
   --color-hover-bg: #{$color-hover-bg};
-  --font-family-body: #{$font-sans};
-  --font-family-heading: #{$font-sans};
-  --font-family-mono: #{$font-mono};
 
   // ===========================================================================
   // BASE RESET (scoped)

@@ -38,8 +38,13 @@ const findUnscopedSelectors = (content) => {
     .replace(/@(?:use|forward|import)\s+[^;]+;/g, "")
     .trim();
 
-  // If file is empty after removing imports/comments, it's fine
-  if (!withoutImports) {
+  // Remove :root blocks (allowed for CSS custom property defaults)
+  const withoutRoot = withoutImports
+    .replace(/:root\s*\{(?:[^#}]|#\{[^}]*\}|#(?!\{))*\}/g, "")
+    .trim();
+
+  // If file is empty after removing imports/comments/:root, it's fine
+  if (!withoutRoot) {
     return unscopedSelectors;
   }
 
@@ -47,10 +52,10 @@ const findUnscopedSelectors = (content) => {
   // and there's nothing significant before or after the closing brace
   const designSystemPattern = /^\s*\.design-system\s*\{[\s\S]*\}\s*$/;
 
-  if (!designSystemPattern.test(withoutImports)) {
+  if (!designSystemPattern.test(withoutRoot)) {
     // Find what selectors are at the top level
     // Look for patterns that indicate a CSS rule outside .design-system
-    const lines = withoutImports.split("\n");
+    const lines = withoutRoot.split("\n");
     let braceDepth = 0;
     let currentSelector = "";
     let inDesignSystem = false;
@@ -118,9 +123,22 @@ const hasDesignSystemWrapper = (content) => {
     return true;
   }
 
-  // Check that the content starts with .design-system {
-  // and the file ends with the closing brace of .design-system
-  return /^\s*\.design-system\s*\{[\s\S]*\}\s*$/.test(withoutImports);
+  // Remove :root blocks (allowed for CSS custom property defaults that themes
+  // need to override at the same specificity level)
+  const withoutRoot = withoutImports
+    .replace(/:root\s*\{(?:[^#}]|#\{[^}]*\}|#(?!\{))*\}/g, "")
+    .trim();
+
+  // Empty after removing :root blocks is fine
+  if (!withoutRoot) {
+    return true;
+  }
+
+  // Check that the remaining content starts with .design-system {
+  // and the file ends with the closing brace of a .design-system block.
+  // The greedy [\s\S]* matches everything between the first { and last },
+  // allowing multiple .design-system-prefixed blocks (e.g. body.design-system).
+  return /^\s*\.design-system\s*\{[\s\S]*\}\s*$/.test(withoutRoot);
 };
 
 describe("design-system-scoping", () => {
