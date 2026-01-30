@@ -611,8 +611,33 @@ describe("customise-cms config", () => {
         const config = await loadCmsConfig();
 
         expect(config).toBeDefined();
-        expect(config.collections).toEqual(["pages", "products"]);
+        expect(config.collections).toContain("pages");
+        expect(config.collections).toContain("products");
         expect(config.features.permalinks).toBe(true);
+      });
+    });
+  });
+
+  test("loadCmsConfig merges required collections into loaded config", async () => {
+    const { withTempDirAsync } = await import("#test/test-utils.js");
+
+    return withTempDirAsync("loadCmsConfig-required", async (tempDir) => {
+      // Simulate a config saved before snippets became required
+      await setupSiteJson(tempDir, {
+        name: "Test Site",
+        cms_config: {
+          collections: ["pages", "products"],
+          features: { permalinks: true },
+        },
+      });
+
+      return withMockedCwdAsync(tempDir, async () => {
+        const config = await loadCmsConfig();
+        const requiredNames = getRequiredCollections().map((c) => c.name);
+
+        for (const name of requiredNames) {
+          expect(config.collections).toContain(name);
+        }
       });
     });
   });
@@ -758,7 +783,7 @@ describe("customise-cms config", () => {
         const config = await loadCmsConfig();
 
         // Should have loaded from src/_data/site.json (preferred over _data)
-        expect(config.collections).toEqual(["products"]);
+        expect(config.collections).toContain("products");
       });
     });
   });
@@ -776,7 +801,7 @@ describe("customise-cms config", () => {
         const config = await loadCmsConfig();
 
         // Should have loaded from _data/site.json (fallback)
-        expect(config.collections).toEqual(["events"]);
+        expect(config.collections).toContain("events");
       });
     });
   });

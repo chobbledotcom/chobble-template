@@ -7,6 +7,8 @@
 import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { getRequiredCollections } from "#scripts/customise-cms/collections.js";
+import { map, unique } from "#toolkit/fp/array.js";
 
 /**
  * @typedef {Object} CmsFeatures
@@ -52,13 +54,28 @@ const getSiteJsonPath = () => {
 };
 
 /**
+ * Ensure required collections are present in a config's collections list.
+ * Handles configs saved before a collection became required.
+ * @param {CmsConfig} config - The CMS configuration to normalize
+ * @returns {CmsConfig} Config with required collections merged in
+ */
+const normalizeCollections = (config) => {
+  const requiredNames = map((c) => c.name)(getRequiredCollections());
+  return {
+    ...config,
+    collections: unique([...config.collections, ...requiredNames]),
+  };
+};
+
+/**
  * Load existing CMS config from site.json
  * @returns {Promise<CmsConfig | null>} The CMS config or null if none exists
  */
 export const loadCmsConfig = async () => {
   const content = await readFile(getSiteJsonPath(), "utf-8");
   const siteData = JSON.parse(content);
-  return siteData.cms_config || null;
+  const config = siteData.cms_config || null;
+  return config ? normalizeCollections(config) : null;
 };
 
 /**
