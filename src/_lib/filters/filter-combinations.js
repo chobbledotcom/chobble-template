@@ -12,7 +12,7 @@ import {
   countMatches,
   filterToPath,
   getAllFilterAttributes,
-  normalizeAttrs,
+  normalize,
   SORT_OPTIONS,
   toSortedPath,
 } from "#filters/filter-core.js";
@@ -38,24 +38,35 @@ export const generateFilterCombinations = memoizeByRef((items) => {
 
   const lookup = buildItemLookup(items);
 
-  // Recursive helper to build all valid filter combinations
-  // Uses closure to avoid passing state object through recursion
-  const buildCombosFrom = (currentFilters, startKeyIndex) =>
+  // Pre-normalize every key and value once, so we don't repeat this work
+  // for every combination explored. "pet-friendly" → "petfriendly" etc.
+  const normalized = Object.fromEntries([
+    ...keys.map((key) => [key, normalize(key)]),
+    ...keys.flatMap((key) => values[key].map((v) => [v, normalize(v)])),
+  ]);
+
+  // Build all filter combinations that have at least one matching item.
+  // Tries adding each remaining filter key+value to the current set,
+  // checks if any items match, and recurses to try adding more.
+  const buildCombosFrom = (currentFilters, normalizedFilters, startKeyIndex) =>
     keys.slice(startKeyIndex).flatMap((key, offset) =>
       values[key].flatMap((value) => {
         const filters = { ...currentFilters, [key]: value };
-        const count = countMatches(
-          lookup,
-          normalizeAttrs(filters),
-          items.length,
-        );
+        const normFilters = {
+          ...normalizedFilters,
+          [normalized[key]]: normalized[value],
+        };
+        const count = countMatches(lookup, normFilters, items.length);
         if (count === 0) return [];
         const combo = { filters, path: filterToPath(filters), count };
-        return [combo, ...buildCombosFrom(filters, startKeyIndex + offset + 1)];
+        return [
+          combo,
+          ...buildCombosFrom(filters, normFilters, startKeyIndex + offset + 1),
+        ];
       }),
     );
 
-  return buildCombosFrom({}, 0);
+  return buildCombosFrom({}, {}, 0);
 });
 
 /**
