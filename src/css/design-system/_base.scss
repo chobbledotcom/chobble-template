@@ -8,27 +8,14 @@
 // All styles are scoped to .design-system to avoid affecting other page content
 
 // =============================================================================
-// FONT CUSTOM PROPERTIES (at :root for theme overridability)
+// CSS CUSTOM PROPERTIES (at :root for theme overridability)
 // =============================================================================
-// Font variables are declared at :root so that theme.scss (loaded last in
-// bundle.scss) can override them at the same specificity level via cascade order.
-// If these were scoped inside .design-system, the higher specificity (0-1-0)
-// would beat :root overrides (0-0-1), making theme font changes impossible.
+// All design system CSS variables are declared at :root so that theme.scss
+// (loaded last in bundle.scss) can override them at the same specificity level
+// via cascade order. If these were scoped inside .design-system (0-1-0), they
+// would beat :root overrides (0-0-1), making theme changes impossible.
 
 :root {
-  --font-family-body: #{$font-sans};
-  --font-family-heading: #{$font-sans};
-  --font-family-mono: #{$font-mono};
-}
-
-.design-system {
-  // ===========================================================================
-  // CSS CUSTOM PROPERTIES (scoped)
-  // ===========================================================================
-  // Default values for design system CSS variables.
-  // Color variables stay scoped to .design-system to avoid affecting other
-  // page content. Font variables are at :root (above) for theme overridability.
-
   --color-bg: #{$color-bg};
   --color-bg-alt: #{$color-bg-alt};
   --color-card-bg: #{$color-card-bg};
@@ -40,9 +27,12 @@
   --color-secondary: #{$color-secondary};
   --color-accent: #{$color-accent};
   --color-hover-bg: #{$color-hover-bg};
+  --font-family-body: #{$font-sans};
+  --font-family-heading: #{$font-sans};
+  --font-family-mono: #{$font-mono};
+}
 
-  // ===========================================================================
-  // BASE RESET (scoped)
+.design-system {
   // ===========================================================================
   // Zero out all margins and paddings. Spacing is controlled exclusively
   // through flexbox/grid gap at the container level.
