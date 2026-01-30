@@ -4,10 +4,14 @@ import {
   computeSpecs,
   getHighlightedSpecs,
   getListItemSpecs,
+  prefetchSpecIcons,
 } from "#filters/spec-filters.js";
 
 // Use actual spec name from config so tests stay in sync
 const KNOWN_SPEC = Object.keys(specsIcons)[0];
+
+// Pre-fetch iconify icons to disk so synchronous computeSpecs can read them
+await prefetchSpecIcons();
 
 describe("spec-filters", () => {
   // ============================================
