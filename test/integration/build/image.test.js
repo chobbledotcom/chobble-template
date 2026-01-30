@@ -14,32 +14,6 @@ import { map } from "#toolkit/fp/array.js";
 // ============================================
 
 /**
- * Create a transform passthrough test case
- * @param {string} content - Content to pass through
- * @param {string|null} path - Output path
- */
-const passthrough = (content, path) => ({ content, path });
-
-/**
- * Create passthrough test cases from [content, path] tuples
- */
-const passthroughs = map(([content, path]) => passthrough(content, path));
-
-/**
- * Test that transform passes content through unchanged
- */
-const expectPassthrough = async ({ content, path }) => {
-  const transform = createHtmlTransform(processAndWrapImage);
-  const result = await transform(content, path);
-  expect(result).toBe(content);
-};
-
-/**
- * Create an image file spec for test site
- */
-const imageFile = (dest, src = "src/images/party.jpg") => ({ src, dest });
-
-/**
  * Create a test page file for test site
  */
 const imageTestPage = (content, permalink = "/test/", title = "Test") => ({
@@ -49,9 +23,9 @@ const imageTestPage = (content, permalink = "/test/", title = "Test") => ({
 });
 
 /**
- * Create image files from destination names
+ * Create image file specs from destination names
  */
-const imageFiles = map((dest) => imageFile(dest));
+const imageFiles = map((dest) => ({ src: "src/images/party.jpg", dest }));
 
 describe("image", () => {
   // ============================================
@@ -64,8 +38,11 @@ describe("image", () => {
       expect(typeof transform).toBe("function");
     });
 
-    test("Transform passes through non-HTML files unchanged", () =>
-      expectPassthrough(passthrough("body { margin: 0; }", "/test/style.css")));
+    test("Transform passes through non-HTML files unchanged", async () => {
+      const transform = createHtmlTransform(processAndWrapImage);
+      const result = await transform("body { margin: 0; }", "/test/style.css");
+      expect(result).toBe("body { margin: 0; }");
+    });
 
     test("Transform preserves HTML content without local images", async () => {
       const transform = createHtmlTransform(processAndWrapImage);
@@ -253,7 +230,7 @@ describe("image", () => {
           files: [
             imageTestPage('{% image "test-image.jpg", "A test image" %}'),
           ],
-          images: [imageFile("test-image.jpg")],
+          images: [{ src: "src/images/party.jpg", dest: "test-image.jpg" }],
         },
         (site) => {
           const html = site.getOutput("/test/index.html");
@@ -462,7 +439,7 @@ describe("image", () => {
       await withTestSite(
         {
           files: [imageTestPage("![A test scene](/images/scene.jpg)")],
-          images: [imageFile("scene.jpg")],
+          images: [{ src: "src/images/party.jpg", dest: "scene.jpg" }],
         },
         (site) => {
           const html = site.getOutput("/test/index.html");

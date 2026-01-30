@@ -42,42 +42,17 @@ import { SRC_JS_FILES } from "#test/test-utils.js";
 // Pattern to match /** @type {something} */ annotations
 const INLINE_TYPE_PATTERN = /\/\*\*\s*@type\s*\{[^}]+\}\s*\*\//;
 
-/** Check if a line is a single-line comment (// ...). */
-const isSingleLineComment = (line) => line.trim().startsWith("//");
-
-/** Skip single-line comments and JSDoc blocks that aren't @type annotations */
-const shouldSkipLine = (line) =>
-  isSingleLineComment(line) ||
-  (isCommentLine(line) && !INLINE_TYPE_PATTERN.test(line));
-
-/** Extract type name from the annotation for better error messages */
-const extractTypeName = (line) => {
-  const match = line.match(/@type\s*\{([^}]+)\}/);
-  return match ? match[1] : "unknown";
-};
-
 /** Scanner configured to find inline @type annotations */
 const findInlineTypeAnnotations = createBraceDepthScanner({
   pattern: INLINE_TYPE_PATTERN,
-  skipLine: shouldSkipLine,
-  extractData: (line) => ({ typeName: extractTypeName(line) }),
+  skipLine: (line) =>
+    line.trim().startsWith("//") ||
+    (isCommentLine(line) && !INLINE_TYPE_PATTERN.test(line)),
+  extractData: (line) => {
+    const match = line.match(/@type\s*\{([^}]+)\}/);
+    return { typeName: match ? match[1] : "unknown" };
+  },
 });
-
-/** Build violation entry from a match */
-const toTypeAnnotationViolation = (file) => (v) => ({
-  file,
-  line: v.lineNumber,
-  code: v.line,
-  reason: `Inline @type {${v.typeName}} at depth ${v.braceDepth} - move to types file or use function signature`,
-});
-
-/** Analyze source files for inline type annotation violations. */
-const analyzeInlineTypeAnnotations = () =>
-  SRC_JS_FILES().flatMap((file) =>
-    findInlineTypeAnnotations(readSource(file)).map(
-      toTypeAnnotationViolation(file),
-    ),
-  );
 
 describe("inline-type-annotations", () => {
   describe("findInlineTypeAnnotations", () => {
@@ -187,7 +162,14 @@ const second = () => {
   });
 
   test("No inline @type annotations inside functions in source files", () => {
-    const violations = analyzeInlineTypeAnnotations();
+    const violations = SRC_JS_FILES().flatMap((file) =>
+      findInlineTypeAnnotations(readSource(file)).map((v) => ({
+        file,
+        line: v.lineNumber,
+        code: v.line,
+        reason: `Inline @type {${v.typeName}} at depth ${v.braceDepth} - move to types file or use function signature`,
+      })),
+    );
 
     assertNoViolations(violations, {
       singular: "inline type annotation",
