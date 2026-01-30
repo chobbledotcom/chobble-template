@@ -1,13 +1,14 @@
 {
-	"github": "hugeicons:github-01",
 	"facebook": "hugeicons:facebook-01",
-	"mastodon": "hugeicons:mastodon",
-	"instagram": "hugeicons:instagram",
-	"tiktok": "hugeicons:tiktok",
+	"forgejo": "simple-icons:forgejo",
+	"github": "hugeicons:github-01",
 	"google": "hugeicons:google",
-	"whatsapp": "hugeicons:whatsapp",
-	"rss": "hugeicons:rss",
-	"twitter": "hugeicons:new-twitter",
+	"instagram": "hugeicons:instagram",
 	"linkedin": "hugeicons:linkedin-01",
+	"mastodon": "hugeicons:mastodon",
+	"rss": "hugeicons:rss",
+	"tiktok": "hugeicons:tiktok",
+	"twitter": "hugeicons:new-twitter",
+	"whatsapp": "hugeicons:whatsapp",
 	"youtube": "hugeicons:youtube"
 }

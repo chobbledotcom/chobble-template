@@ -1,7 +1,6 @@
 <ul class="socials">
   {%- for social in site.socials -%}
     {%- if social[1] -%}
-      {%- assign social_key = social[0] | downcase -%}
       <li>
         <a
           href="{{ social[1] }}"
@@ -10,11 +9,7 @@
           rel="noopener noreferrer"
           aria-label="{{ social[0] }}"
         >
-          {%- if social_icons[social_key] -%}
-            {{ social_icons[social_key] | icon }}
-          {%- else -%}
-            {{ "icons/" | append: social_key | append: ".svg" | inline_asset }}
-          {%- endif -%}
+          {{ social[0] | socialIcon }}
         </a>
       </li>
     {%- endif -%}
