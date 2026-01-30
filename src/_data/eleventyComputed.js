@@ -121,13 +121,17 @@ export default {
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {Record<string, unknown>} Computed metadata (empty object if not defined)
    */
-  metaComputed: (data) => data.metaComputed ?? {},
+  metaComputed: (data) => {
+    if (data.no_index) return {};
+    return data.metaComputed ?? {};
+  },
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {import("#lib/types").SchemaOrgMeta} Schema.org metadata
+   * @returns {import("#lib/types").SchemaOrgMeta|undefined} Schema.org metadata
    */
   meta: (data) => {
+    if (data.no_index) return undefined;
     if (hasTag(data, "products")) return buildProductMeta(data);
     if (hasTag(data, "news")) return buildPostMeta(data);
     if (data.layout === "contact.html") return buildOrganizationMeta(data);
