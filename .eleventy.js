@@ -46,6 +46,7 @@ import { configureVideo } from "#eleventy/video.js";
 
 // Filters
 import { configureFilters } from "#filters/configure-filters.js";
+import { prefetchSpecIcons } from "#filters/spec-filters.js";
 
 // Media
 import { configureIconify } from "#media/iconify.js";
@@ -96,6 +97,7 @@ export default async function (eleventyConfig) {
   configureJsConfig(eleventyConfig);
   configureIconify(eleventyConfig);
   configureInlineAsset(eleventyConfig);
+  await prefetchSpecIcons();
   configureLocations(eleventyConfig);
   configureMenus(eleventyConfig);
   await configureNavigation(eleventyConfig);

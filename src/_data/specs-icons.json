@@ -1,15 +1,93 @@
 {
+	"battery life": {
+		"icon": "hugeicons:battery-full",
+		"highlight": true,
+		"list_items": true
+	},
+	"care": {
+		"icon": "hugeicons:paint-brush-04"
+	},
+	"certifications": {
+		"icon": "hugeicons:certificate-01"
+	},
+	"closure": {
+		"icon": "hugeicons:lock"
+	},
+	"colors": {
+		"icon": "hugeicons:colors"
+	},
+	"compatibility": {
+		"icon": "hugeicons:laptop-phone-sync"
+	},
+	"connectivity": {
+		"icon": "hugeicons:wifi-connected-01"
+	},
+	"construction": {
+		"icon": "hugeicons:wrench-01"
+	},
+	"dimensions": {
+		"icon": "hugeicons:ruler"
+	},
+	"display": {
+		"icon": "hugeicons:full-screen"
+	},
+	"finish": {
+		"icon": "hugeicons:paint-brush-01"
+	},
+	"fit": {
+		"icon": "hugeicons:body-weight"
+	},
+	"graphics": {
+		"icon": "hugeicons:gpu"
+	},
 	"has dongle": {
-		"icon": "tick.svg"
+		"icon": "hugeicons:usb-connected-01"
+	},
+	"material": {
+		"icon": "hugeicons:cube"
+	},
+	"materials": {
+		"icon": "hugeicons:cube"
+	},
+	"mechanism": {
+		"icon": "hugeicons:gears"
+	},
+	"memory": {
+		"icon": "hugeicons:ram-memory"
+	},
+	"model": {
+		"icon": "hugeicons:tag-01"
+	},
+	"operating temperature": {
+		"icon": "hugeicons:temperature"
+	},
+	"os": {
+		"icon": "hugeicons:laptop-programming"
+	},
+	"power cell": {
+		"icon": "hugeicons:battery-charging-01"
+	},
+	"power requirements": {
+		"icon": "hugeicons:plug-01"
+	},
+	"processor": {
+		"icon": "hugeicons:cpu"
+	},
+	"storage": {
+		"icon": "hugeicons:hard-drive"
+	},
+	"vision lenses": {
+		"icon": "hugeicons:eye"
+	},
+	"warranty": {
+		"icon": "hugeicons:shield-01"
 	},
 	"waterproof": {
-		"icon": "tick.svg",
+		"icon": "hugeicons:droplet",
 		"highlight": true,
 		"list_items": true
 	},
-	"battery life": {
-		"icon": "tick.svg",
-		"highlight": true,
-		"list_items": true
+	"weight": {
+		"icon": "hugeicons:weight-scale"
 	}
 }
