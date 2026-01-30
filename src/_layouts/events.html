@@ -4,24 +4,24 @@ layout: base
 
 {{ content }}
 
-{% if categorisedEvents.upcoming.size > 0 %}
+{% if collections.upcomingEvents.size > 0 %}
   <h2>Upcoming {{ strings.event_name }}</h2>
-  {%- include "items.html", items: categorisedEvents.upcoming -%}
+  {%- include "items.html", items: collections.upcomingEvents -%}
 {% endif %}
 
-{% if categorisedEvents.regular.size > 0 %}
+{% if collections.regularEvents.size > 0 %}
   <h2>Regular {{ strings.event_name }}</h2>
-  {%- include "items.html", items: categorisedEvents.regular -%}
+  {%- include "items.html", items: collections.regularEvents -%}
 {% endif %}
 
-{% if categorisedEvents.past.size > 0 %}
-  {% if categorisedEvents.upcoming.size > 0 or categorisedEvents.regular.size > 0 %}
+{% if collections.pastEvents.size > 0 %}
+  {% if collections.upcomingEvents.size > 0 or collections.regularEvents.size > 0 %}
     <hr>
   {% endif %}
   <h2>Past {{ strings.event_name }}</h2>
-  {%- include "items.html", items: categorisedEvents.past -%}
+  {%- include "items.html", items: collections.pastEvents -%}
 {% endif %}
 
-{% if categorisedEvents.undated.size > 0 %}
-  {%- include "items.html", items: categorisedEvents.undated -%}
+{% if collections.undatedEvents.size > 0 %}
+  {%- include "items.html", items: collections.undatedEvents -%}
 {% endif %}

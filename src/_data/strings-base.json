@@ -5,6 +5,7 @@
 	"menu_permalink_dir": "menus",
 	"event_name": "Events",
 	"event_permalink_dir": "events",
+	"news_name": "News",
 	"news_permalink_dir": "news",
 	"location_name": "Locations",
 	"location_permalink_dir": "locations",

@@ -1,19 +1,8 @@
-import { categoriseEvents } from "#collections/events.js";
 import strings from "#data/strings.js";
 
 export default {
   eleventyComputed: {
     title: (data) => data.title || data.meta_title,
-    categorisedEvents: (data) => {
-      if (
-        data.layout === "events.html" &&
-        data.collections &&
-        data.collections.events
-      ) {
-        return categoriseEvents(data.collections.events);
-      }
-      return null;
-    },
     // Set navigationParent for filtered product pages to enable navigation caching.
     // Without this, each of potentially thousands of filtered pages would cache
     // its own navigation HTML, causing unbounded memory growth during builds.

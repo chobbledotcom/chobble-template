@@ -1,174 +1,172 @@
 import { describe, expect, test } from "bun:test";
-import { categoriseEvents, configureEvents } from "#collections/events.js";
+import { configureEvents } from "#collections/events.js";
 import { expectResultTitles, getCollectionFrom } from "#test/test-utils.js";
 import {
   createEvent,
   createEvents,
   createOffsetDate,
-  expectEventCounts,
   formatDateString,
 } from "#test/unit/collections/events-utils.js";
 
-describe("events", () => {
-  test("Handles empty events array", () => {
-    const result = categoriseEvents([]);
+// ============================================
+// Collection helpers
+// ============================================
 
-    expect(result.upcoming).toEqual([]);
-    expect(result.past).toEqual([]);
-    expect(result.regular).toEqual([]);
-    expect(result.undated).toEqual([]);
+const getCollection = getCollectionFrom("events")(configureEvents);
+const getUpcoming = getCollectionFrom("upcomingEvents")(configureEvents);
+const getPast = getCollectionFrom("pastEvents")(configureEvents);
+const getRegular = getCollectionFrom("regularEvents")(configureEvents);
+const getUndated = getCollectionFrom("undatedEvents")(configureEvents);
+const getFeatured = getCollectionFrom("featuredEvents")(configureEvents);
+const getRecurring = getCollectionFrom("recurringEvents")(configureEvents);
+
+/** Shorthand: pass events through a category collection with no products. */
+const fromEvents = (getter) => (events) => getter({ events, products: [] });
+
+// ============================================
+// Event categorisation (via collections)
+// ============================================
+
+describe("upcomingEvents collection", () => {
+  test("includes future events", () => {
+    const result = fromEvents(getUpcoming)([createEvent()]);
+    expect(result).toHaveLength(1);
   });
 
-  test("Categorizes future events as upcoming", () => {
-    const events = [createEvent()];
-
-    const result = categoriseEvents(events);
-
-    expectEventCounts(result, { upcoming: 1 });
-  });
-
-  test("Categorizes past events correctly", () => {
-    const events = [createEvent({ daysOffset: -30 })];
-
-    const result = categoriseEvents(events);
-
-    expectEventCounts(result, { past: 1 });
-  });
-
-  test("Events today are categorized as upcoming", () => {
-    const events = [createEvent({ title: "Today Event", date: new Date() })];
-
-    const result = categoriseEvents(events);
-
-    expectEventCounts(result, { upcoming: 1 });
-  });
-
-  test("Categorizes recurring events correctly", () => {
-    const events = createEvents([
-      { title: "Weekly Meeting", recurring: "Every Monday at 10 AM" },
-      { title: "Monthly Review", recurring: "First Friday of each month" },
+  test("includes events happening today", () => {
+    const result = fromEvents(getUpcoming)([
+      createEvent({ title: "Today Event", date: new Date() }),
     ]);
-
-    const result = categoriseEvents(events);
-
-    expectEventCounts(result, { regular: 2 });
+    expect(result).toHaveLength(1);
   });
 
-  test("Handles mix of upcoming, past, and recurring events", () => {
-    const events = createEvents([
-      {},
-      { daysOffset: -30 },
-      { title: "Weekly Meeting", recurring: "Every Monday" },
-    ]);
-
-    const result = categoriseEvents(events);
-
-    expectEventCounts(result, { upcoming: 1, past: 1, regular: 1 });
+  test("excludes past events", () => {
+    const result = fromEvents(getUpcoming)([createEvent({ daysOffset: -30 })]);
+    expect(result).toHaveLength(0);
   });
 
-  test("Sorts upcoming events by date (earliest first)", () => {
+  test("sorts by date (earliest first)", () => {
     const events = createEvents([
       { title: "Latest Event", daysOffset: 60 },
       { title: "Earliest Event", daysOffset: 30 },
       { title: "Middle Event", daysOffset: 45 },
     ]);
-
-    const result = categoriseEvents(events);
-
-    expectResultTitles(result.upcoming, [
+    expectResultTitles(fromEvents(getUpcoming)(events), [
       "Earliest Event",
       "Middle Event",
       "Latest Event",
     ]);
   });
+});
 
-  test("Sorts past events by date (most recent first)", () => {
+describe("pastEvents collection", () => {
+  test("includes past events", () => {
+    const result = fromEvents(getPast)([createEvent({ daysOffset: -30 })]);
+    expect(result).toHaveLength(1);
+  });
+
+  test("excludes future events", () => {
+    const result = fromEvents(getPast)([createEvent()]);
+    expect(result).toHaveLength(0);
+  });
+
+  test("sorts by date (most recent first)", () => {
     const events = createEvents([
       { title: "Oldest Event", daysOffset: -60 },
       { title: "Most Recent Event", daysOffset: -30 },
       { title: "Middle Event", daysOffset: -45 },
     ]);
-
-    const result = categoriseEvents(events);
-
-    expectResultTitles(result.past, [
+    expectResultTitles(fromEvents(getPast)(events), [
       "Most Recent Event",
       "Middle Event",
       "Oldest Event",
     ]);
   });
+});
 
-  test("Sorts regular events alphabetically by title", () => {
+describe("regularEvents collection", () => {
+  test("includes recurring events", () => {
     const events = createEvents([
-      { title: "Zumba Class", recurring: "Every Thursday" },
-      { title: "Book Club", recurring: "First Wednesday" },
-      { title: "Monthly Meeting", recurring: "Last Friday" },
+      { title: "Weekly Meeting", recurring: "Every Monday at 10 AM" },
+      { title: "Monthly Review", recurring: "First Friday of each month" },
     ]);
-
-    const result = categoriseEvents(events);
-
-    expectResultTitles(result.regular, [
-      "Book Club",
-      "Monthly Meeting",
-      "Zumba Class",
-    ]);
+    expect(fromEvents(getRegular)(events)).toHaveLength(2);
   });
 
-  test("If event has both recurring_date and event_date, recurring takes precedence", () => {
+  test("recurring takes precedence over event_date", () => {
     const events = [
       {
         data: {
           title: "Hybrid Event",
           recurring_date: "Every Friday",
           event_date: formatDateString(createOffsetDate()),
+          order: 9999,
         },
       },
     ];
-
-    const result = categoriseEvents(events);
-
-    expectEventCounts(result, { regular: 1 });
-    expectResultTitles(result.regular, ["Hybrid Event"]);
+    const result = fromEvents(getRegular)(events);
+    expect(result).toHaveLength(1);
+    expectResultTitles(result, ["Hybrid Event"]);
   });
 
-  test("Categorizes events without dates as undated", () => {
+  test("sorts alphabetically by title", () => {
+    const events = createEvents([
+      { title: "Zumba Class", recurring: "Every Thursday" },
+      { title: "Book Club", recurring: "First Wednesday" },
+      { title: "Monthly Meeting", recurring: "Last Friday" },
+    ]);
+    expectResultTitles(fromEvents(getRegular)(events), [
+      "Book Club",
+      "Monthly Meeting",
+      "Zumba Class",
+    ]);
+  });
+});
+
+describe("undatedEvents collection", () => {
+  test("includes events without dates", () => {
     const events = createEvents([
       { title: "No Date Event 1", undated: true },
       { title: "No Date Event 2", undated: true },
     ]);
-
-    const result = categoriseEvents(events);
-
-    expectEventCounts(result, { undated: 2 });
+    expect(fromEvents(getUndated)(events)).toHaveLength(2);
   });
 
-  test("Sorts undated events alphabetically by title", () => {
+  test("sorts alphabetically by title", () => {
     const events = createEvents([
       { title: "Zulu Event", undated: true },
       { title: "Alpha Event", undated: true },
       { title: "Mike Event", undated: true },
     ]);
-
-    const result = categoriseEvents(events);
-
-    expectResultTitles(result.undated, [
+    expectResultTitles(fromEvents(getUndated)(events), [
       "Alpha Event",
       "Mike Event",
       "Zulu Event",
     ]);
   });
+});
 
-  test("Handles mix of all event types including undated", () => {
+describe("event categories are mutually exclusive", () => {
+  test("mixed events land in correct collections", () => {
     const events = createEvents([
       { title: "Future Event" },
       { title: "Past Event", daysOffset: -30 },
       { title: "Weekly Meeting", recurring: "Every Monday" },
       { title: "Undated Event", undated: true },
     ]);
+    const tagMap = { events, products: [] };
+    expect(getUpcoming(tagMap)).toHaveLength(1);
+    expect(getPast(tagMap)).toHaveLength(1);
+    expect(getRegular(tagMap)).toHaveLength(1);
+    expect(getUndated(tagMap)).toHaveLength(1);
+  });
 
-    const result = categoriseEvents(events);
-
-    expectEventCounts(result, { upcoming: 1, past: 1, regular: 1, undated: 1 });
+  test("empty events produce empty collections", () => {
+    const tagMap = { events: [], products: [] };
+    expect(getUpcoming(tagMap)).toEqual([]);
+    expect(getPast(tagMap)).toEqual([]);
+    expect(getRegular(tagMap)).toEqual([]);
+    expect(getUndated(tagMap)).toEqual([]);
   });
 });
 
@@ -187,9 +185,6 @@ const productItem = (slug, events = [], thumbnail, order = 0) => ({
   fileSlug: slug,
   data: { events, thumbnail, order },
 });
-
-/** Curried helper to get the events collection from a configured mock */
-const getCollection = getCollectionFrom("events")(configureEvents);
 
 describe("events collection", () => {
   test("returns empty array when no events exist", () => {
@@ -249,8 +244,6 @@ describe("events collection", () => {
 });
 
 describe("featuredEvents collection", () => {
-  const getFeatured = getCollectionFrom("featuredEvents")(configureEvents);
-
   test("returns only featured events", () => {
     const events = [
       eventItem("featured-event", { title: "Featured", featured: true }),
@@ -278,8 +271,6 @@ describe("featuredEvents collection", () => {
 });
 
 describe("recurringEvents collection", () => {
-  const getRecurring = getCollectionFrom("recurringEvents")(configureEvents);
-
   test("returns only recurring events", () => {
     const events = [
       createEvent({ title: "Weekly Class", recurring_date: "Every Monday" }),
