@@ -128,10 +128,13 @@ const findViolations = (srcDir, registeredNames) =>
  *
  * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
  */
-export const configureCollectionValidation = (eleventyConfig) => {
+export const configureCollectionValidation = (
+  eleventyConfig,
+  srcDir = SRC_DIR,
+) => {
   eleventyConfig.on("eleventy.before", () => {
-    const registeredNames = buildRegisteredNames(SRC_DIR);
-    const violations = findViolations(SRC_DIR, registeredNames);
+    const registeredNames = buildRegisteredNames(srcDir);
+    const violations = findViolations(srcDir, registeredNames);
 
     if (violations.length > 0) {
       const details = violations
