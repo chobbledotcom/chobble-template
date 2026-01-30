@@ -58,10 +58,10 @@ const validateHireOptions = (options, title) => {
  * @returns {ProductOption} Option with max_quantity applied
  */
 const applyDefaultMaxQuantity = (opt, defaultMaxQuantity) => {
-  if (opt.max_quantity != null || defaultMaxQuantity == null) {
-    return opt;
-  }
-  return { ...opt, max_quantity: defaultMaxQuantity };
+  if (opt.max_quantity != null) return opt;
+  if (defaultMaxQuantity != null)
+    return { ...opt, max_quantity: defaultMaxQuantity };
+  return { ...opt, max_quantity: null };
 };
 
 /**
@@ -76,22 +76,30 @@ export const computeOptions = (data, mode, defaultMaxQuantity = null) => {
     return [];
   }
 
+  /** Normalize nullable fields so downstream serialization never needs || null */
+  const normalizeNullable = (opt) => ({
+    ...opt,
+    sku: opt.sku != null ? opt.sku : null,
+    days: opt.days != null ? opt.days : null,
+  });
+
   if (mode !== "hire") {
     return data.options.map((opt) =>
-      applyDefaultMaxQuantity(opt, defaultMaxQuantity),
+      normalizeNullable(applyDefaultMaxQuantity(opt, defaultMaxQuantity)),
     );
   }
 
   return pipe(
     filterMap(
       (opt) => opt.days != null,
-      (opt) => ({
-        ...applyDefaultMaxQuantity(opt, defaultMaxQuantity),
-        unit_price: parsePriceStrict(
-          opt.unit_price,
-          `${data.title} days=${opt.days}`,
-        ),
-      }),
+      (opt) =>
+        normalizeNullable({
+          ...applyDefaultMaxQuantity(opt, defaultMaxQuantity),
+          unit_price: parsePriceStrict(
+            opt.unit_price,
+            `${data.title} days=${opt.days}`,
+          ),
+        }),
     ),
     sortBy("days"),
   )(data.options);
@@ -122,9 +130,9 @@ export const buildCartAttributes = ({
         mode === "hire"
           ? opt.unit_price
           : parsePriceStrict(opt.unit_price, `${title} option "${opt.name}"`),
-      max_quantity: opt.max_quantity || null,
-      sku: opt.sku || null,
-      days: opt.days || null,
+      max_quantity: opt.max_quantity,
+      sku: opt.sku,
+      days: opt.days,
     })),
     specs: specs ? specs.map(pick(["name", "value"])) : null,
     hire_prices:

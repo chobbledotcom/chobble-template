@@ -11,9 +11,17 @@ describe("product-cart-data", () => {
       expect(computeOptions({ options: [] }, "buy")).toEqual([]);
     });
 
-    test("returns options unchanged for non-hire mode", () => {
+    test("returns options with normalized nullable fields for non-hire mode", () => {
       const options = [{ name: "Small", unit_price: "£10" }];
-      expect(computeOptions({ options }, "buy")).toEqual(options);
+      expect(computeOptions({ options }, "buy")).toEqual([
+        {
+          name: "Small",
+          unit_price: "£10",
+          sku: null,
+          days: null,
+          max_quantity: null,
+        },
+      ]);
     });
 
     test("filters, parses and sorts options for hire mode", () => {
@@ -27,8 +35,8 @@ describe("product-cart-data", () => {
       };
       const result = computeOptions(data, "hire");
       expect(result).toEqual([
-        { days: 1, unit_price: 10 },
-        { days: 3, unit_price: 30 },
+        { days: 1, unit_price: 10, sku: null, max_quantity: null },
+        { days: 3, unit_price: 30, sku: null, max_quantity: null },
       ]);
     });
 
@@ -58,8 +66,20 @@ describe("product-cart-data", () => {
       ];
       const result = computeOptions({ options }, "buy", 5);
       expect(result).toEqual([
-        { name: "Small", unit_price: "£10", max_quantity: 5 },
-        { name: "Large", unit_price: "£20", max_quantity: 5 },
+        {
+          name: "Small",
+          unit_price: "£10",
+          max_quantity: 5,
+          sku: null,
+          days: null,
+        },
+        {
+          name: "Large",
+          unit_price: "£20",
+          max_quantity: 5,
+          sku: null,
+          days: null,
+        },
       ]);
     });
 
@@ -70,8 +90,20 @@ describe("product-cart-data", () => {
       ];
       const result = computeOptions({ options }, "buy", 10);
       expect(result).toEqual([
-        { name: "Limited", unit_price: "£10", max_quantity: 2 },
-        { name: "Unlimited", unit_price: "£20", max_quantity: 10 },
+        {
+          name: "Limited",
+          unit_price: "£10",
+          max_quantity: 2,
+          sku: null,
+          days: null,
+        },
+        {
+          name: "Unlimited",
+          unit_price: "£20",
+          max_quantity: 10,
+          sku: null,
+          days: null,
+        },
       ]);
     });
 
@@ -85,8 +117,8 @@ describe("product-cart-data", () => {
       };
       const result = computeOptions(data, "hire", 5);
       expect(result).toEqual([
-        { days: 1, unit_price: 10, max_quantity: 5 },
-        { days: 3, unit_price: 30, max_quantity: 3 },
+        { days: 1, unit_price: 10, max_quantity: 5, sku: null },
+        { days: 3, unit_price: 30, max_quantity: 3, sku: null },
       ]);
     });
   });

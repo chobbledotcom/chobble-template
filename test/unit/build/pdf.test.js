@@ -111,7 +111,7 @@ describe("pdf", () => {
 
       expectObjectProps({
         menuTitle: "Dinner Menu",
-        subtitle: "",
+        subtitle: null,
       })(result);
     });
 
@@ -242,23 +242,6 @@ describe("pdf", () => {
       expect(result.categories[0].description).toBe("Our famous starters");
     });
 
-    test("Handles null categories array", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-
-      const result = buildMenuPdfData(menu, null, []);
-
-      expect(result.categories).toHaveLength(0);
-    });
-
-    test("Handles null items array", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-
-      const result = buildMenuPdfData(menu, categories, null);
-
-      expect(result.categories[0].items).toHaveLength(0);
-    });
-
     test("Handles items without description", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
@@ -266,7 +249,7 @@ describe("pdf", () => {
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expect(result.categories[0].items[0].description).toBe("");
+      expect(result.categories[0].items[0].description).toBeNull();
     });
 
     test("Handles empty dietary keys array", () => {

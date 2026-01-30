@@ -82,9 +82,10 @@ export default {
     if (image) return image;
     if (hasTag(data, "reviews")) return null;
     const config = data.config || getConfig();
-    return config.placeholder_images
-      ? getPlaceholderForPath(data.page.url)
-      : null;
+    if (!config.placeholder_images) return null;
+    const url = data.page?.url;
+    if (typeof url !== "string") return null;
+    return getPlaceholderForPath(url);
   },
 
   /**
