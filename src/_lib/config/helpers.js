@@ -44,7 +44,7 @@ const DEFAULT_PRODUCT_DATA = frozenObject({
 /**
  * Extract non-null product settings from config
  */
-const getProducts = ({ products = {} }) => pickTruthy(products);
+const getProducts = ({ products }) => pickTruthy(products);
 
 /**
  * Get form target URL from config, preferring explicit target over formspark

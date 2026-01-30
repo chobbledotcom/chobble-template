@@ -22,7 +22,7 @@ const getPdfRenderer = memoize(
   async () => (await import("json-to-pdf")).renderPdfTemplate,
 );
 
-function buildMenuPdfData(menu, menuCategories = [], menuItems = []) {
+function buildMenuPdfData(menu, menuCategories, menuItems) {
   const items = menuItems;
 
   const categories = pipe(

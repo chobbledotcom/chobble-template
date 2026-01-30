@@ -65,16 +65,6 @@ describe("config", () => {
     })(DEFAULT_PRODUCT_DATA);
   });
 
-  test("getProducts returns empty object when no products", () => {
-    const result = getProducts({});
-    expect(result).toEqual({});
-  });
-
-  test("getProducts handles undefined products property", () => {
-    const result = getProducts({ other: "value" });
-    expect(result).toEqual({});
-  });
-
   test("getProducts filters out null values", () => {
     const configData = {
       products: {

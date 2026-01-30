@@ -4,7 +4,6 @@ import quoteFieldsFn from "#data/quote-fields.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
 import { validateBlocks } from "#utils/block-schema.js";
-import { log } from "#utils/console.js";
 import { getFilterAttributes } from "#utils/mock-filter-attributes.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
@@ -85,12 +84,7 @@ export default {
     const config = data.config || getConfig();
     if (!config.placeholder_images) return null;
     const url = data.page?.url;
-    if (typeof url !== "string") {
-      log(
-        `[thumbnail] page.url is ${typeof url} for ${data.page?.inputPath || "unknown"}`,
-      );
-      return null;
-    }
+    if (typeof url !== "string") return null;
     return getPlaceholderForPath(url);
   },
 
