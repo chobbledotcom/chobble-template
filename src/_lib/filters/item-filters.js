@@ -61,8 +61,93 @@ import {
   buildFilterUIData,
   enhanceWithFilterUI,
 } from "#filters/filter-ui.js";
+import { memoizeByRef } from "#toolkit/fp/memoize.js";
 
 /** @typedef {import("#lib/types").FilterConfigOptions} FilterConfigOptions */
+
+/** Build enhanced filter pages from items and pre-computed combinations */
+const buildFilterPages =
+  (itemsKey, baseUrl) => (items, baseCombinations, filterData) => {
+    const allCombinations = [
+      ...expandWithSortVariants(baseCombinations),
+      ...generateSortOnlyPages(items.length),
+    ];
+    const pages = allCombinations.map((combo) => ({
+      ...buildFilterPageBase(combo, filterData.displayLookup),
+      sortKey: combo.sortKey,
+      [itemsKey]: filterWithSort(items, combo.filters, combo.sortKey),
+    }));
+    return enhanceWithFilterUI(pages, filterData, baseUrl, baseCombinations);
+  };
+
+/** Compute all filter data for a tag in a single pass */
+const computeFilterData = (tag, baseUrl, itemsKey, collectionApi) => {
+  const items = collectionApi.getFilteredByTag(tag);
+  const baseCombinations = generateFilterCombinations(items);
+  const filterData = {
+    attributes: getAllFilterAttributes(items),
+    displayLookup: buildDisplayLookup(items),
+  };
+  const makePages = buildFilterPages(itemsKey, baseUrl);
+  const pages =
+    baseCombinations.length === 0
+      ? []
+      : makePages(items, baseCombinations, filterData);
+
+  return {
+    pages,
+    redirects: generateFilterRedirects(items, `${baseUrl}/search`),
+    filterData,
+    listingFilterUI: buildFilterUIData(
+      filterData,
+      {},
+      baseCombinations,
+      baseUrl,
+      "default",
+      items.length,
+    ),
+  };
+};
+
+/** Register filter collections and filters with Eleventy */
+const registerFilterCollections = (
+  eleventyConfig,
+  collections,
+  computeAllData,
+  uiDataFilterName,
+  baseUrl,
+) => {
+  eleventyConfig.addCollection(
+    collections.pages,
+    (c) => computeAllData(c).pages,
+  );
+  eleventyConfig.addCollection(
+    collections.redirects,
+    (c) => computeAllData(c).redirects,
+  );
+  if (collections.attributes) {
+    eleventyConfig.addCollection(
+      collections.attributes,
+      (c) => computeAllData(c).filterData,
+    );
+  }
+  eleventyConfig.addCollection(
+    `${collections.pages}ListingFilterUI`,
+    (c) => computeAllData(c).listingFilterUI,
+  );
+  eleventyConfig.addFilter(
+    uiDataFilterName,
+    (filterData, filters, pages, sortKey = "default", count = 2) =>
+      buildFilterUIData(
+        filterData,
+        filters ?? {},
+        pages,
+        baseUrl,
+        sortKey,
+        count,
+      ),
+  );
+};
 
 /**
  * Create a filter system for a specific item type
@@ -74,93 +159,18 @@ export const createFilterConfig = (options) => {
     options;
   const baseUrl = `/${permalinkDir}`;
 
-  /** @param {import("@11ty/eleventy").CollectionApi} collectionApi */
-  const pagesCollection = (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag);
-    const baseCombinations = generateFilterCombinations(items);
-    if (baseCombinations.length === 0) return [];
+  const computeAllData = memoizeByRef((collectionApi) =>
+    computeFilterData(tag, baseUrl, itemsKey, collectionApi),
+  );
 
-    const displayLookup = buildDisplayLookup(items);
-    const filterData = {
-      attributes: getAllFilterAttributes(items),
-      displayLookup,
-    };
-    const allCombinations = [
-      ...expandWithSortVariants(baseCombinations),
-      ...generateSortOnlyPages(items.length),
-    ];
-    const pages = allCombinations.map((combo) => {
-      const matchedItems = filterWithSort(items, combo.filters, combo.sortKey);
-      return {
-        ...buildFilterPageBase(combo, displayLookup),
-        sortKey: combo.sortKey,
-        [itemsKey]: matchedItems,
-      };
-    });
-    return enhanceWithFilterUI(pages, filterData, baseUrl, baseCombinations);
-  };
-
-  /**
-   * @param {import("@11ty/eleventy").CollectionApi} collectionApi
-   */
-  const redirectsCollection = (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag);
-    return generateFilterRedirects(items, `${baseUrl}/search`);
-  };
-
-  /**
-   * @param {import("@11ty/eleventy").CollectionApi} collectionApi
-   */
-  const attributesCollection = (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag);
-    return {
-      attributes: getAllFilterAttributes(items),
-      displayLookup: buildDisplayLookup(items),
-    };
-  };
-
-  /**
-   * Build filterUI for listing page (no active filters, default sort)
-   * @param {import("@11ty/eleventy").CollectionApi} collectionApi
-   */
-  const listingFilterUICollection = (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag);
-    const filterData = {
-      attributes: getAllFilterAttributes(items),
-      displayLookup: buildDisplayLookup(items),
-    };
-    const baseCombinations = generateFilterCombinations(items);
-    return buildFilterUIData(
-      filterData,
-      {},
-      baseCombinations,
-      baseUrl,
-      "default",
-      items.length,
-    );
-  };
-
-  const configure = (eleventyConfig) => {
-    eleventyConfig.addCollection(collections.pages, pagesCollection);
-    eleventyConfig.addCollection(collections.redirects, redirectsCollection);
-    eleventyConfig.addCollection(collections.attributes, attributesCollection);
-    eleventyConfig.addCollection(
-      `${collections.pages}ListingFilterUI`,
-      listingFilterUICollection,
-    );
-    eleventyConfig.addFilter(
+  const configure = (eleventyConfig) =>
+    registerFilterCollections(
+      eleventyConfig,
+      collections,
+      computeAllData,
       uiDataFilterName,
-      (filterData, filters, pages, sortKey = "default", count = 2) =>
-        buildFilterUIData(
-          filterData,
-          filters ?? {},
-          pages,
-          baseUrl,
-          sortKey,
-          count,
-        ),
+      baseUrl,
     );
-  };
 
   return { configure };
 };
