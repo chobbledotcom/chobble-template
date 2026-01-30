@@ -184,7 +184,7 @@ blocks:
 
   # Performance Split
   - type: split
-    section_class: ""
+    section_class: gradient
     container: true
     title: Fast. Really Fast.
     reveal_content: left
