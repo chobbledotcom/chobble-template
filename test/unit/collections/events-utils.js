@@ -3,27 +3,7 @@
  * Shared test helpers for events.test.js and other event-related tests
  */
 
-import { expect } from "bun:test";
 import { map } from "#toolkit/fp/array.js";
-
-/**
- * Assert event categorization counts
- * @param {Object} result - Result object with upcoming, past, regular, undated arrays
- * @param {Object} options - Expected counts
- * @param {number} options.upcoming - Expected upcoming events
- * @param {number} options.past - Expected past events
- * @param {number} options.regular - Expected regular events
- * @param {number} options.undated - Expected undated events
- */
-const expectEventCounts = (
-  result,
-  { upcoming = 0, past = 0, regular = 0, undated = 0 },
-) => {
-  expect(result.upcoming.length).toBe(upcoming);
-  expect(result.past.length).toBe(past);
-  expect(result.regular.length).toBe(regular);
-  expect(result.undated.length).toBe(undated);
-};
 
 /**
  * Create a date offset from today
