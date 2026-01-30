@@ -2,25 +2,18 @@
 // Manages cart state in localStorage and provides cart functionality
 // Supports both PayPal and Stripe checkout
 
+import { createCartRenderer } from "#public/utils/cart-renderer.js";
 import {
-  attachQuantityHandlers,
-  attachRemoveHandlers,
   formatPrice,
   getCart,
   getCheckoutItems,
   saveCart,
   updateCartIcon,
-  updateItemQuantity,
 } from "#public/utils/cart-utils.js";
 import Config from "#public/utils/config.js";
 import { postJson } from "#public/utils/http.js";
 import { onReady } from "#public/utils/on-ready.js";
 import { IDS } from "#public/utils/selectors.js";
-import {
-  getTemplate,
-  populateItemFields,
-  populateQuantityControls,
-} from "#public/utils/template.js";
 
 const CART_OVERLAY_ID = "cart-overlay";
 const IS_ENQUIRY_MODE = Config.cart_mode === "quote";
@@ -69,15 +62,6 @@ const closeCart = () => {
   }
 };
 
-const renderCartItem = (item) => {
-  const template = getTemplate(IDS.CART_ITEM, document);
-
-  populateItemFields(template, item.item_name, formatPrice(item.unit_price));
-  populateQuantityControls(template, item);
-
-  return template;
-};
-
 const updateStripeBtn = (btn, isBelowMinimum) => {
   btn.style.display = isBelowMinimum ? "none" : "";
   btn.disabled = isBelowMinimum;
@@ -95,43 +79,18 @@ const updateCheckoutButtons = (cartOverlay, total) => {
     minMsg.style.display = isBelowMinimum && total > 0 ? "block" : "none";
 };
 
-const renderCartItems = (cartItems, cart) => {
-  cartItems.innerHTML = "";
-  for (const item of cart) {
-    cartItems.appendChild(renderCartItem(item));
-  }
-  attachQuantityHandlers((name, qty) => updateQuantity(name, qty));
-  attachRemoveHandlers(() => {
-    updateCartDisplay();
-    updateCartIcon();
-  });
-};
-
-const updateCartVisibility = (cartOverlay, isEmpty, total) => {
-  const cartEmpty = cartOverlay.querySelector(".cart-empty");
-  const cartTotal = cartOverlay.querySelector(".cart-total-amount");
-  if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
-  if (cartTotal) cartTotal.textContent = formatPrice(total);
-  updateCheckoutButtons(cartOverlay, total);
-};
-
-const updateCartDisplay = () => {
-  const cartOverlay = getCartOverlay();
-  const cartItems = cartOverlay?.querySelector(".cart-items");
-  if (!cartItems) return;
-
-  const cart = getCart();
-  const isEmpty = cart.length === 0;
-  if (isEmpty) cartItems.innerHTML = "";
-  else renderCartItems(cartItems, cart);
-  updateCartVisibility(cartOverlay, isEmpty, getCartTotal());
-};
-
-const updateQuantity = (itemName, quantity) => {
-  updateItemQuantity(itemName, quantity);
-  updateCartDisplay();
-  updateCartIcon();
-};
+const updateCartDisplay = createCartRenderer({
+  getContainer: getCartOverlay,
+  itemsSelector: ".cart-items",
+  emptySelector: ".cart-empty",
+  templateId: IDS.CART_ITEM,
+  onRender: (container) => {
+    const total = getCartTotal();
+    const cartTotal = container.querySelector(".cart-total-amount");
+    if (cartTotal) cartTotal.textContent = formatPrice(total);
+    updateCheckoutButtons(container, total);
+  },
+});
 
 const clampQuantity = (quantity, maxQuantity) => {
   if (!maxQuantity || quantity <= maxQuantity) return quantity;
