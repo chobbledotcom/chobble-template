@@ -142,9 +142,11 @@ const computeAllCategoryData = memoizeByRef(
     const products = collectionApi.getFilteredByTag("products");
     const grouped = productsByCategory(products);
 
-    const categoryData = mapFilter((category) =>
-      buildCategoryData(category.fileSlug, grouped[category.fileSlug]),
-    )(categories);
+    const categoryData = mapFilter((category) => {
+      const categoryProducts = grouped[category.fileSlug];
+      if (!categoryProducts) return null;
+      return buildCategoryData(category.fileSlug, categoryProducts);
+    })(categories);
 
     return {
       pages: categoryData.flatMap((c) => c.pages),

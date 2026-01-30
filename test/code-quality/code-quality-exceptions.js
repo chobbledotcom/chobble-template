@@ -300,7 +300,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/build/theme-compiler.js:51", // Theme variables extraction fallback
 
   // src/_lib/filters - URL-based filtering
-  "src/_lib/filters/category-product-filters.js:212", // Liquid template boundary (currentFilters from template can be null)
+  "src/_lib/filters/category-product-filters.js:214", // Liquid template boundary (currentFilters from template can be null)
   "src/_lib/filters/filter-core.js:141", // Lazy init nested lookup (??= avoids object-mutation violation)
   "src/_lib/filters/filter-core.js:142",
   "src/_lib/filters/filter-core.js:196",
