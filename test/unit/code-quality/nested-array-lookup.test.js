@@ -2,10 +2,10 @@
  * Detects nested array lookups that indicate O(n*m) performance patterns.
  *
  * When .find() or .filter() is called inside the callback of another array
- * iteration method (.map, .flatMap, .reduce, etc.) or inside a for loop,
- * the inner traversal runs for every iteration of the outer loop — O(n*m)
- * total work. Use indexBy() or groupByWithCache() to build an O(1) lookup
- * map first, reducing total work to O(n+m).
+ * iteration method (.map, .flatMap, .reduce, etc.), the inner traversal runs
+ * for every iteration of the outer loop — O(n*m) total work. Use indexBy()
+ * or groupByWithCache() to build an O(1) lookup map first, reducing total
+ * work to O(n+m).
  *
  * BAD:
  *   products.map((p) => {
@@ -40,74 +40,45 @@ const ITERATION_CONTEXT_PATTERNS = [
   /\.reduce\s*\(/, // .reduce() callback
 ];
 
-const isIterationLine = (line) =>
-  ITERATION_CONTEXT_PATTERNS.some((p) => p.test(line));
-
-const countChar = (str, ch) => {
-  let n = 0;
-  for (const c of str) {
-    if (c === ch) n++;
-  }
-  return n;
-};
-
 /**
- * Custom scanner that tracks whether each brace level was opened by an
- * iteration context. Only flags .find()/.filter() if an ancestor brace
- * was opened by a line with .map(, .flatMap(, for(...), etc.
+ * Scan source code for .find()/.filter() calls nested inside iteration
+ * method callbacks. Uses a brace-depth stack to track whether any ancestor
+ * scope was opened by a line containing .map(), .flatMap(), etc.
  *
  * @param {string} source - Source code to scan
  * @returns {Array<{lineNumber: number, line: string, method: string}>}
  */
-const findNestedLookups = (source) => {
-  const lines = source.split("\n");
-  const results = [];
-  // Stack tracking whether each brace level is an iteration context
-  // true = this brace was opened by a line containing an iteration method
-  const iterStack = [];
-  let depth = 0;
+const findNestedLookups = (source) =>
+  source.split("\n").reduce(
+    (state, line, i) => {
+      const trimmed = line.trim();
+      if (isCommentLine(trimmed)) return state;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const trimmed = line.trim();
+      const cleaned = removeStrings(line);
+      const opens = cleaned.split("{").length - 1;
+      const closes = cleaned.split("}").length - 1;
+      const isIter = ITERATION_CONTEXT_PATTERNS.some((p) => p.test(cleaned));
 
-    if (isCommentLine(trimmed)) continue;
-
-    const cleaned = removeStrings(line);
-    const opens = countChar(cleaned, "{");
-    const closes = countChar(cleaned, "}");
-    const isIter = isIterationLine(cleaned);
-
-    // Check for lookup pattern BEFORE updating depth
-    // We want to know: is any ancestor brace an iteration context?
-    const hasIterAncestor = iterStack.some((v) => v);
-
-    if (hasIterAncestor && LOOKUP_PATTERN.test(cleaned)) {
-      const methodMatch = cleaned.match(/\.(find|filter)\s*\(/);
-      if (methodMatch) {
-        results.push({
-          lineNumber: i + 1,
-          line: trimmed,
-          method: methodMatch[1],
-        });
+      // Check BEFORE updating depth: is any ancestor brace an iteration context?
+      if (state.iterStack.some((v) => v) && LOOKUP_PATTERN.test(cleaned)) {
+        const methodMatch = cleaned.match(/\.(find|filter)\s*\(/);
+        if (methodMatch) {
+          state.results.push({
+            lineNumber: i + 1,
+            line: trimmed,
+            method: methodMatch[1],
+          });
+        }
       }
-    }
 
-    // Update brace depth tracking
-    // Process opens: push to stack
-    for (let j = 0; j < opens; j++) {
-      iterStack.push(isIter);
-      depth++;
-    }
-    // Process closes: pop from stack
-    for (let j = 0; j < closes; j++) {
-      iterStack.pop();
-      depth = Math.max(0, depth - 1);
-    }
-  }
+      // Update brace depth: push for opens, pop for closes
+      for (const _ of Array(opens)) state.iterStack.push(isIter);
+      for (const _ of Array(closes)) state.iterStack.pop();
 
-  return results;
-};
+      return state;
+    },
+    { iterStack: [], results: [] },
+  ).results;
 
 /** Build violation entry from a match */
 const toViolation = (file) => (v) => ({

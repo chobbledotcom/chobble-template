@@ -9,7 +9,7 @@
  * - Sorting filtered results
  */
 
-import { flatMap, join, map, pipe, sort } from "#toolkit/fp/array.js";
+import { flatMap, join, pipe, sort } from "#toolkit/fp/array.js";
 import {
   buildFirstOccurrenceLookup,
   groupValuesBy,
@@ -234,24 +234,57 @@ export const toSortedPath = (filters, sortKey) => {
 };
 
 /**
- * Get items matching the given filters with specified sort order.
+ * Get items that match a set of filters (without sorting).
  *
- * @param {EleventyCollectionItem[]} items - Original items array
+ * Results are cached per items array and filter path. When the same filter
+ * set is used with different sort orders (e.g. "price-asc", "name-desc"),
+ * the expensive item-matching work only happens once. With 13,000 filter
+ * combinations × 5 sort options = 65,000 pages, this avoids ~52,000
+ * redundant scans.
+ *
+ * The WeakMap is keyed by the items array reference, so each product set
+ * (e.g. "all products" vs "products in category X") gets its own cache,
+ * and the cache is automatically cleaned up when the items array is
+ * garbage collected.
+ *
+ * @param {EleventyCollectionItem[]} items - All items
+ * @param {FilterSet} filters - Filter object (can be empty)
+ * @param {Object} lookup - Lookup table from buildItemLookup
+ * @returns {EleventyCollectionItem[]} Matching items (unsorted)
+ */
+const alreadyMatchedItems = new WeakMap();
+
+export const getMatchingItems = (items, filters, lookup) => {
+  if (!filters || Object.keys(filters).length === 0) return items;
+
+  if (!alreadyMatchedItems.has(items)) {
+    alreadyMatchedItems.set(items, new Map());
+  }
+  const cache = alreadyMatchedItems.get(items);
+
+  const path = filterToPath(filters);
+  const cached = cache.get(path);
+  if (cached) return cached;
+
+  const matched = findMatchingPositions(lookup, normalizeAttrs(filters)).map(
+    (pos) => items[pos],
+  );
+
+  cache.set(path, matched);
+  return matched;
+};
+
+/**
+ * Get items matching the given filters, then sort them.
+ *
+ * @param {EleventyCollectionItem[]} items - All items
  * @param {FilterSet} filters - Filters to apply (can be empty)
  * @param {Object} lookup - Lookup table from buildItemLookup
  * @param {string | undefined} sortKey - Sort option key
  * @returns {EleventyCollectionItem[]} Matching items, sorted
  */
-export const matchWithSort = (items, filters, lookup, sortKey) => {
-  // Handle empty filters (sort-only pages)
-  if (!filters || Object.keys(filters).length === 0) {
-    return sort(getSortComparator(sortKey))(items);
-  }
-  return pipe(
-    map((pos) => items[pos]),
-    sort(getSortComparator(sortKey)),
-  )(findMatchingPositions(lookup, normalizeAttrs(filters)));
-};
+export const matchWithSort = (items, filters, lookup, sortKey) =>
+  sort(getSortComparator(sortKey))(getMatchingItems(items, filters, lookup));
 
 /**
  * Get items matching the given filters with specified sort order.
