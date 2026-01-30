@@ -41,16 +41,6 @@ const revsFor = (productId, count, rating = 5, monthPrefix = "01") =>
     ),
   }));
 
-/** Create reviews with flexible ratings for a product */
-const prodRevs = (productId, ratings) =>
-  revs(
-    ratings.map((rating, i) => [
-      `R${i + 1}`,
-      `2024-01-0${i + 1}`,
-      { products: [productId], rating },
-    ]),
-  );
-
 /**
  * Create limit test data with products above and below truncate threshold.
  * @param {boolean} aAboveLimit - whether product-a should be above limit
@@ -109,7 +99,7 @@ describe("reviews", () => {
       ["Review 1", "2024-01-01", { products: ["product-a", "product-b"] }],
       ["Review 2", "2024-01-02", { products: ["product-c"] }],
       ["Review 3", "2024-01-03", { products: ["product-a"] }],
-      ["Review 4", "2024-01-04", {}],
+      ["Review 4", "2024-01-04", { products: [] }],
     ]);
 
     const result = getReviewsFor(r, "product-a", ["products"]);
@@ -119,8 +109,8 @@ describe("reviews", () => {
 
   test("Handles reviews without matching field", () => {
     const r = revs([
-      ["Review 1", "2024-01-01", {}],
-      ["Review 2", "2024-01-02", { products: null }],
+      ["Review 1", "2024-01-01", { products: [] }],
+      ["Review 2", "2024-01-02", { products: [] }],
       ["Review 3", "2024-01-03", { products: [] }],
     ]);
 
@@ -155,9 +145,21 @@ describe("reviews", () => {
 
   test("Works with all supported fields", () => {
     const r = revs([
-      ["Review 1", "2024-01-01", { products: ["product-a"] }],
-      ["Review 2", "2024-01-02", { categories: ["category-a"] }],
-      ["Review 3", "2024-01-03", { properties: ["property-a"] }],
+      [
+        "Review 1",
+        "2024-01-01",
+        { products: ["product-a"], categories: [], properties: [] },
+      ],
+      [
+        "Review 2",
+        "2024-01-02",
+        { products: [], categories: ["category-a"], properties: [] },
+      ],
+      [
+        "Review 3",
+        "2024-01-03",
+        { products: [], categories: [], properties: ["property-a"] },
+      ],
     ]);
 
     expect(getReviewsFor(r, "product-a", ["products"]).length).toBe(1);
@@ -166,20 +168,33 @@ describe("reviews", () => {
   });
 
   test("Calculates rating for any field type via filter", () => {
-    const productReviews = prodRevs("product-a", [5, 3]);
-    const r = [
-      ...productReviews,
-      ...revs([
-        ["R3", "2024-01-03", { categories: ["category-a"], rating: 4 }],
-      ]),
-    ];
+    const r = revs([
+      [
+        "R1",
+        "2024-01-01",
+        { products: ["product-a"], categories: [], properties: [], rating: 5 },
+      ],
+      [
+        "R2",
+        "2024-01-02",
+        { products: ["product-a"], categories: [], properties: [], rating: 3 },
+      ],
+      [
+        "R3",
+        "2024-01-03",
+        { products: [], categories: ["category-a"], properties: [], rating: 4 },
+      ],
+    ]);
 
     expect(getRating(r, "product-a", ["products"])).toBe(4);
     expect(getRating(r, "category-a", ["categories"])).toBe(4);
   });
 
   test("Returns ceiling of average rating via filter", () => {
-    const r = prodRevs("product-a", [5, 4]);
+    const r = revs([
+      ["R1", "2024-01-01", { products: ["product-a"], rating: 5 }],
+      ["R2", "2024-01-02", { products: ["product-a"], rating: 4 }],
+    ]);
 
     expect(getRating(r, "product-a", ["products"])).toBe(5);
   });

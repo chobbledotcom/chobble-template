@@ -29,14 +29,16 @@ const push = (inputPath, name, content) => {
   if (!slots) slots = new Map();
   if (!slots.has(inputPath)) slots.set(inputPath, new Map());
   const page = slots.get(inputPath);
-  const existing = page.get(name) ?? "";
-  page.set(name, existing + content);
+  if (!page.has(name)) page.set(name, "");
+  page.set(name, page.get(name) + content);
   return "";
 };
 
 const render = (inputPath, name) => {
   if (!slots?.has(inputPath)) return "";
-  return slots.get(inputPath).get(name) ?? "";
+  const page = slots.get(inputPath);
+  if (!page.has(name)) return "";
+  return page.get(name);
 };
 
 /**

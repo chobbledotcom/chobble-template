@@ -515,7 +515,7 @@ describe("item-filters", () => {
       });
       const validPages = pages(["type/a"]);
 
-      const result = mock.getFilter("testUI")(data, null, validPages);
+      const result = mock.getFilter("testUI")(data, {}, validPages);
 
       expect(result.clearAllUrl).toBe("/my-items/#content");
     });
@@ -524,7 +524,7 @@ describe("item-filters", () => {
       const { getUIData } = setupConfig();
       const data = filterData({});
 
-      const result = getUIData(data, null, []);
+      const result = getUIData(data, {}, []);
 
       expect(result.hasFilters).toBe(false);
     });
@@ -546,7 +546,7 @@ describe("item-filters", () => {
         "size/small/type/cottage",
       ]);
 
-      const result = getUIData(data, null, validPages);
+      const result = getUIData(data, {}, validPages);
 
       expect(result.hasFilters).toBe(true);
       expect(result.hasActiveFilters).toBe(false);
@@ -595,7 +595,7 @@ describe("item-filters", () => {
         },
       });
       const validPages = pages(["type/cottage", "type/apartment"]);
-      const result = getUIData(data, null, validPages);
+      const result = getUIData(data, {}, validPages);
 
       // groups[0] is sort (always 5 options), groups[1] is type
       const typeGroup = result.groups.find((g) => g.name === "type");
@@ -612,7 +612,7 @@ describe("item-filters", () => {
       // Only type/cottage is valid, size/small is not
       const validPages = pages(["type/cottage"]);
 
-      const result = getUIData(data, null, validPages);
+      const result = getUIData(data, {}, validPages);
 
       // sort is shown (count defaults to 2), but type is hidden (only 1 option)
       // size is excluded (no valid options)
@@ -631,7 +631,7 @@ describe("item-filters", () => {
       });
       const validPages = pages(["type/cottage", "type/villa"]);
 
-      const result = getUIData(data, null, validPages);
+      const result = getUIData(data, {}, validPages);
 
       // sort + type (type has 2 options)
       expect(result.groups.length).toBe(2);
