@@ -114,7 +114,7 @@ const buildListingUI = (ctx, productCount) =>
  * Returns null if category has no products or no filter attributes.
  */
 const buildCategoryData = (slug, products) => {
-  if (products.length === 0) return null;
+  if (!products || products.length === 0) return null;
 
   const sortedProducts = [...products].sort(sortItems);
   const combinations = generateFilterCombinations(sortedProducts);
@@ -143,7 +143,7 @@ const computeAllCategoryData = memoizeByRef(
     const grouped = productsByCategory(products);
 
     const categoryData = mapFilter((category) =>
-      buildCategoryData(category.fileSlug, grouped[category.fileSlug] ?? []),
+      buildCategoryData(category.fileSlug, grouped[category.fileSlug]),
     )(categories);
 
     return {
@@ -202,12 +202,14 @@ const categoryFilterData = (
   const filterData = categoryFilterAttrs[categorySlug];
   if (!filterData) return { hasFilters: false };
 
-  const categoryPages = pagesByCategory(filteredPages)[categorySlug] ?? [];
+  const categoryPages = pagesByCategory(filteredPages)[categorySlug];
+  if (!categoryPages) return { hasFilters: false };
+
   const baseUrl = `/categories/${categorySlug}`;
 
   return buildFilterUIData(
     filterData,
-    currentFilters ?? {},
+    currentFilters,
     getBasePaths(categoryPages),
     baseUrl,
     currentSortKey,

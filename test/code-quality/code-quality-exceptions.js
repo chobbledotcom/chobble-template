@@ -300,15 +300,8 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/build/scss.js:23", // Lazy module loading pattern
   "src/_lib/build/theme-compiler.js:51", // Theme variables extraction fallback
 
-  // src/_lib/eleventy - Eleventy plugins
-  "src/_lib/eleventy/capture.js:32",
-  "src/_lib/eleventy/capture.js:39",
-
-  // src/_lib/filters - URL-based filtering, normalize template inputs
-  "src/_lib/filters/category-product-filters.js:146", // Default empty array for categories without products
-  "src/_lib/filters/category-product-filters.js:205", // Default empty array for pages lookup
-  "src/_lib/filters/category-product-filters.js:210", // Normalize null/undefined filters from templates
-  "src/_lib/filters/filter-core.js:141",
+  // src/_lib/filters - URL-based filtering
+  "src/_lib/filters/filter-core.js:141", // Lazy init nested lookup (??= avoids object-mutation violation)
   "src/_lib/filters/filter-core.js:142",
   "src/_lib/filters/filter-core.js:196",
   "src/_lib/filters/filter-core.js:202",
@@ -320,7 +313,6 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions
-  "src/_lib/utils/collection-utils.js:82",
   "src/_lib/utils/sorting.js:67", // eleventyNavigation.order (separate from item order)
 ]);
 

@@ -79,7 +79,9 @@ export const createFieldIndexer = (field) =>
  * const widgetProducts = productsByCategory["widgets"] ?? [];
  */
 export const createArrayFieldIndexer = (field) =>
-  groupByWithCache((item) => item.data[field] ?? []);
+  groupByWithCache((item) =>
+    Array.isArray(item.data[field]) ? item.data[field] : [],
+  );
 
 /**
  * Create an indexer with a custom key extractor function.

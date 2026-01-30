@@ -151,14 +151,7 @@ export const createFilterConfig = (options) => {
     eleventyConfig.addFilter(
       uiDataFilterName,
       (filterData, filters, pages, sortKey = "default", count = 2) =>
-        buildFilterUIData(
-          filterData,
-          filters ?? {},
-          pages,
-          baseUrl,
-          sortKey,
-          count,
-        ),
+        buildFilterUIData(filterData, filters, pages, baseUrl, sortKey, count),
     );
   };
 
