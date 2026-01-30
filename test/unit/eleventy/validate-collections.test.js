@@ -112,6 +112,15 @@ describe("configureCollectionValidation", () => {
     });
   });
 
+  test("discovers tag-based collections from string-format tags in JSON", () => {
+    withTempDir("string-tag-collections", (tempDir) => {
+      writeFile(tempDir, "walks/walks.json", '{ "tags": "walks" }');
+      writeFile(tempDir, "views/page.html", "{{ collections.walks }}");
+      const handler = getHandler(tempDir);
+      expect(() => handler()).not.toThrow();
+    });
+  });
+
   test("always includes the built-in 'all' collection", () => {
     withTempDir("builtin-all", (tempDir) => {
       writeFile(tempDir, "views/page.html", "{{ collections.all }}");
