@@ -1,7 +1,6 @@
 // Shared cart utilities
 // Common functions used across cart, quote, and checkout pages
 
-import Config from "#public/utils/config.js";
 import { error as logError } from "#utils/console.js";
 import { formatPriceWithSymbol } from "#utils/format-price.js";
 
@@ -24,8 +23,17 @@ export function saveCart(cart) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 }
 
+const DEFAULT_CURRENCY = "£";
+
+const getCurrencySymbol = () => {
+  const el = document.getElementById("site-config");
+  if (!el) return DEFAULT_CURRENCY;
+  const config = JSON.parse(el.textContent);
+  return config.currency_symbol || DEFAULT_CURRENCY;
+};
+
 export function formatPrice(price) {
-  return formatPriceWithSymbol(Config.currency_symbol, price);
+  return formatPriceWithSymbol(getCurrencySymbol(), price);
 }
 
 const removeItem = (itemName) => {
