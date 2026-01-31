@@ -200,7 +200,7 @@ const handleOptionChange = (e) => {
   if (button && selectedOption && selectedOption.value !== "") {
     const { option } = buttonOption(button, parseInt(selectedOption.value, 10));
     button.disabled = false;
-    button.textContent = `Add to Cart - £${option.unit_price}`;
+    button.textContent = `Add to Cart - ${formatPrice(option.unit_price)}`;
   }
 };
 
