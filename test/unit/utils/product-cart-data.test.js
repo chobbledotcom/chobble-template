@@ -4,6 +4,15 @@ import {
   computeOptions,
 } from "#utils/product-cart-data.js";
 
+const UNPARSEABLE_OPTION = {
+  name: "Free",
+  unit_price: "free",
+  numeric_price: null,
+  sku: null,
+  days: null,
+  max_quantity: null,
+};
+
 describe("product-cart-data", () => {
   describe("computeOptions", () => {
     test("returns empty array when no options", () => {
@@ -11,17 +20,30 @@ describe("product-cart-data", () => {
       expect(computeOptions({ options: [] }, "buy")).toEqual([]);
     });
 
-    test("returns options with normalized nullable fields for non-hire mode", () => {
+    test("returns options with normalized nullable fields and numeric_price for non-hire mode", () => {
       const options = [{ name: "Small", unit_price: "£10" }];
       expect(computeOptions({ options }, "buy")).toEqual([
         {
           name: "Small",
           unit_price: "£10",
+          numeric_price: 10,
           sku: null,
           days: null,
           max_quantity: null,
         },
       ]);
+    });
+
+    test("sets numeric_price to null for unparseable prices", () => {
+      const options = [{ name: "Free", unit_price: "free" }];
+      const result = computeOptions({ options }, "buy");
+      expect(result[0].numeric_price).toBeNull();
+    });
+
+    test("parses numeric unit_price values", () => {
+      const options = [{ name: "Standard", unit_price: 49.99 }];
+      const result = computeOptions({ options }, "buy");
+      expect(result[0].numeric_price).toBe(49.99);
     });
 
     test("filters, parses and sorts options for hire mode", () => {
@@ -35,8 +57,20 @@ describe("product-cart-data", () => {
       };
       const result = computeOptions(data, "hire");
       expect(result).toEqual([
-        { days: 1, unit_price: 10, sku: null, max_quantity: null },
-        { days: 3, unit_price: 30, sku: null, max_quantity: null },
+        {
+          days: 1,
+          unit_price: 10,
+          numeric_price: 10,
+          sku: null,
+          max_quantity: null,
+        },
+        {
+          days: 3,
+          unit_price: 30,
+          numeric_price: 30,
+          sku: null,
+          max_quantity: null,
+        },
       ]);
     });
 
@@ -69,6 +103,7 @@ describe("product-cart-data", () => {
         {
           name: "Small",
           unit_price: "£10",
+          numeric_price: 10,
           max_quantity: 5,
           sku: null,
           days: null,
@@ -76,6 +111,7 @@ describe("product-cart-data", () => {
         {
           name: "Large",
           unit_price: "£20",
+          numeric_price: 20,
           max_quantity: 5,
           sku: null,
           days: null,
@@ -93,6 +129,7 @@ describe("product-cart-data", () => {
         {
           name: "Limited",
           unit_price: "£10",
+          numeric_price: 10,
           max_quantity: 2,
           sku: null,
           days: null,
@@ -100,6 +137,7 @@ describe("product-cart-data", () => {
         {
           name: "Unlimited",
           unit_price: "£20",
+          numeric_price: 20,
           max_quantity: 10,
           sku: null,
           days: null,
@@ -117,8 +155,20 @@ describe("product-cart-data", () => {
       };
       const result = computeOptions(data, "hire", 5);
       expect(result).toEqual([
-        { days: 1, unit_price: 10, max_quantity: 5, sku: null },
-        { days: 3, unit_price: 30, max_quantity: 3, sku: null },
+        {
+          days: 1,
+          unit_price: 10,
+          numeric_price: 10,
+          max_quantity: 5,
+          sku: null,
+        },
+        {
+          days: 3,
+          unit_price: 30,
+          numeric_price: 30,
+          max_quantity: 3,
+          sku: null,
+        },
       ]);
     });
   });
@@ -135,11 +185,29 @@ describe("product-cart-data", () => {
       expect(result).toBeNull();
     });
 
+    test("returns null when no options have a numeric_price", () => {
+      const result = buildCartAttributes({
+        title: "Test",
+        subtitle: "Sub",
+        options: [UNPARSEABLE_OPTION],
+        specs: null,
+        mode: "buy",
+      });
+      expect(result).toBeNull();
+    });
+
     test("builds JSON with escaped quotes for buy mode", () => {
       const result = buildCartAttributes({
         title: "Widget",
         subtitle: "A widget",
-        options: [{ name: "Standard", unit_price: "£10", sku: "WDG-001" }],
+        options: [
+          {
+            name: "Standard",
+            unit_price: "£10",
+            numeric_price: 10,
+            sku: "WDG-001",
+          },
+        ],
         specs: [{ name: "Color", value: "Red" }],
         mode: "buy",
       });
@@ -156,8 +224,8 @@ describe("product-cart-data", () => {
         title: "Hire Item",
         subtitle: null,
         options: [
-          { name: "1 Day", days: 1, unit_price: 10 },
-          { name: "3 Days", days: 3, unit_price: 25 },
+          { name: "1 Day", days: 1, unit_price: 10, numeric_price: 10 },
+          { name: "3 Days", days: 3, unit_price: 25, numeric_price: 25 },
         ],
         specs: null,
         mode: "hire",
@@ -173,7 +241,7 @@ describe("product-cart-data", () => {
         buildCartAttributes({
           title: "Bad Hire",
           subtitle: null,
-          options: [{ days: 3, unit_price: 30 }],
+          options: [{ days: 3, unit_price: 30, numeric_price: 30 }],
           specs: null,
           mode: "hire",
         }),
@@ -186,14 +254,38 @@ describe("product-cart-data", () => {
           title: "Dupe Hire",
           subtitle: null,
           options: [
-            { days: 1, unit_price: 10 },
-            { days: 3, unit_price: 25 },
-            { days: 3, unit_price: 30 },
+            { days: 1, unit_price: 10, numeric_price: 10 },
+            { days: 3, unit_price: 25, numeric_price: 25 },
+            { days: 3, unit_price: 30, numeric_price: 30 },
           ],
           specs: null,
           mode: "hire",
         }),
       ).toThrow('Product "Dupe Hire" has duplicate options for days=3');
+    });
+
+    test("filters out options without numeric_price", () => {
+      const result = buildCartAttributes({
+        title: "Mixed",
+        subtitle: null,
+        options: [
+          {
+            name: "Priced",
+            unit_price: "£10",
+            numeric_price: 10,
+            sku: "A",
+            days: null,
+            max_quantity: null,
+          },
+          UNPARSEABLE_OPTION,
+        ],
+        specs: null,
+        mode: "buy",
+      });
+
+      const parsed = JSON.parse(result.replace(/&quot;/g, '"'));
+      expect(parsed.options.length).toBe(1);
+      expect(parsed.options[0].name).toBe("Priced");
     });
   });
 });

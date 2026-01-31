@@ -24,6 +24,7 @@ import {
   path,
   rootDir,
 } from "#test/test-utils.js";
+import { formatPrice as formatCurrency } from "#utils/format-price.js";
 
 // Get the jsConfigJson filter via Eleventy registration
 const getJsConfigFilter = () => {
@@ -49,6 +50,9 @@ liquid.registerFilter(
   "icon",
   () => '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>',
 );
+
+// Register to_price filter used by product-options.html
+liquid.registerFilter("to_price", (value) => formatCurrency("GBP", value));
 
 // Read and render actual Liquid templates
 const renderTemplate = async (templatePath, data = {}) => {
@@ -109,12 +113,18 @@ const createCheckoutPage = async (options = {}) => {
       ? await renderTemplate("src/_includes/cart-overlay.html", { config })
       : "";
 
+  // Add numeric_price for template rendering (mirrors computeOptions behavior)
+  const optionsWithNumericPrice = productOptions.map((opt) => ({
+    ...opt,
+    numeric_price: Number.parseFloat(opt.unit_price),
+  }));
+
   const productOptionsHtml = await renderTemplate(
     "src/_includes/product-options.html",
     {
       config,
       title: productTitle,
-      options: productOptions,
+      options: optionsWithNumericPrice,
       cart_attributes,
       product_mode: productMode,
       has_single_cart_option: hasSingleCartOption,
@@ -637,7 +647,7 @@ describe("checkout", () => {
     // Check second option (Small) - now just value index
     expect(options[1].value).toBe("0");
     expect(options[1].textContent.includes("Small")).toBe(true);
-    expect(options[1].textContent.includes("5.00")).toBe(true);
+    expect(options[1].textContent.includes("£5")).toBe(true);
 
     // Verify the data is in itemData
     expect(itemData.options[0].name).toBe("Small");
