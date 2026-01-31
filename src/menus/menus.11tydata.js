@@ -1,3 +1,4 @@
+import strings from "#data/strings.js";
 import { filter, flatMap, pipe, sort } from "#toolkit/fp/array.js";
 import { uniqueDietaryKeys } from "#utils/dietary-utils.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
@@ -6,6 +7,7 @@ import { sortItems } from "#utils/sorting.js";
 
 export default {
   eleventyComputed: {
+    navigationParent: () => strings.menus_name,
     subtitle: (data) => data.subtitle || "",
     pdfFilename: (data) => buildPdfFilename(data.site.name, data.page.fileSlug),
     eleventyNavigation: (data) =>
