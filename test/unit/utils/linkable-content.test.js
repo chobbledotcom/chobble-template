@@ -44,6 +44,7 @@ describe("linkableContent", () => {
       { type: "property", dir: "properties" },
       { type: "guide", dir: "guide" },
       { type: "news", dir: "news" },
+      { type: "menus", dir: "menus" },
     ];
     for (const { type, dir } of types) {
       const result = linkableContent(type);

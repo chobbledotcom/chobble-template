@@ -18,7 +18,7 @@ const PARENT_URL_MAP = {
   [strings.event_name]: `/${strings.event_permalink_dir}/`,
   [strings.location_name]: `/${strings.location_permalink_dir}/`,
   [strings.property_name]: `/${strings.property_permalink_dir}/`,
-  [strings.menus_name]: `/${strings.menu_permalink_dir}/`,
+  [strings.menus_name]: `/${strings.menus_permalink_dir}/`,
   [strings.guide_name]: `/${strings.guide_permalink_dir}/`,
 };
 

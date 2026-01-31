@@ -224,7 +224,7 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   }
 
   const filename = buildPdfFilename(site.name, menu.fileSlug);
-  const outputPath = `${outputDir}/${strings.menu_permalink_dir}/${menu.fileSlug}/${filename}`;
+  const outputPath = `${outputDir}/${strings.menus_permalink_dir}/${menu.fileSlug}/${filename}`;
   ensureDir(dirname(outputPath));
 
   return new Promise((resolve, reject) => {

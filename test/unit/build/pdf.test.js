@@ -484,7 +484,7 @@ describe("pdf", () => {
     test("Uses correct menu permalink directory from strings", () =>
       withTempDirAsync("pdf-test", (testOutputDir) => {
         // Verify that the function would use the correct directory structure
-        // This tests the logic at line 235: const menuDir = strings.menu_permalink_dir;
+        // This tests the logic at line 235: const menuDir = strings.menus_permalink_dir;
         const menu = createMockMenu("test", "Test");
 
         // The path should include the menu permalink directory

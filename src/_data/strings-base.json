@@ -2,7 +2,7 @@
 	"product_name": "Products",
 	"product_permalink_dir": "products",
 	"menus_name": "Menus",
-	"menu_permalink_dir": "menus",
+	"menus_permalink_dir": "menus",
 	"event_name": "Events",
 	"event_permalink_dir": "events",
 	"news_name": "News",
