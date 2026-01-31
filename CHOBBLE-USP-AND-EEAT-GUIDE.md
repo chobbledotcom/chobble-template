@@ -39,6 +39,21 @@ A free, open-source Eleventy v3 static site generator purpose-built for small bu
 
 15 documented examples spanning: cafes, security companies, solar installers, bakeries, housing charities, folk clubs, ukulele groups, dessert shops, furniture retailers, cosmetics companies, play equipment inspectors, community groups, tabletop game companies.
 
+**These example pages already contain case-study-quality material.** Several include problem/solution/outcome narratives:
+
+| Example | Problem stated | Outcome stated | Case study potential |
+|---------|---------------|----------------|---------------------|
+| Renegade Solar | Wix site: slow, no rankings, ~1 enquiry/year, hard to edit | ~1 enquiry/week, first-page rankings, perfect Lighthouse, sub-1s load | **Strongest** — has before/after numbers |
+| A&S Home Furnishings | Expensive CMS, broken contact form, overpaying for hosting | £10/mo hosting, working forms, easy editing via Forgejo | **Strong** — has cost savings, migration narrative |
+| Blue Pits Housing | Agencies quoted £2,500+, charity needed affordable site | £600-800 build at charity rate, £20/mo hosting, 14-year relationship | **Strong** — cost comparison, longevity |
+| Play Safe Play Inspection | New business needed credible professional presence | 100% Lighthouse scores, PagesCMS self-editing, content from voice notes | **Medium** — good process story |
+| House of Desserts | Needed menus without PDF downloads | Custom menu system built for template, easy staff editing | **Medium** — product improvement story |
+| Southport Organics | Etsy fees too high, wanted direct sales | PagesCMS self-editing, Ghost newsletter, Stripe integration planned | **Medium** — platform independence story |
+| This & That Cafe | Domain stolen by squatters, needed reclaiming | Domain recovered via Nominet, perfect Lighthouse, £10/mo hosting | **Medium** — rescue story |
+| Button Kin Games | Needed games hub with direct purchasing | Lighthouse 95+, Stripe direct sales, no third-party commissions | **Low** — spouse's business, less objective |
+
+The raw material is there. What's missing is: explicit before/after metrics, client quotes alongside outcomes, and a consistent "case study" framing that makes the EEAT value obvious to both Google and readers.
+
 ### Testimonials (Proof of Trust)
 
 8 published reviews with specific outcomes:
@@ -61,8 +76,8 @@ A free, open-source Eleventy v3 static site generator purpose-built for small bu
 
 **Gaps:**
 - Blog posts are sparse (20 total, many off-topic — baked beans, BYD FM tuner, Adrian Chiles)
-- No case studies with measurable outcomes beyond brief portfolio entries
-- No "how I solved X for client Y" deep-dive content
+- Example pages already contain case-study material (especially Renegade Solar, A&S Home Furnishings, Blue Pits) but aren't framed/labelled as case studies and lack consistent before/after metrics
+- No "how I solved X for client Y" deep-dive content separate from the portfolio listing
 
 ### Expertise — STRONG on technical, WEAK on demonstrating it
 
@@ -114,11 +129,11 @@ A free, open-source Eleventy v3 static site generator purpose-built for small bu
 
 | Searcher | Intent | Current content match |
 |----------|--------|----------------------|
-| Small business owner wanting a website | "web design [location]", "small business website" | Weak — no clear service landing page found at obvious URLs |
-| Business owner with a slow/expensive site | "migrate from Wix", "WordPress alternatives" | Weak — service exists but not content-rich |
+| Small business owner wanting a website | "web design [location]", "small business website" | Moderate — service pages exist at /services/* but are relatively thin and lack case study proof |
+| Business owner with a slow/expensive site | "migrate from Wix", "WordPress alternatives" | Moderate — /services/website-migrations/ and /services/wix-site-edits/ exist but lack depth; A&S and Renegade Solar examples have the migration stories |
 | Tradesperson needing a website | "electrician website", "plumber website design" | Moderate — guide exists for tradespeople |
-| Restaurant/cafe owner | "restaurant website design Manchester" | Weak — portfolio shows cafe clients but no dedicated landing page |
-| Ethical/vegan business | "vegan web developer", "ethical web design" | Weak — discount exists but minimal content explaining the offer |
+| Restaurant/cafe owner | "restaurant website design Manchester" | Moderate — /services/restaurant-web-design/ exists, plus Avo Coffee, This & That, and House of Desserts examples. Could be stronger with cross-linking and local keywords. |
+| Ethical/vegan business | "vegan web developer", "ethical web design" | Moderate — /services/vegan-business-websites/ exists with the discount. Sally's Bakes and Southport Organics are proof. Needs richer content connecting values to outcomes. |
 | Business owner frustrated by SEO agencies | "honest SEO audit", "SEO without contracts" | Very weak — huge opportunity, no content targeting this |
 | Developer looking for Eleventy templates | "eleventy business template", "11ty e-commerce" | Very weak — template exists but has no marketing content |
 | Business owner wanting to learn SEO | "SEO guide small business", "how to improve Google ranking" | Moderate — 14 guides exist, but they compete with massive sites |
@@ -134,20 +149,23 @@ A free, open-source Eleventy v3 static site generator purpose-built for small bu
 **Why:** EEAT requires a named, credible human behind the content. Google's quality rater guidelines specifically look for author expertise signals.
 **What to include:** Photo, 20+ year career summary, specific technologies mastered, clients served, open-source contributions, principles that drive the work, link to GitHub/Git profiles.
 
-#### 2. Write 3-5 detailed case studies
-**Why:** Case studies are the strongest EEAT signal — they prove Experience and Expertise simultaneously.
-**Template for each:**
-- Client name and industry (with permission)
-- The problem they had (slow site, expensive hosting, poor SEO, no online presence)
-- What you built and why you made the technical choices you did
-- Measurable outcome (speed improvement, ranking change, cost reduction, customer increase)
-- Client quote
+#### 2. Upgrade your best example pages into explicit case studies
+**Why:** Case studies are the strongest EEAT signal — they prove Experience and Expertise simultaneously. You already have the raw material; it just needs restructuring.
+**What to add to each:**
+- A clear problem/solution/outcome structure (some pages already have this loosely)
+- Specific before/after numbers where possible (Renegade Solar already has enquiry frequency)
+- A client quote pulled from your reviews page or gathered fresh
+- Cost comparison (what they were paying vs what they pay now)
+- Link to live site + Lighthouse score screenshot
 
-**Priority case studies:**
-- A Wix/WordPress migration showing before/after speed + cost
-- An SEO turnaround (the client who went from 7th to 2nd)
-- A Chobble Template deployment for a non-technical business owner
-- The play-test or patlog app showing full-stack capability
+**Priority upgrades (these already have the strongest narratives):**
+1. **Renegade Solar** — Wix migration, ~1/year to ~1/week enquiries, perfect Lighthouse. Add: old Wix load time vs new, old monthly cost vs £20/mo, Ashley's quote.
+2. **A&S Home Furnishings** — CMS migration, broken forms, overpaying. Add: old hosting cost vs £10/mo, the wget/pandoc migration process is a unique technical story.
+3. **Blue Pits Housing** — Agency quoted £2,500+, you did it for £600-800. Add: 14-year timeline, specific GDPR/accessibility work, charity impact.
+4. **This & That Cafe** — Domain recovery from squatters via Nominet is a genuinely unusual story. Add: the Nominet process detail, before/after.
+5. **Play Safe Play Inspection** — Voice-note-to-website pipeline is a distinctive process story. Add: how the content creation worked, Gary's perspective.
+
+**Also consider writing up play-test separately as a product/app case study** — it's a Rails app with 90% test coverage, EN standard compliance, and a real user base. Different from the website examples and shows full-stack depth.
 
 #### 3. Write "Why Static Sites Beat WordPress for Small Businesses"
 **Why:** This targets the massive audience of business owners paying £50-200/month for WordPress hosting and maintenance, and positions your technical approach as the answer to their pain.
@@ -197,8 +215,8 @@ A free, open-source Eleventy v3 static site generator purpose-built for small bu
 **Why:** FAQ schema, HowTo schema, and Article schema with author markup are direct EEAT signals.
 **Your template already supports Schema.org** — make sure your own site uses it fully.
 
-#### 15. Create an "SEO Audit" service page with real detail
-**Why:** "SEO audit" is a high-value search term. Your current page 404s. A detailed page explaining what your audit covers, how you conduct it, what clients receive, and example findings would target commercial intent directly.
+#### 15. Enrich the "SEO Audit" service page with deeper detail
+**Why:** "SEO audit" is a high-value search term. Your page at /services/seo-audits/ exists and lists the service tiers, but it's relatively thin. Adding example audit findings, a redacted sample report, or a walkthrough of your process would demonstrate expertise and target commercial intent more effectively.
 
 #### 16. Answer "People Also Ask" questions in your guides
 **Why:** Google surfaces these in search results. Research what PAA questions appear for your target terms and add sections that directly answer them.
@@ -224,15 +242,15 @@ These are the rules you already teach your clients — codified for your own use
 
 ### Phase 1 — Foundation (do first)
 - [ ] About/bio page with photo and credentials
-- [ ] Fix 404 service pages (SEO audits, static websites, restaurant web design, etc.)
+- [ ] Upgrade Renegade Solar example into a full case study (strongest existing material)
 - [ ] Google Business profile fully optimised with reviews
-- [ ] 1 detailed case study
+- [ ] Enrich the SEO Audits service page with process detail and example findings
 
 ### Phase 2 — Differentiation (do next)
 - [ ] "Why Static Sites Beat WordPress" article
 - [ ] "How I Build SEO Into Every Website" article
 - [ ] Chobble Template marketing/feature page
-- [ ] 2 more case studies
+- [ ] Upgrade A&S Home Furnishings and Blue Pits examples into case studies
 - [ ] Dedicated Manchester/Prestwich location page
 
 ### Phase 3 — Authority (ongoing)
