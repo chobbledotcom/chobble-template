@@ -65,6 +65,7 @@ describe("quote-price-utils", () => {
       const templates = await renderQuotePriceTemplates();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
       document.body.innerHTML = `
+        <script id="site-config" type="application/json">{"currency":"GBP"}</script>
         <script class="quote-field-labels" type="application/json">{"name": "Your Name", "email": "Email", "phone": "Phone", "contact": "Preferred Contact", "event_type": "Event Type", "message": "Message"}</script>
 
         ${templates}

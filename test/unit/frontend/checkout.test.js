@@ -85,6 +85,7 @@ const createCheckoutPage = async (options = {}) => {
     cart_mode: cartMode,
     checkout_api_url: checkoutApiUrl,
     paypal_email: paypalEmail,
+    currency: "GBP",
   };
 
   // Build cart_attributes fixture (JSON serialization for data attribute)
@@ -228,6 +229,13 @@ const withCheckoutMockStorage = (fn) => {
     globalThis.localStorage.clear();
   }
 };
+
+// Ensure site-config is available for getCurrency() in cart-utils
+const siteConfig = document.createElement("script");
+siteConfig.id = "site-config";
+siteConfig.type = "application/json";
+siteConfig.textContent = JSON.stringify({ currency: "GBP" });
+document.head.appendChild(siteConfig);
 
 // ============================================
 // Test Cases

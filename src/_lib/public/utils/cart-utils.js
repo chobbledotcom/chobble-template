@@ -23,14 +23,8 @@ export function saveCart(cart) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 }
 
-const DEFAULT_CURRENCY = "GBP";
-
-const getCurrency = () => {
-  const el = document.getElementById("site-config");
-  if (!el) return DEFAULT_CURRENCY;
-  const config = JSON.parse(el.textContent);
-  return config.currency || DEFAULT_CURRENCY;
-};
+const getCurrency = () =>
+  JSON.parse(document.getElementById("site-config").textContent).currency;
 
 export function formatPrice(price) {
   return formatCurrency(getCurrency(), price);

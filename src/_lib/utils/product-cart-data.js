@@ -19,31 +19,6 @@ import { toObject } from "#toolkit/fp/object.js";
 /** @typedef {import("#lib/types").CartAttributesParams} CartAttributesParams */
 
 /**
- * Try to extract a number from a price value. Returns null if unparseable.
- * @param {string | number} value
- * @returns {number | null}
- */
-const extractNumericPrice = (value) => {
-  if (typeof value === "number" && !Number.isNaN(value)) return value;
-  const match = String(value).match(/[\d.]+/);
-  return match ? Number.parseFloat(match[0]) : null;
-};
-
-/**
- * Parse a price, throwing on failure (for hire mode where prices are required).
- * @param {string | number} priceStr
- * @param {string} context
- * @returns {number}
- */
-const parsePriceStrict = (priceStr, context) => {
-  const result = extractNumericPrice(priceStr);
-  if (result === null) {
-    throw new Error(`Cannot parse price "${priceStr}" in ${context}`);
-  }
-  return result;
-};
-
-/**
  * Validate hire options for cart use
  * @param {ProductOption[]} options - Hire options to validate
  * @param {string} title - Product title for error messages
@@ -63,21 +38,25 @@ const validateHireOptions = (options, title) => {
 };
 
 /**
- * Apply default max_quantity to an option if not set
- * @param {ProductOption} opt - Option to process
- * @param {number | null} defaultMaxQuantity - Default max quantity from config
- * @returns {ProductOption} Option with max_quantity applied
+ * Normalize an option: apply default max_quantity, ensure nullable fields are explicit.
+ * @param {ProductOption} opt
+ * @param {number | null} defaultMaxQuantity
+ * @returns {ProductOption}
  */
-const applyDefaultMaxQuantity = (opt, defaultMaxQuantity) => {
-  if (opt.max_quantity != null) return opt;
-  if (defaultMaxQuantity != null)
-    return { ...opt, max_quantity: defaultMaxQuantity };
-  return { ...opt, max_quantity: null };
-};
+const normalizeOption = (opt, defaultMaxQuantity) => ({
+  ...opt,
+  sku: opt.sku != null ? opt.sku : null,
+  days: opt.days != null ? opt.days : null,
+  max_quantity:
+    opt.max_quantity != null
+      ? opt.max_quantity
+      : defaultMaxQuantity != null
+        ? defaultMaxQuantity
+        : null,
+});
 
 /**
  * Compute processed options for a product.
- * Ensures unit_price is always numeric after processing.
  * @param {ProductData} data - Product data
  * @param {string} mode - Product mode ("hire", "buy", etc.)
  * @param {number | null} defaultMaxQuantity - Default max quantity from config
@@ -88,35 +67,14 @@ export const computeOptions = (data, mode, defaultMaxQuantity = null) => {
     return [];
   }
 
-  /** Normalize nullable fields so downstream serialization never needs || null */
-  const normalizeNullable = (opt) => ({
-    ...opt,
-    sku: opt.sku != null ? opt.sku : null,
-    days: opt.days != null ? opt.days : null,
-  });
-
   if (mode !== "hire") {
-    return data.options.map((opt) =>
-      normalizeNullable({
-        ...applyDefaultMaxQuantity(opt, defaultMaxQuantity),
-        unit_price: extractNumericPrice(opt.unit_price),
-      }),
-    );
+    return data.options.map((opt) => normalizeOption(opt, defaultMaxQuantity));
   }
 
   return pipe(
     filterMap(
       (opt) => opt.days != null,
-      (opt) => {
-        const numericPrice = parsePriceStrict(
-          opt.unit_price,
-          `${data.title} days=${opt.days}`,
-        );
-        return normalizeNullable({
-          ...applyDefaultMaxQuantity(opt, defaultMaxQuantity),
-          unit_price: numericPrice,
-        });
-      },
+      (opt) => normalizeOption(opt, defaultMaxQuantity),
     ),
     sortBy("days"),
   )(data.options);
@@ -124,7 +82,6 @@ export const computeOptions = (data, mode, defaultMaxQuantity = null) => {
 
 /**
  * Build cart attributes JSON for a product.
- * Returns null if no options have a parseable price.
  * @param {CartAttributesParams} params - Parameters
  * @returns {string | null} HTML-escaped JSON string for data attribute, or null
  */
@@ -137,15 +94,12 @@ export const buildCartAttributes = ({
 }) => {
   if (options.length === 0) return null;
 
-  const pricedOptions = options.filter((opt) => opt.unit_price != null);
-  if (pricedOptions.length === 0) return null;
-
-  if (mode === "hire") validateHireOptions(pricedOptions, title);
+  if (mode === "hire") validateHireOptions(options, title);
 
   return JSON.stringify({
     name: title,
     subtitle,
-    options: pricedOptions.map((opt) => ({
+    options: options.map((opt) => ({
       name: opt.name,
       unit_price: opt.unit_price,
       max_quantity: opt.max_quantity,
@@ -155,7 +109,7 @@ export const buildCartAttributes = ({
     specs: specs ? specs.map(pick(["name", "value"])) : null,
     hire_prices:
       mode === "hire"
-        ? toObject(pricedOptions, (opt) => [opt.days, opt.unit_price])
+        ? toObject(options, (opt) => [opt.days, opt.unit_price])
         : {},
     product_mode: mode,
   }).replace(/"/g, "&quot;");
