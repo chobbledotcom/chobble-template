@@ -61,6 +61,7 @@ export type SiteConfig = {
   navigation_content_anchor: boolean;
   design_system_layouts: string[];
   default_image_widths: number[];
+  currency: string;
   default_max_quantity: number;
   products: ProductConfig;
 

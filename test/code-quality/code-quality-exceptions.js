@@ -43,7 +43,7 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   // src/_lib/public/utils/cart-utils.js - JSON parsing of localStorage data
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.
-  "src/_lib/public/utils/cart-utils.js:13",
+  "src/_lib/public/utils/cart-utils.js:14",
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly

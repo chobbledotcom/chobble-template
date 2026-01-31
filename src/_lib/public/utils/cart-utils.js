@@ -2,6 +2,7 @@
 // Common functions used across cart, quote, and checkout pages
 
 import { error as logError } from "#utils/console.js";
+import { formatPrice as formatCurrency } from "#utils/format-price.js";
 
 export const STORAGE_KEY = "shopping_cart";
 
@@ -22,9 +23,11 @@ export function saveCart(cart) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 }
 
+const getCurrency = () =>
+  JSON.parse(document.getElementById("site-config").textContent).currency;
+
 export function formatPrice(price) {
-  const fixed = price.toFixed(2);
-  return `£${fixed.replace(/\.00$/, "")}`;
+  return formatCurrency(getCurrency(), price);
 }
 
 const removeItem = (itemName) => {

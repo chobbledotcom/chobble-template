@@ -42,6 +42,7 @@ describe("config", () => {
       "design_system_layouts",
       "phoneNumberLength",
       "use_visual_editor",
+      "currency",
       "default_image_widths",
       "default_max_quantity",
     ];

@@ -24,6 +24,7 @@ import {
   path,
   rootDir,
 } from "#test/test-utils.js";
+import { formatPrice as formatCurrency } from "#utils/format-price.js";
 
 // Get the jsConfigJson filter via Eleventy registration
 const getJsConfigFilter = () => {
@@ -49,6 +50,9 @@ liquid.registerFilter(
   "icon",
   () => '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>',
 );
+
+// Register to_price filter used by product-options.html
+liquid.registerFilter("to_price", (value) => formatCurrency("GBP", value));
 
 // Read and render actual Liquid templates
 const renderTemplate = async (templatePath, data = {}) => {
@@ -81,6 +85,7 @@ const createCheckoutPage = async (options = {}) => {
     cart_mode: cartMode,
     checkout_api_url: checkoutApiUrl,
     paypal_email: paypalEmail,
+    currency: "GBP",
   };
 
   // Build cart_attributes fixture (JSON serialization for data attribute)
@@ -224,6 +229,13 @@ const withCheckoutMockStorage = (fn) => {
     globalThis.localStorage.clear();
   }
 };
+
+// Ensure site-config is available for getCurrency() in cart-utils
+const siteConfig = document.createElement("script");
+siteConfig.id = "site-config";
+siteConfig.type = "application/json";
+siteConfig.textContent = JSON.stringify({ currency: "GBP" });
+document.head.appendChild(siteConfig);
 
 // ============================================
 // Test Cases
@@ -637,7 +649,7 @@ describe("checkout", () => {
     // Check second option (Small) - now just value index
     expect(options[1].value).toBe("0");
     expect(options[1].textContent.includes("Small")).toBe(true);
-    expect(options[1].textContent.includes("5.00")).toBe(true);
+    expect(options[1].textContent.includes("£5")).toBe(true);
 
     // Verify the data is in itemData
     expect(itemData.options[0].name).toBe("Small");

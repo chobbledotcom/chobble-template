@@ -6,7 +6,7 @@
   {%- if add_ons.options.size > 0 -%}
     <ul>
       {%- for option in add_ons.options -%}
-        <li>{{ option.name }} — £{{ option.price }}</li>
+        <li>{{ option.name }} — {{ option.price | to_price }}</li>
       {%- endfor -%}
     </ul>
   {%- endif -%}
