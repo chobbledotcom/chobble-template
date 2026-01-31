@@ -1,29 +1,15 @@
-/**
- * Formats a price for display:
- * - Whole numbers (e.g. 3.00, 10) → "3", "10" (no decimals)
- * - Fractional prices (e.g. 3.5, 3.50) → "3.50" (two decimal places)
- * - String values passed through unchanged (e.g. "£30")
- */
-const formatPrice = (value) => {
-  if (typeof value === "string" && value.includes("£")) {
-    return value;
-  }
+import config from "#data/config.json" with { type: "json" };
+import {
+  formatPriceNumber,
+  formatPriceWithSymbol,
+} from "#utils/format-price.js";
 
-  const num = Number(value);
-
-  if (Number.isNaN(num)) {
-    return value;
-  }
-
-  if (num % 1 === 0) {
-    return String(num);
-  }
-
-  return num.toFixed(2);
-};
+const symbol = config.currency_symbol;
 
 export const configureFormatPrice = (eleventyConfig) => {
-  eleventyConfig.addFilter("format_price", formatPrice);
-};
+  eleventyConfig.addFilter("format_price", (value) =>
+    formatPriceWithSymbol(symbol, value),
+  );
 
-export { formatPrice };
+  eleventyConfig.addFilter("format_price_number", formatPriceNumber);
+};

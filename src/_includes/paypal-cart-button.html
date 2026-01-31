@@ -1,5 +1,5 @@
 <button class="add-to-cart"
         data-name="{{ title }}"
-        data-price="{{ price | replace: '£', '' | replace: ',', '' }}">
+        data-price="{{ price | replace: config.currency_symbol, '' | replace: ',', '' }}">
   Add to Cart
 </button>

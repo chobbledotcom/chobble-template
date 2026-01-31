@@ -2,7 +2,7 @@
 {%- if mode == "hire" and options.size > 0 -%}
 <ul class="hire-prices">
   {%- for opt in options -%}
-  <li><strong>{{ opt.days }} day{% if opt.days != 1 %}s{% endif %}:</strong> £{{ opt.unit_price | format_price }}</li>
+  <li><strong>{{ opt.days }} day{% if opt.days != 1 %}s{% endif %}:</strong> {{ opt.unit_price | format_price }}</li>
   {%- endfor -%}
 </ul>
 {%- endif -%}

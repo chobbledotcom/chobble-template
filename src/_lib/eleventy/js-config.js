@@ -3,7 +3,12 @@
 
 import { toObject } from "#toolkit/fp/object.js";
 
-const JS_CONFIG_KEYS = ["cart_mode", "checkout_api_url", "product_mode"];
+const JS_CONFIG_KEYS = [
+  "cart_mode",
+  "checkout_api_url",
+  "currency_symbol",
+  "product_mode",
+];
 
 export const configureJsConfig = (eleventyConfig) => {
   eleventyConfig.addFilter("jsConfigJson", (config) => {

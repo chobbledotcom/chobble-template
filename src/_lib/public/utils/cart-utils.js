@@ -1,7 +1,9 @@
 // Shared cart utilities
 // Common functions used across cart, quote, and checkout pages
 
+import Config from "#public/utils/config.js";
 import { error as logError } from "#utils/console.js";
+import { formatPriceWithSymbol } from "#utils/format-price.js";
 
 export const STORAGE_KEY = "shopping_cart";
 
@@ -23,8 +25,7 @@ export function saveCart(cart) {
 }
 
 export function formatPrice(price) {
-  const fixed = price.toFixed(2);
-  return `£${fixed.replace(/\.00$/, "")}`;
+  return formatPriceWithSymbol(Config.currency_symbol, price);
 }
 
 const removeItem = (itemName) => {
