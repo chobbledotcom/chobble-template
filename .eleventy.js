@@ -31,6 +31,7 @@ import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
 import { configureCapture } from "#eleventy/capture.js";
 import { configureFeed } from "#eleventy/feed.js";
 import { configureFileUtils } from "#eleventy/file-utils.js";
+import { configureFormatPrice } from "#eleventy/format-price.js";
 import { configureHtmlTransform } from "#eleventy/html-transform.js";
 import { configureICal } from "#eleventy/ical.js";
 import { configureJsConfig } from "#eleventy/js-config.js";
@@ -88,6 +89,7 @@ export default async function (eleventyConfig) {
   configureLayoutAliases(eleventyConfig);
   await configureFeed(eleventyConfig);
   configureFileUtils(eleventyConfig);
+  configureFormatPrice(eleventyConfig);
   configureGuides(eleventyConfig);
   configureHtmlTransform(eleventyConfig, processAndWrapImage);
   configureICal(eleventyConfig);
