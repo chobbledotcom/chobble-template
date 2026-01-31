@@ -1,11 +1,10 @@
 {%- if config.cart_mode and cart_attributes -%}
 <noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
 {%- if has_single_cart_option -%}
+  {%- assign formatted_price = options.first.unit_price | to_price -%}
   {%- if product_mode == "hire" -%}
-    {%- assign formatted_price = options.first.numeric_price | to_price -%}
     {%- assign btn_text_with_price = "Add to Quote - from " | append: formatted_price -%}
   {%- else -%}
-    {%- assign formatted_price = options.first.numeric_price | to_price -%}
     {%- assign btn_text_with_price = "Add to Cart - " | append: formatted_price -%}
   {%- endif -%}
   {%- include "templates/add-to-cart-button.html",
@@ -18,7 +17,7 @@
   <select class="product-options-select">
     <option value="" disabled selected>Please select option</option>
     {%- for option in options -%}
-    <option value="{{ forloop.index0 }}">{{ option.name }} - {{ option.numeric_price | to_price }}</option>
+    <option value="{{ forloop.index0 }}">{{ option.name }} - {{ option.unit_price | to_price }}</option>
     {%- endfor -%}
   </select>
   <button class="add-to-cart product-option-button" data-item="{{ cart_attributes }}" disabled>

@@ -113,18 +113,12 @@ const createCheckoutPage = async (options = {}) => {
       ? await renderTemplate("src/_includes/cart-overlay.html", { config })
       : "";
 
-  // Add numeric_price for template rendering (mirrors computeOptions behavior)
-  const optionsWithNumericPrice = productOptions.map((opt) => ({
-    ...opt,
-    numeric_price: Number.parseFloat(opt.unit_price),
-  }));
-
   const productOptionsHtml = await renderTemplate(
     "src/_includes/product-options.html",
     {
       config,
       title: productTitle,
-      options: optionsWithNumericPrice,
+      options: productOptions,
       cart_attributes,
       product_mode: productMode,
       has_single_cart_option: hasSingleCartOption,

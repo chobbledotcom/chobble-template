@@ -77,7 +77,7 @@ const applyDefaultMaxQuantity = (opt, defaultMaxQuantity) => {
 
 /**
  * Compute processed options for a product.
- * Each option gets a numeric_price (number or null).
+ * Ensures unit_price is always numeric after processing.
  * @param {ProductData} data - Product data
  * @param {string} mode - Product mode ("hire", "buy", etc.)
  * @param {number | null} defaultMaxQuantity - Default max quantity from config
@@ -96,15 +96,12 @@ export const computeOptions = (data, mode, defaultMaxQuantity = null) => {
   });
 
   if (mode !== "hire") {
-    return data.options.map((opt) => {
-      const normalized = normalizeNullable(
-        applyDefaultMaxQuantity(opt, defaultMaxQuantity),
-      );
-      return {
-        ...normalized,
-        numeric_price: extractNumericPrice(opt.unit_price),
-      };
-    });
+    return data.options.map((opt) =>
+      normalizeNullable({
+        ...applyDefaultMaxQuantity(opt, defaultMaxQuantity),
+        unit_price: extractNumericPrice(opt.unit_price),
+      }),
+    );
   }
 
   return pipe(
@@ -118,7 +115,6 @@ export const computeOptions = (data, mode, defaultMaxQuantity = null) => {
         return normalizeNullable({
           ...applyDefaultMaxQuantity(opt, defaultMaxQuantity),
           unit_price: numericPrice,
-          numeric_price: numericPrice,
         });
       },
     ),
@@ -141,7 +137,7 @@ export const buildCartAttributes = ({
 }) => {
   if (options.length === 0) return null;
 
-  const pricedOptions = options.filter((opt) => opt.numeric_price != null);
+  const pricedOptions = options.filter((opt) => opt.unit_price != null);
   if (pricedOptions.length === 0) return null;
 
   if (mode === "hire") validateHireOptions(pricedOptions, title);
@@ -151,7 +147,7 @@ export const buildCartAttributes = ({
     subtitle,
     options: pricedOptions.map((opt) => ({
       name: opt.name,
-      unit_price: opt.numeric_price,
+      unit_price: opt.unit_price,
       max_quantity: opt.max_quantity,
       sku: opt.sku,
       days: opt.days,
@@ -159,7 +155,7 @@ export const buildCartAttributes = ({
     specs: specs ? specs.map(pick(["name", "value"])) : null,
     hire_prices:
       mode === "hire"
-        ? toObject(pricedOptions, (opt) => [opt.days, opt.numeric_price])
+        ? toObject(pricedOptions, (opt) => [opt.days, opt.unit_price])
         : {},
     product_mode: mode,
   }).replace(/"/g, "&quot;");

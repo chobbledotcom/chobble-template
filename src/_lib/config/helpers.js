@@ -33,6 +33,7 @@ const DEFAULTS = frozenObject({
   phoneNumberLength: 11,
   use_visual_editor: false,
   default_image_widths: [240, 480, 900, 1300],
+  currency: "GBP",
   default_max_quantity: 1,
 });
 

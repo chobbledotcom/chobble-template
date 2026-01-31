@@ -17,7 +17,7 @@
   "chobble_link": null,
   "cart_mode": null,
   "checkout_api_url": null,
-  "currency": "GBP",
+  "currency": null,
   "default_image_widths": null,
   "products": {
     "max_images": null

@@ -53,8 +53,7 @@ export type { PagesCMSOpeningTime } from './pages-cms-generated.d.ts';
  */
 export type ProductOption = {
   name: string;
-  unit_price: string | number;
-  numeric_price?: number | null;
+  unit_price: number | null;
   days?: number;
   max_quantity?: number;
   sku?: string;

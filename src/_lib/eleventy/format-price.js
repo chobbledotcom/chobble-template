@@ -1,13 +1,10 @@
-import config from "#data/config.json" with { type: "json" };
+import getConfig from "#data/config.js";
 import { formatPrice, getCurrencySymbol } from "#utils/format-price.js";
 
 export const configureFormatPrice = (eleventyConfig) => {
-  eleventyConfig.addFilter("to_price", (value) =>
-    formatPrice(config.currency, value),
-  );
+  const { currency } = getConfig();
 
-  eleventyConfig.addGlobalData(
-    "currency_symbol",
-    getCurrencySymbol(config.currency),
-  );
+  eleventyConfig.addFilter("to_price", (value) => formatPrice(currency, value));
+
+  eleventyConfig.addGlobalData("currency_symbol", getCurrencySymbol(currency));
 };

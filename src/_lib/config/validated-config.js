@@ -31,6 +31,15 @@ if (!["http:", "https:"].includes(parsedUrl.protocol)) {
 
 export const siteUrl = site.url;
 
+if (
+  configData.currency &&
+  !Intl.supportedValuesOf("currency").includes(configData.currency)
+) {
+  throw new Error(
+    `Invalid currency: "${configData.currency}". Must be a valid ISO 4217 currency code (e.g. "GBP", "USD", "EUR").`,
+  );
+}
+
 const VALID_CART_MODES = ["paypal", "stripe", "quote"];
 const VALID_PRODUCT_MODES = ["buy", "hire"];
 
