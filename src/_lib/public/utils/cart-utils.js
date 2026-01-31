@@ -2,7 +2,7 @@
 // Common functions used across cart, quote, and checkout pages
 
 import { error as logError } from "#utils/console.js";
-import { formatPriceWithSymbol } from "#utils/format-price.js";
+import { formatPrice as formatCurrency } from "#utils/format-price.js";
 
 export const STORAGE_KEY = "shopping_cart";
 
@@ -23,17 +23,17 @@ export function saveCart(cart) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 }
 
-const DEFAULT_CURRENCY = "£";
+const DEFAULT_CURRENCY = "GBP";
 
-const getCurrencySymbol = () => {
+const getCurrency = () => {
   const el = document.getElementById("site-config");
   if (!el) return DEFAULT_CURRENCY;
   const config = JSON.parse(el.textContent);
-  return config.currency_symbol || DEFAULT_CURRENCY;
+  return config.currency || DEFAULT_CURRENCY;
 };
 
 export function formatPrice(price) {
-  return formatPriceWithSymbol(getCurrencySymbol(), price);
+  return formatCurrency(getCurrency(), price);
 }
 
 const removeItem = (itemName) => {

@@ -67,7 +67,7 @@ describe("js-config", () => {
     const config = {
       cart_mode: "paypal",
       checkout_api_url: "https://api.example.com",
-      currency_symbol: "£",
+      currency: "GBP",
       extra_key: "should be ignored",
       formspark_id: "also ignored",
     };
@@ -76,7 +76,7 @@ describe("js-config", () => {
     expect(result.includes("formspark_id")).toBe(false);
     expect(result.includes("cart_mode")).toBe(true);
     expect(result.includes("checkout_api_url")).toBe(true);
-    expect(result.includes("currency_symbol")).toBe(true);
+    expect(result.includes("currency")).toBe(true);
   });
 
   test("Works with all valid cart modes", () => {

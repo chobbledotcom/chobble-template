@@ -47,6 +47,7 @@ coveragePathIgnorePatterns = [
   "src/_lib/media/image-crop.js",
   "src/_lib/media/image-external.js",
   "src/_lib/public/utils/cart-utils.js",
+  "src/_lib/utils/format-price.js",
   "src/_lib/public/utils/quote-price-utils.js",
   "src/_lib/utils/console.js",
   "test/test-runner-utils.js",
