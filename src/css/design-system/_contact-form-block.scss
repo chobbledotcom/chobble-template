@@ -65,7 +65,7 @@
       &:focus {
         outline: none;
         border-color: var(--color-link, #{$color-primary});
-        box-shadow: 0 0 0 3px var(--color-link-alt, #{$color-primary-alt});
+        box-shadow: 0 0 0 3px var(--color-tint, #{$color-tint});
       }
     }
 
