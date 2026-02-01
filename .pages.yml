@@ -22,8 +22,9 @@ content:
       sort:
         - meta_title
     exclude:
-      - about.md
       - services.md
+      - chobble-template.md
+      - about.md
     fields:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Body }
@@ -104,18 +105,6 @@ content:
             label: Unit Price (£)
             required: true
           - { name: days, type: number, label: Days (for hire products) }
-      - name: add_ons
-        label: Add-ons
-        type: object
-        fields:
-          - { name: intro, type: rich-text, label: Intro }
-          - name: options
-            label: Add-on Options
-            type: object
-            list: true
-            fields:
-              - { name: name, type: string, label: Name, required: true }
-              - { name: price, type: number, label: Price, required: true }
       - { name: features, type: string, label: Features, list: true }
       - name: filter_attributes
         label: Filter Attributes
@@ -151,6 +140,18 @@ content:
         fields:
           - { name: name, type: string, label: Name, required: true }
           - { name: value, type: string, label: Value, required: true }
+      - name: add_ons
+        label: Add-ons
+        type: object
+        fields:
+          - { name: intro, type: rich-text, label: Intro }
+          - name: options
+            label: Add-on Options
+            type: object
+            list: true
+            fields:
+              - { name: name, type: string, label: Name, required: true }
+              - { name: price, type: number, label: Price, required: true }
       - name: tabs
         label: Tabs
         type: object
@@ -259,13 +260,13 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
+      - { name: featured, type: boolean, label: Featured }
       - { name: event_date, label: Event Date, type: date, required: false }
       - name: recurring_date
         type: string
         label: Recurring Date (e.g. "Every Friday at 2 PM")
         required: false
       - { name: event_location, type: string, label: Event Location }
-      - { name: featured, type: boolean, label: Featured }
       - name: map_embed_src
         type: string
         label: Map Embed URL
@@ -627,39 +628,6 @@ content:
     fields:
       - { name: name, type: string, label: Name }
       - { name: body, type: rich-text, label: Body }
-  - name: page-about
-    label: About Page
-    type: file
-    path: src/pages/about.md
-    fields:
-      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - name: meta_description
-        type: string
-        label: Meta Description
-        maxlength: 155
-      - name: blocks
-        label: Content Blocks
-        type: object
-        list: true
-        fields:
-          - name: type
-            type: string
-            label: Block Type
-            default: section-header
-          - { name: title, type: string, label: Title, required: true }
-          - { name: subtitle, type: string, label: Subtitle }
-          - name: items
-            type: object
-            label: Features
-            list: true
-            fields:
-              - { name: icon, type: string, label: Icon (HTML entity) }
-              - { name: title, type: string, label: Title, required: true }
-              - name: description
-                type: string
-                label: Description
-                required: true
-      - { name: body, type: rich-text, label: Body }
   - name: page-services
     label: Services Page
     type: file
@@ -686,7 +654,9 @@ content:
             label: Features
             list: true
             fields:
-              - { name: icon, type: string, label: Icon (HTML entity) }
+              - name: icon
+                type: string
+                label: Icon (Iconify ID or HTML entity)
               - { name: title, type: string, label: Title, required: true }
               - name: description
                 type: string
@@ -694,6 +664,120 @@ content:
                 required: true
           - { name: filename, type: string, label: Filename, required: true }
           - { name: code, type: string, label: Code, required: true }
+      - { name: body, type: rich-text, label: Body }
+  - name: page-chobble-template
+    label: Chobble Template Page
+    type: file
+    path: src/pages/chobble-template.md
+    fields:
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: blocks
+        label: Content Blocks
+        type: object
+        list: true
+        fields:
+          - { name: type, type: string, label: Block Type, default: hero }
+          - { name: full_width, type: boolean, label: Full Width }
+          - { name: class, type: string, label: CSS Class }
+          - { name: badge, type: string, label: Badge Text }
+          - { name: title, type: string, label: Title, required: true }
+          - { name: lead, type: string, label: Lead Text }
+          - name: buttons
+            type: object
+            label: Buttons
+            list: true
+            fields:
+              - { name: text, type: string, label: Button Text, required: true }
+              - { name: href, type: string, label: URL, required: true }
+              - { name: variant, type: string, label: Variant }
+              - { name: size, type: string, label: Size }
+          - name: video_id
+            type: string
+            label: Video Embed URL
+            required: true
+          - { name: video_title, type: string, label: Video Title }
+          - { name: aspect_ratio, type: string, label: Aspect Ratio }
+          - { name: content, type: rich-text, label: Overlay Content }
+          - { name: section_class, type: string, label: Section Class }
+          - name: items
+            type: object
+            label: Statistics
+            list: true
+            fields:
+              - { name: value, type: string, label: Value, required: true }
+              - { name: label, type: string, label: Label, required: true }
+          - { name: header_title, type: string, label: Header Title }
+          - { name: header_subtitle, type: string, label: Header Subtitle }
+          - { name: grid_class, type: string, label: Grid Class }
+          - { name: heading_level, type: number, label: Heading Level }
+          - { name: variant, type: string, label: Variant }
+          - { name: reveal_left, type: string, label: Reveal Left Animation }
+          - { name: reveal_right, type: string, label: Reveal Right Animation }
+          - { name: left_title, type: string, label: Left Title }
+          - { name: left_content, type: rich-text, label: Left Content }
+          - name: left_button
+            type: object
+            label: Left Button
+            fields:
+              - { name: text, type: string, label: Button Text, required: true }
+              - { name: href, type: string, label: URL, required: true }
+              - { name: variant, type: string, label: Variant }
+          - { name: right_title, type: string, label: Right Title }
+          - { name: right_content, type: rich-text, label: Right Content }
+          - { name: reverse, type: boolean, label: Reverse Layout }
+          - { name: reveal_content, type: string, label: Reveal Animation }
+          - name: button
+            type: object
+            label: Button
+            fields:
+              - { name: text, type: string, label: Button Text, required: true }
+              - { name: href, type: string, label: URL, required: true }
+              - { name: variant, type: string, label: Variant }
+              - { name: size, type: string, label: Size }
+          - name: figure_type
+            type: string
+            label: Figure Type (html or code)
+          - { name: figure_content, type: rich-text, label: Figure Content }
+          - { name: description, type: string, label: Description }
+      - { name: body, type: rich-text, label: Body }
+  - name: page-about
+    label: About Page
+    type: file
+    path: src/pages/about.md
+    fields:
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: blocks
+        label: Content Blocks
+        type: object
+        list: true
+        fields:
+          - name: type
+            type: string
+            label: Block Type
+            default: section-header
+          - { name: title, type: string, label: Title, required: true }
+          - { name: subtitle, type: string, label: Subtitle }
+          - name: items
+            type: object
+            label: Features
+            list: true
+            fields:
+              - name: icon
+                type: string
+                label: Icon (Iconify ID or HTML entity)
+              - { name: title, type: string, label: Title, required: true }
+              - name: description
+                type: string
+                label: Description
+                required: true
       - { name: body, type: rich-text, label: Body }
   - name: homepage
     label: Homepage Settings
