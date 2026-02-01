@@ -266,12 +266,12 @@ body.design-system {
 // =============================================================================
 // ALTERNATING SECTION BACKGROUNDS
 // =============================================================================
-// Built-in way to alternate backgrounds when using multiple .design-system sections
+// Alternate backgrounds on direct child sections within a .design-system container
 
-.design-system:nth-child(odd) {
+.design-system > section:nth-child(odd) {
   background: var(--color-bg);
 }
 
-.design-system:nth-child(even) {
+.design-system > section:nth-child(even) {
   background: var(--color-bg-alt);
 }
