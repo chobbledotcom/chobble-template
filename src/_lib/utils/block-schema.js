@@ -60,12 +60,7 @@ const BLOCK_SCHEMAS = {
     "aspect_ratio",
     "class",
   ],
-  "image-background": [
-    "image",
-    "image_alt",
-    "content",
-    "class",
-  ],
+  "image-background": ["image", "image_alt", "content", "class"],
   contact_form: ["content"],
   markdown: ["content"],
   html: ["content"],
