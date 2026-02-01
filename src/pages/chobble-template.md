@@ -287,6 +287,15 @@ blocks:
         <p style="opacity: 0.7; margin: 0.5rem 0 0; font-size: 0.9rem;">Manchester, UK</p>
       </div>
 
+  # Contact Form
+  - type: contact_form
+    section_class: ""
+    container: true
+    content: |
+      ## Contact Chobble
+
+      You can use the contact form to the right to get in touch with Stef at Chobble.
+
   # CTA
   - type: cta
     section_class: ""

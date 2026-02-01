@@ -1,0 +1,8 @@
+<div class="contact-form-block">
+  <div class="contact-form-block__text">
+    {{ block.content | renderContent: "md" }}
+  </div>
+  <div class="contact-form-block__form">
+    {%- include "contact-form.html" -%}
+  </div>
+</div>
