@@ -4,6 +4,7 @@
 
   --color-bg: #fff;
   --color-accent: #f0e8f8;
+  --color-body-bg: #f0f0f0;
   --color-text: #333;
   --color-link: #ff00ff;
   --color-link-hover: #ff66ff;
@@ -18,10 +19,6 @@
   --link-decoration: none;
   --link-decoration-hover: underline;
   --link-decoration-style: wavy;
-}
-
-body {
-  background: #f0f0f0;
 }
 
 // Scoped color overrides for different sections
