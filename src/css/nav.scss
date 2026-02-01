@@ -41,6 +41,7 @@ nav {
 }
 
 @include breakpoints.up("md") {
+  .toggle,
   .toggle-label {
     display: none !important;
   }
