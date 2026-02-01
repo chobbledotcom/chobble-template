@@ -7,6 +7,7 @@ permalink: /chobble-template/
 blocks:
   # Hero
   - type: hero
+    full_width: true
     class: gradient
     badge: Open Source & Free
     title: A Free Eleventy Template for Small Business Websites
@@ -25,6 +26,7 @@ blocks:
 
   # Video Background Demo
   - type: video-background
+    full_width: true
     video_id: https://iframe.mediadelivery.net/embed/417100/64491289-f8e4-44a0-9d78-746cdf8f78fc?autoplay=true&loop=true&muted=true&preload=true&responsive=true
     video_title: Chobble Template Demo
     aspect_ratio: "21/9"
@@ -36,7 +38,7 @@ blocks:
   # Stats
   - type: stats
     section_class: alt
-    container: true
+
     items:
       - value: "14"
         label: Content Types
@@ -50,7 +52,7 @@ blocks:
   # Features - Everything Your Business Needs
   - type: features
     section_class: ""
-    container: true
+
     header_title: What's Included
     header_subtitle: >-
       Product catalogs, event calendars, holiday lets, restaurant menus, and more.
@@ -87,7 +89,7 @@ blocks:
   # Content Types Split
   - type: split
     section_class: dark
-    container: true
+
     title: 14 Content Types, One Template
     subtitle: Most templates give you pages and posts. This one has content types for specific business needs.
     content: |
@@ -127,7 +129,7 @@ blocks:
   # Themes Split (reversed)
   - type: split
     section_class: ""
-    container: true
+
     title: 10 Themes. Pick One and Go.
     reverse: true
     reveal_content: right
@@ -159,7 +161,7 @@ blocks:
   # E-Commerce Features (with header, grid--4 layout, custom colors)
   - type: features
     section_class: alt
-    container: true
+
     header_title: Commerce Options
     header_subtitle: Sell products, take quotes, or both. Stripe, PayPal, and enquiry forms are built in.
     grid_class: grid--4 text-center
@@ -184,7 +186,7 @@ blocks:
   # Performance Split
   - type: split
     section_class: gradient
-    container: true
+
     title: Static HTML, Optimised Images
     reveal_content: left
     content: |
@@ -209,7 +211,7 @@ blocks:
   # SEO Features (with header)
   - type: features
     section_class: alt
-    container: true
+
     header_title: Built-in SEO
     header_subtitle: Structured data is generated automatically from your content.
     grid_class: grid
@@ -225,7 +227,7 @@ blocks:
   # Deployment Split (reversed)
   - type: split
     section_class: ""
-    container: true
+
     title: Hosting and Deployment
     reverse: true
     reveal_content: right
@@ -259,7 +261,7 @@ blocks:
   # Get It Built For You
   - type: split
     section_class: alt
-    container: true
+
     title: Want It Built For You?
     subtitle: Not everyone wants to DIY — and that's fine.
     reveal_content: left
@@ -290,7 +292,6 @@ blocks:
   # Contact Form
   - type: contact_form
     section_class: ""
-    container: true
     content: |
       ## Contact Chobble
 
@@ -299,7 +300,7 @@ blocks:
   # CTA
   - type: cta
     section_class: ""
-    container: default
+
     title: Get the Template
     description: Fork the repository, add your content, and deploy. Or get in touch and Stef will set it up for you.
     button:
