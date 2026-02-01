@@ -216,7 +216,7 @@
 
         // No thumbnail variant for custom video URLs
         &.video-facade--no-thumbnail {
-          background: var(--color-bg-alt);
+          background: var(--body-background-alt);
           aspect-ratio: 16 / 9;
         }
       }

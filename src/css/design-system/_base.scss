@@ -17,7 +17,7 @@
 
 :root {
   --color-bg: #{$color-bg};
-  --color-bg-alt: #{$color-bg-alt};
+  --body-background-alt: #{$body-background-alt};
   --color-card-bg: #{$color-card-bg};
   --color-text: #{$color-text};
   --color-text-muted: #{$color-text-muted};
@@ -112,7 +112,7 @@
     font-family: var(--font-family-mono);
     font-size: 0.9em;
     padding: 0.2em 0.4em;
-    background: var(--color-bg-alt);
+    background: var(--body-background-alt);
     border-radius: $radius-sm;
   }
 
@@ -205,13 +205,13 @@
       @include section($space-2xl);
     }
     &.alt {
-      background: var(--color-bg-alt);
+      background: var(--body-background-alt);
     }
     &.dark {
       background: #{$color-dark-bg};
       color: #{$color-dark-text};
       --color-bg: #{$color-dark-bg};
-      --color-bg-alt: #{$color-dark-card-bg};
+      --body-background-alt: #{$color-dark-card-bg};
       --color-text: #{$color-dark-text};
       --color-text-muted: #{$color-dark-text-muted};
       --color-card-bg: #{$color-dark-card-bg};
@@ -275,5 +275,5 @@ body.design-system {
 }
 
 .design-system > section:nth-child(even) {
-  background: var(--color-bg-alt);
+  background: var(--body-background-alt);
 }
