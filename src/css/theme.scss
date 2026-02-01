@@ -2,6 +2,7 @@
 :root {
   --color-bg: #fafafa;
   --color-bg-alt: #f3f4f6;
+  --body-background: #fafafa;
   --color-card-bg: #ffffff;
   --color-text: #1f2937;
   --color-text-muted: #6b7280;
@@ -11,8 +12,4 @@
   --color-secondary: #7c3aed;
   --color-accent: #ebebeb;
   --color-hover-bg: rgba(0, 0, 0, 0.05);
-}
-
-body {
-  background: #fafafa;
 }

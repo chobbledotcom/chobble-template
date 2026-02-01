@@ -1,7 +1,7 @@
 ---
 meta_title: Our Services
 meta_description: Explore our range of services for widgets, wotzits, and gizmos.
-layout: page.html
+layout: design-system-base.html
 blocks:
   - type: section-header
     title: Our Services

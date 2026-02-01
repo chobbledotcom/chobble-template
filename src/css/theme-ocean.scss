@@ -1,6 +1,8 @@
 // Ocean Theme - Deep blue with aqua accents
 :root {
   --color-bg: #001f3f;
+  --color-accent: #002b54;
+  --body-background: #002a55;
   --color-text: #7fdbff;
   --color-link: #39cccc;
   --color-link-hover: #7fdbff;
@@ -15,10 +17,6 @@
   --link-decoration: underline;
   --link-decoration-hover: none;
   --link-decoration-style: wavy;
-}
-
-body {
-  background: #002a55;
 }
 
 header {

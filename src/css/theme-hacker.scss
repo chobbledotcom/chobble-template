@@ -1,6 +1,8 @@
 // Hacker Theme - Matrix/Hacker green on black
 :root {
   --color-bg: #000000;
+  --color-accent: #0a120a;
+  --body-background: #0a0a0a;
   --color-text: #00ff00;
   --color-link: #00ff00;
   --color-link-hover: #33ff33;
@@ -15,8 +17,4 @@
   --link-decoration: none;
   --link-decoration-hover: underline;
   --link-decoration-style: solid;
-}
-
-body {
-  background: #0a0a0a;
 }

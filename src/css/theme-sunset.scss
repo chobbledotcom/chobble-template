@@ -1,6 +1,8 @@
 // Sunset Theme - Purple and orange sunset palette
 :root {
   --color-bg: #3d1e6d;
+  --color-accent: #4a2880;
+  --body-background: #4d2d7d;
   --color-text: #f4a261;
   --color-link: #e76f51;
   --color-link-hover: #f4a261;
@@ -15,8 +17,4 @@
   --link-decoration: none;
   --link-decoration-hover: underline;
   --link-decoration-style: double;
-}
-
-body {
-  background: #4d2d7d;
 }

@@ -1,7 +1,7 @@
 ---
 meta_title: About Us
 meta_description: Learn more about our widgets, wotzits, and gizmos, and the team behind them.
-layout: page.html
+layout: design-system-base.html
 blocks:
   - type: section-header
     title: About Our Business
