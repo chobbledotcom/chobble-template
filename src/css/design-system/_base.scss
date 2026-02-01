@@ -27,6 +27,7 @@
   --color-secondary: #{$color-secondary};
   --color-accent: #{$color-accent};
   --color-hover-bg: #{$color-hover-bg};
+  --body-background: #{$color-bg};
   --font-family-body: #{$font-sans};
   --font-family-heading: #{$font-sans};
   --font-family-mono: #{$font-mono};
@@ -261,6 +262,7 @@
 
 body.design-system {
   @include reset-spacing;
+  background: var(--body-background);
 }
 
 // =============================================================================
