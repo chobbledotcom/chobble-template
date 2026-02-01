@@ -23,4 +23,91 @@
   .contact-form-block > .form {
     width: 100%;
   }
+
+  // ===========================================================================
+  // CONTACT FORM ELEMENTS
+  // ===========================================================================
+
+  .contact-form {
+    @include flex-col($space-md);
+
+    // Labels wrap each field group
+    > label {
+      @include flex-col($space-xs);
+      @include body-base;
+      font-weight: 600;
+      color: var(--color-text, #{$color-text});
+    }
+
+    // Shared input/textarea/select base styles
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: $space-sm;
+      font-family: inherit;
+      font-size: $font-size-base;
+      line-height: $line-height-normal;
+      color: var(--color-text, #{$color-text});
+      background: var(--color-card-bg, #{$color-card-bg});
+      border: $border-medium;
+      border-radius: $radius-md;
+      transition: border-color $transition-fast;
+
+      &::placeholder {
+        color: var(--color-text-muted, #{$color-text-muted});
+      }
+
+      &:focus {
+        outline: none;
+        border-color: var(--color-link, #{$color-primary});
+        box-shadow: 0 0 0 3px var(--color-link-light, #{$color-primary-light});
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    // Radio group fieldset
+    fieldset.radio-group {
+      @include flex-col($space-xs);
+      border: none;
+      padding: 0;
+
+      legend {
+        font-weight: 600;
+        margin-bottom: $space-xs;
+      }
+
+      .radio-option {
+        @include flex-row($space-xs);
+
+        input[type="radio"] {
+          accent-color: var(--color-link, #{$color-primary});
+        }
+
+        label {
+          font-weight: 400;
+          cursor: pointer;
+        }
+      }
+    }
+
+    // Submit button
+    > button[type="submit"] {
+      @include button-primary;
+      align-self: flex-start;
+      margin-top: $space-xs;
+    }
+  }
 }
