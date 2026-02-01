@@ -29,7 +29,7 @@ Usage:
 
 <div class="split-full{% if block.variant %} {{ block.variant }}{% endif %}">
   <div class="left">
-    <div{% if block.reveal_left %} data-reveal="{{ block.reveal_left }}"{% endif %}>
+    <div class="stack"{% if block.reveal_left %} data-reveal="{{ block.reveal_left }}"{% endif %}>
       {%- if block.left_title -%}
         <h{{ title_level }}>{{ block.left_title }}</h{{ title_level }}>
       {%- endif -%}
@@ -41,7 +41,7 @@ Usage:
     </div>
   </div>
   <div class="right">
-    <div{% if block.reveal_right %} data-reveal="{{ block.reveal_right }}"{% endif %}>
+    <div class="stack"{% if block.reveal_right %} data-reveal="{{ block.reveal_right }}"{% endif %}>
       {%- if block.right_title -%}
         <h{{ title_level }}>{{ block.right_title }}</h{{ title_level }}>
       {%- endif -%}
