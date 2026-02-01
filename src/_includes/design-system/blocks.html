@@ -1,11 +1,9 @@
 {%- for block in blocks -%}
-  {%- if block.section_class != nil -%}
-<section{% if block.section_class != "" %} class="{{ block.section_class }}"{% endif %}>
-  {%- endif -%}
+<section{% if block.section_class != nil and block.section_class != "" %} class="{{ block.section_class }}"{% endif %}>
   {%- assign is_full_width = block.full_width -%}
   {%- if block.type == "footer" -%}{%- assign is_full_width = true -%}{%- endif -%}
   {%- unless is_full_width -%}<div class="container">{%- endunless -%}
   {%- include "design-system/render-block.html", block: block -%}
   {%- unless is_full_width -%}</div>{%- endunless -%}
-  {%- if block.section_class != nil -%}</section>{%- endif -%}
+</section>
 {%- endfor -%}
