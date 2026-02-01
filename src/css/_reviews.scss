@@ -25,12 +25,9 @@
     grid-template-columns: 1fr;
   }
 
-  // On item pages, show 2 columns max
+  // On item pages, auto-fit with 330px minimum so reviews aren't smushed
   body.item & {
-    grid-template-columns: repeat(2, 1fr);
-    @include breakpoints.down("md") {
-      grid-template-columns: 1fr;
-    }
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
   }
 
   > li {
