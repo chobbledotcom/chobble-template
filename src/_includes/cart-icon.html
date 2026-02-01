@@ -1,3 +1,4 @@
+{%- if config.cart_mode -%}
 <button
   class="cart-icon"
   aria-label="View cart"
@@ -7,3 +8,4 @@
   <span>View cart</span>
   <span class="cart-count" style="display: none">0</span>
 </button>
+{%- endif -%}
