@@ -150,7 +150,11 @@ export default {
     if (!data.blocks) return data.blocks;
     validateBlocks(data.blocks, ` in ${data.page.inputPath}`);
     return data.blocks.map((block) => {
-      const merged = { ...BLOCK_DEFAULTS[block.type], ...block };
+      const merged = {
+        section_class: "",
+        ...BLOCK_DEFAULTS[block.type],
+        ...block,
+      };
       if (block.type === "split" && !block.reveal_content) {
         merged.reveal_content = block.reverse ? "right" : "left";
       }

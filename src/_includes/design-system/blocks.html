@@ -1,10 +1,8 @@
 {%- for block in blocks -%}
-  {%- if block.section_class != nil -%}
 <section{% if block.section_class != "" %} class="{{ block.section_class }}"{% endif %}>
-  {%- endif -%}
   {%- assign is_full_width = block.full_width -%}
   {%- unless is_full_width -%}<div class="container">{%- endunless -%}
   {%- include "design-system/render-block.html", block: block -%}
   {%- unless is_full_width -%}</div>{%- endunless -%}
-  {%- if block.section_class != nil -%}</section>{%- endif -%}
+</section>
 {%- endfor -%}
