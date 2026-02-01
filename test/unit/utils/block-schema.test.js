@@ -13,7 +13,6 @@ describe("BLOCK_SCHEMAS", () => {
       "split",
       "split-full",
       "cta",
-      "footer",
       "video-background",
       "contact_form",
       "markdown",

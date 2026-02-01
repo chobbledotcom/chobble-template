@@ -305,16 +305,4 @@ blocks:
       variant: secondary
       size: lg
 
-  # Footer
-  - type: footer
-    text: <strong>Chobble Template</strong> - Open source, AGPLv3 licensed
-    links:
-      - text: GitHub
-        href: https://github.com/chobbledotcom/chobble-template
-      - text: Forgejo
-        href: https://git.chobble.com/chobble/chobble-template
-      - text: Demo Site
-        href: https://example.chobble.com
-      - text: Chobble
-        href: https://chobble.com
 ---

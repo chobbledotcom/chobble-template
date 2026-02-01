@@ -53,7 +53,6 @@ const BLOCK_SCHEMAS = {
     "reveal_right",
   ],
   cta: ["title", "description", "button", "reveal"],
-  footer: ["text", "links", "aria_label"],
   "video-background": [
     "video_id",
     "video_title",
