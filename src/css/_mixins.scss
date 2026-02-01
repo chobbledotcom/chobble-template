@@ -97,7 +97,7 @@
   padding: $padding;
   border-radius: $radius;
   border: $border-light;
-  background: var(--color-card-bg, #{$color-card-bg});
+  background: var(--color-card-bg);
 }
 
 @mixin card-hover {
@@ -113,12 +113,12 @@
 
   // Focus styles for keyboard navigation
   &:focus-visible {
-    outline: 2px solid var(--color-link, $color-primary);
+    outline: 2px solid var(--color-link);
     outline-offset: 2px;
   }
 
   &:focus-within {
-    border-color: var(--color-link, $color-primary);
+    border-color: var(--color-link);
   }
 }
 
@@ -225,12 +225,12 @@
 
 @mixin button-primary {
   @include button-base;
-  background: var(--color-link, #{$color-primary});
-  color: var(--color-contrast-text, #{$color-white});
+  background: var(--color-link);
+  color: var(--color-contrast-text);
 
   &:hover:not(:disabled) {
-    background: var(--color-link-hover, #{$color-primary-dark});
-    color: var(--color-contrast-text, #{$color-white});
+    background: var(--color-link-hover);
+    color: var(--color-contrast-text);
     transform: translateY(-1px);
   }
 
@@ -242,22 +242,22 @@
 @mixin button-secondary {
   @include button-base;
   background: transparent;
-  border-color: var(--color-link, #{$color-primary});
-  color: var(--color-link, #{$color-primary});
+  border-color: var(--color-link);
+  color: var(--color-link);
 
   &:hover:not(:disabled) {
-    background: var(--color-link, #{$color-primary});
-    color: var(--color-contrast-text, #{$color-white});
+    background: var(--color-link);
+    color: var(--color-contrast-text);
   }
 }
 
 @mixin button-ghost {
   @include button-base;
   background: transparent;
-  color: var(--color-text, #{$color-text});
+  color: var(--color-text);
 
   &:hover:not(:disabled) {
-    background: var(--color-hover-bg, #{$color-hover-bg});
+    background: var(--color-hover-bg);
   }
 }
 
@@ -379,7 +379,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-link, #{$color-primary});
+    outline: 2px solid var(--color-link);
     outline-offset: 2px;
   }
 }

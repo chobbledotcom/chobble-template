@@ -76,7 +76,7 @@
       .btn,
       a.btn {
         background: var(--color-contrast-text-muted);
-        color: var(--color-text, #{$color-dark-bg});
+        color: var(--color-text);
         border-color: transparent;
 
         &:hover {
@@ -85,12 +85,12 @@
       }
 
       .btn--primary {
-        background: var(--color-link, #{$color-primary});
+        background: var(--color-link);
         color: var(--color-contrast-text);
         border-color: transparent;
 
         &:hover {
-          background: var(--color-link-hover, #{$color-primary-dark});
+          background: var(--color-link-hover);
         }
       }
     }
@@ -99,7 +99,7 @@
     &--light-overlay {
       > figure {
         background: rgba($color-white, 0.7);
-        color: var(--color-text, #{$color-text});
+        color: var(--color-text);
         --color-text: #{$color-text};
         --color-text-muted: #{$color-text-muted};
       }
@@ -111,12 +111,12 @@
         h4,
         h5,
         h6 {
-          color: var(--color-text, #{$color-text});
+          color: var(--color-text);
           text-shadow: none;
         }
 
         p {
-          color: var(--color-text, #{$color-text});
+          color: var(--color-text);
           text-shadow: none;
         }
       }
