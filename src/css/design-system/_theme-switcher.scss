@@ -4,11 +4,11 @@
 // THEME SWITCHER BUTTON (Design System)
 // =============================================================================
 // Fixed button in the bottom-left corner for cycling through themes.
-// Positioned bottom-left to avoid conflict with cart icon (bottom-right).
+// Offset above the cart icon when both are present in the same corner.
 
 #theme-switcher-button {
   position: fixed;
-  bottom: $space-md;
+  bottom: calc(#{$space-md} + 48px + #{$space-xs});
   left: $space-md;
   z-index: $z-toast;
   background: var(--color-bg);

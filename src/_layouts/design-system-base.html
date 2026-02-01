@@ -29,5 +29,11 @@
   {{- content -}}
   {%- include "design-system/footer.html" -%}
   {%- include "theme-switcher.html" -%}
+  {%- if config.cart_mode -%}
+    {%- include "cart-icon.html" -%}
+    {%- if config.cart_mode == "paypal" or config.cart_mode == "stripe" -%}
+      {%- include "cart-overlay.html" -%}
+    {%- endif -%}
+  {%- endif -%}
 </body>
 </html>
