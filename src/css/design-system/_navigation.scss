@@ -74,11 +74,13 @@
     &.horizontal-nav nav {
       @include nav.nav-horizontal-dropdown($space-lg, $space-xs);
       position: sticky;
-      top: 0;
+      top: $space-sm;
       z-index: $z-sticky;
       background: var(--color-bg);
       padding-inline: $space-lg;
       padding-block: $space-xs;
+      margin-inline: $space-sm;
+      border-radius: var(--border-radius);
     }
   }
 }
