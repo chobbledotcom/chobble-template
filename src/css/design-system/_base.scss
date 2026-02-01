@@ -27,6 +27,8 @@
   --color-secondary: #{$color-secondary};
   --color-accent: #{$color-accent};
   --color-hover-bg: #{$color-hover-bg};
+  --color-gradient-start: rgba(106, 90, 205, 0.2);
+  --color-gradient-end: rgba(236, 72, 153, 0.2);
   --body-background: #{$color-bg};
   --font-family-body: #{$font-sans};
   --font-family-heading: #{$font-sans};
@@ -217,7 +219,11 @@
       --color-card-bg: #{$color-dark-card-bg};
     }
     &.gradient {
-      background: linear-gradient(135deg, var(--color-link-light) 0%, #faf5ff 100%);
+      background: linear-gradient(
+        135deg,
+        var(--color-gradient-start) 0%,
+        var(--color-gradient-end) 100%
+      );
     }
   }
 
