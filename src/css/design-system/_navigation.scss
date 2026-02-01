@@ -62,6 +62,7 @@
   // ===========================================================================
 
   @include breakpoint.up("md") {
+    .toggle,
     .toggle-label,
     .mobile-menu-toggle {
       display: none !important;
