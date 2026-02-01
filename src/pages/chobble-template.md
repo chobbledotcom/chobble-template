@@ -55,31 +55,31 @@ blocks:
       From product catalogs to event calendars, holiday lets to restaurant menus.
       One template, endless possibilities.
     items:
-      - icon: "&#128722;"
+      - icon: "hugeicons:shopping-cart-01"
         title: E-Commerce Ready
         description: Built-in shopping cart with Stripe and PayPal integration. Or use quote mode for service businesses.
-      - icon: "&#127912;"
+      - icon: "hugeicons:paint-brush-01"
         title: 10 Beautiful Themes
         description: From professional to playful. Live theme editor lets visitors preview looks instantly.
-      - icon: "&#128444;"
+      - icon: "hugeicons:image-02"
         title: Smart Image Handling
         description: Automatic responsive images, WebP conversion, and blurred placeholders for lightning-fast loads.
-      - icon: "&#128197;"
+      - icon: "hugeicons:calendar-03"
         title: Events & Calendars
         description: One-off or recurring events. iCal export. Property availability calendars built-in.
-      - icon: "&#127869;"
+      - icon: "hugeicons:restaurant-01"
         title: Restaurant Menus
         description: Full menu management with dietary indicators, categories, and pricing display.
-      - icon: "&#127968;"
+      - icon: "hugeicons:house-01"
         title: Property Listings
         description: Perfect for holiday lets. Bedrooms, amenities, price per night, and booking calendars.
-      - icon: "&#11088;"
+      - icon: "hugeicons:star"
         title: Reviews & Ratings
         description: Product reviews with 1-5 star ratings. Automatic aggregate scores for SEO.
-      - icon: "&#128270;"
+      - icon: "hugeicons:search-02"
         title: SEO Optimized
         description: Schema.org markup, RSS feeds, sitemaps, canonical URLs, and meta descriptions.
-      - icon: "&#128187;"
+      - icon: "hugeicons:laptop-programming"
         title: No-Code CMS
         description: PagesCMS integration lets non-technical users edit content with a visual interface.
 
@@ -153,7 +153,7 @@ blocks:
     figure_type: html
     figure_content: |
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; text-align: center; color: white;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">&#127912;</div>
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🎨</div>
         <strong style="font-size: 1.5rem;">Theme Switcher</strong>
         <p style="opacity: 0.8; margin: 0.5rem 0 0;">Let visitors preview themes instantly</p>
       </div>
@@ -167,18 +167,18 @@ blocks:
     grid_class: grid--4 text-center
     heading_level: 4
     items:
-      - icon: "&#128179;"
+      - icon: "hugeicons:credit-card"
         title: Stripe Checkout
         description: Secure card payments with minimal setup
-      - icon: "&#128176;"
+      - icon: "hugeicons:money-bag-02"
         title: PayPal
         description: Accept PayPal payments globally
         style: "--primary-light: #fef3c7; --primary: #d97706;"
-      - icon: "&#128221;"
+      - icon: "hugeicons:note-edit"
         title: Quote Mode
         description: Collect enquiries instead of payments
         style: "--primary-light: #d1fae5; --primary: #059669;"
-      - icon: "&#128197;"
+      - icon: "hugeicons:calendar-03"
         title: Hire Calculator
         description: Time-based rental pricing engine
         style: "--primary-light: #fce7f3; --primary: #db2777;"
