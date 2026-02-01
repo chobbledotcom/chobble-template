@@ -51,8 +51,8 @@
     }
   }
 
-  .split-full__left,
-  .split-full__right {
+  .split-full-left,
+  .split-full-right {
     flex: 1;
     padding: $space-3xl $space-md;
     display: flex;
@@ -62,7 +62,7 @@
     }
   }
 
-  .split-full__left {
+  .split-full-left {
     background: var(--color-bg-alt);
     justify-content: flex-end;
 
@@ -76,7 +76,7 @@
     }
   }
 
-  .split-full__right {
+  .split-full-right {
     background: var(--color-card-bg);
     justify-content: flex-start;
 
@@ -91,26 +91,26 @@
   }
 
   // Dark variant - left dark, right light
-  .split-full--dark-left {
-    .split-full__left {
+  .split-full-dark-left {
+    .split-full-left {
       background: $color-dark-bg;
       color: $color-dark-text;
       --color-text: #{$color-dark-text};
       --color-text-muted: #{$color-dark-text-muted};
     }
 
-    .split-full__right {
+    .split-full-right {
       background: var(--color-bg);
     }
   }
 
   // Reverse - right dark, left light
-  .split-full--dark-right {
-    .split-full__left {
+  .split-full-dark-right {
+    .split-full-left {
       background: var(--color-bg);
     }
 
-    .split-full__right {
+    .split-full-right {
       background: $color-dark-bg;
       color: $color-dark-text;
       --color-text: #{$color-dark-text};
@@ -119,8 +119,8 @@
   }
 
   // Primary color variants
-  .split-full--primary-left {
-    .split-full__left {
+  .split-full-primary-left {
+    .split-full-left {
       background: var(--color-link);
       color: $color-white;
       --color-text: #{$color-white};
@@ -128,8 +128,8 @@
     }
   }
 
-  .split-full--primary-right {
-    .split-full__right {
+  .split-full-primary-right {
+    .split-full-right {
       background: var(--color-link);
       color: $color-white;
       --color-text: #{$color-white};
