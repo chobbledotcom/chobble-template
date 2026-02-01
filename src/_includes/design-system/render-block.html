@@ -31,9 +31,6 @@ Renders a single block by type. Used by blocks.html.
   {%- when "cta" -%}
     {%- include "design-system/cta.html", block: block -%}
 
-  {%- when "footer" -%}
-    {%- include "design-system/footer.html", block: block -%}
-
   {%- when "markdown" -%}
     {{ block.content | renderContent: "md" }}
 

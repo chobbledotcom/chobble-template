@@ -7,10 +7,11 @@
 // =============================================================================
 
 .design-system {
-  footer.site-footer {
-    padding: $space-2xl 0;
+  footer {
+    @include section($space-2xl);
     background: $color-dark-bg;
     color: $color-dark-text-muted;
+    text-align: center;
 
     a {
       color: $color-dark-link;
@@ -19,25 +20,16 @@
       }
     }
 
-    .container {
-      @include flex-col($space-lg, center);
-      text-align: center;
-
-      @include breakpoint.up("md") {
-        @include flex-between;
-        flex-direction: row;
-        text-align: left;
-      }
+    p {
+      margin: 0 0 $space-sm;
     }
 
-    [role="navigation"] {
-      @include flex-row($space-lg);
+    .socials {
+      @include flex-row($space-lg, center, center);
       flex-wrap: wrap;
-      justify-content: center;
-
-      @include breakpoint.up("md") {
-        justify-content: flex-start;
-      }
+      list-style: none;
+      padding: 0;
+      margin: 0 0 $space-md;
     }
   }
 }
