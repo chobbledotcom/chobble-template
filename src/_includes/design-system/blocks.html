@@ -2,8 +2,8 @@
   {%- if block.section_class != nil -%}
 <section{% if block.section_class != "" %} class="{{ block.section_class }}"{% endif %}>
   {%- endif -%}
-  {%- if block.container -%}<div class="container">{%- endif -%}
+  {%- unless block.full_width -%}<div class="container">{%- endunless -%}
   {%- include "design-system/render-block.html", block: block -%}
-  {%- if block.container -%}</div>{%- endif -%}
+  {%- unless block.full_width -%}</div>{%- endunless -%}
   {%- if block.section_class != nil -%}</section>{%- endif -%}
 {%- endfor -%}
