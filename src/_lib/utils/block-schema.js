@@ -40,6 +40,18 @@ const BLOCK_SCHEMAS = {
     "reveal_figure",
     "button",
   ],
+  "split-full": [
+    "variant",
+    "title_level",
+    "left_title",
+    "left_content",
+    "left_button",
+    "right_title",
+    "right_content",
+    "right_button",
+    "reveal_left",
+    "reveal_right",
+  ],
   cta: ["title", "description", "button", "reveal"],
   footer: ["text", "links", "aria_label"],
   "video-background": [

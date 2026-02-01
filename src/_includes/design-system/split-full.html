@@ -1,0 +1,55 @@
+{%- comment -%}
+Split full-width layout with two-tone background sections.
+
+Parameters (via block object):
+  - block.variant: Color variant - "dark-left", "dark-right", "primary-left", "primary-right"
+  - block.left_title: Heading for left side
+  - block.left_content: Content for left side (rendered as markdown)
+  - block.left_button: Optional button { text, href, variant }
+  - block.right_title: Heading for right side
+  - block.right_content: Content for right side (rendered as markdown)
+  - block.right_button: Optional button { text, href, variant }
+  - block.title_level: Heading level, defaults to 2
+  - block.reveal_left: Animation for left side (e.g., "left")
+  - block.reveal_right: Animation for right side (e.g., "right")
+
+Usage:
+  {% include "design-system/split-full.html",
+     block: {
+       variant: "dark-left",
+       left_title: "Dark Side",
+       left_content: "Content here",
+       right_title: "Light Side",
+       right_content: "More content"
+     }
+  %}
+{%- endcomment -%}
+
+{%- assign title_level = block.title_level | default: 2 -%}
+
+<div class="split-full{% if block.variant %} {{ block.variant }}{% endif %}">
+  <div class="left">
+    <div{% if block.reveal_left %} data-reveal="{{ block.reveal_left }}"{% endif %}>
+      {%- if block.left_title -%}
+        <h{{ title_level }}>{{ block.left_title }}</h{{ title_level }}>
+      {%- endif -%}
+      {{ block.left_content | renderContent: "md" }}
+      {%- if block.left_button -%}
+        {%- assign variant = block.left_button.variant | default: "secondary" -%}
+        <a href="{{ block.left_button.href }}" class="btn btn--{{ variant }}">{{ block.left_button.text }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+  <div class="right">
+    <div{% if block.reveal_right %} data-reveal="{{ block.reveal_right }}"{% endif %}>
+      {%- if block.right_title -%}
+        <h{{ title_level }}>{{ block.right_title }}</h{{ title_level }}>
+      {%- endif -%}
+      {{ block.right_content | renderContent: "md" }}
+      {%- if block.right_button -%}
+        {%- assign variant = block.right_button.variant | default: "secondary" -%}
+        <a href="{{ block.right_button.href }}" class="btn btn--{{ variant }}">{{ block.right_button.text }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
