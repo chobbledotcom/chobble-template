@@ -258,12 +258,42 @@ blocks:
       <span style="color: #10b981;">Done!</span> Site live in 47 seconds.</code></pre>
       </div>
 
+  # Get It Built For You
+  - type: split
+    section_class: alt
+    container: true
+    title: Want It Built For You?
+    subtitle: Not everyone wants to DIY — and that's fine.
+    reveal_content: left
+    content: |
+      <p>I'm <strong>Stef</strong>, the developer behind Chobble Template. I've been building websites and software for over 20 years from Manchester, UK.</p>
+      <p>If you'd rather skip the setup and get straight to running your business, I can build your site for you using this template — customised to your brand, your content, and your needs.</p>
+      <ul>
+        <li><strong>Flat hourly rate</strong> — no hidden fees, no surprises</li>
+        <li><strong>You own the code</strong> — it's yours to keep, host anywhere, modify freely</li>
+        <li><strong>No lock-in</strong> — no contracts, no monthly retainers, walk away any time</li>
+        <li><strong>50% discount</strong> for charities, co-ops, artists, musicians, and sustainable businesses</li>
+      </ul>
+      <p>All my work is open source. I donate 10% of earnings to the <a href="https://www.againstmalaria.com/">Against Malaria Foundation</a>.</p>
+    button:
+      text: Get in touch at chobble.com
+      href: https://chobble.com
+      variant: primary
+    figure_type: html
+    figure_content: |
+      <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 3rem; text-align: center; color: white; border-radius: 0.5rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🛠️</div>
+        <strong style="font-size: 1.5rem;">Stef from Chobble</strong>
+        <p style="opacity: 0.9; margin: 0.5rem 0 0;">20+ years building for the web</p>
+        <p style="opacity: 0.7; margin: 0.5rem 0 0; font-size: 0.9rem;">Manchester, UK</p>
+      </div>
+
   # CTA
   - type: cta
     section_class: ""
     container: default
     title: Ready to Build Something Great?
-    description: Fork the repository, customize your content, and deploy. It's that simple.
+    description: Fork the repository, customize your content, and deploy — or let Stef build it for you.
     button:
       text: Get Started on GitHub
       href: https://github.com/chobbledotcom/chobble-template
