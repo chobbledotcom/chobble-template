@@ -89,39 +89,25 @@
       }
     }
 
-    // Color variants
-    &.dark-left {
-      .left {
-        background: $color-dark-bg;
-        color: $color-dark-text;
-        --color-text: #{$color-dark-text};
-        --color-text-muted: #{$color-dark-text-muted};
-        --split-btn-color: #{$color-dark-text};
-        --split-btn-hover-bg: #{$color-dark-text};
-        --split-btn-hover-color: #{$color-dark-bg};
-      }
-
-      .right {
-        background: var(--color-bg);
-      }
+    // Color variants — opposite panel resets
+    &.dark-left .right,
+    &.dark-right .left {
+      background: var(--color-bg);
     }
 
-    &.dark-right {
-      .left {
-        background: var(--color-bg);
-      }
-
-      .right {
-        background: $color-dark-bg;
-        color: $color-dark-text;
-        --color-text: #{$color-dark-text};
-        --color-text-muted: #{$color-dark-text-muted};
-        --split-btn-color: #{$color-dark-text};
-        --split-btn-hover-bg: #{$color-dark-text};
-        --split-btn-hover-color: #{$color-dark-bg};
-      }
+    // Dark colored panels
+    &.dark-left .left,
+    &.dark-right .right {
+      background: $color-dark-bg;
+      color: $color-dark-text;
+      --color-text: #{$color-dark-text};
+      --color-text-muted: #{$color-dark-text-muted};
+      --split-btn-color: #{$color-dark-text};
+      --split-btn-hover-bg: #{$color-dark-text};
+      --split-btn-hover-color: #{$color-dark-bg};
     }
 
+    // Primary colored panels
     &.primary-left .left,
     &.primary-right .right {
       background: var(--color-link);
