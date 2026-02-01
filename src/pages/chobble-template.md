@@ -1,18 +1,18 @@
 ---
 layout: design-system-base.html
-title: Chobble Template - Modern Static Site Generator for Small Businesses
-meta_title: Chobble Template - Complete Eleventy Starter for Small Business Websites
-meta_description: A free, open-source Eleventy template with e-commerce, 10 themes, 14 content types, and everything small businesses need to succeed online.
+title: Chobble Template - Free Eleventy Starter for Small Business Websites
+meta_title: Chobble Template - Free Eleventy Starter for Small Business Websites
+meta_description: A free, open-source Eleventy template with e-commerce, 10 themes, and 14 content types. MIT licensed. No monthly fees.
 permalink: /chobble-template/
 blocks:
   # Hero
   - type: hero
     class: gradient
     badge: Open Source & Free
-    title: The Complete Website Solution for Small Businesses
+    title: A Free Eleventy Template for Small Business Websites
     lead: >-
-      A production-ready Eleventy template with e-commerce, 10 themes, 14 content types,
-      and everything you need to build a professional website. No recurring fees. Full control.
+      An open-source Eleventy starter with e-commerce, 10 themes, and 14 content types.
+      It builds to static HTML. You host it wherever you like. No monthly fees.
     buttons:
       - text: View on GitHub
         href: https://github.com/chobbledotcom/chobble-template
@@ -31,7 +31,7 @@ blocks:
     content: |
       ## Video Background Block
 
-      Create stunning hero sections with auto-playing video backgrounds and overlay text.
+      Add auto-playing video backgrounds with overlay text to any section.
 
   # Stats
   - type: stats
@@ -51,20 +51,20 @@ blocks:
   - type: features
     section_class: ""
     container: true
-    header_title: Everything Your Business Needs
+    header_title: What's Included
     header_subtitle: >-
-      From product catalogs to event calendars, holiday lets to restaurant menus.
-      One template, endless possibilities.
+      Product catalogs, event calendars, holiday lets, restaurant menus, and more.
+      All from one template.
     items:
       - icon: "hugeicons:shopping-cart-01"
         title: E-Commerce Ready
         description: Built-in shopping cart with Stripe and PayPal integration. Or use quote mode for service businesses.
       - icon: "hugeicons:paint-brush-01"
-        title: 10 Beautiful Themes
-        description: From professional to playful. Live theme editor lets visitors preview looks instantly.
+        title: 10 Themes
+        description: Ranges from clean to retro. Includes a live theme editor so visitors can switch between them.
       - icon: "hugeicons:image-02"
-        title: Smart Image Handling
-        description: Automatic responsive images, WebP conversion, and blurred placeholders for lightning-fast loads.
+        title: Automatic Image Processing
+        description: Generates responsive srcsets, converts to WebP, and creates blurred placeholders. Uses eleventy-img and sharp.
       - icon: "hugeicons:calendar-03"
         title: Events & Calendars
         description: One-off or recurring events. iCal export. Property availability calendars built-in.
@@ -73,7 +73,7 @@ blocks:
         description: Full menu management with dietary indicators, categories, and pricing display.
       - icon: "hugeicons:house-01"
         title: Property Listings
-        description: Perfect for holiday lets. Bedrooms, amenities, price per night, and booking calendars.
+        description: Built for holiday lets. Bedrooms, amenities, price per night, and booking calendars.
       - icon: "hugeicons:star"
         title: Reviews & Ratings
         description: Product reviews with 1-5 star ratings. Automatic aggregate scores for SEO.
@@ -89,7 +89,7 @@ blocks:
     section_class: dark
     container: true
     title: 14 Content Types, One Template
-    subtitle: Most templates give you pages and posts. We give you a complete business toolkit.
+    subtitle: Most templates give you pages and posts. This one has content types for specific business needs.
     content: |
       - **Products** - Galleries, variants, SKUs, specifications
       - **Categories** - Hierarchical organization with subcategories
@@ -128,11 +128,11 @@ blocks:
   - type: split
     section_class: ""
     container: true
-    title: 10 Themes. Zero Design Skills Needed.
+    title: 10 Themes. Pick One and Go.
     reverse: true
     reveal_content: right
     content: |
-      Choose from professionally designed themes that work out of the box. From sleek and modern to retro and playful.
+      Each theme is a set of SCSS variables that controls colours, fonts, and spacing. They all work without modification.
 
       **Default** - Clean and professional
       **Ocean** - Cool blues and waves
@@ -160,14 +160,14 @@ blocks:
   - type: features
     section_class: alt
     container: true
-    header_title: Flexible Commerce Options
-    header_subtitle: Sell products, take quotes, or both. Multiple payment integrations built in.
+    header_title: Commerce Options
+    header_subtitle: Sell products, take quotes, or both. Stripe, PayPal, and enquiry forms are built in.
     grid_class: grid--4 text-center
     heading_level: 4
     items:
       - icon: "hugeicons:credit-card"
         title: Stripe Checkout
-        description: Secure card payments with minimal setup
+        description: Card payments via Stripe Checkout
       - icon: "hugeicons:money-bag-02"
         title: PayPal
         description: Accept PayPal payments globally
@@ -185,15 +185,15 @@ blocks:
   - type: split
     section_class: gradient
     container: true
-    title: Fast. Really Fast.
+    title: Static HTML, Optimised Images
     reveal_content: left
     content: |
-      Static sites are inherently fast, but we go further. Every image is automatically optimized with responsive sizes, WebP conversion, and blurred placeholders that load instantly.
+      The output is plain HTML and CSS with no client-side framework. Images are processed at build time into multiple sizes and WebP format with blurred placeholders.
 
-      - **LQIP Placeholders** - Blurred previews load in milliseconds
-      - **Responsive Images** - Right size for every screen
+      - **LQIP Placeholders** - Inline base64 blurred previews, no extra requests
+      - **Responsive Images** - Multiple sizes generated at build time via srcset
       - **Link Prefetch** - Pages preload on hover
-      - **Static Output** - No server processing, pure HTML
+      - **Static Output** - No server-side rendering, just HTML files
     figure_type: code
     figure_content:
       filename: Image optimization
@@ -210,8 +210,8 @@ blocks:
   - type: features
     section_class: alt
     container: true
-    header_title: SEO That Works
-    header_subtitle: Rich structured data helps search engines understand your content.
+    header_title: Built-in SEO
+    header_subtitle: Structured data is generated automatically from your content.
     grid_class: grid
     heading_level: 4
     items:
@@ -226,11 +226,11 @@ blocks:
   - type: split
     section_class: ""
     container: true
-    title: Deploy Anywhere. Free.
+    title: Hosting and Deployment
     reverse: true
     reveal_content: right
     content: |
-      GitHub Actions workflow included. Push to deploy on Neocities (free) or Bunny CDN (fast). No ongoing server costs.
+      Includes a GitHub Actions workflow. Push to main and it deploys to Neocities (free) or Bunny CDN. Since the output is static files, any web host works.
 
       **Included deployment targets:**
 
@@ -291,8 +291,8 @@ blocks:
   - type: cta
     section_class: ""
     container: default
-    title: Ready to Build Something Great?
-    description: Fork the repository, customize your content, and deploy — or let Stef build it for you.
+    title: Get the Template
+    description: Fork the repository, add your content, and deploy. Or get in touch and Stef will set it up for you.
     button:
       text: Get Started on GitHub
       href: https://github.com/chobbledotcom/chobble-template
