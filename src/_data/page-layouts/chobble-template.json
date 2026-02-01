@@ -1,0 +1,229 @@
+{
+  "label": "Chobble Template Page",
+  "blocks": [
+    {
+      "type": "hero",
+      "fields": {
+        "full_width": { "type": "boolean", "label": "Full Width" },
+        "class": { "type": "string", "label": "CSS Class" },
+        "badge": { "type": "string", "label": "Badge Text" },
+        "title": { "type": "string", "label": "Title", "required": true },
+        "lead": { "type": "string", "label": "Lead Text" },
+        "buttons": {
+          "type": "object",
+          "list": true,
+          "label": "Buttons",
+          "fields": {
+            "text": { "type": "string", "label": "Button Text", "required": true },
+            "href": { "type": "string", "label": "URL", "required": true },
+            "variant": { "type": "string", "label": "Variant" },
+            "size": { "type": "string", "label": "Size" }
+          }
+        }
+      }
+    },
+    {
+      "type": "video-background",
+      "fields": {
+        "full_width": { "type": "boolean", "label": "Full Width" },
+        "video_id": { "type": "string", "label": "Video Embed URL", "required": true },
+        "video_title": { "type": "string", "label": "Video Title" },
+        "aspect_ratio": { "type": "string", "label": "Aspect Ratio" },
+        "content": { "type": "rich-text", "label": "Overlay Content" }
+      }
+    },
+    {
+      "type": "stats",
+      "fields": {
+        "section_class": { "type": "string", "label": "Section Class" },
+        "items": {
+          "type": "object",
+          "list": true,
+          "label": "Statistics",
+          "fields": {
+            "value": { "type": "string", "label": "Value", "required": true },
+            "label": { "type": "string", "label": "Label", "required": true }
+          }
+        }
+      }
+    },
+    {
+      "type": "features",
+      "fields": {
+        "header_title": { "type": "string", "label": "Header Title" },
+        "header_subtitle": { "type": "string", "label": "Header Subtitle" },
+        "grid_class": { "type": "string", "label": "Grid Class" },
+        "heading_level": { "type": "number", "label": "Heading Level" },
+        "items": {
+          "type": "object",
+          "list": true,
+          "label": "Features",
+          "fields": {
+            "icon": { "type": "string", "label": "Icon (Iconify ID or HTML entity)" },
+            "title": { "type": "string", "label": "Title", "required": true },
+            "description": { "type": "string", "label": "Description", "required": true },
+            "style": { "type": "string", "label": "Custom Style" }
+          }
+        }
+      }
+    },
+    {
+      "type": "split-full",
+      "fields": {
+        "full_width": { "type": "boolean", "label": "Full Width" },
+        "variant": { "type": "string", "label": "Variant" },
+        "reveal_left": { "type": "string", "label": "Reveal Left Animation" },
+        "reveal_right": { "type": "string", "label": "Reveal Right Animation" },
+        "left_title": { "type": "string", "label": "Left Title" },
+        "left_content": { "type": "rich-text", "label": "Left Content" },
+        "left_button": {
+          "type": "object",
+          "label": "Left Button",
+          "fields": {
+            "text": { "type": "string", "label": "Button Text", "required": true },
+            "href": { "type": "string", "label": "URL", "required": true },
+            "variant": { "type": "string", "label": "Variant" }
+          }
+        },
+        "right_title": { "type": "string", "label": "Right Title" },
+        "right_content": { "type": "rich-text", "label": "Right Content" }
+      }
+    },
+    {
+      "type": "split",
+      "fields": {
+        "section_class": { "type": "string", "label": "Section Class" },
+        "title": { "type": "string", "label": "Title" },
+        "reverse": { "type": "boolean", "label": "Reverse Layout" },
+        "reveal_content": { "type": "string", "label": "Reveal Animation" },
+        "content": { "type": "rich-text", "label": "Content" },
+        "button": {
+          "type": "object",
+          "label": "Button",
+          "fields": {
+            "text": { "type": "string", "label": "Button Text", "required": true },
+            "href": { "type": "string", "label": "URL", "required": true },
+            "variant": { "type": "string", "label": "Variant" },
+            "size": { "type": "string", "label": "Size" }
+          }
+        },
+        "figure_type": { "type": "string", "label": "Figure Type (html or code)" },
+        "figure_content": { "type": "rich-text", "label": "Figure Content" }
+      }
+    },
+    {
+      "type": "features",
+      "fields": {
+        "section_class": { "type": "string", "label": "Section Class" },
+        "header_title": { "type": "string", "label": "Header Title" },
+        "header_subtitle": { "type": "string", "label": "Header Subtitle" },
+        "grid_class": { "type": "string", "label": "Grid Class" },
+        "heading_level": { "type": "number", "label": "Heading Level" },
+        "items": {
+          "type": "object",
+          "list": true,
+          "label": "Features",
+          "fields": {
+            "icon": { "type": "string", "label": "Icon (Iconify ID or HTML entity)" },
+            "title": { "type": "string", "label": "Title", "required": true },
+            "description": { "type": "string", "label": "Description", "required": true },
+            "style": { "type": "string", "label": "Custom Style" }
+          }
+        }
+      }
+    },
+    {
+      "type": "split",
+      "fields": {
+        "section_class": { "type": "string", "label": "Section Class" },
+        "title": { "type": "string", "label": "Title" },
+        "reverse": { "type": "boolean", "label": "Reverse Layout" },
+        "reveal_content": { "type": "string", "label": "Reveal Animation" },
+        "content": { "type": "rich-text", "label": "Content" },
+        "figure_type": { "type": "string", "label": "Figure Type" },
+        "figure_content": {
+          "type": "object",
+          "label": "Figure Content (Code Block)",
+          "fields": {
+            "filename": { "type": "string", "label": "Filename" },
+            "code": { "type": "string", "label": "Code" }
+          }
+        }
+      }
+    },
+    {
+      "type": "features",
+      "fields": {
+        "section_class": { "type": "string", "label": "Section Class" },
+        "header_title": { "type": "string", "label": "Header Title" },
+        "header_subtitle": { "type": "string", "label": "Header Subtitle" },
+        "grid_class": { "type": "string", "label": "Grid Class" },
+        "heading_level": { "type": "number", "label": "Heading Level" },
+        "items": {
+          "type": "object",
+          "list": true,
+          "label": "Features",
+          "fields": {
+            "title": { "type": "string", "label": "Title", "required": true },
+            "description": { "type": "string", "label": "Description", "required": true }
+          }
+        }
+      }
+    },
+    {
+      "type": "split",
+      "fields": {
+        "title": { "type": "string", "label": "Title" },
+        "reverse": { "type": "boolean", "label": "Reverse Layout" },
+        "reveal_content": { "type": "string", "label": "Reveal Animation" },
+        "content": { "type": "rich-text", "label": "Content" },
+        "figure_type": { "type": "string", "label": "Figure Type" },
+        "figure_content": { "type": "rich-text", "label": "Figure Content (HTML)" }
+      }
+    },
+    {
+      "type": "split-full",
+      "fields": {
+        "full_width": { "type": "boolean", "label": "Full Width" },
+        "variant": { "type": "string", "label": "Variant" },
+        "reveal_left": { "type": "string", "label": "Reveal Left Animation" },
+        "reveal_right": { "type": "string", "label": "Reveal Right Animation" },
+        "left_title": { "type": "string", "label": "Left Title" },
+        "left_content": { "type": "rich-text", "label": "Left Content" },
+        "left_button": {
+          "type": "object",
+          "label": "Left Button",
+          "fields": {
+            "text": { "type": "string", "label": "Button Text", "required": true },
+            "href": { "type": "string", "label": "URL", "required": true },
+            "variant": { "type": "string", "label": "Variant" }
+          }
+        },
+        "right_content": { "type": "rich-text", "label": "Right Content" }
+      }
+    },
+    {
+      "type": "contact_form",
+      "fields": {
+        "content": { "type": "rich-text", "label": "Content" }
+      }
+    },
+    {
+      "type": "cta",
+      "fields": {
+        "title": { "type": "string", "label": "Title", "required": true },
+        "description": { "type": "string", "label": "Description" },
+        "button": {
+          "type": "object",
+          "label": "Button",
+          "fields": {
+            "text": { "type": "string", "label": "Button Text", "required": true },
+            "href": { "type": "string", "label": "URL", "required": true },
+            "variant": { "type": "string", "label": "Variant" },
+            "size": { "type": "string", "label": "Size" }
+          }
+        }
+      }
+    }
+  ]
+}
