@@ -50,6 +50,7 @@ const BLOCK_SCHEMAS = {
     "overlay_style",
     "class",
   ],
+  contact_form: ["content"],
   markdown: ["content"],
   html: ["content"],
 };
