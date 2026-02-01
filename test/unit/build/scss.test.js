@@ -156,4 +156,48 @@ describe("scss", () => {
     const result = compileFn({});
     expect(result).toBeUndefined();
   });
+
+  test("Bundle compilation fails when CSS variables are undefined", async () => {
+    const scss = "body { color: var(--does-not-exist); }";
+    const inputPath = "/project/bundle.scss";
+
+    const compiler = createScssCompiler(scss, inputPath);
+    await expect(compiler({})).rejects.toThrow(/undefined CSS variable/);
+  });
+
+  test("Bundle compilation error lists all undefined variables", async () => {
+    const scss =
+      "body { color: var(--missing-a); background: var(--missing-b); }";
+    const inputPath = "/project/bundle.scss";
+
+    const compiler = createScssCompiler(scss, inputPath);
+    await expect(compiler({})).rejects.toThrow(/--missing-a/);
+  });
+
+  test("Bundle compilation succeeds when all CSS variables are defined", async () => {
+    const scss = ":root { --my-color: red; } body { color: var(--my-color); }";
+    const inputPath = "/project/bundle.scss";
+
+    const compiler = createScssCompiler(scss, inputPath);
+    const result = await compiler({});
+    expect(result).toContain("var(--my-color)");
+  });
+
+  test("Bundle validates nested var() fallback references", async () => {
+    const scss =
+      ":root { --font-body: sans-serif; } body { font: var(--font-heading, var(--font-body)); }";
+    const inputPath = "/project/bundle.scss";
+
+    const compiler = createScssCompiler(scss, inputPath);
+    // --font-heading is used but not defined
+    await expect(compiler({})).rejects.toThrow(/--font-heading/);
+  });
+
+  test("Non-bundle files skip CSS variable validation", async () => {
+    const scss = "body { color: var(--does-not-exist); }";
+    const inputPath = "/project/partial.scss";
+
+    const result = await compileScss(scss, inputPath);
+    expect(result).toContain("var(--does-not-exist)");
+  });
 });
