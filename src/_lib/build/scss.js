@@ -12,7 +12,7 @@ const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);
 
   return async (_data) => {
-    if (inputPath.endsWith("bundle.scss")) {
+    if (shouldCompileScss(inputPath)) {
       // Inject compiled themes only if theme-switcher is enabled
       if (getConfig().enable_theme_switcher) {
         const compiledThemes = generateThemeSwitcherContent();
