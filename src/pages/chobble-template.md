@@ -86,13 +86,16 @@ blocks:
         title: No-Code CMS
         description: PagesCMS integration lets non-technical users edit content with a visual interface.
 
-  # Content Types Split
-  - type: split
-    section_class: dark
+  # Content Types Split Full
+  - type: split-full
+    full_width: true
+    variant: dark-left
+    reveal_left: left
+    reveal_right: right
+    left_title: 14 Content Types, One Template
+    left_content: |
+      Most templates give you pages and posts. This one has content types for specific business needs.
 
-    title: 14 Content Types, One Template
-    subtitle: Most templates give you pages and posts. This one has content types for specific business needs.
-    content: |
       - **Products** - Galleries, variants, SKUs, specifications
       - **Categories** - Hierarchical organization with subcategories
       - **Events** - One-off and recurring with iCal export
@@ -103,28 +106,27 @@ blocks:
       - **Reviews** - Ratings linked to products
       - **Team** - Staff profiles
       - **Guides** - Documentation and help articles
-    reveal_content: left
-    figure_type: code
-    figure_content:
-      filename: products/my-product.md
-      code: |
-        ---
-        title: Organic Coffee Beans
-        price: 12.99
-        categories:
-          - coffee
-          - organic
-        gallery:
-          - src/images/coffee-1.jpg
-          - src/images/coffee-2.jpg
-        options:
-          - name: Size
-            values: [250g, 500g, 1kg]
-        featured: true
-        ---
+    right_title: Example Product
+    right_content: |
+      ```
+      ---
+      title: Organic Coffee Beans
+      price: 12.99
+      categories:
+        - coffee
+        - organic
+      gallery:
+        - src/images/coffee-1.jpg
+        - src/images/coffee-2.jpg
+      options:
+        - name: Size
+          values: [250g, 500g, 1kg]
+      featured: true
+      ---
 
-        Premium single-origin beans
-        from ethical farms.
+      Premium single-origin beans
+      from ethical farms.
+      ```
 
   # Themes Split (reversed)
   - type: split
@@ -259,35 +261,29 @@ blocks:
       </div>
 
   # Get It Built For You
-  - type: split
-    section_class: alt
+  - type: split-full
+    full_width: true
+    variant: primary-left
+    reveal_left: left
+    reveal_right: right
+    left_title: Want It Built For You?
+    left_content: |
+      Not everyone wants to DIY — and that's fine.
 
-    title: Want It Built For You?
-    subtitle: Not everyone wants to DIY — and that's fine.
-    reveal_content: left
-    content: |
       I'm **Stef**, the developer behind Chobble Template. I've been building websites and software for over 20 years from Manchester, UK.
 
       If you'd rather skip the setup and get straight to running your business, I can build your site for you using this template — customised to your brand, your content, and your needs.
-
+    left_button:
+      text: Get in touch at chobble.com
+      href: https://chobble.com
+      variant: secondary
+    right_content: |
       - **Flat hourly rate** — no hidden fees, no surprises
       - **You own the code** — it's yours to keep, host anywhere, modify freely
       - **No lock-in** — no contracts, no monthly retainers, walk away any time
       - **50% discount** for charities, co-ops, artists, musicians, and sustainable businesses
 
       All my work is open source. I donate 10% of earnings to the [Against Malaria Foundation](https://www.againstmalaria.com/).
-    button:
-      text: Get in touch at chobble.com
-      href: https://chobble.com
-      variant: primary
-    figure_type: html
-    figure_content: |
-      <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 3rem; text-align: center; color: white; border-radius: 0.5rem;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">🛠️</div>
-        <strong style="font-size: 1.5rem;">Stef from Chobble</strong>
-        <p style="opacity: 0.9; margin: 0.5rem 0 0;">20+ years building for the web</p>
-        <p style="opacity: 0.7; margin: 0.5rem 0 0; font-size: 0.9rem;">Manchester, UK</p>
-      </div>
 
   # Contact Form
   - type: contact_form
