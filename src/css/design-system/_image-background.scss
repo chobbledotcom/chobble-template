@@ -40,14 +40,6 @@
       }
     }
 
-    @include media-background-overlay;
-
-    &--light-overlay {
-      @include media-background-light-overlay;
-    }
-
-    &--minimal-overlay {
-      @include media-background-minimal-overlay;
-    }
+    @include media-background-content;
   }
 }

@@ -58,7 +58,12 @@ const BLOCK_SCHEMAS = {
     "video_title",
     "content",
     "aspect_ratio",
-    "overlay_style",
+    "class",
+  ],
+  "image-background": [
+    "image",
+    "image_alt",
+    "content",
     "class",
   ],
   contact_form: ["content"],

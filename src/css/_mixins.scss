@@ -384,17 +384,16 @@
 }
 
 // =============================================================================
-// MEDIA BACKGROUND OVERLAY
+// MEDIA BACKGROUND CONTENT
 // =============================================================================
-// Shared styles for video-background and image-background overlays.
+// Shared styles for video-background and image-background content overlays.
+// No background tint is applied — tint the source image or video if needed.
 
-@mixin media-background-overlay {
-  // Semi-transparent overlay for text readability
+@mixin media-background-content {
   > figure {
     position: absolute;
     inset: 0;
     @include flex-center;
-    background: rgba(0, 0, 0, 0.5);
     color: $color-white;
     padding: $space-lg;
 
@@ -436,38 +435,6 @@
         background: var(--color-link-hover, $color-primary-dark);
       }
     }
-  }
-}
-
-@mixin media-background-light-overlay {
-  > figure {
-    background: rgba(255, 255, 255, 0.7);
-    color: $color-text;
-    --color-text: #{$color-text};
-    --color-text-muted: #{$color-text-muted};
-  }
-
-  figcaption {
-    h1, h2, h3, h4, h5, h6 {
-      color: $color-text;
-      text-shadow: none;
-    }
-
-    p {
-      color: $color-text;
-      text-shadow: none;
-    }
-  }
-}
-
-@mixin media-background-minimal-overlay {
-  > figure {
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.3) 0%,
-      rgba(0, 0, 0, 0.1) 50%,
-      rgba(0, 0, 0, 0.5) 100%
-    );
   }
 }
 

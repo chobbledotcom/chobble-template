@@ -14,6 +14,7 @@ describe("BLOCK_SCHEMAS", () => {
       "split-full",
       "cta",
       "video-background",
+      "image-background",
       "contact_form",
       "markdown",
       "html",
@@ -92,7 +93,6 @@ describe("validateBlocks", () => {
         video_title: "Video",
         content: "<h2>Test</h2>",
         aspect_ratio: "16/9",
-        overlay_style: "opacity: 0.5",
         class: "custom",
       },
     ];
