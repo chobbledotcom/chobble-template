@@ -355,7 +355,9 @@ describe("eleventyComputed", () => {
       const blocks = [{ type: "markdown", content: "test" }];
       const data = { blocks, page };
       const result = eleventyComputed.blocks(data);
-      expect(result).toEqual([{ type: "markdown", content: "test" }]);
+      expect(result).toEqual([
+        { type: "markdown", content: "test", section_class: "" },
+      ]);
     });
 
     test("Throws error for unknown block type", () => {
@@ -383,13 +385,19 @@ describe("eleventyComputed", () => {
         reveal: true,
         heading_level: 3,
         grid_class: "features",
+        section_class: "",
       });
     });
 
     test("Applies defaults for stats block type", () => {
       const data = { blocks: [{ type: "stats", items: [] }], page };
       const result = eleventyComputed.blocks(data);
-      expect(result[0]).toEqual({ type: "stats", items: [], reveal: true });
+      expect(result[0]).toEqual({
+        type: "stats",
+        items: [],
+        reveal: true,
+        section_class: "",
+      });
     });
 
     test("Applies defaults for split block type", () => {
@@ -401,6 +409,7 @@ describe("eleventyComputed", () => {
         title_level: 2,
         reveal_figure: "scale",
         reveal_content: "left",
+        section_class: "",
       });
     });
 
@@ -433,6 +442,7 @@ describe("eleventyComputed", () => {
         title: "Header",
         level: 2,
         align: "center",
+        section_class: "",
       });
     });
 
@@ -444,6 +454,7 @@ describe("eleventyComputed", () => {
         items: [],
         reveal: true,
         heading_level: 3,
+        section_class: "",
       });
     });
 
@@ -458,6 +469,7 @@ describe("eleventyComputed", () => {
         code: "test",
         filename: "test.js",
         reveal: true,
+        section_class: "",
       });
     });
 
@@ -478,6 +490,7 @@ describe("eleventyComputed", () => {
         video_id: "dQw4w9WgXcQ",
         content: "<h2>Test</h2>",
         aspect_ratio: "16/9",
+        section_class: "",
       });
     });
 
@@ -490,6 +503,15 @@ describe("eleventyComputed", () => {
       expect(result[0].reveal).toBe(false);
       expect(result[0].heading_level).toBe(2);
       expect(result[0].grid_class).toBe("features"); // default still applied
+    });
+
+    test("Explicit section_class overrides default empty string", () => {
+      const data = {
+        blocks: [{ type: "stats", items: [], section_class: "alt" }],
+        page,
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0].section_class).toBe("alt");
     });
 
     test("Processes multiple blocks with different types", () => {

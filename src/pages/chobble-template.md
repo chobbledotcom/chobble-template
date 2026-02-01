@@ -51,8 +51,6 @@ blocks:
 
   # Features - Everything Your Business Needs
   - type: features
-    section_class: ""
-
     header_title: What's Included
     header_subtitle: >-
       Product catalogs, event calendars, holiday lets, restaurant menus, and more.
@@ -130,8 +128,6 @@ blocks:
 
   # Themes Split (reversed)
   - type: split
-    section_class: ""
-
     title: 10 Themes. Pick One and Go.
     reverse: true
     reveal_content: right
@@ -228,8 +224,6 @@ blocks:
 
   # Deployment Split (reversed)
   - type: split
-    section_class: ""
-
     title: Hosting and Deployment
     reverse: true
     reveal_content: right
@@ -287,7 +281,6 @@ blocks:
 
   # Contact Form
   - type: contact_form
-    section_class: ""
     content: |
       ## Contact Chobble
 
@@ -295,8 +288,6 @@ blocks:
 
   # CTA
   - type: cta
-    section_class: ""
-
     title: Get the Template
     description: Fork the repository, add your content, and deploy. Or get in touch and Stef will set it up for you.
     button:
