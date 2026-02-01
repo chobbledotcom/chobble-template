@@ -69,8 +69,6 @@
 
     &.left-nav nav {
       @include nav.nav-left($space-sm);
-      position: sticky;
-      top: $space-sm;
     }
 
     &.horizontal-nav nav {
