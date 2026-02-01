@@ -46,6 +46,13 @@ describe("theme-compiler", () => {
       );
     });
 
+    test("excludes theme-editor from compiled themes", () => {
+      const result = generateThemeSwitcherContent();
+
+      expect(result.includes('data-theme="editor"')).toBe(false);
+      expect(result.includes("--theme-editor-name")).toBe(false);
+    });
+
     test("has metadata section with :root for JavaScript access", () => {
       const result = generateThemeSwitcherContent();
 
