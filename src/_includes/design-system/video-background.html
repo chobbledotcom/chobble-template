@@ -23,7 +23,7 @@ Usage:
   {%- include "design-system/video-iframe.html", video_id: block.video_id, title: _video_title, background: true -%}
   <figure{% if block.overlay_style %} style="{{ block.overlay_style }}"{% endif %}>
     <figcaption>
-      {{ block.content }}
+      {{ block.content | renderContent: "md" }}
     </figcaption>
   </figure>
 </div>

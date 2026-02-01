@@ -29,8 +29,9 @@ blocks:
     video_title: Chobble Template Demo
     aspect_ratio: "21/9"
     content: |
-      <h2>Video Background Block</h2>
-      <p>Create stunning hero sections with auto-playing video backgrounds and overlay text.</p>
+      ## Video Background Block
+
+      Create stunning hero sections with auto-playing video backgrounds and overlay text.
 
   # Stats
   - type: stats
@@ -90,18 +91,16 @@ blocks:
     title: 14 Content Types, One Template
     subtitle: Most templates give you pages and posts. We give you a complete business toolkit.
     content: |
-      <ul>
-        <li><strong>Products</strong> - Galleries, variants, SKUs, specifications</li>
-        <li><strong>Categories</strong> - Hierarchical organization with subcategories</li>
-        <li><strong>Events</strong> - One-off and recurring with iCal export</li>
-        <li><strong>News</strong> - Blog posts with RSS feed</li>
-        <li><strong>Menus</strong> - Restaurant menus with dietary info</li>
-        <li><strong>Locations</strong> - Multi-site support with maps</li>
-        <li><strong>Properties</strong> - Holiday lets with availability</li>
-        <li><strong>Reviews</strong> - Ratings linked to products</li>
-        <li><strong>Team</strong> - Staff profiles</li>
-        <li><strong>Guides</strong> - Documentation and help articles</li>
-      </ul>
+      - **Products** - Galleries, variants, SKUs, specifications
+      - **Categories** - Hierarchical organization with subcategories
+      - **Events** - One-off and recurring with iCal export
+      - **News** - Blog posts with RSS feed
+      - **Menus** - Restaurant menus with dietary info
+      - **Locations** - Multi-site support with maps
+      - **Properties** - Holiday lets with availability
+      - **Reviews** - Ratings linked to products
+      - **Team** - Staff profiles
+      - **Guides** - Documentation and help articles
     reveal_content: left
     figure_type: code
     figure_content:
@@ -133,19 +132,18 @@ blocks:
     reverse: true
     reveal_content: right
     content: |
-      <p>Choose from professionally designed themes that work out of the box. From sleek and modern to retro and playful.</p>
-      <p class="text-muted">
-        <strong>Default</strong> - Clean and professional<br>
-        <strong>Ocean</strong> - Cool blues and waves<br>
-        <strong>Sunset</strong> - Warm gradients<br>
-        <strong>Neon</strong> - Bold and vibrant<br>
-        <strong>Monochrome</strong> - Minimalist grayscale<br>
-        <strong>Floral</strong> - Soft and botanical<br>
-        <strong>Hacker</strong> - Green-on-black terminal<br>
-        <strong>90s Computer</strong> - Nostalgic retro<br>
-        <strong>Old Mac</strong> - Classic system look<br>
-        <strong>Rainbow</strong> - Colorful and fun
-      </p>
+      Choose from professionally designed themes that work out of the box. From sleek and modern to retro and playful.
+
+      **Default** - Clean and professional
+      **Ocean** - Cool blues and waves
+      **Sunset** - Warm gradients
+      **Neon** - Bold and vibrant
+      **Monochrome** - Minimalist grayscale
+      **Floral** - Soft and botanical
+      **Hacker** - Green-on-black terminal
+      **90s Computer** - Nostalgic retro
+      **Old Mac** - Classic system look
+      **Rainbow** - Colorful and fun
     button:
       text: Try the Live Theme Editor
       href: https://example.chobble.com/theme-editor/
@@ -190,13 +188,12 @@ blocks:
     title: Fast. Really Fast.
     reveal_content: left
     content: |
-      <p>Static sites are inherently fast, but we go further. Every image is automatically optimized with responsive sizes, WebP conversion, and blurred placeholders that load instantly.</p>
-      <ul>
-        <li><strong>LQIP Placeholders</strong> - Blurred previews load in milliseconds</li>
-        <li><strong>Responsive Images</strong> - Right size for every screen</li>
-        <li><strong>Link Prefetch</strong> - Pages preload on hover</li>
-        <li><strong>Static Output</strong> - No server processing, pure HTML</li>
-      </ul>
+      Static sites are inherently fast, but we go further. Every image is automatically optimized with responsive sizes, WebP conversion, and blurred placeholders that load instantly.
+
+      - **LQIP Placeholders** - Blurred previews load in milliseconds
+      - **Responsive Images** - Right size for every screen
+      - **Link Prefetch** - Pages preload on hover
+      - **Static Output** - No server processing, pure HTML
     figure_type: code
     figure_content:
       filename: Image optimization
@@ -233,14 +230,15 @@ blocks:
     reverse: true
     reveal_content: right
     content: |
-      <p>GitHub Actions workflow included. Push to deploy on Neocities (free) or Bunny CDN (fast). No ongoing server costs.</p>
-      <p><strong>Included deployment targets:</strong></p>
-      <ul>
-        <li>Neocities (free static hosting)</li>
-        <li>Bunny CDN (global edge network)</li>
-        <li>Any static host (Netlify, Vercel, etc.)</li>
-      </ul>
-      <p class="text-muted">Optional Docker-based backend for advanced checkout workflows.</p>
+      GitHub Actions workflow included. Push to deploy on Neocities (free) or Bunny CDN (fast). No ongoing server costs.
+
+      **Included deployment targets:**
+
+      - Neocities (free static hosting)
+      - Bunny CDN (global edge network)
+      - Any static host (Netlify, Vercel, etc.)
+
+      Optional Docker-based backend for advanced checkout workflows.
     figure_type: html
     figure_content: |
       <div class="code-block">
@@ -258,12 +256,43 @@ blocks:
       <span style="color: #10b981;">Done!</span> Site live in 47 seconds.</code></pre>
       </div>
 
+  # Get It Built For You
+  - type: split
+    section_class: alt
+    container: true
+    title: Want It Built For You?
+    subtitle: Not everyone wants to DIY — and that's fine.
+    reveal_content: left
+    content: |
+      I'm **Stef**, the developer behind Chobble Template. I've been building websites and software for over 20 years from Manchester, UK.
+
+      If you'd rather skip the setup and get straight to running your business, I can build your site for you using this template — customised to your brand, your content, and your needs.
+
+      - **Flat hourly rate** — no hidden fees, no surprises
+      - **You own the code** — it's yours to keep, host anywhere, modify freely
+      - **No lock-in** — no contracts, no monthly retainers, walk away any time
+      - **50% discount** for charities, co-ops, artists, musicians, and sustainable businesses
+
+      All my work is open source. I donate 10% of earnings to the [Against Malaria Foundation](https://www.againstmalaria.com/).
+    button:
+      text: Get in touch at chobble.com
+      href: https://chobble.com
+      variant: primary
+    figure_type: html
+    figure_content: |
+      <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 3rem; text-align: center; color: white; border-radius: 0.5rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🛠️</div>
+        <strong style="font-size: 1.5rem;">Stef from Chobble</strong>
+        <p style="opacity: 0.9; margin: 0.5rem 0 0;">20+ years building for the web</p>
+        <p style="opacity: 0.7; margin: 0.5rem 0 0; font-size: 0.9rem;">Manchester, UK</p>
+      </div>
+
   # CTA
   - type: cta
     section_class: ""
     container: default
     title: Ready to Build Something Great?
-    description: Fork the repository, customize your content, and deploy. It's that simple.
+    description: Fork the repository, customize your content, and deploy — or let Stef build it for you.
     button:
       text: Get Started on GitHub
       href: https://github.com/chobbledotcom/chobble-template
