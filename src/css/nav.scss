@@ -5,7 +5,7 @@ nav {
   @include nav.nav-base;
 
   .nav-thumbnails {
-    @include nav.nav-thumbnails;
+    @include nav.nav-thumbnails(0.5rem);
   }
 }
 
@@ -17,18 +17,18 @@ nav {
     padding-top: 5rem;
 
     nav {
-      @include nav.nav-sticky-bar;
+      @include nav.nav-sticky-bar(1000, 0.5rem);
 
       .toggle {
-        @include nav.nav-toggle-checkbox;
+        @include nav.nav-toggle-checkbox("display-none");
       }
 
       .toggle-label {
-        @include nav.nav-toggle-label;
+        @include nav.nav-toggle-label(1rem, 1000, 0.3s ease);
       }
 
       & > ul {
-        @include nav.nav-mobile-menu;
+        @include nav.nav-mobile-menu(1rem, 0.3s ease-in-out);
       }
     }
   }
@@ -36,7 +36,7 @@ nav {
 
 @include breakpoints.down("md") {
   body.sticky-mobile-nav nav:has(.mobile-menu-toggle) {
-    @include nav.nav-submenu-toggle;
+    @include nav.nav-submenu-toggle(3rem, 0.2s ease);
   }
 }
 
@@ -50,12 +50,12 @@ nav {
   body {
     &.left-nav {
       nav {
-        @include nav.nav-left;
+        @include nav.nav-left(1rem);
       }
     }
     &.horizontal-nav {
       nav {
-        @include nav.nav-horizontal-dropdown;
+        @include nav.nav-horizontal-dropdown(2rem, 0.5rem);
       }
     }
   }
