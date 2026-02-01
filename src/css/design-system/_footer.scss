@@ -30,7 +30,7 @@
       }
     }
 
-    nav {
+    [role="navigation"] {
       @include flex-row($space-lg);
       flex-wrap: wrap;
       justify-content: center;
