@@ -5,59 +5,61 @@
 // CART ICON (Design System)
 // =============================================================================
 // Fixed floating cart button in the bottom-left corner, consistent with the
-// main site layout. Positioned above the theme-switcher when both are present.
+// main site layout.
 
-.cart-icon {
-  position: fixed;
-  bottom: $space-md;
-  left: $space-md;
-  padding: $space-xs $space-sm;
-  margin: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  z-index: $z-toast;
-  border-radius: $radius-md;
-  border: $border-light;
-  background: var(--color-bg);
-  color: var(--color-text);
-  gap: $space-xs;
-  font-family: var(--font-family-body);
-  font-size: $font-size-base;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  transition: transform $transition-fast, box-shadow $transition-fast;
+.design-system {
+  .cart-icon {
+    position: fixed;
+    bottom: $space-md;
+    left: $space-md;
+    padding: $space-xs $space-sm;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    z-index: $z-toast;
+    border-radius: $radius-md;
+    border: $border-light;
+    background: var(--color-bg);
+    color: var(--color-text);
+    gap: $space-xs;
+    font-family: var(--font-family-body);
+    font-size: $font-size-base;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transition: transform $transition-fast, box-shadow $transition-fast;
 
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    }
+
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .cart-count {
+      font-size: $font-size-xs;
+      height: 1.25rem;
+    }
+
+    @include breakpoint.down("md") {
+      bottom: $space-sm;
+      left: $space-sm;
+    }
   }
 
-  svg {
-    width: 1.5rem;
-    height: 1.5rem;
+  @keyframes cartBounce {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
   }
 
-  .cart-count {
-    font-size: $font-size-xs;
-    height: 1.25rem;
+  .cart-icon.cart-bounce {
+    animation: cartBounce 0.6s ease;
   }
-
-  @include breakpoint.down("md") {
-    bottom: $space-sm;
-    left: $space-sm;
-  }
-}
-
-@keyframes cartBounce {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-}
-
-.cart-icon.cart-bounce {
-  animation: cartBounce 0.6s ease;
 }

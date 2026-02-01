@@ -6,32 +6,34 @@
 // Fixed button in the bottom-right corner for cycling through themes,
 // consistent with the legacy theme positioning.
 
-#theme-switcher-button {
-  position: fixed;
-  bottom: $space-md;
-  right: $space-md;
-  z-index: $z-toast;
-  background: var(--color-bg);
-  color: var(--color-text);
-  border: $border-light;
-  border-radius: $radius-full;
-  width: 48px;
-  height: 48px;
-  cursor: pointer;
-  transition: transform $transition-fast, box-shadow $transition-fast;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: $font-size-xl;
-  padding: 0;
+.design-system {
+  #theme-switcher-button {
+    position: fixed;
+    bottom: $space-md;
+    right: $space-md;
+    z-index: $z-toast;
+    background: var(--color-bg);
+    color: var(--color-text);
+    border: $border-light;
+    border-radius: $radius-full;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    transition: transform $transition-fast, box-shadow $transition-fast;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $font-size-xl;
+    padding: 0;
 
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-  }
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    }
 
-  &:active {
-    transform: scale(0.95);
+    &:active {
+      transform: scale(0.95);
+    }
   }
 }
