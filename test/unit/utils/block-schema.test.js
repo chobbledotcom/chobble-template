@@ -11,6 +11,7 @@ describe("BLOCK_SCHEMAS", () => {
       "code-block",
       "hero",
       "split",
+      "split-full",
       "cta",
       "footer",
       "video-background",
@@ -113,6 +114,25 @@ describe("validateBlocks", () => {
         reveal_content: "left",
         reveal_figure: "scale",
         button: { text: "Click", href: "/" },
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("allows all valid keys for split-full", () => {
+    const blocks = [
+      {
+        type: "split-full",
+        variant: "dark-left",
+        title_level: 2,
+        left_title: "Left",
+        left_content: "<p>Left content</p>",
+        left_button: { text: "Click", href: "/" },
+        right_title: "Right",
+        right_content: "<p>Right content</p>",
+        right_button: { text: "Click", href: "/" },
+        reveal_left: "left",
+        reveal_right: "right",
       },
     ];
     expect(() => validateBlocks(blocks)).not.toThrow();
