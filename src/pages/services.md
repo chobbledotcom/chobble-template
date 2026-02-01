@@ -8,16 +8,16 @@ blocks:
     subtitle: What we can do for you
   - type: features
     items:
-      - icon: "&#128736;"
+      - icon: "hugeicons:wrench-01"
         title: Custom Widgets
         description: Bespoke widget solutions built for your specific requirements.
-      - icon: "&#128295;"
+      - icon: "hugeicons:gears"
         title: Wotzit Maintenance
         description: Keep your wotzits running smoothly with our maintenance plans.
-      - icon: "&#128640;"
+      - icon: "hugeicons:rocket"
         title: Gizmo Optimisation
         description: Improve your gizmo performance and efficiency.
-      - icon: "&#128274;"
+      - icon: "hugeicons:lock"
         title: Secure Storage
         description: Safe and secure storage for your valuable equipment.
   - type: code-block
