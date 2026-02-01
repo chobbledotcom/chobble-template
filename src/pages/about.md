@@ -8,13 +8,13 @@ blocks:
     subtitle: Quality widgets, wotzits, and gizmos since 2010
   - type: features
     items:
-      - icon: "&#128640;"
+      - icon: "hugeicons:rocket"
         title: Fast Delivery
         description: We dispatch orders within 24 hours across the United Kingdom.
-      - icon: "&#128176;"
+      - icon: "hugeicons:money-bag-02"
         title: Competitive Prices
         description: Fair pricing on all our widgets, wotzits, and gizmos.
-      - icon: "&#128591;"
+      - icon: "hugeicons:customer-support"
         title: Expert Support
         description: Our team of specialists is here to help you 24/7.
   - type: section-header
