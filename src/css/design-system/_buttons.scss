@@ -17,10 +17,8 @@
 
     &--primary {
       @include button-primary;
-      color: #fff;
 
       &:hover {
-        color: #fff;
         text-decoration: none;
       }
     }

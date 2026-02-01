@@ -196,12 +196,12 @@
           }
 
           .video-play-bg {
-            fill: #212121;
+            fill: var(--color-video-play-bg);
             fill-opacity: 0.8;
           }
 
           .video-play-icon {
-            fill: #fff;
+            fill: var(--color-contrast-text);
           }
         }
 
@@ -209,7 +209,7 @@
           transform: translate(-50%, -50%) scale(1.1);
 
           .video-play-bg {
-            fill: #f00;
+            fill: var(--color-video-play-hover);
             fill-opacity: 1;
           }
         }

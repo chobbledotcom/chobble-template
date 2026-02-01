@@ -12,9 +12,9 @@
     @include card($space-3xl, $radius-2xl);
     background: linear-gradient(135deg, var(--color-link) 0%, var(--color-secondary) 100%);
     border: none;
-    color: $color-white;
-    --color-text: #{$color-white};
-    --color-text-muted: rgba(255, 255, 255, 0.8);
+    color: var(--color-contrast-text);
+    --color-text: var(--color-contrast-text);
+    --color-text-muted: var(--color-contrast-text-muted);
 
     p {
       @include body-lg;
@@ -23,10 +23,10 @@
     }
 
     .btn--secondary {
-      border-color: $color-white;
-      color: $color-white;
+      border-color: var(--color-contrast-text);
+      color: var(--color-contrast-text);
       &:hover {
-        background: $color-white;
+        background: var(--color-contrast-text);
         color: var(--color-link);
       }
     }

@@ -226,10 +226,11 @@
 @mixin button-primary {
   @include button-base;
   background: var(--color-link, #{$color-primary});
-  color: $color-white;
+  color: var(--color-contrast-text, #{$color-white});
 
   &:hover:not(:disabled) {
     background: var(--color-link-hover, #{$color-primary-dark});
+    color: var(--color-contrast-text, #{$color-white});
     transform: translateY(-1px);
   }
 
@@ -246,7 +247,7 @@
 
   &:hover:not(:disabled) {
     background: var(--color-link, #{$color-primary});
-    color: $color-white;
+    color: var(--color-contrast-text, #{$color-white});
   }
 }
 

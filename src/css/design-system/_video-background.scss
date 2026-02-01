@@ -42,13 +42,13 @@
       position: absolute;
       inset: 0;
       @include flex-center;
-      background: rgba(0, 0, 0, 0.5);
-      color: $color-white;
+      background: rgba($color-dark-bg, 0.5);
+      color: var(--color-contrast-text);
       padding: $space-lg;
 
       // Override text colors for overlay
-      --color-text: #{$color-white};
-      --color-text-muted: rgba(255, 255, 255, 0.8);
+      --color-text: var(--color-contrast-text);
+      --color-text-muted: var(--color-contrast-text-muted);
     }
 
     // Content container
@@ -63,34 +63,34 @@
       h4,
       h5,
       h6 {
-        color: $color-white;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        color: var(--color-contrast-text);
+        text-shadow: var(--shadow-sm);
       }
 
       p {
-        color: rgba(255, 255, 255, 0.9);
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        color: var(--color-contrast-text-muted);
+        text-shadow: var(--shadow-sm);
       }
 
       // Style buttons for visibility on video
       .btn,
       a.btn {
-        background: rgba(255, 255, 255, 0.9);
-        color: $color-dark-bg;
+        background: var(--color-contrast-text-muted);
+        color: var(--color-text, #{$color-dark-bg});
         border-color: transparent;
 
         &:hover {
-          background: $color-white;
+          background: var(--color-contrast-text);
         }
       }
 
       .btn--primary {
-        background: var(--color-link, $color-primary);
-        color: $color-white;
+        background: var(--color-link, #{$color-primary});
+        color: var(--color-contrast-text);
         border-color: transparent;
 
         &:hover {
-          background: var(--color-link-hover, $color-primary-dark);
+          background: var(--color-link-hover, #{$color-primary-dark});
         }
       }
     }
@@ -98,8 +98,8 @@
     // Light overlay variant
     &--light-overlay {
       > figure {
-        background: rgba(255, 255, 255, 0.7);
-        color: $color-text;
+        background: rgba($color-white, 0.7);
+        color: var(--color-text, #{$color-text});
         --color-text: #{$color-text};
         --color-text-muted: #{$color-text-muted};
       }
@@ -111,12 +111,12 @@
         h4,
         h5,
         h6 {
-          color: $color-text;
+          color: var(--color-text, #{$color-text});
           text-shadow: none;
         }
 
         p {
-          color: $color-text;
+          color: var(--color-text, #{$color-text});
           text-shadow: none;
         }
       }
@@ -127,9 +127,9 @@
       > figure {
         background: linear-gradient(
           to bottom,
-          rgba(0, 0, 0, 0.3) 0%,
-          rgba(0, 0, 0, 0.1) 50%,
-          rgba(0, 0, 0, 0.5) 100%
+          rgba($color-dark-bg, 0.3) 0%,
+          rgba($color-dark-bg, 0.1) 50%,
+          rgba($color-dark-bg, 0.5) 100%
         );
       }
     }
