@@ -64,6 +64,7 @@
       > * {
         width: 100%;
         max-width: calc(#{$width-wide} / 2);
+        justify-content: center;
       }
     }
 
