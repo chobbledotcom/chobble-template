@@ -2,7 +2,7 @@
 layout: design-system-base.html
 title: Chobble Template - Free Eleventy Starter for Small Business Websites
 meta_title: Chobble Template - Free Eleventy Starter for Small Business Websites
-meta_description: A free, open-source Eleventy template with e-commerce, 10 themes, and 14 content types. MIT licensed. No monthly fees.
+meta_description: A free, open-source Eleventy template with e-commerce, 10 themes, and 14 content types. AGPLv3 licensed. No monthly fees.
 permalink: /chobble-template/
 blocks:
   # Hero

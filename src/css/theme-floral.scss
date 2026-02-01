@@ -4,7 +4,9 @@
 
   --color-bg: #ffe0f0;
   --color-accent: #ffd0e8;
-  --body-background: #ffc0e0;
+  // heropatterns "Polka Dots" - soft and feminine
+  --body-background: #ffc0e0
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='1.5' fill='%23ff69b4' fill-opacity='0.15'/%3E%3C/svg%3E");
   --color-text: #d1006c;
   --color-link: #ff69b4;
   --color-link-hover: #ff1493;
