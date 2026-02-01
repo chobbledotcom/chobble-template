@@ -1,0 +1,351 @@
+@use "variables" as *;
+@use "mixins" as *;
+@use "breakpoints" as breakpoint;
+
+// =============================================================================
+// SHARED NAVIGATION MIXINS
+// =============================================================================
+// Reusable navigation patterns shared by both nav.scss (legacy theme) and
+// design-system/_navigation.scss. Each consumer applies these mixins within
+// its own scoping context.
+
+// -----------------------------------------------------------------------------
+// BASE NAV
+// -----------------------------------------------------------------------------
+
+@mixin nav-base {
+  box-shadow: var(--box-shadow);
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  a {
+    color: var(--color-link);
+
+    &.active,
+    &:has(+ ul a.active) {
+      color: var(--color-text);
+    }
+  }
+}
+
+@mixin nav-thumbnails($gap: 0.5rem) {
+  a {
+    display: flex;
+    align-items: center;
+    gap: $gap;
+    text-decoration: none;
+  }
+
+  .image-wrapper {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+
+    picture,
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  span {
+    flex: 1;
+  }
+
+  @include breakpoint.down("sm") {
+    .image-wrapper {
+      display: none;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// MOBILE STICKY NAV
+// -----------------------------------------------------------------------------
+
+@mixin nav-sticky-bar($z-index: 1000, $padding: 0.5rem) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  border-radius: 0;
+  z-index: $z-index;
+  background: var(--color-bg);
+  padding: $padding;
+}
+
+// Hamburger toggle checkbox: visually hidden but controls menu via :checked
+@mixin nav-toggle-checkbox($hide-method: "display-none") {
+  @if $hide-method == "sr-only" {
+    @include sr-only;
+  } @else {
+    display: none;
+  }
+
+  &:checked ~ ul {
+    right: 0;
+  }
+
+  &:checked ~ .toggle-label span {
+    background: transparent;
+
+    &::before {
+      transform: rotate(45deg);
+      top: 0;
+    }
+
+    &::after {
+      transform: rotate(-45deg);
+      top: 0;
+    }
+  }
+}
+
+// Hamburger icon (three bars that animate to X)
+@mixin nav-toggle-label($right: 1rem, $z-index: 1000, $transition: 0.3s ease) {
+  display: block !important;
+  position: absolute !important;
+  right: $right !important;
+  top: 50% !important;
+  transform: translateY(-50%);
+  z-index: $z-index;
+  height: 24px;
+  width: 30px;
+  cursor: pointer;
+
+  span,
+  span::before,
+  span::after {
+    display: block;
+    background: var(--color-text);
+    height: 2px;
+    width: 30px;
+    position: absolute;
+    transition: all $transition;
+  }
+
+  span {
+    top: 11px;
+
+    &::before,
+    &::after {
+      content: "";
+    }
+
+    &::before {
+      top: -8px;
+    }
+
+    &::after {
+      top: 8px;
+    }
+  }
+}
+
+// Slide-out mobile menu panel
+@mixin nav-mobile-menu($gap: 1rem, $transition: 0.3s ease-in-out) {
+  position: fixed;
+  background: var(--color-bg);
+  top: 3rem;
+  right: -100%;
+  bottom: 0;
+  width: 70%;
+  max-width: 300px;
+  overflow-x: scroll;
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+  padding: $gap;
+  margin: 0;
+  list-style: none;
+  transition: right $transition;
+
+  .toggle-label {
+    display: block;
+  }
+
+  li {
+    text-align: right;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: $gap;
+
+    ul {
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      gap: $gap;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// COLLAPSIBLE MOBILE SUBMENUS
+// -----------------------------------------------------------------------------
+
+@mixin nav-submenu-toggle($right-padding: 3rem, $caret-transition: 0.2s ease) {
+  > ul {
+    padding-right: $right-padding;
+  }
+
+  > ul li:has(> ul) {
+    position: relative;
+
+    > .mobile-menu-toggle {
+      position: absolute;
+      right: -2.5rem;
+      top: 1rem;
+      width: 2.5rem;
+      height: 0;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &::after {
+        content: "";
+        border: solid var(--color-link);
+        border-width: 0 2px 2px 0;
+        display: inline-block;
+        padding: 4px;
+        transform: rotate(45deg);
+        transition: transform $caret-transition;
+      }
+    }
+
+    &.expanded > .mobile-menu-toggle::after {
+      transform: rotate(-135deg);
+    }
+
+    > ul {
+      display: none;
+    }
+
+    &.expanded > ul,
+    &:has(> ul a.active) > ul {
+      display: flex;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// DESKTOP NAV LAYOUTS
+// -----------------------------------------------------------------------------
+
+@mixin nav-left($gap: 1rem) {
+  align-items: start;
+  margin-bottom: $gap;
+
+  ul {
+    display: flex;
+    gap: $gap;
+    flex-direction: column;
+  }
+
+  ul,
+  ul li {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $gap;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  ul li ul {
+    padding-left: $gap;
+    font-size: 1rem;
+  }
+}
+
+@mixin nav-horizontal-dropdown($gap: 2rem, $sub-gap: 0.5rem) {
+  margin-bottom: $gap / 2;
+  justify-content: center;
+
+  ul {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 0 $gap;
+    flex-wrap: wrap;
+
+    li {
+      text-align: left;
+      position: relative;
+
+      // First-level dropdown
+      > ul {
+        flex-direction: column;
+        gap: $sub-gap;
+        background: var(--color-bg);
+        border: var(--border);
+        border-radius: var(--border-radius);
+        display: none;
+        height: auto;
+        left: -2px;
+        padding: $sub-gap;
+        position: absolute;
+        top: 1.7rem;
+        white-space: nowrap;
+        width: auto;
+        z-index: 1;
+
+        &::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: -$sub-gap;
+          height: $sub-gap;
+        }
+
+        // Second-level dropdown
+        li {
+          position: relative;
+
+          > ul {
+            flex-direction: column;
+            gap: $sub-gap;
+            top: -$sub-gap;
+            left: 100%;
+            margin-left: $sub-gap;
+
+            &::before {
+              top: 0;
+              bottom: 0;
+              left: -$sub-gap;
+              right: auto;
+              width: $sub-gap;
+              height: auto;
+            }
+          }
+
+          &:hover > ul {
+            display: flex;
+          }
+        }
+      }
+
+      &:hover > ul {
+        display: flex;
+      }
+    }
+  }
+}
