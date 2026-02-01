@@ -19,14 +19,9 @@
       @include grid(3, $space-lg);
     }
 
-    // Compact variant: 2 columns max (use on item pages)
+    // Compact variant: auto-fit with 330px minimum (use on item pages)
     &--compact {
-      @include breakpoint.up("lg") {
-        @include grid(2, $space-lg);
-      }
-      @include breakpoint.down("md") {
-        @include grid(1, $space-lg);
-      }
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
     }
 
     > li {
