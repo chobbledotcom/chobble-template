@@ -2,7 +2,7 @@
   {%- if block.section_class != nil -%}
 <section{% if block.section_class != "" %} class="{{ block.section_class }}"{% endif %}>
   {%- endif -%}
-  {%- if block.container -%}<div class="container{% if block.container_class %} {{ block.container_class }}{% endif %}">{%- endif -%}
+  {%- if block.container -%}<div class="container">{%- endif -%}
   {%- include "design-system/render-block.html", block: block -%}
   {%- if block.container -%}</div>{%- endif -%}
   {%- if block.section_class != nil -%}</section>{%- endif -%}

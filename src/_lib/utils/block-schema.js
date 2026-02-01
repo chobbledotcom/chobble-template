@@ -9,7 +9,7 @@
  * Common wrapper keys allowed on all block types.
  * These are used by blocks.html to wrap blocks in sections/containers.
  */
-const COMMON_BLOCK_KEYS = ["section_class", "container", "container_class"];
+const COMMON_BLOCK_KEYS = ["section_class", "container"];
 
 /**
  * Allowed keys per block type (excluding common keys and "type").

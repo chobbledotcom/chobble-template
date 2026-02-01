@@ -183,6 +183,7 @@
 
   .container {
     @include container($width-wide);
+    @include flex-col($space-lg);
 
     &--narrow {
       @include container($width-narrow);
