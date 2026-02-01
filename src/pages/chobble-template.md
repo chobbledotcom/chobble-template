@@ -50,6 +50,7 @@ blocks:
   - type: features
     section_class: ""
     container: true
+    container_class: stack--lg
     header_title: Everything Your Business Needs
     header_subtitle: >-
       From product catalogs to event calendars, holiday lets to restaurant menus.
@@ -162,6 +163,7 @@ blocks:
   - type: features
     section_class: alt
     container: true
+    container_class: stack--lg
     header_title: Flexible Commerce Options
     header_subtitle: Sell products, take quotes, or both. Multiple payment integrations built in.
     grid_class: grid--4 text-center
@@ -213,6 +215,7 @@ blocks:
   - type: features
     section_class: alt
     container: true
+    container_class: stack--lg
     header_title: SEO That Works
     header_subtitle: Rich structured data helps search engines understand your content.
     grid_class: grid

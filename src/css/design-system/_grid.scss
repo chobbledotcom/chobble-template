@@ -28,7 +28,7 @@
       @include breakpoint.up("sm") {
         @include grid(2, $space-md);
       }
-      @include breakpoint.up("md") {
+      @include breakpoint.up("lg") {
         @include grid(4, $space-lg);
       }
     }
