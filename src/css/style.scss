@@ -3,7 +3,7 @@
 
 :root {
   --color-bg: #efefef;
-  --color-body-bg: var(--color-bg);
+  --body-background: var(--color-bg);
   --color-text: #111111;
   --color-link: var(--color-text);
   --color-link-hover: var(--color-link);
@@ -43,7 +43,7 @@ html {
 }
 
 body {
-  background: var(--color-body-bg, var(--color-bg));
+  background: var(--body-background);
   color: var(--color-text);
   font-family: var(--font-family-body);
   line-height: var(--line-height);
