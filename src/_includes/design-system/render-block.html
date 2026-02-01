@@ -40,4 +40,7 @@ Renders a single block by type. Used by blocks.html.
   {%- when "video-background" -%}
     {%- include "design-system/video-background.html", block: block -%}
 
+  {%- when "contact_form" -%}
+    {%- include "design-system/contact-form-block.html", block: block -%}
+
 {%- endcase -%}
