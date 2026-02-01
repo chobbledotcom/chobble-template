@@ -5,6 +5,8 @@
 // Site owners should edit _theme-variables.scss, NOT this file.
 // =============================================================================
 
+@use "sass:color";
+
 // Forward theme overrides first - these will take precedence over !default values
 // Using @forward ensures theme variables are properly re-exported
 @forward "theme-variables";
@@ -23,7 +25,7 @@ $color-primary: #2563eb !default;
 $color-primary-dark: #1d4ed8 !default;
 $color-primary-light: #dbeafe !default;
 $color-secondary: #7c3aed !default;
-$color-accent: darken($color-bg, 5%) !default;
+$color-accent: color.adjust($color-bg, $lightness: -5%) !default;
 $color-hover-bg: rgba(0, 0, 0, 0.05) !default;
 
 // Dark section colors

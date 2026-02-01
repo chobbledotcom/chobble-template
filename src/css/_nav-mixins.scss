@@ -1,3 +1,4 @@
+@use "sass:math";
 @use "variables" as *;
 @use "mixins" as *;
 @use "breakpoints" as breakpoint;
@@ -275,7 +276,7 @@
 }
 
 @mixin nav-horizontal-dropdown($gap, $sub-gap) {
-  margin-bottom: $gap / 2;
+  margin-bottom: math.div($gap, 2);
   justify-content: center;
 
   ul {
