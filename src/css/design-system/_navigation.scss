@@ -1,0 +1,78 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
+@use "../nav-mixins" as nav;
+
+// =============================================================================
+// NAVIGATION
+// =============================================================================
+// Design-system version of navigation. Uses shared nav mixins but applies them
+// within .design-system scope, with design-system variables for spacing/sizing.
+
+.design-system {
+  // ===========================================================================
+  // BASE NAV
+  // ===========================================================================
+
+  nav {
+    @include nav.nav-base;
+
+    .nav-thumbnails {
+      @include nav.nav-thumbnails($space-xs);
+    }
+  }
+
+  // ===========================================================================
+  // MOBILE NAV (md and below)
+  // ===========================================================================
+
+  @include breakpoint.down("md") {
+
+    @at-root html:has(body#{&}.sticky-mobile-nav) {
+      scroll-padding-top: 5rem;
+    }
+
+    &.sticky-mobile-nav {
+      padding-top: 5rem;
+
+      nav {
+        @include nav.nav-sticky-bar($z-sticky, $space-xs);
+
+        .toggle {
+          @include nav.nav-toggle-checkbox("sr-only");
+        }
+
+        .toggle-label {
+          @include nav.nav-toggle-label($space-sm, $z-sticky, $transition-normal);
+        }
+
+        > ul {
+          @include nav.nav-mobile-menu($space-sm, $transition-normal);
+        }
+      }
+
+      nav:has(.mobile-menu-toggle) {
+        @include nav.nav-submenu-toggle($space-md + $space-sm, $transition-fast);
+      }
+    }
+  }
+
+  // ===========================================================================
+  // DESKTOP NAV (md and up)
+  // ===========================================================================
+
+  @include breakpoint.up("md") {
+    .toggle-label,
+    .mobile-menu-toggle {
+      display: none !important;
+    }
+
+    &.left-nav nav {
+      @include nav.nav-left($space-sm);
+    }
+
+    &.horizontal-nav nav {
+      @include nav.nav-horizontal-dropdown($space-lg, $space-xs);
+    }
+  }
+}
