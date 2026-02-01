@@ -20,14 +20,16 @@ Usage:
 {%- assign aria_label = block.aria_label | default: "Footer navigation" -%}
 
 <footer class="site-footer">
-  {%- if block.text -%}
-    <p>{{ block.text }}</p>
-  {%- endif -%}
-  {%- if block.links.size > 0 -%}
-    <div role="navigation" aria-label="{{ aria_label }}">
-      {%- for link in block.links -%}
-        <a href="{{ link.href }}">{{ link.text }}</a>
-      {%- endfor -%}
-    </div>
-  {%- endif -%}
+  <div class="container">
+    {%- if block.text -%}
+      <p>{{ block.text }}</p>
+    {%- endif -%}
+    {%- if block.links.size > 0 -%}
+      <div role="navigation" aria-label="{{ aria_label }}">
+        {%- for link in block.links -%}
+          <a href="{{ link.href }}">{{ link.text }}</a>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
 </footer>
