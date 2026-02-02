@@ -15,6 +15,7 @@ describe("BLOCK_SCHEMAS", () => {
       "cta",
       "video-background",
       "image-background",
+      "items",
       "contact_form",
       "markdown",
       "html",

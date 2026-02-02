@@ -55,4 +55,7 @@ Renders a single block by type. Used by blocks.html.
   {%- when "properties" -%}
     {%- include "design-system/properties-block.html" -%}
 
+  {%- when "items" -%}
+    {%- include "design-system/items-block.html", block: block -%}
+
 {%- endcase -%}

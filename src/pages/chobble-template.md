@@ -45,6 +45,15 @@ blocks:
 
       Full-width background images with responsive srcsets, cropped to 16:9.
 
+  # Product Sliders
+  - type: items
+    collection: featuredProducts
+    intro: |
+      ## Product Sliders
+
+      Display any collection in grids or with horizontal sliders.
+    horizontal: true
+
   # Stats
   - type: stats
     section_class: alt

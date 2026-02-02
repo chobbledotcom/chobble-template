@@ -203,6 +203,14 @@
       }
     },
     {
+      "type": "items",
+      "fields": {
+        "collection": { "type": "string", "label": "Collection Name", "required": true },
+        "intro": { "type": "rich-text", "label": "Intro Content (Markdown)" },
+        "horizontal": { "type": "boolean", "label": "Horizontal Slider" }
+      }
+    },
+    {
       "type": "contact_form",
       "fields": {
         "content": { "type": "rich-text", "label": "Content" }
