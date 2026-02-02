@@ -62,10 +62,9 @@ const collectSiblings = (node) => {
   return walk(node.nextSibling, []);
 };
 
-const createInlineSpan = (document, text) => {
+const createInlineSpan = (document) => {
   const span = document.createElement("span");
   span.className = "read-more-content";
-  span.textContent = text;
   return span;
 };
 
@@ -73,6 +72,50 @@ const createBlockWrapper = (document) => {
   const wrapper = document.createElement("div");
   wrapper.className = "read-more-content";
   return wrapper;
+};
+
+/** Collect all sibling nodes after the given node within the same parent. */
+const collectInlineSiblings = (node) => {
+  const nodes = [];
+  let cursor = node.nextSibling;
+  while (cursor) {
+    nodes.push(cursor);
+    cursor = cursor.nextSibling;
+  }
+  return nodes;
+};
+
+const wrapInlineContent = (
+  document,
+  afterText,
+  remainingNodes,
+  insertAfter,
+) => {
+  const hasContent = afterText.trim() || remainingNodes.length > 0;
+  if (!hasContent) return;
+
+  const span = createInlineSpan(document);
+  if (afterText) {
+    span.appendChild(document.createTextNode(afterText));
+  }
+  for (const node of remainingNodes) {
+    span.appendChild(node);
+  }
+  insertAfter.parentNode?.insertBefore(span, insertAfter.nextSibling);
+};
+
+const wrapBlockContent = (document, parentElement) => {
+  const followingSiblings = collectSiblings(parentElement);
+  if (followingSiblings.length === 0) return;
+
+  const blockWrapper = createBlockWrapper(document);
+  parentElement.parentNode?.insertBefore(
+    blockWrapper,
+    parentElement.nextSibling,
+  );
+  for (const sib of followingSiblings) {
+    blockWrapper.appendChild(sib);
+  }
 };
 
 const transformMarker = (document, textNode) => {
@@ -89,24 +132,8 @@ const transformMarker = (document, textNode) => {
   textNode.parentNode?.insertBefore(checkbox, textNode.nextSibling);
   textNode.parentNode?.insertBefore(label, checkbox.nextSibling);
 
-  if (split.after.trim()) {
-    textNode.parentNode?.insertBefore(
-      createInlineSpan(document, split.after),
-      label.nextSibling,
-    );
-  }
-
-  const followingSiblings = collectSiblings(textNode.parentElement);
-  if (followingSiblings.length > 0) {
-    const blockWrapper = createBlockWrapper(document);
-    textNode.parentElement.parentNode?.insertBefore(
-      blockWrapper,
-      textNode.parentElement.nextSibling,
-    );
-    for (const sib of followingSiblings) {
-      blockWrapper.appendChild(sib);
-    }
-  }
+  wrapInlineContent(document, split.after, collectInlineSiblings(label), label);
+  wrapBlockContent(document, textNode.parentElement);
 
   return true;
 };
