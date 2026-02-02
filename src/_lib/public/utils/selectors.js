@@ -3,7 +3,6 @@
 
 export const IDS = Object.fromEntries(
   [
-    "CALENDAR_MONTH",
     "CART_ITEM",
     "QUOTE_CART_ITEM",
     "QUOTE_CHECKOUT_ITEM",

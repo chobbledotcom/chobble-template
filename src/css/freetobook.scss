@@ -1,0 +1,38 @@
+// FreeToBook Widget Dialog
+// Uses shared dialog mixins
+
+@use "breakpoints";
+@use "dialog";
+
+dialog.freetobook-dialog {
+  @include dialog.dialog-box(50rem);
+
+  > header {
+    padding: 1.5rem;
+  }
+}
+
+@include dialog.dialog-scroll-lock("dialog.freetobook-dialog");
+
+.freetobook-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+
+  // FreeToBook's external widget class - styled to fill container
+  .ftb-widget {
+    width: 100%;
+  }
+}
+
+@include breakpoints.down("md") {
+  dialog.freetobook-dialog {
+    @include dialog.dialog-mobile-fullscreen;
+    height: 100vh;
+  }
+
+  dialog.freetobook-dialog > header,
+  .freetobook-content {
+    padding: 1rem;
+  }
+}
