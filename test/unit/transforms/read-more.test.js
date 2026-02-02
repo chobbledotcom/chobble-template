@@ -239,6 +239,37 @@ describe("read-more transform", () => {
       );
     });
 
+    test("hides inline elements after marker in same paragraph", async () => {
+      const html =
+        '<html><body><p>Foo bar [Read more..] baz <a href="#">bat</a> barf</p></body></html>';
+      const result = await transformHtml(html);
+
+      expect(result).toContain("<p>Foo bar ");
+      expect(result).not.toMatch(/<\/span>\s*<a href="#">bat<\/a>/);
+      expect(result).not.toMatch(/<\/span>\s*barf/);
+      expect(result).toMatch(/read-more-content.*baz.*bat.*barf/s);
+    });
+
+    test("hides trailing text node after inline element in same paragraph", async () => {
+      const html =
+        "<html><body><p>Intro [Read more..] middle <strong>bold</strong> end</p></body></html>";
+      const result = await transformHtml(html);
+
+      expect(result).toContain("<p>Intro ");
+      expect(result).toMatch(/read-more-content.*middle.*bold.*end/s);
+      expect(result).not.toMatch(/<\/span>\s*end\s*<\/p>/);
+    });
+
+    test("hides multiple inline elements after marker", async () => {
+      const html =
+        '<html><body><p>Start [Read more..] text <a href="#">link1</a> mid <em>italic</em> tail</p></body></html>';
+      const result = await transformHtml(html);
+
+      expect(result).toMatch(
+        /read-more-content.*text.*link1.*mid.*italic.*tail/s,
+      );
+    });
+
     test("does not wrap following div in read-more-content", async () => {
       const html =
         '<html><body><p>Intro [Read more..]</p><div class="layout">Layout content</div></body></html>';

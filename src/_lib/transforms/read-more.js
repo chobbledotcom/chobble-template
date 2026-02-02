@@ -62,10 +62,9 @@ const collectSiblings = (node) => {
   return walk(node.nextSibling, []);
 };
 
-const createInlineSpan = (document, text) => {
+const createInlineSpan = (document) => {
   const span = document.createElement("span");
   span.className = "read-more-content";
-  span.textContent = text;
   return span;
 };
 
@@ -73,6 +72,13 @@ const createBlockWrapper = (document) => {
   const wrapper = document.createElement("div");
   wrapper.className = "read-more-content";
   return wrapper;
+};
+
+/** Move an array of nodes into a parent element. */
+const appendChildren = (parent, children) => {
+  for (const child of children) {
+    parent.appendChild(child);
+  }
 };
 
 const transformMarker = (document, textNode) => {
@@ -89,23 +95,19 @@ const transformMarker = (document, textNode) => {
   textNode.parentNode?.insertBefore(checkbox, textNode.nextSibling);
   textNode.parentNode?.insertBefore(label, checkbox.nextSibling);
 
-  if (split.after.trim()) {
-    textNode.parentNode?.insertBefore(
-      createInlineSpan(document, split.after),
-      label.nextSibling,
-    );
-  }
+  const inlineSpan = createInlineSpan(document);
+  inlineSpan.appendChild(document.createTextNode(split.after));
+  appendChildren(inlineSpan, collectSiblings(label));
+  textNode.parentNode?.insertBefore(inlineSpan, label.nextSibling);
 
-  const followingSiblings = collectSiblings(textNode.parentElement);
-  if (followingSiblings.length > 0) {
+  const blockSiblings = collectSiblings(textNode.parentElement);
+  if (blockSiblings.length > 0) {
     const blockWrapper = createBlockWrapper(document);
     textNode.parentElement.parentNode?.insertBefore(
       blockWrapper,
       textNode.parentElement.nextSibling,
     );
-    for (const sib of followingSiblings) {
-      blockWrapper.appendChild(sib);
-    }
+    appendChildren(blockWrapper, blockSiblings);
   }
 
   return true;
