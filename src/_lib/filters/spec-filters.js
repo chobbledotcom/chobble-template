@@ -4,16 +4,39 @@ import { memoizedInlineAsset } from "#media/inline-asset.js";
 import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { mapObject } from "#toolkit/fp/object.js";
 
-// Apply defaults and pre-compute iconify cache paths at load time
-const specsIcons = mapObject((key, config) => {
-  const [prefix, ...nameParts] = config.icon.split(":");
+/**
+ * Determine the asset path for inlining an icon.
+ * - Absolute paths (starting with "/") are treated as local files relative to src/assets/
+ * - Iconify IDs ("prefix:name") are resolved to the iconify cache directory
+ *
+ * @param {string} icon - Icon identifier (absolute path or iconify ID)
+ * @returns {{ assetPath: string, isLocal: boolean }}
+ */
+const resolveIconAssetPath = (icon) => {
+  if (icon.startsWith("/")) {
+    // Absolute path like "/assets/icons/players.svg"
+    // memoizedInlineAsset prepends "src/assets/", so strip "/assets/" prefix
+    const assetPath = icon.replace(/^\/assets\//, "");
+    return { assetPath, isLocal: true };
+  }
+
+  const [prefix, ...nameParts] = icon.split(":");
   const name = nameParts
     .join(":")
     .trim()
     .toLowerCase()
     .replace(/[_\s]+/g, "-");
   const assetPath = `icons/iconify/${prefix.trim().toLowerCase()}/${name}.svg`;
-  return [key, { highlight: false, list_items: false, ...config, assetPath }];
+  return { assetPath, isLocal: false };
+};
+
+// Apply defaults and pre-compute iconify cache paths at load time
+const specsIcons = mapObject((key, config) => {
+  const { assetPath, isLocal } = resolveIconAssetPath(config.icon);
+  return [
+    key,
+    { highlight: false, list_items: false, ...config, assetPath, isLocal },
+  ];
 })(specsIconsRaw);
 
 const specsIconsOrder = Object.keys(specsIcons);
@@ -25,8 +48,10 @@ const specsIconsOrder = Object.keys(specsIcons);
  * @returns {Promise<void>}
  */
 const prefetchSpecIcons = async () => {
-  const icons = Object.values(specsIcons).map((config) => config.icon);
-  await Promise.all(icons.map((icon) => getIcon(icon)));
+  const iconifyIcons = Object.values(specsIcons)
+    .filter((config) => !config.isLocal)
+    .map((config) => config.icon);
+  await Promise.all(iconifyIcons.map((icon) => getIcon(icon)));
 };
 
 /**
@@ -105,4 +130,5 @@ export {
   getHighlightedSpecs,
   getListItemSpecs,
   prefetchSpecIcons,
+  resolveIconAssetPath,
 };
