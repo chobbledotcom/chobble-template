@@ -76,13 +76,8 @@ const createBlockWrapper = (document) => {
 
 /** Collect all sibling nodes after the given node within the same parent. */
 const collectInlineSiblings = (node) => {
-  const nodes = [];
-  let cursor = node.nextSibling;
-  while (cursor) {
-    nodes.push(cursor);
-    cursor = cursor.nextSibling;
-  }
-  return nodes;
+  const walk = (cur, acc) => (cur ? walk(cur.nextSibling, [...acc, cur]) : acc);
+  return walk(node.nextSibling, []);
 };
 
 const wrapInlineContent = (

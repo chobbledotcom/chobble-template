@@ -168,6 +168,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/filters/category-product-filters.js", // Helpers split for function length and readability
   "src/_lib/filters/item-filters.js",
   "src/_lib/transforms/external-links.js", // attrTuple for TypeScript tuple inference
+  "src/_lib/transforms/read-more.js", // DOM helpers kept separate to manage complexity
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
