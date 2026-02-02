@@ -3,28 +3,11 @@ import { onReady } from "#public/utils/on-ready.js";
 const setCurrentTheme = (themeName) =>
   localStorage.setItem("theme_name", themeName);
 
-const themeFonts = {
-  floral: "princess-sofia:400",
-  hacker: "share-tech-mono:400",
-  neon: "orbitron:600",
-};
-
 const applyTheme = (themeName) => {
   if (themeName === "default") {
     document.documentElement.removeAttribute("data-theme");
   } else {
     document.documentElement.setAttribute("data-theme", themeName);
-  }
-
-  const fontLinkId = "theme-font-link";
-  document.getElementById(fontLinkId)?.remove();
-  if (themeFonts[themeName]) {
-    const fontLink = document.createElement("link");
-    fontLink.id = fontLinkId;
-    fontLink.rel = "stylesheet";
-    fontLink.href = `https://fonts.bunny.net/css?family=${themeFonts[themeName]}&display=swap`;
-    fontLink.crossOrigin = "anonymous";
-    document.head.appendChild(fontLink);
   }
 };
 
