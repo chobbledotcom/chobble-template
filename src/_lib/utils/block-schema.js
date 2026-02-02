@@ -61,6 +61,7 @@ const BLOCK_SCHEMAS = {
     "class",
   ],
   "image-background": ["image", "image_alt", "content", "class"],
+  items: ["collection", "intro", "horizontal"],
   contact_form: ["content"],
   markdown: ["content"],
   html: ["content"],
