@@ -296,7 +296,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_data/eleventyComputed.js", // order, faqs, tab.body, metaComputed defaults
 
   // src/_lib/build - build-time utilities
-  "src/_lib/build/scss.js:23", // Lazy module loading pattern
+  "src/_lib/build/scss.js:22", // Lazy module loading pattern
   "src/_lib/build/theme-compiler.js:55", // Theme variables extraction fallback
 
   // src/_lib/filters - URL-based filtering

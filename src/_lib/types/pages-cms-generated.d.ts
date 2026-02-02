@@ -54,26 +54,6 @@ export interface PagesCMSOption {
 }
 
 /**
- * @typedef {Object} PagesCMSAddOnOption
- * @property {string} name - Name
- * @property {number} price - Price
- */
-export interface PagesCMSAddOnOption {
-  name: string;
-  price: number;
-}
-
-/**
- * @typedef {Object} PagesCMSAddOn
- * @property {string} ?intro - Intro
- * @property {PagesCMSAddOnOption[]} ?options - Add-on Options
- */
-export interface PagesCMSAddOn {
-  intro?: string;
-  options?: PagesCMSAddOnOption[];
-}
-
-/**
  * @typedef {Object} PagesCMSFilterAttribute
  * @property {string} name - Name
  * @property {string} value - Value
@@ -94,6 +74,26 @@ export interface PagesCMSSpec {
 }
 
 /**
+ * @typedef {Object} PagesCMSAddOnOption
+ * @property {string} name - Name
+ * @property {number} price - Price
+ */
+export interface PagesCMSAddOnOption {
+  name: string;
+  price: number;
+}
+
+/**
+ * @typedef {Object} PagesCMSAddOn
+ * @property {string} ?intro - Intro
+ * @property {PagesCMSAddOnOption[]} ?options - Add-on Options
+ */
+export interface PagesCMSAddOn {
+  intro?: string;
+  options?: PagesCMSAddOnOption[];
+}
+
+/**
  * @typedef {Object} PagesCMSTab
  * @property {string} title - Title
  * @property {string} ?image - Image
@@ -107,7 +107,7 @@ export interface PagesCMSTab {
 
 /**
  * @typedef {Object} PagesCMSBlockItem
- * @property {string} ?icon - Icon (HTML entity)
+ * @property {string} ?icon - Icon (Iconify ID or HTML entity)
  * @property {string} title - Title
  * @property {string} description - Description
  */
@@ -123,12 +123,16 @@ export interface PagesCMSBlockItem {
  * @property {string} title - Title
  * @property {string} ?subtitle - Subtitle
  * @property {PagesCMSBlockItem[]} ?items - Features
+ * @property {string} filename - Filename
+ * @property {string} code - Code
  */
 export interface PagesCMSBlock {
   type?: string;
   title: string;
   subtitle?: string;
   items?: PagesCMSBlockItem[];
+  filename: string;
+  code: string;
 }
 
 /**

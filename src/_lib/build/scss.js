@@ -1,4 +1,5 @@
 import path from "node:path";
+import { validateCssVariables } from "#build/css-variable-validator.js";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
 import getConfig from "#data/config.js";
 
@@ -10,20 +11,24 @@ const COMPILED_BUNDLES = ["bundle.scss", "design-system-bundle.scss"];
 
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);
+  const isBundle = shouldCompileScss(inputPath);
 
   return async (_data) => {
-    if (shouldCompileScss(inputPath)) {
-      // Inject compiled themes only if theme-switcher is enabled
-      if (getConfig().enable_theme_switcher) {
-        const compiledThemes = generateThemeSwitcherContent();
-        inputContent = `${inputContent}\n\n${compiledThemes}`;
-      }
+    if (isBundle && getConfig().enable_theme_switcher) {
+      const compiledThemes = generateThemeSwitcherContent();
+      inputContent = `${inputContent}\n\n${compiledThemes}`;
     }
 
     sass ??= await import("sass");
-    return sass.compileString(inputContent, {
+    const css = sass.compileString(inputContent, {
       loadPaths: [dir],
     }).css;
+
+    if (isBundle) {
+      validateCssVariables(css, inputPath);
+    }
+
+    return css;
   };
 };
 
