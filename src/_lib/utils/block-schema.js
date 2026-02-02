@@ -64,6 +64,9 @@ const BLOCK_SCHEMAS = {
   contact_form: ["content"],
   markdown: ["content"],
   html: ["content"],
+  content: [],
+  include: ["file"],
+  properties: [],
 };
 
 /**

@@ -1,10 +1,7 @@
 ---
-layout: base.html
+layout: design-system-base.html
+blocks:
+  - type: content
+  - type: properties
 ---
-
-{%- include "properties-filter.html" -%}
-
 {{- content -}}
-
-{%- assign properties = collections.properties -%}
-{%- include "items.html", items: properties -%}

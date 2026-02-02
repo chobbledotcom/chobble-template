@@ -18,6 +18,9 @@ describe("BLOCK_SCHEMAS", () => {
       "contact_form",
       "markdown",
       "html",
+      "content",
+      "include",
+      "properties",
     ];
     expect(Object.keys(BLOCK_SCHEMAS).sort()).toEqual(expectedTypes.sort());
   });
