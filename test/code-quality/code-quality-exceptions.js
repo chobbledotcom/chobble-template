@@ -223,6 +223,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/eleventy/pdf.js:generateMenuPdf",
   "src/_lib/eleventy/recurring-events.js:renderRecurringEvents",
 
+  // Filter helpers - tested for icon path resolution
+  "src/_lib/filters/spec-filters.js:resolveIconAssetPath",
+
   // Media processing - tested for image handling
   "src/_lib/media/image-frontmatter.js:isValidImage", // Used by getFirstValidImage, tested directly for edge cases
   "src/_lib/media/image-utils.js:getPathAwareBasename",

@@ -5,6 +5,7 @@ import {
   getHighlightedSpecs,
   getListItemSpecs,
   prefetchSpecIcons,
+  resolveIconAssetPath,
 } from "#filters/spec-filters.js";
 
 // Use actual spec name from config so tests stay in sync
@@ -230,6 +231,37 @@ describe("spec-filters", () => {
     const result = getListItemSpecs(specs);
 
     expect(result.length).toBe(2);
+  });
+
+  // ============================================
+  // resolveIconAssetPath - Icon type detection
+  // ============================================
+  test("Resolves absolute path by stripping /assets/ prefix", () => {
+    const result = resolveIconAssetPath("/assets/icons/players.svg");
+
+    expect(result.assetPath).toBe("icons/players.svg");
+    expect(result.isLocal).toBe(true);
+  });
+
+  test("Resolves absolute path without /assets/ prefix", () => {
+    const result = resolveIconAssetPath("/icons/custom.svg");
+
+    expect(result.assetPath).toBe("/icons/custom.svg");
+    expect(result.isLocal).toBe(true);
+  });
+
+  test("Resolves iconify ID to iconify cache path", () => {
+    const result = resolveIconAssetPath("hugeicons:help-circle");
+
+    expect(result.assetPath).toBe("icons/iconify/hugeicons/help-circle.svg");
+    expect(result.isLocal).toBe(false);
+  });
+
+  test("Normalizes iconify name to lowercase with hyphens", () => {
+    const result = resolveIconAssetPath("HugeIcons:Help_Circle");
+
+    expect(result.assetPath).toBe("icons/iconify/hugeicons/help-circle.svg");
+    expect(result.isLocal).toBe(false);
   });
 
   test("getListItemSpecs sorts by order in specs-icons.json", () => {
