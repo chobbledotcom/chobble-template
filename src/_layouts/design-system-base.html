@@ -21,13 +21,15 @@
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
   {%- endunless -%}
-  {%- if blocks -%}
   <main>
-    {%- include "design-system/blocks.html", blocks: blocks -%}
+    {%- if blocks -%}
+      {%- include "design-system/blocks.html", blocks: blocks -%}
+    {%- else -%}
+      {{- content -}}
+    {%- endif -%}
   </main>
-  {%- endif -%}
-  {{- content -}}
   {%- include "design-system/footer.html" -%}
+  {%- include "image-popup.html" -%}
   {%- include "theme-switcher.html" -%}
   {%- include "cart-icon.html" -%}
   {%- include "cart-overlay.html" -%}

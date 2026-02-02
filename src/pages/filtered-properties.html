@@ -4,10 +4,14 @@ pagination:
   size: 1
   alias: filterPage
 permalink: "/{{ strings.property_permalink_dir }}/search/{{ filterPage.path }}/"
-layout: filtered-properties
+layout: design-system-base.html
 eleventyExcludeFromCollections: true
+no_index: true
 meta_title: Search Results
 header_text: Search Results
+blocks:
+  - type: content
+  - type: properties
 ---
 
 {%- assign currentFilters = filterPage.filters -%}

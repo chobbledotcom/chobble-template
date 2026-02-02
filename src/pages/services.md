@@ -1,7 +1,7 @@
 ---
 meta_title: Our Services
 meta_description: Explore our range of services for widgets, wotzits, and gizmos.
-layout: design-system-page.html
+layout: design-system-base.html
 blocks:
   - type: section-header
     title: Our Services
@@ -29,6 +29,7 @@ blocks:
         label: Uptime
       - value: "2s"
         label: Load Time
+  - type: content
 ---
 
 ## How We Work
