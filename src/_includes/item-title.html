@@ -2,9 +2,9 @@
 {%- if subtitle -%}
   <h2>{{ subtitle }}</h2>
 {%- endif -%}
-{%- if unavailability_api_url -%}
+{%- if freetobook_id and freetobook_token -%}
   <p>
-    <button class="check-availability" data-api-url="{{ unavailability_api_url }}">
+    <button class="check-availability">
       Check Availability
     </button>
   </p>

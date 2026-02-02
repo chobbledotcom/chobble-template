@@ -4,7 +4,8 @@ subtitle: Charming 2-bedroom retreat with ocean views
 locations:
   - springfield
 featured: true
-unavailability_api_url: https://auto.chobble.com/webhooks/flows/a4a86b7d-173a-43e7-8fc4-51c9c4d84a10/sync
+freetobook_id: "50739"
+freetobook_token: "R5E73eM95Xl5BGJW0D8OQTzkbMSRLi46YKg0Le5ybvAhmE4UGjs0VI991DOB6"
 
 filter_attributes:
   - name: Bedrooms
