@@ -1,0 +1,45 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// IMAGE BACKGROUND
+// =============================================================================
+// Full-width image background with overlaid text content.
+// Uses the {% image %} shortcode for responsive srcsets, cropped to 16/9.
+
+.design-system {
+  // Remove section padding when containing an image-background
+  section:has(> .image-background),
+  section:has(> .container > .image-background) {
+    padding: 0;
+  }
+
+  .image-background {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    background: $color-dark-bg;
+
+    // The image covers the entire container
+    > div {
+      position: absolute;
+      inset: 0;
+
+      img,
+      .image-wrapper {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    @include media-background-content;
+  }
+}

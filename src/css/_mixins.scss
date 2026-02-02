@@ -384,6 +384,61 @@
 }
 
 // =============================================================================
+// MEDIA BACKGROUND CONTENT
+// =============================================================================
+// Shared styles for video-background and image-background content overlays.
+// No background tint is applied — tint the source image or video if needed.
+
+@mixin media-background-content {
+  > figure {
+    position: absolute;
+    inset: 0;
+    @include flex-center;
+    color: $color-white;
+    padding: $space-lg;
+
+    --color-text: #{$color-white};
+    --color-text-muted: rgba(255, 255, 255, 0.8);
+  }
+
+  figcaption {
+    @include container($width-default);
+    text-align: center;
+    max-width: 100%;
+
+    h1, h2, h3, h4, h5, h6 {
+      color: $color-white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn, a.btn {
+      background: rgba(255, 255, 255, 0.9);
+      color: $color-dark-bg;
+      border-color: transparent;
+
+      &:hover {
+        background: $color-white;
+      }
+    }
+
+    .btn--primary {
+      background: var(--color-link, $color-primary);
+      color: $color-white;
+      border-color: transparent;
+
+      &:hover {
+        background: var(--color-link-hover, $color-primary-dark);
+      }
+    }
+  }
+}
+
+// =============================================================================
 // IMAGE WRAPPER (LQIP support)
 // =============================================================================
 // Wrapper for images with low-quality image placeholder backgrounds.

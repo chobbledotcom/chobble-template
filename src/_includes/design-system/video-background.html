@@ -9,7 +9,6 @@ Parameters (via block object):
   - block.video_title: Accessible title for the iframe (default: "Background video")
   - block.content: HTML/markdown content to overlay on the video (required)
   - block.aspect_ratio: Aspect ratio for the video container (default: "16/9")
-  - block.overlay_style: Additional inline styles for the overlay (optional)
   - block.class: Additional classes for the container (optional)
 
 Usage:
@@ -21,7 +20,7 @@ Usage:
 
 <div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};">
   {%- include "design-system/video-iframe.html", video_id: block.video_id, title: _video_title, background: true -%}
-  <figure{% if block.overlay_style %} style="{{ block.overlay_style }}"{% endif %}>
+  <figure>
     <figcaption>
       {{ block.content | renderContent: "md" }}
     </figcaption>

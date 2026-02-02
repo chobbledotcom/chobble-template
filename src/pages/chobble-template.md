@@ -35,6 +35,16 @@ blocks:
 
       Add auto-playing video backgrounds with overlay text to any section.
 
+  # Image Background Demo
+  - type: image-background
+    full_width: true
+    image: src/images/fireworks.jpg
+    image_alt: Fireworks display
+    content: |
+      ## Image Background Block
+
+      Full-width background images with responsive srcsets, cropped to 16:9.
+
   # Stats
   - type: stats
     section_class: alt
