@@ -10,10 +10,10 @@
   .hero {
     @include flex-col($space-lg, center, center);
     text-align: center;
-    padding: $space-4xl $space-md;
+    padding: 0 $space-md;
 
     @include breakpoint.up("md") {
-      padding: $space-4xl $space-lg;
+      padding: 0 $space-lg;
     }
 
     h1 {
@@ -33,8 +33,8 @@
     align-items: center;
     gap: $space-xs;
     padding: $space-xs $space-sm;
-    background: var(--color-link-light);
-    color: var(--color-link);
+    background: var(--color-tint);
+    color: var(--color-text);
     border-radius: $radius-full;
     font-weight: 600;
   }

@@ -22,7 +22,8 @@ const applyTheme = (themeName) => {
     const fontLink = document.createElement("link");
     fontLink.id = fontLinkId;
     fontLink.rel = "stylesheet";
-    fontLink.href = `https://fonts.bunny.net/css?family=${themeFonts[themeName]}`;
+    fontLink.href = `https://fonts.bunny.net/css?family=${themeFonts[themeName]}&display=swap`;
+    fontLink.crossOrigin = "anonymous";
     document.head.appendChild(fontLink);
   }
 };
