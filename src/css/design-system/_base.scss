@@ -39,6 +39,9 @@
   --font-family-body: #{$font-sans};
   --font-family-heading: #{$font-sans};
   --font-family-mono: #{$font-mono};
+  --border: 2px solid var(--color-text);
+  --border-radius: #{$radius-md};
+  --box-shadow: #{$shadow-md};
 }
 
 .design-system {
