@@ -74,42 +74,10 @@ const createBlockWrapper = (document) => {
   return wrapper;
 };
 
-/** Collect all sibling nodes after the given node within the same parent. */
-const collectInlineSiblings = (node) => {
-  const walk = (cur, acc) => (cur ? walk(cur.nextSibling, [...acc, cur]) : acc);
-  return walk(node.nextSibling, []);
-};
-
-const wrapInlineContent = (
-  document,
-  afterText,
-  remainingNodes,
-  insertAfter,
-) => {
-  const hasContent = afterText.trim() || remainingNodes.length > 0;
-  if (!hasContent) return;
-
-  const span = createInlineSpan(document);
-  if (afterText) {
-    span.appendChild(document.createTextNode(afterText));
-  }
-  for (const node of remainingNodes) {
-    span.appendChild(node);
-  }
-  insertAfter.parentNode?.insertBefore(span, insertAfter.nextSibling);
-};
-
-const wrapBlockContent = (document, parentElement) => {
-  const followingSiblings = collectSiblings(parentElement);
-  if (followingSiblings.length === 0) return;
-
-  const blockWrapper = createBlockWrapper(document);
-  parentElement.parentNode?.insertBefore(
-    blockWrapper,
-    parentElement.nextSibling,
-  );
-  for (const sib of followingSiblings) {
-    blockWrapper.appendChild(sib);
+/** Move an array of nodes into a parent element. */
+const appendChildren = (parent, children) => {
+  for (const child of children) {
+    parent.appendChild(child);
   }
 };
 
@@ -127,8 +95,20 @@ const transformMarker = (document, textNode) => {
   textNode.parentNode?.insertBefore(checkbox, textNode.nextSibling);
   textNode.parentNode?.insertBefore(label, checkbox.nextSibling);
 
-  wrapInlineContent(document, split.after, collectInlineSiblings(label), label);
-  wrapBlockContent(document, textNode.parentElement);
+  const inlineSpan = createInlineSpan(document);
+  inlineSpan.appendChild(document.createTextNode(split.after));
+  appendChildren(inlineSpan, collectSiblings(label));
+  textNode.parentNode?.insertBefore(inlineSpan, label.nextSibling);
+
+  const blockSiblings = collectSiblings(textNode.parentElement);
+  if (blockSiblings.length > 0) {
+    const blockWrapper = createBlockWrapper(document);
+    textNode.parentElement.parentNode?.insertBefore(
+      blockWrapper,
+      textNode.parentElement.nextSibling,
+    );
+    appendChildren(blockWrapper, blockSiblings);
+  }
 
   return true;
 };
