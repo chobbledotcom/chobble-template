@@ -7,3 +7,4 @@
 
 @use "fonts";
 @use "design-system";
+@use "theme"; // client theme overrides - must be last
