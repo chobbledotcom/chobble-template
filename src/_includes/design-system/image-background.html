@@ -1,0 +1,27 @@
+{%- comment -%}
+Image background block - displays a full-width image background with overlaid text content.
+
+The image uses the {% image %} shortcode for responsive srcsets and is cropped to 16/9.
+
+Parameters (via block object):
+  - block.image: Image path (required)
+  - block.image_alt: Alt text for the image (default: "Background image")
+  - block.content: HTML/markdown content to overlay on the image (required)
+  - block.class: Additional classes for the container (optional)
+
+Usage:
+  {% include "design-system/image-background.html", block: block %}
+{%- endcomment -%}
+
+{%- assign _image_alt = block.image_alt | default: "Background image" -%}
+
+<div class="image-background{% if block.class %} {{ block.class }}{% endif %}">
+  <div>
+    {% image block.image, _image_alt, "2560,1920,1280,960,640", "", "100vw", "16/9" %}
+  </div>
+  <figure>
+    <figcaption>
+      {{ block.content | renderContent: "md" }}
+    </figcaption>
+  </figure>
+</div>

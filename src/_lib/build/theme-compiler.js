@@ -25,7 +25,11 @@ import {
 import { memoize } from "#toolkit/fp/memoize.js";
 
 const THEMES_DIR = path.resolve("src/css");
-const EXCLUDED_FILES = ["theme-switcher.scss", "theme-switcher-compiled.scss"];
+const EXCLUDED_FILES = [
+  "theme-editor.scss",
+  "theme-switcher.scss",
+  "theme-switcher-compiled.scss",
+];
 
 const getThemeFiles = memoize(() =>
   pipe(

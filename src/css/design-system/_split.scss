@@ -112,11 +112,11 @@
     &.primary-left .left,
     &.primary-right .right {
       background: var(--color-link);
-      color: $color-white;
-      --color-text: #{$color-white};
-      --color-text-muted: rgba(255, 255, 255, 0.8);
-      --split-btn-color: #{$color-white};
-      --split-btn-hover-bg: #{$color-white};
+      color: var(--color-contrast-text);
+      --color-text: var(--color-contrast-text);
+      --color-text-muted: var(--color-contrast-text-muted);
+      --split-btn-color: var(--color-contrast-text);
+      --split-btn-hover-bg: var(--color-contrast-text);
       --split-btn-hover-color: #{$color-text};
     }
 

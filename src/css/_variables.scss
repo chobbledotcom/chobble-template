@@ -23,7 +23,7 @@ $color-text: #1f2937 !default;
 $color-text-muted: #6b7280 !default;
 $color-primary: #2563eb !default;
 $color-primary-dark: #1d4ed8 !default;
-$color-primary-light: #dbeafe !default;
+$color-tint: #dbeafe !default;
 $color-secondary: #7c3aed !default;
 $color-accent: color.adjust($color-bg, $lightness: -5%) !default;
 $color-hover-bg: rgba(0, 0, 0, 0.05) !default;
@@ -37,6 +37,18 @@ $color-dark-link: #d1d5db !default;
 
 // Constant colors
 $color-white: #ffffff !default;
+
+// Contrast text (light text on colored/dark backgrounds)
+$color-contrast-text: $color-white !default;
+$color-contrast-text-muted: rgba(255, 255, 255, 0.8) !default;
+
+// Shadows
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12) !default;
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.18) !default;
+
+// Video play button colors
+$color-video-play-bg: #212121 !default;
+$color-video-play-hover: #ef4444 !default;
 
 // Decorative dot colors (code block toolbar)
 $color-dot-red: #ef4444 !default;
