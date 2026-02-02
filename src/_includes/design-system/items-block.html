@@ -1,0 +1,15 @@
+{%- comment -%}
+Items block: renders a collection using items.html with optional intro and horizontal slider.
+
+Parameters (from block):
+  collection  - Name of an Eleventy collection (e.g. "featuredProducts")
+  intro       - Optional markdown content rendered above the items
+  horizontal  - If true, renders as a horizontal slider
+{%- endcomment -%}
+
+{%- if block.intro -%}
+  {{ block.intro | renderContent: "md" }}
+{%- endif -%}
+
+{%- assign blockItems = collections[block.collection] -%}
+{%- include "items.html", items: blockItems, horizontal: block.horizontal -%}

@@ -6,9 +6,20 @@
 // =============================================================================
 // ITEMS LIST (for list-item.html)
 // =============================================================================
+// Card-based item grid with optional horizontal slider.
+//
+// Layout strategy:
+//   - Cards use flex-col with gap for consistent spacing
+//   - No card-level padding; content elements handle their own inline padding
+//   - Media (images, video) as first child stretches edge-to-edge
+//   - Text content is inset via --item-padding-inline
+// =============================================================================
 
 .design-system {
   ul.items {
+    --item-padding-inline: #{$space-md};
+    --item-gap: #{$space-sm};
+
     display: flex;
     flex-wrap: wrap;
     list-style: none;
@@ -56,19 +67,43 @@
       }
     }
 
+    // =========================================================================
+    // CARD (li)
+    // =========================================================================
+
     > li {
-      @include card;
-      @include card-hover;
-      @include flex-col($space-xs);
+      display: flex;
+      flex-direction: column;
+      gap: var(--item-gap);
+      border-radius: $radius-lg;
+      border: $border-light;
+      background: var(--color-card-bg);
       overflow: hidden;
+      @include card-hover;
+
+      // Shared inline padding for text content
+      h3,
+      .price,
+      p:not(.price),
+      ul.list-item-specs {
+        padding-inline: var(--item-padding-inline);
+      }
+
+      // Bottom padding on the last text/content child
+      > :last-child:not(.image-link):not(.video-wrapper):not(.video-facade) {
+        padding-bottom: var(--item-padding-inline);
+      }
+
+      // =======================================================================
+      // MEDIA: edge-to-edge images & video
+      // =======================================================================
 
       .image-link {
         display: block;
         overflow: hidden;
 
-        // Image wrapper with LQIP background support
         .image-wrapper {
-          @include image-wrapper;
+          @include image-wrapper($border-radius: 0);
         }
 
         img {
@@ -84,79 +119,21 @@
         }
       }
 
-      h3 {
-        @include heading-sm;
-        padding: $space-md $space-md 0;
-
-        a {
-          color: var(--color-text);
-          text-decoration: none;
-
-          &:hover {
-            color: var(--color-link);
-          }
-        }
-      }
-
-      .price {
-        @include body-base;
-        font-weight: 600;
-        color: var(--color-link);
-        padding: 0 $space-md $space-md;
-      }
-
-      p:not(.price) {
-        @include body-sm;
-        color: var(--color-text-muted);
-        padding: 0 $space-md $space-md;
-      }
-
-      ul.list-item-specs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: $space-sm;
-        padding: 0 $space-md $space-md;
-        margin-block-start: auto; // Push to bottom of flex container
-        list-style: none;
-
-        li {
-          display: flex;
-          align-items: center;
-          gap: $space-xs;
-          @include body-sm;
-          color: var(--color-text-muted);
-
-          svg {
-            width: 1em;
-            height: 1em;
-            fill: currentColor;
-          }
-
-          span {
-            white-space: nowrap;
-          }
-        }
-      }
-
-      // Video wrapper for YouTube embeds
       .video-wrapper {
         position: relative;
         width: 100%;
         aspect-ratio: 16 / 9;
         overflow: hidden;
-        border-radius: $radius-lg $radius-lg 0 0;
 
         iframe {
           position: absolute;
-          top: 0;
-          left: 0;
+          inset: 0;
           width: 100%;
           height: 100%;
           border: 0;
         }
       }
 
-      // Video facade - thumbnail with play button overlay
       .video-facade {
         position: relative;
         display: block;
@@ -165,11 +142,10 @@
         border: 0;
         background: none;
         cursor: pointer;
-        border-radius: $radius-lg $radius-lg 0 0;
         overflow: hidden;
 
         .image-wrapper {
-          @include image-wrapper;
+          @include image-wrapper($border-radius: 0);
           aspect-ratio: 16 / 9;
 
           img {
@@ -214,10 +190,67 @@
           }
         }
 
-        // No thumbnail variant for custom video URLs
         &.video-facade--no-thumbnail {
           background: var(--body-background-alt);
           aspect-ratio: 16 / 9;
+        }
+      }
+
+      // =======================================================================
+      // TEXT CONTENT
+      // =======================================================================
+
+      h3 {
+        @include heading-sm;
+
+        a {
+          color: var(--color-text);
+          text-decoration: none;
+
+          &:hover {
+            color: var(--color-link);
+          }
+        }
+      }
+
+      .price {
+        @include body-base;
+        font-weight: 600;
+        color: var(--color-link);
+      }
+
+      p:not(.price) {
+        @include body-sm;
+        color: var(--color-text-muted);
+      }
+
+      // =======================================================================
+      // SPECS
+      // =======================================================================
+
+      ul.list-item-specs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $space-sm;
+        margin-block-start: auto; // Push to bottom of flex container
+        list-style: none;
+
+        li {
+          display: flex;
+          align-items: center;
+          gap: $space-xs;
+          @include body-sm;
+          color: var(--color-text-muted);
+
+          svg {
+            width: 1em;
+            height: 1em;
+            fill: currentColor;
+          }
+
+          span {
+            white-space: nowrap;
+          }
         }
       }
     }

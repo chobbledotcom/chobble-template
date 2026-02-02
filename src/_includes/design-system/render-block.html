@@ -46,4 +46,7 @@ Renders a single block by type. Used by blocks.html.
   {%- when "contact_form" -%}
     {%- include "design-system/contact-form-block.html", block: block -%}
 
+  {%- when "items" -%}
+    {%- include "design-system/items-block.html", block: block -%}
+
 {%- endcase -%}
