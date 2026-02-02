@@ -36,7 +36,7 @@
       @include flex-col($space-xs);
       @include body-base;
       font-weight: 600;
-      color: var(--color-text, #{$color-text});
+      color: var(--color-text);
     }
 
     // Shared input/textarea/select base styles
@@ -52,20 +52,20 @@
       font-family: inherit;
       font-size: $font-size-base;
       line-height: $line-height-normal;
-      color: var(--color-text, #{$color-text});
-      background: var(--color-card-bg, #{$color-card-bg});
+      color: var(--color-text);
+      background: var(--color-card-bg);
       border: $border-medium;
       border-radius: $radius-md;
       transition: border-color $transition-fast;
 
       &::placeholder {
-        color: var(--color-text-muted, #{$color-text-muted});
+        color: var(--color-text-muted);
       }
 
       &:focus {
         outline: none;
-        border-color: var(--color-link, #{$color-primary});
-        box-shadow: 0 0 0 3px var(--color-tint, #{$color-tint});
+        border-color: var(--color-link);
+        box-shadow: 0 0 0 3px var(--color-tint);
       }
     }
 
@@ -93,7 +93,7 @@
         @include flex-row($space-xs);
 
         input[type="radio"] {
-          accent-color: var(--color-link, #{$color-primary});
+          accent-color: var(--color-link);
         }
 
         label {
