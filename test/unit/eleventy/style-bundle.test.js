@@ -113,8 +113,20 @@ describe("style-bundle", () => {
       expect(result).not.toContain("two-columns");
     });
 
-    test("uses sensible defaults", () => {
-      expect(getBodyClasses("page.html")).toBe(
+    test("adds clicky-nav class when navigationIsClicky is true", () => {
+      expect(
+        getBodyClasses("base.html", { navigationIsClicky: true }),
+      ).toContain("clicky-nav");
+    });
+
+    test("does not add clicky-nav class when navigationIsClicky is false", () => {
+      expect(
+        getBodyClasses("base.html", { navigationIsClicky: false }),
+      ).not.toContain("clicky-nav");
+    });
+
+    test("uses sensible defaults with options object", () => {
+      expect(getBodyClasses("page.html", {})).toBe(
         "page horizontal-nav one-column",
       );
     });
@@ -157,6 +169,71 @@ describe("style-bundle", () => {
       expect(getBodyClasses("base.html", [], true, false, true, false)).toBe(
         "base design-system horizontal-nav one-column",
       );
+    });
+
+    describe("site config mode (snake_case keys)", () => {
+      const baseSiteConfig = {
+        sticky_mobile_nav: false,
+        horizontal_nav: true,
+        design_system_layouts: [],
+      };
+
+      test("reads settings from site config object", () => {
+        const siteConfig = {
+          ...baseSiteConfig,
+          sticky_mobile_nav: true,
+          navigation_is_clicky: true,
+        };
+        const result = getBodyClasses("base.html", siteConfig, false);
+        expect(result).toContain("sticky-mobile-nav");
+        expect(result).toContain("horizontal-nav");
+        expect(result).toContain("clicky-nav");
+      });
+
+      test("uses forceDesignSystem from positional arg", () => {
+        const result = getBodyClasses("base.html", baseSiteConfig, true);
+        expect(result).toContain("design-system");
+      });
+
+      test("auto-detects hasRightContent from filesystem", () => {
+        // The test runs from the project root where src/snippets/right-content.md exists
+        const result = getBodyClasses("base.html", baseSiteConfig, false);
+        expect(result).toContain("two-columns");
+      });
+
+      test("skips right-content detection when forceDesignSystem is true", () => {
+        const result = getBodyClasses("base.html", baseSiteConfig, true);
+        expect(result).toContain("one-column");
+      });
+
+      test("appends extra classes from string", () => {
+        const result = getBodyClasses(
+          "base.html",
+          baseSiteConfig,
+          true,
+          "custom-class",
+        );
+        expect(result).toContain("custom-class");
+      });
+
+      test("appends extra classes from array", () => {
+        const result = getBodyClasses("base.html", baseSiteConfig, true, [
+          "class-a",
+          "class-b",
+        ]);
+        expect(result).toContain("class-a");
+        expect(result).toContain("class-b");
+      });
+
+      test("skips falsy extra classes", () => {
+        const result = getBodyClasses("base.html", baseSiteConfig, true, [
+          "valid",
+          "",
+          null,
+        ]);
+        expect(result).toContain("valid");
+        expect(result).not.toContain("null");
+      });
     });
   });
 
