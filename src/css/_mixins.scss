@@ -385,42 +385,6 @@
 }
 
 // =============================================================================
-// REVIEW GRID ITEM
-// =============================================================================
-// Grid areas for review list items. Conditionally adds date/products rows
-// using :has() based on whether those elements are present in the markup.
-
-@mixin review-grid-areas {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas:
-    "review  review"
-    "name    rating";
-
-  &:has(.date) {
-    grid-template-areas:
-      "review  review"
-      "name    rating"
-      "date    date";
-  }
-
-  &:has(.products) {
-    grid-template-areas:
-      "review    review"
-      "products  products"
-      "name      rating";
-  }
-
-  &:has(.date):has(.products) {
-    grid-template-areas:
-      "review    review"
-      "products  products"
-      "name      rating"
-      "date      date";
-  }
-}
-
-// =============================================================================
 // MEDIA BACKGROUND CONTENT
 // =============================================================================
 // Shared styles for video-background and image-background content overlays.
