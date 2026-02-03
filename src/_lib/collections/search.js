@@ -1,6 +1,7 @@
-import { map, pipe, unique, uniqueBy } from "#toolkit/fp/array.js";
+import { map, pipe, sort, unique, uniqueBy } from "#toolkit/fp/array.js";
 import { buildReverseIndex } from "#toolkit/fp/grouping.js";
 import { memoizeByRef } from "#toolkit/fp/memoize.js";
+import { compareStrings } from "#toolkit/fp/sorting.js";
 import { slugify } from "#utils/slug-utils.js";
 
 /**
@@ -41,10 +42,11 @@ const buildProductKeywordMap = memoizeByRef((products) =>
  */
 const buildCategoryKeywordMap = memoizeByRef((categories) =>
   buildReverseIndex(categories, (category) =>
-    unique([
-      category.data.title.toLowerCase(),
-      ...category.data.keywords.map((k) => k.toLowerCase()),
-    ]),
+    pipe(
+      map((k) => k.toLowerCase()),
+      (keywords) => [category.data.title.toLowerCase(), ...keywords],
+      unique,
+    )(category.data.keywords),
   ),
 );
 
@@ -55,12 +57,14 @@ const buildCategoryKeywordMap = memoizeByRef((categories) =>
  * @returns {string[]}
  */
 const getAllKeywords = (products, categories) =>
-  uniqueBy(slugify)(
-    unique([
-      ...buildProductKeywordMap(products).keys(),
-      ...buildCategoryKeywordMap(categories).keys(),
-    ]),
-  ).sort((a, b) => a.localeCompare(b));
+  pipe(
+    unique,
+    uniqueBy(slugify),
+    sort(compareStrings),
+  )([
+    ...buildProductKeywordMap(products).keys(),
+    ...buildCategoryKeywordMap(categories).keys(),
+  ]);
 
 /**
  * Get products matching a keyword.
