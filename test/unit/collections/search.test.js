@@ -234,6 +234,17 @@ describe("search", () => {
     });
   });
 
+  test("Deduplicates keywords that slugify to the same value", () => {
+    const products = product(
+      ["Mascot Hire", ["mascot-hire"]],
+      ["Party Supplies", ["party supplies"]],
+    );
+    const keywords = getAllKeywords(products, []);
+    const slugified = keywords.map((k) => k.replace(/\s+/g, "-"));
+    const uniqueSlugs = [...new Set(slugified)];
+    expect(slugified).toEqual(uniqueSlugs);
+  });
+
   test("Lowercases and alphabetises mixed-case keywords", () => {
     const products = product(
       ["Zebra Widget", ["Blue", "ALPHA"]],
