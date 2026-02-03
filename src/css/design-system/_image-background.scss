@@ -41,5 +41,27 @@
     }
 
     @include media-background-content;
+
+    // Parallax: scroll-driven animation moves the image opposite to scroll
+    &--parallax > div {
+      // Extend the image beyond the container so it has room to translate
+      inset: -15%;
+
+      @supports (animation-timeline: scroll()) {
+        animation: parallax-scroll linear;
+        animation-timeline: scroll(nearest block);
+        animation-range: entry 0% exit 100%;
+      }
+    }
+  }
+}
+
+@keyframes parallax-scroll {
+  from {
+    transform: translateY(-10%);
+  }
+
+  to {
+    transform: translateY(10%);
   }
 }

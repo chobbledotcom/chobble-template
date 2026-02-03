@@ -308,6 +308,7 @@ blocks:
   # Image Background Demo
   - type: image-background
     full_width: true
+    parallax: true
     image: src/images/city-traffic-night.jpg
     image_alt: Long exposure of the traffic in a city at night
     content: |
