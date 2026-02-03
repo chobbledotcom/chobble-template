@@ -74,14 +74,10 @@ const isSiteConfig = (value) =>
 
 /**
  * Check whether the right-content snippet file exists.
- * Design-system layouts don't render right content, so always false for those.
- * @param {boolean} forceDesignSystem
  * @returns {boolean}
  */
-const detectRightContent = (forceDesignSystem) => {
-  if (forceDesignSystem) return false;
-  return fs.existsSync(path.join(process.cwd(), RIGHT_CONTENT_PATH));
-};
+const detectRightContent = () =>
+  fs.existsSync(path.join(process.cwd(), RIGHT_CONTENT_PATH));
 
 /**
  * Parse camelCase options object into normalized config.
@@ -107,16 +103,16 @@ const parseOptionsObject = ({
 /**
  * Parse site config (snake_case) into normalized config.
  * hasRightContent is auto-detected from the filesystem.
+ * design-system class is handled by the template, not by this function.
  * @param {Object} siteConfig
- * @param {boolean} forceDesignSystem
  * @returns {BodyClassesConfig}
  */
-const parseSiteConfig = (siteConfig, forceDesignSystem) => ({
-  designSystemLayouts: siteConfig.design_system_layouts,
-  forceDesignSystem: Boolean(forceDesignSystem),
+const parseSiteConfig = (siteConfig) => ({
+  designSystemLayouts: [],
+  forceDesignSystem: false,
   stickyMobileNav: Boolean(siteConfig.sticky_mobile_nav),
   horizontalNav: siteConfig.horizontal_nav !== false,
-  hasRightContent: detectRightContent(forceDesignSystem),
+  hasRightContent: detectRightContent(),
   navigationIsClicky: Boolean(siteConfig.navigation_is_clicky),
 });
 
@@ -183,8 +179,9 @@ const buildBodyClasses = (layout, config) => {
  * Supports three calling conventions:
  *
  * 1. Site config object (from Liquid templates):
- *    layout | getBodyClasses: config, forceDesignSystem, extraClasses
+ *    layout | getBodyClasses: config, extraClasses
  *    hasRightContent is auto-detected from the filesystem.
+ *    design-system class is handled directly in the template.
  *
  * 2. Options object (for JS usage and testing):
  *    getBodyClasses(layout, { stickyMobileNav, horizontalNav, ... })
@@ -207,8 +204,8 @@ const getBodyClasses = (
   arg4 = false,
 ) => {
   if (isSiteConfig(configOrOpts)) {
-    const config = parseSiteConfig(configOrOpts, Boolean(arg2));
-    const extra = normalizeExtraClasses(arg3);
+    const config = parseSiteConfig(configOrOpts);
+    const extra = normalizeExtraClasses(arg2);
     return [
       ...buildBodyClasses(layout, config).filter(Boolean),
       ...extra.filter(Boolean),

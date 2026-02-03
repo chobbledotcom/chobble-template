@@ -184,40 +184,34 @@ describe("style-bundle", () => {
           sticky_mobile_nav: true,
           navigation_is_clicky: true,
         };
-        const result = getBodyClasses("base.html", siteConfig, false);
+        const result = getBodyClasses("base.html", siteConfig);
         expect(result).toContain("sticky-mobile-nav");
         expect(result).toContain("horizontal-nav");
         expect(result).toContain("clicky-nav");
       });
 
-      test("uses forceDesignSystem from positional arg", () => {
-        const result = getBodyClasses("base.html", baseSiteConfig, true);
-        expect(result).toContain("design-system");
+      test("does not add design-system class (handled by template)", () => {
+        const result = getBodyClasses("base.html", baseSiteConfig);
+        expect(result).not.toContain("design-system");
       });
 
       test("auto-detects hasRightContent from filesystem", () => {
         // The test runs from the project root where src/snippets/right-content.md exists
-        const result = getBodyClasses("base.html", baseSiteConfig, false);
+        const result = getBodyClasses("base.html", baseSiteConfig);
         expect(result).toContain("two-columns");
-      });
-
-      test("skips right-content detection when forceDesignSystem is true", () => {
-        const result = getBodyClasses("base.html", baseSiteConfig, true);
-        expect(result).toContain("one-column");
       });
 
       test("appends extra classes from string", () => {
         const result = getBodyClasses(
           "base.html",
           baseSiteConfig,
-          true,
           "custom-class",
         );
         expect(result).toContain("custom-class");
       });
 
       test("appends extra classes from array", () => {
-        const result = getBodyClasses("base.html", baseSiteConfig, true, [
+        const result = getBodyClasses("base.html", baseSiteConfig, [
           "class-a",
           "class-b",
         ]);
@@ -226,7 +220,7 @@ describe("style-bundle", () => {
       });
 
       test("skips falsy extra classes", () => {
-        const result = getBodyClasses("base.html", baseSiteConfig, true, [
+        const result = getBodyClasses("base.html", baseSiteConfig, [
           "valid",
           "",
           null,

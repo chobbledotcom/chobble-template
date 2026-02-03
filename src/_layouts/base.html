@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {% include "head.html" %}
-<body class="{{ layout | getBodyClasses: config, false, body-classes }}">
+<body class="{{ layout | getBodyClasses: config, body-classes }}">
   {%- include "header.html" -%}
   <main>
     {%- include "navigation.html" -%}
