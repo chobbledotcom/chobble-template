@@ -48,186 +48,99 @@ describe("style-bundle", () => {
   });
 
   describe("getBodyClasses filter", () => {
+    const baseConfig = {
+      sticky_mobile_nav: false,
+      horizontal_nav: true,
+      navigation_is_clicky: false,
+    };
+
     test("includes layout name without .html extension", () => {
-      const result = getBodyClasses("base.html", {});
+      const result = getBodyClasses("base.html", baseConfig);
       expect(result).toContain("base");
       expect(result).not.toContain(".html");
     });
 
-    test("adds design-system class when layout is in designSystemLayouts", () => {
-      const result = getBodyClasses("design-system-base.html", {
-        designSystemLayouts: ["design-system-base.html"],
-      });
-      expect(result).toContain("design-system-base");
-      expect(result).toContain("design-system");
-    });
-
-    test("does not add design-system class when layout is not in designSystemLayouts", () => {
+    test("adds sticky-mobile-nav class when enabled", () => {
       const result = getBodyClasses("base.html", {
-        designSystemLayouts: ["design-system-base.html"],
+        ...baseConfig,
+        sticky_mobile_nav: true,
       });
-      expect(result).not.toContain("design-system");
+      expect(result).toContain("sticky-mobile-nav");
     });
 
-    test("adds design-system class when forceDesignSystem is true", () => {
-      const result = getBodyClasses("base.html", {
-        designSystemLayouts: [],
-        forceDesignSystem: true,
-      });
-      expect(result).toContain("design-system");
+    test("does not add sticky-mobile-nav class when disabled", () => {
+      const result = getBodyClasses("base.html", baseConfig);
+      expect(result).not.toContain("sticky-mobile-nav");
     });
 
-    test("adds sticky-mobile-nav class when stickyMobileNav is true", () => {
-      expect(getBodyClasses("base.html", { stickyMobileNav: true })).toContain(
-        "sticky-mobile-nav",
-      );
-    });
-
-    test("does not add sticky-mobile-nav class when stickyMobileNav is false", () => {
-      expect(
-        getBodyClasses("base.html", { stickyMobileNav: false }),
-      ).not.toContain("sticky-mobile-nav");
-    });
-
-    test("adds horizontal-nav class when horizontalNav is true", () => {
-      const result = getBodyClasses("base.html", { horizontalNav: true });
+    test("adds horizontal-nav class when enabled", () => {
+      const result = getBodyClasses("base.html", baseConfig);
       expect(result).toContain("horizontal-nav");
       expect(result).not.toContain("left-nav");
     });
 
-    test("adds left-nav class when horizontalNav is false", () => {
-      const result = getBodyClasses("base.html", { horizontalNav: false });
+    test("adds left-nav class when horizontal_nav is false", () => {
+      const result = getBodyClasses("base.html", {
+        ...baseConfig,
+        horizontal_nav: false,
+      });
       expect(result).toContain("left-nav");
       expect(result).not.toContain("horizontal-nav");
     });
 
-    test("adds two-columns class when hasRightContent is true", () => {
-      const result = getBodyClasses("base.html", { hasRightContent: true });
-      expect(result).toContain("two-columns");
-      expect(result).not.toContain("one-column");
-    });
-
-    test("adds one-column class when hasRightContent is false", () => {
-      const result = getBodyClasses("base.html", { hasRightContent: false });
-      expect(result).toContain("one-column");
-      expect(result).not.toContain("two-columns");
-    });
-
-    test("adds clicky-nav class when navigationIsClicky is true", () => {
-      expect(
-        getBodyClasses("base.html", { navigationIsClicky: true }),
-      ).toContain("clicky-nav");
-    });
-
-    test("does not add clicky-nav class when navigationIsClicky is false", () => {
-      expect(
-        getBodyClasses("base.html", { navigationIsClicky: false }),
-      ).not.toContain("clicky-nav");
-    });
-
-    test("uses sensible defaults with options object", () => {
-      expect(getBodyClasses("page.html", {})).toBe(
-        "page horizontal-nav one-column",
-      );
-    });
-
-    test("generates complete class string for typical base.html usage", () => {
+    test("adds clicky-nav class when enabled", () => {
       const result = getBodyClasses("base.html", {
-        designSystemLayouts: ["design-system-base.html"],
-        stickyMobileNav: true,
-        horizontalNav: true,
-        hasRightContent: false,
+        ...baseConfig,
+        navigation_is_clicky: true,
       });
-      expect(result).toBe("base sticky-mobile-nav horizontal-nav one-column");
+      expect(result).toContain("clicky-nav");
     });
 
-    test("generates complete class string for design-system layout", () => {
-      const result = getBodyClasses("design-system-base.html", {
-        designSystemLayouts: ["design-system-base.html"],
-        stickyMobileNav: false,
-        horizontalNav: true,
-        hasRightContent: false,
-      });
-      expect(result).toBe(
-        "design-system-base design-system horizontal-nav one-column",
-      );
+    test("does not add clicky-nav class when disabled", () => {
+      const result = getBodyClasses("base.html", baseConfig);
+      expect(result).not.toContain("clicky-nav");
     });
 
-    test("works with positional arguments (Liquid filter style)", () => {
-      const result = getBodyClasses(
-        "base.html",
-        ["design-system-base.html"],
-        false,
-        true,
-        true,
-        false,
-      );
-      expect(result).toBe("base sticky-mobile-nav horizontal-nav one-column");
+    test("auto-detects hasRightContent from filesystem", () => {
+      // The test runs from the project root where src/snippets/right-content.md exists
+      const result = getBodyClasses("base.html", baseConfig);
+      expect(result).toContain("two-columns");
     });
 
-    test("positional args with forceDesignSystem", () => {
-      expect(getBodyClasses("base.html", [], true, false, true, false)).toBe(
-        "base design-system horizontal-nav one-column",
-      );
+    test("appends extra classes from string", () => {
+      const result = getBodyClasses("base.html", baseConfig, "custom-class");
+      expect(result).toContain("custom-class");
     });
 
-    describe("site config mode (snake_case keys)", () => {
-      const baseSiteConfig = {
-        sticky_mobile_nav: false,
+    test("appends extra classes from array", () => {
+      const result = getBodyClasses("base.html", baseConfig, [
+        "class-a",
+        "class-b",
+      ]);
+      expect(result).toContain("class-a");
+      expect(result).toContain("class-b");
+    });
+
+    test("skips falsy extra classes", () => {
+      const result = getBodyClasses("base.html", baseConfig, [
+        "valid",
+        "",
+        null,
+      ]);
+      expect(result).toContain("valid");
+      expect(result).not.toContain("null");
+    });
+
+    test("generates complete class string for typical usage", () => {
+      const result = getBodyClasses("base.html", {
+        sticky_mobile_nav: true,
         horizontal_nav: true,
-        design_system_layouts: [],
-      };
-
-      test("reads settings from site config object", () => {
-        const siteConfig = {
-          ...baseSiteConfig,
-          sticky_mobile_nav: true,
-          navigation_is_clicky: true,
-        };
-        const result = getBodyClasses("base.html", siteConfig);
-        expect(result).toContain("sticky-mobile-nav");
-        expect(result).toContain("horizontal-nav");
-        expect(result).toContain("clicky-nav");
+        navigation_is_clicky: true,
       });
-
-      test("does not add design-system class (handled by template)", () => {
-        const result = getBodyClasses("base.html", baseSiteConfig);
-        expect(result).not.toContain("design-system");
-      });
-
-      test("auto-detects hasRightContent from filesystem", () => {
-        // The test runs from the project root where src/snippets/right-content.md exists
-        const result = getBodyClasses("base.html", baseSiteConfig);
-        expect(result).toContain("two-columns");
-      });
-
-      test("appends extra classes from string", () => {
-        const result = getBodyClasses(
-          "base.html",
-          baseSiteConfig,
-          "custom-class",
-        );
-        expect(result).toContain("custom-class");
-      });
-
-      test("appends extra classes from array", () => {
-        const result = getBodyClasses("base.html", baseSiteConfig, [
-          "class-a",
-          "class-b",
-        ]);
-        expect(result).toContain("class-a");
-        expect(result).toContain("class-b");
-      });
-
-      test("skips falsy extra classes", () => {
-        const result = getBodyClasses("base.html", baseSiteConfig, [
-          "valid",
-          "",
-          null,
-        ]);
-        expect(result).toContain("valid");
-        expect(result).not.toContain("null");
-      });
+      expect(result).toContain("base");
+      expect(result).toContain("sticky-mobile-nav");
+      expect(result).toContain("horizontal-nav");
+      expect(result).toContain("clicky-nav");
     });
   });
 
