@@ -15,12 +15,12 @@
 ---
 <h1>Search results for "{{ keyword }}"</h1>
 
-{% assign products = collections.products | getProductsByKeyword: keyword %}
+{% assign items = collections.products | getItemsByKeyword: collections.categories, keyword %}
 
-{% if products.size > 0 %}
-  {%- include "items.html", items: products -%}
+{% if items.size > 0 %}
+  {%- include "items.html", items: items -%}
 {% else %}
-  <p>No products found matching "{{ keyword }}".</p>
+  <p>No results found matching "{{ keyword }}".</p>
 {% endif %}
 
 <p><a href="/search/">Back to search</a></p>

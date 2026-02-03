@@ -22,9 +22,9 @@ content:
       sort:
         - meta_title
     exclude:
-      - services.md
-      - chobble-template.md
       - about.md
+      - chobble-template.md
+      - services.md
     fields:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Body }
@@ -106,6 +106,7 @@ content:
             required: true
           - { name: days, type: number, label: Days (for hire products) }
       - { name: features, type: string, label: Features, list: true }
+      - { name: keywords, type: string, label: Search Keywords, list: true }
       - name: filter_attributes
         label: Filter Attributes
         type: object
@@ -180,6 +181,7 @@ content:
           label: "{title}"
       - { name: body, type: rich-text, label: Body }
       - { name: featured, type: boolean, label: Featured }
+      - { name: keywords, type: string, label: Search Keywords, list: true }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -628,10 +630,10 @@ content:
     fields:
       - { name: name, type: string, label: Name }
       - { name: body, type: rich-text, label: Body }
-  - name: page-services
-    label: Services Page
+  - name: page-about
+    label: About Page
     type: file
-    path: src/pages/services.md
+    path: src/pages/about.md
     fields:
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
@@ -662,8 +664,6 @@ content:
                 type: string
                 label: Description
                 required: true
-          - { name: filename, type: string, label: Filename, required: true }
-          - { name: code, type: string, label: Code, required: true }
       - { name: body, type: rich-text, label: Body }
   - name: page-chobble-template
     label: Chobble Template Page
@@ -742,12 +742,18 @@ content:
             type: string
             label: Figure Type (html or code)
           - { name: figure_content, type: rich-text, label: Figure Content }
+          - name: collection
+            type: string
+            label: Collection Name
+            required: true
+          - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+          - { name: horizontal, type: boolean, label: Horizontal Slider }
           - { name: description, type: string, label: Description }
       - { name: body, type: rich-text, label: Body }
-  - name: page-about
-    label: About Page
+  - name: page-services
+    label: Services Page
     type: file
-    path: src/pages/about.md
+    path: src/pages/services.md
     fields:
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
@@ -778,6 +784,8 @@ content:
                 type: string
                 label: Description
                 required: true
+          - { name: filename, type: string, label: Filename, required: true }
+          - { name: code, type: string, label: Code, required: true }
       - { name: body, type: rich-text, label: Body }
   - name: homepage
     label: Homepage Settings

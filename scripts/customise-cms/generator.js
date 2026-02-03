@@ -20,6 +20,7 @@ import {
   FILTER_ATTRIBUTES_FIELD,
   GALLERY_FIELD,
   getBodyField,
+  KEYWORDS_FIELD,
   PRODUCT_OPTIONS_FIELD,
   SPECS_FIELD,
   VIDEOS_FIELD,
@@ -207,6 +208,7 @@ const getCollectionFieldBuilders = (config, fields) => ({
         ),
       fields.body,
       COMMON_FIELDS.featured,
+      config.features.keywords && KEYWORDS_FIELD,
       ...getHeaderFields(config),
       ...META_FIELDS,
       COMMON_FIELDS.subtitle,
@@ -278,6 +280,7 @@ const buildProductsFields = (config, fields) =>
       type: "string",
     },
     config.features.features && FEATURES_FIELD,
+    config.features.keywords && KEYWORDS_FIELD,
     FILTER_ATTRIBUTES_FIELD,
   ])(config, fields);
 
