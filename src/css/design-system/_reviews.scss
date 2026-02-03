@@ -26,34 +26,35 @@
 
     > li {
       @include card($space-md, $radius-lg);
-      @include flex-col($space-sm);
+      @include review-grid-areas;
+      gap: $space-sm;
 
       @include breakpoint.down("md") {
         text-align: center;
       }
     }
 
-    .review-header {
-      @include flex-between;
-    }
-
     .rating {
+      grid-area: rating;
       font-size: $font-size-lg;
+      justify-self: end;
+      align-self: end;
     }
 
     .date {
+      grid-area: date;
       @include body-sm;
       color: var(--color-text-muted);
-      margin-inline-start: auto;
     }
 
     .review {
+      grid-area: review;
       @include body-base;
       line-height: $line-height-relaxed;
     }
 
     .products {
-      flex: 1;
+      grid-area: products;
       @include body-sm;
       font-style: italic;
       color: var(--color-text-muted);
@@ -69,8 +70,9 @@
     }
 
     .author-info {
+      grid-area: name;
       @include flex-row($space-sm, flex-start);
-      margin-block-start: auto;
+      align-self: end;
 
       @include breakpoint.down("md") {
         flex-direction: column;

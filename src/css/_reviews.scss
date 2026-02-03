@@ -1,5 +1,6 @@
 @use "variables" as *;
 @use "breakpoints";
+@use "mixins";
 
 // =============================================================================
 // REVIEWS GRID
@@ -31,8 +32,7 @@
   }
 
   > li {
-    display: flex;
-    flex-direction: column;
+    @include mixins.review-grid-areas;
     gap: $space-sm;
     padding: $space-md;
     background: var(--color-accent);
@@ -44,29 +44,27 @@
     }
   }
 
-  .review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
   .rating {
+    grid-area: rating;
     font-size: $font-size-lg;
+    justify-self: end;
+    align-self: end;
   }
 
   .date {
+    grid-area: date;
     font-size: $font-size-sm;
     opacity: 0.7;
-    margin-left: auto;
   }
 
   .review {
+    grid-area: review;
     font-size: $font-size-base;
     line-height: var(--line-height);
   }
 
   .products {
-    flex: 1;
+    grid-area: products;
     font-size: $font-size-sm;
     font-style: italic;
 
@@ -78,10 +76,11 @@
   }
 
   .author-info {
+    grid-area: name;
     display: flex;
     align-items: flex-start;
     gap: $space-sm;
-    margin-top: auto;
+    align-self: end;
 
     @include breakpoints.down("sm") {
       flex-direction: column;

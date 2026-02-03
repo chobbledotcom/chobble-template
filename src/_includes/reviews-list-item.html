@@ -1,10 +1,7 @@
 <li>
-  <div class="review-header">
-    {%- if review.data.rating -%}
-      <span class="rating" aria-label="{{ review.data.rating }} out of 5 stars">{{ review.data.rating | ratingToStars }}</span>
-    {%- endif -%}
-    <span class="date">{{ review.page.date | date: "%b '%y" }}</span>
-  </div>
+  {%- if review.data.rating -%}
+    <span class="rating" aria-label="{{ review.data.rating }} out of 5 stars">{{ review.data.rating | ratingToStars }}</span>
+  {%- endif -%}
   <span class="review">{{ review.content }}</span>
   {%- if product_links and review.data.products.size > 0 -%}
     <span class="products">
@@ -45,4 +42,7 @@
       {%- endif -%}
     </div>
   </div>
+  {%- if review.page.date -%}
+    <span class="date">{{ review.page.date | date: "%b '%y" }}</span>
+  {%- endif -%}
 </li>
