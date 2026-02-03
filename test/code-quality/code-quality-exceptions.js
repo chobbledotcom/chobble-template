@@ -166,6 +166,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
   "src/_lib/filters/category-product-filters.js", // Helpers split for function length and readability
+  "src/_lib/filters/filter-ui.js", // UI builders split from buildUIWithLookup for function length
   "src/_lib/filters/item-filters.js",
   "src/_lib/transforms/external-links.js", // attrTuple for TypeScript tuple inference
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
@@ -302,7 +303,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/build/theme-compiler.js:55", // Theme variables extraction fallback
 
   // src/_lib/filters - URL-based filtering
-  "src/_lib/filters/category-product-filters.js:214", // Liquid template boundary (currentFilters from template can be null)
+  "src/_lib/filters/category-product-filters.js:203", // Liquid template boundary (currentFilters from template can be null)
   "src/_lib/filters/filter-core.js:141", // Lazy init nested lookup (??= avoids object-mutation violation)
   "src/_lib/filters/filter-core.js:142",
   "src/_lib/filters/filter-core.js:196",

@@ -105,38 +105,28 @@ const withAddedQuantity = (item, quantity, maxQuantity, sku) => ({
   sku: sku ?? item.sku,
 });
 
-const addItem = (
-  itemName,
-  unitPrice,
-  quantity = 1,
-  maxQuantity,
-  sku,
-  specs,
-  hirePrices,
-  productMode,
-  subtitle,
-) => {
+const addItem = (item, quantity = 1) => {
   const cart = getCart();
-  const existingIndex = cart.findIndex((item) => item.item_name === itemName);
+  const existingIndex = cart.findIndex((i) => i.item_name === item.name);
 
   const newItem = {
-    item_name: itemName,
-    unit_price: unitPrice,
+    item_name: item.name,
+    unit_price: item.unitPrice,
     quantity,
-    max_quantity: maxQuantity,
-    sku,
-    specs,
-    hire_prices: hirePrices,
-    product_mode: productMode,
-    subtitle,
+    max_quantity: item.maxQuantity,
+    sku: item.sku,
+    specs: item.specs,
+    hire_prices: item.hirePrices,
+    product_mode: item.productMode,
+    subtitle: item.subtitle,
   };
 
   const newCart =
     existingIndex >= 0
-      ? cart.map((item, i) =>
+      ? cart.map((existing, i) =>
           i === existingIndex
-            ? withAddedQuantity(item, quantity, maxQuantity, sku)
-            : item,
+            ? withAddedQuantity(existing, quantity, item.maxQuantity, item.sku)
+            : existing,
         )
       : [...cart, newItem];
 
@@ -258,17 +248,7 @@ const handleAddToCart = (e) => {
 
   const item = extractItemFromButton(e.target);
   const quantity = getQuantityFromInput(e.target);
-  addItem(
-    item.name,
-    item.unitPrice,
-    quantity,
-    item.maxQuantity,
-    item.sku,
-    item.specs,
-    item.hirePrices,
-    item.productMode,
-    item.subtitle,
-  );
+  addItem(item, quantity);
 };
 
 const setupOverlayListeners = () => {
