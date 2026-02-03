@@ -83,5 +83,9 @@
       margin-inline: $space-sm;
       border-radius: var(--border-radius);
     }
+
+    &.clicky-nav {
+      @include nav.nav-clicky-desktop($transition-fast);
+    }
   }
 }

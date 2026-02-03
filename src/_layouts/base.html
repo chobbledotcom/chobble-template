@@ -2,7 +2,7 @@
 <html lang="en">
 {% include "head.html" %}
 {%- assign has_right_content = "src/snippets/right-content.md" | file_exists -%}
-<body class="{{ layout | getBodyClasses: config.design_system_layouts, false, config.sticky_mobile_nav, config.horizontal_nav, has_right_content, config.collapse_mobile_menu }}{% for class in body-classes %} {{ class }}{% endfor %}">
+<body class="{{ layout | getBodyClasses: config.design_system_layouts, false, config.sticky_mobile_nav, config.horizontal_nav, has_right_content, config.collapse_mobile_menu }}{% if config.navigation_is_clicky %} clicky-nav{% endif %}{% for class in body-classes %} {{ class }}{% endfor %}">
   {%- include "header.html" -%}
   <main>
     {%- include "navigation.html" -%}
