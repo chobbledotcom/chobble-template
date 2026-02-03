@@ -24,7 +24,7 @@ const buildProductKeywordMap = memoizeByRef((products) =>
       ),
       (categoryKeywords) => [
         product.data.title.toLowerCase(),
-        ...product.data.keywords,
+        ...product.data.keywords.map((k) => k.toLowerCase()),
         ...categoryKeywords,
       ],
       unique,
@@ -33,7 +33,9 @@ const buildProductKeywordMap = memoizeByRef((products) =>
 );
 
 const getAllKeywords = (products) =>
-  [...buildProductKeywordMap(products).keys()].sort();
+  [...buildProductKeywordMap(products).keys()].sort((a, b) =>
+    a.localeCompare(b),
+  );
 
 const getProductsByKeyword = (products, keyword) => {
   if (!keyword) return [];
