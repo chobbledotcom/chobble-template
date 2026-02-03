@@ -126,7 +126,7 @@ const copy11tyDataFiles = (templateSrc, srcDir) => (collection) => {
 const createTestSite = async (options = {}) => {
   const randomId = () => Math.random().toString(36).slice(2, 10);
   const siteId = randomId();
-  const siteDir = path.join(__dirname, ".test-sites", siteId);
+  const siteDir = path.join(import.meta.dirname, ".test-sites", siteId);
   const srcDir = path.join(siteDir, "src");
   const outputDir = path.join(siteDir, "_site");
   const templateSrc = path.join(rootDir, "src");
@@ -385,7 +385,7 @@ const withSetupTestSite = async (options, fn) => {
 };
 
 const cleanupAllTestSites = () => {
-  const testSitesDir = path.join(__dirname, ".test-sites");
+  const testSitesDir = path.join(import.meta.dirname, ".test-sites");
   if (fs.existsSync(testSitesDir)) {
     fs.rmSync(testSitesDir, { recursive: true, force: true });
   }
