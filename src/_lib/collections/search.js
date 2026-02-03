@@ -58,7 +58,6 @@ const buildCategoryKeywordMap = memoizeByRef((categories) =>
  */
 const getAllKeywords = (products, categories) =>
   pipe(
-    unique,
     uniqueBy(slugify),
     sort(compareStrings),
   )([
