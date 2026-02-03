@@ -63,6 +63,20 @@ describe("search", () => {
     ]);
   });
 
+  test("Lowercases and alphabetises mixed-case keywords", () => {
+    const products = product(
+      ["Zebra Widget", ["Blue", "ALPHA"]],
+      ["Apple Gadget", ["cherry"]],
+    );
+    expect(getAllKeywords(products)).toEqual([
+      "alpha",
+      "apple gadget",
+      "blue",
+      "cherry",
+      "zebra widget",
+    ]);
+  });
+
   test("Handles mix of products with and without keywords", () => {
     const products = product(
       ["Product 1", ["alpha"]],
