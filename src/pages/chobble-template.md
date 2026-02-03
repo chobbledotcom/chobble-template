@@ -35,16 +35,6 @@ blocks:
 
       Add auto-playing video backgrounds with overlay text to any section.
 
-  # Image Background Demo
-  - type: image-background
-    full_width: true
-    image: src/images/fireworks.jpg
-    image_alt: Fireworks display
-    content: |
-      ## Image Background Block
-
-      Full-width background images with responsive srcsets, cropped to 16:9.
-
   # Product Sliders
   - type: items
     collection: featuredProducts
@@ -314,5 +304,15 @@ blocks:
       href: https://github.com/chobbledotcom/chobble-template
       variant: secondary
       size: lg
+
+  # Image Background Demo
+  - type: image-background
+    full_width: true
+    image: src/images/city-traffic-night.jpg
+    image_alt: Long exposure of the traffic in a city at night
+    content: |
+      ## Image Blocks
+
+      [Thanks to Yam Daisy on Pexels for this photo](https://www.pexels.com/photo/long-exposure-of-the-traffic-in-a-city-at-night-25208706/)
 
 ---
