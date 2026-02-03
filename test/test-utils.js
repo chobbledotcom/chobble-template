@@ -94,7 +94,7 @@ const srcDir = SRC_DIR;
 const createTempDir = (testName, suffix = "") => {
   const uniqueId = `${Date.now()}-${process.pid}-${Math.random().toString(36).slice(2, 9)}`;
   const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}-${uniqueId}`;
-  const tempDir = path.join(__dirname, dirName);
+  const tempDir = path.join(import.meta.dirname, dirName);
   fs.mkdirSync(tempDir, { recursive: true });
   return tempDir;
 };
