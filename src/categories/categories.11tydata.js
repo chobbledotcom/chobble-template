@@ -6,6 +6,7 @@ import {
 
 export default {
   eleventyComputed: {
+    keywords: (data) => data.keywords || [],
     navigationParent: () => strings.product_name,
     eleventyNavigation: (data) =>
       buildNavigation(data, (d) => {
