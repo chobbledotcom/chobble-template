@@ -40,8 +40,11 @@ const renderNavEntry = async (
     anchorAttrs,
     thumbnailHtml + entry.title,
   );
-  const wrapper = await createHtml("span", {}, anchor);
-  return createHtml("li", {}, wrapper + childrenHtml);
+  if (isRootLevel) {
+    const wrapper = await createHtml("span", {}, anchor);
+    return createHtml("li", {}, wrapper + childrenHtml);
+  }
+  return createHtml("li", {}, anchor + childrenHtml);
 };
 
 /** Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }} */

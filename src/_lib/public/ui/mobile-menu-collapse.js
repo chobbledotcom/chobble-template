@@ -61,7 +61,7 @@ onReady(() => {
 
   if (!isClicky && !isStickyMobile) return;
 
-  const navItems = document.querySelectorAll("nav > ul li:has(> ul)");
+  const navItems = document.querySelectorAll("nav > ul > li:has(> ul)");
 
   for (const item of navItems) {
     if (item.querySelector(".mobile-menu-toggle")) continue;
