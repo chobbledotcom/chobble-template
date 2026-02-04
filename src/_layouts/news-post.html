@@ -2,10 +2,12 @@
 layout: base
 ---
 
-{% include "news-post-header.html" %}
+<div class="design-system stack">
+  {% include "news-post-header.html" %}
 
-{% include "news-post-meta.html" %}
+  {% include "news-post-meta.html" %}
 
-{{ content }}
+  {{ content }}
 
-{% include "news-post-gallery.html" %}
+  {% include "news-post-gallery.html" %}
+</div>

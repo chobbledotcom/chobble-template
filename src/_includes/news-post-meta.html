@@ -3,22 +3,22 @@
 {%- endif -%}
 
 {%- if authorSlug and authorData.data.image -%}
-<header class="post-meta with-thumbnail" role="doc-subtitle">
+<div class="row" role="doc-subtitle">
   <figure>
     <a href="{{ authorData.url }}">{% image authorData.data.image, authorData.data.title, "80,160,240", "", "", "1/1" %}</a>
   </figure>
-  <div>
+  <div class="stack--sm">
     {%- include "post-meta-author.html" -%}
     {%- include "post-meta-date.html" -%}
   </div>
-</header>
+</div>
 {%- elsif authorSlug -%}
-<header class="post-meta" role="doc-subtitle">
+<div class="stack--sm" role="doc-subtitle">
   {%- include "post-meta-author.html" -%}
   {%- include "post-meta-date.html" -%}
-</header>
+</div>
 {%- else -%}
-<header class="post-meta" role="doc-subtitle">
+<div role="doc-subtitle">
   {%- include "post-meta-date.html" -%}
-</header>
+</div>
 {%- endif -%}
