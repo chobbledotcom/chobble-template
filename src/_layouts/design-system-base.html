@@ -17,7 +17,7 @@
 
   {%- include "head-schema.html" -%}
 </head>
-<body class="design-system {{ layout | getBodyClasses: config, body_class }}">
+<body class="design-system {{ layout | getBodyClasses: config }}">
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
   {%- endunless -%}
