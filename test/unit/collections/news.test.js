@@ -1,9 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  allNewsHaveImages,
-  configureNews,
-  createNewsCollection,
-} from "#collections/news.js";
+import { configureNews, createNewsCollection } from "#collections/news.js";
 import {
   collectionApi,
   createMockEleventyConfig,
@@ -105,25 +101,4 @@ describe("news-collection", () => {
     expect(posts[0].data).toEqual(originalFirst);
   });
 
-  describe("allNewsHaveImages", () => {
-    test("returns true when all posts have header_image", () => {
-      const posts = newsPostItems([
-        ["Post 1", "2024-01-01", { header_image: "a.jpg" }],
-        ["Post 2", "2024-01-02", { header_image: "b.jpg" }],
-      ]);
-      expect(allNewsHaveImages(posts)).toBe(true);
-    });
-
-    test("returns false when any post lacks header_image", () => {
-      const posts = newsPostItems([
-        ["Post 1", "2024-01-01", { header_image: "a.jpg" }],
-        ["Post 2", "2024-01-02"],
-      ]);
-      expect(allNewsHaveImages(posts)).toBe(false);
-    });
-
-    test("returns false for empty array", () => {
-      expect(allNewsHaveImages([])).toBe(false);
-    });
-  });
 });
