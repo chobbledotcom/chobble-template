@@ -1,16 +1,16 @@
 import configJson from "#data/config.json" with { type: "json" };
 
 const DEFAULT_ORDER = [
-  "design-system/property-header.html",
-  "design-system/property-gallery.html",
-  "design-system/property-content.html",
-  "design-system/property-features.html",
-  "design-system/property-specs.html",
-  "design-system/property-tabs.html",
-  "design-system/property-map.html",
-  "design-system/property-reviews.html",
-  "design-system/property-faqs.html",
-  "design-system/property-contact.html",
+  "property/header.html",
+  "property/gallery.html",
+  "property/content.html",
+  "property/features.html",
+  "property/specs.html",
+  "property/tabs.html",
+  "property/map.html",
+  "property/reviews.html",
+  "property/faqs.html",
+  "property/contact.html",
 ];
 
 const getPropertyOrder = (configOrder) =>
