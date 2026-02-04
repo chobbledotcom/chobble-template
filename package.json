@@ -38,7 +38,8 @@
 		"generate-pages-yml": "bun scripts/customise-cms/generate-full.js",
 		"generate-cms-types": "bun scripts/generate-pages-cms-types.js",
 		"screenshot": "bun scripts/screenshot.js",
-		"lighthouse": "bun scripts/lighthouse.js"
+		"lighthouse": "bun scripts/lighthouse.js",
+		"deploy": "bun scripts/deploy.js"
 	},
 	"devDependencies": {
 		"11ty.ts": "^0.0.7",

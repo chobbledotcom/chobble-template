@@ -57,18 +57,10 @@ jobs:
 
       - name: Deploy to Bunny CDN
         if: github.ref == 'refs/heads/main' && env.BUNNY_ACCESS_KEY != ''
-        uses: R-J-dev/bunny-deploy@v2.0.6
-        with:
-          access-key: ${{ secrets.BUNNY_ACCESS_KEY }}
-          directory-to-upload: _site
-          storage-endpoint: "https://storage.bunnycdn.com"
-          storage-zone-name: "chobble-example"
-          storage-zone-password: ${{ secrets.BUNNY_STORAGE_ZONE_PASSWORD }}
-          concurrency: "5"
-          enable-delete-action: true
-          enable-purge-pull-zone: true
-          pull-zone-id: 4582983
-          replication-timeout: "15000"
+        env:
+          BUNNY_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_STORAGE_ZONE_NAME }}
+          BUNNY_PULL_ZONE_ID: ${{ secrets.BUNNY_PULL_ZONE_ID }}
+        run: bun scripts/deploy.js
 
   notify-failure:
     name: Notify on Failure
