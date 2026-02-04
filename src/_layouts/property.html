@@ -1,25 +1,33 @@
 ---
-layout: base
+layout: design-system-base.html
+blocks: false
 ---
 
-<section id="item">
-  <div class="title">
-    {% include "item-title.html" %}
-  </div>
+<section>
+  <div class="container">
+    <article class="property-detail">
+      <header class="property-header">
+        {% include "item-title.html" %}
+      </header>
 
-  {% include "property-gallery.html" %}
+      {% include "property-gallery.html" %}
 
-  <div class="description">
-    {% include "item-reviews-count.html" %}
-    {% include "item-about-heading.html" %}
-    {% include "item-category-links.html" %}
-    {{ content }}
-    {% include "tabs.html" %}
-    {% include "item-map-section.html" %}
-    {% include "item-features-list.html" %}
-    {% include "item-specifications-list.html" %}
-    {% include "item-reviews-section.html" %}
-    {%- include "faq.html" -%}
+      <div class="property-body">
+        {% include "item-reviews-count.html" %}
+        {% include "item-about-heading.html" %}
+        {% include "item-category-links.html" %}
+        {{ content }}
+        {% include "tabs.html" %}
+        {% include "item-map-section.html" %}
+        {% include "item-features-list.html" %}
+        {% include "item-specifications-list.html" %}
+        {% include "item-reviews-section.html" %}
+        {%- include "faq.html" -%}
+      </div>
+
+      {% include "item-contact-section.html" %}
+    </article>
   </div>
-  {% include "item-contact-section.html" %}
 </section>
+
+{%- include "availability-calendar.html" -%}
