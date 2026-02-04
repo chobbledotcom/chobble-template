@@ -10,7 +10,6 @@
  */
 
 import type {
-  PagesCMSEleventyNavigation,
   PagesCMSImage,
   PagesCMSOption,
   PagesCMSSpec,
@@ -18,7 +17,7 @@ import type {
   PagesCMSFilterAttribute,
   PagesCMSOpeningTime,
 } from './pages-cms-generated.d.ts';
-import type { RawTab } from './content.d.ts';
+import type { RawTab, EleventyNav } from './content.d.ts';
 
 /**
  * Eleventy page data (url, fileSlug, date, inputPath)
@@ -55,7 +54,7 @@ export type BaseItemData = {
   /** Custom permalink */
   permalink?: string;
   /** Eleventy navigation configuration */
-  eleventyNavigation?: PagesCMSEleventyNavigation;
+  eleventyNavigation?: EleventyNav;
   /** Meta description for SEO */
   meta_description?: string;
   /** Thumbnail image path */
@@ -285,12 +284,12 @@ export type MenuCategoryCollectionItem = {
 };
 
 // =============================================================================
-// Backward Compatibility Types
+// Generic Collection Types
 // =============================================================================
 
 /**
  * Union of all collection item data types.
- * @deprecated Prefer specific data types (ProductItemData, EventItemData, etc.)
+ * Prefer specific data types (ProductItemData, EventItemData, etc.)
  * for better type safety. This union makes all fields optional.
  */
 export type EleventyCollectionItemData = BaseItemData &
@@ -308,8 +307,8 @@ export type EleventyCollectionItemData = BaseItemData &
   >;
 
 /**
- * Generic Eleventy collection item (backward compatible).
- * @deprecated Prefer specific types (ProductCollectionItem, etc.) for better type safety.
+ * Generic Eleventy collection item.
+ * Prefer specific types (ProductCollectionItem, etc.) for better type safety.
  */
 export type EleventyCollectionItem = {
   url: string;

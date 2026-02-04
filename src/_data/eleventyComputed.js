@@ -113,7 +113,7 @@ export default {
   /**
    * Adds #content anchor to navigation URLs if config flag is enabled
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {import("#lib/types").EleventyNav | undefined} Navigation object with optional url anchor
+   * @returns {import("#lib/types").EleventyNav | false | undefined} Navigation object with optional url anchor
    */
   eleventyNavigation: (data) =>
     withNavigationAnchor(data, data.eleventyNavigation),

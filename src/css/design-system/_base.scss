@@ -260,6 +260,37 @@
   }
 
   // ===========================================================================
+  // POST META (doc-subtitle)
+  // ===========================================================================
+  // Element-level styles for news post metadata (author, date, thumbnail)
+
+  [role="doc-subtitle"] {
+    address {
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    time {
+      color: var(--color-text-muted);
+    }
+
+    figure {
+      a {
+        display: block;
+        border-radius: 50%;
+        overflow: hidden;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    }
+  }
+
+  // ===========================================================================
   // BLOCK LAYOUT
   // ===========================================================================
   // When .design-system is used as a content wrapper (not on body/section),

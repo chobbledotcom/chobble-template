@@ -16,6 +16,10 @@
   ></script>
 
   {%- include "head-schema.html" -%}
+
+  {%- if freetobook_id and freetobook_token -%}
+  <script async defer src="https://widget.freetobook.com/widget.js?v=20190925"></script>
+  {%- endif -%}
 </head>
 <body class="design-system {{ layout | getBodyClasses: config }}">
   {%- unless no_navigation -%}

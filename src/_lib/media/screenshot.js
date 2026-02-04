@@ -1,7 +1,6 @@
 import {
   BROWSER_ARGS,
   buildOutputPath,
-  buildUrl,
   createOperationContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
@@ -12,8 +11,6 @@ import {
   pathErrorInfo,
   prepareOutputDir,
   runBatchOperations,
-  sanitizePagePath,
-  startServer,
 } from "#media/browser-utils.js";
 
 const VIEWPORTS = frozenObject({
@@ -127,6 +124,3 @@ export const screenshotAllViewports = (pagePath, options = {}) => {
 };
 
 export const getViewports = () => ({ ...VIEWPORTS });
-
-// Re-export shared utilities for backwards compatibility
-export { buildUrl, prepareOutputDir, sanitizePagePath, startServer };
