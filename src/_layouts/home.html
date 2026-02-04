@@ -14,15 +14,7 @@ layout: base
 {%- if homepage.show_news and collections.news.size > 0 -%}
   <hr />
   {%- render_snippet "homepage-news-header", "<h3>Latest Posts</h3>" -%}
-
-  {%- assign all_have_images = collections.news | allNewsHaveImages -%}
-
-  {%- if all_have_images -%}
-    {%- assign posts = collections.news | slice: 0, 2 -%}
-    {%- include "items.html", items: posts -%}
-  {%- else -%}
-    {% include "news-post-list.html", limit: 2 %}
-  {%- endif -%}
+  {% include "news-post-list.html", limit: 2 %}
 {%- endif -%}
 
 {%- if homepage.show_products and collections.featuredCategories.size > 0 -%}

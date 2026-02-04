@@ -894,37 +894,6 @@ ul.team {
   }
 }
 
-ul.news-posts {
-  list-style-type: none;
-  padding: 0;
-  margin: 1rem 0;
-  display: flex;
-  gap: 1rem;
-  flex-direction: column;
-
-  li {
-    @include breakpoints.up("sm") {
-      display: flex;
-      gap: 1rem;
-
-      .thumbnail {
-        flex-shrink: 0;
-        width: 200px;
-      }
-
-      .details {
-        flex: 1;
-      }
-    }
-
-    @include breakpoints.up("lg") {
-      .thumbnail {
-        width: 300px;
-      }
-    }
-  }
-}
-
 // Post meta header styles (author thumbnail and date)
 .post-meta {
   margin: 1.5rem 0;
