@@ -8,7 +8,9 @@ import { onReady } from "#public/utils/on-ready.js";
 
 const collapseItem = (item) => {
   item.classList.remove("expanded");
-  const toggle = item.querySelector(":scope > span > .mobile-menu-toggle");
+  const toggle =
+    item.querySelector(":scope > span > .mobile-menu-toggle") ||
+    item.querySelector(":scope > .mobile-menu-toggle");
   if (toggle) {
     toggle.setAttribute("aria-expanded", "false");
   }
@@ -35,7 +37,8 @@ const createToggleButton = (item, isClicky) => {
   toggle.setAttribute("aria-label", "Toggle submenu");
   toggle.setAttribute("aria-expanded", "false");
 
-  const link = item.querySelector(":scope > span > a");
+  const link =
+    item.querySelector(":scope > span > a") || item.querySelector(":scope > a");
   if (link) {
     link.after(toggle);
   } else {
