@@ -16,6 +16,25 @@
 
   nav {
     @include nav.nav-base;
+    @include flex-row($space-sm, center, flex-start);
+
+    .nav-logo {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+
+      img {
+        display: block;
+        width: auto;
+        height: 2.5rem;
+        object-fit: contain;
+      }
+    }
+
+    > ul {
+      flex: 1;
+    }
 
     .nav-thumbnails {
       @include nav.nav-thumbnails($space-xs);
@@ -37,6 +56,10 @@
 
       nav {
         @include nav.nav-sticky-bar($z-sticky, $space-xs);
+
+        .nav-logo img {
+          height: 2rem;
+        }
 
         .toggle {
           @include nav.nav-toggle-checkbox("sr-only");
