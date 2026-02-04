@@ -1,0 +1,20 @@
+<section class="compact">
+  <div class="container">
+    <header class="property-header">
+      <h1>{{ title }}</h1>
+      {%- if subtitle -%}
+        <h2>{{ subtitle }}</h2>
+      {%- endif -%}
+      {%- if price_per_night -%}
+        <p class="property-price">From {{ price_per_night | to_price }} per night</p>
+      {%- endif -%}
+      {%- if freetobook_id and freetobook_token -%}
+        <p>
+          <button class="check-availability btn">
+            Check Availability
+          </button>
+        </p>
+      {%- endif -%}
+    </header>
+  </div>
+</section>

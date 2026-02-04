@@ -39,6 +39,7 @@ describe("config", () => {
       "list_item_fields",
       "navigation_content_anchor",
       "category_order",
+      "property_order",
       "screenshots",
       "design_system_layouts",
       "phoneNumberLength",
