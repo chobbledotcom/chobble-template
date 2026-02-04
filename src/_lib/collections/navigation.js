@@ -31,13 +31,17 @@ const renderNavEntry = async (
       : Promise.resolve(""),
   ]);
   const isActive = activeKey === entry.key;
-  const textSpan = await createHtml("span", {}, entry.title);
   const anchorAttrs = {
     ...(isActive && { class: "active" }),
     ...(entry.url && { href: entry.url }),
   };
-  const anchor = await createHtml("a", anchorAttrs, thumbnailHtml + textSpan);
-  return createHtml("li", {}, anchor + childrenHtml);
+  const anchor = await createHtml(
+    "a",
+    anchorAttrs,
+    thumbnailHtml + entry.title,
+  );
+  const wrapper = await createHtml("span", {}, anchor);
+  return createHtml("li", {}, wrapper + childrenHtml);
 };
 
 /** Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }} */
