@@ -275,6 +275,8 @@
     }
 
     figure {
+      max-width: $width-author-thumbnail;
+
       a {
         display: block;
         border-radius: 50%;
