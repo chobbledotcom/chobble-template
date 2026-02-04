@@ -285,12 +285,12 @@ export type MenuCategoryCollectionItem = {
 };
 
 // =============================================================================
-// Backward Compatibility Types
+// Generic Collection Types
 // =============================================================================
 
 /**
  * Union of all collection item data types.
- * @deprecated Prefer specific data types (ProductItemData, EventItemData, etc.)
+ * Prefer specific data types (ProductItemData, EventItemData, etc.)
  * for better type safety. This union makes all fields optional.
  */
 export type EleventyCollectionItemData = BaseItemData &
@@ -308,8 +308,8 @@ export type EleventyCollectionItemData = BaseItemData &
   >;
 
 /**
- * Generic Eleventy collection item (backward compatible).
- * @deprecated Prefer specific types (ProductCollectionItem, etc.) for better type safety.
+ * Generic Eleventy collection item.
+ * Prefer specific types (ProductCollectionItem, etc.) for better type safety.
  */
 export type EleventyCollectionItem = {
   url: string;
