@@ -1,13 +1,12 @@
 import { isAbsolute, join } from "node:path";
 import { getConfig } from "#config/site-config.js";
+import { sanitizePagePath, startServer } from "#media/browser-utils.js";
 import {
   buildViewportSuffix,
   getViewports,
-  sanitizePagePath,
   screenshot,
   screenshotAllViewports,
   screenshotMultiple,
-  startServer,
 } from "#media/screenshot.js";
 import { map, pipe } from "#toolkit/fp/array.js";
 import { log, error as logError } from "#utils/console.js";

@@ -1,20 +1,9 @@
 /**
- * Sorting utilities - comparators and sort helpers
+ * Sorting utilities - Eleventy-specific comparators and sort helpers.
  *
- * Re-exports from @chobble/js-toolkit for backward compatibility.
- * New code should import directly from "#toolkit/fp/index.js"
- *
- * Note: sortItems, sortByDateDescending, and sortNavigationItems are
- * Eleventy-specific and remain in this file.
+ * For generic sorting utilities (compareBy, compareStrings, descending,
+ * orderThenString), import directly from "#toolkit/fp/sorting.js".
  */
-export {
-  compareBy,
-  compareStrings,
-  descending,
-  orderThenString,
-} from "#toolkit/fp/sorting.js";
-
-// Import for use in Eleventy-specific comparators below
 import { orderThenString } from "#toolkit/fp/sorting.js";
 
 // Eleventy-specific comparators (not in toolkit)
