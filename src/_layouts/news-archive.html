@@ -2,7 +2,11 @@
 layout: base
 ---
 
-{{ content }}
+<div class="design-system stack--lg">
+  <div class="stack">
+    {{ content }}
+  </div>
 
-{%- assign limit = 9999 -%}
-{% include "news-post-list.html" %}
+  {%- assign limit = 9999 -%}
+  {% include "news-post-list.html" %}
+</div>
