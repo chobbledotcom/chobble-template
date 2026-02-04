@@ -10,7 +10,7 @@ export default {
     navigationParent: () => strings.product_name,
     eleventyNavigation: (data) =>
       buildNavigation(data, (d) => {
-        if (d.parent !== null && d.parent !== undefined) return false;
+        if (d.parent !== null && d.parent !== undefined) return undefined;
         return withNavigationAnchor(d, {
           key: d.title,
           parent: strings.product_name,

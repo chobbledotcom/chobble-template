@@ -116,7 +116,7 @@ export default {
    * @returns {import("#lib/types").EleventyNav | undefined} Navigation object with optional url anchor
    */
   eleventyNavigation: (data) =>
-    withNavigationAnchor(data, data.eleventyNavigation) || undefined,
+    withNavigationAnchor(data, data.eleventyNavigation),
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data

@@ -48,14 +48,6 @@ describe("withNavigationAnchor", () => {
       });
     });
 
-    test("returns false when nav is false", () => {
-      const data = createData();
-
-      const result = withNavigationAnchor(data, false);
-
-      expect(result).toBe(false);
-    });
-
     test("returns undefined when nav is undefined", () => {
       const data = createData();
 
