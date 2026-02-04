@@ -1,20 +1,19 @@
 {%- assign posts = collections.news -%}
-<ul class="news-posts">
-  {%- for post in posts limit: limit -%}
-  <li>
-    {%- if post.data.thumbnail -%}
-      <a class="thumbnail" href="{{ post.url }}#content">
-        {%- image post.data.thumbnail, post.data.title, "200, 300, 400", "", "", "1/1" -%}
-      </a>
-    {%- endif -%}
-    <div class="details">
-      <strong>{{ post.date | date: "%b %-d, %Y" }}:</strong>
-      <a href="{{ post.url }}#content"> {{ post.data.header_text | escape }} </a>
+<div class="design-system">
+  <ul class="items">
+    {%- for post in posts limit: limit -%}
+    <li>
+      {%- if post.data.thumbnail -%}
+        <a class="image-link" href="{{ post.url }}#content">
+          {%- image post.data.thumbnail, post.data.title, "200, 300, 400", "", "", "4/3" -%}
+        </a>
+      {%- endif -%}
+      <h3><a href="{{ post.url }}#content">{{ post.data.header_text | escape }}</a></h3>
+      <p>{{ post.date | date: "%b %-d, %Y" }}</p>
       {% if post.data.subtitle and post.data.subtitle != "" %}
-        <br />
-        {{ post.data.subtitle | escape }}
+        <p>{{ post.data.subtitle | escape }}</p>
       {% endif %}
-    </div>
-  </li>
-  {%- endfor -%}
-</ul>
+    </li>
+    {%- endfor -%}
+  </ul>
+</div>

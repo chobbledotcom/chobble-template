@@ -840,7 +840,6 @@ ul.image-gallery {
       position: relative;
       overflow: hidden;
       border-radius: var(--border-radius-small);
-      transition: all 0.3s ease-in;
       img {
         object-fit: cover;
         transition: all 0.3s ease-in;
@@ -889,37 +888,6 @@ ul.team {
         width: 10rem;
         left: 0;
         top: 0;
-      }
-    }
-  }
-}
-
-ul.news-posts {
-  list-style-type: none;
-  padding: 0;
-  margin: 1rem 0;
-  display: flex;
-  gap: 1rem;
-  flex-direction: column;
-
-  li {
-    @include breakpoints.up("sm") {
-      display: flex;
-      gap: 1rem;
-
-      .thumbnail {
-        flex-shrink: 0;
-        width: 200px;
-      }
-
-      .details {
-        flex: 1;
-      }
-    }
-
-    @include breakpoints.up("lg") {
-      .thumbnail {
-        width: 300px;
       }
     }
   }
