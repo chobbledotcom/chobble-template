@@ -100,5 +100,4 @@ describe("news-collection", () => {
     expect(posts.length).toBe(originalLength);
     expect(posts[0].data).toEqual(originalFirst);
   });
-
 });
