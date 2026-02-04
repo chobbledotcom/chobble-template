@@ -74,8 +74,8 @@ const mapBoth = (fn) => mapObject((k, v) => [fn(k), fn(v)]);
 /**
  * Keep only entries with truthy values
  * @template V
- * @param {Record<string, V | null | undefined | false | 0 | ''>} obj - Object with potentially falsy values
- * @returns {Record<string, NonNullable<V>>} Object with only truthy values
+ * @param {Record<string, V>} obj - Object with potentially falsy values
+ * @returns {Record<string, V>} Object with only truthy values
  * @example
  * pickTruthy({ a: 1, b: null, c: '' }) // { a: 1 }
  */

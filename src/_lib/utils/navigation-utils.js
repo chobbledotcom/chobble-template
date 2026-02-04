@@ -8,12 +8,11 @@
 
 /**
  * @param {Object} data - Page data containing eleventyNavigation and config
- * @param {Object|boolean|undefined} nav - The eleventyNavigation object to process
- * @returns {Object|boolean|undefined} The navigation object, potentially with url added
+ * @param {import("#lib/types").EleventyNav | false} [nav] - The eleventyNavigation object, false to suppress, or undefined if not set
+ * @returns {import("#lib/types").EleventyNav | false | undefined} The navigation object, potentially with url added
  */
 export const withNavigationAnchor = (data, nav) => {
-  const skipAnchor =
-    !nav || nav === false || !data.config?.navigation_content_anchor || nav.url;
+  const skipAnchor = !nav || !data.config?.navigation_content_anchor || nav.url;
   if (skipAnchor) return nav;
 
   return {
@@ -26,8 +25,8 @@ export const withNavigationAnchor = (data, nav) => {
  * Builds eleventyNavigation, respecting existing nav config if present.
  * If data.eleventyNavigation exists, uses it (with anchor). Otherwise calls buildNav.
  * @param {Object} data - Page data
- * @param {function} buildNav - Function that takes data and returns navigation config
- * @returns {Object|boolean|undefined} The navigation object
+ * @param {(data: Object) => import("#lib/types").EleventyNav | false} buildNav - Function that takes data and returns navigation config
+ * @returns {import("#lib/types").EleventyNav | false} The navigation object
  */
 export const buildNavigation = (data, buildNav) => {
   if (data.eleventyNavigation) {
