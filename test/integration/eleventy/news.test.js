@@ -45,7 +45,7 @@ const teamMember = (slug, name, { image, ...extras } = {}) => ({
  */
 const getPostMeta = (site, slug) => {
   const doc = site.getDoc(`/news/${slug}/index.html`);
-  return doc.querySelector(".post-meta");
+  return doc.querySelector('[role="doc-subtitle"]');
 };
 
 /**
@@ -86,7 +86,7 @@ const expectTimeElement = (postMeta) => {
  */
 const expectMetaStructure = (postMeta, { hasThumbnail, hasFigure }) => {
   expect(postMeta !== null).toBe(true);
-  expect(postMeta.classList.contains("with-thumbnail")).toBe(hasThumbnail);
+  expect(postMeta.classList.contains("row")).toBe(hasThumbnail);
   hasFigure
     ? expect(postMeta.querySelector("figure") !== null).toBe(true)
     : expect(postMeta.querySelector("figure")).toBe(null);
@@ -143,7 +143,7 @@ describe("news", () => {
       expect(metaWithImage.querySelector("figure a") !== null).toBe(true);
       expectAuthorElements(metaWithImage);
       expectTimeElement(metaWithImage);
-      expect(metaWithImage.tagName.toLowerCase()).toBe("header");
+      expect(metaWithImage.tagName.toLowerCase()).toBe("div");
       expect(metaWithImage.getAttribute("role")).toBe("doc-subtitle");
 
       // Test 2: Post with author link renders in HTML content
