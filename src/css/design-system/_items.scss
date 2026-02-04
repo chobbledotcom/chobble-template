@@ -221,6 +221,7 @@
       // "Select Options" link or standalone "Add to Cart" button
       > .button,
       > .add-to-cart {
+        @include button-primary;
         margin-block-start: auto;
         margin-inline: var(--item-padding-inline);
         margin-bottom: var(--item-padding-inline);
@@ -235,6 +236,7 @@
         padding: 0 var(--item-padding-inline) var(--item-padding-inline);
 
         .add-to-cart {
+          @include button-primary;
           margin: 0;
         }
 
