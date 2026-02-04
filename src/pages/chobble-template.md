@@ -9,10 +9,10 @@ blocks:
   - type: hero
     full_width: true
     class: gradient
-    badge: Open Source & Free
+    badge: Opinionated & Complete
     title: A Free Eleventy Template for Small Business Websites
     lead: >-
-      An open-source Eleventy starter with e-commerce, 10 themes, and 14 content types.
+      With loads of stuff included that your business might need - collections, layouts, themes, and integrations.
       It builds to static HTML. You host it wherever you like. No monthly fees.
     buttons:
       - text: View on GitHub
@@ -79,19 +79,22 @@ blocks:
         description: One-off or recurring events. iCal export. Property availability calendars built-in.
       - icon: "hugeicons:restaurant-01"
         title: Restaurant Menus
-        description: Full menu management with dietary indicators, categories, and pricing display.
+        description: Full menu management with dietary indicators, categories, pricing display, and PDFs.
       - icon: "hugeicons:house-01"
         title: Property Listings
         description: Built for holiday lets. Bedrooms, amenities, price per night, and booking calendars.
       - icon: "hugeicons:star"
         title: Reviews & Ratings
-        description: Product reviews with 1-5 star ratings. Automatic aggregate scores for SEO.
+        description: Product reviews with 1-5 star ratings. Automatic aggregate scores for SEO. Google imports.
       - icon: "hugeicons:search-02"
         title: SEO Optimized
         description: Schema.org markup, RSS feeds, sitemaps, canonical URLs, and meta descriptions.
       - icon: "hugeicons:laptop-programming"
         title: No-Code CMS
         description: PagesCMS integration lets non-technical users edit content with a visual interface.
+      - icon: "hugeicons:rabbit"
+        title: Bun Powered
+        description: I try and keep the builds as fast as I can
 
   # Content Types Split Full
   - type: split-full
@@ -99,9 +102,9 @@ blocks:
     variant: dark-left
     reveal_left: left
     reveal_right: right
-    left_title: 14 Content Types, One Template
+    left_title: 14 Content Types
     left_content: |
-      Most templates give you pages and posts. This one has content types for specific business needs.
+      A bunch of different collection types and layouts for all sorts of business websites:
 
       - **Products** - Galleries, variants, SKUs, specifications
       - **Categories** - Hierarchical organization with subcategories
@@ -137,22 +140,13 @@ blocks:
 
   # Themes Split (reversed)
   - type: split
-    title: 10 Themes. Pick One and Go.
+    title: 10 Themes.
     reverse: true
     reveal_content: right
     content: |
       Each theme is a set of SCSS variables that controls colours, fonts, and spacing. They all work without modification.
 
-      **Default** - Clean and professional
-      **Ocean** - Cool blues and waves
-      **Sunset** - Warm gradients
-      **Neon** - Bold and vibrant
-      **Monochrome** - Minimalist grayscale
-      **Floral** - Soft and botanical
-      **Hacker** - Green-on-black terminal
-      **90s Computer** - Nostalgic retro
-      **Old Mac** - Classic system look
-      **Rainbow** - Colorful and fun
+      There's also a theme editor so you can test new CSS variables live (kinda buggy atm)
     button:
       text: Try the Live Theme Editor
       href: https://example.chobble.com/theme-editor/
@@ -162,7 +156,7 @@ blocks:
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; text-align: center; color: white;">
         <div style="font-size: 4rem; margin-bottom: 1rem;">🎨</div>
         <strong style="font-size: 1.5rem;">Theme Switcher</strong>
-        <p style="opacity: 0.8; margin: 0.5rem 0 0;">Let visitors preview themes instantly</p>
+        <p style="opacity: 0.8; margin: 0.5rem 0 0;">Let visitors preview themes instantly (in the bottom right)</p>
       </div>
 
   # E-Commerce Features (with header, grid--4 layout, custom colors)
@@ -170,25 +164,17 @@ blocks:
     section_class: alt
 
     header_title: Commerce Options
-    header_subtitle: Sell products, take quotes, or both. Stripe, PayPal, and enquiry forms are built in.
+    header_subtitle: Sell products, take quotes, or both. Card payments and enquiry forms are built in.
     grid_class: grid--4 text-center
     heading_level: 4
     items:
       - icon: "hugeicons:credit-card"
-        title: Stripe Checkout
-        description: Card payments via Stripe Checkout
-      - icon: "hugeicons:money-bag-02"
-        title: PayPal
-        description: Accept PayPal payments globally
-        style: "--primary-light: #fef3c7; --primary: #d97706;"
+        title: Card Checkout
+        description: Powered by a Bunny Edge Script
       - icon: "hugeicons:note-edit"
         title: Quote Mode
         description: Collect enquiries instead of payments
         style: "--primary-light: #d1fae5; --primary: #059669;"
-      - icon: "hugeicons:calendar-03"
-        title: Hire Calculator
-        description: Time-based rental pricing engine
-        style: "--primary-light: #fce7f3; --primary: #db2777;"
 
   # Performance Split
   - type: split
@@ -245,7 +231,7 @@ blocks:
       - Bunny CDN (global edge network)
       - Any static host (Netlify, Vercel, etc.)
 
-      Optional Docker-based backend for advanced checkout workflows.
+      Bunny Edge Script-based backend.
     figure_type: html
     figure_content: |
       <div class="code-block">
