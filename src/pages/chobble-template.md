@@ -92,7 +92,7 @@ blocks:
       - icon: "hugeicons:laptop-programming"
         title: No-Code CMS
         description: PagesCMS integration lets non-technical users edit content with a visual interface.
-      - icon: "hugeicons:rabbit"
+      - icon: "hugeicons:gears"
         title: Bun Powered
         description: I try and keep the builds as fast as I can
 
