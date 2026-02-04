@@ -36,8 +36,7 @@
     }
   }
 
-  li:has(> ul a.active) > span > a,
-  li:has(> ul a.active) > a {
+  li:has(> ul a.active) > span > a {
     color: var(--color-text);
   }
 }
@@ -208,8 +207,7 @@
   > ul li:has(> ul) {
     position: relative;
 
-    > span > .mobile-menu-toggle,
-    > .mobile-menu-toggle {
+    > span > .mobile-menu-toggle {
       position: absolute;
       right: -2.5rem;
       top: 1rem;
@@ -235,8 +233,7 @@
       }
     }
 
-    &.expanded > span > .mobile-menu-toggle::after,
-    &.expanded > .mobile-menu-toggle::after {
+    &.expanded > span > .mobile-menu-toggle::after {
       transform: rotate(-135deg);
     }
 
@@ -285,8 +282,7 @@
   }
 
   // Show dropdown when expanded via click
-  nav ul li.expanded > span > .mobile-menu-toggle::after,
-  nav ul li.expanded > .mobile-menu-toggle::after {
+  nav ul li.expanded > span > .mobile-menu-toggle::after {
     transform: rotate(-135deg);
   }
 
