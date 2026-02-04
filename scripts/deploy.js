@@ -49,7 +49,7 @@ if (!existsSync(deployDir)) {
 console.log(`Deploying ${deployDir} to storage zone "${STORAGE_ZONE_NAME}"...`);
 
 await run("bunx", [
-  "bunny-transfer@latest",
+  "bunny-transfer@0.0.5",
   "sync",
   deployDir,
   STORAGE_ZONE_NAME,
@@ -60,7 +60,7 @@ console.log("Sync complete.");
 
 console.log(`Purging pull zone ${PULL_ZONE_ID}...`);
 await run("bunx", [
-  "bunny-transfer@latest",
+  "bunny-transfer@0.0.5",
   "purge",
   PULL_ZONE_ID,
   `--access-key=${accessKey}`,
