@@ -840,7 +840,6 @@ ul.image-gallery {
       position: relative;
       overflow: hidden;
       border-radius: var(--border-radius-small);
-      transition: all 0.3s ease-in;
       img {
         object-fit: cover;
         transition: all 0.3s ease-in;
