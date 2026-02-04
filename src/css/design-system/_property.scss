@@ -1,0 +1,314 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
+
+// =============================================================================
+// PROPERTY DETAIL PAGE
+// =============================================================================
+// Single property view built from independent, reorderable sections.
+// Each section is self-contained with its own container and spacing.
+// Section order is controlled via propertyOrder config.
+// =============================================================================
+
+.design-system {
+  // ===========================================================================
+  // HEADER
+  // ===========================================================================
+
+  .property-header {
+    @include flex-col($space-sm);
+
+    .check-availability {
+      @include button-primary;
+      align-self: flex-start;
+    }
+
+    .property-price {
+      @include heading-md;
+      color: var(--color-link);
+    }
+  }
+
+  // ===========================================================================
+  // GALLERY
+  // ===========================================================================
+
+  .property-gallery {
+    width: 100%;
+    min-width: 0;
+
+    .current-image {
+      cursor: zoom-in;
+      border-radius: $radius-md;
+      overflow: hidden;
+
+      .image-wrapper {
+        @include image-wrapper($radius-md);
+        @include aspect-ratio(4, 3);
+        width: 100%;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+    }
+
+    .gallery-full-size-images {
+      display: none;
+    }
+
+    .property-thumbnails {
+      margin-top: $space-sm;
+
+      ul.image-gallery.slider {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        list-style: none;
+        gap: $space-xs;
+        padding-bottom: $space-xs;
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-text-muted) transparent;
+
+        @include breakpoint.reduced-motion {
+          scroll-behavior: auto;
+        }
+
+        li {
+          flex-shrink: 0;
+          scroll-snap-align: start;
+          width: 120px;
+
+          @include breakpoint.up("md") {
+            width: 150px;
+          }
+
+          @include breakpoint.up("lg") {
+            width: 180px;
+          }
+
+          a {
+            display: block;
+            overflow: hidden;
+            border-radius: $radius-sm;
+            transition: transform $transition-fast, box-shadow $transition-fast;
+
+            figure {
+              .image-wrapper {
+                @include image-wrapper($radius-sm);
+                @include aspect-ratio(4, 3);
+
+                img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  transition: transform $transition-fast;
+                }
+              }
+            }
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: var(--shadow-md);
+
+              img {
+                transform: scale(1.05);
+              }
+            }
+
+            &:focus-visible {
+              outline: 2px solid var(--color-link);
+              outline-offset: 2px;
+            }
+          }
+        }
+      }
+
+      .slider-nav {
+        text-align: center;
+        margin-top: $space-xs;
+
+        a {
+          cursor: pointer;
+          padding: $space-xs $space-sm;
+          text-decoration: none;
+
+          &[disabled] {
+            opacity: 0.3;
+            pointer-events: none;
+            cursor: default;
+          }
+        }
+      }
+
+      &:not(:has(.slider.overflowing)) .slider-nav {
+        display: none;
+      }
+    }
+  }
+
+  // ===========================================================================
+  // CONTENT
+  // ===========================================================================
+
+  .property-content {
+    @include flex-col($space-md);
+
+    .property-rating a {
+      color: var(--color-link);
+
+      &:hover {
+        color: var(--color-link-hover);
+      }
+    }
+  }
+
+  // ===========================================================================
+  // FEATURES
+  // ===========================================================================
+
+  .property-features {
+    @include flex-col($space-xs);
+    padding-left: $space-lg;
+    list-style: disc;
+  }
+
+  // ===========================================================================
+  // SPECIFICATIONS
+  // ===========================================================================
+
+  .property-specs {
+    dl {
+      @include flex-wrap($space-sm);
+
+      > div {
+        @include flex-row($space-xs);
+        padding: $space-xs $space-sm;
+        background: var(--body-background-alt);
+        border-radius: $radius-sm;
+        @include body-sm;
+
+        span[aria-hidden] {
+          flex-shrink: 0;
+        }
+
+        dt {
+          font-weight: 600;
+          color: var(--color-text);
+        }
+
+        dd {
+          color: var(--color-text-muted);
+        }
+      }
+    }
+  }
+
+  // ===========================================================================
+  // TABS
+  // ===========================================================================
+
+  .property-tabs {
+    @include flex-col($space-md);
+
+    > ul {
+      @include flex-wrap($space-xs);
+      list-style: none;
+
+      a {
+        display: inline-block;
+        padding: $space-xs $space-sm;
+        border-radius: $radius-sm;
+        text-decoration: none;
+        color: var(--color-text-muted);
+        transition: background $transition-fast, color $transition-fast;
+
+        &:hover,
+        &.active {
+          background: var(--body-background-alt);
+          color: var(--color-text);
+        }
+      }
+    }
+
+    > div {
+      display: none;
+      gap: $space-md;
+      align-items: flex-start;
+
+      &.active {
+        display: flex;
+      }
+
+      > .image {
+        flex-shrink: 0;
+
+        .image-wrapper {
+          @include image-wrapper($radius-md);
+        }
+      }
+
+      > div {
+        flex: 1;
+        min-width: 0;
+      }
+
+      @include breakpoint.down("md") {
+        flex-direction: column;
+      }
+    }
+  }
+
+  // ===========================================================================
+  // MAP
+  // ===========================================================================
+
+  .property-map {
+    position: relative;
+    width: 100%;
+    @include aspect-ratio(16, 9);
+    border-radius: $radius-md;
+    overflow: hidden;
+    border: $border-light;
+
+    iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  }
+
+  // ===========================================================================
+  // FAQS
+  // ===========================================================================
+
+  .property-faqs {
+    @include flex-col($space-md);
+    border-top: $border-light;
+
+    dt {
+      @include heading-sm;
+      padding-top: $space-md;
+      border-top: $border-light;
+
+      &:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+    }
+
+    dd {
+      @include body-base;
+      color: var(--color-text-muted);
+      line-height: $line-height-relaxed;
+    }
+  }
+}

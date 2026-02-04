@@ -1,0 +1,15 @@
+<ul>
+  {%- for tab in tabs -%}
+    <li><a href="#tab-{{ forloop.index }}"{% if forloop.first %} class="active"{% endif %}>{{- tab.title -}}</a></li>
+  {%- endfor -%}
+</ul>
+{%- for tab in tabs -%}
+  <div id="tab-{{ forloop.index }}"{% if forloop.first %} class="active"{% endif %}>
+    {%- if tab.image -%}
+      <div class="image">
+        {% image tab.image, tab.title, "387,774", "", "", "1/1" %}
+      </div>
+    {%- endif -%}
+    <div>{{- tab.body | renderContent: "md" -}}</div>
+  </div>
+{%- endfor -%}
