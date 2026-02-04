@@ -47,26 +47,18 @@ const getBasePaths = (pages) =>
  * Build a single filter page with all its data.
  */
 const buildPage = (ctx, combo) => {
-  const matchedProducts = matchWithSort(
-    ctx.products,
-    combo.filters,
-    ctx.itemLookup,
-    combo.sortKey,
-  );
+  const matchedProducts = matchWithSort(ctx.products, {
+    filters: combo.filters,
+    lookup: ctx.itemLookup,
+    sortKey: combo.sortKey,
+  });
   return {
     categorySlug: ctx.slug,
     categoryUrl: ctx.baseUrl,
     sortKey: combo.sortKey,
     ...buildFilterPageBase(combo, ctx.displayLookup),
     products: matchedProducts,
-    filterUI: buildUIWithLookup(
-      ctx.filterData,
-      combo.filters,
-      ctx.pathLookup,
-      ctx.baseUrl,
-      combo.sortKey,
-      combo.count,
-    ),
+    filterUI: buildUIWithLookup(ctx, combo),
   };
 };
 
@@ -100,14 +92,11 @@ const buildContext = (slug, sortedProducts, combinations) => {
 
 /** Build listing UI for category main page */
 const buildListingUI = (ctx, productCount) =>
-  buildUIWithLookup(
-    ctx.filterData,
-    {},
-    ctx.pathLookup,
-    ctx.baseUrl,
-    "default",
-    productCount,
-  );
+  buildUIWithLookup(ctx, {
+    filters: {},
+    sortKey: "default",
+    count: productCount,
+  });
 
 /**
  * Build all filter data for a single category.

@@ -186,6 +186,17 @@ export const FEATURES_FIELD = {
 };
 
 /**
+ * Keywords field configuration for search terms
+ * @type {CmsField}
+ */
+export const KEYWORDS_FIELD = {
+  name: "keywords",
+  type: "string",
+  label: "Search Keywords",
+  list: true,
+};
+
+/**
  * Create a reference field
  * @param {string} name - Field name
  * @param {string} label - Display label

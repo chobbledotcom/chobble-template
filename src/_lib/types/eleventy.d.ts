@@ -86,6 +86,8 @@ export type ProductItemData = BaseItemData & {
   gallery: string[];
   /** Event slugs this product is associated with */
   events?: string[];
+  /** Search keywords for this product (guaranteed [] by 11tydata boundary) */
+  keywords: string[];
 };
 
 /**
@@ -96,6 +98,8 @@ export type CategoryItemData = BaseItemData & {
   menus?: string[];
   /** Parent category slug for hierarchical categories */
   parent?: string;
+  /** Search keywords for this category (guaranteed [] by 11tydata boundary) */
+  keywords: string[];
 };
 
 /**

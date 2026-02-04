@@ -273,12 +273,13 @@ export const getMatchingItems = (items, filters, lookup) => {
  * Get items matching the given filters, then sort them.
  *
  * @param {EleventyCollectionItem[]} items - All items
- * @param {FilterSet} filters - Filters to apply (can be empty)
- * @param {Object} lookup - Lookup table from buildItemLookup
- * @param {string | undefined} sortKey - Sort option key
+ * @param {Object} options - Filter and sort options
+ * @param {FilterSet} options.filters - Filters to apply (can be empty)
+ * @param {Object} options.lookup - Lookup table from buildItemLookup
+ * @param {string | undefined} options.sortKey - Sort option key
  * @returns {EleventyCollectionItem[]} Matching items, sorted
  */
-export const matchWithSort = (items, filters, lookup, sortKey) =>
+export const matchWithSort = (items, { filters, lookup, sortKey }) =>
   sort(getSortComparator(sortKey))(getMatchingItems(items, filters, lookup));
 
 /**
@@ -290,4 +291,4 @@ export const matchWithSort = (items, filters, lookup, sortKey) =>
  * @returns {EleventyCollectionItem[]} Filtered and sorted items
  */
 export const filterWithSort = (items, filters, sortKey) =>
-  matchWithSort(items, filters, buildItemLookup(items), sortKey);
+  matchWithSort(items, { filters, lookup: buildItemLookup(items), sortKey });

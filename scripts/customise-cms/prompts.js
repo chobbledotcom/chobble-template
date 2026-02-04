@@ -306,6 +306,29 @@ const askParentCategoriesQuestion = async (
 };
 
 /**
+ * Ask conditional feature questions for search keywords on products and categories
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} collections - Selected collection names
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<{keywords: boolean}>} Keywords selection
+ */
+const askKeywordsQuestion = async (rl, collections, defaultFeatures) => {
+  const hasProductsOrCategories = collections.some(
+    memberOf(["products", "categories"]),
+  );
+
+  return {
+    keywords: hasProductsOrCategories
+      ? await askYesNo(
+          rl,
+          "Do you want search keywords on products and categories?",
+          defaultFeatures.keywords ?? false,
+        )
+      : false,
+  };
+};
+
+/**
  * Ask conditional feature questions for YouTube video embeds on pages
  * @param {readline.Interface} rl - Readline interface
  * @param {string[]} collections - Selected collection names
@@ -399,6 +422,11 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     collections,
     defaultFeatures,
   );
+  const keywordsFeatures = await askKeywordsQuestion(
+    rl,
+    collections,
+    defaultFeatures,
+  );
   const parentCategoriesFeatures = await askParentCategoriesQuestion(
     rl,
     collections,
@@ -417,6 +445,7 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     ...addOnsFeatures,
     ...eventFeatures,
     ...noIndexFeatures,
+    ...keywordsFeatures,
     ...parentCategoriesFeatures,
     ...videosFeatures,
   };

@@ -123,16 +123,12 @@ export interface PagesCMSBlockItem {
  * @property {string} title - Title
  * @property {string} ?subtitle - Subtitle
  * @property {PagesCMSBlockItem[]} ?items - Features
- * @property {string} filename - Filename
- * @property {string} code - Code
  */
 export interface PagesCMSBlock {
   type?: string;
   title: string;
   subtitle?: string;
   items?: PagesCMSBlockItem[];
-  filename: string;
-  code: string;
 }
 
 /**
