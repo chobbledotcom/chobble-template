@@ -54,7 +54,7 @@ export type {
   MenuItemCollectionItem,
   MenuCategoryCollectionItem,
 
-  // Backward compatible types (deprecated)
+  // Generic collection types
   EleventyCollectionItemData,
   EleventyCollectionItem,
 } from './eleventy.d.ts';

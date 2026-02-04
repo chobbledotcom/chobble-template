@@ -1049,7 +1049,7 @@ describe("customise-cms visual editor fields", () => {
   // ============================================
   // TABS_FIELD (legacy constant)
   // ============================================
-  test("TABS_FIELD uses markdown code field for backwards compatibility", () => {
+  test("TABS_FIELD uses markdown code field", () => {
     const bodyField = TABS_FIELD.fields.find((f) => f.name === "body");
     expect(bodyField.type).toBe("code");
     expect(bodyField.options).toEqual({ language: "markdown" });
