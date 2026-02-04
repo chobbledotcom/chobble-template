@@ -107,11 +107,6 @@ describe("style-bundle", () => {
       expect(result).toContain("two-columns");
     });
 
-    test("appends extra classes from string", () => {
-      const result = getBodyClasses("base.html", baseConfig, "custom-class");
-      expect(result).toContain("custom-class");
-    });
-
     test("appends extra classes from array", () => {
       const result = getBodyClasses("base.html", baseConfig, [
         "class-a",
@@ -119,16 +114,6 @@ describe("style-bundle", () => {
       ]);
       expect(result).toContain("class-a");
       expect(result).toContain("class-b");
-    });
-
-    test("skips falsy extra classes", () => {
-      const result = getBodyClasses("base.html", baseConfig, [
-        "valid",
-        "",
-        null,
-      ]);
-      expect(result).toContain("valid");
-      expect(result).not.toContain("null");
     });
 
     test("generates complete class string for typical usage", () => {

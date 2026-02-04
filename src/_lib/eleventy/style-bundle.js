@@ -21,18 +21,6 @@ const detectRightContent = () =>
   fs.existsSync(path.join(process.cwd(), RIGHT_CONTENT_PATH));
 
 /**
- * Normalize extra classes from string, array, or falsy into an array.
- * @param {string | string[] | undefined | false} extraClasses
- * @returns {string[]}
- */
-const normalizeExtraClasses = (extraClasses) => {
-  if (!extraClasses) return [];
-  if (typeof extraClasses === "string") return [extraClasses];
-  if (Array.isArray(extraClasses)) return extraClasses;
-  return [];
-};
-
-/**
  * Generates body CSS classes based on layout and site config.
  *
  * Called from Liquid templates as:
@@ -41,19 +29,19 @@ const normalizeExtraClasses = (extraClasses) => {
  * hasRightContent is auto-detected from the filesystem.
  * design-system class is handled directly in the template.
  *
- * @param {string | null} layout
+ * @param {string} layout
  * @param {Object} siteConfig - The site config object (snake_case keys)
- * @param {string | string[]} [extraClasses] - Additional classes to append
+ * @param {string[]} [extraClasses] - Additional classes from theme body_classes
  * @returns {string}
  */
-const getBodyClasses = (layout, siteConfig = {}, extraClasses) => {
+const getBodyClasses = (layout, siteConfig, extraClasses = []) => {
   const classes = [
-    layout ? layout.replace(".html", "") : null,
+    layout.replace(".html", ""),
     siteConfig.sticky_mobile_nav ? "sticky-mobile-nav" : null,
     siteConfig.horizontal_nav !== false ? "horizontal-nav" : "left-nav",
     detectRightContent() ? "two-columns" : "one-column",
     siteConfig.navigation_is_clicky ? "clicky-nav" : null,
-    ...normalizeExtraClasses(extraClasses),
+    ...extraClasses,
   ];
 
   return classes.filter(Boolean).join(" ");
