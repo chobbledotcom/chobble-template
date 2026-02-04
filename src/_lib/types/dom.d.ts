@@ -7,12 +7,12 @@
 /**
  * Attributes that can be set on an element
  */
-export type ElementAttributes = Record<string, string | null | undefined>;
+export type ElementAttributes = Record<string, string | null>;
 
 /**
  * Valid children for element creation
  */
-export type ElementChildren = string | Element | Element[] | null;
+export type ElementChildren = string | Element | Element[];
 
 /**
  * Happy-DOM window type (re-exported for convenience)

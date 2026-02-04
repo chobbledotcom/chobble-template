@@ -10,7 +10,6 @@
  */
 
 import type {
-  PagesCMSEleventyNavigation,
   PagesCMSImage,
   PagesCMSOption,
   PagesCMSSpec,
@@ -18,7 +17,7 @@ import type {
   PagesCMSFilterAttribute,
   PagesCMSOpeningTime,
 } from './pages-cms-generated.d.ts';
-import type { RawTab } from './content.d.ts';
+import type { RawTab, EleventyNav } from './content.d.ts';
 
 /**
  * Eleventy page data (url, fileSlug, date, inputPath)
@@ -55,7 +54,7 @@ export type BaseItemData = {
   /** Custom permalink */
   permalink?: string;
   /** Eleventy navigation configuration */
-  eleventyNavigation?: PagesCMSEleventyNavigation;
+  eleventyNavigation?: EleventyNav;
   /** Meta description for SEO */
   meta_description?: string;
   /** Thumbnail image path */

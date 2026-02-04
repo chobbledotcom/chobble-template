@@ -63,14 +63,6 @@ describe("withNavigationAnchor", () => {
 
       expect(result).toBeUndefined();
     });
-
-    test("returns null when nav is null", () => {
-      const data = createData();
-
-      const result = withNavigationAnchor(data, null);
-
-      expect(result).toBeNull();
-    });
   });
 
   describe("when config flag is disabled", () => {
