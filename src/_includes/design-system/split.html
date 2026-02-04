@@ -47,7 +47,7 @@ Usage:
   <figure data-reveal="{{ reveal_figure }}">
     {%- case block.figure_type -%}
       {%- when "image" -%}
-        <img src="{{ block.figure_content.src }}" alt="{{ block.figure_content.alt }}" loading="lazy">
+        {% image block.figure_content.src, block.figure_content.alt %}
       {%- when "code" -%}
         {%- include "design-system/code-block.html", block: block.figure_content -%}
       {%- when "html" -%}
