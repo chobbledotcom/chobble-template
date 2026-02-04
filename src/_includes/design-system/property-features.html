@@ -1,0 +1,12 @@
+{%- if features and features.size > 0 -%}
+<section class="compact">
+  <div class="container container--default">
+    <h2>Features</h2>
+    <ul class="property-features">
+      {%- for feature in features -%}
+        <li>{{ feature }}</li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+{%- endif -%}

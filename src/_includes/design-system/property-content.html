@@ -1,0 +1,24 @@
+<section>
+  <div class="container container--default">
+    <div class="property-content">
+      {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags %}
+      {% assign rating = collections.reviews | getRating: page.fileSlug, tags %}
+      {%- if config.show_product_review_counts and rating -%}
+        <p class="property-rating"><a href="#reviews">{{ rating | ratingToStars }} after {{ reviews.size }} reviews</a></p>
+      {%- endif -%}
+
+      {%- if strings.item_about_heading and strings.item_about_heading != "" -%}
+        <h2>{{ strings.item_about_heading }}</h2>
+      {%- endif -%}
+
+      {%- if categories.size > 0 -%}
+        <p>
+          <strong>Categories:</strong>
+          {{ categories | linkList: collections.categories }}
+        </p>
+      {%- endif -%}
+
+      {{ content }}
+    </div>
+  </div>
+</section>

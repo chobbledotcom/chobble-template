@@ -5,44 +5,27 @@
 // =============================================================================
 // PROPERTY DETAIL PAGE
 // =============================================================================
-// Single property view with gallery, description, and contact form.
-// Uses CSS grid for responsive layout: stacked on mobile, two-column on desktop.
+// Single property view built from independent, reorderable sections.
+// Each section is self-contained with its own container and spacing.
+// Section order is controlled via propertyOrder config.
 // =============================================================================
 
 .design-system {
-  .property-detail {
-    display: grid;
-    gap: $space-lg;
-    grid-template-areas:
-      "header"
-      "gallery"
-      "body"
-      "contact";
-
-    @include breakpoint.up("lg") {
-      grid-template-areas:
-        "header header"
-        "gallery gallery"
-        "contact body";
-      grid-template-columns: 300px 1fr;
-    }
-
-    @include breakpoint.up("xl") {
-      grid-template-columns: 350px 1fr;
-    }
-  }
-
   // ===========================================================================
   // HEADER
   // ===========================================================================
 
   .property-header {
-    grid-area: header;
     @include flex-col($space-sm);
 
     .check-availability {
       @include button-primary;
       align-self: flex-start;
+    }
+
+    .property-price {
+      @include heading-md;
+      color: var(--color-link);
     }
   }
 
@@ -51,7 +34,6 @@
   // ===========================================================================
 
   .property-gallery {
-    grid-area: gallery;
     width: 100%;
     min-width: 0;
 
@@ -172,19 +154,67 @@
   }
 
   // ===========================================================================
-  // BODY (main content column)
+  // CONTENT
   // ===========================================================================
 
-  .property-body {
-    grid-area: body;
-    @include flex-col($space-lg);
+  .property-content {
+    @include flex-col($space-md);
+
+    .property-rating a {
+      color: var(--color-link);
+
+      &:hover {
+        color: var(--color-link-hover);
+      }
+    }
+  }
+
+  // ===========================================================================
+  // FEATURES
+  // ===========================================================================
+
+  .property-features {
+    @include flex-col($space-xs);
+    padding-left: $space-lg;
+    list-style: disc;
+  }
+
+  // ===========================================================================
+  // SPECIFICATIONS
+  // ===========================================================================
+
+  .property-specs {
+    dl {
+      @include flex-wrap($space-sm);
+
+      > div {
+        @include flex-row($space-xs);
+        padding: $space-xs $space-sm;
+        background: var(--body-background-alt);
+        border-radius: $radius-sm;
+        @include body-sm;
+
+        span[aria-hidden] {
+          flex-shrink: 0;
+        }
+
+        dt {
+          font-weight: 600;
+          color: var(--color-text);
+        }
+
+        dd {
+          color: var(--color-text-muted);
+        }
+      }
+    }
   }
 
   // ===========================================================================
   // TABS
   // ===========================================================================
 
-  .property-body #tabs {
+  .property-tabs {
     @include flex-col($space-md);
 
     > ul {
@@ -236,10 +266,10 @@
   }
 
   // ===========================================================================
-  // MAP EMBED
+  // MAP
   // ===========================================================================
 
-  .property-body .map-embed {
+  .property-map {
     position: relative;
     width: 100%;
     @include aspect-ratio(16, 9);
@@ -257,39 +287,10 @@
   }
 
   // ===========================================================================
-  // SPECIFICATIONS
-  // ===========================================================================
-
-  .property-body > dl:not(.faqs) {
-    @include flex-wrap($space-sm);
-
-    > div {
-      @include flex-row($space-xs);
-      padding: $space-xs $space-sm;
-      background: var(--body-background-alt);
-      border-radius: $radius-sm;
-      @include body-sm;
-
-      span[aria-hidden] {
-        flex-shrink: 0;
-      }
-
-      dt {
-        font-weight: 600;
-        color: var(--color-text);
-      }
-
-      dd {
-        color: var(--color-text-muted);
-      }
-    }
-  }
-
-  // ===========================================================================
   // FAQS
   // ===========================================================================
 
-  .property-body .faqs {
+  .property-faqs {
     @include flex-col($space-md);
     border-top: $border-light;
 
@@ -308,50 +309,6 @@
       @include body-base;
       color: var(--color-text-muted);
       line-height: $line-height-relaxed;
-    }
-  }
-
-  // ===========================================================================
-  // CONTACT
-  // ===========================================================================
-
-  .property-detail > .contact {
-    grid-area: contact;
-    @include flex-col($space-md);
-    align-self: start;
-
-    @include breakpoint.up("lg") {
-      position: sticky;
-      top: $space-lg;
-    }
-  }
-
-  // ===========================================================================
-  // REVIEWS
-  // ===========================================================================
-
-  .property-body .reviews-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
-
-  // ===========================================================================
-  // FEATURES LIST
-  // ===========================================================================
-
-  .property-body > ul:not([class]) {
-    @include flex-col($space-xs);
-    padding-left: $space-lg;
-  }
-
-  // ===========================================================================
-  // CATEGORY LINKS
-  // ===========================================================================
-
-  .property-body > p a {
-    color: var(--color-link);
-
-    &:hover {
-      color: var(--color-link-hover);
     }
   }
 }

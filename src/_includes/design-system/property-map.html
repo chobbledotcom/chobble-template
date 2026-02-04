@@ -1,0 +1,20 @@
+{%- assign embed_src = map_embed_src | default: config.map_embed_src -%}
+{%- if embed_src and embed_src != "" -%}
+<section class="compact">
+  <div class="container container--default">
+    <h2>Location</h2>
+    <div class="property-map">
+      <iframe
+        credentialless
+        title="Embedded map for {{ site.name }}"
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        referrerpolicy="no-referrer"
+        src="{{ embed_src }}"
+      >
+      </iframe>
+    </div>
+  </div>
+</section>
+{%- endif -%}
