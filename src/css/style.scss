@@ -349,6 +349,7 @@ blockquote {
   font-size: x-large;
   line-height: var(--line-height);
   margin: 1.5rem auto;
+  align-self: center;
   max-width: var(--width-card-medium);
   padding: 1.75rem 1.5rem;
   text-align: var(--justify-important);
@@ -840,7 +841,6 @@ ul.image-gallery {
       position: relative;
       overflow: hidden;
       border-radius: var(--border-radius-small);
-      transition: all 0.3s ease-in;
       img {
         object-fit: cover;
         transition: all 0.3s ease-in;
@@ -890,81 +890,6 @@ ul.team {
         left: 0;
         top: 0;
       }
-    }
-  }
-}
-
-ul.news-posts {
-  list-style-type: none;
-  padding: 0;
-  margin: 1rem 0;
-  display: flex;
-  gap: 1rem;
-  flex-direction: column;
-
-  li {
-    @include breakpoints.up("sm") {
-      display: flex;
-      gap: 1rem;
-
-      .thumbnail {
-        flex-shrink: 0;
-        width: 200px;
-      }
-
-      .details {
-        flex: 1;
-      }
-    }
-
-    @include breakpoints.up("lg") {
-      .thumbnail {
-        width: 300px;
-      }
-    }
-  }
-}
-
-// Post meta header styles (author thumbnail and date)
-.post-meta {
-  margin: 1.5rem 0;
-  padding: 1rem;
-  background: var(--color-accent);
-  border-radius: var(--border-radius);
-  border: var(--border);
-
-  address {
-    font-style: normal;
-    font-weight: bold;
-  }
-
-  time {
-    opacity: 0.8;
-  }
-
-  figure {
-    a {
-      display: block;
-      border-radius: 50%;
-      overflow: hidden;
-    }
-
-    img {
-      display: block;
-      width: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-  }
-
-  &.with-thumbnail {
-    display: grid;
-    grid-template-columns: 60px 1fr;
-    gap: 1rem;
-    align-items: center;
-
-    @include breakpoints.up("sm") {
-      grid-template-columns: 80px 1fr;
     }
   }
 }

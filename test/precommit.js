@@ -7,7 +7,6 @@
 
 import {
   COMMON_STEPS,
-  extractErrorsFromOutput,
   isMainModule,
   runSteps,
   verbose,
@@ -25,9 +24,6 @@ const steps = [
   COMMON_STEPS.cpdRatchet,
   COMMON_STEPS.test,
 ];
-
-// Export extractErrorsFromOutput for backwards compatibility with tests
-export { extractErrorsFromOutput };
 
 // Run all steps (only when executed directly, not when imported)
 if (isMainModule(import.meta.url)) {
