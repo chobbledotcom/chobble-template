@@ -558,12 +558,10 @@ body > footer {
           height: auto;
           filter: invert(99%) sepia(47%) saturate(588%) hue-rotate(9deg)
             brightness(108%) contrast(95%);
-          transition: all 0.3s ease-in-out;
+          transition: filter 0.3s ease-in-out;
         }
         &:hover {
           img {
-            transform: scale(120%);
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
             filter: invert(99%) sepia(47%) saturate(588%) hue-rotate(9deg)
               brightness(108%) contrast(95%) drop-shadow(0px 0px 3px #fff);
           }
@@ -840,18 +838,9 @@ ul.image-gallery {
       position: relative;
       overflow: hidden;
       border-radius: var(--border-radius-small);
-      transition: all 0.3s ease-in;
       img {
         object-fit: cover;
-        transition: all 0.3s ease-in;
         border-radius: var(--border-radius-small);
-      }
-      &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 3px rgba(0, 0, 0, 0.2);
-        img {
-          transform: scale(1.2);
-        }
       }
     }
     figcaption {

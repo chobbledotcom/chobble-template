@@ -111,11 +111,6 @@
           height: auto;
           aspect-ratio: 4 / 3;
           object-fit: cover;
-          transition: transform $transition-fast;
-        }
-
-        &:hover img {
-          transform: scale(1.05);
         }
       }
 
@@ -152,12 +147,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform $transition-fast;
           }
-        }
-
-        &:hover .image-wrapper img {
-          transform: scale(1.05);
         }
 
         .video-play-button {
@@ -222,6 +212,35 @@
       p:not(.price) {
         @include body-sm;
         color: var(--color-text-muted);
+      }
+
+      // =======================================================================
+      // CART BUTTONS
+      // =======================================================================
+
+      // "Select Options" link or standalone "Add to Cart" button
+      > .button,
+      > .add-to-cart {
+        margin-block-start: auto;
+        margin-inline: var(--item-padding-inline);
+        margin-bottom: var(--item-padding-inline);
+      }
+
+      // Cart controls row (button + quantity selector)
+      .list-item-cart-controls {
+        margin-block-start: auto;
+        display: flex;
+        align-items: center;
+        gap: $space-sm;
+        padding: 0 var(--item-padding-inline) var(--item-padding-inline);
+
+        .add-to-cart {
+          margin: 0;
+        }
+
+        .item-quantity {
+          margin: 0;
+        }
       }
 
       // =======================================================================
