@@ -349,6 +349,7 @@ blockquote {
   font-size: x-large;
   line-height: var(--line-height);
   margin: 1.5rem auto;
+  align-self: center;
   max-width: var(--width-card-medium);
   padding: 1.75rem 1.5rem;
   text-align: var(--justify-important);
@@ -892,7 +893,6 @@ ul.team {
     }
   }
 }
-
 
 dl {
   dt {
