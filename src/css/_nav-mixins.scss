@@ -245,6 +245,49 @@
 }
 
 // -----------------------------------------------------------------------------
+// CLICKY NAV (click-based dropdowns on desktop)
+// -----------------------------------------------------------------------------
+
+@mixin nav-clicky-desktop($caret-transition) {
+  // Show toggle buttons on desktop
+  .mobile-menu-toggle {
+    display: inline-flex !important;
+    position: static;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    width: auto;
+    height: auto;
+
+    &::after {
+      content: "";
+      border: solid var(--color-link);
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 3px;
+      transform: rotate(45deg);
+      transition: transform $caret-transition;
+    }
+  }
+
+  // Disable hover-based dropdowns
+  nav ul li:hover > ul {
+    display: none;
+  }
+
+  // Show dropdown when expanded via click
+  nav ul li.expanded > .mobile-menu-toggle::after {
+    transform: rotate(-135deg);
+  }
+
+  nav ul li.expanded > ul {
+    display: flex !important;
+  }
+}
+
+// -----------------------------------------------------------------------------
 // DESKTOP NAV LAYOUTS
 // -----------------------------------------------------------------------------
 
