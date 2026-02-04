@@ -23,13 +23,21 @@
     margin: 0;
   }
 
+  li > span {
+    display: flex;
+    align-items: center;
+  }
+
   a {
     color: var(--color-link);
 
-    &.active,
-    &:has(+ ul a.active) {
+    &.active {
       color: var(--color-text);
     }
+  }
+
+  li:has(> ul a.active) > span > a {
+    color: var(--color-text);
   }
 }
 
@@ -54,10 +62,6 @@
       height: 100%;
       object-fit: cover;
     }
-  }
-
-  span {
-    flex: 1;
   }
 
   @include breakpoint.down("sm") {
@@ -203,7 +207,7 @@
   > ul li:has(> ul) {
     position: relative;
 
-    > .mobile-menu-toggle {
+    > span > .mobile-menu-toggle {
       position: absolute;
       right: -2.5rem;
       top: 1rem;
@@ -229,7 +233,7 @@
       }
     }
 
-    &.expanded > .mobile-menu-toggle::after {
+    &.expanded > span > .mobile-menu-toggle::after {
       transform: rotate(-135deg);
     }
 
@@ -278,7 +282,7 @@
   }
 
   // Show dropdown when expanded via click
-  nav ul li.expanded > .mobile-menu-toggle::after {
+  nav ul li.expanded > span > .mobile-menu-toggle::after {
     transform: rotate(-135deg);
   }
 
