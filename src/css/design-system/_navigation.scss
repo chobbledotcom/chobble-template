@@ -51,8 +51,8 @@
         }
       }
 
-      nav:has(.mobile-menu-toggle) {
-        @include nav.nav-submenu-toggle($space-md + $space-sm, $transition-fast);
+      nav {
+        @include nav.nav-submenu-toggle($transition-fast);
       }
     }
   }

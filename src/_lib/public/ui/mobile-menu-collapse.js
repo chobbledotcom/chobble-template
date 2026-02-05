@@ -1,16 +1,19 @@
 import { onReady } from "#public/utils/on-ready.js";
 
 /**
- * Creates toggle buttons for nav items with submenus.
+ * Intercepts clicks on nav links to toggle submenus.
  * Allows users to expand/collapse submenu sections.
  * Activates when sticky-mobile-nav or clicky-nav is enabled.
+ *
+ * Progressive enhancement: middle-click or JS-disabled users
+ * will navigate to the parent page URL normally.
  */
 
 const collapseItem = (item) => {
   item.classList.remove("expanded");
-  const toggle = item.querySelector(":scope > span > .mobile-menu-toggle");
-  if (toggle) {
-    toggle.setAttribute("aria-expanded", "false");
+  const link = item.querySelector(":scope > a");
+  if (link) {
+    link.setAttribute("aria-expanded", "false");
   }
 };
 
@@ -29,29 +32,21 @@ const collapseAll = () => {
   }
 };
 
-const createToggleButton = (item, isClicky) => {
-  const toggle = document.createElement("button");
-  toggle.className = "mobile-menu-toggle";
-  toggle.setAttribute("aria-label", "Toggle submenu");
-  toggle.setAttribute("aria-expanded", "false");
+const setupLinkToggle = (item, isClicky) => {
+  const link = item.querySelector(":scope > a");
+  if (!link) return;
 
-  const link = item.querySelector(":scope > span > a");
-  if (link) {
-    link.after(toggle);
-  } else {
-    item.prepend(toggle);
-  }
+  link.setAttribute("aria-expanded", "false");
 
-  toggle.addEventListener("click", (event) => {
+  link.addEventListener("click", (event) => {
     event.preventDefault();
-    event.stopPropagation();
 
     if (isClicky) {
       collapseSiblings(item);
     }
 
     const isExpanded = item.classList.toggle("expanded");
-    toggle.setAttribute("aria-expanded", String(isExpanded));
+    link.setAttribute("aria-expanded", String(isExpanded));
   });
 };
 
@@ -64,8 +59,7 @@ onReady(() => {
   const navItems = document.querySelectorAll("nav > ul > li:has(> ul)");
 
   for (const item of navItems) {
-    if (item.querySelector(".mobile-menu-toggle")) continue;
-    createToggleButton(item, isClicky);
+    setupLinkToggle(item, isClicky);
   }
 
   if (isClicky) {

@@ -23,12 +23,6 @@
     margin: 0;
   }
 
-  li > span {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
   a {
     color: var(--color-link);
 
@@ -37,7 +31,7 @@
     }
   }
 
-  li:has(> ul a.active) > span > a {
+  li:has(> ul a.active) > a {
     color: var(--color-text);
   }
 }
@@ -200,52 +194,36 @@
 // COLLAPSIBLE MOBILE SUBMENUS
 // -----------------------------------------------------------------------------
 
-@mixin nav-submenu-toggle($right-padding, $caret-transition) {
-  > ul {
-    padding-right: $right-padding;
+@mixin nav-submenu-toggle($caret-transition) {
+  // First-level items with children: add caret to link
+  > ul > li:has(> ul) > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &::after {
+      content: "";
+      border: solid var(--color-link);
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 4px;
+      transform: rotate(45deg);
+      transition: transform $caret-transition;
+    }
   }
 
-  > ul li:has(> ul) {
-    position: relative;
+  > ul > li.expanded > a::after {
+    transform: rotate(-45deg);
+  }
 
-    > span > .mobile-menu-toggle {
-      position: absolute;
-      right: -2.5rem;
-      top: 1rem;
-      width: 2.5rem;
-      height: 0;
-      margin: 0;
-      padding: 0;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+  // Hide submenus by default, show when expanded or has active child
+  > ul > li:has(> ul) > ul {
+    display: none;
+  }
 
-      &::after {
-        content: "";
-        border: solid var(--color-link);
-        border-width: 0 2px 2px 0;
-        display: inline-block;
-        padding: 4px;
-        transform: rotate(45deg);
-        transition: transform $caret-transition;
-      }
-    }
-
-    &.expanded > span > .mobile-menu-toggle::after {
-      transform: rotate(-45deg);
-    }
-
-    > ul {
-      display: none;
-    }
-
-    &.expanded > ul,
-    &:has(> ul a.active) > ul {
-      display: flex;
-    }
+  > ul > li.expanded > ul,
+  > ul > li:has(> ul a.active) > ul {
+    display: flex;
   }
 }
 
@@ -254,17 +232,11 @@
 // -----------------------------------------------------------------------------
 
 @mixin nav-clicky-desktop($caret-transition) {
-  // Show toggle buttons on desktop
-  .mobile-menu-toggle {
-    display: inline-flex !important;
-    position: static;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    width: auto;
-    height: auto;
+  // First-level items with children: add caret to link
+  nav > ul > li:has(> ul) > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
 
     &::after {
       content: "";
@@ -277,17 +249,21 @@
     }
   }
 
-  // Disable hover-based dropdowns
-  nav ul li:hover > ul {
-    display: none;
-  }
-
-  // Show dropdown when expanded via click
-  nav ul li.expanded > span > .mobile-menu-toggle::after {
+  nav > ul > li.expanded > a::after {
     transform: rotate(-45deg);
   }
 
-  nav ul li.expanded > ul {
+  // Disable hover-based dropdowns for first-level
+  nav > ul > li:hover > ul {
+    display: none;
+  }
+
+  // Hide submenus by default, show when expanded
+  nav > ul > li:has(> ul) > ul {
+    display: none;
+  }
+
+  nav > ul > li.expanded > ul {
     display: flex !important;
   }
 }

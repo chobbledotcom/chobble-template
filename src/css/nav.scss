@@ -35,8 +35,8 @@ nav {
 }
 
 @include breakpoints.down("md") {
-  body.sticky-mobile-nav nav:has(.mobile-menu-toggle) {
-    @include nav.nav-submenu-toggle(3rem, 0.2s ease);
+  body.sticky-mobile-nav nav {
+    @include nav.nav-submenu-toggle(0.2s ease);
   }
 }
 
