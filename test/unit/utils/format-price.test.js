@@ -22,7 +22,7 @@ describe("formatPrice", () => {
   });
 
   test("throws on NaN", () => {
-    expect(() => formatPrice("GBP", NaN)).toThrow("Invalid price value");
+    expect(() => formatPrice("GBP", Number.NaN)).toThrow("Invalid price value");
   });
 
   test("throws on undefined", () => {

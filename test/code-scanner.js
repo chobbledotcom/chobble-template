@@ -454,7 +454,7 @@ const validateExceptions = (allowlist, patterns) => {
     }
 
     const [filePath, lineNumStr] = entry.split(":");
-    const lineNum = parseInt(lineNumStr, 10);
+    const lineNum = Number.parseInt(lineNumStr, 10);
     const source = readSource(filePath);
     const lines = source.split("\n");
 

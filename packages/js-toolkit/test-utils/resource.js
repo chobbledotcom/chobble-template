@@ -124,7 +124,9 @@ const withMockedCwdAsync = bracketAsync(mockCwdSetup, mockCwdTeardown, false);
 const withMockedProcessExit = bracket(
   () => {
     const original = process.exit;
-    process.exit = () => {}; // Mock to do nothing
+    process.exit = () => {
+      // no-op: mock to prevent actual process exit
+    };
     return original;
   },
   (original) => {

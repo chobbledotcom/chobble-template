@@ -41,7 +41,9 @@ const setupQuoteSteps = (options = {}) => {
     </div>
   `;
   const container = document.querySelector(".quote-steps");
-  container.scrollIntoView = mock(() => {});
+  container.scrollIntoView = mock(() => {
+    // no-op: mock scrollIntoView
+  });
   initQuoteSteps();
   return {
     container,
@@ -378,7 +380,9 @@ describe("quote-steps", () => {
         `,
       });
       const wrapper = document.getElementById("wrapper");
-      wrapper.scrollIntoView = mock(() => {});
+      wrapper.scrollIntoView = mock(() => {
+        // no-op: mock scrollIntoView
+      });
       nextBtn.click();
       expect(wrapper.scrollIntoView).toHaveBeenCalled();
     });

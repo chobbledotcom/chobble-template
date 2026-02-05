@@ -48,7 +48,7 @@ describe("array-utils", () => {
   });
 
   test("Removes false, 0, empty string, NaN", () => {
-    expect(compact([1, false, 2, 0, 3, "", NaN])).toEqual([1, 2, 3]);
+    expect(compact([1, false, 2, 0, 3, "", Number.NaN])).toEqual([1, 2, 3]);
   });
 
   test("Works with conditional elements", () => {
