@@ -32,7 +32,7 @@ Renders a single block by type. Used by blocks.html.
     {%- include "design-system/cta.html", block: block -%}
 
   {%- when "markdown" -%}
-    <div class="prose stack">{{ block.content | renderContent: "md" }}</div>
+    <div class="prose">{{ block.content | renderContent: "md" }}</div>
 
   {%- when "html" -%}
     {{ block.content }}
