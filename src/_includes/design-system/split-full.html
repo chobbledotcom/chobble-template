@@ -33,7 +33,7 @@ Usage:
       {%- if block.left_title -%}
         <h{{ title_level }}>{{ block.left_title }}</h{{ title_level }}>
       {%- endif -%}
-      <div class="prose stack">{{ block.left_content | renderContent: "md" }}</div>
+      <div class="prose">{{ block.left_content | renderContent: "md" }}</div>
       {%- if block.left_button -%}
         {%- assign variant = block.left_button.variant | default: "secondary" -%}
         <a href="{{ block.left_button.href }}" class="btn btn--{{ variant }}">{{ block.left_button.text }}</a>
@@ -45,7 +45,7 @@ Usage:
       {%- if block.right_title -%}
         <h{{ title_level }}>{{ block.right_title }}</h{{ title_level }}>
       {%- endif -%}
-      <div class="prose stack">{{ block.right_content | renderContent: "md" }}</div>
+      <div class="prose">{{ block.right_content | renderContent: "md" }}</div>
       {%- if block.right_button -%}
         {%- assign variant = block.right_button.variant | default: "secondary" -%}
         <a href="{{ block.right_button.href }}" class="btn btn--{{ variant }}">{{ block.right_button.text }}</a>

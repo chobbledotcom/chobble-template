@@ -16,14 +16,12 @@ layout: base
     {% include "hire-pricing-table.html" %}
     {% include "product-options.html" %}
     {% include "product-add-ons.html" %}
-    {% include "item-about-heading.html" %}
-    {% include "item-category-links.html" %}
     {% include "item-event-categories.html" %}
     {% include "purchase-button.html" %}
-    <div class="prose">{{ content }}</div>
     {% include "tabs.html" %}
     {% include "item-map-section.html" %}
     <div class="design-system">
+      <div class="prose">{{ content }}</div>
       {% include "item-features-list.html" %}
       {% include "item-specifications-list.html", highlights: true %}
     </div>

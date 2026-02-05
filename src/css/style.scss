@@ -36,14 +36,6 @@
   --list-marker-color: var(--color-text);
 }
 
-// Only apply themed bullet markers to plain content lists inside .prose.
-// Lists with classes (like .items, .socials, .image-gallery) are excluded,
-// as are lists outside prose areas (navigation, footer links, UI components).
-.prose ul:not([class]) > li::marker {
-  content: var(--list-marker-content);
-  color: var(--list-marker-color);
-}
-
 /* MVP.css v1.17.2 - https://github.com/andybrewer/mvp */
 
 html {

@@ -1,0 +1,22 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// PROSE
+// =============================================================================
+// Rich text content container. Inherits stack layout (flex-col with gap)
+// so that paragraphs, headings, lists, etc. are spaced consistently.
+// Using the same layout as .stack means "prose stack" is redundant.
+
+.design-system {
+  .prose {
+    @include flex-col($space-md);
+
+    // Themed bullet markers for plain content lists.
+    // Lists with classes (like .items, .socials) are excluded.
+    ul:not([class]) > li::marker {
+      content: var(--list-marker-content);
+      color: var(--list-marker-color);
+    }
+  }
+}
