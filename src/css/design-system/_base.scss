@@ -313,12 +313,7 @@ body.design-system {
 // =============================================================================
 // ALTERNATING SECTION BACKGROUNDS
 // =============================================================================
-// Alternate backgrounds on direct child sections within .design-system or main
-
-.design-system > section:nth-child(odd),
-.design-system main > section:nth-child(odd) {
-  background: var(--body-background);
-}
+// Even sections get alternate background; odd sections inherit from body
 
 .design-system > section:nth-child(even),
 .design-system main > section:nth-child(even) {
