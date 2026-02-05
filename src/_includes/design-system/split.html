@@ -38,7 +38,7 @@ Usage:
     {%- if block.subtitle -%}
       <p class="text-muted">{{ block.subtitle }}</p>
     {%- endif -%}
-    <div class="prose">{{ block.content | renderContent: "md" }}</div>
+    <div class="prose stack">{{ block.content | renderContent: "md" }}</div>
     {%- if block.button -%}
       {%- assign variant = block.button.variant | default: "secondary" -%}
       <a href="{{ block.button.href }}" class="btn btn--{{ variant }}">{{ block.button.text }}</a>

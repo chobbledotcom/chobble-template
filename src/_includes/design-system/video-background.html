@@ -21,7 +21,7 @@ Usage:
 <div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};">
   {%- include "design-system/video-iframe.html", video_id: block.video_id, title: _video_title, background: true -%}
   <figure>
-    <figcaption class="prose">
+    <figcaption class="prose stack">
       {{ block.content | renderContent: "md" }}
     </figcaption>
   </figure>
