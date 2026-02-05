@@ -23,8 +23,10 @@ layout: base
     <div class="prose">{{ content }}</div>
     {% include "tabs.html" %}
     {% include "item-map-section.html" %}
-    {% include "item-features-list.html" %}
-    {% include "item-specifications-list.html", highlights: true %}
+    <div class="design-system">
+      {% include "item-features-list.html" %}
+      {% include "item-specifications-list.html", highlights: true %}
+    </div>
     {% include "item-reviews-section.html" %}
     {%- include "faq.html" -%}
   </div>
