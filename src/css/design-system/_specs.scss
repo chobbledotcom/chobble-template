@@ -1,0 +1,56 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
+
+// =============================================================================
+// SPECS GRID
+// =============================================================================
+// Grid of specification badges for item pages. 1 column on mobile, 2 columns
+// on larger screens. Each badge has icon left, key/value pair right.
+//
+// Usage:
+//   <div class="design-system">
+//     <dl class="specs-grid">
+//       <div class="spec-badge">
+//         <div class="icon" aria-hidden="true">🔧</div>
+//         <div class="spec-content">
+//           <dt>Engine</dt>
+//           <dd>2.0L Turbo</dd>
+//         </div>
+//       </div>
+//       ...
+//     </dl>
+//   </div>
+
+.design-system {
+  dl.specs-grid {
+    @include grid(1, $space-sm);
+
+    @include breakpoint.up("sm") {
+      @include grid(2, $space-sm);
+    }
+  }
+
+  .spec-badge {
+    @include flex-row($space-sm, center, flex-start);
+    @include card($space-sm, $radius-md);
+    min-height: $space-xl;
+  }
+
+  .spec-content {
+    @include flex-col(0);
+    min-width: 0;
+
+    dt {
+      @include body-sm;
+      color: var(--color-text-muted);
+      font-weight: 400;
+    }
+
+    dd {
+      @include body-base;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+  }
+}

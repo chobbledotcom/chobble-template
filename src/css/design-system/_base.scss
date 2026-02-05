@@ -46,6 +46,14 @@
 
 .design-system {
   // ===========================================================================
+  // Section vertical padding (used by split-full panels)
+  --section-padding-y: calc(#{$space-3xl} * 0.6);
+
+  @include breakpoint.up("md") {
+    --section-padding-y: #{$space-3xl};
+  }
+
+  // ===========================================================================
   // Zero out all margins and paddings. Spacing is controlled exclusively
   // through flexbox/grid gap at the container level.
 
@@ -215,9 +223,6 @@
     &.compact {
       @include section($space-2xl);
     }
-    &.alt {
-      background: var(--body-background-alt);
-    }
     &.dark {
       background: #{$color-dark-bg};
       color: #{$color-dark-text};
@@ -233,6 +238,12 @@
         var(--color-gradient-start) 0%,
         var(--color-gradient-end) 100%
       );
+    }
+
+    // Sections containing split-full have no padding; panels provide their own
+    &:has(.split-full) {
+      padding-top: 0;
+      padding-bottom: 0;
     }
   }
 
@@ -275,6 +286,8 @@
     }
 
     figure {
+      max-width: $width-author-thumbnail;
+
       a {
         display: block;
         border-radius: 50%;
@@ -299,6 +312,16 @@
   &:not(body):not(section) {
     @include flex-col($space-2xl);
   }
+
+  // ===========================================================================
+  // ALTERNATING SECTION BACKGROUNDS
+  // ===========================================================================
+  // Even sections get alternate background; odd sections inherit from body
+
+  > section:nth-child(even),
+  main > section:nth-child(even) {
+    background: var(--body-background-alt);
+  }
 }
 
 // =============================================================================
@@ -309,17 +332,4 @@
 body.design-system {
   @include reset-spacing;
   background: var(--body-background);
-}
-
-// =============================================================================
-// ALTERNATING SECTION BACKGROUNDS
-// =============================================================================
-// Alternate backgrounds on direct child sections within a .design-system container
-
-.design-system > section:nth-child(odd) {
-  background: var(--color-bg);
-}
-
-.design-system > section:nth-child(even) {
-  background: var(--body-background-alt);
 }

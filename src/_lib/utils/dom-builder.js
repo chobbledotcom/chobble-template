@@ -38,7 +38,7 @@ const escapeAttrValue = (value) =>
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-/** Filter out null and undefined attribute values */
+/** Filter out null attribute values */
 const filterDefinedAttrs = filterObject((_k, v) => v != null);
 
 /**

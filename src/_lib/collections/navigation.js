@@ -35,15 +35,10 @@ const renderNavEntry = async (
     ...(isActive && { class: "active" }),
     ...(entry.url && { href: entry.url }),
   };
-  const anchor = await createHtml(
-    "a",
-    anchorAttrs,
-    thumbnailHtml + entry.title,
-  );
-  if (isRootLevel) {
-    const wrapper = await createHtml("span", {}, anchor);
-    return createHtml("li", {}, wrapper + childrenHtml);
-  }
+  const titleHtml = thumbnailHtml
+    ? await createHtml("span", {}, entry.title)
+    : entry.title;
+  const anchor = await createHtml("a", anchorAttrs, thumbnailHtml + titleHtml);
   return createHtml("li", {}, anchor + childrenHtml);
 };
 

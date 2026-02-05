@@ -1,21 +1,22 @@
 {%- comment -%}
-Accessible icon display for feature cards.
+Accessible icon badge with tinted background.
+Used by features, specs, and anywhere an icon needs a background container.
 
 Parameters:
-  - icon: The icon content (emoji, HTML entity, SVG, or path starting with /)
+  - icon: The icon content. Supported formats:
+      - Iconify ID: "prefix:name" (e.g., "hugeicons:home-01")
+      - Image path: starts with "/" (e.g., "/images/icon.svg")
+      - Raw content: emoji or HTML entity (e.g., "&#128640;")
   - label: Accessible label (if omitted, icon is treated as decorative)
 
 Usage (meaningful icon):
-  {% include "design-system/feature-icon.html",
+  {% include "design-system/icon-badge.html",
      icon: "&#128640;",
      label: "Rocket ship representing speed"
   %}
 
 Usage (decorative icon):
-  {% include "design-system/feature-icon.html", icon: "&#128640;" %}
-
-Usage (path-based icon):
-  {% include "design-system/feature-icon.html", icon: "/images/icon.svg" %}
+  {% include "design-system/icon-badge.html", icon: "&#128640;" %}
 {%- endcomment -%}
 
 {%- if label -%}

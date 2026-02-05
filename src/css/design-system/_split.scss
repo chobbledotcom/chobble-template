@@ -54,11 +54,11 @@
     .left,
     .right {
       flex: 1;
-      padding: $space-3xl $space-md;
+      padding: var(--section-padding-y) $space-md;
       display: flex;
 
       @include breakpoint.up("md") {
-        padding: $space-3xl $space-lg;
+        padding: var(--section-padding-y) $space-lg;
       }
 
       > * {
@@ -90,10 +90,10 @@
       }
     }
 
-    // Color variants — opposite panel resets
+    // Color variants — opposite panel transparent to show section background
     &.dark-left .right,
     &.dark-right .left {
-      background: var(--color-bg);
+      background: transparent;
     }
 
     // Dark colored panels

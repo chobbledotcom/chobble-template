@@ -1,0 +1,26 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// ICON BADGE
+// =============================================================================
+// Shared icon badge styles used by features, specs, and other components.
+// Provides the tinted background container that wraps icon content.
+//
+// Usage:
+//   <div class="icon" aria-hidden="true">🔧</div>
+//
+// Unified icon size: 42px square, 2rem font-size
+
+.design-system {
+  .icon {
+    @include flex-center;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    font-size: $font-size-2xl;
+    background: var(--color-tint);
+    color: var(--color-text);
+    border-radius: $radius-md;
+  }
+}
