@@ -292,17 +292,9 @@
 
   .property-faqs {
     @include flex-col($space-md);
-    border-top: $border-light;
 
     dt {
       @include heading-sm;
-      padding-top: $space-md;
-      border-top: $border-light;
-
-      &:first-child {
-        border-top: none;
-        padding-top: 0;
-      }
     }
 
     dd {
