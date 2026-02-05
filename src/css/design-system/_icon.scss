@@ -10,14 +10,15 @@
 // Usage:
 //   <div class="icon" aria-hidden="true">🔧</div>
 //
-// Components override size via their own .icon rules:
-//   - .feature .icon: 42px
-//   - .spec-badge .icon: 42px
+// Unified icon size: 42px square, 2rem font-size
 
 .design-system {
   .icon {
     @include flex-center;
     flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    font-size: $font-size-2xl;
     background: var(--color-tint);
     color: var(--color-text);
     border-radius: $radius-md;
