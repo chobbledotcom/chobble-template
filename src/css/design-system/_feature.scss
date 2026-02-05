@@ -20,7 +20,7 @@
   .feature-card {
     @include card;
     @include flex-col($gap: $space-sm);
-    list-style: "⭐ ";
+    list-style: "★ ";
 
     li::marker {
       color: var(--list-marker-color);
