@@ -31,6 +31,14 @@
   --width-card: 285px;
   --width-card-medium: 460px;
   --width-card-wide: 800px;
+
+  --list-marker-content: "• ";
+  --list-marker-color: var(--color-text);
+}
+
+ul li::marker {
+  content: var(--list-marker-content);
+  color: var(--list-marker-color);
 }
 
 /* MVP.css v1.17.2 - https://github.com/andybrewer/mvp */
