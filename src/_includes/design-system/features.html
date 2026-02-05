@@ -47,11 +47,7 @@ Usage:
   <li>
     <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
       {%- if item.icon -%}
-        {%- if item.icon_label -%}
-          <div class="icon" role="img" aria-label="{{ item.icon_label }}">{%- include "design-system/icon.html", icon: item.icon -%}</div>
-        {%- else -%}
-          <div class="icon" aria-hidden="true">{%- include "design-system/icon.html", icon: item.icon -%}</div>
-        {%- endif -%}
+        {%- include "design-system/icon-badge.html", icon: item.icon, label: item.icon_label -%}
       {%- endif -%}
       <h{{ heading_level }}>{{ item.title }}</h{{ heading_level }}>
       <p>{{ item.description }}</p>

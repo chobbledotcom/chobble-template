@@ -12,7 +12,7 @@
 //   <div class="design-system">
 //     <dl class="specs-grid">
 //       <div class="spec-badge">
-//         <span class="spec-icon" aria-hidden="true">🔧</span>
+//         <div class="icon" aria-hidden="true">🔧</div>
 //         <div class="spec-content">
 //           <dt>Engine</dt>
 //           <dd>2.0L Turbo</dd>
@@ -37,9 +37,7 @@
     min-height: $space-xl;
   }
 
-  .spec-icon {
-    @include flex-center;
-    flex-shrink: 0;
+  .spec-badge .icon {
     width: $space-lg;
     height: $space-lg;
     font-size: $font-size-lg;

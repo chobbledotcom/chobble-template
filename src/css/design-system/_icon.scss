@@ -1,0 +1,25 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// ICON BADGE
+// =============================================================================
+// Shared icon badge styles used by features, specs, and other components.
+// Provides the tinted background container that wraps icon content.
+//
+// Usage:
+//   <div class="icon" aria-hidden="true">🔧</div>
+//
+// Components override size via their own .icon rules:
+//   - .feature .icon: 48px (large cards)
+//   - .spec-badge .icon: 32px (compact badges)
+
+.design-system {
+  .icon {
+    @include flex-center;
+    flex-shrink: 0;
+    background: var(--color-tint);
+    color: var(--color-text);
+    border-radius: $radius-md;
+  }
+}
