@@ -3,7 +3,7 @@ layout: base
 ---
 
 
-{{ content }}
+<div class="prose">{{ content }}</div>
 
 {% assign guide_pages = collections.guide-pages | guidesByCategory: page.fileSlug %}
 {% if guide_pages.size > 0 %}
