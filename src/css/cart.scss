@@ -1,5 +1,4 @@
 // Shopping Cart Styles
-// Supports PayPal and Stripe checkout options
 
 @use "breakpoints";
 @use "dialog";
@@ -151,24 +150,7 @@ dialog.cart-overlay {
   }
 }
 
-// PayPal button styling
-.cart-checkout-paypal {
-  background-color: #0070ba;
-  border-color: #0070ba;
-  color: #fff;
-
-  &:hover:not(:disabled) {
-    background-color: #005ea6;
-    border-color: #005ea6;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-// Stripe/Card button styling
+// Card checkout button styling
 .cart-checkout-stripe {
   background-color: #635bff;
   border-color: #635bff;

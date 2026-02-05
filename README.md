@@ -37,9 +37,8 @@ An Eleventy starter for business websites. The GitHub action deploys to both Neo
 ## Shopping Cart & Payments
 
 - LocalStorage-based cart with quantity limits
-- Stripe Checkout and PayPal integration
+- Stripe/Square checkout via external [ecommerce backend](https://github.com/chobbledotcom/ecommerce)
 - Quote/enquiry mode (submit cart as request instead of payment)
-- Optional Express.js backend in `ecommerce-backend/` with Docker support
 - Auto-generated SKUs via GitHub Action
 
 ## Theming

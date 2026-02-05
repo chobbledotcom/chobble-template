@@ -65,7 +65,7 @@ describe("js-config", () => {
   test("Only includes specified config keys", () => {
     const jsConfigJson = getJsConfigFilter();
     const config = {
-      cart_mode: "paypal",
+      cart_mode: "stripe",
       checkout_api_url: "https://api.example.com",
       currency: "GBP",
       extra_key: "should be ignored",
@@ -81,7 +81,7 @@ describe("js-config", () => {
 
   test("Works with all valid cart modes", () => {
     const jsConfigJson = getJsConfigFilter();
-    const validModes = ["paypal", "stripe", "quote"];
+    const validModes = ["stripe", "quote"];
     for (const mode of validModes) {
       const result = jsConfigJson({ cart_mode: mode });
       expect(result.includes(`"cart_mode":"${mode}"`)).toBe(true);
