@@ -1,6 +1,11 @@
-.search-box {
-  .search-error {
-    color: red;
-    display: none;
-  }
+#pagefind-search {
+  --pagefind-ui-scale: 1;
+  --pagefind-ui-primary: var(--color-link);
+  --pagefind-ui-text: var(--color-text);
+  --pagefind-ui-background: var(--color-bg);
+  --pagefind-ui-border: var(--color-bg);
+  --pagefind-ui-tag: var(--color-accent);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: var(--border-radius);
+  --pagefind-ui-font: inherit;
 }

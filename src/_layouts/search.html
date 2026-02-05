@@ -4,4 +4,16 @@ layout: base.html
 
 <div class="prose">{{ content }}</div>
 
-{%- include "search-box.html" -%}
+<div id="pagefind-search" data-pagefind-ignore></div>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    new PagefindUI({
+      element: "#pagefind-search",
+      showSubResults: true,
+      showImages: true,
+      resetStyles: false
+    });
+  });
+</script>

@@ -6,6 +6,6 @@ eleventyNavigation:
   key: Search
   parent: Products
   order: -1
-header_text: Search Products
+header_text: Search
 ---
-# Search Products
+# Search

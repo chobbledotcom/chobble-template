@@ -182,7 +182,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/public/utils/quote-price-utils.js",
   "src/_lib/public/cart/quote.js",
   "src/_lib/public/cart/quote-steps.js",
-  "src/_lib/public/ui/search.js",
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
   "src/_lib/public/theme/theme-editor-lib.js",

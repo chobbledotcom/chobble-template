@@ -9,7 +9,7 @@
  * This wrapper monitors the build output and immediately terminates on error,
  * ensuring errors are visible at the end of the log output.
  */
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { parseArgs } from "node:util";
 
 const ERROR_PATTERNS = [
@@ -97,9 +97,26 @@ const handleOutput = (stream, isStderr) => {
 handleOutput(eleventy.stdout, false);
 handleOutput(eleventy.stderr, true);
 
+const runPagefind = () => {
+  console.log("\nRunning Pagefind indexer...");
+  const result = spawnSync(
+    "bun",
+    ["./node_modules/.bin/pagefind", "--site", "_site"],
+    { stdio: "inherit", env: process.env },
+  );
+  if (result.status !== 0) {
+    console.error("Pagefind indexing failed");
+    process.exit(result.status || 1);
+  }
+  console.log("Pagefind indexing complete\n");
+};
+
 eleventy.on("close", (code) => {
   if (errorDetected || code !== 0) {
     process.exit(code || 1);
+  }
+  if (!values.serve) {
+    runPagefind();
   }
   process.exit(0);
 });

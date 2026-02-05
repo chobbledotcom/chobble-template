@@ -22,7 +22,8 @@
 		"_site/**"
 	],
 	"ignoreDependencies": [
-		"bun-types"
+		"bun-types",
+		"pagefind"
 	],
 	"ignoreBinaries": [],
 	"ignoreExportsUsedInFile": true,
