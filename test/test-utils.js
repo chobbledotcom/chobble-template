@@ -229,7 +229,9 @@ const createMockEleventyConfig = () => ({
   addTemplateFormats: createArrayMethod("templateFormats"),
   addWatchTarget: createArrayMethod("watchTargets"),
   addPassthroughCopy: createArrayMethod("passthroughCopies"),
-  resolvePlugin: () => () => {},
+  resolvePlugin: () => () => {
+    // no-op: stub for plugin resolution
+  },
   pathPrefix: "/",
 });
 

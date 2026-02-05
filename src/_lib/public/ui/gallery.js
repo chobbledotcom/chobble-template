@@ -22,7 +22,7 @@ const loadImage = (event) => {
   event.preventDefault();
 
   const index = imageLink.getAttribute("data-index");
-  showImageByIndex(parseInt(index, 10));
+  showImageByIndex(Number.parseInt(index, 10));
 };
 
 const showImageByIndex = (index) => {

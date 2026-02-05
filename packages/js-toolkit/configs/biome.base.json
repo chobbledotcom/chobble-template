@@ -28,14 +28,19 @@
       "style": {
         "useConst": "error",
         "useTemplate": "error",
-        "noUnusedTemplateLiteral": "error"
+        "noUnusedTemplateLiteral": "error",
+        "useNodejsImportProtocol": "error",
+        "noParameterAssign": "error",
+        "useNumberNamespace": "error",
+        "useExponentiationOperator": "error"
       },
       "suspicious": {
         "noVar": "error",
-        "noDoubleEquals": "error",
         "noConsole": "error",
         "noSkippedTests": "error",
-        "noFocusedTests": "error"
+        "noFocusedTests": "error",
+        "noEmptyBlockStatements": "error",
+        "useIsArray": "error"
       },
       "correctness": {
         "noUnusedVariables": "error",

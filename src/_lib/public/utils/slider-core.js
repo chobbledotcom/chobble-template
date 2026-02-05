@@ -15,7 +15,7 @@ export const getScrollAmount = (
 ) => {
   const firstItem = slider.querySelector(itemSelector);
   if (!firstItem) return defaultWidth;
-  const gap = parseFloat(getComputedStyle(slider).gap) || 16;
+  const gap = Number.parseFloat(getComputedStyle(slider).gap) || 16;
   return firstItem.offsetWidth + gap;
 };
 
