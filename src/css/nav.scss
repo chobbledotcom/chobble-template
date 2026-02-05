@@ -36,7 +36,7 @@ nav {
 
 @include breakpoints.down("md") {
   body.sticky-mobile-nav nav {
-    @include nav.nav-submenu-toggle(0.2s ease);
+    @include nav.nav-submenu-toggle;
   }
 }
 
@@ -60,7 +60,7 @@ nav {
       }
     }
     &.clicky-nav {
-      @include nav.nav-clicky-desktop(0.2s ease);
+      @include nav.nav-clicky-desktop;
     }
   }
 }

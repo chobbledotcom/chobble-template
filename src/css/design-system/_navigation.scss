@@ -52,7 +52,7 @@
       }
 
       nav {
-        @include nav.nav-submenu-toggle($transition-fast);
+        @include nav.nav-submenu-toggle;
       }
     }
   }
@@ -85,7 +85,7 @@
     }
 
     &.clicky-nav {
-      @include nav.nav-clicky-desktop($transition-fast);
+      @include nav.nav-clicky-desktop;
     }
   }
 }

@@ -34,6 +34,28 @@
   li:has(> ul a.active) > a {
     color: var(--color-text);
   }
+
+  // First-level items with children: add caret to link
+  > ul > li:has(> ul) > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    &::after {
+      content: "";
+      border: solid var(--color-link);
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 3px;
+      transform: rotate(45deg);
+      transition: transform 0.2s ease;
+    }
+  }
+
+  // Rotate caret when submenu is expanded (via click)
+  > ul > li.expanded > a::after {
+    transform: rotate(-45deg);
+  }
 }
 
 @mixin nav-thumbnails($gap) {
@@ -194,28 +216,7 @@
 // COLLAPSIBLE MOBILE SUBMENUS
 // -----------------------------------------------------------------------------
 
-@mixin nav-submenu-toggle($caret-transition) {
-  // First-level items with children: add caret to link
-  > ul > li:has(> ul) > a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    &::after {
-      content: "";
-      border: solid var(--color-link);
-      border-width: 0 2px 2px 0;
-      display: inline-block;
-      padding: 4px;
-      transform: rotate(45deg);
-      transition: transform $caret-transition;
-    }
-  }
-
-  > ul > li.expanded > a::after {
-    transform: rotate(-45deg);
-  }
-
+@mixin nav-submenu-toggle {
   // Hide submenus by default, show when expanded or has active child
   > ul > li:has(> ul) > ul {
     display: none;
@@ -231,28 +232,7 @@
 // CLICKY NAV (click-based dropdowns on desktop)
 // -----------------------------------------------------------------------------
 
-@mixin nav-clicky-desktop($caret-transition) {
-  // First-level items with children: add caret to link
-  nav > ul > li:has(> ul) > a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-
-    &::after {
-      content: "";
-      border: solid var(--color-link);
-      border-width: 0 2px 2px 0;
-      display: inline-block;
-      padding: 3px;
-      transform: rotate(45deg);
-      transition: transform $caret-transition;
-    }
-  }
-
-  nav > ul > li.expanded > a::after {
-    transform: rotate(-45deg);
-  }
-
+@mixin nav-clicky-desktop {
   // Disable hover-based dropdowns for first-level
   nav > ul > li:hover > ul {
     display: none;
@@ -302,6 +282,11 @@
 @mixin nav-horizontal-dropdown($gap, $sub-gap) {
   margin-bottom: math.div($gap, 2);
   justify-content: center;
+
+  // Rotate caret when submenu is shown via hover
+  > ul > li:hover > a::after {
+    transform: rotate(-45deg);
+  }
 
   ul {
     padding: 0;
