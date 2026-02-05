@@ -4,17 +4,15 @@
   {%- assign specs_to_show = specs -%}
 {%- endif -%}
 {%- if specs_to_show -%}
-  <div class="design-system">
-    <dl class="specs-grid">
-      {%- for spec in specs_to_show -%}
-        <div class="spec-badge">
-          {%- if spec.icon -%}{%- include "design-system/icon-badge.html", icon: spec.icon -%}{%- endif -%}
-          <div class="spec-content">
-            <dt>{{ spec.name }}</dt>
-            <dd>{{ spec.value }}</dd>
-          </div>
+  <dl class="specs-grid">
+    {%- for spec in specs_to_show -%}
+      <div class="spec-badge">
+        {%- if spec.icon -%}{%- include "design-system/icon-badge.html", icon: spec.icon -%}{%- endif -%}
+        <div class="spec-content">
+          <dt>{{ spec.name }}</dt>
+          <dd>{{ spec.value }}</dd>
         </div>
-      {%- endfor -%}
-    </dl>
-  </div>
+      </div>
+    {%- endfor -%}
+  </dl>
 {%- endif -%}

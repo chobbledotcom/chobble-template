@@ -1,9 +1,7 @@
 {%- if features and features.size > 0 -%}
-  <div class="design-system">
-    <ul class="feature-card">
-      {%- for feature in features -%}
-        <li>{{ feature }}</li>
-      {%- endfor -%}
-    </ul>
-  </div>
+  <ul class="feature-card">
+    {%- for feature in features -%}
+      <li>{{ feature }}</li>
+    {%- endfor -%}
+  </ul>
 {%- endif -%}
