@@ -42,6 +42,8 @@
   --border: 2px solid var(--color-text);
   --border-radius: #{$radius-md};
   --box-shadow: #{$shadow-md};
+  --list-marker-content: "• ";
+  --list-marker-color: var(--color-text);
 }
 
 .design-system {
