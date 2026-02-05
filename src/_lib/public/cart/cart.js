@@ -165,7 +165,7 @@ const clearCart = () => {
 
 const getOptionIndex = (button) =>
   button.classList.contains("product-option-button")
-    ? parseInt(
+    ? Number.parseInt(
         button.parentElement.querySelector(".product-options-select").value,
         10,
       )
@@ -188,7 +188,10 @@ const handleOptionChange = (e) => {
   const button = e.target.parentElement.querySelector(".product-option-button");
 
   if (button && selectedOption && selectedOption.value !== "") {
-    const { option } = buttonOption(button, parseInt(selectedOption.value, 10));
+    const { option } = buttonOption(
+      button,
+      Number.parseInt(selectedOption.value, 10),
+    );
     button.disabled = false;
     button.textContent = `Add to Cart - ${formatPrice(option.unit_price)}`;
   }
@@ -236,7 +239,7 @@ const getQuantityFromInput = (button) => {
   if (!container) return 1;
   // If container exists, input is guaranteed (we control the HTML structure)
   const input = container.querySelector(".quantity-input");
-  const value = parseInt(input.value, 10);
+  const value = Number.parseInt(input.value, 10);
   return Number.isNaN(value) || value < 1 ? 1 : value;
 };
 
@@ -293,8 +296,8 @@ const handleQuantityBtnClick = (e) => {
 
   // If container exists, input is guaranteed (we control the HTML structure)
   const input = container.querySelector(".quantity-input");
-  const currentValue = parseInt(input.value, 10) || 1;
-  const max = parseInt(input.max, 10) || null;
+  const currentValue = Number.parseInt(input.value, 10) || 1;
+  const max = Number.parseInt(input.max, 10) || null;
   return applyQuantityAction(input, action, currentValue, max);
 };
 

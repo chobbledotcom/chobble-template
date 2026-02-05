@@ -53,7 +53,7 @@ describe("cache-buster", () => {
     const result = cacheBust("/app.js");
     const match = result.match(/\?cached=(\d+)$/);
     expect(match !== null).toBe(true);
-    expect(parseInt(match[1], 10) > 0).toBe(true);
+    expect(Number.parseInt(match[1], 10) > 0).toBe(true);
 
     process.env.ELEVENTY_RUN_MODE = originalRunMode;
   });

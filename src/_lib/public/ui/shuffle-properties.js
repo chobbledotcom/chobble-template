@@ -20,8 +20,8 @@ onReady(() => {
   const stored = localStorage.getItem(STORAGE_KEY);
   const now = Date.now();
   const seed =
-    stored && now - parseInt(stored, 10) < EXPIRY_MS
-      ? parseInt(stored, 10)
+    stored && now - Number.parseInt(stored, 10) < EXPIRY_MS
+      ? Number.parseInt(stored, 10)
       : (() => {
           localStorage.setItem(STORAGE_KEY, now.toString());
           return now;

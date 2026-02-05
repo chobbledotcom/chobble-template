@@ -38,7 +38,7 @@ export function initStandaloneProgress() {
 
   const dataScript = document.querySelector(".quote-steps-data");
   const steps = JSON.parse(dataScript.textContent);
-  const completedSteps = parseInt(container.dataset.completedSteps, 10);
+  const completedSteps = Number.parseInt(container.dataset.completedSteps, 10);
   renderStepProgress(container, steps, completedSteps);
 }
 

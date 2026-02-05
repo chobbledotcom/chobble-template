@@ -97,7 +97,7 @@ export function parseBorderValue(borderValue) {
   const match = borderValue.match(/(\d+)px\s+(\w+)\s+(.+)/);
   if (match && match.length === 4) {
     return {
-      width: parseInt(match[1], 10),
+      width: Number.parseInt(match[1], 10),
       style: match[2],
       color: match[3],
     };

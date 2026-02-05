@@ -88,7 +88,9 @@ describe("hire-calculator", () => {
       );
       document.body.innerHTML = '<input type="date" name="end_date" />';
 
-      initHireCalculator(() => {});
+      initHireCalculator(() => {
+        // no-op: stub recalculation callback
+      });
 
       const endInput = document.querySelector('input[name="end_date"]');
       expect(endInput.min).toBe("");
@@ -127,7 +129,9 @@ describe("hire-calculator", () => {
 
   test("initHireCalculator updates end min when start date changes", () => {
     withHireTestSetup({}, () => {
-      initHireCalculator(() => {});
+      initHireCalculator(() => {
+        // no-op: stub recalculation callback
+      });
 
       const { startInput, endInput } = getDateInputs();
 
@@ -140,7 +144,9 @@ describe("hire-calculator", () => {
 
   test("initHireCalculator adjusts end date when it becomes before start date", () => {
     withHireTestSetup({ start: "2025-01-10", end: "2025-01-15" }, () => {
-      initHireCalculator(() => {});
+      initHireCalculator(() => {
+        // no-op: stub recalculation callback
+      });
 
       const { startInput, endInput } = getDateInputs();
 

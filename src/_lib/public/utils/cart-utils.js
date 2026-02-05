@@ -103,7 +103,7 @@ export function attachQuantityHandlers(onUpdate) {
 
   for (const input of document.querySelectorAll(".quantity-input[data-name]")) {
     input.addEventListener("change", () => {
-      const quantity = parseInt(input.value, 10);
+      const quantity = Number.parseInt(input.value, 10);
       if (!Number.isNaN(quantity)) {
         onUpdate(input.dataset.name, quantity);
       }

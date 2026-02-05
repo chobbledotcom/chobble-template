@@ -32,7 +32,9 @@ const createMockEngine = (tokens = [], triggerEnd = false) => ({
             }
           }
         },
-        stop() {},
+        stop() {
+          // no-op: mock stream stop
+        },
       };
     },
     parseTokens: (toks) => toks,
@@ -83,8 +85,12 @@ const createTestMockEngine = ({ mutateTokens = false } = {}) => {
         on(event, callback) {
           return this;
         },
-        start() {},
-        stop() {},
+        start() {
+          // no-op: mock stream start
+        },
+        stop() {
+          // no-op: mock stream stop
+        },
       }),
       parseTokens: (toks) => {
         state.parseCallCount++;
@@ -394,7 +400,9 @@ describe("cached-block", () => {
     test("tag factory creates valid tag when called", () => {
       const registrations = { tags: {} };
       const config = {
-        on: () => {},
+        on: () => {
+          // no-op: mock event handler
+        },
         addLiquidTag: (name, factory) => {
           registrations.tags[name] = factory;
         },

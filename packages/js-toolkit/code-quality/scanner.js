@@ -328,7 +328,7 @@ const validateFileEntry = (entry, patternList, rootDir) => {
 
 const validateLineEntry = (entry, patternList, rootDir) => {
   const [filePath, lineNumStr] = entry.split(":");
-  const lineNum = parseInt(lineNumStr, 10);
+  const lineNum = Number.parseInt(lineNumStr, 10);
   const lines = readSource(filePath, rootDir).split("\n");
 
   if (lineNum > lines.length || lineNum < 1) {

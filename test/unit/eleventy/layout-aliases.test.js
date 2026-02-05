@@ -122,7 +122,9 @@ describe("layout-aliases", () => {
 
     try {
       const config = createMockEleventyConfig();
-      config.addLayoutAlias = () => {};
+      config.addLayoutAlias = () => {
+        // no-op: stub for layout alias registration
+      };
 
       const srcDir = path.join(tempDir, "src");
       expect(() => configureLayoutAliases(config, srcDir)).toThrow(/ENOENT/);
