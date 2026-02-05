@@ -36,6 +36,28 @@
   }
 }
 
+// Shared caret styles for dropdown navigation
+// Used by nav-submenu-toggle, nav-clicky-desktop, and nav-horizontal-dropdown
+@mixin nav-caret {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  &::after {
+    content: "";
+    border: solid var(--color-link);
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 3px;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+}
+
+@mixin nav-caret-rotated {
+  transform: rotate(-45deg);
+}
+
 @mixin nav-thumbnails($gap) {
   a {
     display: flex;
@@ -197,24 +219,11 @@
 @mixin nav-submenu-toggle {
   // First-level items with children: add caret to link
   > ul > li:has(> ul) > a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-
-    &::after {
-      content: "";
-      border: solid var(--color-link);
-      border-width: 0 2px 2px 0;
-      display: inline-block;
-      padding: 3px;
-      transform: rotate(45deg);
-      transition: transform 0.2s ease;
-    }
+    @include nav-caret;
   }
 
-  // Rotate caret when submenu is expanded
   > ul > li.expanded > a::after {
-    transform: rotate(-45deg);
+    @include nav-caret-rotated;
   }
 
   // Hide submenus by default, show when expanded or has active child
@@ -235,24 +244,11 @@
 @mixin nav-clicky-desktop {
   // First-level items with children: add caret to link
   nav > ul > li:has(> ul) > a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-
-    &::after {
-      content: "";
-      border: solid var(--color-link);
-      border-width: 0 2px 2px 0;
-      display: inline-block;
-      padding: 3px;
-      transform: rotate(45deg);
-      transition: transform 0.2s ease;
-    }
+    @include nav-caret;
   }
 
-  // Rotate caret when submenu is expanded
   nav > ul > li.expanded > a::after {
-    transform: rotate(-45deg);
+    @include nav-caret-rotated;
   }
 
   // Disable hover-based dropdowns for first-level
@@ -307,24 +303,11 @@
 
   // First-level items with children: add caret to link
   > ul > li:has(> ul) > a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-
-    &::after {
-      content: "";
-      border: solid var(--color-link);
-      border-width: 0 2px 2px 0;
-      display: inline-block;
-      padding: 3px;
-      transform: rotate(45deg);
-      transition: transform 0.2s ease;
-    }
+    @include nav-caret;
   }
 
-  // Rotate caret when submenu is shown via hover
   > ul > li:hover > a::after {
-    transform: rotate(-45deg);
+    @include nav-caret-rotated;
   }
 
   ul {
