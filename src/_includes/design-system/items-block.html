@@ -8,7 +8,7 @@ Parameters (from block):
 {%- endcomment -%}
 
 {%- if block.intro -%}
-  {{ block.intro | renderContent: "md" }}
+  <div class="prose stack">{{ block.intro | renderContent: "md" }}</div>
 {%- endif -%}
 
 {%- assign blockItems = collections[block.collection] -%}
