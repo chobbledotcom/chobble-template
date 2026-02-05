@@ -37,12 +37,6 @@
     min-height: $space-xl;
   }
 
-  .spec-badge .icon {
-    width: $space-lg;
-    height: $space-lg;
-    font-size: $font-size-lg;
-  }
-
   .spec-content {
     @include flex-col(0);
     min-width: 0;
