@@ -174,7 +174,7 @@ function updateButtons(
 
 function getCurrentStep() {
   const stepsContainer = document.querySelector(".quote-steps");
-  return parseInt(stepsContainer?.dataset.currentStep || "0", 10);
+  return Number.parseInt(stepsContainer?.dataset.currentStep || "0", 10);
 }
 
 function setCurrentStep(step) {
@@ -200,7 +200,7 @@ function initQuoteSteps() {
   if (prevBtn === null || nextBtn === null || dataScript === null) return;
 
   const stepsData = JSON.parse(dataScript.textContent);
-  const baseCompletedSteps = parseInt(
+  const baseCompletedSteps = Number.parseInt(
     progressContainer.dataset.completedSteps,
     10,
   );
@@ -239,7 +239,7 @@ function initQuoteSteps() {
   progressContainer.addEventListener("click", (e) => {
     const indicator = e.target.closest("li");
     if (indicator === null) return;
-    const stepIndex = parseInt(indicator.dataset.step, 10);
+    const stepIndex = Number.parseInt(indicator.dataset.step, 10);
     const formStep = stepIndex - baseCompletedSteps;
     if (formStep >= 0 && formStep < getCurrentStep()) {
       goToStep(formStep);

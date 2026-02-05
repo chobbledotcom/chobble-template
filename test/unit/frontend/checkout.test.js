@@ -95,7 +95,7 @@ const createCheckoutPage = async (options = {}) => {
           name: productTitle,
           options: productOptions.map((opt) => ({
             name: opt.name,
-            unit_price: parseFloat(opt.unit_price),
+            unit_price: Number.parseFloat(opt.unit_price),
             max_quantity: opt.max_quantity || null,
             sku: opt.sku || null,
           })),
@@ -485,7 +485,9 @@ describe("checkout", () => {
         { item_name: "Gadget", unit_price: 20, quantity: 2 },
       ]);
 
-      const removeCalled = mock(() => {});
+      const removeCalled = mock(() => {
+        // no-op: mock callback for remove handler
+      });
 
       attachRemoveHandlers(removeCalled);
 
@@ -1130,7 +1132,7 @@ describe("checkout", () => {
 
     // Simulate selecting an option (matches cart.js change handler)
     select.selectedIndex = 1; // Select "Small" (index 0 in options array)
-    const optionIndex = parseInt(
+    const optionIndex = Number.parseInt(
       select.options[select.selectedIndex].value,
       10,
     );
@@ -1143,7 +1145,10 @@ describe("checkout", () => {
 
     // Verify select index mapping works for other options
     select.selectedIndex = 2; // Select "Large"
-    const largeIndex = parseInt(select.options[select.selectedIndex].value, 10);
+    const largeIndex = Number.parseInt(
+      select.options[select.selectedIndex].value,
+      10,
+    );
     const largeOption = itemData.options[largeIndex];
 
     expect(largeOption.name).toBe("Large");

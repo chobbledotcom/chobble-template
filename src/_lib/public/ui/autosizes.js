@@ -46,7 +46,7 @@
       return true;
     }
 
-    const chromeVersion = parseInt(chromeMatch[1], 10);
+    const chromeVersion = Number.parseInt(chromeMatch[1], 10);
     return chromeVersion < 126;
   };
 

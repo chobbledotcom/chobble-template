@@ -14,13 +14,13 @@ const createScssCompiler = (inputContent, inputPath) => {
   const isBundle = shouldCompileScss(inputPath);
 
   return async (_data) => {
-    if (isBundle && getConfig().enable_theme_switcher) {
-      const compiledThemes = generateThemeSwitcherContent();
-      inputContent = `${inputContent}\n\n${compiledThemes}`;
-    }
+    const content =
+      isBundle && getConfig().enable_theme_switcher
+        ? `${inputContent}\n\n${generateThemeSwitcherContent()}`
+        : inputContent;
 
     sass ??= await import("sass");
-    const css = sass.compileString(inputContent, {
+    const css = sass.compileString(content, {
       loadPaths: [dir],
     }).css;
 

@@ -89,7 +89,7 @@ const ThemeEditor = {
    */
   getControlValue(varName, rootVars, options = {}) {
     const parseValue = (val) =>
-      options.type === "number" ? parseFloat(val) || 0 : val;
+      options.type === "number" ? Number.parseFloat(val) || 0 : val;
     if (rootVars[varName]) return parseValue(rootVars[varName]);
     const computed = getComputedStyle(document.documentElement)
       .getPropertyValue(varName)
