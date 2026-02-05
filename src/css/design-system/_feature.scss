@@ -17,6 +17,12 @@
     @include grid-auto($width-card, $space-md);
   }
 
+  .feature-card {
+    @include card;
+    @include flex-col($gap: $space-sm);
+    list-style: none;
+  }
+
   .feature {
     @include card($space-md, $radius-lg);
     @include card-hover;
