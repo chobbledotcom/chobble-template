@@ -317,7 +317,7 @@ body.design-system {
 
 .design-system > section:nth-child(odd),
 .design-system main > section:nth-child(odd) {
-  background: var(--color-bg);
+  background: var(--body-background);
 }
 
 .design-system > section:nth-child(even),
