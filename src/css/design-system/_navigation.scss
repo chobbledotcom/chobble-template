@@ -51,8 +51,8 @@
         }
       }
 
-      nav:has(.mobile-menu-toggle) {
-        @include nav.nav-submenu-toggle($space-md + $space-sm, $transition-fast);
+      nav {
+        @include nav.nav-submenu-toggle;
       }
     }
   }
@@ -85,7 +85,7 @@
     }
 
     &.clicky-nav {
-      @include nav.nav-clicky-desktop($transition-fast);
+      @include nav.nav-clicky-desktop;
     }
   }
 }
