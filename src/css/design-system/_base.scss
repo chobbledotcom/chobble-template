@@ -223,9 +223,6 @@
     &.compact {
       @include section($space-2xl);
     }
-    &.alt {
-      background: var(--body-background-alt);
-    }
     &.dark {
       background: #{$color-dark-bg};
       color: #{$color-dark-text};
@@ -315,6 +312,16 @@
   &:not(body):not(section) {
     @include flex-col($space-2xl);
   }
+
+  // ===========================================================================
+  // ALTERNATING SECTION BACKGROUNDS
+  // ===========================================================================
+  // Even sections get alternate background; odd sections inherit from body
+
+  > section:nth-child(even),
+  main > section:nth-child(even) {
+    background: var(--body-background-alt);
+  }
 }
 
 // =============================================================================
@@ -325,17 +332,4 @@
 body.design-system {
   @include reset-spacing;
   background: var(--body-background);
-}
-
-// =============================================================================
-// ALTERNATING SECTION BACKGROUNDS
-// =============================================================================
-// Alternate backgrounds on direct child sections within a .design-system container
-
-.design-system > section:nth-child(odd) {
-  background: var(--color-bg);
-}
-
-.design-system > section:nth-child(even) {
-  background: var(--body-background-alt);
 }
