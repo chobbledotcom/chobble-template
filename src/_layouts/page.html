@@ -7,7 +7,7 @@ layout: base
   {%- include "design-system/blocks.html", blocks: blocks -%}
 </div>
 {%- endif -%}
-{{ content }}
+<div class="prose">{{ content }}</div>
 {%- if videos.size > 0 -%}
 <div class="design-system">
   {%- include "design-system/video-cards.html", videos: videos -%}

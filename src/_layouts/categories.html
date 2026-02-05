@@ -5,6 +5,6 @@ layout: base.html
 
 {%- assign filterUI = collections.filteredProductPagesListingFilterUI -%}
 {%- include "products-layout-start.html", filterUI: filterUI -%}
-{{- content -}}
+<div class="prose">{{- content -}}</div>
 {%- include "items.html", items: collections.featuredCategories -%}
 {%- include "products-layout-end.html" -%}
