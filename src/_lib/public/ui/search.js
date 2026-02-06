@@ -45,6 +45,7 @@ const loadPagefind = () =>
     }
     const script = document.createElement("script");
     script.src = "/pagefind/pagefind.js";
+    script.type = "module";
     script.onload = async () => {
       await window.pagefind.init();
       resolve(window.pagefind);
@@ -132,3 +133,5 @@ const initSearch = () => {
 };
 
 onReady(initSearch);
+
+export { initSearch, renderResult, createSearchController };
