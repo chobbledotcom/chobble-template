@@ -5,7 +5,7 @@
   {%- include "header.html" -%}
   <main>
     {%- include "navigation.html" -%}
-    <article class="content" id="content" data-pagefind-body>
+    <article class="content" id="content"{% if pagefind_body %} data-pagefind-body{% endif %}>
       {%- if config.show_breadcrumbs and page.url != "/" -%}
         {%- include "breadcrumbs.html" -%}
       {%- endif -%}

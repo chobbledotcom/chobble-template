@@ -37,6 +37,18 @@ const BLOCK_DEFAULTS = {
 
 export default {
   /**
+   * Whether this page should be indexed by Pagefind.
+   * True when any of the page's tags appear in config.search_collections.
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {boolean}
+   */
+  pagefind_body: (data) => {
+    const collections = data.config?.search_collections;
+    if (!collections) return false;
+    return (data.tags || []).some((tag) => collections.includes(tag));
+  },
+
+  /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {string} Header text
    */
