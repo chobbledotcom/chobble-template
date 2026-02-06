@@ -44,7 +44,7 @@ const loadPagefind = async () => {
   return pagefind;
 };
 
-const createSearchController = (elements) => {
+const createSearchController = (elements, loader = loadPagefind) => {
   const state = { results: [], shown: 0 };
 
   const showMore = async () => {
@@ -65,7 +65,7 @@ const createSearchController = (elements) => {
       return;
     }
 
-    const pagefind = await loadPagefind();
+    const pagefind = await loader();
     const search = await pagefind.search(query);
     state.results = search.results;
     state.shown = 0;
@@ -124,4 +124,4 @@ const initSearch = () => {
 
 onReady(initSearch);
 
-export { initSearch, renderResult, createSearchController };
+export { initSearch, renderResult, createSearchController, loadPagefind };

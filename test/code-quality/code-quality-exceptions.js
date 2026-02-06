@@ -229,6 +229,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/public/ui/search.js:initSearch",
   "src/_lib/public/ui/search.js:renderResult",
   "src/_lib/public/ui/search.js:createSearchController",
+  "src/_lib/public/ui/search.js:loadPagefind",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/block-schema.js:BLOCK_SCHEMAS", // Schema definitions exported for test verification

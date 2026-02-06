@@ -5,6 +5,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import {
   createSearchController,
   initSearch,
+  loadPagefind,
   renderResult,
 } from "#public/ui/search.js";
 
@@ -126,10 +127,35 @@ describe("renderResult", () => {
 });
 
 // ============================================
+// loadPagefind
+// ============================================
+
+describe("loadPagefind", () => {
+  test("returns cached window.pagefind when already loaded", async () => {
+    const mockPf = createMockPagefind();
+    window.pagefind = mockPf;
+    const result = await loadPagefind();
+    expect(result).toBe(mockPf);
+  });
+});
+
+// ============================================
 // createSearchController
 // ============================================
 
 describe("createSearchController", () => {
+  test("uses custom loader when provided", async () => {
+    document.body.innerHTML = SEARCH_HTML;
+    const pagefind = createMockPagefind([createMockResultHandle()]);
+    const loader = mock(() => Promise.resolve(pagefind));
+    const controller = createSearchController(getElements(), loader);
+
+    await controller.runSearch("test");
+    expect(loader).toHaveBeenCalled();
+    expect(pagefind.search).toHaveBeenCalledWith("test");
+    expect(document.querySelectorAll(".search-result").length).toBe(1);
+  });
+
   test("clears results when query is empty", async () => {
     document.body.innerHTML = SEARCH_HTML;
     window.pagefind = createMockPagefind();

@@ -30,7 +30,7 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 # - cart-utils.js, quote-price-utils.js: browser-specific edge cases
 # - array-utils.js: some utility functions only used in specific contexts
 # - on-ready.js: document.readyState branch requires complex mocking
-# - search.js: dynamic import of /pagefind/pagefind.js requires built site binary
+# - search.js: dynamic import("/pagefind/pagefind.js") only resolves against built site
 # - screenshot.js, screenshots.js, lighthouse.js, browser-utils.js: Playwright/Chrome browser automation
 # - configure-filters.js: Eleventy registration wiring (functions it calls are fully tested)
 coveragePathIgnorePatterns = [
