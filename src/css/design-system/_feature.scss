@@ -17,14 +17,26 @@
     @include grid-auto($width-card, $space-md);
   }
 
-  .feature-card {
+  .feature-card,
+  .add-on-card {
     @include card;
-    @include flex-col($gap: $space-sm);
-    list-style: "★ ";
+    @include flex-col($gap: $space-md);
+
+    ul {
+      @include flex-col($gap: $space-sm);
+    }
 
     li::marker {
       color: var(--list-marker-color);
     }
+  }
+
+  .feature-card ul {
+    list-style: "★ ";
+  }
+
+  .add-on-card ul {
+    list-style: "+ ";
   }
 
   .feature {
