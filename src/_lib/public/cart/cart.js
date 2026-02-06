@@ -65,7 +65,7 @@ const updateStripeBtn = (btn, isBelowMinimum) => {
 };
 
 const updateCheckoutButtons = (cartOverlay, total) => {
-  const isBelowMinimum = total <= MINIMUM_CHECKOUT_AMOUNT;
+  const isBelowMinimum = total < MINIMUM_CHECKOUT_AMOUNT;
   const stripeBtn = cartOverlay.querySelector(".cart-checkout-stripe");
   const minMsg = cartOverlay.querySelector(".cart-minimum-message");
 
