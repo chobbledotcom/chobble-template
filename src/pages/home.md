@@ -40,7 +40,7 @@ You can check out [the source code for this template]({{ config.template_repo_ur
 
 ### E-Commerce
 
-You can use this template to create a simple e-commerce website powered by Stripe or PayPal, with an optional minimal [Node.js checkout backend]({{ config.template_repo_url }}/blob/main/ecommerce-backend/) if you want to handle actual proper Stripe checkouts rather than buttons. The cart system is basic - but will be improved.
+You can use this template to create a simple e-commerce website powered by Stripe or Square, with an external [ecommerce backend](https://github.com/chobbledotcom/ecommerce) handling checkout sessions. The cart system is basic - but will be improved.
 
 ### Restaurants
 

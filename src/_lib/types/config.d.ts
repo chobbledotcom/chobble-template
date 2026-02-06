@@ -30,7 +30,7 @@ export type ScreenshotConfig = {
 /**
  * Cart mode - determines checkout behavior
  */
-export type CartMode = 'stripe' | 'paypal' | 'quote' | null;
+export type CartMode = 'stripe' | 'quote' | null;
 
 /**
  * Product mode - buy or hire

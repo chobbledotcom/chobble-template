@@ -11,7 +11,11 @@ function showStatusError(message) {
 }
 
 const createStripeSession = async (checkoutApiUrl, items) => {
-  const session = await postJson(checkoutApiUrl, { items });
+  const session = await postJson(checkoutApiUrl, {
+    items,
+    success_url: `${window.location.origin}/order-complete/`,
+    cancel_url: `${window.location.origin}/cart/`,
+  });
   if (!session?.url) return { error: "Failed to create checkout session" };
   return { url: session.url };
 };

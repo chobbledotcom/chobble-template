@@ -18,7 +18,6 @@
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
-		"ecommerce-backend/**",
 		"_site/**"
 	],
 	"ignoreDependencies": [

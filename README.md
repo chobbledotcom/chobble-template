@@ -37,9 +37,8 @@ An Eleventy starter for business websites. The GitHub action deploys to both Neo
 ## Shopping Cart & Payments
 
 - LocalStorage-based cart with quantity limits
-- Stripe Checkout and PayPal integration
+- Stripe/Square checkout via external [ecommerce backend](https://github.com/chobbledotcom/ecommerce)
 - Quote/enquiry mode (submit cart as request instead of payment)
-- Optional Express.js backend in `ecommerce-backend/` with Docker support
 - Auto-generated SKUs via GitHub Action
 
 ## Theming
@@ -96,11 +95,11 @@ An Eleventy starter for business websites. The GitHub action deploys to both Neo
 - GitHub Actions workflow for Neocities and Bunny.net
 - Forgejo Actions support
 - PagesCMS integration for no-code editing
-- Docker support for ecommerce backend
+- External [ecommerce backend](https://github.com/chobbledotcom/ecommerce) for payment processing
 
 ## Configuration
 
-- `_data/config.json` - Formspark, Botpoison, Stripe, PayPal, map embed, nav options
+- `_data/config.json` - Formspark, Botpoison, ecommerce checkout, map embed, nav options
 - `_data/site.json` - name, URL, description, social links (14 platforms), opening hours
 - `_data/meta.json` - language, organisation details for schema.org
 - `_data/strings.json` - customisable labels and permalink directories

@@ -137,11 +137,10 @@ const memoizedFiles = memoizedFileGetter(rootDir);
 const SRC_JS_FILES = memoizedFiles(
   /^(src\/|packages\/js-toolkit\/(?!test-utils\/)).*\.js$/,
 );
-const ECOMMERCE_JS_FILES = memoizedFiles(/^ecommerce-backend\/.*\.js$/);
 const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
 const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
 const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
-const ALL_JS_FILES = memoizedFiles(/^(src|ecommerce-backend|test)\/.*\.js$/);
+const ALL_JS_FILES = memoizedFiles(/^(src|test)\/.*\.js$/);
 
 /**
  * Create a pattern extractor for files.
@@ -383,7 +382,6 @@ export {
   // File discovery
   getFiles,
   SRC_JS_FILES,
-  ECOMMERCE_JS_FILES,
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,

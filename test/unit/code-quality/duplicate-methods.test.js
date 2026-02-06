@@ -32,7 +32,7 @@ const ALLOWED_DUPLICATE_NAMES = frozenSet([
 ]);
 
 // Directories to exclude from analysis
-const EXCLUDED_DIRS = frozenSet(["ecommerce-backend"]);
+const EXCLUDED_DIRS = frozenSet([]);
 
 // ============================================
 // Function Definition Patterns
