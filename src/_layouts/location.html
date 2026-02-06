@@ -27,6 +27,6 @@ layout: base
 
 {%- assign otherServices = collections.locations | getSiblingLocations: parentLocation, page.url -%}
 {%- if otherServices.size > 0 -%}
-  <h2>Other Services</h2>
+  <h2>Other Locations</h2>
   {%- include "items.html", items: otherServices -%}
 {%- endif -%}
