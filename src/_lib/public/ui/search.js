@@ -37,22 +37,12 @@ const renderResult = (result) => {
   return card;
 };
 
-const loadPagefind = () =>
-  new Promise((resolve, reject) => {
-    if (window.pagefind) {
-      resolve(window.pagefind);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "/pagefind/pagefind.js";
-    script.type = "module";
-    script.onload = async () => {
-      await window.pagefind.init();
-      resolve(window.pagefind);
-    };
-    script.onerror = () => reject(new Error("Failed to load Pagefind"));
-    document.head.appendChild(script);
-  });
+const loadPagefind = async () => {
+  if (window.pagefind) return window.pagefind;
+  const pagefind = await import("/pagefind/pagefind.js");
+  await pagefind.init();
+  return pagefind;
+};
 
 const createSearchController = (elements) => {
   const state = { results: [], shown: 0 };

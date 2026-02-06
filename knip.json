@@ -18,7 +18,8 @@
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
-		"_site/**"
+		"_site/**",
+		"src/_lib/public/ui/search.js"
 	],
 	"ignoreDependencies": [
 		"bun-types",

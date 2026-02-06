@@ -46,6 +46,7 @@
       background: var(--color-link);
       color: var(--color-contrast-text);
       border: none;
+      border-radius: 0 $radius-md $radius-md 0;
       cursor: pointer;
       font-size: $font-size-base;
       transition: background $transition-fast;
@@ -84,7 +85,7 @@
     }
   }
 
-  .search-result__link {
+  a.search-result__link {
     display: flex;
     gap: $space-md;
     text-decoration: none;
@@ -125,5 +126,9 @@
 
   .search-load-more {
     align-self: center;
+
+    &[hidden] {
+      display: none;
+    }
   }
 }

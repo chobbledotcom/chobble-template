@@ -10,6 +10,7 @@ export const configureJsBundler = (eleventyConfig) => {
       target: "browser",
       sourcemap: "linked",
       minify: !isDevelopment,
+      external: ["/pagefind/pagefind.js"],
     });
 
     // Build design system bundle
