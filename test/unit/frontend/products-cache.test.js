@@ -1,22 +1,17 @@
 import { describe, expect, mock, test } from "bun:test";
-import {
-  getCart,
-  safeGetStorageJson,
-  saveCart,
-} from "#public/utils/cart-utils.js";
+import { getCart, saveCart } from "#public/utils/cart-utils.js";
 
-// Ensure site-config is available for Config module (reads DOM at import time)
-// Must be set up before importing products-cache.js which imports Config
-const siteConfig = document.createElement("script");
-siteConfig.id = "site-config";
-siteConfig.type = "application/json";
-siteConfig.textContent = JSON.stringify({
-  currency: "GBP",
-  ecommerce_api_host: "test.example.com",
-});
-document.head.appendChild(siteConfig);
+// Mock dependencies at module level to avoid parallel test interference:
+// - http.js: prevents globalThis.fetch race conditions with http.test.js
+// - config.js: prevents DOM site-config conflicts with checkout.test.js
+const mockFetchJson = mock(() => Promise.resolve(null));
+mock.module("#public/utils/http.js", () => ({
+  fetchJson: (...args) => mockFetchJson(...args),
+}));
+mock.module("#public/utils/config.js", () => ({
+  default: { ecommerce_api_host: "test.example.com" },
+}));
 
-// Dynamic import after DOM setup - Config reads site-config at module load
 const {
   CACHE_KEY,
   CACHE_TTL_MS,
@@ -27,11 +22,12 @@ const {
 } = await import("#public/utils/products-cache.js");
 
 const withCleanStorage = async (fn) => {
-  globalThis.localStorage.clear();
+  localStorage.clear();
+  mockFetchJson.mockReset();
   try {
     return await fn();
   } finally {
-    globalThis.localStorage.clear();
+    localStorage.clear();
   }
 };
 
@@ -46,23 +42,6 @@ const withMockedAlert = async (fn) => {
   }
 };
 
-const withMockedFetch = async (fetchImpl, fn) => {
-  const origFetch = globalThis.fetch;
-  const fetchMock = mock(fetchImpl);
-  globalThis.fetch = fetchMock;
-  try {
-    return await fn(fetchMock);
-  } finally {
-    globalThis.fetch = origFetch;
-  }
-};
-
-const productsOkFetch = () =>
-  Promise.resolve({
-    ok: true,
-    json: () => Promise.resolve(MOCK_PRODUCTS),
-  });
-
 const expectSingleRemovalAlert = (alertMock, expectedName) => {
   expect(getCart()).toHaveLength(0);
   expect(alertMock).toHaveBeenCalledTimes(1);
@@ -70,123 +49,41 @@ const expectSingleRemovalAlert = (alertMock, expectedName) => {
 };
 
 const MOCK_PRODUCTS = [
-  {
-    sku: "MH6D2J",
-    name: "Mini Gizmo",
-    description: "Smaller than the big one",
-    unit_price: 30,
-    price_formatted: "0.30",
-    currency: "GBP",
-    stock: 3,
-    in_stock: true,
-  },
-  {
-    sku: "WEBDEV",
-    name: "Web Dev",
-    description: "",
-    unit_price: 10000,
-    price_formatted: "100.00",
-    currency: "GBP",
-    in_stock: true,
-  },
-  {
-    sku: "GONE",
-    name: "Discontinued",
-    description: "",
-    unit_price: 500,
-    price_formatted: "5.00",
-    currency: "GBP",
-    in_stock: false,
-  },
+  { sku: "MH6D2J", name: "Mini Gizmo", unit_price: 30, in_stock: true },
+  { sku: "WEBDEV", name: "Web Dev", unit_price: 10000, in_stock: true },
+  { sku: "GONE", name: "Discontinued", unit_price: 500, in_stock: false },
 ];
 
 describe("products-cache", () => {
-  // ----------------------------------------
-  // safeGetStorageJson Tests
-  // ----------------------------------------
-  test("safeGetStorageJson returns null for missing key", () => {
-    withCleanStorage(() => {
-      const result = safeGetStorageJson("nonexistent");
-      expect(result).toBeNull();
-    });
-  });
-
-  test("safeGetStorageJson parses valid JSON", () => {
-    withCleanStorage(() => {
-      localStorage.setItem("test_key", JSON.stringify({ foo: "bar" }));
-      const result = safeGetStorageJson("test_key");
-      expect(result).toEqual({ foo: "bar" });
-    });
-  });
-
-  test("safeGetStorageJson returns null for corrupt JSON", () => {
-    withCleanStorage(() => {
-      localStorage.setItem("test_key", "not valid json {{{");
-      const errorMock = mock();
-      const originalError = console.error;
-      console.error = errorMock;
-      try {
-        const result = safeGetStorageJson("test_key");
-        expect(result).toBeNull();
-        expect(errorMock).toHaveBeenCalledTimes(1);
-        expect(errorMock.mock.calls[0][0].includes("Failed to parse")).toBe(
-          true,
-        );
-      } finally {
-        console.error = originalError;
-      }
-    });
-  });
-
   // ----------------------------------------
   // Cache Reading Tests
   // ----------------------------------------
   test("getCachedProducts returns null when no cache exists", () => {
     withCleanStorage(() => {
-      const result = getCachedProducts();
-      expect(result).toBeNull();
+      expect(getCachedProducts()).toBeNull();
     });
   });
 
   test("getCachedProducts returns data when cache is fresh", () => {
     withCleanStorage(() => {
-      const cache = {
-        data: MOCK_PRODUCTS,
-        cached_at: Date.now(),
-      };
-      localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-
-      const result = getCachedProducts();
-      expect(result).toEqual(MOCK_PRODUCTS);
+      localStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({ data: MOCK_PRODUCTS, cached_at: Date.now() }),
+      );
+      expect(getCachedProducts()).toEqual(MOCK_PRODUCTS);
     });
   });
 
   test("getCachedProducts returns null when cache is expired", () => {
     withCleanStorage(() => {
-      const cache = {
-        data: MOCK_PRODUCTS,
-        cached_at: Date.now() - CACHE_TTL_MS - 1000,
-      };
-      localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-
-      const result = getCachedProducts();
-      expect(result).toBeNull();
-    });
-  });
-
-  test("getCachedProducts returns null for corrupt cache data", () => {
-    withCleanStorage(() => {
-      localStorage.setItem(CACHE_KEY, "corrupt{{{");
-      const originalError = console.error;
-      console.error = () => {
-        // suppress expected error logging
-      };
-      try {
-        const result = getCachedProducts();
-        expect(result).toBeNull();
-      } finally {
-        console.error = originalError;
-      }
+      localStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({
+          data: MOCK_PRODUCTS,
+          cached_at: Date.now() - CACHE_TTL_MS - 1000,
+        }),
+      );
+      expect(getCachedProducts()).toBeNull();
     });
   });
 
@@ -205,9 +102,7 @@ describe("products-cache", () => {
         },
       ];
       saveCart(cart);
-
-      const result = validateBuyItems(cart, MOCK_PRODUCTS);
-      expect(result).toBe(false);
+      expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(false);
       expect(getCart()).toEqual(cart);
     });
   });
@@ -224,7 +119,6 @@ describe("products-cache", () => {
           saveCart([
             { item_name, unit_price, quantity: 1, sku, product_mode: "buy" },
           ]);
-
           expect(validateBuyItems(getCart(), MOCK_PRODUCTS)).toBe(true);
           expectSingleRemovalAlert(alertMock, item_name);
           expect(alertMock.mock.calls[0][0]).toContain("no longer available");
@@ -245,12 +139,9 @@ describe("products-cache", () => {
         },
       ];
       saveCart(cart);
-
-      const result = validateBuyItems(cart, MOCK_PRODUCTS);
       // Price changed from 0.5 to 0.30 (30 pence / 100)
-      expect(result).toBe(true);
-      const updatedCart = getCart();
-      expect(updatedCart[0].unit_price).toBe(0.3);
+      expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(true);
+      expect(getCart()[0].unit_price).toBe(0.3);
     });
   });
 
@@ -266,9 +157,7 @@ describe("products-cache", () => {
         },
       ];
       saveCart(cart);
-
-      const result = validateBuyItems(cart, MOCK_PRODUCTS);
-      expect(result).toBe(false);
+      expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(false);
     });
   });
 
@@ -300,8 +189,7 @@ describe("products-cache", () => {
         ];
         saveCart(cart);
 
-        const result = validateBuyItems(cart, MOCK_PRODUCTS);
-        expect(result).toBe(true);
+        expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(true);
 
         const updatedCart = getCart();
         expect(updatedCart).toHaveLength(2);
@@ -346,7 +234,7 @@ describe("products-cache", () => {
   });
 
   // ----------------------------------------
-  // Cache TTL Tests
+  // Cache Constants Tests
   // ----------------------------------------
   test("CACHE_TTL_MS is 1 hour", () => {
     expect(CACHE_TTL_MS).toBe(60 * 60 * 1000);
@@ -359,180 +247,146 @@ describe("products-cache", () => {
   // ----------------------------------------
   // validateCartWithCache Tests
   // ----------------------------------------
-  test("validateCartWithCache skips if no buy-mode items in cart", async () => {
-    await withCleanStorage(() =>
-      withMockedFetch(
-        () => {
-          // no-op: fetch should not be called in this test
+  test("validateCartWithCache skips fetch if no buy-mode items", async () => {
+    await withCleanStorage(async () => {
+      saveCart([
+        {
+          item_name: "Hire",
+          unit_price: 10,
+          quantity: 1,
+          product_mode: "hire",
         },
-        async (fetchMock) => {
-          saveCart([
-            {
-              item_name: "Hire",
-              unit_price: 10,
-              quantity: 1,
-              product_mode: "hire",
-            },
-          ]);
-          await validateCartWithCache();
-          expect(fetchMock).not.toHaveBeenCalled();
-        },
-      ),
-    );
+      ]);
+      await validateCartWithCache();
+      expect(mockFetchJson).not.toHaveBeenCalled();
+    });
   });
 
   test("validateCartWithCache fetches products and validates cart", async () => {
-    await withCleanStorage(() =>
-      withMockedFetch(productsOkFetch, async (fetchMock) =>
-        withMockedAlert(async () => {
-          saveCart([
-            {
-              item_name: "Mini Gizmo",
-              unit_price: 0.5,
-              quantity: 1,
-              sku: "MH6D2J",
-              product_mode: "buy",
-            },
-          ]);
-          await validateCartWithCache();
-          expect(fetchMock).toHaveBeenCalledTimes(1);
-          expect(getCart()[0].unit_price).toBe(0.3);
-          const cache = JSON.parse(localStorage.getItem(CACHE_KEY));
-          expect(cache.data).toEqual(MOCK_PRODUCTS);
-        }),
-      ),
-    );
+    await withCleanStorage(async () => {
+      mockFetchJson.mockImplementation(() => Promise.resolve(MOCK_PRODUCTS));
+      await withMockedAlert(async () => {
+        saveCart([
+          {
+            item_name: "Mini Gizmo",
+            unit_price: 0.5,
+            quantity: 1,
+            sku: "MH6D2J",
+            product_mode: "buy",
+          },
+        ]);
+        await validateCartWithCache();
+        expect(mockFetchJson).toHaveBeenCalledTimes(1);
+        expect(getCart()[0].unit_price).toBe(0.3);
+        const cache = JSON.parse(localStorage.getItem(CACHE_KEY));
+        expect(cache.data).toEqual(MOCK_PRODUCTS);
+      });
+    });
   });
 
   test("validateCartWithCache uses cached products when fresh", async () => {
-    await withCleanStorage(() =>
-      withMockedFetch(
-        () => {
-          // no-op: fetch should not be called in this test
+    await withCleanStorage(async () => {
+      localStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({ data: MOCK_PRODUCTS, cached_at: Date.now() }),
+      );
+      saveCart([
+        {
+          item_name: "Mini Gizmo",
+          unit_price: 0.3,
+          quantity: 1,
+          sku: "MH6D2J",
+          product_mode: "buy",
         },
-        async (fetchMock) => {
-          localStorage.setItem(
-            CACHE_KEY,
-            JSON.stringify({ data: MOCK_PRODUCTS, cached_at: Date.now() }),
-          );
-          saveCart([
-            {
-              item_name: "Mini Gizmo",
-              unit_price: 0.3,
-              quantity: 1,
-              sku: "MH6D2J",
-              product_mode: "buy",
-            },
-          ]);
-          await validateCartWithCache();
-          expect(fetchMock).not.toHaveBeenCalled();
-        },
-      ),
-    );
+      ]);
+      await validateCartWithCache();
+      expect(mockFetchJson).not.toHaveBeenCalled();
+    });
   });
 
   test("validateCartWithCache alerts when API is unreachable", async () => {
-    await withCleanStorage(() =>
-      withMockedFetch(
-        () => Promise.reject(new Error("Network error")),
-        async () =>
-          withMockedAlert(async (alertMock) => {
-            saveCart([
-              {
-                item_name: "Gizmo",
-                unit_price: 0.3,
-                quantity: 1,
-                sku: "MH6D2J",
-                product_mode: "buy",
-              },
-            ]);
-            await validateCartWithCache();
-            expect(alertMock).toHaveBeenCalledTimes(1);
-            expect(alertMock.mock.calls[0][0]).toContain(
-              "Unable to reach the store",
-            );
-          }),
-      ),
-    );
+    await withCleanStorage(async () => {
+      mockFetchJson.mockImplementation(() => Promise.resolve(null));
+      await withMockedAlert(async (alertMock) => {
+        saveCart([
+          {
+            item_name: "Gizmo",
+            unit_price: 0.3,
+            quantity: 1,
+            sku: "MH6D2J",
+            product_mode: "buy",
+          },
+        ]);
+        await validateCartWithCache();
+        expect(alertMock).toHaveBeenCalledTimes(1);
+        expect(alertMock.mock.calls[0][0]).toContain(
+          "Unable to reach the store",
+        );
+      });
+    });
   });
 
   test("validateCartWithCache removes unavailable items after fetch", async () => {
-    await withCleanStorage(() =>
-      withMockedFetch(productsOkFetch, async () =>
-        withMockedAlert(async (alertMock) => {
-          saveCart([
-            {
-              item_name: "Unknown",
-              unit_price: 10,
-              quantity: 1,
-              sku: "NOPE",
-              product_mode: "buy",
-            },
-          ]);
-          await validateCartWithCache();
-          expectSingleRemovalAlert(alertMock, "Unknown");
-        }),
-      ),
-    );
+    await withCleanStorage(async () => {
+      mockFetchJson.mockImplementation(() => Promise.resolve(MOCK_PRODUCTS));
+      await withMockedAlert(async (alertMock) => {
+        saveCart([
+          {
+            item_name: "Unknown",
+            unit_price: 10,
+            quantity: 1,
+            sku: "NOPE",
+            product_mode: "buy",
+          },
+        ]);
+        await validateCartWithCache();
+        expectSingleRemovalAlert(alertMock, "Unknown");
+      });
+    });
   });
 
   // ----------------------------------------
   // refreshCacheIfNeeded Tests
   // ----------------------------------------
   test("refreshCacheIfNeeded does nothing with empty cart", () => {
-    withCleanStorage(() =>
-      withMockedFetch(
-        () => {
-          // no-op: fetch should not be called in this test
-        },
-        (fetchMock) => {
-          saveCart([]);
-          refreshCacheIfNeeded();
-          expect(fetchMock).not.toHaveBeenCalled();
-        },
-      ),
-    );
+    withCleanStorage(() => {
+      saveCart([]);
+      refreshCacheIfNeeded();
+      expect(mockFetchJson).not.toHaveBeenCalled();
+    });
   });
 
   test("refreshCacheIfNeeded does nothing with only hire items", () => {
-    withCleanStorage(() =>
-      withMockedFetch(
-        () => {
-          // no-op: fetch should not be called in this test
+    withCleanStorage(() => {
+      saveCart([
+        {
+          item_name: "Hire",
+          unit_price: 10,
+          quantity: 1,
+          product_mode: "hire",
         },
-        (fetchMock) => {
-          saveCart([
-            {
-              item_name: "Hire",
-              unit_price: 10,
-              quantity: 1,
-              product_mode: "hire",
-            },
-          ]);
-          refreshCacheIfNeeded();
-          expect(fetchMock).not.toHaveBeenCalled();
-        },
-      ),
-    );
+      ]);
+      refreshCacheIfNeeded();
+      expect(mockFetchJson).not.toHaveBeenCalled();
+    });
   });
 
   test("refreshCacheIfNeeded triggers fetch for buy items", () => {
-    withCleanStorage(() =>
-      withMockedFetch(productsOkFetch, (fetchMock) => {
-        withMockedAlert(() => {
-          saveCart([
-            {
-              item_name: "Gizmo",
-              unit_price: 0.3,
-              quantity: 1,
-              sku: "MH6D2J",
-              product_mode: "buy",
-            },
-          ]);
-          refreshCacheIfNeeded();
-          expect(fetchMock).toHaveBeenCalledTimes(1);
-        });
-      }),
-    );
+    withCleanStorage(() => {
+      mockFetchJson.mockImplementation(() => Promise.resolve(MOCK_PRODUCTS));
+      withMockedAlert(() => {
+        saveCart([
+          {
+            item_name: "Gizmo",
+            unit_price: 0.3,
+            quantity: 1,
+            sku: "MH6D2J",
+            product_mode: "buy",
+          },
+        ]);
+        refreshCacheIfNeeded();
+        expect(mockFetchJson).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 });

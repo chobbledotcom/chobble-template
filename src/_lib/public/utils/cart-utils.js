@@ -1,30 +1,14 @@
 // Shared cart utilities
 // Common functions used across cart, quote, and checkout pages
 
-import { error as logError } from "#utils/console.js";
 import { formatPrice as formatCurrency } from "#utils/format-price.js";
 
 export const STORAGE_KEY = "shopping_cart";
 
-/**
- * Safely parse JSON from localStorage, returning null on corrupt data.
- * localStorage is browser-side storage that users/extensions can corrupt.
- */
-export function safeGetStorageJson(key) {
-  const raw = localStorage.getItem(key);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch (e) {
-    logError(`Failed to parse localStorage key "${key}":`, e);
-    return null;
-  }
-}
-
 export function getCart() {
-  const data = safeGetStorageJson(STORAGE_KEY);
-  if (data) return data;
-  return [];
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return [];
+  return JSON.parse(raw);
 }
 
 export function saveCart(cart) {

@@ -261,20 +261,10 @@ describe("checkout", () => {
     });
   });
 
-  test("getCart logs error and returns empty array for corrupt JSON", () => {
+  test("getCart throws on corrupt JSON in localStorage", () => {
     withCheckoutMockStorage((storage) => {
       storage.setItem(STORAGE_KEY, "not valid json {{{");
-      const errors = [];
-      const originalError = console.error;
-      console.error = (...args) => errors.push(args);
-      try {
-        const cart = getCart();
-        expect(cart).toEqual([]);
-        expect(errors.length).toBe(1);
-        expect(errors[0][0].includes("Failed to parse")).toBe(true);
-      } finally {
-        console.error = originalError;
-      }
+      expect(() => getCart()).toThrow();
     });
   });
 

@@ -2,11 +2,7 @@
 // Fetches product data from the ecommerce API and caches it in localStorage.
 // Used to validate buy-mode cart items (SKU availability, stock, prices).
 
-import {
-  getCart,
-  safeGetStorageJson,
-  saveCart,
-} from "#public/utils/cart-utils.js";
+import { getCart, saveCart } from "#public/utils/cart-utils.js";
 import Config from "#public/utils/config.js";
 import { fetchJson } from "#public/utils/http.js";
 
@@ -14,8 +10,10 @@ const CACHE_KEY = "products_cache";
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 const getCachedProducts = () => {
-  const cache = safeGetStorageJson(CACHE_KEY);
-  if (cache && Date.now() - cache.cached_at < CACHE_TTL_MS) return cache.data;
+  const raw = localStorage.getItem(CACHE_KEY);
+  if (!raw) return null;
+  const cache = JSON.parse(raw);
+  if (Date.now() - cache.cached_at < CACHE_TTL_MS) return cache.data;
   return null;
 };
 

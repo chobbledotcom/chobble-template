@@ -35,11 +35,6 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   // src/_lib/public/utils/http.js - centralized HTTP error handling (entire file)
   "src/_lib/public/utils/http.js",
 
-  // src/_lib/public/utils/cart-utils.js - JSON parsing of localStorage data
-  // Needed: localStorage is browser-side storage that can be corrupted by users,
-  // extensions, or data migration issues. We don't control this input.
-  "src/_lib/public/utils/cart-utils.js:16",
-
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
   "test/integration/test-site-factory.test.js:135",
