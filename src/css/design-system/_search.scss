@@ -1,0 +1,88 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// SEARCH (Pagefind UI overrides)
+// =============================================================================
+
+.design-system {
+  #pagefind-search {
+    --pagefind-ui-scale: 1;
+    --pagefind-ui-primary: var(--color-link);
+    --pagefind-ui-text: var(--color-text);
+    --pagefind-ui-background: var(--color-card-bg);
+    --pagefind-ui-border: #{$border-medium};
+    --pagefind-ui-border-width: 0;
+    --pagefind-ui-border-radius: #{$radius-md};
+    --pagefind-ui-font: inherit;
+  }
+
+  // Search form: input with button flush on the right
+  .pagefind-ui__form {
+    position: relative;
+  }
+
+  .pagefind-ui__search-input {
+    @include input-base;
+    padding-right: $space-xl + $space-sm;
+    box-sizing: border-box;
+  }
+
+  .pagefind-ui__search-clear {
+    right: $space-xl + $space-xs;
+    color: var(--color-text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: $space-xs;
+
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+
+  .pagefind-ui__drawer {
+    margin-top: $space-md;
+  }
+
+  .pagefind-ui__results-area {
+    @include flex-col($space-md);
+  }
+
+  .pagefind-ui__message {
+    @include body-base;
+    color: var(--color-text-muted);
+  }
+
+  .pagefind-ui__result {
+    @include card($space-md, $radius-md);
+    @include card-hover;
+    list-style: none;
+
+    &:hover {
+      border-color: var(--color-link);
+    }
+  }
+
+  .pagefind-ui__result-link {
+    @include heading-sm;
+    color: var(--color-link);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-link-hover);
+      text-decoration: underline;
+    }
+  }
+
+  .pagefind-ui__result-excerpt {
+    @include body-base;
+    color: var(--color-text-muted);
+    margin-top: $space-xs;
+  }
+
+  .pagefind-ui__button {
+    @include button-secondary;
+    margin-top: $space-sm;
+  }
+}
