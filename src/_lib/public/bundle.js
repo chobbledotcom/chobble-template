@@ -11,6 +11,7 @@ import "#public/ui/autosizes.js";
 import "#public/ui/gallery.js";
 import "#public/ui/mobile-menu-collapse.js";
 import "#public/ui/scroll-fade.js";
+import "#public/ui/search.js";
 import "#public/ui/slider.js";
 import "#public/ui/tabs.js";
 import "#public/ui/freetobook.js";
