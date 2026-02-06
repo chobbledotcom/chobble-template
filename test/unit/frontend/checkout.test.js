@@ -64,7 +64,7 @@ const renderTemplate = async (templatePath, data = {}) => {
 // Create a complete page with cart overlay from real templates
 const createCheckoutPage = async (options = {}) => {
   const {
-    checkoutApiUrl = "https://api.example.com",
+    ecommerceApiHost = "api.example.com",
     cartMode = "stripe",
     includeStripeCheckoutPage = false,
     // Product options for testing add-to-cart
@@ -82,7 +82,7 @@ const createCheckoutPage = async (options = {}) => {
 
   const config = {
     cart_mode: cartMode,
-    checkout_api_url: checkoutApiUrl,
+    ecommerce_api_host: ecommerceApiHost,
     currency: "GBP",
   };
 
@@ -506,7 +506,7 @@ describe("checkout", () => {
   test("Cart overlay template renders with all required elements", async () => {
     const dom = await createCheckoutPage({
       cartMode: "stripe",
-      checkoutApiUrl: "https://api.test.com",
+      ecommerceApiHost: "api.test.com",
     });
 
     const doc = dom.window.document;
@@ -522,13 +522,13 @@ describe("checkout", () => {
     // Verify config is available via script tag
     const configScript = dom.window.document.getElementById("site-config");
     const siteConfig = JSON.parse(configScript.textContent);
-    expect(siteConfig.checkout_api_url).toBe("https://api.test.com");
+    expect(siteConfig.ecommerce_api_host).toBe("api.test.com");
   });
 
   test("Cart overlay shows Stripe button when cart_mode is stripe", async () => {
     const dom = await createCheckoutPage({
       cartMode: "stripe",
-      checkoutApiUrl: "https://api.example.com",
+      ecommerceApiHost: "api.example.com",
     });
 
     const doc = dom.window.document;
@@ -537,21 +537,25 @@ describe("checkout", () => {
     expect(stripeBtn).toBeTruthy();
   });
 
-  test("Stripe checkout page template renders with data attributes", async () => {
+  test("Stripe checkout page template renders with status message", async () => {
     const dom = await createCheckoutPage({
       includeStripeCheckoutPage: true,
-      checkoutApiUrl: "https://checkout.api.com",
+      ecommerceApiHost: "checkout.api.com",
     });
 
     const doc = dom.window.document;
     const page = doc.querySelector(".stripe-checkout-page");
 
     expect(page).toBeTruthy();
-    expect(page.dataset.checkoutApiUrl).toBe("https://checkout.api.com");
 
     const status = doc.getElementById("status-message");
     expect(status).toBeTruthy();
     expect(status.textContent.includes("Checking cart")).toBe(true);
+
+    // ecommerce_api_host is available via site-config script, not data attribute
+    const configScript = doc.getElementById("site-config");
+    const siteConfig = JSON.parse(configScript.textContent);
+    expect(siteConfig.ecommerce_api_host).toBe("checkout.api.com");
   });
 
   test("Cart icon template renders with required elements", async () => {

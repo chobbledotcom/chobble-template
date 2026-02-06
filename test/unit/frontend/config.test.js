@@ -26,7 +26,7 @@ describe("config", () => {
       "chobble_link",
       "map_embed_src",
       "cart_mode",
-      "checkout_api_url",
+      "ecommerce_api_host",
       "product_mode",
       "has_products_filter",
       "has_properties_filter",

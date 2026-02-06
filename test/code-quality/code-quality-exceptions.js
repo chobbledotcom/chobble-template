@@ -38,7 +38,7 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   // src/_lib/public/utils/cart-utils.js - JSON parsing of localStorage data
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.
-  "src/_lib/public/utils/cart-utils.js:14",
+  "src/_lib/public/utils/cart-utils.js:16",
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
@@ -302,8 +302,8 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/item-filters.js:143", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
-  "src/_lib/public/cart/cart.js:99",
   "src/_lib/public/cart/cart.js:100",
+  "src/_lib/public/cart/cart.js:101",
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions

@@ -6,17 +6,25 @@ import { formatPrice as formatCurrency } from "#utils/format-price.js";
 
 export const STORAGE_KEY = "shopping_cart";
 
-export function getCart() {
-  const cart = localStorage.getItem(STORAGE_KEY);
-  if (!cart) {
-    return [];
-  }
+/**
+ * Safely parse JSON from localStorage, returning null on corrupt data.
+ * localStorage is browser-side storage that users/extensions can corrupt.
+ */
+export function safeGetStorageJson(key) {
+  const raw = localStorage.getItem(key);
+  if (!raw) return null;
   try {
-    return JSON.parse(cart);
+    return JSON.parse(raw);
   } catch (e) {
-    logError("Failed to parse cart data:", e);
-    return [];
+    logError(`Failed to parse localStorage key "${key}":`, e);
+    return null;
   }
+}
+
+export function getCart() {
+  const data = safeGetStorageJson(STORAGE_KEY);
+  if (data) return data;
+  return [];
 }
 
 export function saveCart(cart) {
