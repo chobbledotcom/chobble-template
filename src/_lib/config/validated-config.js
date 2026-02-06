@@ -93,9 +93,9 @@ const validatePageFrontmatter = (filename, layout, permalink, cartMode) => {
 };
 
 if (configData.cart_mode === "stripe") {
-  if (!configData.checkout_api_url) {
+  if (!configData.ecommerce_api_host) {
     throw new Error(
-      'cart_mode is "stripe" but checkout_api_url is not set in config.json',
+      'cart_mode is "stripe" but ecommerce_api_host is not set in config.json',
     );
   }
   validatePageFrontmatter(

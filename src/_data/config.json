@@ -17,7 +17,7 @@
   "template_repo_url": null,
   "chobble_link": null,
   "cart_mode": "stripe",
-  "checkout_api_url": "https://ecom.chobble.com/api/checkout",
+  "ecommerce_api_host": "ecom.chobble.com",
   "currency": "GBP",
   "default_image_widths": null,
   "products": {

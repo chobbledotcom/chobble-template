@@ -16,7 +16,7 @@ const DEFAULTS = frozenObject({
   chobble_link: null,
   map_embed_src: null,
   cart_mode: null,
-  checkout_api_url: null,
+  ecommerce_api_host: null,
   product_mode: null,
   has_products_filter: false,
   has_properties_filter: false,
