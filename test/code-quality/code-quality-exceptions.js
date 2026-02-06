@@ -32,11 +32,6 @@ import { frozenSet } from "#toolkit/fp/set.js";
 
 // Add file:line for specific locations, or just file path to allow all try/catch in that file
 const ALLOWED_TRY_CATCHES = frozenSet([
-  // ecommerce-backend/server.js - PayPal API calls
-  "ecommerce-backend/server.js:185",
-  "ecommerce-backend/server.js:213",
-  "ecommerce-backend/server.js:289",
-
   // src/_lib/public/utils/http.js - centralized HTTP error handling (entire file)
   "src/_lib/public/utils/http.js",
 
@@ -80,11 +75,8 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 // While const prevents reassignment, these containers can still be mutated.
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = frozenSet([
-  // Maps - used as caches/indexes being populated via set
-  "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
-
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:155", // createExtractor accumulates results in a Set
+  "test/test-utils.js:154", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
@@ -137,7 +129,6 @@ const ALLOWED_LET = frozenSet([
   "test/unit/code-quality/design-system-scoping.test.js",
   "test/integration/test-site-factory.test.js",
   "test/code-scanner.js",
-  "ecommerce-backend/server.test.js",
   "test/unit/transforms/images.test.js",
 
   // src/_lib/media/image-external.js - let html for try/catch fallback pattern
@@ -151,7 +142,6 @@ const ALLOWED_LET = frozenSet([
 // Files with single-use functions that are intentionally kept for clarity.
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
-  "ecommerce-backend/server.js",
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/categories.js", // Helpers for category property map building
   "src/_lib/collections/events.js", // Thumbnail resolution from products
@@ -312,8 +302,8 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/item-filters.js:143", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
-  "src/_lib/public/cart/cart.js:104",
-  "src/_lib/public/cart/cart.js:105",
+  "src/_lib/public/cart/cart.js:99",
+  "src/_lib/public/cart/cart.js:100",
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions

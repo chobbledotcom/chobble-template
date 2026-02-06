@@ -3,11 +3,7 @@
   "extends": ["./packages/js-toolkit/configs/biome.base.json"],
   "overrides": [
     {
-      "includes": [
-        "src/_lib/build/**/*.js",
-        "ecommerce-backend/server.js",
-        "packages/js-toolkit/**/*.js"
-      ],
+      "includes": ["src/_lib/build/**/*.js", "packages/js-toolkit/**/*.js"],
       "linter": {
         "rules": {
           "suspicious": {

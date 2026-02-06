@@ -1,17 +1,14 @@
 // Shopping Cart
 // Manages cart state in localStorage and provides cart functionality
-// Supports both PayPal and Stripe checkout
 
 import { createCartRenderer } from "#public/utils/cart-renderer.js";
 import {
   formatPrice,
   getCart,
-  getCheckoutItems,
   saveCart,
   updateCartIcon,
 } from "#public/utils/cart-utils.js";
 import Config from "#public/utils/config.js";
-import { postJson } from "#public/utils/http.js";
 import { onReady } from "#public/utils/on-ready.js";
 import { IDS } from "#public/utils/selectors.js";
 
@@ -69,11 +66,9 @@ const updateStripeBtn = (btn, isBelowMinimum) => {
 
 const updateCheckoutButtons = (cartOverlay, total) => {
   const isBelowMinimum = total <= MINIMUM_CHECKOUT_AMOUNT;
-  const paypalBtn = cartOverlay.querySelector(".cart-checkout-paypal");
   const stripeBtn = cartOverlay.querySelector(".cart-checkout-stripe");
   const minMsg = cartOverlay.querySelector(".cart-minimum-message");
 
-  if (paypalBtn) paypalBtn.disabled = total === 0;
   if (stripeBtn) updateStripeBtn(stripeBtn, isBelowMinimum);
   if (minMsg)
     minMsg.style.display = isBelowMinimum && total > 0 ? "block" : "none";
@@ -134,20 +129,6 @@ const addItem = (item, quantity = 1) => {
   updateCartDisplay();
   updateCartIcon();
   showAddedFeedback();
-};
-
-const checkoutWithPayPal = async () => {
-  const cart = getCart();
-  if (cart.length === 0) return;
-
-  const items = getCheckoutItems();
-  const order = await postJson(Config.checkout_api_url, { items });
-
-  if (order?.url) {
-    window.location.href = order.url;
-  } else {
-    alert("Failed to start checkout. Please try again.");
-  }
 };
 
 const checkoutWithStripe = () => {
@@ -261,9 +242,6 @@ const setupOverlayListeners = () => {
   cartOverlay.addEventListener("click", (e) => {
     if (e.target === cartOverlay) closeCart();
   });
-
-  const paypalBtn = cartOverlay.querySelector(".cart-checkout-paypal");
-  if (paypalBtn) paypalBtn.addEventListener("click", checkoutWithPayPal);
 
   const stripeBtn = cartOverlay.querySelector(".cart-checkout-stripe");
   if (stripeBtn) stripeBtn.addEventListener("click", checkoutWithStripe);

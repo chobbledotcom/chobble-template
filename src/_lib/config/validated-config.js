@@ -40,7 +40,7 @@ if (
   );
 }
 
-const VALID_CART_MODES = ["paypal", "stripe", "quote"];
+const VALID_CART_MODES = ["stripe", "quote"];
 const VALID_PRODUCT_MODES = ["buy", "hire"];
 
 if (
@@ -110,14 +110,6 @@ if (configData.cart_mode === "stripe") {
     "/order-complete/",
     "stripe",
   );
-}
-
-if (configData.cart_mode === "paypal") {
-  if (!configData.checkout_api_url) {
-    throw new Error(
-      'cart_mode is "paypal" but checkout_api_url is not set in config.json',
-    );
-  }
 }
 
 if (configData.cart_mode === "quote") {

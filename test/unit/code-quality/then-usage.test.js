@@ -4,11 +4,7 @@ import {
   combineFileLists,
   createCodeChecker,
 } from "#test/code-scanner.js";
-import {
-  ECOMMERCE_JS_FILES,
-  SRC_JS_FILES,
-  TEST_FILES,
-} from "#test/test-utils.js";
+import { SRC_JS_FILES, TEST_FILES } from "#test/test-utils.js";
 
 const THIS_FILE = "test/unit/code-quality/then-usage.test.js";
 
@@ -17,11 +13,7 @@ describe("then-usage", () => {
   const { find: findThenCalls, analyze: analyzeThenUsage } = createCodeChecker({
     patterns: /\.then\s*\(/,
     skipPatterns: [/^\/\//, /^\*/],
-    files: combineFileLists([
-      SRC_JS_FILES(),
-      ECOMMERCE_JS_FILES(),
-      TEST_FILES(),
-    ]),
+    files: combineFileLists([SRC_JS_FILES(), TEST_FILES()]),
     excludeFiles: [THIS_FILE],
   });
 

@@ -13,10 +13,11 @@ keywords:
   - colorful
   - self cleaning
 order: 1
+product_mode: buy
 options:
   - name: Standard
     max_quantity: 10
-    unit_price: 99.99
+    unit_price: 0.30
     sku: MH6D2J
 specs:
   - name: Material

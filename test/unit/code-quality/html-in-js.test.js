@@ -4,7 +4,7 @@ import {
   isCommentLine,
   withAllowlist,
 } from "#test/code-scanner.js";
-import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
+import { SRC_JS_FILES } from "#test/test-utils.js";
 import { filterMap } from "#toolkit/fp/array.js";
 import { mapObject } from "#toolkit/fp/object.js";
 import { frozenSet } from "#toolkit/fp/set.js";
@@ -306,7 +306,7 @@ const findHtmlInJs = (source) =>
 const htmlInJsAnalysis = withAllowlist({
   find: findHtmlInJs,
   allowlist: new Set(),
-  files: () => [...SRC_JS_FILES(), ...ECOMMERCE_JS_FILES()],
+  files: () => SRC_JS_FILES(),
 });
 
 describe("html-in-js", () => {

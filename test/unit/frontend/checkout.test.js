@@ -65,7 +65,6 @@ const renderTemplate = async (templatePath, data = {}) => {
 const createCheckoutPage = async (options = {}) => {
   const {
     checkoutApiUrl = "https://api.example.com",
-    paypalEmail = "test@example.com",
     cartMode = "stripe",
     includeStripeCheckoutPage = false,
     // Product options for testing add-to-cart
@@ -84,7 +83,6 @@ const createCheckoutPage = async (options = {}) => {
   const config = {
     cart_mode: cartMode,
     checkout_api_url: checkoutApiUrl,
-    paypal_email: paypalEmail,
     currency: "GBP",
   };
 
@@ -108,7 +106,7 @@ const createCheckoutPage = async (options = {}) => {
     config,
   });
 
-  // Only include cart overlay for paypal/stripe modes (not quote mode)
+  // Only include cart overlay for stripe mode (not quote mode)
   const cartOverlay =
     cartMode !== "quote"
       ? await renderTemplate("src/_includes/cart-overlay.html", { config })
@@ -527,21 +525,6 @@ describe("checkout", () => {
     expect(siteConfig.checkout_api_url).toBe("https://api.test.com");
   });
 
-  test("Cart overlay shows PayPal button when cart_mode is paypal", async () => {
-    const dom = await createCheckoutPage({
-      cartMode: "paypal",
-      paypalEmail: "pay@example.com",
-      checkoutApiUrl: "https://api.example.com",
-    });
-
-    const doc = dom.window.document;
-    const stripeBtn = doc.querySelector(".cart-checkout-stripe");
-    const paypalBtn = doc.querySelector(".cart-checkout-paypal");
-
-    expect(stripeBtn).toBeNull();
-    expect(paypalBtn).toBeTruthy();
-  });
-
   test("Cart overlay shows Stripe button when cart_mode is stripe", async () => {
     const dom = await createCheckoutPage({
       cartMode: "stripe",
@@ -550,10 +533,8 @@ describe("checkout", () => {
 
     const doc = dom.window.document;
     const stripeBtn = doc.querySelector(".cart-checkout-stripe");
-    const paypalBtn = doc.querySelector(".cart-checkout-paypal");
 
     expect(stripeBtn).toBeTruthy();
-    expect(paypalBtn).toBeNull();
   });
 
   test("Stripe checkout page template renders with data attributes", async () => {
@@ -793,7 +774,6 @@ describe("checkout", () => {
   test("Product options template renders nothing when no payment configured", async () => {
     const dom = await createCheckoutPage({
       cartMode: null,
-      paypalEmail: null,
       productOptions: [{ name: "Test", unit_price: "10.00", sku: "TEST" }],
     });
 
@@ -864,10 +844,9 @@ describe("checkout", () => {
       ]);
 
       const mockFetch = createMockFetch({
-        "/api/stripe/create-session": {
+        "/api/checkout": {
           ok: true,
           data: {
-            id: "cs_test_123",
             url: "https://checkout.stripe.com/pay/cs_test_123",
           },
         },
@@ -878,11 +857,15 @@ describe("checkout", () => {
       const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
 
       const response = await mockFetch(
-        "https://api.example.com/api/stripe/create-session",
+        "https://ecom.chobble.com/api/checkout",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items }),
+          body: JSON.stringify({
+            items,
+            success_url: "https://example.com/order-complete/",
+            cancel_url: "https://example.com/cart/",
+          }),
         },
       );
 
@@ -899,50 +882,21 @@ describe("checkout", () => {
 
   test("API error returns error message for display", async () => {
     const mockFetch = createMockFetch({
-      "/api/stripe/create-session": {
+      "/api/checkout": {
         ok: false,
         status: 400,
         data: { error: "Invalid SKU: FAKE-SKU" },
       },
     });
 
-    const response = await mockFetch(
-      "https://api.example.com/api/stripe/create-session",
-      {
-        method: "POST",
-        body: JSON.stringify({ items: [{ sku: "FAKE-SKU", quantity: 1 }] }),
-      },
-    );
+    const response = await mockFetch("https://ecom.chobble.com/api/checkout", {
+      method: "POST",
+      body: JSON.stringify({ items: [{ sku: "FAKE-SKU", quantity: 1 }] }),
+    });
 
     expect(response.ok).toBe(false);
     const error = await response.json();
     expect(error.error).toBe("Invalid SKU: FAKE-SKU");
-  });
-
-  // ----------------------------------------
-  // PayPal Checkout Tests
-  // ----------------------------------------
-  test("PayPal API checkout redirects to PayPal approval URL", async () => {
-    const mockFetch = createMockFetch({
-      "/api/paypal/create-order": {
-        ok: true,
-        data: { url: "https://www.paypal.com/checkoutnow?token=ABC" },
-      },
-    });
-
-    const locationTracker = createLocationTracker();
-
-    const response = await mockFetch(
-      "https://api.example.com/api/paypal/create-order",
-      { method: "POST", body: JSON.stringify({ items: [] }) },
-    );
-
-    const order = await response.json();
-    if (order.url) {
-      locationTracker.location.href = order.url;
-    }
-
-    expect(locationTracker.wasRedirectedTo("paypal.com")).toBe(true);
   });
 
   // ----------------------------------------
