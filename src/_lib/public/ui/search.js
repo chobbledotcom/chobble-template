@@ -12,12 +12,18 @@ const initSearch = () => {
   const script = document.createElement("script");
   script.src = "/pagefind/pagefind-ui.js";
   script.onload = () => {
-    new window.PagefindUI({
+    const search = new window.PagefindUI({
       element: "#pagefind-search",
       showSubResults: true,
       showImages: true,
       resetStyles: false,
     });
+
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("q");
+    if (query) {
+      search.triggerSearch(query);
+    }
   };
   document.head.appendChild(script);
 };

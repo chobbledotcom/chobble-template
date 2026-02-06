@@ -2,10 +2,61 @@
 @use "../mixins" as *;
 
 // =============================================================================
-// SEARCH (Pagefind UI overrides)
+// SEARCH
 // =============================================================================
 
 .design-system {
+  // Search box: inline input + button that looks like part of the field
+  .search-box {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    border: $border-medium;
+    border-radius: $radius-md;
+    overflow: hidden;
+    transition: border-color $transition-fast;
+
+    &:focus-within {
+      border-color: var(--color-link);
+      box-shadow: 0 0 0 3px var(--color-tint);
+    }
+
+    input[type="search"] {
+      flex: 1;
+      padding: $space-sm;
+      font-family: inherit;
+      font-size: $font-size-base;
+      line-height: $line-height-normal;
+      color: var(--color-text);
+      background: var(--color-card-bg);
+      border: none;
+      outline: none;
+      min-width: 0;
+
+      &::placeholder {
+        color: var(--color-text-muted);
+      }
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: $space-sm $space-md;
+      background: var(--color-link);
+      color: var(--color-contrast-text);
+      border: none;
+      cursor: pointer;
+      font-size: $font-size-base;
+      transition: background $transition-fast;
+
+      &:hover {
+        background: var(--color-link-hover);
+      }
+    }
+  }
+
+  // Pagefind UI overrides
   #pagefind-search {
     --pagefind-ui-scale: 1;
     --pagefind-ui-primary: var(--color-link);

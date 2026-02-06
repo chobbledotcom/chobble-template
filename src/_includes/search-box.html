@@ -1,0 +1,22 @@
+{%- comment -%}
+Search box component.
+Submits to /search/ with the query as a ?q= parameter.
+
+Optional parameters:
+  - placeholder: Custom placeholder text (default: "Search...")
+  - button_icon: Button content - supports Iconify IDs, image paths, emojis, or text
+                 (default: "hugeicons:search-02")
+{%- endcomment -%}
+
+{%- assign placeholder = placeholder | default: "Search..." -%}
+{%- assign button_icon = button_icon | default: "hugeicons:search-02" -%}
+
+<form action="/search/" method="get" class="search-box">
+  <input
+    type="search"
+    name="q"
+    placeholder="{{ placeholder }}"
+    autocomplete="off"
+  >
+  <button type="submit">{{ button_icon | renderIcon }}</button>
+</form>

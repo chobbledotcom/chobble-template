@@ -1,1 +1,35 @@
-// Search styles are in design-system/_search.scss
+@use "variables" as *;
+
+// Search box: inline input + button that looks like part of the field.
+// This is the base-theme version for use outside .design-system containers.
+.search-box {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  border: var(--border);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+
+  input[type="search"] {
+    flex: 1;
+    padding: 0.5em;
+    font: inherit;
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: none;
+    outline: none;
+    min-width: 0;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5em 0.75em;
+    background: var(--color-link);
+    color: var(--color-bg);
+    border: none;
+    cursor: pointer;
+    font: inherit;
+  }
+}
