@@ -10,6 +10,7 @@ import {
 } from "#public/utils/cart-utils.js";
 import Config from "#public/utils/config.js";
 import { onReady } from "#public/utils/on-ready.js";
+import { refreshCacheIfNeeded } from "#public/utils/products-cache.js";
 import { IDS } from "#public/utils/selectors.js";
 
 const CART_OVERLAY_ID = "cart-overlay";
@@ -129,6 +130,7 @@ const addItem = (item, quantity = 1) => {
   updateCartDisplay();
   updateCartIcon();
   showAddedFeedback();
+  refreshCacheIfNeeded();
 };
 
 const checkoutWithStripe = () => {

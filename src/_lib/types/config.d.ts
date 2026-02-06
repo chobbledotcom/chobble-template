@@ -72,7 +72,7 @@ export type SiteConfig = {
   chobble_link: string | null;
   map_embed_src: string | null;
   cart_mode: CartMode;
-  checkout_api_url: string | null;
+  ecommerce_api_host: string | null;
   product_mode: ProductMode;
   category_order: string[] | null;
   screenshots: ScreenshotConfig | null;

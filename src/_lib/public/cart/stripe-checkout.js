@@ -2,16 +2,21 @@
 // Handles the redirect flow: checks cart and redirects to Stripe or homepage
 
 import { getCart, getCheckoutItems } from "#public/utils/cart-utils.js";
+import Config from "#public/utils/config.js";
 import { postJson } from "#public/utils/http.js";
+import { validateCartWithCache } from "#public/utils/products-cache.js";
 
-function showStatusError(message) {
+const showStatusError = (message) => {
   const statusMessage = document.getElementById("status-message");
   statusMessage.textContent = message;
   statusMessage.classList.add("error");
-}
+};
 
-const createStripeSession = async (checkoutApiUrl, items) => {
-  const session = await postJson(checkoutApiUrl, {
+const getCheckoutUrl = () =>
+  `https://${Config.ecommerce_api_host}/api/checkout`;
+
+const createStripeSession = async (items) => {
+  const session = await postJson(getCheckoutUrl(), {
     items,
     success_url: `${window.location.origin}/order-complete/`,
     cancel_url: `${window.location.origin}/cart/`,
@@ -20,7 +25,7 @@ const createStripeSession = async (checkoutApiUrl, items) => {
   return { url: session.url };
 };
 
-async function checkout() {
+const checkout = async () => {
   const main = document.querySelector(".stripe-checkout-page");
   if (!main) return;
 
@@ -33,23 +38,32 @@ async function checkout() {
     return;
   }
 
-  if (!main.dataset.checkoutApiUrl) {
+  if (!Config.ecommerce_api_host) {
     showStatusError("Checkout backend is not configured");
     return;
   }
 
+  statusMessage.textContent = "Validating cart...";
+  await validateCartWithCache();
+
+  // Re-read cart after validation (items may have been removed)
+  const validatedCart = getCart();
+  if (validatedCart.length === 0) {
+    statusMessage.textContent =
+      "Your cart is empty. Redirecting to homepage...";
+    window.location.href = "/";
+    return;
+  }
+
   statusMessage.textContent = "Redirecting to Stripe...";
-  const result = await createStripeSession(
-    main.dataset.checkoutApiUrl,
-    getCheckoutItems(),
-  );
+  const result = await createStripeSession(getCheckoutItems());
 
   if (result.error) {
     showStatusError(result.error);
     return;
   }
   window.location.href = result.url;
-}
+};
 
 // Run checkout on page load
 checkout();
