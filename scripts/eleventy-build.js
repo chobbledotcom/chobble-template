@@ -78,6 +78,23 @@ const writeNormalOutput = (data, isStderr) => {
   target.write(data);
 };
 
+const runPagefind = () => {
+  console.log("\nRunning Pagefind indexer...");
+  const result = spawnSync(
+    "bun",
+    ["./node_modules/.bin/pagefind", "--site", "_site"],
+    { stdio: "inherit", env: process.env },
+  );
+  if (result.status !== 0) {
+    console.error("Pagefind indexing failed");
+    return false;
+  }
+  console.log("Pagefind indexing complete\n");
+  return true;
+};
+
+let pagefindRanForServe = false;
+
 const processChunk = (data, isStderr) => {
   const text = data.toString();
   if (errorDetected) {
@@ -88,6 +105,14 @@ const processChunk = (data, isStderr) => {
   if (containsError(text)) {
     triggerFailFast();
   }
+  if (
+    values.serve &&
+    !pagefindRanForServe &&
+    text.includes("[11ty] Watching")
+  ) {
+    pagefindRanForServe = true;
+    runPagefind();
+  }
 };
 
 const handleOutput = (stream, isStderr) => {
@@ -97,26 +122,14 @@ const handleOutput = (stream, isStderr) => {
 handleOutput(eleventy.stdout, false);
 handleOutput(eleventy.stderr, true);
 
-const runPagefind = () => {
-  console.log("\nRunning Pagefind indexer...");
-  const result = spawnSync(
-    "bun",
-    ["./node_modules/.bin/pagefind", "--site", "_site"],
-    { stdio: "inherit", env: process.env },
-  );
-  if (result.status !== 0) {
-    console.error("Pagefind indexing failed");
-    process.exit(result.status || 1);
-  }
-  console.log("Pagefind indexing complete\n");
-};
-
 eleventy.on("close", (code) => {
   if (errorDetected || code !== 0) {
     process.exit(code || 1);
   }
   if (!values.serve) {
-    runPagefind();
+    if (!runPagefind()) {
+      process.exit(1);
+    }
   }
   process.exit(0);
 });
