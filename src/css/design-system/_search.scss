@@ -56,84 +56,74 @@
     }
   }
 
-  // Pagefind UI overrides
-  #pagefind-search {
-    --pagefind-ui-scale: 1;
-    --pagefind-ui-primary: var(--color-link);
-    --pagefind-ui-text: var(--color-text);
-    --pagefind-ui-background: var(--color-card-bg);
-    --pagefind-ui-border: #{$border-medium};
-    --pagefind-ui-border-width: 0;
-    --pagefind-ui-border-radius: #{$radius-md};
-    --pagefind-ui-font: inherit;
-  }
-
-  // Search form: input with button flush on the right
-  .pagefind-ui__form {
-    position: relative;
-  }
-
-  .pagefind-ui__search-input {
-    @include input-base;
-    padding-right: $space-xl + $space-sm;
-    box-sizing: border-box;
-  }
-
-  .pagefind-ui__search-clear {
-    right: $space-xl + $space-xs;
-    color: var(--color-text-muted);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: $space-xs;
-
-    &:hover {
-      color: var(--color-text);
-    }
-  }
-
-  .pagefind-ui__drawer {
+  // Search results
+  #search-results {
+    @include flex-col($space-md);
     margin-top: $space-md;
   }
 
-  .pagefind-ui__results-area {
-    @include flex-col($space-md);
-  }
-
-  .pagefind-ui__message {
+  .search-message {
     @include body-base;
     color: var(--color-text-muted);
+    margin: 0;
   }
 
-  .pagefind-ui__result {
+  .search-results-list {
+    @include flex-col($space-md);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .search-result {
     @include card($space-md, $radius-md);
     @include card-hover;
-    list-style: none;
 
     &:hover {
       border-color: var(--color-link);
     }
   }
 
-  .pagefind-ui__result-link {
-    @include heading-sm;
-    color: var(--color-link);
+  .search-result__link {
+    display: flex;
+    gap: $space-md;
     text-decoration: none;
+    color: inherit;
+  }
 
-    &:hover {
-      color: var(--color-link-hover);
-      text-decoration: underline;
+  .search-result__image {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: $radius-sm;
+    flex-shrink: 0;
+  }
+
+  .search-result__body {
+    @include flex-col($space-xs);
+    min-width: 0;
+
+    h3 {
+      @include heading-sm;
+      color: var(--color-link);
+      margin: 0;
+    }
+
+    p {
+      @include body-sm;
+      color: var(--color-text-muted);
+      margin: 0;
+
+      mark {
+        background: var(--color-tint);
+        color: var(--color-text);
+        border-radius: 2px;
+        padding-inline: 2px;
+      }
     }
   }
 
-  .pagefind-ui__result-excerpt {
-    @include body-base;
-    color: var(--color-text-muted);
-    margin-top: $space-xs;
-  }
-
-  .pagefind-ui__button {
-    @include button-secondary;
-    margin-top: $space-sm;
+  .search-load-more {
+    align-self: center;
   }
 }

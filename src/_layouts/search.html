@@ -2,8 +2,12 @@
 layout: base.html
 ---
 
-<div class="design-system">
-  <div class="prose">{{ content }}</div>
+<div class="design-system" data-pagefind-ignore>
+  {% include "search-box.html" %}
 
-  <div id="pagefind-search" data-pagefind-ignore></div>
+  <div id="search-results">
+    <p class="search-message"></p>
+    <ul class="search-results-list"></ul>
+    <button class="search-load-more btn btn--secondary" hidden>Load more</button>
+  </div>
 </div>

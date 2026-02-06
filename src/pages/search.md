@@ -7,4 +7,3 @@ eleventyNavigation:
   order: 99
 header_text: Search
 ---
-# Search
