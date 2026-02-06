@@ -102,6 +102,34 @@ describe("eleventyComputed", () => {
     });
   });
 
+  describe("pagefind_body", () => {
+    test("returns true when tag matches search_collections", () => {
+      const data = {
+        tags: ["products"],
+        config: { search_collections: ["products", "categories"] },
+      };
+      expect(eleventyComputed.pagefind_body(data)).toBe(true);
+    });
+
+    test("returns false when no tags match search_collections", () => {
+      const data = {
+        tags: ["pages"],
+        config: { search_collections: ["products", "categories"] },
+      };
+      expect(eleventyComputed.pagefind_body(data)).toBe(false);
+    });
+
+    test("returns false when config has no search_collections", () => {
+      const data = { tags: ["products"], config: {} };
+      expect(eleventyComputed.pagefind_body(data)).toBe(false);
+    });
+
+    test("returns false when tags is undefined", () => {
+      const data = { config: { search_collections: ["products"] } };
+      expect(eleventyComputed.pagefind_body(data)).toBe(false);
+    });
+  });
+
   describe("header_text", () => {
     test("Returns header_text when set", () => {
       const data = { header_text: "Custom Header", title: "Page Title" };

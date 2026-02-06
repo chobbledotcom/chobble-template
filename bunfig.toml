@@ -30,6 +30,7 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 # - cart-utils.js, quote-price-utils.js: browser-specific edge cases
 # - array-utils.js: some utility functions only used in specific contexts
 # - on-ready.js: document.readyState branch requires complex mocking
+# - search.js: dynamic import of /pagefind/pagefind.js requires built site binary
 # - screenshot.js, screenshots.js, lighthouse.js, browser-utils.js: Playwright/Chrome browser automation
 # - configure-filters.js: Eleventy registration wiring (functions it calls are fully tested)
 coveragePathIgnorePatterns = [
@@ -37,6 +38,7 @@ coveragePathIgnorePatterns = [
   "test/ensure-deps.js",
   "src/_lib/config/validated-config.js",
   "src/_lib/public/utils/on-ready.js",
+  "src/_lib/public/ui/search.js",
   "scripts/customise-cms/cli-io.js",
   "scripts/customise-cms/config.js",
   "scripts/customise-cms/fields.js",
