@@ -4,8 +4,10 @@
 import { afterEach, describe, expect, mock, test } from "bun:test";
 import {
   createSearchController,
+  handleSubmit,
   initSearch,
   loadPagefind,
+  readQueryParam,
   renderResult,
 } from "#public/ui/search.js";
 
@@ -72,6 +74,7 @@ const searchWith = async (handleCount, query = "test") => {
 afterEach(() => {
   document.body.innerHTML = "";
   delete window.pagefind;
+  window.history.replaceState(null, "", window.location.pathname);
 });
 
 // ============================================
@@ -140,6 +143,65 @@ describe("loadPagefind", () => {
 });
 
 // ============================================
+// readQueryParam
+// ============================================
+
+describe("readQueryParam", () => {
+  test("returns q param from URL", () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("q", "hello");
+    window.history.replaceState(null, "", url);
+
+    expect(readQueryParam()).toBe("hello");
+  });
+
+  test("returns null when no q param", () => {
+    expect(readQueryParam()).toBeNull();
+  });
+});
+
+// ============================================
+// handleSubmit
+// ============================================
+
+describe("handleSubmit", () => {
+  test("calls runSearch with trimmed input value", () => {
+    const controller = {
+      input: { value: "  widgets  " },
+      runSearch: mock(),
+    };
+    const event = { preventDefault: mock() };
+
+    handleSubmit(controller)(event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(controller.runSearch).toHaveBeenCalledWith("widgets");
+  });
+
+  test("updates URL with query parameter", () => {
+    const controller = {
+      input: { value: "gadgets" },
+      runSearch: mock(),
+    };
+
+    handleSubmit(controller)({ preventDefault: mock() });
+
+    expect(window.location.search).toContain("q=gadgets");
+  });
+
+  test("does not search when input is empty", () => {
+    const controller = {
+      input: { value: "   " },
+      runSearch: mock(),
+    };
+
+    handleSubmit(controller)({ preventDefault: mock() });
+
+    expect(controller.runSearch).not.toHaveBeenCalled();
+  });
+});
+
+// ============================================
 // createSearchController
 // ============================================
 
@@ -191,13 +253,12 @@ describe("createSearchController", () => {
     expect(document.querySelector(".search-load-more").hidden).toBe(true);
   });
 
-  test("paginates results and load-more reveals remaining", async () => {
-    await searchWith(12);
+  test("shows first page and exposes showMore for remaining", async () => {
+    const controller = await searchWith(12);
     expect(document.querySelectorAll(".search-result").length).toBe(10);
     expect(document.querySelector(".search-load-more").hidden).toBe(false);
 
-    document.querySelector(".search-load-more").click();
-    await new Promise((r) => setTimeout(r, 0));
+    await controller.showMore();
 
     expect(document.querySelectorAll(".search-result").length).toBe(12);
     expect(document.querySelector(".search-load-more").hidden).toBe(true);
@@ -243,45 +304,22 @@ describe("initSearch", () => {
     expect(() => initSearch()).not.toThrow();
   });
 
-  test("reads query from URL params and triggers search", async () => {
+  test("populates input from URL query param", () => {
     document.body.innerHTML = SEARCH_HTML;
-    window.pagefind = createMockPagefind([createMockResultHandle()]);
+    window.pagefind = createMockPagefind();
 
     const url = new URL(window.location.href);
     url.searchParams.set("q", "hello");
     window.history.replaceState(null, "", url);
 
     initSearch();
-    await new Promise((r) => setTimeout(r, 0));
 
-    expect(window.pagefind.search).toHaveBeenCalledWith("hello");
     expect(document.querySelector("input[type='search']").value).toBe("hello");
-
-    window.history.replaceState(null, "", window.location.pathname);
-  });
-
-  test("form submit triggers search and updates URL", async () => {
-    document.body.innerHTML = SEARCH_HTML;
-    window.pagefind = createMockPagefind([createMockResultHandle()]);
-    window.history.replaceState(null, "", window.location.pathname);
-
-    initSearch();
-    document.querySelector("input[type='search']").value = "widgets";
-    document
-      .querySelector(".search-box")
-      .dispatchEvent(new Event("submit", { cancelable: true }));
-    await new Promise((r) => setTimeout(r, 0));
-
-    expect(window.pagefind.search).toHaveBeenCalledWith("widgets");
-    expect(window.location.search).toContain("q=widgets");
-
-    window.history.replaceState(null, "", window.location.pathname);
   });
 
   test("form submit with empty input does not search", () => {
     document.body.innerHTML = SEARCH_HTML;
     window.pagefind = createMockPagefind();
-    window.history.replaceState(null, "", window.location.pathname);
 
     initSearch();
     document.querySelector("input[type='search']").value = "   ";

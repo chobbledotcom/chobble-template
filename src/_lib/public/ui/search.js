@@ -83,7 +83,20 @@ const createSearchController = (elements, loader = loadPagefind) => {
 
   elements.loadMore.addEventListener("click", showMore);
 
-  return { runSearch, input: elements.input };
+  return { runSearch, showMore, input: elements.input };
+};
+
+const readQueryParam = () =>
+  new URLSearchParams(window.location.search).get("q");
+
+const handleSubmit = (controller) => (e) => {
+  e.preventDefault();
+  const query = controller.input?.value?.trim();
+  if (!query) return;
+  const url = new URL(window.location);
+  url.searchParams.set("q", query);
+  window.history.replaceState(null, "", url);
+  controller.runSearch(query);
 };
 
 const initSearch = () => {
@@ -102,20 +115,10 @@ const initSearch = () => {
   });
 
   if (form) {
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const query = controller.input?.value?.trim();
-      if (query) {
-        const url = new URL(window.location);
-        url.searchParams.set("q", query);
-        window.history.replaceState(null, "", url);
-        controller.runSearch(query);
-      }
-    });
+    form.addEventListener("submit", handleSubmit(controller));
   }
 
-  const params = new URLSearchParams(window.location.search);
-  const query = params.get("q");
+  const query = readQueryParam();
   if (query) {
     if (controller.input) controller.input.value = query;
     controller.runSearch(query);
@@ -124,4 +127,11 @@ const initSearch = () => {
 
 onReady(initSearch);
 
-export { initSearch, renderResult, createSearchController, loadPagefind };
+export {
+  initSearch,
+  renderResult,
+  createSearchController,
+  loadPagefind,
+  readQueryParam,
+  handleSubmit,
+};
