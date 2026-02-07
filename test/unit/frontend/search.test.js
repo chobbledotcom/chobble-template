@@ -110,13 +110,6 @@ describe("renderResult", () => {
     expect(el.querySelector("h3").textContent).toBe("Test Product");
   });
 
-  test("falls back to URL when title is missing", () => {
-    const result = createMockResult();
-    delete result.meta.title;
-    const el = renderResult(result);
-    expect(el.querySelector("h3").textContent).toBe("/products/test-product/");
-  });
-
   test("renders excerpt HTML with highlight marks", () => {
     const el = renderResult(createMockResult());
     const excerpt = el.querySelector(".search-result__body p");

@@ -23,7 +23,7 @@ const renderResult = (result) => {
   body.className = "search-result__body";
 
   const title = document.createElement("h3");
-  title.textContent = result.meta?.title || result.url;
+  title.textContent = result.meta.title;
   body.appendChild(title);
 
   if (result.excerpt) {
