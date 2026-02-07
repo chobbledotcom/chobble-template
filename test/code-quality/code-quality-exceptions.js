@@ -32,18 +32,8 @@ import { frozenSet } from "#toolkit/fp/set.js";
 
 // Add file:line for specific locations, or just file path to allow all try/catch in that file
 const ALLOWED_TRY_CATCHES = frozenSet([
-  // ecommerce-backend/server.js - PayPal API calls
-  "ecommerce-backend/server.js:185",
-  "ecommerce-backend/server.js:213",
-  "ecommerce-backend/server.js:289",
-
   // src/_lib/public/utils/http.js - centralized HTTP error handling (entire file)
   "src/_lib/public/utils/http.js",
-
-  // src/_lib/public/utils/cart-utils.js - JSON parsing of localStorage data
-  // Needed: localStorage is browser-side storage that can be corrupted by users,
-  // extensions, or data migration issues. We don't control this input.
-  "src/_lib/public/utils/cart-utils.js:14",
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
@@ -80,11 +70,8 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 // While const prevents reassignment, these containers can still be mutated.
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = frozenSet([
-  // Maps - used as caches/indexes being populated via set
-  "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
-
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:155", // createExtractor accumulates results in a Set
+  "test/test-utils.js:154", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
@@ -137,7 +124,6 @@ const ALLOWED_LET = frozenSet([
   "test/unit/code-quality/design-system-scoping.test.js",
   "test/integration/test-site-factory.test.js",
   "test/code-scanner.js",
-  "ecommerce-backend/server.test.js",
   "test/unit/transforms/images.test.js",
 
   // src/_lib/media/image-external.js - let html for try/catch fallback pattern
@@ -151,7 +137,6 @@ const ALLOWED_LET = frozenSet([
 // Files with single-use functions that are intentionally kept for clarity.
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
-  "ecommerce-backend/server.js",
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/categories.js", // Helpers for category property map building
   "src/_lib/collections/events.js", // Thumbnail resolution from products
@@ -236,6 +221,12 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   // (ES modules execute at import time before tests can set up DOM)
   "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
+  "src/_lib/public/ui/search.js:initSearch",
+  "src/_lib/public/ui/search.js:renderResult",
+  "src/_lib/public/ui/search.js:createSearchController",
+  "src/_lib/public/ui/search.js:loadPagefind",
+  "src/_lib/public/ui/search.js:readQueryParam",
+  "src/_lib/public/ui/search.js:handleSubmit",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/block-schema.js:BLOCK_SCHEMAS", // Schema definitions exported for test verification
@@ -255,9 +246,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 // ============================================
 
 const ALLOWED_DATA_FALLBACKS = frozenSet([
-  "src/_lib/collections/categories.js:65",
+  "src/_lib/collections/categories.js:66",
   "src/_lib/collections/events.js:23",
-  "src/_lib/collections/products.js:94",
+  "src/_lib/collections/products.js:96",
   "src/_lib/eleventy/ical.js:42",
   "src/_lib/filters/filter-core.js:196",
   "src/_lib/filters/filter-core.js:202",
@@ -312,12 +303,12 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/item-filters.js:143", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
-  "src/_lib/public/cart/cart.js:104",
-  "src/_lib/public/cart/cart.js:105",
+  "src/_lib/public/cart/cart.js:100",
+  "src/_lib/public/cart/cart.js:101",
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions
-  "src/_lib/utils/collection-utils.js:82", // CMS boundary: frontmatter array fields may be null before eleventyComputed
+  "src/_lib/utils/collection-utils.js:85", // CMS boundary: frontmatter array fields may be null before eleventyComputed
   "src/_lib/utils/sorting.js:56", // eleventyNavigation.order (separate from item order)
 ]);
 

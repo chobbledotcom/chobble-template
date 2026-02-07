@@ -30,7 +30,7 @@ export type ScreenshotConfig = {
 /**
  * Cart mode - determines checkout behavior
  */
-export type CartMode = 'stripe' | 'paypal' | 'quote' | null;
+export type CartMode = 'stripe' | 'quote' | null;
 
 /**
  * Product mode - buy or hire
@@ -63,6 +63,7 @@ export type SiteConfig = {
   default_image_widths: number[];
   currency: string;
   default_max_quantity: number;
+  search_collections: string[];
   products: ProductConfig;
 
   // Optional (may be null)
@@ -72,7 +73,7 @@ export type SiteConfig = {
   chobble_link: string | null;
   map_embed_src: string | null;
   cart_mode: CartMode;
-  checkout_api_url: string | null;
+  ecommerce_api_host: string | null;
   product_mode: ProductMode;
   category_order: string[] | null;
   screenshots: ScreenshotConfig | null;

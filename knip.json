@@ -18,11 +18,12 @@
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
-		"ecommerce-backend/**",
-		"_site/**"
+		"_site/**",
+		"src/_lib/public/ui/search.js"
 	],
 	"ignoreDependencies": [
-		"bun-types"
+		"bun-types",
+		"pagefind"
 	],
 	"ignoreBinaries": [],
 	"ignoreExportsUsedInFile": true,

@@ -9,6 +9,7 @@ import {
   createFieldIndexer,
   getLocationsFromApi,
 } from "#utils/collection-utils.js";
+import { normaliseSlug } from "#utils/slug-utils.js";
 import { findFirst, findFromChildren } from "#utils/thumbnail-finder.js";
 
 /** @typedef {import("#lib/types").LocationCollectionItem} LocationCollectionItem */
@@ -34,7 +35,8 @@ const getRootLocations = (locations) =>
 const getSiblingLocations = (locations, parentLocationSlug, currentUrl) =>
   locations.filter(
     (loc) =>
-      loc.data.parentLocation === parentLocationSlug && loc.url !== currentUrl,
+      normaliseSlug(loc.data.parentLocation) === parentLocationSlug &&
+      loc.url !== currentUrl,
   );
 
 /**
@@ -64,7 +66,9 @@ const createLocationsCollection = (collectionApi) => {
   const locations = getLocationsFromApi(collectionApi);
   if (locations.length === 0) return [];
 
-  const childrenByParent = groupBy(locations, (loc) => loc.data.parentLocation);
+  const childrenByParent = groupBy(locations, (loc) =>
+    normaliseSlug(loc.data.parentLocation),
+  );
   const resolveThumbnail = createLocationThumbnailResolver(childrenByParent);
 
   return locations.map((location) => {

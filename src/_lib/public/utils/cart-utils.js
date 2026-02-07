@@ -1,22 +1,14 @@
 // Shared cart utilities
 // Common functions used across cart, quote, and checkout pages
 
-import { error as logError } from "#utils/console.js";
 import { formatPrice as formatCurrency } from "#utils/format-price.js";
 
 export const STORAGE_KEY = "shopping_cart";
 
 export function getCart() {
-  const cart = localStorage.getItem(STORAGE_KEY);
-  if (!cart) {
-    return [];
-  }
-  try {
-    return JSON.parse(cart);
-  } catch (e) {
-    logError("Failed to parse cart data:", e);
-    return [];
-  }
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return [];
+  return JSON.parse(raw);
 }
 
 export function saveCart(cart) {

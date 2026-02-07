@@ -67,7 +67,7 @@ blocks:
     items:
       - icon: "hugeicons:shopping-cart-01"
         title: E-Commerce Ready
-        description: Built-in shopping cart with Stripe and PayPal integration. Or use quote mode for service businesses.
+        description: Built-in shopping cart with Stripe and Square integration. Or use quote mode for service businesses.
       - icon: "hugeicons:paint-brush-01"
         title: 10 Themes
         description: Ranges from clean to retro. Includes a live theme editor so visitors can switch between them.

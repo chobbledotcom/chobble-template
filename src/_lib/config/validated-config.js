@@ -40,7 +40,7 @@ if (
   );
 }
 
-const VALID_CART_MODES = ["paypal", "stripe", "quote"];
+const VALID_CART_MODES = ["stripe", "quote"];
 const VALID_PRODUCT_MODES = ["buy", "hire"];
 
 if (
@@ -93,9 +93,9 @@ const validatePageFrontmatter = (filename, layout, permalink, cartMode) => {
 };
 
 if (configData.cart_mode === "stripe") {
-  if (!configData.checkout_api_url) {
+  if (!configData.ecommerce_api_host) {
     throw new Error(
-      'cart_mode is "stripe" but checkout_api_url is not set in config.json',
+      'cart_mode is "stripe" but ecommerce_api_host is not set in config.json',
     );
   }
   validatePageFrontmatter(
@@ -110,14 +110,6 @@ if (configData.cart_mode === "stripe") {
     "/order-complete/",
     "stripe",
   );
-}
-
-if (configData.cart_mode === "paypal") {
-  if (!configData.checkout_api_url) {
-    throw new Error(
-      'cart_mode is "paypal" but checkout_api_url is not set in config.json',
-    );
-  }
 }
 
 if (configData.cart_mode === "quote") {

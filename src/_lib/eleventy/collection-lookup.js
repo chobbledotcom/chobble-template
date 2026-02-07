@@ -15,6 +15,7 @@
  */
 
 import { indexBy } from "#toolkit/fp/memoize.js";
+import { normaliseSlug } from "#utils/slug-utils.js";
 
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
 
@@ -47,9 +48,12 @@ export const indexBySlug = indexBy((item) => item.fileSlug);
  * const category = getBySlug(collections.categories, "widgets");
  */
 export const getBySlug = (collection, slug) => {
-  const item = indexBySlug(collection)[slug];
+  const normalised = normaliseSlug(slug);
+  const item = indexBySlug(collection)[normalised];
   if (!item) {
-    throw new Error(`Slug "${slug}" not found. Check your markdown files.`);
+    throw new Error(
+      `Slug "${normalised}" not found. Check your markdown files.`,
+    );
   }
   return item;
 };

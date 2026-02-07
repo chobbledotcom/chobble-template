@@ -1,8 +1,9 @@
 import { createIndexer } from "#utils/collection-utils.js";
+import { normaliseSlug } from "#utils/slug-utils.js";
 
 /** Index guides by category for O(1) lookups, cached per guides array */
 const indexByGuideCategory = createIndexer((page) => {
-  const category = page.data["guide-category"];
+  const category = normaliseSlug(page.data["guide-category"]);
   return category ? [category] : [];
 });
 

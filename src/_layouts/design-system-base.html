@@ -25,7 +25,7 @@
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
   {%- endunless -%}
-  <main>
+  <main{% if pagefind_body %} data-pagefind-body{% endif %}>
     {%- if blocks -%}
       {%- include "design-system/blocks.html", blocks: blocks -%}
     {%- else -%}

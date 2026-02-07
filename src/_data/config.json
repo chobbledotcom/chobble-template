@@ -16,9 +16,9 @@
   "externalLinksTargetBlank": null,
   "template_repo_url": null,
   "chobble_link": null,
-  "cart_mode": null,
-  "checkout_api_url": null,
-  "currency": null,
+  "cart_mode": "stripe",
+  "ecommerce_api_host": "ecom.chobble.com",
+  "currency": "GBP",
   "default_image_widths": null,
   "products": {
     "max_images": null
@@ -34,5 +34,6 @@
   "screenshots": null,
   "phoneNumberLength": null,
   "use_visual_editor": true,
-  "default_max_quantity": null
+  "default_max_quantity": null,
+  "search_collections": null
 }

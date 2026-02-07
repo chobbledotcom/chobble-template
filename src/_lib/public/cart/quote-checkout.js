@@ -60,8 +60,8 @@ const populateForm = () => {
 
 // Calculate days from date inputs (returns 1 if dates not set)
 const getDays = () => {
-  const start = document.querySelector('input[name="start_date"]').value;
-  const end = document.querySelector('input[name="end_date"]').value;
+  const start = document.querySelector('input[name="start_date"]')?.value;
+  const end = document.querySelector('input[name="end_date"]')?.value;
   return start && end ? calculateDays(start, end) : 1;
 };
 

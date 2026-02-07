@@ -9,7 +9,7 @@
  * This wrapper monitors the build output and immediately terminates on error,
  * ensuring errors are visible at the end of the log output.
  */
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { parseArgs } from "node:util";
 
 const ERROR_PATTERNS = [
@@ -78,6 +78,29 @@ const writeNormalOutput = (data, isStderr) => {
   target.write(data);
 };
 
+const runPagefind = () => {
+  console.log("\nRunning Pagefind indexer...");
+  const result = spawnSync(
+    "bun",
+    [
+      "./node_modules/.bin/pagefind",
+      "--site",
+      "_site",
+      "--exclude-selectors",
+      "body.filtered-products [data-pagefind-body], body.filtered-properties [data-pagefind-body], body.base [data-pagefind-body]",
+    ],
+    { stdio: "inherit", env: process.env },
+  );
+  if (result.status !== 0) {
+    console.error("Pagefind indexing failed");
+    return false;
+  }
+  console.log("Pagefind indexing complete\n");
+  return true;
+};
+
+let pagefindRanForServe = false;
+
 const processChunk = (data, isStderr) => {
   const text = data.toString();
   if (errorDetected) {
@@ -87,6 +110,14 @@ const processChunk = (data, isStderr) => {
   writeNormalOutput(data, isStderr);
   if (containsError(text)) {
     triggerFailFast();
+  }
+  if (
+    values.serve &&
+    !pagefindRanForServe &&
+    text.includes("[11ty] Watching")
+  ) {
+    pagefindRanForServe = true;
+    runPagefind();
   }
 };
 
@@ -100,6 +131,11 @@ handleOutput(eleventy.stderr, true);
 eleventy.on("close", (code) => {
   if (errorDetected || code !== 0) {
     process.exit(code || 1);
+  }
+  if (!values.serve) {
+    if (!runPagefind()) {
+      process.exit(1);
+    }
   }
   process.exit(0);
 });

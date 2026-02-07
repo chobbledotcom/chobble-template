@@ -16,7 +16,7 @@ const DEFAULTS = frozenObject({
   chobble_link: null,
   map_embed_src: null,
   cart_mode: null,
-  checkout_api_url: null,
+  ecommerce_api_host: null,
   product_mode: null,
   has_products_filter: false,
   has_properties_filter: false,
@@ -37,6 +37,13 @@ const DEFAULTS = frozenObject({
   default_image_widths: [240, 480, 900, 1300],
   currency: "GBP",
   default_max_quantity: 1,
+  search_collections: [
+    "products",
+    "categories",
+    "events",
+    "properties",
+    "news",
+  ],
 });
 
 const DEFAULT_PRODUCT_DATA = frozenObject({
