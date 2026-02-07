@@ -4,8 +4,6 @@ layout: search.html
 permalink: /search/
 eleventyNavigation:
   key: Search
-  parent: Products
-  order: -1
-header_text: Search Products
+  order: 99
+header_text: Search
 ---
-# Search Products

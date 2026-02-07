@@ -47,26 +47,7 @@
     input[type="number"],
     textarea,
     select {
-      width: 100%;
-      padding: $space-sm;
-      font-family: inherit;
-      font-size: $font-size-base;
-      line-height: $line-height-normal;
-      color: var(--color-text);
-      background: var(--color-card-bg);
-      border: $border-medium;
-      border-radius: $radius-md;
-      transition: border-color $transition-fast;
-
-      &::placeholder {
-        color: var(--color-text-muted);
-      }
-
-      &:focus {
-        outline: none;
-        border-color: var(--color-link);
-        box-shadow: 0 0 0 3px var(--color-tint);
-      }
+      @include input-base;
     }
 
     textarea {

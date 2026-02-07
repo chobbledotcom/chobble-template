@@ -68,6 +68,7 @@
 		"linkifyjs": "^4.3.2",
 		"liquidjs": "^10.24.0",
 		"markdown-it": "^14.1.0",
+		"pagefind": "^1.4.0",
 		"playwright": "^1.57.0",
 		"sass": "^1.86.3",
 		"sharp": "^0.34.5",

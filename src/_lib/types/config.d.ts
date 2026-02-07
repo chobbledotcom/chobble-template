@@ -63,6 +63,7 @@ export type SiteConfig = {
   default_image_widths: number[];
   currency: string;
   default_max_quantity: number;
+  search_collections: string[];
   products: ProductConfig;
 
   // Optional (may be null)

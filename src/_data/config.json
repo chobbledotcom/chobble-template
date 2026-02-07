@@ -34,5 +34,6 @@
   "screenshots": null,
   "phoneNumberLength": null,
   "use_visual_editor": true,
-  "default_max_quantity": null
+  "default_max_quantity": null,
+  "search_collections": null
 }

@@ -47,6 +47,7 @@ describe("config", () => {
       "currency",
       "default_image_widths",
       "default_max_quantity",
+      "search_collections",
     ];
     expect(Object.keys(DEFAULTS).sort()).toEqual(expectedKeys.sort());
   });

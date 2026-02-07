@@ -221,6 +221,12 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   // (ES modules execute at import time before tests can set up DOM)
   "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
+  "src/_lib/public/ui/search.js:initSearch",
+  "src/_lib/public/ui/search.js:renderResult",
+  "src/_lib/public/ui/search.js:createSearchController",
+  "src/_lib/public/ui/search.js:loadPagefind",
+  "src/_lib/public/ui/search.js:readQueryParam",
+  "src/_lib/public/ui/search.js:handleSubmit",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/block-schema.js:BLOCK_SCHEMAS", // Schema definitions exported for test verification
