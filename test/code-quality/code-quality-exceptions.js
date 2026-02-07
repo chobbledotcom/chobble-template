@@ -246,9 +246,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 // ============================================
 
 const ALLOWED_DATA_FALLBACKS = frozenSet([
-  "src/_lib/collections/categories.js:65",
+  "src/_lib/collections/categories.js:66",
   "src/_lib/collections/events.js:23",
-  "src/_lib/collections/products.js:94",
+  "src/_lib/collections/products.js:96",
   "src/_lib/eleventy/ical.js:42",
   "src/_lib/filters/filter-core.js:196",
   "src/_lib/filters/filter-core.js:202",
@@ -308,7 +308,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions
-  "src/_lib/utils/collection-utils.js:82", // CMS boundary: frontmatter array fields may be null before eleventyComputed
+  "src/_lib/utils/collection-utils.js:85", // CMS boundary: frontmatter array fields may be null before eleventyComputed
   "src/_lib/utils/sorting.js:56", // eleventyNavigation.order (separate from item order)
 ]);
 

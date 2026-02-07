@@ -6,6 +6,8 @@ import {
 } from "#test/test-utils.js";
 import {
   configureCollectionUtils,
+  createArrayFieldIndexer,
+  createFieldIndexer,
   featuredCollection,
   getEventsFromApi,
   getLocationsFromApi,
@@ -84,6 +86,45 @@ describe("collection-utils", () => {
       const result = getLocationsFromApi(api);
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("createArrayFieldIndexer slug normalisation", () => {
+    const indexByEvents = createArrayFieldIndexer("events");
+
+    test.each([
+      { format: "bare slug", value: "summer-sale" },
+      { format: "path with .md", value: "events/summer-sale.md" },
+      { format: "path without extension", value: "events/summer-sale" },
+    ])("normalises $format to bare slug for lookup", ({ value }) => {
+      const items = [{ data: { title: "P1", events: [value] } }];
+      const index = indexByEvents(items);
+      expect(index["summer-sale"]).toHaveLength(1);
+      expect(index["summer-sale"][0].data.title).toBe("P1");
+    });
+
+    test("groups items with mixed slug formats under same key", () => {
+      const items = [
+        { data: { title: "P1", events: ["summer-sale"] } },
+        { data: { title: "P2", events: ["events/summer-sale.md"] } },
+        { data: { title: "P3", events: ["events/summer-sale"] } },
+      ];
+      const index = indexByEvents(items);
+      expect(index["summer-sale"]).toHaveLength(3);
+    });
+  });
+
+  describe("createFieldIndexer slug normalisation", () => {
+    const indexByParent = createFieldIndexer("parent");
+
+    test.each([
+      { format: "bare slug", value: "widgets" },
+      { format: "path with .md", value: "categories/widgets.md" },
+      { format: "path without extension", value: "categories/widgets" },
+    ])("normalises $format to bare slug for lookup", ({ value }) => {
+      const items = [{ data: { title: "C1", parent: value } }];
+      const index = indexByParent(items);
+      expect(index.widgets).toHaveLength(1);
     });
   });
 });

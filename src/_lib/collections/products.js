@@ -17,6 +17,7 @@ import {
   featuredCollection,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
+import { normaliseSlug } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 /** Index products by category for O(1) lookups, cached per products array */
@@ -91,7 +92,11 @@ const getProductsByCategories = (products, categorySlugs) => {
   const isSelectedCategory = memberOf(categorySlugs);
 
   return products
-    .filter((p) => (p.data.categories ?? []).some(isSelectedCategory))
+    .filter((p) =>
+      (p.data.categories ?? []).some((cat) =>
+        isSelectedCategory(normaliseSlug(cat)),
+      ),
+    )
     .sort(sortItems);
 };
 

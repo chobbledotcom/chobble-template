@@ -7,6 +7,7 @@
  */
 
 import { groupByWithCache } from "#toolkit/fp/memoize.js";
+import { normaliseSlug } from "#utils/slug-utils.js";
 
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
 /** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
@@ -56,19 +57,21 @@ export const configureCollectionUtils = (_eleventyConfig) => {
 /**
  * Create an indexer that groups items by a scalar data field (one-to-many).
  * Like createArrayFieldIndexer but for fields holding a single value, not arrays.
+ * Normalizes slug references so "events/foo.md", "events/foo", and "foo" all match.
  *
  * @param {string} field - The data field name (e.g., "parent", "parentLocation")
  * @returns {(items: any[]) => Record<string, any[]>} Memoized indexer function
  */
 export const createFieldIndexer = (field) =>
   groupByWithCache((item) => {
-    const key = item.data[field];
+    const key = normaliseSlug(item.data[field]);
     return key ? [key] : [];
   });
 
 /**
  * Create an indexer that groups items by a field that contains an array of slugs.
  * Returns a memoized function for O(1) lookups.
+ * Normalizes slug references so "events/foo.md", "events/foo", and "foo" all match.
  *
  * @param {string} field - The data field name containing array of slugs (e.g., "categories", "events")
  * @returns {(items: any[]) => Record<string, any[]>} Memoized indexer function
@@ -79,7 +82,7 @@ export const createFieldIndexer = (field) =>
  * const widgetProducts = productsByCategory["widgets"] ?? [];
  */
 export const createArrayFieldIndexer = (field) =>
-  groupByWithCache((item) => item.data[field] ?? []);
+  groupByWithCache((item) => (item.data[field] ?? []).map(normaliseSlug));
 
 /**
  * Create an indexer with a custom key extractor function.

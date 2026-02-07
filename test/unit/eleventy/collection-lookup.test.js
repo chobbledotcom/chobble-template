@@ -41,6 +41,20 @@ describe("collection-lookup", () => {
       expect(result.url).toBe("/products/widget/");
     });
 
+    test("Normalises path-style slugs before lookup", () => {
+      const collection = slugItems([
+        ["widget", "Widget Pro", "/products/widget/"],
+      ]);
+
+      expect(getBySlug(collection, "products/widget.md").data.title).toBe(
+        "Widget Pro",
+      );
+      expect(getBySlug(collection, "products/widget").data.title).toBe(
+        "Widget Pro",
+      );
+      expect(getBySlug(collection, "widget").data.title).toBe("Widget Pro");
+    });
+
     test("Throws for non-existent slug", () => {
       const collection = slugItems([
         ["widget", "Widget Pro", "/products/widget/"],
