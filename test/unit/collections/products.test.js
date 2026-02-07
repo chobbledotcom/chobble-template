@@ -286,6 +286,57 @@ describe("products", () => {
 
       expectResultTitles(result, ["Product 1", "Product 3"]);
     });
+
+    test.each([
+      { format: "path with .md", ref: "events/summer-sale.md" },
+      { format: "path without extension", ref: "events/summer-sale" },
+    ])("matches events linked with $format", ({ ref }) => {
+      const { filters } = setupProductsConfig();
+      const testProducts = eventProduct(["Product 1", [ref]]);
+
+      const result = filters.getProductsByEvent(testProducts, "summer-sale");
+
+      expectResultTitles(result, ["Product 1"]);
+    });
+
+    test("matches events with mixed slug formats", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = eventProduct(
+        ["Product 1", ["summer-sale"]],
+        ["Product 2", ["events/summer-sale.md"]],
+        ["Product 3", ["events/summer-sale"]],
+      );
+
+      const result = filters.getProductsByEvent(testProducts, "summer-sale");
+
+      expectResultTitles(result, ["Product 1", "Product 2", "Product 3"]);
+    });
+  });
+
+  describe("slug normalisation across filters", () => {
+    test("getProductsByCategory matches path-style references", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = categoryProduct(
+        ["Product 1", ["categories/widgets.md"]],
+        ["Product 2", ["categories/tools.md"]],
+      );
+
+      expect(
+        filters.getProductsByCategory(testProducts, "widgets"),
+      ).toHaveLength(1);
+    });
+
+    test("getProductsByCategories matches path-style references", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = categoryProduct([
+        "Product 1",
+        ["categories/widgets.md"],
+      ]);
+
+      expect(
+        filters.getProductsByCategories(testProducts, ["widgets"]),
+      ).toHaveLength(1);
+    });
   });
 
   describe("addGallery helper", () => {

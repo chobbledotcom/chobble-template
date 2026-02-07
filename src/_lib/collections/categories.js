@@ -12,6 +12,7 @@ import {
   getCategoriesFromApi,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
+import { normaliseSlug } from "#utils/slug-utils.js";
 import { findFirst, findFromChildren } from "#utils/thumbnail-finder.js";
 
 /** @typedef {import("#lib/types").CategoryCollectionItem} CategoryCollectionItem */
@@ -60,7 +61,7 @@ const extractProductPropertyEntries = (propertyName) => (product) => {
   const value = product.data[propertyName];
   if (!value) return [];
   return product.data.categories.map((slug) => ({
-    categorySlug: slug,
+    categorySlug: normaliseSlug(slug),
     value,
     order: product.data.order ?? 0,
   }));
@@ -116,7 +117,9 @@ const createCategoriesCollection = (collectionApi) => {
     products,
     "thumbnail",
   );
-  const childrenByParent = groupBy(categories, (c) => c.data.parent);
+  const childrenByParent = groupBy(categories, (c) =>
+    normaliseSlug(c.data.parent),
+  );
   const resolveThumbnail = createThumbnailResolver(
     thumbnails,
     childrenByParent,
