@@ -22,7 +22,7 @@ const getPdfRenderer = memoize(
   async () => (await import("json-to-pdf")).renderPdfTemplate,
 );
 
-function buildMenuPdfData(menu, menuCategories, menuItems) {
+function buildMenuPdfData(menu, { menuCategories, menuItems }) {
   const items = menuItems;
 
   const categories = pipe(
@@ -212,8 +212,8 @@ function createMenuPdfTemplate() {
   };
 }
 
-async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
-  const data = buildMenuPdfData(menu, menuCategories, menuItems);
+async function generateMenuPdf(menu, state, outputDir) {
+  const data = buildMenuPdfData(menu, state);
   const template = createMenuPdfTemplate();
 
   const renderPdfTemplate = await getPdfRenderer();
@@ -257,9 +257,9 @@ export const configurePdf = (eleventyConfig) => {
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
     if (!state || !state.menus || state.menus.length === 0) return;
 
-    await mapAsync((menu) =>
-      generateMenuPdf(menu, state.menuCategories, state.menuItems, dir.output),
-    )(state.menus);
+    await mapAsync((menu) => generateMenuPdf(menu, state, dir.output))(
+      state.menus,
+    );
   });
 };
 

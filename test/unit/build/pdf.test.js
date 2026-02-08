@@ -52,30 +52,36 @@ const createMockMenuItem = (
 // Helper to create dietary key test data - maps dietary keys arrays to full test setup
 const createDietaryKeyTestData = (dietaryKeysList) => ({
   menu: createMockMenu("lunch", "Lunch"),
-  categories: [createMockCategory("apps", "Appetizers", ["lunch"])],
-  items: dietaryKeysList.map((dietaryKeys, i) =>
-    createMockMenuItem(
-      `Item ${i + 1}`,
-      ["apps"],
-      `$${5 + i}`,
-      null,
-      dietaryKeys,
+  state: {
+    menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
+    menuItems: dietaryKeysList.map((dietaryKeys, i) =>
+      createMockMenuItem(
+        `Item ${i + 1}`,
+        ["apps"],
+        `$${5 + i}`,
+        null,
+        dietaryKeys,
+      ),
     ),
-  ),
+  },
 });
 
 /** Lunch menu with single item for dietary key tests */
 const lunchMenuWithItem = (dietaryKeys) => ({
   menu: createMockMenu("lunch", "Lunch"),
-  categories: [createMockCategory("apps", "Appetizers", ["lunch"])],
-  items: [createMockMenuItem("Item", ["apps"], "$5", null, dietaryKeys)],
+  state: {
+    menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
+    menuItems: [createMockMenuItem("Item", ["apps"], "$5", null, dietaryKeys)],
+  },
 });
 
 /** Minimal menu setup for PDF generation tests */
 const createMinimalMenu = (slug, title) => ({
   menu: createMockMenu(slug, title),
-  categories: [],
-  items: [],
+  state: {
+    menuCategories: [],
+    menuItems: [],
+  },
 });
 
 describe("pdf", () => {
@@ -83,16 +89,18 @@ describe("pdf", () => {
   describe("buildMenuPdfData", () => {
     test("Builds PDF data from menu with categories and items", () => {
       const menu = createMockMenu("lunch", "Lunch Menu", "Served 11am-3pm");
-      const categories = [
-        createMockCategory("appetizers", "Appetizers", ["lunch"]),
-        createMockCategory("mains", "Main Courses", ["lunch"]),
-      ];
-      const items = [
-        createMockMenuItem("Spring Rolls", ["appetizers"], "$8.99"),
-        createMockMenuItem("Grilled Salmon", ["mains"], "$24.99"),
-      ];
+      const state = {
+        menuCategories: [
+          createMockCategory("appetizers", "Appetizers", ["lunch"]),
+          createMockCategory("mains", "Main Courses", ["lunch"]),
+        ],
+        menuItems: [
+          createMockMenuItem("Spring Rolls", ["appetizers"], "$8.99"),
+          createMockMenuItem("Grilled Salmon", ["mains"], "$24.99"),
+        ],
+      };
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
 
       expectObjectProps({
         menuTitle: "Lunch Menu",
@@ -104,10 +112,11 @@ describe("pdf", () => {
 
     test("Handles missing subtitle", () => {
       const menu = createMockMenu("dinner", "Dinner Menu");
-      const categories = [];
-      const items = [];
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, {
+        menuCategories: [],
+        menuItems: [],
+      });
 
       expectObjectProps({
         menuTitle: "Dinner Menu",
@@ -117,14 +126,16 @@ describe("pdf", () => {
 
     test("Only includes categories that belong to the menu", () => {
       const menu = createMockMenu("lunch", "Lunch");
-      const categories = [
-        createMockCategory("lunch-apps", "Lunch Appetizers", ["lunch"]),
-        createMockCategory("dinner-apps", "Dinner Appetizers", ["dinner"]),
-        createMockCategory("shared", "Shared Items", ["lunch", "dinner"]),
-      ];
-      const items = [];
+      const state = {
+        menuCategories: [
+          createMockCategory("lunch-apps", "Lunch Appetizers", ["lunch"]),
+          createMockCategory("dinner-apps", "Dinner Appetizers", ["dinner"]),
+          createMockCategory("shared", "Shared Items", ["lunch", "dinner"]),
+        ],
+        menuItems: [],
+      };
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
 
       expect(result.categories).toHaveLength(2);
       expect(result.categories[0].name).toBe("Lunch Appetizers");
@@ -133,18 +144,20 @@ describe("pdf", () => {
 
     test("Items are correctly filtered into their categories", () => {
       const menu = createMockMenu("lunch", "Lunch");
-      const categories = [
-        createMockCategory("appetizers", "Appetizers", ["lunch"]),
-        createMockCategory("mains", "Mains", ["lunch"]),
-      ];
-      const items = [
-        createMockMenuItem("Soup", ["appetizers"], "$6"),
-        createMockMenuItem("Salad", ["appetizers"], "$8"),
-        createMockMenuItem("Burger", ["mains"], "$12"),
-        createMockMenuItem("Pasta", ["desserts"], "$10"), // Different category
-      ];
+      const state = {
+        menuCategories: [
+          createMockCategory("appetizers", "Appetizers", ["lunch"]),
+          createMockCategory("mains", "Mains", ["lunch"]),
+        ],
+        menuItems: [
+          createMockMenuItem("Soup", ["appetizers"], "$6"),
+          createMockMenuItem("Salad", ["appetizers"], "$8"),
+          createMockMenuItem("Burger", ["mains"], "$12"),
+          createMockMenuItem("Pasta", ["desserts"], "$10"), // Different category
+        ],
+      };
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
 
       expect(result.categories[0].items).toHaveLength(2);
       expect(result.categories[1].items).toHaveLength(1);
@@ -152,17 +165,19 @@ describe("pdf", () => {
 
     test("Menu items have correct structure in PDF data", () => {
       const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-      const items = [
-        createMockMenuItem(
-          "Spring Rolls",
-          ["apps"],
-          "$8.99",
-          "Crispy and delicious",
-        ),
-      ];
+      const state = {
+        menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
+        menuItems: [
+          createMockMenuItem(
+            "Spring Rolls",
+            ["apps"],
+            "$8.99",
+            "Crispy and delicious",
+          ),
+        ],
+      };
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
 
       expectObjectProps({
         name: "Spring Rolls",
@@ -173,27 +188,29 @@ describe("pdf", () => {
 
     test("Dietary symbols are joined correctly", () => {
       const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-      const items = [
-        createMockMenuItem("Veggie Roll", ["apps"], "$7", null, [
-          { symbol: "V", label: "Vegetarian" },
-          { symbol: "GF", label: "Gluten Free" },
-        ]),
-      ];
+      const state = {
+        menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
+        menuItems: [
+          createMockMenuItem("Veggie Roll", ["apps"], "$7", null, [
+            { symbol: "V", label: "Vegetarian" },
+            { symbol: "GF", label: "Gluten Free" },
+          ]),
+        ],
+      };
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
 
       const item = result.categories[0].items[0];
       expect(item.dietarySymbols).toBe("V GF");
     });
 
     test("Builds dietary key string from all items", () => {
-      const { menu, categories, items } = createDietaryKeyTestData([
+      const { menu, state } = createDietaryKeyTestData([
         [{ symbol: "V", label: "Vegetarian" }],
         [{ symbol: "GF", label: "Gluten Free" }],
       ]);
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
 
       expect(result.hasDietaryKeys).toBe(true);
       expect(result.dietaryKeyString.includes("(V) Vegetarian")).toBe(true);
@@ -202,10 +219,12 @@ describe("pdf", () => {
 
     test("Handles items without dietary keys", () => {
       const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-      const items = [createMockMenuItem("Burger", ["apps"], "$12")];
+      const state = {
+        menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
+        menuItems: [createMockMenuItem("Burger", ["apps"], "$12")],
+      };
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
 
       expectObjectProps({
         hasDietaryKeys: false,
@@ -214,12 +233,12 @@ describe("pdf", () => {
     });
 
     test("Same dietary key from multiple items appears only once", () => {
-      const { menu, categories, items } = createDietaryKeyTestData([
+      const { menu, state } = createDietaryKeyTestData([
         [{ symbol: "V", label: "Vegetarian" }],
         [{ symbol: "V", label: "Vegetarian" }],
       ]);
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
 
       const vCount = (result.dietaryKeyString.match(/\(V\)/g) || []).length;
       expect(vCount).toBe(1);
@@ -227,45 +246,49 @@ describe("pdf", () => {
 
     test("HTML is stripped from category descriptions", () => {
       const menu = createMockMenu("lunch", "Lunch");
-      const categories = [
-        createMockCategory(
-          "apps",
-          "Appetizers",
-          ["lunch"],
-          "<p>Our <strong>famous</strong> starters</p>",
-        ),
-      ];
-      const items = [];
+      const state = {
+        menuCategories: [
+          createMockCategory(
+            "apps",
+            "Appetizers",
+            ["lunch"],
+            "<p>Our <strong>famous</strong> starters</p>",
+          ),
+        ],
+        menuItems: [],
+      };
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
 
       expect(result.categories[0].description).toBe("Our famous starters");
     });
 
     test("Handles items without description", () => {
       const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-      const items = [createMockMenuItem("Simple Item", ["apps"], "$5", null)];
+      const state = {
+        menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
+        menuItems: [createMockMenuItem("Simple Item", ["apps"], "$5", null)],
+      };
 
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
 
       expect(result.categories[0].items[0].description).toBeNull();
     });
 
     test("Handles empty dietary keys array", () => {
-      const { menu, categories, items } = lunchMenuWithItem([]);
-      const result = buildMenuPdfData(menu, categories, items);
+      const { menu, state } = lunchMenuWithItem([]);
+      const result = buildMenuPdfData(menu, state);
       expect(result.categories[0].items[0].dietarySymbols).toBe("");
     });
 
     test("Filters out dietary keys missing symbol or label", () => {
-      const { menu, categories, items } = lunchMenuWithItem([
+      const { menu, state } = lunchMenuWithItem([
         { symbol: "V", label: "Vegetarian" },
         { symbol: "", label: "Empty Symbol" },
         { symbol: "GF" },
         { label: "Missing Symbol" },
       ]);
-      const result = buildMenuPdfData(menu, categories, items);
+      const result = buildMenuPdfData(menu, state);
       expect(result.dietaryKeyString).toBe("(V) Vegetarian");
     });
   });
@@ -390,12 +413,9 @@ describe("pdf", () => {
 
     test("Creates output directory if it doesn't exist", () =>
       withTempDirAsync("pdf-test", async (testOutputDir) => {
-        const { menu, categories, items } = createMinimalMenu(
-          "lunch",
-          "Lunch Menu",
-        );
+        const { menu, state } = createMinimalMenu("lunch", "Lunch Menu");
 
-        await generateMenuPdf(menu, categories, items, testOutputDir);
+        await generateMenuPdf(menu, state, testOutputDir);
 
         // Directory should now exist (created by mkdirSync with recursive: true)
         expect(existsSync(join(testOutputDir, "menus"))).toBe(true);
@@ -404,17 +424,9 @@ describe("pdf", () => {
     test("Generates PDF file with correct filename", () =>
       withTempDirAsync("pdf-test", async (testOutputDir) =>
         withMockedConsole(async () => {
-          const { menu, categories, items } = createMinimalMenu(
-            "dinner",
-            "Dinner Menu",
-          );
+          const { menu, state } = createMinimalMenu("dinner", "Dinner Menu");
 
-          const result = await generateMenuPdf(
-            menu,
-            categories,
-            items,
-            testOutputDir,
-          );
+          const result = await generateMenuPdf(menu, state, testOutputDir);
 
           // Should contain the menu slug in the path
           expect(result).toContain("dinner");
@@ -425,17 +437,9 @@ describe("pdf", () => {
     test("Returns null when PDF generation fails", () =>
       withTempDirAsync("pdf-test", async (testOutputDir) =>
         withMockedConsole(async (_logCalls, errorCalls) => {
-          const { menu, categories, items } = createMinimalMenu(
-            "invalid",
-            "Invalid Menu",
-          );
+          const { menu, state } = createMinimalMenu("invalid", "Invalid Menu");
 
-          const result = await generateMenuPdf(
-            menu,
-            categories,
-            items,
-            testOutputDir,
-          );
+          const result = await generateMenuPdf(menu, state, testOutputDir);
 
           // If getPdfRenderer returns null, generateMenuPdf should return null
           if (result === null) {
@@ -449,12 +453,9 @@ describe("pdf", () => {
     test("Logs success message when PDF is generated", () =>
       withTempDirAsync("pdf-test", async (testOutputDir) =>
         withMockedConsole(async (logCalls) => {
-          const { menu, categories, items } = createMinimalMenu(
-            "lunch",
-            "Lunch Menu",
-          );
+          const { menu, state } = createMinimalMenu("lunch", "Lunch Menu");
 
-          await generateMenuPdf(menu, categories, items, testOutputDir);
+          await generateMenuPdf(menu, state, testOutputDir);
 
           // If generation succeeded, should have log message
           if (logCalls.length > 0) {
@@ -469,14 +470,11 @@ describe("pdf", () => {
     test("Handles write stream errors gracefully", () =>
       withTempDirAsync("pdf-test", async (testOutputDir) =>
         withMockedConsole(async () => {
-          const { menu, categories, items } = createMinimalMenu(
-            "lunch",
-            "Lunch Menu",
-          );
+          const { menu, state } = createMinimalMenu("lunch", "Lunch Menu");
 
           // Try to generate PDF - if there's an error, it should reject the promise
           await expect(
-            generateMenuPdf(menu, categories, items, testOutputDir),
+            generateMenuPdf(menu, state, testOutputDir),
           ).resolves.toBeDefined();
         }),
       ));

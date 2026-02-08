@@ -78,12 +78,11 @@ export const screenshot = async (pagePath, options = {}) => {
   await ensurePlaywrightBrowsers();
 
   const buildScreenshotPath = (opts, path) =>
-    buildOutputPath(
-      opts.outputDir,
-      path,
-      buildViewportSuffix(opts.viewport),
-      "png",
-    );
+    buildOutputPath(path, {
+      outputDir: opts.outputDir,
+      suffix: buildViewportSuffix(opts.viewport),
+      extension: "png",
+    });
 
   const { opts, url, outputPath } = createOperationContext(
     pagePath,

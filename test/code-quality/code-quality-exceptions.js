@@ -252,8 +252,8 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/eleventy/ical.js:42",
   "src/_lib/filters/filter-core.js:196",
   "src/_lib/filters/filter-core.js:202",
-  "src/_lib/utils/schema-helper.js:145",
-  "src/_lib/utils/schema-helper.js:150",
+  "src/_lib/utils/schema-helper.js:143",
+  "src/_lib/utils/schema-helper.js:148",
 ]);
 
 // ============================================

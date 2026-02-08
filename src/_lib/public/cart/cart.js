@@ -94,11 +94,11 @@ const clampQuantity = (quantity, maxQuantity) => {
   return maxQuantity;
 };
 
-const withAddedQuantity = (item, quantity, maxQuantity, sku) => ({
-  ...item,
-  quantity: clampQuantity(item.quantity + quantity, maxQuantity),
-  max_quantity: maxQuantity ?? item.max_quantity,
-  sku: sku ?? item.sku,
+const withAddedQuantity = (existing, quantity, { maxQuantity, sku }) => ({
+  ...existing,
+  quantity: clampQuantity(existing.quantity + quantity, maxQuantity),
+  max_quantity: maxQuantity ?? existing.max_quantity,
+  sku: sku ?? existing.sku,
 });
 
 const addItem = (item, quantity = 1) => {
@@ -121,7 +121,7 @@ const addItem = (item, quantity = 1) => {
     existingIndex >= 0
       ? cart.map((existing, i) =>
           i === existingIndex
-            ? withAddedQuantity(existing, quantity, item.maxQuantity, item.sku)
+            ? withAddedQuantity(existing, quantity, item)
             : existing,
         )
       : [...cart, newItem];

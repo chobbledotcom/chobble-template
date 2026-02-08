@@ -286,9 +286,8 @@ export const matchWithSort = (items, { filters, lookup, sortKey }) =>
  * Get items matching the given filters with specified sort order.
  *
  * @param {EleventyCollectionItem[]} items - Collection items
- * @param {FilterSet} filters - Filter object (can be empty for sort-only)
- * @param {string | undefined} sortKey - Sort option key
+ * @param {{ filters: FilterSet, sortKey?: string }} combo - Filter and sort options
  * @returns {EleventyCollectionItem[]} Filtered and sorted items
  */
-export const filterWithSort = (items, filters, sortKey) =>
+export const filterWithSort = (items, { filters, sortKey }) =>
   matchWithSort(items, { filters, lookup: buildItemLookup(items), sortKey });

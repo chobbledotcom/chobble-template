@@ -85,19 +85,19 @@ const toDateString = (date) => date.toISOString().split("T")[0];
 /**
  * Build a full image URL from a path
  * @param {string} imageInput - Image path or URL
- * @param {string} siteUrl - Base site URL
+ * @param {{ url: string }} site - Site object with url property
  * @returns {string} Full image URL
  */
-function buildImageUrl(imageInput, siteUrl) {
+function buildImageUrl(imageInput, { url }) {
   if (imageInput.startsWith("http://") || imageInput.startsWith("https://")) {
     return imageInput;
   }
 
   if (imageInput.startsWith("/")) {
-    return `${siteUrl}${imageInput}`;
+    return `${url}${imageInput}`;
   }
 
-  return `${siteUrl}/images/${imageInput}`;
+  return `${url}/images/${imageInput}`;
 }
 
 /**
@@ -107,9 +107,7 @@ function buildImageUrl(imageInput, siteUrl) {
  */
 function buildBaseMeta(data) {
   const imageSource = data.header_image || data.image;
-  const imageUrl = imageSource
-    ? buildImageUrl(imageSource, data.site.url)
-    : null;
+  const imageUrl = imageSource ? buildImageUrl(imageSource, data.site) : null;
 
   return {
     ...data.metaComputed,
@@ -192,7 +190,7 @@ const buildPostMeta = (data) => {
   const buildPublisher = (site) => ({
     name: site.name,
     logo: {
-      src: buildImageUrl(site.logo || "/images/logo.png", site.url),
+      src: buildImageUrl(site.logo || "/images/logo.png", site),
       width: 512,
       height: 512,
     },
