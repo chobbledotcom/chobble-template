@@ -21,18 +21,17 @@ const gcd = (a, b) => (b ? gcd(b, a % b) : a);
  * Reduces a ratio (like width/height) by dividing both values
  * by their greatest common divisor.
  *
- * @param {number} a - First value (e.g., width)
- * @param {number} b - Second value (e.g., height)
- * @returns {string} Simplified ratio as "a/b"
+ * @param {{ width: number, height: number }} dimensions - Width and height
+ * @returns {string} Simplified ratio as "width/height"
  *
  * @example
- * simplifyRatio(1920, 1080) // "16/9"
- * simplifyRatio(1600, 1600) // "1/1"
- * simplifyRatio(800, 600)   // "4/3"
+ * simplifyRatio({ width: 1920, height: 1080 }) // "16/9"
+ * simplifyRatio({ width: 1600, height: 1600 }) // "1/1"
+ * simplifyRatio({ width: 800, height: 600 })   // "4/3"
  */
-const simplifyRatio = (a, b) => {
-  const divisor = gcd(a, b);
-  return `${a / divisor}/${b / divisor}`;
+const simplifyRatio = ({ width, height }) => {
+  const divisor = gcd(width, height);
+  return `${width / divisor}/${height / divisor}`;
 };
 
 export { simplifyRatio };

@@ -75,7 +75,7 @@ const buildFilterPages =
     const pages = allCombinations.map((combo) => ({
       ...buildFilterPageBase(combo, filterData.displayLookup),
       sortKey: combo.sortKey,
-      [itemsKey]: filterWithSort(items, combo.filters, combo.sortKey),
+      [itemsKey]: filterWithSort(items, combo),
     }));
     return enhanceWithFilterUI(pages, filterData, baseUrl, baseCombinations);
   };
