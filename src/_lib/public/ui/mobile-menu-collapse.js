@@ -5,9 +5,14 @@ import { onReady } from "#public/utils/on-ready.js";
  * Allows users to expand/collapse submenu sections.
  * Activates when sticky-mobile-nav or clicky-nav is enabled.
  *
+ * Uses event delegation on document so handlers survive DOM
+ * replacement (e.g. Eleventy dev server morphdom live reload).
+ *
  * Progressive enhancement: middle-click or JS-disabled users
  * will navigate to the parent page URL normally.
  */
+
+const DROPDOWN_LINK = "nav > ul > li:has(> ul) > a";
 
 const collapseItem = (item) => {
   item.classList.remove("expanded");
@@ -32,22 +37,13 @@ const collapseAll = () => {
   }
 };
 
-const setupLinkToggle = (item, isClicky) => {
-  const link = item.querySelector(":scope > a");
-  if (!link) return;
+const toggleDropdown = (link, isClicky) => {
+  if (isClicky) {
+    collapseSiblings(link.parentElement);
+  }
 
-  link.setAttribute("aria-expanded", "false");
-
-  link.addEventListener("click", (event) => {
-    event.preventDefault();
-
-    if (isClicky) {
-      collapseSiblings(item);
-    }
-
-    const isExpanded = item.classList.toggle("expanded");
-    link.setAttribute("aria-expanded", String(isExpanded));
-  });
+  const isExpanded = link.parentElement.classList.toggle("expanded");
+  link.setAttribute("aria-expanded", String(isExpanded));
 };
 
 onReady(() => {
@@ -56,17 +52,21 @@ onReady(() => {
 
   if (!isClicky && !isStickyMobile) return;
 
-  const navItems = document.querySelectorAll("nav > ul > li:has(> ul)");
-
-  for (const item of navItems) {
-    setupLinkToggle(item, isClicky);
+  for (const link of document.querySelectorAll(DROPDOWN_LINK)) {
+    link.setAttribute("aria-expanded", "false");
   }
 
-  if (isClicky) {
-    document.addEventListener("click", (event) => {
-      if (!event.target.closest("nav")) {
-        collapseAll();
-      }
-    });
-  }
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest(DROPDOWN_LINK);
+
+    if (link) {
+      event.preventDefault();
+      toggleDropdown(link, isClicky);
+      return;
+    }
+
+    if (isClicky && !event.target.closest("nav")) {
+      collapseAll();
+    }
+  });
 });
