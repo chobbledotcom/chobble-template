@@ -509,6 +509,29 @@ describe("customise-cms generator", () => {
     expect(reviewsSection).not.toContain("collection: products");
   });
 
+  test("generatePagesYaml includes property reference on guide-categories when properties enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "guide-categories", "guide-pages", "properties"],
+    });
+    const yaml = generatePagesYaml(config);
+    const section = getSection("guide-categories")(yaml);
+
+    expect(section).toContain("name: property");
+    expect(section).toContain("collection: properties");
+    expect(section).toContain("multiple: false");
+  });
+
+  test("generatePagesYaml excludes property reference on guide-categories when properties not enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "guide-categories", "guide-pages"],
+    });
+    const yaml = generatePagesYaml(config);
+    const section = getSection("guide-categories")(yaml);
+
+    expect(section).not.toContain("name: property");
+    expect(section).not.toContain("collection: properties");
+  });
+
   test("generatePagesYaml handles minimal configuration", () => {
     const yaml = generatePagesYaml(createTestConfig());
 

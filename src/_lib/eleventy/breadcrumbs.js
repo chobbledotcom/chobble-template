@@ -75,29 +75,68 @@ const buildCategoryCrumbs = (
 };
 
 /**
- * Build breadcrumbs data array
- * Returns array of { label, url } objects (url is null for current page)
- * @param {Object} page - Current page object with url property
- * @param {string} title - Page title
- * @param {string} navigationParent - Navigation parent name
- * @param {string|undefined} parentLocation - Explicit parent location slug
- * @param {string|undefined} parentCategory - Explicit parent category slug
- * @param {string[]|undefined} itemCategories - Item's categories array (slugs)
- * @param {Array} categories - Categories collection for lookup
- * @param {Array} locations - Locations collection for lookup
+ * Resolve property slug from direct property field or via guide category lookup.
+ * Guide categories have a direct `property` field; guide pages inherit it
+ * by looking up their parent guide category's property.
  */
-const breadcrumbsFilter = (
+const resolvePropertySlug = (
+  parentProperty,
+  parentGuideCategory,
+  collections,
+) => {
+  if (parentProperty && collections.properties) return parentProperty;
+  if (
+    parentGuideCategory &&
+    collections["guide-categories"] &&
+    collections.properties
+  ) {
+    const cat = getBySlug(collections["guide-categories"], parentGuideCategory);
+    return cat.data.property;
+  }
+  return undefined;
+};
+
+/**
+ * Build property-based breadcrumbs for guide categories/pages.
+ * Replaces the collection index crumb with the linked property.
+ */
+const buildPropertyCrumbs = (
+  title,
+  propertySlug,
+  collections,
+  parentGuideCategory,
+) => {
+  const property = getBySlug(collections.properties, propertySlug);
+  const baseCrumbs = [{ label: "Home", url: "/" }, makeCrumb(property, false)];
+
+  if (parentGuideCategory && collections["guide-categories"]) {
+    const guideCat = getBySlug(
+      collections["guide-categories"],
+      parentGuideCategory,
+    );
+    return [
+      ...baseCrumbs,
+      makeCrumb(guideCat, false),
+      { label: title, url: null },
+    ];
+  }
+
+  return [...baseCrumbs, { label: title, url: null }];
+};
+
+/**
+ * Build standard breadcrumbs (no property override).
+ * Extracted to keep cognitive complexity of main filter low.
+ */
+const buildStandardCrumbs = (
   page,
   title,
   navigationParent,
   parentLocation,
   parentCategory,
   itemCategories,
-  categories,
-  locations,
+  collections,
 ) => {
-  if (page.url === "/") return [];
-
   const indexUrl = getIndexUrl(navigationParent, page.url);
   const isAtIndex = page.url === indexUrl;
   const baseCrumbs = [
@@ -107,28 +146,78 @@ const breadcrumbsFilter = (
 
   if (isAtIndex) return baseCrumbs;
 
-  // If item has categories, build hierarchy with category ancestors
-  if (itemCategories?.[0] && categories) {
+  if (itemCategories?.[0] && collections.categories) {
     return buildCategoryCrumbs(
       page,
       baseCrumbs,
       title,
       itemCategories[0],
-      categories,
+      collections.categories,
     );
   }
 
-  // Legacy: explicit parent category or location
   const parent = findParent(
     parentCategory,
-    categories,
+    collections.categories,
     parentLocation,
-    locations,
+    collections.locations,
   );
 
   if (parent) return buildParentCrumbs(page, baseCrumbs, title, parent);
 
   return [...baseCrumbs, { label: title, url: null }];
+};
+
+/**
+ * Build breadcrumbs data array
+ * Returns array of { label, url } objects (url is null for current page)
+ * @param {Object} page - Current page object with url property
+ * @param {string} title - Page title
+ * @param {string} navigationParent - Navigation parent name
+ * @param {string|undefined} parentLocation - Explicit parent location slug
+ * @param {string|undefined} parentCategory - Explicit parent category slug
+ * @param {string[]|undefined} itemCategories - Item's categories array (slugs)
+ * @param {Object} collections - Eleventy collections object
+ * @param {string|undefined} parentProperty - Property slug (guide categories)
+ * @param {string|undefined} parentGuideCategory - Guide category slug (guide pages)
+ */
+const breadcrumbsFilter = (
+  page,
+  title,
+  navigationParent,
+  parentLocation,
+  parentCategory,
+  itemCategories,
+  collections,
+  parentProperty,
+  parentGuideCategory,
+) => {
+  if (page.url === "/") return [];
+
+  // Property-linked guide categories/pages: replace index crumb with property
+  const propertySlug = resolvePropertySlug(
+    parentProperty,
+    parentGuideCategory,
+    collections,
+  );
+  if (propertySlug) {
+    return buildPropertyCrumbs(
+      title,
+      propertySlug,
+      collections,
+      parentGuideCategory,
+    );
+  }
+
+  return buildStandardCrumbs(
+    page,
+    title,
+    navigationParent,
+    parentLocation,
+    parentCategory,
+    itemCategories,
+    collections,
+  );
 };
 
 /**
@@ -143,6 +232,9 @@ export {
   configureBreadcrumbs,
   buildParentCrumbs,
   buildCategoryCrumbs,
+  buildPropertyCrumbs,
+  buildStandardCrumbs,
   findParent,
   getIndexUrl,
+  resolvePropertySlug,
 };

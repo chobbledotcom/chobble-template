@@ -224,13 +224,22 @@ const getCollectionFieldBuilders = (config, fields) => ({
       fields.bodyWithLabel("Biography"),
     ]),
 
-  "guide-categories": () => [
-    COMMON_FIELDS.title,
-    COMMON_FIELDS.subtitle,
-    COMMON_FIELDS.order,
-    { name: "icon", type: "image", label: "Icon" },
-    fields.body,
-  ],
+  "guide-categories": () =>
+    compact([
+      COMMON_FIELDS.title,
+      COMMON_FIELDS.subtitle,
+      COMMON_FIELDS.order,
+      { name: "icon", type: "image", label: "Icon" },
+      memberOf(config.collections)("properties") &&
+        createReferenceField(
+          "property",
+          "Property",
+          "properties",
+          "title",
+          false,
+        ),
+      fields.body,
+    ]),
 
   snippets: () => [COMMON_FIELDS.name, fields.body],
 

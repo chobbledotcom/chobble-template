@@ -26,8 +26,9 @@ describe("breadcrumbsFilter", () => {
     parentLocation,
     parentCategory = undefined,
     itemCategories = undefined,
-    categories = undefined,
-    locations = undefined,
+    collections = {},
+    parentProperty = undefined,
+    parentGuideCategory = undefined,
   ) =>
     mockConfig.filters.breadcrumbsFilter(
       page,
@@ -36,8 +37,9 @@ describe("breadcrumbsFilter", () => {
       parentLocation,
       parentCategory,
       itemCategories,
-      categories,
-      locations,
+      collections,
+      parentProperty,
+      parentGuideCategory,
     );
 
   test("returns empty array for home page", () => {
@@ -126,8 +128,7 @@ describe("breadcrumbsFilter", () => {
       "london",
       undefined,
       undefined,
-      undefined,
-      locations,
+      { locations },
     );
     expect(subpageCrumbs).toHaveLength(4);
     expect(subpageCrumbs[2]).toEqual({
@@ -145,8 +146,7 @@ describe("breadcrumbsFilter", () => {
       "london",
       undefined,
       undefined,
-      undefined,
-      locations,
+      { locations },
     );
     expect(parentCrumbs).toHaveLength(3);
     expect(parentCrumbs[2]).toEqual({ label: "London", url: null });
@@ -180,7 +180,7 @@ describe("breadcrumbsFilter", () => {
       url: "/categories/premium-widgets/",
       data: { title: "Premium Widgets", parent: "widgets" },
     };
-    const categoriesCollection = [widgetCategory, premiumWidgets];
+    const categories = [widgetCategory, premiumWidgets];
 
     test("shows category in breadcrumbs for product with category", () => {
       const mockConfig = setupFilter();
@@ -192,7 +192,7 @@ describe("breadcrumbsFilter", () => {
         null,
         undefined,
         ["widgets"],
-        categoriesCollection,
+        { categories },
       );
 
       expect(crumbs).toHaveLength(4);
@@ -213,7 +213,7 @@ describe("breadcrumbsFilter", () => {
         null,
         undefined,
         ["premium-widgets"],
-        categoriesCollection,
+        { categories },
       );
 
       expect(crumbs).toHaveLength(5);
@@ -246,7 +246,7 @@ describe("breadcrumbsFilter", () => {
         null,
         "widgets",
         undefined,
-        [widgetCategory],
+        { categories: [widgetCategory] },
       );
 
       expect(crumbs.map((c) => c.label)).toEqual([
@@ -268,7 +268,7 @@ describe("breadcrumbsFilter", () => {
         null,
         "widgets",
         undefined,
-        [widgetCategory],
+        { categories: [widgetCategory] },
       );
 
       expect(crumbs).toHaveLength(3);
@@ -294,9 +294,115 @@ describe("breadcrumbsFilter", () => {
           null,
           "widgets",
           undefined,
-          categories,
+          { categories },
         ),
       ).toThrow('Slug "widgets" not found');
+    });
+  });
+
+  describe("property-linked guide category breadcrumbs", () => {
+    const properties = [
+      {
+        fileSlug: "sunset-cottage",
+        url: "/properties/sunset-cottage/",
+        data: { title: "Sunset Cottage" },
+      },
+    ];
+
+    const guideCategories = [
+      {
+        fileSlug: "getting-started",
+        url: "/guide/getting-started/",
+        data: { title: "Getting Started", property: "sunset-cottage" },
+      },
+      {
+        fileSlug: "general",
+        url: "/guide/general/",
+        data: { title: "General" },
+      },
+    ];
+
+    test("shows property as second crumb for guide category with property", () => {
+      const mockConfig = setupFilter();
+      const crumbs = callFilter(
+        mockConfig,
+        { url: "/guide/getting-started/" },
+        "Getting Started",
+        "Guide",
+        null,
+        undefined,
+        undefined,
+        { properties },
+        "sunset-cottage",
+      );
+
+      expect(crumbs).toEqual([
+        { label: "Home", url: "/" },
+        { label: "Sunset Cottage", url: "/properties/sunset-cottage/" },
+        { label: "Getting Started", url: null },
+      ]);
+    });
+
+    test("shows property and category for guide page via parentGuideCategory", () => {
+      const mockConfig = setupFilter();
+      const crumbs = callFilter(
+        mockConfig,
+        { url: "/guide/getting-started/my-page/" },
+        "My Page",
+        "Guide",
+        null,
+        undefined,
+        undefined,
+        { properties, "guide-categories": guideCategories },
+        undefined,
+        "getting-started",
+      );
+
+      expect(crumbs).toEqual([
+        { label: "Home", url: "/" },
+        { label: "Sunset Cottage", url: "/properties/sunset-cottage/" },
+        { label: "Getting Started", url: "/guide/getting-started/" },
+        { label: "My Page", url: null },
+      ]);
+    });
+
+    test("falls back to normal breadcrumbs when guide category has no property", () => {
+      const mockConfig = setupFilter();
+      const crumbs = callFilter(
+        mockConfig,
+        { url: "/guide/general/my-page/" },
+        "My Page",
+        "Guide",
+        null,
+        undefined,
+        undefined,
+        { properties, "guide-categories": guideCategories },
+        undefined,
+        "general",
+      );
+
+      expect(crumbs).toEqual([
+        { label: "Home", url: "/" },
+        { label: "Guide", url: "/guide/" },
+        { label: "My Page", url: null },
+      ]);
+    });
+
+    test("falls back to normal breadcrumbs when no property or guideCategory", () => {
+      const mockConfig = setupFilter();
+      const crumbs = callFilter(
+        mockConfig,
+        { url: "/guide/some-category/" },
+        "Some Category",
+        "Guide",
+        null,
+      );
+
+      expect(crumbs).toEqual([
+        { label: "Home", url: "/" },
+        { label: "Guide", url: "/guide/" },
+        { label: "Some Category", url: null },
+      ]);
     });
   });
 });
