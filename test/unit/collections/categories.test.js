@@ -64,7 +64,7 @@ describe("categories", () => {
     });
 
     test("inherits header image from highest-order product in category", () => {
-      const categories = cats([["widgets", "default-widget.jpg"]]);
+      const categories = cats([["widgets", undefined]]);
       const products = prods([
         { order: 2, cats: ["widgets"], headerImage: "low-priority.jpg" },
         { order: 5, cats: ["widgets"], headerImage: "high-priority.jpg" },
@@ -83,13 +83,13 @@ describe("categories", () => {
       ]);
     });
 
-    test("product with order 0 (default) can override category image", () => {
+    test("category own header image takes priority over products", () => {
       const categories = [cat("widgets", "widget-header.jpg")];
       const products = [
         prod({ cats: ["widgets"], headerImage: "product-image.jpg" }),
       ];
       expectHeaderImages(getCollection({ categories, products }), [
-        "product-image.jpg",
+        "widget-header.jpg",
       ]);
     });
 
@@ -106,8 +106,8 @@ describe("categories", () => {
         }),
       ];
       expectHeaderImages(getCollection({ categories, products }), [
-        "shared-image.jpg",
-        "shared-image.jpg",
+        "widget-default.jpg",
+        "gadget-default.jpg",
       ]);
     });
 
@@ -149,12 +149,12 @@ describe("categories", () => {
         { order: 5, cats: ["tools"], headerImage: "high-priority-tool.jpg" },
         { cats: ["gadgets"], headerImage: "default-order-gadget.jpg" },
       ]);
-      // widgets: order 3 > order 1, so cross-category wins
-      // gadgets: order 3 > order 0, so cross-category wins
-      // tools: order 5 is highest
+      // widgets: has own image, keeps it
+      // gadgets: has own image, keeps it
+      // tools: no own image, gets highest-order product (order 5)
       expectHeaderImages(getCollection({ categories, products }), [
-        "cross-category.jpg",
-        "cross-category.jpg",
+        "widget-default.jpg",
+        "gadget-default.jpg",
         "high-priority-tool.jpg",
       ]);
     });

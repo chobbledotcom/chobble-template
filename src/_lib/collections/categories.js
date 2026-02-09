@@ -36,7 +36,13 @@ import { findFirst, findFromChildren } from "#utils/thumbnail-finder.js";
  */
 const buildInitialMapping = (categories, propertyName) =>
   Object.fromEntries(
-    categories.map((c) => [c.fileSlug, [c.data[propertyName], -1]]),
+    categories.map((c) => {
+      const value = c.data[propertyName];
+      return [
+        c.fileSlug,
+        [value, value != null ? Number.POSITIVE_INFINITY : -1],
+      ];
+    }),
   );
 
 /**
