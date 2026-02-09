@@ -197,6 +197,14 @@ export type MenuCategoryItemData = BaseItemData & {
   menus?: string[];
 };
 
+/**
+ * Guide category data fields
+ */
+export type GuideCategoryItemData = BaseItemData & {
+  /** Property slug this guide category is linked to */
+  property?: string;
+};
+
 // =============================================================================
 // Specific Collection Item Types
 // These eliminate defensive code by providing precise typing per collection.
@@ -303,7 +311,8 @@ export type EleventyCollectionItemData = BaseItemData &
       TeamItemData &
       NewsItemData &
       MenuItemData &
-      MenuCategoryItemData
+      MenuCategoryItemData &
+      GuideCategoryItemData
   >;
 
 /**
