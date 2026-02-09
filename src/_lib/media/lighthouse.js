@@ -98,7 +98,10 @@ export const lighthouse = async (pagePath, options = {}) => {
   const formatExtension = (fmt) =>
     ({ html: "html", json: "json", csv: "csv" })[fmt] || "html";
   const buildReportPath = (opts, path) =>
-    buildOutputPath(opts.outputDir, path, "", formatExtension(opts.format));
+    buildOutputPath(path, {
+      outputDir: opts.outputDir,
+      extension: formatExtension(opts.format),
+    });
 
   const { opts, url, outputPath } = createOperationContext(
     pagePath,

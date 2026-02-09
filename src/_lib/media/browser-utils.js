@@ -31,8 +31,10 @@ export const buildUrl = (pagePath, baseUrl) =>
     ? pagePath
     : `${baseUrl}${pagePath.startsWith("/") ? "" : "/"}${pagePath}`;
 
-export const buildOutputPath = (outputDir, pagePath, suffix, extension) =>
-  join(outputDir, `${sanitizePagePath(pagePath)}${suffix}.${extension}`);
+export const buildOutputPath = (
+  pagePath,
+  { outputDir, suffix = "", extension },
+) => join(outputDir, `${sanitizePagePath(pagePath)}${suffix}.${extension}`);
 
 export const createOperationContext = (
   pagePath,

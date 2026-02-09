@@ -19,7 +19,7 @@ const getSharp = async () => (await import("sharp")).default;
 const CROP_CACHE_DIR = ".image-cache";
 
 const getAspectRatio = (aspectRatio, metadata) =>
-  aspectRatio || simplifyRatio(metadata.width, metadata.height);
+  aspectRatio || simplifyRatio(metadata);
 
 const cropImage = dedupeAsync(
   async (aspectRatio, sourcePath, metadata) => {
