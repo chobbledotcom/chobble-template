@@ -75,18 +75,55 @@ const buildCategoryCrumbs = (
 };
 
 /**
- * Build breadcrumbs data array
- * Returns array of { label, url } objects (url is null for current page)
- * @param {Object} page - Current page object with url property
- * @param {string} title - Page title
- * @param {string} navigationParent - Navigation parent name
- * @param {string|undefined} parentLocation - Explicit parent location slug
- * @param {string|undefined} parentCategory - Explicit parent category slug
- * @param {string[]|undefined} itemCategories - Item's categories array (slugs)
- * @param {Array} categories - Categories collection for lookup
- * @param {Array} locations - Locations collection for lookup
+ * Resolve property slug from direct property field or via guide category lookup.
+ * Guide categories have a direct `property` field; guide pages inherit it
+ * by looking up their parent guide category's property.
  */
-const breadcrumbsFilter = (
+const resolvePropertySlug = (
+  parentProperty,
+  parentGuideCategory,
+  properties,
+  guideCategories,
+) => {
+  if (parentProperty && properties) return parentProperty;
+  if (parentGuideCategory && guideCategories && properties) {
+    const cat = getBySlug(guideCategories, parentGuideCategory);
+    return cat.data.property;
+  }
+  return undefined;
+};
+
+/**
+ * Build property-based breadcrumbs for guide categories/pages.
+ * Replaces the collection index crumb with the linked property.
+ */
+const buildPropertyCrumbs = (
+  title,
+  propertySlug,
+  properties,
+  parentGuideCategory,
+  guideCategories,
+) => {
+  const property = getBySlug(properties, propertySlug);
+  const baseCrumbs = [{ label: "Home", url: "/" }, makeCrumb(property, false)];
+
+  if (parentGuideCategory && guideCategories) {
+    const guideCat = getBySlug(guideCategories, parentGuideCategory);
+    return [
+      ...baseCrumbs,
+      makeCrumb(guideCat, false),
+      { label: title, url: null },
+    ];
+  }
+
+  return [...baseCrumbs, { label: title, url: null }];
+};
+
+/**
+ * Build standard breadcrumbs (no property override).
+ * Extracted to keep cognitive complexity of main filter low.
+ */
+const buildStandardCrumbs = (
   page,
   title,
   navigationParent,
@@ -96,8 +133,6 @@ const breadcrumbsFilter = (
   categories,
   locations,
 ) => {
-  if (page.url === "/") return [];
-
   const indexUrl = getIndexUrl(navigationParent, page.url);
   const isAtIndex = page.url === indexUrl;
   const baseCrumbs = [
@@ -107,7 +142,6 @@ const breadcrumbsFilter = (
 
   if (isAtIndex) return baseCrumbs;
 
-  // If item has categories, build hierarchy with category ancestors
   if (itemCategories?.[0] && categories) {
     return buildCategoryCrumbs(
       page,
@@ -118,7 +152,6 @@ const breadcrumbsFilter = (
     );
   }
 
-  // Legacy: explicit parent category or location
   const parent = findParent(
     parentCategory,
     categories,
@@ -129,6 +162,67 @@ const breadcrumbsFilter = (
   if (parent) return buildParentCrumbs(page, baseCrumbs, title, parent);
 
   return [...baseCrumbs, { label: title, url: null }];
+};
+
+/**
+ * Build breadcrumbs data array
+ * Returns array of { label, url } objects (url is null for current page)
+ * @param {Object} page - Current page object with url property
+ * @param {string} title - Page title
+ * @param {string} navigationParent - Navigation parent name
+ * @param {string|undefined} parentLocation - Explicit parent location slug
+ * @param {string|undefined} parentCategory - Explicit parent category slug
+ * @param {string[]|undefined} itemCategories - Item's categories array (slugs)
+ * @param {Array} categories - Categories collection for lookup
+ * @param {Array} locations - Locations collection for lookup
+ * @param {string|undefined} parentProperty - Property slug (guide categories)
+ * @param {Array} properties - Properties collection for lookup
+ * @param {string|undefined} parentGuideCategory - Guide category slug (guide pages)
+ * @param {Array} guideCategories - Guide categories collection for lookup
+ */
+const breadcrumbsFilter = (
+  page,
+  title,
+  navigationParent,
+  parentLocation,
+  parentCategory,
+  itemCategories,
+  categories,
+  locations,
+  parentProperty,
+  properties,
+  parentGuideCategory,
+  guideCategories,
+) => {
+  if (page.url === "/") return [];
+
+  // Property-linked guide categories/pages: replace index crumb with property
+  const propertySlug = resolvePropertySlug(
+    parentProperty,
+    parentGuideCategory,
+    properties,
+    guideCategories,
+  );
+  if (propertySlug) {
+    return buildPropertyCrumbs(
+      title,
+      propertySlug,
+      properties,
+      parentGuideCategory,
+      guideCategories,
+    );
+  }
+
+  return buildStandardCrumbs(
+    page,
+    title,
+    navigationParent,
+    parentLocation,
+    parentCategory,
+    itemCategories,
+    categories,
+    locations,
+  );
 };
 
 /**
@@ -143,6 +237,9 @@ export {
   configureBreadcrumbs,
   buildParentCrumbs,
   buildCategoryCrumbs,
+  buildPropertyCrumbs,
+  buildStandardCrumbs,
   findParent,
   getIndexUrl,
+  resolvePropertySlug,
 };
