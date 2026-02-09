@@ -86,23 +86,71 @@ const buildCategoryPropertyMap = (categories, products, propertyName) =>
     reduce(mergeByHighestOrder, buildInitialMapping(categories, propertyName)),
   )(products);
 
+const PLACEHOLDER_PREFIX = "images/placeholders/";
+const isRealImage = (value) =>
+  value != null && !value.startsWith(PLACEHOLDER_PREFIX);
+
+/**
+ * Build a map of category slugs to product thumbnail values only (no category
+ * own values). Used as the final fallback in the thumbnail resolution chain.
+ * @param {ProductCollectionItem[]} products
+ * @returns {CategoryPropertyMap}
+ */
+const buildProductThumbnailMap = (products) =>
+  pipe(
+    flatMap(extractProductPropertyEntries("thumbnail")),
+    reduce(mergeByHighestOrder, {}),
+  )(products);
+
+/**
+ * Snapshot each category's own images before mutation.
+ * @param {CategoryCollectionItem[]} categories
+ * @returns {Record<string, {header_image?: string, thumbnail?: string}>}
+ */
+const snapshotOwnImages = (categories) =>
+  Object.fromEntries(
+    categories.map((c) => [
+      c.fileSlug,
+      { header_image: c.data.header_image, thumbnail: c.data.thumbnail },
+    ]),
+  );
+
 /**
  * Create a recursive thumbnail resolver.
- * Checks: 1) direct products, 2) subcategories (recursively checking their products).
- * @param {CategoryPropertyMap} thumbnails - Thumbnail lookup by category slug
- * @param {Map<string, CategoryCollectionItem[]>} childrenByParent - Child categories by parent
+ * Top-level chain: header_image > thumbnail > subcategories > products.
+ * Subcategory recursion only checks thumbnail (not header_image).
+ * @param {Record<string, {header_image?: string, thumbnail?: string}>} ownImages
+ * @param {CategoryPropertyMap} productThumbnails - Product-only thumbnail lookup
+ * @param {Map<string, CategoryCollectionItem[]>} childrenByParent
  * @returns {(slug: string) => string | undefined}
  */
-const createThumbnailResolver = (thumbnails, childrenByParent) => {
-  const resolve = (slug) =>
-    findFirst(
-      () => thumbnails[slug]?.[0],
+const createThumbnailResolver = (
+  ownImages,
+  productThumbnails,
+  childrenByParent,
+) => {
+  const resolveChild = (slug) => {
+    const own = ownImages[slug];
+    return findFirst(
+      () => (isRealImage(own?.thumbnail) ? own.thumbnail : undefined),
       () =>
         findFromChildren(childrenByParent.get(slug), (child) =>
-          resolve(child.fileSlug),
+          resolveChild(child.fileSlug),
         ),
+      () => {
+        const thumb = productThumbnails[slug]?.[0];
+        return isRealImage(thumb) ? thumb : undefined;
+      },
     );
-  return resolve;
+  };
+
+  return (slug) => {
+    const own = ownImages[slug];
+    return findFirst(
+      () => own?.header_image,
+      () => resolveChild(slug),
+    );
+  };
 };
 
 /**
@@ -118,16 +166,14 @@ const createCategoriesCollection = (collectionApi) => {
   if (categories.length === 0) return [];
   const products = getProductsFromApi(collectionApi);
   const images = buildCategoryPropertyMap(categories, products, "header_image");
-  const thumbnails = buildCategoryPropertyMap(
-    categories,
-    products,
-    "thumbnail",
-  );
+  const productThumbnails = buildProductThumbnailMap(products);
   const childrenByParent = groupBy(categories, (c) =>
     normaliseSlug(c.data.parent),
   );
+  const ownImages = snapshotOwnImages(categories);
   const resolveThumbnail = createThumbnailResolver(
-    thumbnails,
+    ownImages,
+    productThumbnails,
     childrenByParent,
   );
 
