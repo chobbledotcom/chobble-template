@@ -291,6 +291,14 @@ export type MenuCategoryCollectionItem = {
   data: MenuCategoryItemData;
 };
 
+/** Guide category collection item - use with guide-categories collection */
+export type GuideCategoryCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: GuideCategoryItemData;
+};
+
 // =============================================================================
 // Generic Collection Types
 // =============================================================================

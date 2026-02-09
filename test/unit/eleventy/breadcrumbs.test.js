@@ -26,12 +26,9 @@ describe("breadcrumbsFilter", () => {
     parentLocation,
     parentCategory = undefined,
     itemCategories = undefined,
-    categories = undefined,
-    locations = undefined,
+    collections = {},
     parentProperty = undefined,
-    properties = undefined,
     parentGuideCategory = undefined,
-    guideCategories = undefined,
   ) =>
     mockConfig.filters.breadcrumbsFilter(
       page,
@@ -40,12 +37,9 @@ describe("breadcrumbsFilter", () => {
       parentLocation,
       parentCategory,
       itemCategories,
-      categories,
-      locations,
+      collections,
       parentProperty,
-      properties,
       parentGuideCategory,
-      guideCategories,
     );
 
   test("returns empty array for home page", () => {
@@ -134,8 +128,7 @@ describe("breadcrumbsFilter", () => {
       "london",
       undefined,
       undefined,
-      undefined,
-      locations,
+      { locations },
     );
     expect(subpageCrumbs).toHaveLength(4);
     expect(subpageCrumbs[2]).toEqual({
@@ -153,8 +146,7 @@ describe("breadcrumbsFilter", () => {
       "london",
       undefined,
       undefined,
-      undefined,
-      locations,
+      { locations },
     );
     expect(parentCrumbs).toHaveLength(3);
     expect(parentCrumbs[2]).toEqual({ label: "London", url: null });
@@ -188,7 +180,7 @@ describe("breadcrumbsFilter", () => {
       url: "/categories/premium-widgets/",
       data: { title: "Premium Widgets", parent: "widgets" },
     };
-    const categoriesCollection = [widgetCategory, premiumWidgets];
+    const categories = [widgetCategory, premiumWidgets];
 
     test("shows category in breadcrumbs for product with category", () => {
       const mockConfig = setupFilter();
@@ -200,7 +192,7 @@ describe("breadcrumbsFilter", () => {
         null,
         undefined,
         ["widgets"],
-        categoriesCollection,
+        { categories },
       );
 
       expect(crumbs).toHaveLength(4);
@@ -221,7 +213,7 @@ describe("breadcrumbsFilter", () => {
         null,
         undefined,
         ["premium-widgets"],
-        categoriesCollection,
+        { categories },
       );
 
       expect(crumbs).toHaveLength(5);
@@ -254,7 +246,7 @@ describe("breadcrumbsFilter", () => {
         null,
         "widgets",
         undefined,
-        [widgetCategory],
+        { categories: [widgetCategory] },
       );
 
       expect(crumbs.map((c) => c.label)).toEqual([
@@ -276,7 +268,7 @@ describe("breadcrumbsFilter", () => {
         null,
         "widgets",
         undefined,
-        [widgetCategory],
+        { categories: [widgetCategory] },
       );
 
       expect(crumbs).toHaveLength(3);
@@ -302,14 +294,14 @@ describe("breadcrumbsFilter", () => {
           null,
           "widgets",
           undefined,
-          categories,
+          { categories },
         ),
       ).toThrow('Slug "widgets" not found');
     });
   });
 
   describe("property-linked guide category breadcrumbs", () => {
-    const propertiesCollection = [
+    const properties = [
       {
         fileSlug: "sunset-cottage",
         url: "/properties/sunset-cottage/",
@@ -317,7 +309,7 @@ describe("breadcrumbsFilter", () => {
       },
     ];
 
-    const guideCategoriesCollection = [
+    const guideCategories = [
       {
         fileSlug: "getting-started",
         url: "/guide/getting-started/",
@@ -340,10 +332,8 @@ describe("breadcrumbsFilter", () => {
         null,
         undefined,
         undefined,
-        undefined,
-        undefined,
+        { properties },
         "sunset-cottage",
-        propertiesCollection,
       );
 
       expect(crumbs).toEqual([
@@ -363,12 +353,9 @@ describe("breadcrumbsFilter", () => {
         null,
         undefined,
         undefined,
+        { properties, "guide-categories": guideCategories },
         undefined,
-        undefined,
-        undefined,
-        propertiesCollection,
         "getting-started",
-        guideCategoriesCollection,
       );
 
       expect(crumbs).toEqual([
@@ -389,12 +376,9 @@ describe("breadcrumbsFilter", () => {
         null,
         undefined,
         undefined,
+        { properties, "guide-categories": guideCategories },
         undefined,
-        undefined,
-        undefined,
-        propertiesCollection,
         "general",
-        guideCategoriesCollection,
       );
 
       expect(crumbs).toEqual([

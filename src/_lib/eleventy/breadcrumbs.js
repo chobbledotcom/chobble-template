@@ -82,12 +82,15 @@ const buildCategoryCrumbs = (
 const resolvePropertySlug = (
   parentProperty,
   parentGuideCategory,
-  properties,
-  guideCategories,
+  collections,
 ) => {
-  if (parentProperty && properties) return parentProperty;
-  if (parentGuideCategory && guideCategories && properties) {
-    const cat = getBySlug(guideCategories, parentGuideCategory);
+  if (parentProperty && collections.properties) return parentProperty;
+  if (
+    parentGuideCategory &&
+    collections["guide-categories"] &&
+    collections.properties
+  ) {
+    const cat = getBySlug(collections["guide-categories"], parentGuideCategory);
     return cat.data.property;
   }
   return undefined;
@@ -100,15 +103,17 @@ const resolvePropertySlug = (
 const buildPropertyCrumbs = (
   title,
   propertySlug,
-  properties,
+  collections,
   parentGuideCategory,
-  guideCategories,
 ) => {
-  const property = getBySlug(properties, propertySlug);
+  const property = getBySlug(collections.properties, propertySlug);
   const baseCrumbs = [{ label: "Home", url: "/" }, makeCrumb(property, false)];
 
-  if (parentGuideCategory && guideCategories) {
-    const guideCat = getBySlug(guideCategories, parentGuideCategory);
+  if (parentGuideCategory && collections["guide-categories"]) {
+    const guideCat = getBySlug(
+      collections["guide-categories"],
+      parentGuideCategory,
+    );
     return [
       ...baseCrumbs,
       makeCrumb(guideCat, false),
@@ -130,8 +135,7 @@ const buildStandardCrumbs = (
   parentLocation,
   parentCategory,
   itemCategories,
-  categories,
-  locations,
+  collections,
 ) => {
   const indexUrl = getIndexUrl(navigationParent, page.url);
   const isAtIndex = page.url === indexUrl;
@@ -142,21 +146,21 @@ const buildStandardCrumbs = (
 
   if (isAtIndex) return baseCrumbs;
 
-  if (itemCategories?.[0] && categories) {
+  if (itemCategories?.[0] && collections.categories) {
     return buildCategoryCrumbs(
       page,
       baseCrumbs,
       title,
       itemCategories[0],
-      categories,
+      collections.categories,
     );
   }
 
   const parent = findParent(
     parentCategory,
-    categories,
+    collections.categories,
     parentLocation,
-    locations,
+    collections.locations,
   );
 
   if (parent) return buildParentCrumbs(page, baseCrumbs, title, parent);
@@ -173,12 +177,9 @@ const buildStandardCrumbs = (
  * @param {string|undefined} parentLocation - Explicit parent location slug
  * @param {string|undefined} parentCategory - Explicit parent category slug
  * @param {string[]|undefined} itemCategories - Item's categories array (slugs)
- * @param {Array} categories - Categories collection for lookup
- * @param {Array} locations - Locations collection for lookup
+ * @param {Object} collections - Eleventy collections object
  * @param {string|undefined} parentProperty - Property slug (guide categories)
- * @param {Array} properties - Properties collection for lookup
  * @param {string|undefined} parentGuideCategory - Guide category slug (guide pages)
- * @param {Array} guideCategories - Guide categories collection for lookup
  */
 const breadcrumbsFilter = (
   page,
@@ -187,12 +188,9 @@ const breadcrumbsFilter = (
   parentLocation,
   parentCategory,
   itemCategories,
-  categories,
-  locations,
+  collections,
   parentProperty,
-  properties,
   parentGuideCategory,
-  guideCategories,
 ) => {
   if (page.url === "/") return [];
 
@@ -200,16 +198,14 @@ const breadcrumbsFilter = (
   const propertySlug = resolvePropertySlug(
     parentProperty,
     parentGuideCategory,
-    properties,
-    guideCategories,
+    collections,
   );
   if (propertySlug) {
     return buildPropertyCrumbs(
       title,
       propertySlug,
-      properties,
+      collections,
       parentGuideCategory,
-      guideCategories,
     );
   }
 
@@ -220,8 +216,7 @@ const breadcrumbsFilter = (
     parentLocation,
     parentCategory,
     itemCategories,
-    categories,
-    locations,
+    collections,
   );
 };
 
