@@ -16,7 +16,7 @@ Usage:
 
 {%- assign _image_alt = block.image_alt | default: "Background image" -%}
 
-<div class="image-background{% if block.parallax %} image-background--parallax{% endif %}{% if block.class %} {{ block.class }}{% endif %}">
+<div class="image-background{% if block.parallax %} parallax{% endif %}{% if block.class %} {{ block.class }}{% endif %}">
   <div>
     {% image block.image, _image_alt, "2560,1920,1280,960,640", "", "100vw", "16/9" %}
   </div>

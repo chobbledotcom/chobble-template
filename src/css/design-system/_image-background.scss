@@ -43,7 +43,7 @@
     @include media-background-content;
 
     // Parallax: scroll-driven animation moves the image opposite to scroll
-    &--parallax > div {
+    &.parallax > div {
       // Extend the image beyond the container so it has room to translate
       inset: -15%;
 
