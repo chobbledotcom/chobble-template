@@ -8,6 +8,11 @@ import {
 import { expectObjectProps } from "#test/test-utils.js";
 
 describe("getProducts", () => {
+  test("returns empty object when products is missing from config", () => {
+    const result = getProducts({});
+    expect(result).toEqual({});
+  });
+
   test("returns empty object when products is empty", () => {
     const result = getProducts({ products: {} });
     expect(result).toEqual({});
