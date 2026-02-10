@@ -48,7 +48,9 @@
 
 .design-system {
   // ===========================================================================
-  // Section vertical padding (used by split-full panels)
+  // Section vertical padding — single source of truth for sections, split-full
+  // panels, and any element using @include section. Override locally for
+  // compact variants (e.g. section.compact, footer).
   --section-padding-y: calc(#{$space-3xl} * 0.6);
 
   @include breakpoint.up("md") {
@@ -223,7 +225,11 @@
     @include section;
 
     &.compact {
-      @include section($space-2xl);
+      --section-padding-y: calc(#{$space-2xl} * 0.6);
+
+      @include breakpoint.up("md") {
+        --section-padding-y: #{$space-2xl};
+      }
     }
     &.dark {
       background: #{$color-dark-bg};
