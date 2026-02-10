@@ -41,30 +41,9 @@
       }
     }
 
+    // Slider variant inherits scroll/snap behavior from .slider (design-system/_slider.scss)
     &.slider {
       flex-wrap: nowrap;
-      overflow-x: auto;
-      overflow-y: hidden;
-      scroll-snap-type: x mandatory;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: $space-sm; // Space for scrollbar
-      scrollbar-width: thin;
-      scrollbar-color: var(--color-text-muted) transparent;
-
-      @include breakpoint.reduced-motion {
-        scroll-behavior: auto;
-      }
-
-      > li {
-        flex-shrink: 0;
-        scroll-snap-align: start;
-        width: $width-card;
-
-        @include breakpoint.up("md") {
-          width: $width-card-lg;
-        }
-      }
     }
 
     // =========================================================================

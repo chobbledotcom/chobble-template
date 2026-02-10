@@ -8,17 +8,6 @@
 
 .design-system {
   .reviews-grid {
-    @include grid(1, $space-lg);
-    list-style: none;
-
-    @include breakpoint.up("md") {
-      @include grid(2, $space-lg);
-    }
-
-    @include breakpoint.up("lg") {
-      @include grid(3, $space-lg);
-    }
-
     // Compact variant: auto-fit with 330px minimum (use on item pages)
     &--compact {
       grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));

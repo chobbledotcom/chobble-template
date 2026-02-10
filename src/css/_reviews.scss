@@ -9,22 +9,6 @@
 // =============================================================================
 
 .reviews-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: $space-lg;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  align-items: stretch;
-
-  @include breakpoints.down("lg") {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @include breakpoints.down("sm") {
-    grid-template-columns: 1fr;
-  }
-
   // On item pages, auto-fit with 330px minimum so reviews aren't smushed
   body.item & {
     grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
