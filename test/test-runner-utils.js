@@ -72,6 +72,11 @@ export const COMMON_STEPS = {
   knipFix: { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
   typecheck: { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
   cpdFp: { name: "cpd:fp", cmd: "bun", args: ["run", "cpd:fp"] },
+  cpdDesignSystem: {
+    name: "cpd:design-system",
+    cmd: "bun",
+    args: ["run", "cpd:design-system"],
+  },
   cpd: { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
   cpdRatchet: { name: "cpd:ratchet", cmd: "bun", args: ["run", "cpd:ratchet"] },
   test: { name: "test", cmd: "bun", args: ["test", "--timeout", "30000"] },

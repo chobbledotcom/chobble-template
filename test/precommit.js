@@ -20,6 +20,7 @@ const steps = [
   COMMON_STEPS.knipFix,
   COMMON_STEPS.typecheck,
   COMMON_STEPS.cpdFp,
+  COMMON_STEPS.cpdDesignSystem,
   COMMON_STEPS.cpd,
   COMMON_STEPS.cpdRatchet,
   COMMON_STEPS.test,
