@@ -31,7 +31,7 @@ Usage:
 {%- assign reveal = reveal | default: true -%}
 {%- assign heading_level = heading_level | default: 3 -%}
 
-<ul class="video-cards{% if expand %} expanded{% endif %}" role="list">
+<ul class="items video-cards{% if expand %} expanded{% endif %}" role="list">
   {%- for video in videos -%}
   <li{% if reveal %} data-reveal{% endif %}>
     <button
