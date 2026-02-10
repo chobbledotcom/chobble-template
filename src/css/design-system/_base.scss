@@ -57,6 +57,14 @@
     --section-padding-y: #{$space-3xl};
   }
 
+  main {
+    --section-padding-y: calc(#{$space-3xl} * 0.3);
+
+    @include breakpoint.up("md") {
+      --section-padding-y: calc(#{$space-3xl} * 0.5);
+    }
+  }
+
   // ===========================================================================
   // Zero out all margins and paddings. Spacing is controlled exclusively
   // through flexbox/grid gap at the container level.
