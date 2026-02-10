@@ -25,9 +25,7 @@
       flex: 1;
       padding: $space-sm;
       font-family: inherit;
-      font-size: $font-size-base;
-      line-height: $line-height-normal;
-      color: var(--color-text);
+      @include body-base;
       background: var(--color-card-bg);
       border: none;
       outline: none;

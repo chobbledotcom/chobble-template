@@ -12,9 +12,7 @@
     @include card($space-3xl, $radius-2xl);
     background: linear-gradient(135deg, var(--color-link) 0%, var(--color-secondary) 100%);
     border: none;
-    color: var(--color-contrast-text);
-    --color-text: var(--color-contrast-text);
-    --color-text-muted: var(--color-contrast-text-muted);
+    @include contrast-text-vars;
 
     p {
       @include body-lg;

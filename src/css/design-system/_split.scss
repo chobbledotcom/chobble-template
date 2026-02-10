@@ -112,9 +112,7 @@
     &.primary-left .left,
     &.primary-right .right {
       background: var(--color-link);
-      color: var(--color-contrast-text);
-      --color-text: var(--color-contrast-text);
-      --color-text-muted: var(--color-contrast-text-muted);
+      @include contrast-text-vars;
       --split-btn-color: var(--color-contrast-text);
       --split-btn-hover-bg: var(--color-contrast-text);
       --split-btn-hover-color: #{$color-text};

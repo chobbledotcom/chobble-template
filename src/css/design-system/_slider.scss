@@ -98,16 +98,11 @@
     }
   }
 
-  // Dark section variant
+  // Dark section variant - hover inherits from base rule above
   .dark .slider-prev,
   .dark .slider-next {
     background: var(--color-card-bg);
     border-color: $color-dark-card-bg;
     color: $color-dark-text;
-
-    &:hover:not([disabled]) {
-      background: var(--color-link);
-      border-color: var(--color-link);
-    }
   }
 }

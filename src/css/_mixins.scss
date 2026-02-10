@@ -198,6 +198,23 @@
   text-wrap: balance;
 }
 
+// Plain link: themed color, underline on hover only
+@mixin link-plain {
+  color: var(--color-link);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Contrast text custom properties for primary/dark panels
+@mixin contrast-text-vars {
+  color: var(--color-contrast-text);
+  --color-text: var(--color-contrast-text);
+  --color-text-muted: var(--color-contrast-text-muted);
+}
+
 // =============================================================================
 // BUTTON MIXINS
 // =============================================================================

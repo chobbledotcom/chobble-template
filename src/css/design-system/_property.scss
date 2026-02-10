@@ -62,27 +62,12 @@
     .property-thumbnails {
       margin-top: $space-sm;
 
+      // Inherits scroll/snap behavior from .slider (design-system/_slider.scss)
       ul.image-gallery.slider {
-        display: flex;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-        list-style: none;
         gap: $space-xs;
         padding-bottom: $space-xs;
-        scrollbar-width: thin;
-        scrollbar-color: var(--color-text-muted) transparent;
-
-        @include breakpoint.reduced-motion {
-          scroll-behavior: auto;
-        }
 
         li {
-          flex-shrink: 0;
-          scroll-snap-align: start;
           width: 120px;
 
           @include breakpoint.up("md") {
