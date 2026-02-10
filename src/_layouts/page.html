@@ -13,4 +13,8 @@ layout: base
   {%- include "design-system/video-cards.html", videos: videos -%}
 </div>
 {%- endif -%}
-{%- include "faq.html" -%}
+{%- if faqs.size > 0 -%}
+<div class="design-system">
+  {%- include "faq.html" -%}
+</div>
+{%- endif -%}

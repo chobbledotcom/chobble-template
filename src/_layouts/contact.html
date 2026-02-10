@@ -4,6 +4,12 @@ layout: base
 
 <div class="prose">{{ content }}</div>
 
+{%- if faqs.size > 0 -%}
+<div class="design-system">
+  {%- include "faq.html" -%}
+</div>
+{%- endif -%}
+
 {%- include "contact-form.html" -%}
 
 {%- include "map-embed.html" -%}
