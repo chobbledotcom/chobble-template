@@ -8,14 +8,9 @@
 
 .design-system {
   footer {
-    --section-padding-y: calc(#{$space-2xl} * 0.6);
-
-    @include breakpoint.up("md") {
-      --section-padding-y: #{$space-2xl};
-    }
-
+    @include section-compact;
     @include section;
-    background: $color-dark-bg;
+    @include dark-section-vars;
     color: $color-dark-text-muted;
     text-align: center;
 

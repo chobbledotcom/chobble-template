@@ -27,6 +27,7 @@
 		"test:integration": "bun test test/integration",
 		"typecheck": "tsc --noEmit",
 		"cpd:fp": "jscpd packages/js-toolkit/fp --min-tokens 12",
+		"cpd:design-system": "jscpd src/css/design-system --min-tokens 17",
 		"cpd": "jscpd && jscpd src/_lib src/_data scripts packages --min-tokens 23 --ignore '**/index.js,**/page-layouts/**,**/customise-cms/**'",
 		"cpd:ratchet": "bun scripts/cpd-ratchet.js",
 		"knip": "knip",

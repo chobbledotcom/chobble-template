@@ -225,20 +225,10 @@
     @include section;
 
     &.compact {
-      --section-padding-y: calc(#{$space-2xl} * 0.6);
-
-      @include breakpoint.up("md") {
-        --section-padding-y: #{$space-2xl};
-      }
+      @include section-compact;
     }
     &.dark {
-      background: #{$color-dark-bg};
-      color: #{$color-dark-text};
-      --color-bg: #{$color-dark-bg};
-      --body-background-alt: #{$color-dark-card-bg};
-      --color-text: #{$color-dark-text};
-      --color-text-muted: #{$color-dark-text-muted};
-      --color-card-bg: #{$color-dark-card-bg};
+      @include dark-section-vars;
     }
     &.gradient {
       background: linear-gradient(
@@ -270,7 +260,7 @@
     // Default is solid for better readability and contrast
     &.gradient {
       h1, h2, h3, h4, h5, h6 {
-        background: linear-gradient(135deg, var(--color-link) 0%, var(--color-secondary) 100%);
+        @include brand-gradient;
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
