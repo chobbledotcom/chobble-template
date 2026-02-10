@@ -60,6 +60,7 @@ const BLOCK_SCHEMAS = {
     "aspect_ratio",
     "class",
   ],
+  "video-row": ["videos", "reveal", "heading_level"],
   "image-background": ["image", "image_alt", "content", "class", "parallax"],
   items: ["collection", "intro", "horizontal"],
   contact_form: ["content"],

@@ -33,6 +33,24 @@ const BLOCK_DEFAULTS = {
   "image-cards": { reveal: true, heading_level: 3 },
   "code-block": { reveal: true },
   "video-background": { aspect_ratio: "16/9" },
+  "video-row": { reveal: true, heading_level: 3 },
+};
+
+/**
+ * Add computed thumbnail_url to videos in a video-row block.
+ * Returns the block unchanged for non-video-row types or blocks without videos.
+ * @param {object} block - Merged block object
+ * @returns {object} Block with thumbnail URLs added (if applicable)
+ */
+const withVideoThumbnails = (block) => {
+  if (block.type !== "video-row" || !block.videos) return block;
+  return {
+    ...block,
+    videos: block.videos.map((video) => ({
+      ...video,
+      thumbnail_url: getVideoThumbnailUrl(video.id),
+    })),
+  };
 };
 
 export default {
@@ -170,7 +188,7 @@ export default {
       if (block.type === "split" && !block.reveal_content) {
         merged.reveal_content = block.reverse ? "right" : "left";
       }
-      return merged;
+      return withVideoThumbnails(merged);
     });
   },
 

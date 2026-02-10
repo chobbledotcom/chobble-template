@@ -14,6 +14,7 @@ describe("BLOCK_SCHEMAS", () => {
       "split-full",
       "cta",
       "video-background",
+      "video-row",
       "image-background",
       "items",
       "contact_form",

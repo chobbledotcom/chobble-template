@@ -1,0 +1,35 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// VIDEO ROW
+// =============================================================================
+// Responsive video grid: 1 video = 100%, 2 = 50%, 3+ = 33.3% (minimum).
+// Uses the shared video-facade mixin for click-to-play thumbnails.
+
+.design-system {
+  .video-row {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    gap: $space-lg;
+
+    > li {
+      flex: 1 1 100%;
+      min-width: calc(33.333% - #{$space-lg});
+      display: flex;
+      flex-direction: column;
+      gap: $space-sm;
+
+      .video-facade {
+        @include video-facade;
+        border-radius: $radius-lg;
+        overflow: hidden;
+      }
+
+      h3 {
+        @include heading-sm;
+      }
+    }
+  }
+}
