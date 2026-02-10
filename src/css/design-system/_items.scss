@@ -191,10 +191,66 @@
       }
     }
 
-    // Video cards variant - disable hover transform since videos are interactive
-    &.video-cards > li {
-      &:hover {
-        transform: none;
+  }
+
+  // ===========================================================================
+  // VIDEO CARDS
+  // ===========================================================================
+  // Standalone video grid with click-to-play facade thumbnails.
+  // Normal: card grid matching .items layout.
+  // Expanded: 1 video = 100%, 2 = 50%, 3+ = 33.3%.
+
+  .video-cards {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    gap: $space-lg;
+
+    > li {
+      flex: 1 1 $width-card;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: $space-sm;
+      border-radius: $radius-lg;
+      border: $border-light;
+      background: var(--color-card-bg);
+      overflow: hidden;
+
+      @include breakpoint.up("md") {
+        max-width: calc(50% - #{math.div($space-lg, 2)});
+      }
+
+      @include breakpoint.up("lg") {
+        max-width: calc(33.333% - #{math.div($space-lg * 2, 3)});
+      }
+
+      .video-facade {
+        @include video-facade;
+      }
+
+      h3 {
+        @include heading-sm;
+        padding-inline: $space-md;
+        padding-bottom: $space-md;
+      }
+    }
+
+    // Expanded: videos fill available width, no card chrome
+    &.expanded > li {
+      flex-basis: 100%;
+      max-width: 100%;
+      min-width: calc(33.333% - #{$space-lg});
+      border: 0;
+      background: none;
+
+      .video-facade {
+        border-radius: $radius-lg;
+      }
+
+      h3 {
+        padding-inline: 0;
+        padding-bottom: 0;
       }
     }
   }

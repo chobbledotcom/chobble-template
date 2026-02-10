@@ -41,7 +41,7 @@ Renders a single block by type. Used by blocks.html.
     {%- include "design-system/video-background.html", block: block -%}
 
   {%- when "video-row" -%}
-    {%- include "design-system/video-row.html", block: block -%}
+    {%- include "design-system/video-cards.html", videos: block.videos, reveal: block.reveal, heading_level: block.heading_level, expand: true -%}
 
   {%- when "image-background" -%}
     {%- include "design-system/image-background.html", block: block -%}
