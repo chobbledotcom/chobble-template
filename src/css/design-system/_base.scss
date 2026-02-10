@@ -57,7 +57,7 @@
     --section-padding-y: #{$space-3xl};
   }
 
-  main {
+  main & {
     --section-padding-y: calc(#{$space-3xl} * 0.3);
 
     @include breakpoint.up("md") {
@@ -267,7 +267,12 @@
     // Gradient text style (opt-in via .gradient class)
     // Default is solid for better readability and contrast
     &.gradient {
-      h1, h2, h3, h4, h5, h6 {
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
         @include brand-gradient;
         background-clip: text;
         -webkit-background-clip: text;
