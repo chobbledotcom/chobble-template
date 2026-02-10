@@ -15,7 +15,7 @@
     }
 
     @include section;
-    background: $color-dark-bg;
+    @include dark-section-vars;
     color: $color-dark-text-muted;
     text-align: center;
 

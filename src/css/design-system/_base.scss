@@ -232,13 +232,7 @@
       }
     }
     &.dark {
-      background: #{$color-dark-bg};
-      color: #{$color-dark-text};
-      --color-bg: #{$color-dark-bg};
-      --body-background-alt: #{$color-dark-card-bg};
-      --color-text: #{$color-dark-text};
-      --color-text-muted: #{$color-dark-text-muted};
-      --color-card-bg: #{$color-dark-card-bg};
+      @include dark-section-vars;
     }
     &.gradient {
       background: linear-gradient(
