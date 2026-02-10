@@ -10,7 +10,7 @@
     @include flex-col($space-lg, center, center);
     text-align: center;
     @include card($space-3xl, $radius-2xl);
-    background: linear-gradient(135deg, var(--color-link) 0%, var(--color-secondary) 100%);
+    @include brand-gradient;
     border: none;
     @include contrast-text-vars;
 

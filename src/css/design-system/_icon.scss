@@ -19,8 +19,7 @@
     width: 42px;
     height: 42px;
     font-size: $font-size-2xl;
-    background: var(--color-tint);
-    color: var(--color-text);
+    @include tint-bg;
     border-radius: $radius-md;
   }
 }

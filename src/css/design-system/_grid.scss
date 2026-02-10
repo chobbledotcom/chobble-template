@@ -17,9 +17,12 @@
     }
 
     &--2 {
-      @include grid(1, $space-lg);
+      // 2-column max: inherits 1→2 from .grid, overrides to wider gap and no 3rd column
       @include breakpoint.up("md") {
-        @include grid(2, $space-xl);
+        gap: $space-xl;
+      }
+      @include breakpoint.up("lg") {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 

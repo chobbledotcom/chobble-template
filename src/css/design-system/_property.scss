@@ -48,9 +48,7 @@
         width: 100%;
 
         img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
+          @include cover-img;
         }
       }
     }
@@ -132,9 +130,7 @@
         }
       }
 
-      &:not(:has(.slider.overflowing)) .slider-nav {
-        display: none;
-      }
+      // Slider-nav hiding inherited from .slider-container (design-system/_slider.scss)
     }
   }
 
