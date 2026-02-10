@@ -358,6 +358,22 @@
   aspect-ratio: $width / $height;
 }
 
+// Responsive iframe embed (maps, videos, etc.)
+@mixin iframe-embed($ratio-w: 16, $ratio-h: 9) {
+  position: relative;
+  width: 100%;
+  aspect-ratio: $ratio-w / $ratio-h;
+  overflow: hidden;
+
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+}
+
 // Truncate text
 @mixin truncate($lines: 1) {
   @if $lines == 1 {
