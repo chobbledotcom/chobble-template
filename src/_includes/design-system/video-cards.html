@@ -14,9 +14,12 @@ Parameters:
     - thumbnail_url: Computed property - YouTube thumbnail URL or null for custom URLs
   - reveal: If true, adds data-reveal animation (default: true)
   - heading_level: Heading level for titles, defaults to 3 (h3)
+  - expand: If true, videos fill available width (1=100%, 2=50%, 3+=33.3%)
+            instead of the standard card grid layout (default: false)
 
 Usage:
   {% include "design-system/video-cards.html", videos: page.videos %}
+  {% include "design-system/video-cards.html", videos: page.videos, expand: true %}
 
   Where page.videos = [
     { id: "dQw4w9WgXcQ", title: "YouTube Video" },
@@ -28,7 +31,7 @@ Usage:
 {%- assign reveal = reveal | default: true -%}
 {%- assign heading_level = heading_level | default: 3 -%}
 
-<ul class="items video-cards" role="list">
+<ul class="{% if expand %}video-cards video-cards--expanded{% else %}items video-cards{% endif %}" role="list">
   {%- for video in videos -%}
   <li{% if reveal %} data-reveal{% endif %}>
     <button

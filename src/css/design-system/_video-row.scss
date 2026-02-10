@@ -2,13 +2,16 @@
 @use "../mixins" as *;
 
 // =============================================================================
-// VIDEO ROW
+// VIDEO CARDS - EXPANDED VARIANT
 // =============================================================================
 // Responsive video grid: 1 video = 100%, 2 = 50%, 3+ = 33.3% (minimum).
 // Uses the shared video-facade mixin for click-to-play thumbnails.
+//
+// Applied via video-cards.html with expand: true, which outputs
+// class="video-cards video-cards--expanded" instead of "items video-cards".
 
 .design-system {
-  .video-row {
+  .video-cards--expanded {
     display: flex;
     flex-wrap: wrap;
     list-style: none;
@@ -29,6 +32,10 @@
 
       h3 {
         @include heading-sm;
+      }
+
+      &:hover {
+        transform: none;
       }
     }
   }
