@@ -4,12 +4,17 @@ import { getCart, saveCart } from "#public/utils/cart-utils.js";
 // Mock dependencies at module level to avoid parallel test interference:
 // - http.js: prevents globalThis.fetch race conditions with http.test.js
 // - config.js: prevents DOM site-config conflicts with checkout.test.js
+// - notify.js: captures notification calls for assertion
 const mockFetchJson = mock(() => Promise.resolve(null));
+const mockShowNotification = mock();
 mock.module("#public/utils/http.js", () => ({
   fetchJson: (...args) => mockFetchJson(...args),
 }));
 mock.module("#public/utils/config.js", () => ({
   default: { ecommerce_api_host: "test.example.com" },
+}));
+mock.module("#public/utils/notify.js", () => ({
+  showNotification: (...args) => mockShowNotification(...args),
 }));
 
 const {
@@ -24,6 +29,7 @@ const {
 const withCleanStorage = async (fn) => {
   localStorage.clear();
   mockFetchJson.mockReset();
+  mockShowNotification.mockReset();
   try {
     return await fn();
   } finally {
@@ -31,21 +37,10 @@ const withCleanStorage = async (fn) => {
   }
 };
 
-const withMockedAlert = async (fn) => {
-  const alertMock = mock();
-  const origAlert = global.alert;
-  global.alert = alertMock;
-  try {
-    return await fn(alertMock);
-  } finally {
-    global.alert = origAlert;
-  }
-};
-
-const expectSingleRemovalAlert = (alertMock, expectedName) => {
+const expectSingleRemovalNotification = (expectedName) => {
   expect(getCart()).toHaveLength(0);
-  expect(alertMock).toHaveBeenCalledTimes(1);
-  expect(alertMock.mock.calls[0][0]).toContain(expectedName);
+  expect(mockShowNotification).toHaveBeenCalledTimes(1);
+  expect(mockShowNotification.mock.calls[0][0]).toContain(expectedName);
 };
 
 const MOCK_PRODUCTS = [
@@ -114,16 +109,16 @@ describe("products-cache", () => {
     ];
 
     for (const { item_name, unit_price, sku } of cases) {
-      withCleanStorage(() =>
-        withMockedAlert((alertMock) => {
-          saveCart([
-            { item_name, unit_price, quantity: 1, sku, product_mode: "buy" },
-          ]);
-          expect(validateBuyItems(getCart(), MOCK_PRODUCTS)).toBe(true);
-          expectSingleRemovalAlert(alertMock, item_name);
-          expect(alertMock.mock.calls[0][0]).toContain("no longer available");
-        }),
-      );
+      withCleanStorage(() => {
+        saveCart([
+          { item_name, unit_price, quantity: 1, sku, product_mode: "buy" },
+        ]);
+        expect(validateBuyItems(getCart(), MOCK_PRODUCTS)).toBe(true);
+        expectSingleRemovalNotification(item_name);
+        expect(mockShowNotification.mock.calls[0][0]).toContain(
+          "no longer available",
+        );
+      });
     }
   });
 
@@ -162,75 +157,71 @@ describe("products-cache", () => {
   });
 
   test("validateBuyItems handles mixed buy and non-buy items", () => {
-    withCleanStorage(() =>
-      withMockedAlert((alertMock) => {
-        const cart = [
-          {
-            item_name: "Hire Item",
-            unit_price: 30,
-            quantity: 1,
-            sku: "HIRE1",
-            product_mode: "hire",
-          },
-          {
-            item_name: "Valid Buy",
-            unit_price: 100,
-            quantity: 1,
-            sku: "WEBDEV",
-            product_mode: "buy",
-          },
-          {
-            item_name: "Invalid Buy",
-            unit_price: 10,
-            quantity: 1,
-            sku: "NOPE",
-            product_mode: "buy",
-          },
-        ];
-        saveCart(cart);
+    withCleanStorage(() => {
+      const cart = [
+        {
+          item_name: "Hire Item",
+          unit_price: 30,
+          quantity: 1,
+          sku: "HIRE1",
+          product_mode: "hire",
+        },
+        {
+          item_name: "Valid Buy",
+          unit_price: 100,
+          quantity: 1,
+          sku: "WEBDEV",
+          product_mode: "buy",
+        },
+        {
+          item_name: "Invalid Buy",
+          unit_price: 10,
+          quantity: 1,
+          sku: "NOPE",
+          product_mode: "buy",
+        },
+      ];
+      saveCart(cart);
 
-        expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(true);
+      expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(true);
 
-        const updatedCart = getCart();
-        expect(updatedCart).toHaveLength(2);
-        expect(updatedCart[0].item_name).toBe("Hire Item");
-        expect(updatedCart[1].item_name).toBe("Valid Buy");
-        expect(updatedCart[1].unit_price).toBe(100);
+      const updatedCart = getCart();
+      expect(updatedCart).toHaveLength(2);
+      expect(updatedCart[0].item_name).toBe("Hire Item");
+      expect(updatedCart[1].item_name).toBe("Valid Buy");
+      expect(updatedCart[1].unit_price).toBe(100);
 
-        expect(alertMock).toHaveBeenCalledTimes(1);
-        expect(alertMock.mock.calls[0][0]).toContain("Invalid Buy");
-      }),
-    );
+      expect(mockShowNotification).toHaveBeenCalledTimes(1);
+      expect(mockShowNotification.mock.calls[0][0]).toContain("Invalid Buy");
+    });
   });
 
-  test("validateBuyItems alerts for each removed item individually", () => {
-    withCleanStorage(() =>
-      withMockedAlert((alertMock) => {
-        const cart = [
-          {
-            item_name: "Gone Item A",
-            unit_price: 5,
-            quantity: 1,
-            sku: "GONE",
-            product_mode: "buy",
-          },
-          {
-            item_name: "Gone Item B",
-            unit_price: 10,
-            quantity: 1,
-            sku: "UNKNOWN",
-            product_mode: "buy",
-          },
-        ];
-        saveCart(cart);
+  test("validateBuyItems notifies for each removed item individually", () => {
+    withCleanStorage(() => {
+      const cart = [
+        {
+          item_name: "Gone Item A",
+          unit_price: 5,
+          quantity: 1,
+          sku: "GONE",
+          product_mode: "buy",
+        },
+        {
+          item_name: "Gone Item B",
+          unit_price: 10,
+          quantity: 1,
+          sku: "UNKNOWN",
+          product_mode: "buy",
+        },
+      ];
+      saveCart(cart);
 
-        validateBuyItems(cart, MOCK_PRODUCTS);
+      validateBuyItems(cart, MOCK_PRODUCTS);
 
-        expect(alertMock).toHaveBeenCalledTimes(2);
-        expect(alertMock.mock.calls[0][0]).toContain("Gone Item A");
-        expect(alertMock.mock.calls[1][0]).toContain("Gone Item B");
-      }),
-    );
+      expect(mockShowNotification).toHaveBeenCalledTimes(2);
+      expect(mockShowNotification.mock.calls[0][0]).toContain("Gone Item A");
+      expect(mockShowNotification.mock.calls[1][0]).toContain("Gone Item B");
+    });
   });
 
   // ----------------------------------------
@@ -265,22 +256,20 @@ describe("products-cache", () => {
   test("validateCartWithCache fetches products and validates cart", async () => {
     await withCleanStorage(async () => {
       mockFetchJson.mockImplementation(() => Promise.resolve(MOCK_PRODUCTS));
-      await withMockedAlert(async () => {
-        saveCart([
-          {
-            item_name: "Mini Gizmo",
-            unit_price: 0.5,
-            quantity: 1,
-            sku: "MH6D2J",
-            product_mode: "buy",
-          },
-        ]);
-        await validateCartWithCache();
-        expect(mockFetchJson).toHaveBeenCalledTimes(1);
-        expect(getCart()[0].unit_price).toBe(0.3);
-        const cache = JSON.parse(localStorage.getItem(CACHE_KEY));
-        expect(cache.data).toEqual(MOCK_PRODUCTS);
-      });
+      saveCart([
+        {
+          item_name: "Mini Gizmo",
+          unit_price: 0.5,
+          quantity: 1,
+          sku: "MH6D2J",
+          product_mode: "buy",
+        },
+      ]);
+      await validateCartWithCache();
+      expect(mockFetchJson).toHaveBeenCalledTimes(1);
+      expect(getCart()[0].unit_price).toBe(0.3);
+      const cache = JSON.parse(localStorage.getItem(CACHE_KEY));
+      expect(cache.data).toEqual(MOCK_PRODUCTS);
     });
   });
 
@@ -304,44 +293,40 @@ describe("products-cache", () => {
     });
   });
 
-  test("validateCartWithCache alerts when API is unreachable", async () => {
+  test("validateCartWithCache notifies when API is unreachable", async () => {
     await withCleanStorage(async () => {
       mockFetchJson.mockImplementation(() => Promise.resolve(null));
-      await withMockedAlert(async (alertMock) => {
-        saveCart([
-          {
-            item_name: "Gizmo",
-            unit_price: 0.3,
-            quantity: 1,
-            sku: "MH6D2J",
-            product_mode: "buy",
-          },
-        ]);
-        await validateCartWithCache();
-        expect(alertMock).toHaveBeenCalledTimes(1);
-        expect(alertMock.mock.calls[0][0]).toContain(
-          "Unable to reach the store",
-        );
-      });
+      saveCart([
+        {
+          item_name: "Gizmo",
+          unit_price: 0.3,
+          quantity: 1,
+          sku: "MH6D2J",
+          product_mode: "buy",
+        },
+      ]);
+      await validateCartWithCache();
+      expect(mockShowNotification).toHaveBeenCalledTimes(1);
+      expect(mockShowNotification.mock.calls[0][0]).toContain(
+        "Unable to reach the store",
+      );
     });
   });
 
   test("validateCartWithCache removes unavailable items after fetch", async () => {
     await withCleanStorage(async () => {
       mockFetchJson.mockImplementation(() => Promise.resolve(MOCK_PRODUCTS));
-      await withMockedAlert(async (alertMock) => {
-        saveCart([
-          {
-            item_name: "Unknown",
-            unit_price: 10,
-            quantity: 1,
-            sku: "NOPE",
-            product_mode: "buy",
-          },
-        ]);
-        await validateCartWithCache();
-        expectSingleRemovalAlert(alertMock, "Unknown");
-      });
+      saveCart([
+        {
+          item_name: "Unknown",
+          unit_price: 10,
+          quantity: 1,
+          sku: "NOPE",
+          product_mode: "buy",
+        },
+      ]);
+      await validateCartWithCache();
+      expectSingleRemovalNotification("Unknown");
     });
   });
 
@@ -374,19 +359,17 @@ describe("products-cache", () => {
   test("refreshCacheIfNeeded triggers fetch for buy items", () => {
     withCleanStorage(() => {
       mockFetchJson.mockImplementation(() => Promise.resolve(MOCK_PRODUCTS));
-      withMockedAlert(() => {
-        saveCart([
-          {
-            item_name: "Gizmo",
-            unit_price: 0.3,
-            quantity: 1,
-            sku: "MH6D2J",
-            product_mode: "buy",
-          },
-        ]);
-        refreshCacheIfNeeded();
-        expect(mockFetchJson).toHaveBeenCalledTimes(1);
-      });
+      saveCart([
+        {
+          item_name: "Gizmo",
+          unit_price: 0.3,
+          quantity: 1,
+          sku: "MH6D2J",
+          product_mode: "buy",
+        },
+      ]);
+      refreshCacheIfNeeded();
+      expect(mockFetchJson).toHaveBeenCalledTimes(1);
     });
   });
 });

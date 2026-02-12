@@ -1,6 +1,7 @@
 // Shared cart utilities
 // Common functions used across cart, quote, and checkout pages
 
+import { showNotification } from "#public/utils/notify.js";
 import { formatPrice as formatCurrency } from "#utils/format-price.js";
 
 export const STORAGE_KEY = "shopping_cart";
@@ -54,6 +55,12 @@ export function updateCartIcon() {
   }
 }
 
+export const clampQuantity = (quantity, maxQuantity) => {
+  if (!maxQuantity || quantity <= maxQuantity) return quantity;
+  showNotification(`The maximum quantity for this item is ${maxQuantity}`);
+  return maxQuantity;
+};
+
 export function updateItemQuantity(itemName, quantity) {
   const cart = getCart();
   const item = cart.find((i) => i.item_name === itemName);
@@ -62,13 +69,7 @@ export function updateItemQuantity(itemName, quantity) {
   if (quantity <= 0) {
     removeItem(itemName);
   } else {
-    // Clamp quantity to item's max_quantity if set
-    if (item.max_quantity && quantity > item.max_quantity) {
-      alert(`The maximum quantity for this item is ${item.max_quantity}`);
-      item.quantity = item.max_quantity;
-    } else {
-      item.quantity = quantity;
-    }
+    item.quantity = clampQuantity(quantity, item.max_quantity);
     saveCart(cart);
   }
   return true;

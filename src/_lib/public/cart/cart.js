@@ -3,12 +3,14 @@
 
 import { createCartRenderer } from "#public/utils/cart-renderer.js";
 import {
+  clampQuantity,
   formatPrice,
   getCart,
   saveCart,
   updateCartIcon,
 } from "#public/utils/cart-utils.js";
 import Config from "#public/utils/config.js";
+import { showNotification } from "#public/utils/notify.js";
 import { onReady } from "#public/utils/on-ready.js";
 import { refreshCacheIfNeeded } from "#public/utils/products-cache.js";
 import { IDS } from "#public/utils/selectors.js";
@@ -87,12 +89,6 @@ const updateCartDisplay = createCartRenderer({
     updateCheckoutButtons(container, total);
   },
 });
-
-const clampQuantity = (quantity, maxQuantity) => {
-  if (!maxQuantity || quantity <= maxQuantity) return quantity;
-  alert(`The maximum quantity for this item is ${maxQuantity}`);
-  return maxQuantity;
-};
 
 const withAddedQuantity = (existing, quantity, { maxQuantity, sku }) => ({
   ...existing,
@@ -196,7 +192,7 @@ const validateProductOption = (button) => {
   if (!button.classList.contains("product-option-button")) return true;
   const select = button.parentElement.querySelector(".product-options-select");
   if (select && select.value === "") {
-    alert("Please select an option");
+    showNotification("Please select an option");
     return false;
   }
   return true;
