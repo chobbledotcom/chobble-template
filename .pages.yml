@@ -949,10 +949,25 @@ content:
                   - { name: href, type: string, label: URL, required: true }
                   - { name: variant, type: string, label: Variant }
                   - { name: size, type: string, label: Size }
-              - name: figure_type
-                type: string
-                label: Figure Type (html or code)
-              - { name: figure_content, type: rich-text, label: Figure Content }
+              - name: figure
+                type: block
+                label: Figure
+                blocks:
+                  - name: image
+                    label: Image
+                    fields:
+                      - { name: src, type: image, label: Image, required: true }
+                      - { name: alt, type: string, label: Alt Text }
+                  - name: code
+                    label: Code Block
+                    fields:
+                      - { name: filename, type: string, label: Filename }
+                      - { name: code, type: code, label: Code, required: true }
+                      - { name: language, type: string, label: Language }
+                  - name: html
+                    label: Custom HTML
+                    fields:
+                      - { name: content, type: rich-text, label: HTML Content, required: true }
           - name: items
             label: Items
             fields:

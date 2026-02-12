@@ -151,13 +151,14 @@ blocks:
       text: Try the Live Theme Editor
       href: https://example.chobble.com/theme-editor/
       variant: secondary
-    figure_type: html
-    figure_content: |
-      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; text-align: center; color: white;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">🎨</div>
-        <strong style="font-size: 1.5rem;">Theme Switcher</strong>
-        <p style="opacity: 0.8; margin: 0.5rem 0 0;">Let visitors preview themes instantly (in the bottom right)</p>
-      </div>
+    figure:
+      type: html
+      content: |
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; text-align: center; color: white;">
+          <div style="font-size: 4rem; margin-bottom: 1rem;">🎨</div>
+          <strong style="font-size: 1.5rem;">Theme Switcher</strong>
+          <p style="opacity: 0.8; margin: 0.5rem 0 0;">Let visitors preview themes instantly (in the bottom right)</p>
+        </div>
 
   # E-Commerce Features (with header, grid--4 layout, custom colors)
   - type: features
@@ -189,8 +190,8 @@ blocks:
       - **Responsive Images** - Multiple sizes generated at build time via srcset
       - **Link Prefetch** - Pages preload on hover
       - **Static Output** - No server-side rendering, just HTML files
-    figure_type: code
-    figure_content:
+    figure:
+      type: code
       filename: Image optimization
       code: |
         srcset="
@@ -232,22 +233,23 @@ blocks:
       - Any static host (Netlify, Vercel, etc.)
 
       Bunny Edge Script-based backend.
-    figure_type: html
-    figure_content: |
-      <div class="code-block">
-        <div class="code-block-toolbar">
-          <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
-          <span>Terminal</span>
+    figure:
+      type: html
+      content: |
+        <div class="code-block">
+          <div class="code-block-toolbar">
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>Terminal</span>
+          </div>
+          <pre><code style="color: #9ca3af;"><span style="color: #10b981;">$</span> git push origin main
+
+        <span style="color: #fbbf24;">[GitHub Actions]</span>
+        Building site...
+        Optimizing images...
+        Deploying to Neocities...
+
+        <span style="color: #10b981;">Done!</span> Site live in 47 seconds.</code></pre>
         </div>
-        <pre><code style="color: #9ca3af;"><span style="color: #10b981;">$</span> git push origin main
-
-      <span style="color: #fbbf24;">[GitHub Actions]</span>
-      Building site...
-      Optimizing images...
-      Deploying to Neocities...
-
-      <span style="color: #10b981;">Done!</span> Site live in 47 seconds.</code></pre>
-      </div>
 
   # Get It Built For You
   - type: split-full
