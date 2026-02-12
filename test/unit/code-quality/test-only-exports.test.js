@@ -82,8 +82,9 @@ const IMPORT_PATTERN = /import\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/g;
 //   eleventyConfig.addAsyncShortcode("name", functionRef)
 //   eleventyConfig.addCollection("name", functionRef)
 //   eleventyConfig.addTransform("name", functionRef)
+//   addDataFilter(eleventyConfig, "name", functionRef)
 const ELEVENTY_REGISTRATION_PATTERN =
-  /eleventyConfig\.(?:addFilter|addAsyncFilter|addShortcode|addAsyncShortcode|addCollection|addTransform)\s*\(\s*["'][^"']+["']\s*,\s*([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
+  /(?:eleventyConfig\.(?:addFilter|addAsyncFilter|addShortcode|addAsyncShortcode|addCollection|addTransform)\s*\(\s*["'][^"']+["']|addDataFilter\s*\(\s*\w+\s*,\s*["'][^"']+["'])\s*,\s*([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
 
 // Matches: import name from "path" (default imports)
 const DEFAULT_IMPORT_PATTERN =

@@ -6,6 +6,7 @@
 
 import { join } from "node:path";
 import config from "#data/config.js";
+import { addDataFilter } from "#eleventy/add-data-filter.js";
 import { SRC_DIR } from "#lib/paths.js";
 import { hashString } from "#media/thumbnail-placeholder.js";
 import { filter, filterMap, map, pipe } from "#toolkit/fp/array.js";
@@ -260,10 +261,8 @@ const reviewsRedirects = (reviewsField, limitOverride) =>
  */
 const configureReviews = (eleventyConfig) => {
   eleventyConfig.addCollection("reviews", createReviewsCollection);
-  // @ts-expect-error - Filter returns array for data transformation, not string
-  eleventyConfig.addFilter("getReviewsFor", getReviewsFor);
-  // @ts-expect-error - Filter returns number for data transformation, not string
-  eleventyConfig.addFilter("getRating", getRating);
+  addDataFilter(eleventyConfig, "getReviewsFor", getReviewsFor);
+  addDataFilter(eleventyConfig, "getRating", getRating);
   eleventyConfig.addFilter("ratingToStars", ratingToStars);
   eleventyConfig.addFilter("reviewerAvatar", reviewerAvatar);
 };
