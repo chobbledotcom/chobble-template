@@ -106,32 +106,6 @@ export interface PagesCMSTab {
 }
 
 /**
- * @typedef {Object} PagesCMSBlockItem
- * @property {string} ?icon - Icon (Iconify ID or HTML entity)
- * @property {string} title - Title
- * @property {string} description - Description
- */
-export interface PagesCMSBlockItem {
-  icon?: string;
-  title: string;
-  description: string;
-}
-
-/**
- * @typedef {Object} PagesCMSBlock
- * @property {string} ?type - Block Type
- * @property {string} title - Title
- * @property {string} ?subtitle - Subtitle
- * @property {PagesCMSBlockItem[]} ?items - Features
- */
-export interface PagesCMSBlock {
-  type?: string;
-  title: string;
-  subtitle?: string;
-  items?: PagesCMSBlockItem[];
-}
-
-/**
  * @typedef {Object} PagesCMSOpeningTime
  * @property {string} day - Day
  * @property {string} hours - Hours
