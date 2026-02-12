@@ -4,6 +4,7 @@
  * These transforms walk the DOM tree looking for text nodes that contain
  * linkable content and replace them with anchor elements.
  */
+import { flatMap } from "#toolkit/fp/array.js";
 import { frozenSet } from "#toolkit/fp/set.js";
 
 /** @typedef {{ type: "text" | "url" | "email" | "phone" | "configLink", value: string }} TextPart */
@@ -131,19 +132,28 @@ const createNodeFilter = (pattern) => (node) =>
 const getCurrentTextNode = (walker) => walker.currentNode;
 
 /**
+ * Recursively collect all text nodes from a tree walker
+ * @param {TreeWalker} walker
+ * @param {Text[]} acc
+ * @returns {Text[]}
+ */
+const walkTextNodes = (walker, acc = []) =>
+  walker.nextNode()
+    ? walkTextNodes(walker, [...acc, getCurrentTextNode(walker)])
+    : acc;
+
+/**
  * Collect text nodes matching a pattern using recursive walker
  * @param {*} document
  * @param {RegExp} pattern
  * @returns {Text[]}
  */
-const collectTextNodes = (document, pattern) => {
-  const walker = document.createTreeWalker(document.body, 4, {
-    acceptNode: createNodeFilter(pattern),
-  });
-  const walkNodes = (acc) =>
-    walker.nextNode() ? walkNodes([...acc, getCurrentTextNode(walker)]) : acc;
-  return walkNodes([]);
-};
+const collectTextNodes = (document, pattern) =>
+  walkTextNodes(
+    document.createTreeWalker(document.body, 4, {
+      acceptNode: createNodeFilter(pattern),
+    }),
+  );
 
 /**
  * Format URL for display (strip protocol, www, trailing slash)
@@ -343,19 +353,14 @@ const configLinkPart = (value) => ({ type: "configLink", value });
  * @param {RegExp} pattern
  * @returns {Text[]}
  */
-const collectProseTextNodes = (document, pattern) => {
-  const proseElements = document.querySelectorAll(".prose");
-  const nodes = [];
-  for (const prose of proseElements) {
-    const walker = document.createTreeWalker(prose, 4, {
-      acceptNode: createNodeFilter(pattern),
-    });
-    while (walker.nextNode()) {
-      nodes.push(getCurrentTextNode(walker));
-    }
-  }
-  return nodes;
-};
+const collectProseTextNodes = (document, pattern) =>
+  flatMap((prose) =>
+    walkTextNodes(
+      document.createTreeWalker(prose, 4, {
+        acceptNode: createNodeFilter(pattern),
+      }),
+    ),
+  )([...document.querySelectorAll(".prose")]);
 
 /** @type {(document: *, text: string, url: string) => HTMLAnchorElement} */
 const createConfigLink = (document, text, url) =>
