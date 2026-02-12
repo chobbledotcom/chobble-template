@@ -6,7 +6,7 @@
  */
 import { frozenSet } from "#toolkit/fp/set.js";
 
-/** @typedef {{ type: "text" | "url" | "email" | "phone", value: string }} TextPart */
+/** @typedef {{ type: "text" | "url" | "email" | "phone" | "configLink", value: string }} TextPart */
 
 /** Matches http:// or https:// URLs in text */
 const URL_PATTERN = /https?:\/\/[^\s<>]+/g;
