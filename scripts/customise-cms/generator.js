@@ -12,6 +12,7 @@ import {
   COMMON_FIELDS,
   createAddOnsField,
   createEleventyNavigationField,
+  createMarkdownField,
   createObjectListField,
   createReferenceField,
   createTabsField,
@@ -861,12 +862,13 @@ const getPageLayoutSchemas = () =>
   Object.entries(pageLayouts).map(([slug, schema]) => ({ slug, schema }));
 
 /**
- * Convert a page layout block schema field to a CMS field
+ * Convert a non-markdown schema field to a generic CMS field
  * @param {string} name - Field name
  * @param {object} fieldSchema - Field schema from JSON
+ * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
  * @returns {object} CMS field configuration
  */
-const schemaFieldToCmsField = (name, fieldSchema) => ({
+const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
   name,
   type: fieldSchema.type,
   label: fieldSchema.label || name,
@@ -875,10 +877,32 @@ const schemaFieldToCmsField = (name, fieldSchema) => ({
   ...(fieldSchema.list && { list: true }),
   ...(fieldSchema.fields && {
     fields: Object.entries(fieldSchema.fields).map(([n, f]) =>
-      schemaFieldToCmsField(n, f),
+      schemaFieldToCmsField(n, f, useVisualEditor),
     ),
   }),
 });
+
+/**
+ * Convert a page layout block schema field to a CMS field
+ * @param {string} name - Field name
+ * @param {object} fieldSchema - Field schema from JSON
+ * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
+ * @returns {object} CMS field configuration
+ */
+const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
+  if (fieldSchema.type === "markdown") {
+    return createMarkdownField(
+      name,
+      fieldSchema.label || name,
+      useVisualEditor,
+      {
+        ...(fieldSchema.required && { required: true }),
+      },
+    );
+  }
+
+  return buildGenericCmsField(name, fieldSchema, useVisualEditor);
+};
 
 /**
  * Convert a block type slug to a human-readable label
@@ -929,16 +953,17 @@ const collectUniqueBlocks = (blocks) => {
  * Uses PagesCMS block field type so each block type has its own distinct fields,
  * rather than flattening all fields into a single object.
  * @param {object} schema - Layout schema with blocks array
+ * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
  * @returns {object} CMS blocks field configuration using type: block
  */
-const generateBlocksField = (schema) => {
+const generateBlocksField = (schema, useVisualEditor) => {
   const uniqueBlocks = collectUniqueBlocks(schema.blocks);
 
   const blocks = [...uniqueBlocks.entries()].map(([type, fields]) => ({
     name: type,
     label: blockTypeToLabel(type),
     fields: Object.entries(fields).map(([name, fieldSchema]) =>
-      schemaFieldToCmsField(name, fieldSchema),
+      schemaFieldToCmsField(name, fieldSchema, useVisualEditor),
     ),
   }));
 
@@ -958,9 +983,15 @@ const generateBlocksField = (schema) => {
  * @param {string} slug - Page slug
  * @param {object} schema - Layout schema
  * @param {FieldContext} fieldContext - Precomputed fields
+ * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
  * @returns {object} Collection configuration for this page layout
  */
-const generatePageLayoutConfig = (slug, schema, fieldContext) => ({
+const generatePageLayoutConfig = (
+  slug,
+  schema,
+  fieldContext,
+  useVisualEditor,
+) => ({
   name: `page-${slug}`,
   label: schema.label,
   type: "file",
@@ -968,7 +999,7 @@ const generatePageLayoutConfig = (slug, schema, fieldContext) => ({
   fields: [
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
-    generateBlocksField(schema),
+    generateBlocksField(schema, useVisualEditor),
     fieldContext.body,
   ],
 });
@@ -994,8 +1025,9 @@ export const generatePagesYaml = (config) => {
 
   // Load page layout schemas and generate their configs
   const pageLayoutSchemas = getPageLayoutSchemas();
+  const useVisualEditor = config.features.use_visual_editor;
   const pageLayoutConfigs = pageLayoutSchemas.map(({ slug, schema }) =>
-    generatePageLayoutConfig(slug, schema, fieldContext),
+    generatePageLayoutConfig(slug, schema, fieldContext, useVisualEditor),
   );
 
   // Build content array, conditionally including homepage
