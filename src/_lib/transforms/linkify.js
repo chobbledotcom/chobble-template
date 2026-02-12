@@ -157,6 +157,20 @@ const formatUrlDisplay = (url) =>
     .replace(/\/$/, "");
 
 /**
+ * Create a simple anchor element with href and display text
+ * @param {*} document
+ * @param {string} href
+ * @param {string} text
+ * @returns {HTMLAnchorElement}
+ */
+const createSimpleLink = (document, href, text) => {
+  const link = document.createElement("a");
+  link.href = href;
+  link.textContent = text;
+  return link;
+};
+
+/**
  * Create link element for a URL
  * @param {*} document
  * @param {string} url
@@ -164,9 +178,7 @@ const formatUrlDisplay = (url) =>
  * @returns {HTMLAnchorElement}
  */
 const createUrlLink = (document, url, targetBlank) => {
-  const link = document.createElement("a");
-  link.href = url;
-  link.textContent = formatUrlDisplay(url);
+  const link = createSimpleLink(document, url, formatUrlDisplay(url));
   if (targetBlank) {
     link.target = "_blank";
     link.rel = "noopener noreferrer";
@@ -174,31 +186,13 @@ const createUrlLink = (document, url, targetBlank) => {
   return link;
 };
 
-/**
- * Create link element for an email
- * @param {*} document
- * @param {string} email
- * @returns {HTMLAnchorElement}
- */
-const createEmailLink = (document, email) => {
-  const link = document.createElement("a");
-  link.href = `mailto:${email}`;
-  link.textContent = email;
-  return link;
-};
+/** @type {(document: *, email: string) => HTMLAnchorElement} */
+const createEmailLink = (document, email) =>
+  createSimpleLink(document, `mailto:${email}`, email);
 
-/**
- * Create link element for a phone number
- * @param {*} document
- * @param {string} phone
- * @returns {HTMLAnchorElement}
- */
-const createPhoneLink = (document, phone) => {
-  const link = document.createElement("a");
-  link.href = `tel:${phone.replace(/\s/g, "")}`;
-  link.textContent = phone;
-  return link;
-};
+/** @type {(document: *, phone: string) => HTMLAnchorElement} */
+const createPhoneLink = (document, phone) =>
+  createSimpleLink(document, `tel:${phone.replace(/\s/g, "")}`, phone);
 
 /**
  * Create DOM node for a text part
@@ -216,19 +210,31 @@ const createNodeForPart = (document, part, targetBlank) => {
 };
 
 /**
+ * Build a document fragment by mapping parts through a node-creation function
+ * @param {*} document
+ * @param {TextPart[]} parts
+ * @param {(part: TextPart) => Node} createNode
+ * @returns {DocumentFragment}
+ */
+const buildFragment = (document, parts, createNode) => {
+  const fragment = document.createDocumentFragment();
+  for (const part of parts) {
+    fragment.appendChild(createNode(part));
+  }
+  return fragment;
+};
+
+/**
  * Create document fragment from parts
  * @param {*} document
  * @param {TextPart[]} parts
  * @param {boolean} targetBlank
  * @returns {DocumentFragment}
  */
-const createLinkFragment = (document, parts, targetBlank) => {
-  const fragment = document.createDocumentFragment();
-  for (const part of parts) {
-    fragment.appendChild(createNodeForPart(document, part, targetBlank));
-  }
-  return fragment;
-};
+const createLinkFragment = (document, parts, targetBlank) =>
+  buildFragment(document, parts, (part) =>
+    createNodeForPart(document, part, targetBlank),
+  );
 
 /**
  * Process text nodes and replace with linkified content
@@ -351,19 +357,9 @@ const collectProseTextNodes = (document, pattern) => {
   return nodes;
 };
 
-/**
- * Create link element for a config link entry
- * @param {*} document
- * @param {string} text
- * @param {string} url
- * @returns {HTMLAnchorElement}
- */
-const createConfigLink = (document, text, url) => {
-  const link = document.createElement("a");
-  link.href = url;
-  link.textContent = text;
-  return link;
-};
+/** @type {(document: *, text: string, url: string) => HTMLAnchorElement} */
+const createConfigLink = (document, text, url) =>
+  createSimpleLink(document, url, text);
 
 /**
  * Create DOM node for a config link part
@@ -376,21 +372,6 @@ const createConfigLinkNode = (document, part, linksMap) =>
   part.type === "configLink"
     ? createConfigLink(document, part.value, linksMap[part.value])
     : document.createTextNode(part.value);
-
-/**
- * Create document fragment from config link parts
- * @param {*} document
- * @param {TextPart[]} parts
- * @param {Record<string, string>} linksMap
- * @returns {DocumentFragment}
- */
-const createConfigLinkFragment = (document, parts, linksMap) => {
-  const fragment = document.createDocumentFragment();
-  for (const part of parts) {
-    fragment.appendChild(createConfigLinkNode(document, part, linksMap));
-  }
-  return fragment;
-};
 
 /**
  * Linkify text based on configured links map, only within .prose elements.
@@ -412,7 +393,9 @@ const linkifyConfigLinks = (document, linksMap) => {
     );
     if (parts.some((p) => p.type === "configLink")) {
       textNode.parentNode?.replaceChild(
-        createConfigLinkFragment(document, parts, linksMap),
+        buildFragment(document, parts, (part) =>
+          createConfigLinkNode(document, part, linksMap),
+        ),
         textNode,
       );
     }
