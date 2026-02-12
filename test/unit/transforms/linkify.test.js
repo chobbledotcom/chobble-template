@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { wrapHtml } from "#test/test-utils.js";
 import {
+  buildConfigLinksPattern,
+  linkifyConfigLinks,
   linkifyEmails,
   linkifyPhones,
   linkifyUrls,
@@ -338,5 +340,127 @@ describe("linkify transforms", () => {
         });
       });
     }
+  });
+
+  describe("linkifyConfigLinks", () => {
+    const linksMap = {
+      "Acme Corp": "https://acme.example.com",
+      "Widget Pro": "https://widgets.example.com/pro",
+    };
+
+    // Helper: linkifyConfigLinks takes (document, linksMap) not (document, config)
+    const transformConfigLinks = async (html, map) => {
+      const dom = await loadDOM(html);
+      linkifyConfigLinks(dom.window.document, map);
+      return dom.serialize();
+    };
+
+    test("converts matching text to links inside .prose elements", async () => {
+      const html = wrapHtml(
+        '<div class="prose"><p>Visit Acme Corp for details</p></div>',
+      );
+      const result = await transformConfigLinks(html, linksMap);
+
+      expect(result).toContain('href="https://acme.example.com"');
+      expect(result).toContain(">Acme Corp</a>");
+    });
+
+    test("does not linkify text outside .prose elements", async () => {
+      const html = wrapHtml("<div><p>Visit Acme Corp for details</p></div>");
+      const result = await transformConfigLinks(html, linksMap);
+
+      expect(result).not.toContain("<a ");
+    });
+
+    test("handles multiple link texts in same paragraph", async () => {
+      const html = wrapHtml(
+        '<div class="prose"><p>See Acme Corp and Widget Pro</p></div>',
+      );
+      const result = await transformConfigLinks(html, linksMap);
+
+      expect(result).toContain('href="https://acme.example.com"');
+      expect(result).toContain('href="https://widgets.example.com/pro"');
+    });
+
+    test("preserves surrounding text", async () => {
+      const html = wrapHtml(
+        '<div class="prose"><p>Before Acme Corp after</p></div>',
+      );
+      const result = await transformConfigLinks(html, linksMap);
+
+      expect(result).toContain("Before ");
+      expect(result).toContain(" after");
+    });
+
+    test("does not linkify inside anchor tags", async () => {
+      const html = wrapHtml(
+        '<div class="prose"><a href="/other">Acme Corp</a></div>',
+      );
+      const result = await transformConfigLinks(html, linksMap);
+
+      expectSingleAnchor(result);
+    });
+
+    test("does not linkify inside code tags", async () => {
+      const html = wrapHtml('<div class="prose"><code>Acme Corp</code></div>');
+      const result = await transformConfigLinks(html, linksMap);
+
+      expect(result).not.toContain('href="https://acme.example.com"');
+    });
+
+    test("does nothing when links map is empty", async () => {
+      const html = wrapHtml('<div class="prose"><p>Visit Acme Corp</p></div>');
+      const result = await transformConfigLinks(html, {});
+
+      expect(result).not.toContain("<a ");
+    });
+
+    test("does not match partial words", async () => {
+      const map = { test: "https://example.com/test" };
+      const html = wrapHtml(
+        '<div class="prose"><p>This is a testing scenario</p></div>',
+      );
+      const result = await transformConfigLinks(html, map);
+
+      expect(result).not.toContain("<a ");
+    });
+
+    test("matches text that is a standalone word", async () => {
+      const map = { test: "https://example.com/test" };
+      const html = wrapHtml('<div class="prose"><p>Run a test today</p></div>');
+      const result = await transformConfigLinks(html, map);
+
+      expect(result).toContain('href="https://example.com/test"');
+      expect(result).toContain(">test</a>");
+    });
+
+    test("handles nested prose elements", async () => {
+      const html = wrapHtml(
+        '<div class="prose"><div class="prose"><p>Visit Acme Corp</p></div></div>',
+      );
+      const result = await transformConfigLinks(html, linksMap);
+
+      expect(result).toContain('href="https://acme.example.com"');
+    });
+  });
+
+  describe("buildConfigLinksPattern", () => {
+    test("matches longest text first", () => {
+      const pattern = buildConfigLinksPattern(["Acme", "Acme Corp"]);
+      const text = "Visit Acme Corp today";
+      const matches = [...text.matchAll(pattern)];
+
+      expect(matches.length).toBe(1);
+      expect(matches[0][0]).toBe("Acme Corp");
+    });
+
+    test("escapes special regex characters in link text", () => {
+      const pattern = buildConfigLinksPattern(["C++ Guide"]);
+      const text = "Read the C++ Guide now";
+      const matches = [...text.matchAll(pattern)];
+
+      expect(matches.length).toBe(1);
+      expect(matches[0][0]).toBe("C++ Guide");
+    });
   });
 });

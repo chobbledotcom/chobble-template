@@ -310,18 +310,143 @@ const linkifyPhones = (document, config) => {
   );
 };
 
+/**
+ * Escape special regex characters in a string
+ * @param {string} str
+ * @returns {string}
+ */
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Build a regex that matches any of the link texts (longest first, word-bounded)
+ * @param {string[]} texts
+ * @returns {RegExp}
+ */
+const buildConfigLinksPattern = (texts) => {
+  const sorted = [...texts].sort((a, b) => b.length - a.length);
+  const alternation = sorted.map(escapeRegExp).join("|");
+  return new RegExp(`\\b(${alternation})\\b`, "g");
+};
+
+/** @type {(value: string) => TextPart} */
+const configLinkPart = (value) => ({ type: "configLink", value });
+
+/**
+ * Collect text nodes matching a pattern within .prose elements
+ * @param {*} document
+ * @param {RegExp} pattern
+ * @returns {Text[]}
+ */
+const collectProseTextNodes = (document, pattern) => {
+  const proseElements = document.querySelectorAll(".prose");
+  const nodes = [];
+  for (const prose of proseElements) {
+    const walker = document.createTreeWalker(prose, 4, {
+      acceptNode: createNodeFilter(pattern),
+    });
+    while (walker.nextNode()) {
+      nodes.push(getCurrentTextNode(walker));
+    }
+  }
+  return nodes;
+};
+
+/**
+ * Create link element for a config link entry
+ * @param {*} document
+ * @param {string} text
+ * @param {string} url
+ * @returns {HTMLAnchorElement}
+ */
+const createConfigLink = (document, text, url) => {
+  const link = document.createElement("a");
+  link.href = url;
+  link.textContent = text;
+  return link;
+};
+
+/**
+ * Create DOM node for a config link part
+ * @param {*} document
+ * @param {TextPart} part
+ * @param {Record<string, string>} linksMap
+ * @returns {Node}
+ */
+const createConfigLinkNode = (document, part, linksMap) =>
+  part.type === "configLink"
+    ? createConfigLink(document, part.value, linksMap[part.value])
+    : document.createTextNode(part.value);
+
+/**
+ * Create document fragment from config link parts
+ * @param {*} document
+ * @param {TextPart[]} parts
+ * @param {Record<string, string>} linksMap
+ * @returns {DocumentFragment}
+ */
+const createConfigLinkFragment = (document, parts, linksMap) => {
+  const fragment = document.createDocumentFragment();
+  for (const part of parts) {
+    fragment.appendChild(createConfigLinkNode(document, part, linksMap));
+  }
+  return fragment;
+};
+
+/**
+ * Linkify text based on configured links map, only within .prose elements.
+ * Each text match is replaced with an anchor linking to the configured URL.
+ * @param {*} document
+ * @param {Record<string, string>} linksMap - Keys are text to match, values are URLs
+ */
+const linkifyConfigLinks = (document, linksMap) => {
+  const texts = Object.keys(linksMap);
+  if (texts.length === 0) return;
+
+  const pattern = buildConfigLinksPattern(texts);
+
+  for (const textNode of collectProseTextNodes(document, pattern)) {
+    const parts = parseTextByPattern(
+      textNode.textContent,
+      pattern,
+      configLinkPart,
+    );
+    if (parts.some((p) => p.type === "configLink")) {
+      textNode.parentNode?.replaceChild(
+        createConfigLinkFragment(document, parts, linksMap),
+        textNode,
+      );
+    }
+  }
+};
+
+/**
+ * Check if content contains any of the configured link texts
+ * @param {string} content
+ * @param {Record<string, string>} linksMap
+ * @returns {boolean}
+ */
+const hasConfigLinks = (content, linksMap) => {
+  const texts = Object.keys(linksMap);
+  return texts.length > 0 && texts.some((text) => content.includes(text));
+};
+
 export {
   linkifyUrls,
   linkifyEmails,
   linkifyPhones,
+  linkifyConfigLinks,
   formatUrlDisplay,
   hasPhonePattern,
+  hasConfigLinks,
   // Exported for testing
   parseTextByPattern,
   collectTextNodes,
+  collectProseTextNodes,
   createUrlLink,
   createEmailLink,
   createPhoneLink,
+  createConfigLink,
+  buildConfigLinksPattern,
   URL_PATTERN,
   EMAIL_PATTERN,
   SKIP_TAGS,
