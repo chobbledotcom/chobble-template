@@ -6,11 +6,10 @@ Parameters (via block object):
   - block.title_level: Heading level, defaults to 2
   - block.subtitle: Optional subtitle text (with text-muted styling)
   - block.content: Main content (can include HTML like <ul>, <p>)
-  - block.figure_type: "image", "code", or "html"
-  - block.figure_content: Depends on figure_type:
-    - For "image": { src, alt }
-    - For "code": { filename, code, language }
-    - For "html": raw HTML string
+  - block.figure: Object with type and content:
+    - { type: "image", src: "...", alt: "..." }
+    - { type: "code", filename: "...", code: "...", language: "..." }
+    - { type: "html", content: "..." }
   - block.reverse: If true, reverses the layout (content on right)
   - block.reveal_content: Animation for content side (e.g., "left", "right")
   - block.reveal_figure: Animation for figure side (default: "scale")
@@ -21,8 +20,7 @@ Usage:
      block: {
        title: "My Section",
        content: "<p>Description here</p><ul><li>Item 1</li></ul>",
-       figure_type: "code",
-       figure_content: { filename: "example.js", code: "const x = 1;" },
+       figure: { type: "code", filename: "example.js", code: "const x = 1;" },
        reverse: true
      }
   %}
@@ -45,13 +43,13 @@ Usage:
     {%- endif -%}
   </article>
   <figure data-reveal="{{ reveal_figure }}">
-    {%- case block.figure_type -%}
+    {%- case block.figure.type -%}
       {%- when "image" -%}
-        {% image block.figure_content.src, block.figure_content.alt %}
+        {% image block.figure.src, block.figure.alt %}
       {%- when "code" -%}
-        {%- include "design-system/code-block.html", block: block.figure_content -%}
+        {%- include "design-system/code-block.html", block: block.figure -%}
       {%- when "html" -%}
-        {{ block.figure_content }}
+        {{ block.figure.content }}
     {%- endcase -%}
   </figure>
 </div>
