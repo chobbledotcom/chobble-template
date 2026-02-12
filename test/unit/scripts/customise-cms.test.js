@@ -448,9 +448,8 @@ describe("customise-cms generator", () => {
   test("generatePagesYaml excludes optional fields when disabled", () => {
     const yaml = generatePagesYaml(createTestConfig());
 
-    // These should NOT appear in pages collection
-    // Note: they might appear in file configs, so we check the pages section
-    const pagesSection = yaml.split("name: homepage")[0];
+    // Check only the pages collection section, not page layout configs
+    const pagesSection = getSection("pages")(yaml);
     expect(pagesSection).not.toContain("name: faqs");
     expect(pagesSection).not.toContain("name: specs");
     expect(pagesSection).not.toContain("name: features");

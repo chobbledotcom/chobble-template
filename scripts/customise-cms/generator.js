@@ -881,40 +881,76 @@ const schemaFieldToCmsField = (name, fieldSchema) => ({
 });
 
 /**
- * Deduplicate fields by name, keeping first occurrence
- * @param {object[]} fields - Array of field objects
- * @returns {object[]} Deduplicated fields
+ * Convert a block type slug to a human-readable label
+ * @param {string} type - Block type slug (e.g., "section-header")
+ * @returns {string} Human-readable label (e.g., "Section Header")
  */
-const uniqueByName = (fields) =>
-  fields.filter(
-    (field, index, arr) =>
-      arr.findIndex((f) => f.name === field.name) === index,
-  );
+const blockTypeToLabel = (type) =>
+  type
+    .split(/[-_]/)
+    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
+    .join(" ");
 
 /**
- * Generate CMS fields for a blocks array based on schema
- * @param {object} schema - Layout schema with blocks array
- * @returns {object} CMS blocks field configuration
+ * Merge new fields into an existing fields object, keeping first occurrence per field name.
+ * @param {object} existing - Existing merged fields object (mutated in place)
+ * @param {object} newFields - New fields to merge in
  */
-const generateBlocksField = (schema) => ({
-  name: "blocks",
-  label: "Content Blocks",
-  type: "object",
-  list: true,
-  fields: uniqueByName(
-    schema.blocks.flatMap((block) => [
-      {
-        name: "type",
-        type: "string",
-        label: "Block Type",
-        default: block.type,
-      },
-      ...Object.entries(block.fields).map(([name, fieldSchema]) =>
-        schemaFieldToCmsField(name, fieldSchema),
-      ),
-    ]),
-  ),
-});
+const mergeBlockFields = (existing, newFields) => {
+  for (const [name, schema] of Object.entries(newFields)) {
+    if (!existing[name]) {
+      existing[name] = schema;
+    }
+  }
+};
+
+/**
+ * Collect unique block definitions from a schema, merging fields for duplicate types.
+ * When a block type appears multiple times, fields are merged (first occurrence wins per field name).
+ * @param {object[]} blocks - Array of block definitions from schema
+ * @returns {Map<string, object>} Map of block type to merged fields object
+ */
+const collectUniqueBlocks = (blocks) => {
+  const blockMap = new Map();
+
+  for (const block of blocks) {
+    if (!blockMap.has(block.type)) {
+      blockMap.set(block.type, { ...block.fields });
+    } else {
+      mergeBlockFields(blockMap.get(block.type), block.fields);
+    }
+  }
+
+  return blockMap;
+};
+
+/**
+ * Generate CMS block field for a blocks array based on schema.
+ * Uses PagesCMS block field type so each block type has its own distinct fields,
+ * rather than flattening all fields into a single object.
+ * @param {object} schema - Layout schema with blocks array
+ * @returns {object} CMS blocks field configuration using type: block
+ */
+const generateBlocksField = (schema) => {
+  const uniqueBlocks = collectUniqueBlocks(schema.blocks);
+
+  const blocks = [...uniqueBlocks.entries()].map(([type, fields]) => ({
+    name: type,
+    label: blockTypeToLabel(type),
+    fields: Object.entries(fields).map(([name, fieldSchema]) =>
+      schemaFieldToCmsField(name, fieldSchema),
+    ),
+  }));
+
+  return {
+    name: "blocks",
+    label: "Content Blocks",
+    type: "block",
+    list: true,
+    blockKey: "type",
+    blocks,
+  };
+};
 
 /**
  * Generate page layout configuration for CMS
