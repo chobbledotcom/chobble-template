@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { wrapHtml } from "#test/test-utils.js";
 import {
   buildConfigLinksPattern,
+  hasConfigLinks,
+  hasPhonePattern,
   linkifyConfigLinks,
   linkifyEmails,
   linkifyPhones,
@@ -441,6 +443,38 @@ describe("linkify transforms", () => {
       const result = await transformConfigLinks(html, linksMap);
 
       expect(result).toContain('href="https://acme.example.com"');
+    });
+  });
+
+  describe("hasConfigLinks", () => {
+    test("returns true when content contains a link text", () => {
+      expect(
+        hasConfigLinks("Visit Acme Corp today", { "Acme Corp": "/acme" }),
+      ).toBe(true);
+    });
+
+    test("returns false when content has no matching text", () => {
+      expect(hasConfigLinks("Visit us today", { "Acme Corp": "/acme" })).toBe(
+        false,
+      );
+    });
+
+    test("returns false when links map is empty", () => {
+      expect(hasConfigLinks("Acme Corp", {})).toBe(false);
+    });
+  });
+
+  describe("hasPhonePattern", () => {
+    test("returns true when content contains phone-length digit sequence", () => {
+      expect(hasPhonePattern("Call 01234567890", 11)).toBe(true);
+    });
+
+    test("returns false when no matching digit sequence", () => {
+      expect(hasPhonePattern("Call 012345", 11)).toBe(false);
+    });
+
+    test("returns false when phoneLen is 0", () => {
+      expect(hasPhonePattern("Call 01234567890", 0)).toBe(false);
     });
   });
 
