@@ -34,7 +34,9 @@ Usage:
 
 <div class="split{% if block.reverse %} split--reverse{% endif %}">
   <article class="stack" data-reveal="{{ reveal_content }}">
-    <h{{ title_level }}>{{ block.title }}</h{{ title_level }}>
+    {%- if block.title -%}
+      <h{{ title_level }}>{{ block.title }}</h{{ title_level }}>
+    {%- endif -%}
     {%- if block.subtitle -%}
       <p class="text-muted">{{ block.subtitle }}</p>
     {%- endif -%}
