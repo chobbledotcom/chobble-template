@@ -222,11 +222,7 @@ const reviewsFactory =
  * @param {number} [limitOverride] - Optional limit override for testing
  * @returns {(collectionApi: import("@11ty/eleventy").CollectionApi) => EleventyCollectionItem[]}
  */
-const withReviewsPage = (
-  reviewsField,
-  processItem,
-  limitOverride,
-) =>
+const withReviewsPage = (reviewsField, processItem, limitOverride) =>
   reviewsFactory(
     reviewsField,
     limitOverride,
