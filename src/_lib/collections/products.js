@@ -11,6 +11,7 @@
 
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import config from "#data/config.js";
+import { addDataFilter } from "#eleventy/add-data-filter.js";
 import { filterMap, findDuplicate, memberOf } from "#toolkit/fp/array.js";
 import {
   createArrayFieldIndexer,
@@ -186,12 +187,13 @@ const configureProducts = (eleventyConfig) => {
     productReviewsRedirects,
   );
 
-  // @ts-expect-error - Filter returns array, not string (used for data transformation)
-  eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
-  // @ts-expect-error - Filter returns array, not string (used for data transformation)
-  eleventyConfig.addFilter("getProductsByCategories", getProductsByCategories);
-  // @ts-expect-error - Filter returns array, not string (used for data transformation)
-  eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
+  addDataFilter(eleventyConfig, "getProductsByCategory", getProductsByCategory);
+  addDataFilter(
+    eleventyConfig,
+    "getProductsByCategories",
+    getProductsByCategories,
+  );
+  addDataFilter(eleventyConfig, "getProductsByEvent", getProductsByEvent);
 };
 
 export { configureProducts, computeGallery, addGallery, getProductsByCategory };
