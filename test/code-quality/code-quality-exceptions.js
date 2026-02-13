@@ -248,7 +248,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/collections/categories.js:72",
   "src/_lib/collections/events.js:23",
-  "src/_lib/collections/products.js:96",
+  "src/_lib/collections/products.js:97",
   "src/_lib/eleventy/ical.js:42",
   "src/_lib/filters/filter-core.js:196",
   "src/_lib/filters/filter-core.js:202",
@@ -303,8 +303,8 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/item-filters.js:143", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
-  "src/_lib/public/cart/cart.js:100",
-  "src/_lib/public/cart/cart.js:101",
+  "src/_lib/public/cart/cart.js:96",
+  "src/_lib/public/cart/cart.js:97",
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions

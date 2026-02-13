@@ -13,12 +13,15 @@
 import linkifyHtmlLib from "linkify-html";
 import { FAST_INACCURATE_BUILDS } from "#build/build-mode.js";
 import configModule from "#data/config.js";
+import linksMap from "#data/links.json" with { type: "json" };
 import { memoize } from "#toolkit/fp/memoize.js";
 import { addExternalLinkAttrs } from "#transforms/external-links.js";
 import { processImages } from "#transforms/images.js";
 import {
   formatUrlDisplay,
+  hasConfigLinks,
   hasPhonePattern,
+  linkifyConfigLinks,
   linkifyPhones,
   SKIP_TAGS,
 } from "#transforms/linkify.js";
@@ -29,7 +32,7 @@ import { loadDOM } from "#utils/lazy-dom.js";
 const getConfig = memoize(configModule);
 
 /**
- * Check if content requires DOM parsing (has tables, images, phone patterns, or read-more markers)
+ * Check if content requires DOM parsing (has tables, images, phone patterns, read-more markers, or config links)
  * @param {string} content
  * @param {number} phoneLen
  * @returns {boolean}
@@ -38,7 +41,8 @@ const needsDomParsing = (content, phoneLen) =>
   hasPhonePattern(content, phoneLen) ||
   content.includes("<table") ||
   content.includes('src="/images/') ||
-  hasReadMoreMarker(content);
+  hasReadMoreMarker(content) ||
+  hasConfigLinks(content, linksMap);
 
 /**
  * Apply DOM-based transforms (phone links, table wrappers, image processing, read-more)
@@ -53,6 +57,7 @@ const applyDomTransforms = async (html, config, processAndWrapImage) => {
   const { document } = dom.window;
   if (!FAST_INACCURATE_BUILDS) {
     linkifyPhones(document, config);
+    linkifyConfigLinks(document, linksMap);
   }
   wrapTables(document, config);
   processReadMore(document);

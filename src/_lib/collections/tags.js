@@ -4,6 +4,7 @@
  * @module #collections/tags
  */
 
+import { addDataFilter } from "#eleventy/add-data-filter.js";
 import { filter, flatMap, map, pipe, sort, unique } from "#toolkit/fp/array.js";
 import { compareStrings } from "#toolkit/fp/sorting.js";
 
@@ -39,8 +40,7 @@ const extractTags = (collection) =>
  * @param {import('11ty.ts').EleventyConfig} eleventyConfig
  */
 const configureTags = (eleventyConfig) => {
-  // @ts-expect-error - Filter returns array for data transformation, not string
-  eleventyConfig.addFilter("tags", extractTags);
+  addDataFilter(eleventyConfig, "tags", extractTags);
 };
 
 export { extractTags, configureTags };

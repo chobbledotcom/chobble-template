@@ -4,9 +4,10 @@
  * These transforms walk the DOM tree looking for text nodes that contain
  * linkable content and replace them with anchor elements.
  */
+import { flatMap } from "#toolkit/fp/array.js";
 import { frozenSet } from "#toolkit/fp/set.js";
 
-/** @typedef {{ type: "text" | "url" | "email" | "phone", value: string }} TextPart */
+/** @typedef {{ type: "text" | "url" | "email" | "phone" | "configLink", value: string }} TextPart */
 
 /** Matches http:// or https:// URLs in text */
 const URL_PATTERN = /https?:\/\/[^\s<>]+/g;
@@ -131,19 +132,28 @@ const createNodeFilter = (pattern) => (node) =>
 const getCurrentTextNode = (walker) => walker.currentNode;
 
 /**
+ * Recursively collect all text nodes from a tree walker
+ * @param {TreeWalker} walker
+ * @param {Text[]} acc
+ * @returns {Text[]}
+ */
+const walkTextNodes = (walker, acc = []) =>
+  walker.nextNode()
+    ? walkTextNodes(walker, [...acc, getCurrentTextNode(walker)])
+    : acc;
+
+/**
  * Collect text nodes matching a pattern using recursive walker
  * @param {*} document
  * @param {RegExp} pattern
  * @returns {Text[]}
  */
-const collectTextNodes = (document, pattern) => {
-  const walker = document.createTreeWalker(document.body, 4, {
-    acceptNode: createNodeFilter(pattern),
-  });
-  const walkNodes = (acc) =>
-    walker.nextNode() ? walkNodes([...acc, getCurrentTextNode(walker)]) : acc;
-  return walkNodes([]);
-};
+const collectTextNodes = (document, pattern) =>
+  walkTextNodes(
+    document.createTreeWalker(document.body, 4, {
+      acceptNode: createNodeFilter(pattern),
+    }),
+  );
 
 /**
  * Format URL for display (strip protocol, www, trailing slash)
@@ -157,6 +167,20 @@ const formatUrlDisplay = (url) =>
     .replace(/\/$/, "");
 
 /**
+ * Create a simple anchor element with href and display text
+ * @param {*} document
+ * @param {string} href
+ * @param {string} text
+ * @returns {HTMLAnchorElement}
+ */
+const createSimpleLink = (document, href, text) => {
+  const link = document.createElement("a");
+  link.href = href;
+  link.textContent = text;
+  return link;
+};
+
+/**
  * Create link element for a URL
  * @param {*} document
  * @param {string} url
@@ -164,9 +188,7 @@ const formatUrlDisplay = (url) =>
  * @returns {HTMLAnchorElement}
  */
 const createUrlLink = (document, url, targetBlank) => {
-  const link = document.createElement("a");
-  link.href = url;
-  link.textContent = formatUrlDisplay(url);
+  const link = createSimpleLink(document, url, formatUrlDisplay(url));
   if (targetBlank) {
     link.target = "_blank";
     link.rel = "noopener noreferrer";
@@ -174,31 +196,13 @@ const createUrlLink = (document, url, targetBlank) => {
   return link;
 };
 
-/**
- * Create link element for an email
- * @param {*} document
- * @param {string} email
- * @returns {HTMLAnchorElement}
- */
-const createEmailLink = (document, email) => {
-  const link = document.createElement("a");
-  link.href = `mailto:${email}`;
-  link.textContent = email;
-  return link;
-};
+/** @type {(document: *, email: string) => HTMLAnchorElement} */
+const createEmailLink = (document, email) =>
+  createSimpleLink(document, `mailto:${email}`, email);
 
-/**
- * Create link element for a phone number
- * @param {*} document
- * @param {string} phone
- * @returns {HTMLAnchorElement}
- */
-const createPhoneLink = (document, phone) => {
-  const link = document.createElement("a");
-  link.href = `tel:${phone.replace(/\s/g, "")}`;
-  link.textContent = phone;
-  return link;
-};
+/** @type {(document: *, phone: string) => HTMLAnchorElement} */
+const createPhoneLink = (document, phone) =>
+  createSimpleLink(document, `tel:${phone.replace(/\s/g, "")}`, phone);
 
 /**
  * Create DOM node for a text part
@@ -216,19 +220,31 @@ const createNodeForPart = (document, part, targetBlank) => {
 };
 
 /**
+ * Build a document fragment by mapping parts through a node-creation function
+ * @param {*} document
+ * @param {TextPart[]} parts
+ * @param {(part: TextPart) => Node} createNode
+ * @returns {DocumentFragment}
+ */
+const buildFragment = (document, parts, createNode) => {
+  const fragment = document.createDocumentFragment();
+  for (const part of parts) {
+    fragment.appendChild(createNode(part));
+  }
+  return fragment;
+};
+
+/**
  * Create document fragment from parts
  * @param {*} document
  * @param {TextPart[]} parts
  * @param {boolean} targetBlank
  * @returns {DocumentFragment}
  */
-const createLinkFragment = (document, parts, targetBlank) => {
-  const fragment = document.createDocumentFragment();
-  for (const part of parts) {
-    fragment.appendChild(createNodeForPart(document, part, targetBlank));
-  }
-  return fragment;
-};
+const createLinkFragment = (document, parts, targetBlank) =>
+  buildFragment(document, parts, (part) =>
+    createNodeForPart(document, part, targetBlank),
+  );
 
 /**
  * Process text nodes and replace with linkified content
@@ -310,18 +326,115 @@ const linkifyPhones = (document, config) => {
   );
 };
 
+/**
+ * Escape special regex characters in a string
+ * @param {string} str
+ * @returns {string}
+ */
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Build a regex that matches any of the link texts (longest first, word-bounded)
+ * @param {string[]} texts
+ * @returns {RegExp}
+ */
+const buildConfigLinksPattern = (texts) => {
+  const sorted = [...texts].sort((a, b) => b.length - a.length);
+  const alternation = sorted.map(escapeRegExp).join("|");
+  return new RegExp(`\\b(${alternation})\\b`, "g");
+};
+
+/** @type {(value: string) => TextPart} */
+const configLinkPart = (value) => ({ type: "configLink", value });
+
+/**
+ * Collect text nodes matching a pattern within .prose elements
+ * @param {*} document
+ * @param {RegExp} pattern
+ * @returns {Text[]}
+ */
+const collectProseTextNodes = (document, pattern) =>
+  flatMap((prose) =>
+    walkTextNodes(
+      document.createTreeWalker(prose, 4, {
+        acceptNode: createNodeFilter(pattern),
+      }),
+    ),
+  )([...document.querySelectorAll(".prose")]);
+
+/** @type {(document: *, text: string, url: string) => HTMLAnchorElement} */
+const createConfigLink = (document, text, url) =>
+  createSimpleLink(document, url, text);
+
+/**
+ * Create DOM node for a config link part
+ * @param {*} document
+ * @param {TextPart} part
+ * @param {Record<string, string>} linksMap
+ * @returns {Node}
+ */
+const createConfigLinkNode = (document, part, linksMap) =>
+  part.type === "configLink"
+    ? createConfigLink(document, part.value, linksMap[part.value])
+    : document.createTextNode(part.value);
+
+/**
+ * Linkify text based on configured links map, only within .prose elements.
+ * Each text match is replaced with an anchor linking to the configured URL.
+ * @param {*} document
+ * @param {Record<string, string>} linksMap - Keys are text to match, values are URLs
+ */
+const linkifyConfigLinks = (document, linksMap) => {
+  const texts = Object.keys(linksMap);
+  if (texts.length === 0) return;
+
+  const pattern = buildConfigLinksPattern(texts);
+
+  for (const textNode of collectProseTextNodes(document, pattern)) {
+    const parts = parseTextByPattern(
+      textNode.textContent,
+      pattern,
+      configLinkPart,
+    );
+    if (parts.some((p) => p.type === "configLink")) {
+      textNode.parentNode?.replaceChild(
+        buildFragment(document, parts, (part) =>
+          createConfigLinkNode(document, part, linksMap),
+        ),
+        textNode,
+      );
+    }
+  }
+};
+
+/**
+ * Check if content contains any of the configured link texts
+ * @param {string} content
+ * @param {Record<string, string>} linksMap
+ * @returns {boolean}
+ */
+const hasConfigLinks = (content, linksMap) => {
+  const texts = Object.keys(linksMap);
+  return texts.length > 0 && texts.some((text) => content.includes(text));
+};
+
 export {
   linkifyUrls,
   linkifyEmails,
   linkifyPhones,
+  linkifyConfigLinks,
   formatUrlDisplay,
   hasPhonePattern,
+  hasConfigLinks,
   // Exported for testing
   parseTextByPattern,
   collectTextNodes,
+  collectProseTextNodes,
   createUrlLink,
   createEmailLink,
   createPhoneLink,
+  createConfigLink,
+  buildConfigLinksPattern,
   URL_PATTERN,
   EMAIL_PATTERN,
   SKIP_TAGS,
