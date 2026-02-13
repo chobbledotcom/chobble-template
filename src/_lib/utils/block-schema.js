@@ -33,6 +33,7 @@ const BLOCK_SCHEMAS = {
     "title_level",
     "subtitle",
     "content",
+    "figure",
     "figure_type",
     "figure_content",
     "reverse",
@@ -112,4 +113,21 @@ const validateBlocks = (blocks, context = "") => {
   }
 };
 
-export { BLOCK_SCHEMAS, validateBlocks };
+/**
+ * Normalizes block shorthands into their canonical form.
+ * Split blocks with a `figure` shorthand are expanded to `figure_type` + `figure_content`.
+ *
+ * @param {object} block - A raw block from frontmatter
+ * @returns {object} Block with shorthands expanded
+ */
+const normalizeBlock = (block) => {
+  if (block.type !== "split") return block;
+  if (!block.figure || block.figure_type) return block;
+  const figureContent =
+    typeof block.figure === "string"
+      ? { src: block.figure, alt: "" }
+      : block.figure;
+  return { ...block, figure_type: "image", figure_content: figureContent };
+};
+
+export { BLOCK_SCHEMAS, validateBlocks, normalizeBlock };

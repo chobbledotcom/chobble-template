@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { BLOCK_SCHEMAS, validateBlocks } from "#utils/block-schema.js";
+import {
+  BLOCK_SCHEMAS,
+  normalizeBlock,
+  validateBlocks,
+} from "#utils/block-schema.js";
 
 describe("BLOCK_SCHEMAS", () => {
   test("defines schemas for all block types", () => {
@@ -122,6 +126,18 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
+  test("allows figure shorthand key for split", () => {
+    const blocks = [
+      {
+        type: "split",
+        title: "Title",
+        content: "<p>Content</p>",
+        figure: { src: "/img.jpg", alt: "Alt" },
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
   test("allows all valid keys for split-full", () => {
     const blocks = [
       {
@@ -165,5 +181,50 @@ describe("validateBlocks", () => {
 
   test("handles empty array", () => {
     expect(() => validateBlocks([])).not.toThrow();
+  });
+});
+
+describe("normalizeBlock", () => {
+  test("converts string figure to image figure_type and figure_content", () => {
+    const block = { type: "split", title: "Test", figure: "/photo.jpg" };
+    const result = normalizeBlock(block);
+    expect(result.figure_type).toBe("image");
+    expect(result.figure_content).toEqual({ src: "/photo.jpg", alt: "" });
+  });
+
+  test("converts object figure to image figure_type and figure_content", () => {
+    const block = {
+      type: "split",
+      title: "Test",
+      figure: { src: "/photo.jpg", alt: "A photo" },
+    };
+    const result = normalizeBlock(block);
+    expect(result.figure_type).toBe("image");
+    expect(result.figure_content).toEqual({
+      src: "/photo.jpg",
+      alt: "A photo",
+    });
+  });
+
+  test("does not overwrite explicit figure_type", () => {
+    const block = {
+      type: "split",
+      figure: "/photo.jpg",
+      figure_type: "html",
+      figure_content: "<div>custom</div>",
+    };
+    const result = normalizeBlock(block);
+    expect(result.figure_type).toBe("html");
+    expect(result.figure_content).toBe("<div>custom</div>");
+  });
+
+  test("returns non-split blocks unchanged", () => {
+    const block = { type: "hero", title: "Hello" };
+    expect(normalizeBlock(block)).toBe(block);
+  });
+
+  test("returns split blocks without figure unchanged", () => {
+    const block = { type: "split", title: "Test", content: "Content" };
+    expect(normalizeBlock(block)).toBe(block);
   });
 });
