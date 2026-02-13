@@ -1,28 +1,32 @@
 {%- comment -%}
-Split layout with text content and figure (image, code block, or custom HTML).
+Split layout with text content and figure (image, video, code block, or custom HTML).
 
 Parameters (via block object):
   - block.title: Section heading
   - block.title_level: Heading level, defaults to 2
   - block.subtitle: Optional subtitle text (with text-muted styling)
   - block.content: Main content (can include HTML like <ul>, <p>)
-  - block.figure_type: "image", "code", or "html"
-  - block.figure_content: Depends on figure_type:
-    - For "image": { src, alt }
-    - For "code": { filename, code, language }
-    - For "html": raw HTML string
+  - block.figure_type: "image", "video", "code", or "html"
   - block.reverse: If true, reverses the layout (content on right)
   - block.reveal_content: Animation for content side (e.g., "left", "right")
   - block.reveal_figure: Animation for figure side (default: "scale")
   - block.button: Optional button object { text, href, variant }
 
+  Figure fields per type:
+    image: figure_src, figure_alt, figure_caption
+    video: figure_video_id, figure_alt, figure_caption
+    code:  figure_filename, figure_code, figure_language
+    html:  figure_html
+
 Usage:
   {% include "design-system/split.html",
      block: {
        title: "My Section",
-       content: "<p>Description here</p><ul><li>Item 1</li></ul>",
-       figure_type: "code",
-       figure_content: { filename: "example.js", code: "const x = 1;" },
+       content: "<p>Description here</p>",
+       figure_type: "image",
+       figure_src: "/images/photo.jpg",
+       figure_alt: "A photo",
+       figure_caption: "Optional caption",
        reverse: true
      }
   %}
@@ -49,11 +53,19 @@ Usage:
   <figure data-reveal="{{ reveal_figure }}">
     {%- case block.figure_type -%}
       {%- when "image" -%}
-        {% image block.figure_content.src, block.figure_content.alt %}
+        {% image block.figure_src, block.figure_alt %}
+        {%- if block.figure_caption -%}
+          <figcaption>{{ block.figure_caption }}</figcaption>
+        {%- endif -%}
+      {%- when "video" -%}
+        {%- include "design-system/video-iframe.html", video_id: block.figure_video_id, title: block.figure_alt -%}
+        {%- if block.figure_caption -%}
+          <figcaption>{{ block.figure_caption }}</figcaption>
+        {%- endif -%}
       {%- when "code" -%}
-        {%- include "design-system/code-block.html", block: block.figure_content -%}
+        {%- include "design-system/code-block.html", filename: block.figure_filename, code: block.figure_code, language: block.figure_language -%}
       {%- when "html" -%}
-        {{ block.figure_content }}
+        {{ block.figure_html }}
     {%- endcase -%}
   </figure>
 </div>

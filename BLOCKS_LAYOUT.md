@@ -188,7 +188,7 @@ Terminal-style code display with macOS-like toolbar header.
 
 ### `split`
 
-Two-column layout with text content and a figure (image, code block, or HTML).
+Two-column layout with text content and a figure (image, video, code block, or HTML).
 
 **Template:** `src/_includes/design-system/split.html`
 **SCSS:** `src/css/design-system/_split.scss`
@@ -200,8 +200,15 @@ Two-column layout with text content and a figure (image, code block, or HTML).
 | `title_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
 | `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
-| `figure_type` | string | — | `"image"`, `"code"`, or `"html"`. |
-| `figure_content` | varies | — | For `"image"`: `{src, alt}`. For `"code"`: `{filename, code, language}`. For `"html"`: raw HTML string. |
+| `figure_type` | string | — | `"image"`, `"video"`, `"code"`, or `"html"`. |
+| `figure_src` | string | — | Image path (for `figure_type: "image"`). |
+| `figure_alt` | string | — | Alt text for image, or accessible title for video iframe. |
+| `figure_caption` | string | — | Visible caption below image or video. |
+| `figure_video_id` | string | — | YouTube video ID or custom iframe URL (for `figure_type: "video"`). |
+| `figure_filename` | string | — | Displayed filename in code block header (for `figure_type: "code"`). |
+| `figure_code` | string | — | Code content (for `figure_type: "code"`). |
+| `figure_language` | string | — | Syntax highlighting language (for `figure_type: "code"`). |
+| `figure_html` | string | — | Raw HTML content (for `figure_type: "html"`). |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
