@@ -75,16 +75,26 @@ const IMPORT_PATTERN = /import\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/g;
 
 // Matches calls that register functions with Eleventy config.
 // These count as "production usage" even if the function isn't imported elsewhere.
-// Patterns:
+//
+// Matched patterns:
 //   eleventyConfig.addFilter("name", functionRef)
-//   eleventyConfig.addAsyncFilter("name", functionRef)
-//   eleventyConfig.addShortcode("name", functionRef)
-//   eleventyConfig.addAsyncShortcode("name", functionRef)
 //   eleventyConfig.addCollection("name", functionRef)
-//   eleventyConfig.addTransform("name", functionRef)
 //   addDataFilter(eleventyConfig, "name", functionRef)
-const ELEVENTY_REGISTRATION_PATTERN =
-  /(?:eleventyConfig\.(?:addFilter|addAsyncFilter|addShortcode|addAsyncShortcode|addCollection|addTransform)\s*\(\s*["'][^"']+["']|addDataFilter\s*\(\s*\w+\s*,\s*["'][^"']+["'])\s*,\s*([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
+//   … and addAsyncFilter, addShortcode, addAsyncShortcode, addTransform
+const IDENTIFIER = "[a-zA-Z_$][a-zA-Z0-9_$]*";
+const QUOTED_STRING = `["'][^"']+["']`;
+const ELEVENTY_METHODS =
+  "addFilter|addAsyncFilter|addShortcode|addAsyncShortcode|addCollection|addTransform";
+const ELEVENTY_REGISTRATION_PATTERN = new RegExp(
+  [
+    // eleventyConfig.addFilter("name", fn)  OR  addDataFilter(config, "name", fn)
+    `(?:eleventyConfig\\.(?:${ELEVENTY_METHODS})\\s*\\(\\s*${QUOTED_STRING}`,
+    `|addDataFilter\\s*\\(\\s*\\w+\\s*,\\s*${QUOTED_STRING})`,
+    // … then capture the function reference
+    `\\s*,\\s*(${IDENTIFIER})`,
+  ].join(""),
+  "g",
+);
 
 // Matches: import name from "path" (default imports)
 const DEFAULT_IMPORT_PATTERN =
