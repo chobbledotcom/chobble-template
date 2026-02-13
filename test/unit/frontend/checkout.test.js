@@ -6,6 +6,13 @@ import { describe, expect, mock, test } from "bun:test";
 import { Window } from "happy-dom";
 import { Liquid } from "liquidjs";
 import { configureJsConfig } from "#eleventy/js-config.js";
+
+// Mock notify.js to capture notification calls instead of DOM manipulation
+const mockShowNotification = mock();
+mock.module("#public/utils/notify.js", () => ({
+  showNotification: (...args) => mockShowNotification(...args),
+}));
+
 // Import actual cart utilities
 import {
   attachQuantityHandlers,
@@ -356,29 +363,23 @@ describe("checkout", () => {
     });
   });
 
-  test("updateItemQuantity caps at max_quantity and shows alert", () => {
-    const alerts = [];
-    const origAlert = global.alert;
-    global.alert = (msg) => alerts.push(msg);
-    try {
-      withCheckoutMockStorage(() => {
-        saveCart([
-          {
-            item_name: "Limited",
-            unit_price: 10,
-            quantity: 2,
-            max_quantity: 5,
-          },
-        ]);
-        updateItemQuantity("Limited", 10);
-        const cart = getCart();
-        expect(cart[0].quantity).toBe(5);
-        expect(alerts).toHaveLength(1);
-        expect(alerts[0].includes("5")).toBe(true);
-      });
-    } finally {
-      global.alert = origAlert;
-    }
+  test("updateItemQuantity caps at max_quantity and shows notification", () => {
+    mockShowNotification.mockReset();
+    withCheckoutMockStorage(() => {
+      saveCart([
+        {
+          item_name: "Limited",
+          unit_price: 10,
+          quantity: 2,
+          max_quantity: 5,
+        },
+      ]);
+      updateItemQuantity("Limited", 10);
+      const cart = getCart();
+      expect(cart[0].quantity).toBe(5);
+      expect(mockShowNotification).toHaveBeenCalledTimes(1);
+      expect(mockShowNotification.mock.calls[0][0].includes("5")).toBe(true);
+    });
   });
 
   test("updateItemQuantity returns false for non-existent item", () => {
