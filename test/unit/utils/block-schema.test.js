@@ -103,7 +103,7 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
-  test("allows all valid keys for split", () => {
+  test("allows all valid keys for split with image figure", () => {
     const blocks = [
       {
         type: "split",
@@ -112,7 +112,9 @@ describe("validateBlocks", () => {
         subtitle: "Subtitle",
         content: "<p>Content</p>",
         figure_type: "image",
-        figure_content: { src: "/img.jpg", alt: "Alt" },
+        figure_src: "/img.jpg",
+        figure_alt: "Alt",
+        figure_caption: "Caption",
         reverse: true,
         reveal_content: "left",
         reveal_figure: "scale",
@@ -120,6 +122,60 @@ describe("validateBlocks", () => {
       },
     ];
     expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("allows all valid keys for split with video figure", () => {
+    const blocks = [
+      {
+        type: "split",
+        figure_type: "video",
+        figure_video_id: "dQw4w9WgXcQ",
+        figure_alt: "Video title",
+        figure_caption: "A video",
+        content: "<p>Content</p>",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("allows all valid keys for split with code figure", () => {
+    const blocks = [
+      {
+        type: "split",
+        figure_type: "code",
+        figure_filename: "example.js",
+        figure_code: "const x = 1;",
+        figure_language: "javascript",
+        content: "<p>Content</p>",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("allows all valid keys for split with html figure", () => {
+    const blocks = [
+      {
+        type: "split",
+        figure_type: "html",
+        figure_html: "<div>Custom HTML</div>",
+        content: "<p>Content</p>",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("rejects old figure_content key on split", () => {
+    const blocks = [
+      {
+        type: "split",
+        figure_type: "image",
+        figure_content: { src: "/img.jpg", alt: "Alt" },
+        content: "<p>Content</p>",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'unknown keys: "figure_content"',
+    );
   });
 
   test("allows all valid keys for split-full", () => {

@@ -152,7 +152,7 @@ blocks:
       href: https://example.chobble.com/theme-editor/
       variant: secondary
     figure_type: html
-    figure_content: |
+    figure_html: |
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; text-align: center; color: white;">
         <div style="font-size: 4rem; margin-bottom: 1rem;">🎨</div>
         <strong style="font-size: 1.5rem;">Theme Switcher</strong>
@@ -190,16 +190,15 @@ blocks:
       - **Link Prefetch** - Pages preload on hover
       - **Static Output** - No server-side rendering, just HTML files
     figure_type: code
-    figure_content:
-      filename: Image optimization
-      code: |
-        srcset="
-          /img/abc-240.webp 240w,
-          /img/abc-480.webp 480w,
-          /img/abc-900.webp 900w"
-        sizes="(max-width: 768px) 100vw, 50vw"
+    figure_filename: Image optimization
+    figure_code: |
+      srcset="
+        /img/abc-240.webp 240w,
+        /img/abc-480.webp 480w,
+        /img/abc-900.webp 900w"
+      sizes="(max-width: 768px) 100vw, 50vw"
 
-        Automatic. No configuration needed.
+      Automatic. No configuration needed.
 
   # SEO Features (with header)
   - type: features
@@ -233,7 +232,7 @@ blocks:
 
       Bunny Edge Script-based backend.
     figure_type: html
-    figure_content: |
+    figure_html: |
       <div class="code-block">
         <div class="code-block-toolbar">
           <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>

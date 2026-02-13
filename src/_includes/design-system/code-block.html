@@ -1,22 +1,30 @@
 {%- comment -%}
 Code block with terminal-style header and decorative dots.
 
-Parameters (via block object):
-  - block.filename: The filename to display in header (required)
-  - block.code: The code content (required)
-  - block.language: Optional language for future syntax highlighting
-  - block.reveal: Optional data-reveal animation value
+Accepts either direct parameters or a block object:
+  Direct: filename, code, language, reveal
+  Block:  block.filename, block.code, block.language, block.reveal
 
-Usage:
+Usage (direct params - used by split figure):
+  {% include "design-system/code-block.html",
+     filename: "example.js", code: "const x = 1;", language: "javascript"
+  %}
+
+Usage (block object - used by standalone code-block type):
   {% include "design-system/code-block.html",
      block: { filename: "example.js", code: "const x = 1;" }
   %}
 {%- endcomment -%}
 
-<div class="code-block"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
+{%- assign _filename = filename | default: block.filename -%}
+{%- assign _code = code | default: block.code -%}
+{%- assign _language = language | default: block.language -%}
+{%- assign _reveal = reveal | default: block.reveal -%}
+
+<div class="code-block"{% if _reveal %} data-reveal="{{ _reveal }}"{% endif %}>
   <div class="code-block-toolbar">
     <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
-    <span>{{ block.filename }}</span>
+    <span>{{ _filename }}</span>
   </div>
-  <pre><code{% if block.language %} data-language="{{ block.language }}"{% endif %}>{{ block.code }}</code></pre>
+  <pre><code{% if _language %} data-language="{{ _language }}"{% endif %}>{{ _code }}</code></pre>
 </div>
