@@ -218,13 +218,13 @@ const reviewsFactory =
  * Factory: items with enough reviews for a separate /reviews page.
  *
  * @param {ReviewIndexField} reviewsField - The collection tag and field to check for reviews
- * @param {(item: EleventyCollectionItem) => EleventyCollectionItem} [processItem] - Optional function to transform items
+ * @param {(item: EleventyCollectionItem) => EleventyCollectionItem} processItem - Function to transform items
  * @param {number} [limitOverride] - Optional limit override for testing
  * @returns {(collectionApi: import("@11ty/eleventy").CollectionApi) => EleventyCollectionItem[]}
  */
 const withReviewsPage = (
   reviewsField,
-  processItem = (item) => item,
+  processItem,
   limitOverride,
 ) =>
   reviewsFactory(
