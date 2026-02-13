@@ -3,7 +3,7 @@ import contactFormFn from "#data/contact-form.js";
 import quoteFieldsFn from "#data/quote-fields.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
-import { validateBlocks } from "#utils/block-schema.js";
+import { normalizeBlock, validateBlocks } from "#utils/block-schema.js";
 import { getFilterAttributes } from "#utils/mock-filter-attributes.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
@@ -162,13 +162,14 @@ export default {
     if (!data.blocks) return data.blocks;
     validateBlocks(data.blocks, ` in ${data.page.inputPath}`);
     return data.blocks.map((block) => {
+      const normalized = normalizeBlock(block);
       const merged = {
         section_class: "",
-        ...BLOCK_DEFAULTS[block.type],
-        ...block,
+        ...BLOCK_DEFAULTS[normalized.type],
+        ...normalized,
       };
-      if (block.type === "split" && !block.reveal_content) {
-        merged.reveal_content = block.reverse ? "right" : "left";
+      if (normalized.type === "split" && !normalized.reveal_content) {
+        merged.reveal_content = normalized.reverse ? "right" : "left";
       }
       return merged;
     });
