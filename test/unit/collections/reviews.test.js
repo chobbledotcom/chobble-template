@@ -297,7 +297,7 @@ describe("reviews", () => {
     // product-a gets limit+1 reviews (above limit), product-b gets limit reviews (at limit)
     const { reviews: r, products } = limitData(true);
 
-    const factory = withReviewsPage("products");
+    const factory = withReviewsPage("products", (i) => i);
     const result = factory(
       taggedCollectionApi({ products: products, reviews: r }),
     );
