@@ -3,7 +3,7 @@
  *
  * Eleventy filters can return any type at runtime, but the 11ty.ts
  * type definitions restrict the return type to `string`. This wrapper
- * centralises the type assertion so individual call sites stay clean.
+ * accepts any return type so individual call sites stay clean.
  *
  * @module #eleventy/add-data-filter
  */
@@ -14,16 +14,12 @@
  * Use this instead of `eleventyConfig.addFilter` when the filter returns
  * a non-string value (array, number, object, etc.).
  *
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
+ * @param {*} eleventyConfig - Eleventy configuration object
  * @param {string} name - Filter name
- * @param {(...args: any[]) => any} fn - Filter function
+ * @param {Function} fn - Filter function
  */
 const addDataFilter = (eleventyConfig, name, fn) => {
-  const config =
-    /** @type {{ addFilter: (name: string, fn: Function) => void }} */ (
-      eleventyConfig
-    );
-  config.addFilter(name, fn);
+  eleventyConfig.addFilter(name, fn);
 };
 
 export { addDataFilter };
