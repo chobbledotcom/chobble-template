@@ -22,11 +22,8 @@ import { compareStrings } from "#toolkit/fp/sorting.js";
  */
 const extractTags = (collection) =>
   pipe(
-    filter(
-      (/** @type {EleventyCollectionItem} */ page) =>
-        page.url && !page.data.no_index,
-    ),
-    flatMap((/** @type {EleventyCollectionItem} */ page) => page.data.tags),
+    filter((page) => page.url && !page.data.no_index),
+    flatMap((page) => page.data.tags),
     filter((tag) => tag !== null && tag !== undefined),
     map((tag) => String(tag).trim()),
     filter((tag) => tag !== ""),

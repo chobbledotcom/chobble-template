@@ -18,29 +18,31 @@ import { sortItems } from "#utils/sorting.js";
 
 /**
  * Build a map of menu slugs to their categories.
- * Memoized at module level so the cache persists across calls.
+ *
+ * @param {MenuCategoryCollectionItem[]} categories
+ * @returns {Map<string, MenuCategoryCollectionItem[]>}
  */
-const buildMenuCategoryMap =
-  /** @type {(categories: MenuCategoryCollectionItem[]) => Map<string, MenuCategoryCollectionItem[]>} */ (
-    memoizeByRef((categories) =>
-      buildReverseIndex(categories, (category) =>
-        category.data.menus.map(normaliseSlug),
-      ),
-    )
+const indexCategoriesByMenu = (categories) =>
+  buildReverseIndex(categories, (category) =>
+    category.data.menus.map(normaliseSlug),
   );
+
+/** Memoized version — cache persists across calls via WeakMap. */
+const buildMenuCategoryMap = memoizeByRef(indexCategoriesByMenu);
 
 /**
  * Build a map of category slugs to their menu items.
- * Memoized at module level so the cache persists across calls.
+ *
+ * @param {MenuItemCollectionItem[]} items
+ * @returns {Map<string, MenuItemCollectionItem[]>}
  */
-const buildCategoryItemMap =
-  /** @type {(items: MenuItemCollectionItem[]) => Map<string, MenuItemCollectionItem[]>} */ (
-    memoizeByRef((items) =>
-      buildReverseIndex(items, (item) =>
-        item.data.menu_categories.map(normaliseSlug),
-      ),
-    )
+const indexItemsByCategory = (items) =>
+  buildReverseIndex(items, (item) =>
+    item.data.menu_categories.map(normaliseSlug),
   );
+
+/** Memoized version — cache persists across calls via WeakMap. */
+const buildCategoryItemMap = memoizeByRef(indexItemsByCategory);
 
 /**
  * Get categories belonging to a specific menu.
