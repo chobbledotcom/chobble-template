@@ -27,26 +27,9 @@ import { createHtml, parseHtml } from "#utils/dom-builder.js";
 import { slugify } from "#utils/slug-utils.js";
 import { isRickAstleyThumbnail } from "#utils/video.js";
 
-/**
- * Generate a short MD5 hash of a string (8 hex chars).
- * Used to disambiguate external images that share the same alt text
- * but come from different source URLs (e.g., two YouTube videos with
- * the same title).
- * @param {string} str - String to hash
- * @returns {string} 8-character hex hash
- */
 const shortHash = (str) =>
   crypto.createHash("md5").update(str).digest("hex").slice(0, 8);
 
-/**
- * Generate filename for external images using slug + source hash.
- * @param {string} _id - Unique ID (unused)
- * @param {string} _src - Source URL (unused, we use slug instead)
- * @param {number} width - Image width
- * @param {string} format - Image format (webp, jpeg)
- * @param {Object} options - Options containing slug
- * @returns {string} Filename
- */
 const externalFilenameFormat = (_id, _src, width, format, options) =>
   `${options.slug}-${width}.${format}`;
 
@@ -92,9 +75,6 @@ const computeExternalImageHtml = memoize(
     const eleventyImg = await getEleventyImg();
     const attrs = prepareImageAttributes({ alt, sizes, loading, classes });
 
-    // Use slugified alt text + source URL hash for unique filenames.
-    // The hash prevents collisions when different URLs share the same alt text
-    // (e.g., two YouTube videos with identical titles).
     const filenameSlug = `${slugify(alt || "external-image")}-${shortHash(src)}`;
     const imageOptions = {
       ...DEFAULT_IMAGE_OPTIONS,
@@ -117,10 +97,8 @@ const computeExternalImageHtml = memoize(
 
     const imageMetadata = { ...webpMetadata, ...jpegMetadata };
 
-    // Extract LQIP from the 32px webp before filtering it out
     const bgImage = await extractLqipFromMetadata(imageMetadata);
 
-    // Filter out LQIP width from metadata so it doesn't appear in srcset
     const htmlMetadata = removeLqip(imageMetadata);
 
     const innerHTML = eleventyImg.generateHTML(
@@ -129,7 +107,6 @@ const computeExternalImageHtml = memoize(
       attrs.pictureAttributes,
     );
 
-    // Get max width from processed metadata for wrapper styling
     const maxWidth = htmlMetadata.webp?.[htmlMetadata.webp.length - 1]?.width;
 
     return await createHtml(
@@ -145,10 +122,6 @@ const computeExternalImageHtml = memoize(
 );
 
 /**
- * Generate placeholder HTML for Rick Astley video thumbnails that fail to fetch.
- * Returns a simple img tag pointing to a placeholder SVG, matching the wrapper
- * structure of normally-processed external images.
- *
  * @param {string | null} classes - CSS classes
  * @param {string | null} aspectRatio - Aspect ratio like "16/9"
  * @returns {Promise<string>} Placeholder image HTML
