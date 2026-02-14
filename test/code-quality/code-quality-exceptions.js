@@ -48,7 +48,7 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   // src/_lib/media/image-external.js - Rick Astley placeholder video thumbnail fallback
   // Needed: external HTTP fetch of YouTube thumbnail can fail on network-restricted environments;
   // for the known placeholder video (Rick Astley), we fall back to a placeholder SVG
-  "src/_lib/media/image-external.js:191",
+  "src/_lib/media/image-external.js:178",
 ]);
 
 // ============================================

@@ -8,6 +8,7 @@
  * - WebP format conversion
  * - LQIP (Low Quality Image Placeholder) generation
  */
+import crypto from "node:crypto";
 import {
   extractLqipFromMetadata,
   getEleventyImg,
@@ -26,15 +27,9 @@ import { createHtml, parseHtml } from "#utils/dom-builder.js";
 import { slugify } from "#utils/slug-utils.js";
 import { isRickAstleyThumbnail } from "#utils/video.js";
 
-/**
- * Generate filename for external images using slug.
- * @param {string} _id - Unique ID (unused)
- * @param {string} _src - Source URL (unused, we use slug instead)
- * @param {number} width - Image width
- * @param {string} format - Image format (webp, jpeg)
- * @param {Object} options - Options containing slug
- * @returns {string} Filename
- */
+const shortHash = (str) =>
+  crypto.createHash("md5").update(str).digest("hex").slice(0, 8);
+
 const externalFilenameFormat = (_id, _src, width, format, options) =>
   `${options.slug}-${width}.${format}`;
 
@@ -80,8 +75,7 @@ const computeExternalImageHtml = memoize(
     const eleventyImg = await getEleventyImg();
     const attrs = prepareImageAttributes({ alt, sizes, loading, classes });
 
-    // Use slugified alt text for filename
-    const filenameSlug = slugify(alt || "external-image");
+    const filenameSlug = `${slugify(alt || "external-image")}-${shortHash(src)}`;
     const imageOptions = {
       ...DEFAULT_IMAGE_OPTIONS,
       filenameFormat: externalFilenameFormat,
@@ -103,10 +97,8 @@ const computeExternalImageHtml = memoize(
 
     const imageMetadata = { ...webpMetadata, ...jpegMetadata };
 
-    // Extract LQIP from the 32px webp before filtering it out
     const bgImage = await extractLqipFromMetadata(imageMetadata);
 
-    // Filter out LQIP width from metadata so it doesn't appear in srcset
     const htmlMetadata = removeLqip(imageMetadata);
 
     const innerHTML = eleventyImg.generateHTML(
@@ -115,7 +107,6 @@ const computeExternalImageHtml = memoize(
       attrs.pictureAttributes,
     );
 
-    // Get max width from processed metadata for wrapper styling
     const maxWidth = htmlMetadata.webp?.[htmlMetadata.webp.length - 1]?.width;
 
     return await createHtml(
@@ -131,10 +122,6 @@ const computeExternalImageHtml = memoize(
 );
 
 /**
- * Generate placeholder HTML for Rick Astley video thumbnails that fail to fetch.
- * Returns a simple img tag pointing to a placeholder SVG, matching the wrapper
- * structure of normally-processed external images.
- *
  * @param {string | null} classes - CSS classes
  * @param {string | null} aspectRatio - Aspect ratio like "16/9"
  * @returns {Promise<string>} Placeholder image HTML

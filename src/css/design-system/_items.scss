@@ -248,5 +248,12 @@
         transform: none;
       }
     }
+
+    // Expanded: 1 item = 100%, 2 = 50%, 3+ = 33.3%
+    &.expanded:not(.slider) > li {
+      flex: 1 1 100%;
+      min-width: calc(33.333% - #{$space-lg});
+      max-width: 100%;
+    }
   }
 }
