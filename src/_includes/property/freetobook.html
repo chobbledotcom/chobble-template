@@ -1,0 +1,13 @@
+{%- if freetobook_token -%}
+<section class="freetobook">
+  <details class="container">
+    <summary class="btn btn--primary">Check Availability / Book Online</summary>
+    <div class="iframe-container">
+      <iframe
+        src="https://booking-directly.com/widgets/{{ freetobook_token }}/properties"
+        loading="lazy"
+      ></iframe>
+    </div>
+  </details>
+</section>
+{%- endif -%}

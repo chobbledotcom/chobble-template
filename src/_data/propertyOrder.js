@@ -2,6 +2,7 @@ import configJson from "#data/config.json" with { type: "json" };
 
 const DEFAULT_ORDER = [
   "property/header.html",
+  "property/freetobook.html",
   "property/gallery.html",
   "property/content.html",
   "property/features.html",
