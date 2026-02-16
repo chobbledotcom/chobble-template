@@ -7,6 +7,7 @@ const DEFAULT_ORDER = [
   "category-faqs.html",
   "category-subcategories.html",
   "category-products.html",
+  "category-below-products.html",
 ];
 
 const getCategoryOrder = (configOrder) =>
