@@ -329,6 +329,27 @@ const askKeywordsQuestion = async (rl, collections, defaultFeatures) => {
 };
 
 /**
+ * Ask conditional feature questions for below-products description on categories
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} collections - Selected collection names
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<{below_products: boolean}>} Below products selection
+ */
+const askBelowProductsQuestion = async (rl, collections, defaultFeatures) => {
+  const hasCategories = collections.includes("categories");
+
+  return {
+    below_products: hasCategories
+      ? await askYesNo(
+          rl,
+          "Do you want a below-products description on category pages?",
+          defaultFeatures.below_products ?? false,
+        )
+      : false,
+  };
+};
+
+/**
  * Ask conditional feature questions for YouTube video embeds on pages
  * @param {readline.Interface} rl - Readline interface
  * @param {string[]} collections - Selected collection names
@@ -437,6 +458,11 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     collections,
     defaultFeatures,
   );
+  const belowProductsFeatures = await askBelowProductsQuestion(
+    rl,
+    collections,
+    defaultFeatures,
+  );
 
   return {
     ...baseFeatures,
@@ -448,6 +474,7 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     ...keywordsFeatures,
     ...parentCategoriesFeatures,
     ...videosFeatures,
+    ...belowProductsFeatures,
   };
 };
 

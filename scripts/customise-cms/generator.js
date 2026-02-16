@@ -208,11 +208,12 @@ const getCollectionFieldBuilders = (config, fields) => ({
           false,
         ),
       fields.body,
-      createMarkdownField(
-        "below_products",
-        "Below Products Description",
-        config.features.use_visual_editor,
-      ),
+      config.features.below_products &&
+        createMarkdownField(
+          "below_products",
+          "Below Products Description",
+          config.features.use_visual_editor,
+        ),
       COMMON_FIELDS.featured,
       config.features.keywords && KEYWORDS_FIELD,
       ...getHeaderFields(config),
