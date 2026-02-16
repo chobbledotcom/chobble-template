@@ -37,6 +37,7 @@ const ALL_FEATURES = [
   "no_index",
   "parent_categories",
   "videos",
+  "below_products",
 ];
 
 /**

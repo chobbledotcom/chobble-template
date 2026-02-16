@@ -1,6 +1,18 @@
 import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
 
+const widgetProduct = {
+  path: "products/test-widget.md",
+  frontmatter: { title: "Test Widget", categories: ["widgets"] },
+  content: "A test widget product.",
+};
+
+const widgetsCategory = (extra = {}) => ({
+  path: "categories/widgets.md",
+  frontmatter: { title: "Widgets", ...extra },
+  content: "Category description.",
+});
+
 const categoryWithProduct = [
   {
     path: "categories/widgets.md",
@@ -17,25 +29,7 @@ const categoryWithProduct = [
 describe("category-products", () => {
   test("Category page renders products assigned to that category", async () => {
     await withTestSite(
-      {
-        files: [
-          {
-            path: "categories/widgets.md",
-            frontmatter: {
-              title: "Widgets",
-            },
-            content: "Category description.",
-          },
-          {
-            path: "products/test-widget.md",
-            frontmatter: {
-              title: "Test Widget",
-              categories: ["widgets"],
-            },
-            content: "A test widget product.",
-          },
-        ],
-      },
+      { files: [widgetsCategory(), widgetProduct] },
       (site) => {
         const doc = site.getDoc("/categories/widgets/index.html");
         const html = doc.body.innerHTML;
@@ -65,6 +59,30 @@ describe("category-products", () => {
         expect(doc.querySelector(".image-link")).toBe(null);
       },
     );
+  });
+
+  test("Category page renders below_products content after products", async () => {
+    const categoryWithBelowProducts = widgetsCategory({
+      below_products: "This text appears **below** the products.",
+    });
+
+    await withTestSite(
+      { files: [categoryWithBelowProducts, widgetProduct] },
+      (site) => {
+        const html = site.getOutput("/categories/widgets/index.html");
+
+        expect(html).toContain("This text appears");
+        expect(html).toContain("<strong>below</strong>");
+      },
+    );
+  });
+
+  test("Category page omits below_products section when field is not set", async () => {
+    await withTestSite({ files: [widgetsCategory()] }, (site) => {
+      const html = site.getOutput("/categories/widgets/index.html");
+
+      expect(html).not.toContain("below_products");
+    });
   });
 
   test("News post without thumbnail gets no placeholder when placeholder_images disabled", async () => {

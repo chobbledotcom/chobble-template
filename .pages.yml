@@ -180,6 +180,9 @@ content:
           value: "{path}"
           label: "{title}"
       - { name: body, type: rich-text, label: Body }
+      - name: below_products
+        type: rich-text
+        label: Below Products Description
       - { name: featured, type: boolean, label: Featured }
       - { name: keywords, type: string, label: Search Keywords, list: true }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }

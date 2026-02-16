@@ -60,6 +60,7 @@ const DISABLED_FEATURES = {
   header_images: false,
   event_locations_and_dates: false,
   use_visual_editor: false,
+  below_products: false,
 };
 
 /**
@@ -1302,6 +1303,65 @@ describe("customise-cms add_ons feature", () => {
     const pagesSection = getSection("pages")(yaml);
     expect(pagesSection).toContain("name: pages");
     expect(pagesSection).not.toContain("name: add_ons");
+  });
+});
+
+describe("customise-cms below_products feature", () => {
+  // getSection("categories") finds the reference field inside products first,
+  // so use categories-only config to isolate the categories collection section.
+  test("categories include below_products field when below_products feature is enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "categories"],
+      features: { below_products: true },
+    });
+    const yaml = generatePagesYaml(config);
+    const categoriesSection = getSection("categories")(yaml);
+
+    expect(categoriesSection).toContain("name: below_products");
+    expect(categoriesSection).toContain("label: Below Products Description");
+  });
+
+  test("categories exclude below_products field when below_products feature is disabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "categories"],
+    });
+    const yaml = generatePagesYaml(config);
+    const categoriesSection = getSection("categories")(yaml);
+
+    expect(categoriesSection).not.toContain("name: below_products");
+  });
+
+  test("below_products uses rich-text when visual editor is enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "categories"],
+      features: { below_products: true, use_visual_editor: true },
+    });
+    const yaml = generatePagesYaml(config);
+    const categoriesSection = getSection("categories")(yaml);
+    const belowStart = categoriesSection.indexOf("name: below_products");
+    const belowSection = categoriesSection.substring(
+      belowStart,
+      belowStart + 200,
+    );
+
+    expect(belowSection).toContain("type: rich-text");
+  });
+
+  test("below_products uses code editor when visual editor is disabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "categories"],
+      features: { below_products: true, use_visual_editor: false },
+    });
+    const yaml = generatePagesYaml(config);
+    const categoriesSection = getSection("categories")(yaml);
+    const belowStart = categoriesSection.indexOf("name: below_products");
+    const belowSection = categoriesSection.substring(
+      belowStart,
+      belowStart + 200,
+    );
+
+    expect(belowSection).toContain("type: code");
+    expect(belowSection).toContain("language: markdown");
   });
 });
 

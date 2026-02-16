@@ -28,6 +28,7 @@ import { map, unique } from "#toolkit/fp/array.js";
  * @property {boolean} parent_categories - Enable parent/child category hierarchy
  * @property {boolean} keywords - Enable search keywords on products and categories
  * @property {boolean} videos - Enable YouTube video embeds on pages
+ * @property {boolean} below_products - Enable below-products description on categories
  */
 
 /**
@@ -131,6 +132,7 @@ export const createDefaultConfig = () => ({
     keywords: true,
     parent_categories: true,
     videos: true,
+    below_products: true,
   },
   hasSrcFolder: true,
   customHomePage: false,
