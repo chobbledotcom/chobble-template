@@ -68,15 +68,25 @@ const result = spawnSync(
 );
 
 const output = `${result.stdout?.toString() || ""}${result.stderr?.toString() || ""}`;
-const errorLines = output
-  .split("\n")
-  .filter((line) => line.includes("error TS"));
+const fullOutput = output.split("\n");
+const errorLines = fullOutput.filter((line) => line.includes("error TS"));
 const errorCount = errorLines.length;
 
+// Parse errors by file with full details
+const errorsByFile = new Map();
+for (const line of errorLines) {
+  const fileMatch = line.match(/^([^:]+):/);
+  if (fileMatch) {
+    const file = fileMatch[1];
+    if (!errorsByFile.has(file)) {
+      errorsByFile.set(file, []);
+    }
+    errorsByFile.get(file).push(line);
+  }
+}
+
 // Extract files with errors
-const filesWithErrors = new Set(
-  errorLines.map((line) => line.replace(/\(.*/, "").trim()),
-);
+const filesWithErrors = new Set(errorsByFile.keys());
 
 // Check for regressions in clean files
 const regressions = STRICT_CLEAN_FILES.filter((file) =>
@@ -87,10 +97,27 @@ let failed = false;
 
 // Check total error count
 if (errorCount > CURRENT_ERROR_COUNT) {
+  const newErrorCount = errorCount - CURRENT_ERROR_COUNT;
   console.error(
     `\n❌ Strict typecheck ratchet failed: ${errorCount} errors (limit: ${CURRENT_ERROR_COUNT})`,
   );
-  console.error("   Fix the new errors or do not introduce untyped code.");
+  console.error(`   You've introduced ${newErrorCount} new untyped error(s).`);
+  console.error("");
+  console.error("   📝 What to do:");
+  console.error("   1. Review the errors below and add proper TypeScript types");
+  console.error("   2. Consider using 'unknown' instead of implicit 'any'");
+  console.error("   3. Add JSDoc type annotations if needed");
+  console.error("   4. Update CURRENT_ERROR_COUNT when done fixing errors");
+  console.error("");
+  console.error("   🔍 New errors introduced:");
+  for (const [file, errors] of errorsByFile) {
+    if (!STRICT_CLEAN_FILES.includes(file)) {
+      console.error(`\n      ${file}`);
+      for (const error of errors) {
+        console.error(`      ${error}`);
+      }
+    }
+  }
   failed = true;
 } else if (errorCount < CURRENT_ERROR_COUNT) {
   console.log(
@@ -103,10 +130,16 @@ if (errorCount > CURRENT_ERROR_COUNT) {
 
 // Check clean file regressions
 if (regressions.length > 0) {
-  console.error("\n❌ These strict-clean files gained errors:");
+  console.error("\n❌ These strict-clean files gained errors (regressions):");
   for (const file of regressions) {
-    console.error(`   ${file}`);
+    console.error(`\n   ${file}`);
+    const errors = errorsByFile.get(file) || [];
+    for (const error of errors) {
+      console.error(`   ${error}`);
+    }
   }
+  console.error("");
+  console.error("   ⚠️  Fix these regressions immediately - they were previously strict-clean.");
   failed = true;
 }
 
