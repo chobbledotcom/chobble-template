@@ -5,16 +5,16 @@ Parameters:
 {%- endcomment -%}
 
 {%- if filterUI.hasFilters -%}
-<div class="item-filter">
+<div class="item-filter" data-filter-container>
   {%- if filterUI.hasActiveFilters -%}
-  <ul class="filter-active">
+  <ul class="filter-active" data-active-filters>
     {%- for filter in filterUI.activeFilters -%}
     <li>
       <span>{{ filter.key }}: {{ filter.value }}</span>
-      <a href="{{ filter.removeUrl }}" aria-label="Remove {{ filter.key }} filter">×</a>
+      <a href="{{ filter.removeUrl }}" data-remove-filter="{{ filter.removeFilterKey }}" aria-label="Remove {{ filter.key }} filter">×</a>
     </li>
     {%- endfor -%}
-    <li><a href="{{ filterUI.clearAllUrl }}">Clear all</a></li>
+    <li><a href="{{ filterUI.clearAllUrl }}" data-clear-filters>Clear all</a></li>
   </ul>
   {%- endif -%}
 
