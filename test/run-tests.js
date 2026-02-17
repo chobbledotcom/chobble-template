@@ -18,6 +18,7 @@ import {
 const steps = [
   COMMON_STEPS.lint,
   COMMON_STEPS.typecheck,
+  COMMON_STEPS.typecheckStrict,
   COMMON_STEPS.cpdDesignSystem,
   COMMON_STEPS.cpd,
   COMMON_STEPS.build,
