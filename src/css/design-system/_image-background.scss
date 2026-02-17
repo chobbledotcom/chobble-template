@@ -5,7 +5,7 @@
 // IMAGE BACKGROUND
 // =============================================================================
 // Full-width image background with overlaid text content.
-// Uses the {% image %} shortcode for responsive srcsets, cropped to 16/9.
+// Uses the {% image %} shortcode for responsive srcsets, cropped to 8/3.
 
 .design-system {
   // Remove section padding when containing an image-background
@@ -17,8 +17,8 @@
   .image-background {
     position: relative;
     width: 100%;
-    overflow: hidden;
-    aspect-ratio: 16/9;
+    overflow: clip;
+    aspect-ratio: 8/3;
     background: $color-dark-bg;
 
     // The image covers the entire container
