@@ -6,7 +6,7 @@ Create the core client-side engine that reads `data-filter-item`, filters items,
 
 ## Prerequisites
 
-- Stage 1 complete: product/property `<li>` elements include safe `data-filter-item`
+- Stage 1 complete: product `<li>` elements include safe `data-filter-item`
 
 ## Success Criteria
 
@@ -111,9 +111,10 @@ export {
 
 **Key decisions:**
 
-- Parsing is scoped to the active filter area, not global `document`.
+- Parsing is scoped to `.products-layout .items`, not global `document`.
 - Sorting reorders DOM nodes (`append`) instead of only sorting arrays.
 - `JSON.parse` stays fail-fast (invalid build output should throw visibly).
+- Properties are out of scope - only category pages (products) are supported.
 
 ### 2. Add to bundle
 
