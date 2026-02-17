@@ -15,8 +15,9 @@ Wire the filtering engine to existing filter UI so filter clicks, sort changes, 
 - Sort dropdown reorders instantly (no navigation)
 - Active filter pills are generated/updated client-side and stay accurate
 - Remove-pill actions and clear-all work
-- Empty state appears for zero matches
-- Behavior works on category pages and filtered-products pages
+- Infeasible filter options are hidden (zero results or same result set)
+- Entire filter groups are hidden when all their options are hidden
+- Behavior works on category pages
 - Existing non-filter sort behavior remains unchanged elsewhere
 
 ---
@@ -88,12 +89,13 @@ Core requirements:
 
 - maintain state: `activeFilters`, `activeSortKey`
 - render list via Stage 2 `applyFiltersAndSort`
-- re-render active filter pills from current state
+- re-render active filter pills from current state (see section 6)
 - toggle active classes on option list items
+- update option visibility via feasibility check (see section 7)
 - handle remove-pill and clear-all events
 - handle sort change on container-scoped listener
 
-Important listener scope fix:
+Sort listener scoping:
 
 ```javascript
 container.addEventListener("change", (e) => {
@@ -108,19 +110,91 @@ container.addEventListener("change", (e) => {
 });
 ```
 
-Do not scope this to `.filtered-items`; category pages do not use that wrapper.
+The listener is on `container` (which is `[data-filter-container]`), not `.filtered-items`. Category pages do not use the `.filtered-items` wrapper. `e.stopPropagation()` prevents the document-level `sort-dropdown.js` from navigating.
 
-### 6. Add empty-state element
+### 6. Active pill management
 
-**File**: `/src/_includes/filtered-items-section.html` (MODIFY)
+Server-rendered pills remain until the first user interaction (filter click, sort change, or pill remove). On first interaction, JS takes over completely.
 
-Add:
+The `[data-active-filters]` element (the `.filter-active` `<ul>`) is cleared and rebuilt from `activeFilters` state:
 
-```liquid
-<p data-empty-state style="display: none">No items match your filters.</p>
+```javascript
+const rebuildPills = (pillContainer, activeFilters, labelLookup) => {
+  pillContainer.innerHTML = "";
+
+  for (const [key, value] of Object.entries(activeFilters)) {
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.textContent = `${labelLookup[key]}: ${labelLookup[value]}`;
+    const a = document.createElement("a");
+    a.href = "#";
+    a.dataset.removeFilter = key;
+    a.setAttribute("aria-label", `Remove ${labelLookup[key]} filter`);
+    a.textContent = "×";
+    li.append(span, a);
+    pillContainer.append(li);
+  }
+
+  if (Object.keys(activeFilters).length > 0) {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = "#";
+    a.dataset.clearFilters = "";
+    a.textContent = "Clear all";
+    li.append(a);
+    pillContainer.append(li);
+  }
+};
 ```
 
-And toggle visibility from JS when `matched.length === 0`.
+The `labelLookup` is built on init by scanning `[data-filter-key-label]` and `[data-filter-value-label]` attributes from the filter option links.
+
+When `activeFilters` is empty, the pill container is emptied (no pills, no clear-all).
+
+### 7. Option feasibility check
+
+After each render, evaluate every filter option link's viability:
+
+```javascript
+const updateOptionVisibility = (allItems, activeFilters, currentMatchCount) => {
+  for (const group of container.querySelectorAll(".filter-groups > li")) {
+    // Skip the sort group
+    if (group.querySelector(".sort-select")) continue;
+
+    let visibleOptions = 0;
+
+    for (const link of group.querySelectorAll("[data-filter-key]")) {
+      const key = link.dataset.filterKey;
+      const value = link.dataset.filterValue;
+
+      // Active option is always visible
+      if (activeFilters[key] === value) {
+        link.closest("li").style.display = "";
+        visibleOptions++;
+        continue;
+      }
+
+      // Compute hypothetical filter set
+      const hypothetical = { ...activeFilters, [key]: value };
+      const count = allItems.filter((item) => itemMatchesFilters(item, hypothetical)).length;
+
+      // Hide if zero results OR same result set
+      // When adding a cross-group filter, same count == same set (filters only restrict)
+      // When replacing within same group, same count != same set, so don't hide
+      const isReplacement = key in activeFilters;
+      const show = count > 0 && (isReplacement || count !== currentMatchCount);
+
+      link.closest("li").style.display = show ? "" : "none";
+      if (show) visibleOptions++;
+    }
+
+    // Hide entire group if no viable options
+    group.style.display = visibleOptions > 0 ? "" : "none";
+  }
+};
+```
+
+**Key logic:** For cross-group additions, `count === currentMatchCount` means the filter wouldn't change the result set (since adding a constraint can only keep or reduce results). For same-group replacements (where a different value replaces the current one), the same count could mean different items, so we always show those.
 
 ---
 
@@ -136,6 +210,10 @@ Add tests for:
 - active pill rendering from state
 - clear-all and remove-pill behavior
 - sort-change interception not triggering navigation in filtered UI
+- feasibility check: option hidden when hypothetical count is 0
+- feasibility check: option hidden when cross-group count equals current count
+- feasibility check: option shown when same-group replacement even if count matches
+- group hidden when all options hidden
 
 ### Filter UI builder tests
 
@@ -152,11 +230,13 @@ Add assertions for new fields:
 1. `bun run build && bun run serve`
 2. Category page: click filter option and verify instant update
 3. Add second filter and verify AND behavior
-4. Remove a filter via pill and verify state/list updates
-5. Click clear-all and verify full reset
-6. Change sort and verify instant reorder with no navigation
-7. Force zero results and verify empty-state message
-8. On non-filter contexts, existing `sort-dropdown.js` navigation still works
+4. Verify infeasible options disappear after filtering
+5. Verify entire groups disappear when all their options are infeasible
+6. Remove a filter via pill and verify state/list/option visibility updates
+7. Click clear-all and verify full reset
+8. Change sort and verify instant reorder with no navigation
+9. On non-filter contexts, existing `sort-dropdown.js` navigation still works
+10. Server-rendered pills stay until first click, then JS renders them
 
 ---
 
@@ -167,7 +247,6 @@ Add assertions for new fields:
 - Modify: `/src/_includes/filter-options-list.html`
 - Modify: `/src/_includes/filter-sort-dropdown.html`
 - Modify: `/src/_lib/filters/filter-ui.js`
-- Modify: `/src/_includes/filtered-items-section.html`
 - Modify: `/test/unit/ui/category-filter.test.js`
 - Modify: `/test/unit/filters/filter-ui.test.js`
 

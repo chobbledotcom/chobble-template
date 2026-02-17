@@ -2,7 +2,7 @@
 
 ## Goal
 
-Add URL state support (bookmark/share/back-forward), then migrate away from prerendered filter pages behind a feature flag without breaking existing routes.
+Add URL state support (bookmark/share/back-forward), then disable prerendered filter pages behind a feature flag to reduce build time.
 
 ## Prerequisites
 
@@ -13,9 +13,8 @@ Add URL state support (bookmark/share/back-forward), then migrate away from prer
 - URL updates on filter/sort changes
 - Direct filtered URLs hydrate correctly on page load
 - Browser back/forward restores UI state
-- Feature flag can disable prerendered filter pages safely
+- Feature flag disables prerendered filter pages
 - Build time decreases when prerendered pages are disabled
-- Old `/search/...` URLs are handled via explicit routing strategy
 - Full test suite passes
 
 ---
@@ -91,23 +90,11 @@ Required architecture change:
 
 This is necessary for real build-time gains.
 
-### 5. Define old URL compatibility strategy
+No backwards compatibility is needed - the prerendered filter system has never been deployed to production. Old `/search/...` URLs do not exist in the wild.
 
-Old URLs like `/categories/widgets/search/size/small/` only work after prerender removal if routing supports it.
+### 5. Delay destructive cleanup
 
-Choose one migration mode:
-
-- **Preferred**: host rewrite from `/categories/:slug/search/*` to `/categories/:slug/` while preserving URL in browser
-- **Fallback**: keep generating compatibility search pages until rewrite support is available
-
-Do not claim "old URLs handled gracefully" without one of these in place.
-
-### 6. Delay destructive cleanup
-
-Do not remove legacy files (for example `src/pages/filtered-category-products.html`) until:
-
-- rewrite/compat mode is proven in production
-- monitoring confirms no route breakage
+Do not remove legacy files (for example `src/pages/filtered-category-products.html`) in this stage. The feature flag approach lets us switch back instantly if needed. Cleanup is a separate follow-up once the client-side system is stable.
 
 ---
 
@@ -144,8 +131,7 @@ Add tests for:
 1. Apply filters and confirm URL updates
 2. Open filtered URL in new tab and confirm state hydration
 3. Use back/forward and confirm state restoration
-4. Validate old bookmarked `/search/...` URLs under chosen compatibility mode
-5. Run `bun test`
+4. Run `bun test`
 
 ---
 
@@ -156,8 +142,6 @@ Add tests for:
 - Modify: `/src/_lib/filters/category-product-filters.js`
 - Modify: `/src/_lib/filters/configure-filters.js`
 - Modify: `/test/unit/ui/category-filter.test.js`
-
-Optional compatibility routing/config files depend on deployment platform.
 
 ## Rollback
 
