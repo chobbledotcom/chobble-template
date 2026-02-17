@@ -9,7 +9,7 @@ import { escapeAttrValue } from "#utils/dom-builder.js";
 
 /**
  * Register the toFilterJsonAttr filter with Eleventy.
- * @param {import("@11ty/eleventy").UserConfig} eleventyConfig - Eleventy config
+ * @param {*} eleventyConfig - Eleventy config
  */
 export const configureItemFilterData = (eleventyConfig) => {
   /**
