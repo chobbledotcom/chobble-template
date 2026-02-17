@@ -1,8 +1,8 @@
-# Stage 4 (v2): URL Management, Migration, and Build-Time Reduction
+# Stage 4 (v2): URL Management and Prerendered Page Removal
 
 ## Goal
 
-Add URL state support (bookmark/share/back-forward), then disable prerendered filter pages behind a feature flag to reduce build time.
+Add URL state support (bookmark/share/back-forward), then delete the old prerendered filter page system entirely to reduce build time.
 
 ## Prerequisites
 
@@ -13,8 +13,8 @@ Add URL state support (bookmark/share/back-forward), then disable prerendered fi
 - URL updates on filter/sort changes
 - Direct filtered URLs hydrate correctly on page load
 - Browser back/forward restores UI state
-- Feature flag disables prerendered filter pages
-- Build time decreases when prerendered pages are disabled
+- Old prerendered filter page generation is deleted
+- Build time decreases
 - Full test suite passes
 
 ---
@@ -67,34 +67,31 @@ In `init()`:
 
 This avoids duplicate initial entries and keeps back/forward reliable.
 
-### 3. Enable feature flag
+### 3. Delete prerendered filter page system
 
-**File**: `/src/_data/config.json` (MODIFY)
+The old prerendered filter system has never been deployed to production. No backwards compatibility is needed. Delete it outright.
 
-```json
-"client_side_filters": true
-```
+**Files to delete:**
 
-### 4. Split category filter data from page generation
+- `/src/pages/filtered-category-products.html` (pagination template for prerendered filter pages)
+- `/src/_lib/filters/filter-combinations.js` (generates all filter combinations)
+- Any redirect templates for category filter URLs
 
-**Files**:
+**Files to modify:**
 
-- `/src/_lib/filters/category-product-filters.js` (MODIFY)
-- `/src/_lib/filters/configure-filters.js` (MODIFY)
+- `/src/_lib/filters/category-product-filters.js` - remove page/redirect generation functions, keep only the UI-support data (`attributes`, `listingUI`) needed for rendering filter options at build time
+- `/src/_lib/filters/configure-filters.js` - remove collection registrations for `filteredCategoryProductPages` and `categoryFilterRedirects`, keep collections that provide filter UI data to templates
+- Remove related tests for deleted collections/functions
 
-Required architecture change:
+### 4. Verify filter UI still renders
 
-- separate "UI-support data" (`attributes`, `listingUI`) from "page/redirect generation" (`pages`, `redirects`)
-- in `client_side_filters` mode, register only the lightweight collections/filters needed for UI render
-- do not call full-page generation paths in client-side mode
+After deleting the page generation code, the filter UI must still render correctly on category pages. The UI depends on:
 
-This is necessary for real build-time gains.
+- `categoryFilterAttributes` collection (attribute names, values, display lookup)
+- `categoryListingFilterUI` collection (per-category filter UI data)
+- `buildCategoryFilterUIData` filter
 
-No backwards compatibility is needed - the prerendered filter system has never been deployed to production. Old `/search/...` URLs do not exist in the wild.
-
-### 5. Delay destructive cleanup
-
-Do not remove legacy files (for example `src/pages/filtered-category-products.html`) in this stage. The feature flag approach lets us switch back instantly if needed. Cleanup is a separate follow-up once the client-side system is stable.
+These must remain intact. Only the per-combination page generation is removed.
 
 ---
 
@@ -121,9 +118,9 @@ Add tests for:
 
 ### Build verification
 
-1. Measure `time bun run build` with flag off
-2. Measure again with flag on
-3. Verify generated `_site` output does not include full category search page tree when disabled
+1. Measure `time bun run build` before deletion
+2. Delete prerendered system, measure again
+3. Verify generated `_site` output does not include `/search/` subdirectories under categories
 4. Verify category pages still include functional filter UI
 
 ### Manual end-to-end
@@ -137,12 +134,14 @@ Add tests for:
 
 ## Files changed
 
-- Modify: `/src/_lib/public/ui/category-filter.js`
-- Modify: `/src/_data/config.json`
+- Modify: `/src/_lib/public/ui/category-filter.js` (add URL helpers)
+- Delete: `/src/pages/filtered-category-products.html`
+- Delete: `/src/_lib/filters/filter-combinations.js`
 - Modify: `/src/_lib/filters/category-product-filters.js`
 - Modify: `/src/_lib/filters/configure-filters.js`
 - Modify: `/test/unit/ui/category-filter.test.js`
+- Delete: tests for removed collections
 
 ## Rollback
 
-Set `client_side_filters` to `false` and rebuild. Server-generated filter pages become the primary behavior again.
+Restore deleted files from git history. The client-side JS and URL management are independent of page generation and continue to work regardless.

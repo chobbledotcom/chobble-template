@@ -6,7 +6,7 @@ Create the core client-side engine that reads `data-filter-item`, filters items,
 
 ## Prerequisites
 
-- Stage 1 complete: product `<li>` elements include safe `data-filter-item`
+- Stage 1 complete: product `<li>` elements include safe `data-filter-item` (serialized from `filter_data` computed property)
 
 ## Success Criteria
 

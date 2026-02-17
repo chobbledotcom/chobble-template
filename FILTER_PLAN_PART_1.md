@@ -17,18 +17,65 @@ Add reliable, HTML-safe `data-filter-item` payloads to product list items. This 
 
 ## Implementation Steps
 
-### 1. Create Eleventy filter plugin
+### 1. Add `filter_data` computed property
 
-**File**: `/src/_lib/eleventy/item-filter-data.js` (NEW)
+**File**: `/src/_data/eleventyComputed.js` (MODIFY)
+
+Add a new computed property that builds the filter payload for every item. This follows the existing pattern (e.g. `filter_attributes` on line 76, `meta` on line 146).
 
 ```javascript
 import { parseFilterAttributes } from "#filters/filter-core.js";
 
-const getLowestOptionPrice = (options) => {
-  if (!Array.isArray(options) || options.length === 0) return 0;
-  return Math.min(...options.map((o) => o.unit_price || 0));
-};
+// Add to the export default object:
 
+/**
+ * Pre-computed filter data for client-side filtering.
+ * Added to all items so properties can use it in the future.
+ * @param {import("#lib/types").EleventyComputedData} data - Page data
+ * @returns {{ slug: string, title: string, price: number, filters: Record<string, string> }}
+ */
+filter_data: (data) => {
+  const options = data.options;
+  const price =
+    !Array.isArray(options) || options.length === 0
+      ? 0
+      : Math.min(...options.map((o) => o.unit_price || 0));
+
+  return {
+    slug: data.page?.fileSlug ?? "",
+    title: (data.title ?? "").toLowerCase(),
+    price,
+    filters: parseFilterAttributes(data.filter_attributes),
+  };
+},
+```
+
+**Why add to all items:**
+
+- Properties will eventually need the same data.
+- The computed property is cheap (just reads existing fields).
+- Adding it everywhere means `list-item.html` doesn't need to worry about whether the item has `filter_data` - it always does.
+
+### 2. Serialize to HTML-safe attribute on product list items only
+
+**File**: `/src/_includes/list-item.html` (MODIFY)
+
+Add an Eleventy filter to safely serialize the JSON, and gate the attribute on products:
+
+```liquid
+{%- assign isProduct = item.data.tags contains "products" -%}
+<li{% if isProduct %} data-filter-item="{{ item.data.filter_data | toFilterJsonAttr }}"{% endif %}>
+```
+
+The `toFilterJsonAttr` filter handles HTML entity escaping.
+
+### 3. Register the serialization filter
+
+**File**: `/src/_lib/eleventy/item-filter-data.js` (NEW)
+
+A minimal filter - just the HTML escaping. No data building logic (that's in `eleventyComputed.js`).
+
+```javascript
 const toAttributeJson = (value) =>
   JSON.stringify(value)
     .replace(/&/g, "&amp;")
@@ -36,44 +83,12 @@ const toAttributeJson = (value) =>
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-const buildFilterData = (item) => ({
-  slug: item.fileSlug,
-  title: item.data.title.toLowerCase(),
-  price: getLowestOptionPrice(item.data.options),
-  filters: parseFilterAttributes(item.data.filter_attributes),
-});
-
 export const configureItemFilterData = (eleventyConfig) => {
-  eleventyConfig.addFilter("toFilterJsonAttr", (item) =>
-    toAttributeJson(buildFilterData(item)),
-  );
+  eleventyConfig.addFilter("toFilterJsonAttr", toAttributeJson);
 };
 ```
 
-**Key decisions:**
-
-- JSON is escaped for safe embedding in HTML attributes.
-- Price is extracted from product options (lowest `unit_price`).
-- Missing `filter_attributes` is valid and maps to `filters: {}`.
-- No `order` in payload; DOM position is source of truth for default ordering.
-- Properties are out of scope for this stage - only products get the attribute.
-
-### 2. Add attribute to filterable list items only
-
-**File**: `/src/_includes/list-item.html` (MODIFY)
-
-```liquid
-{%- assign isProduct = item.data.tags contains "products" -%}
-<li{% if isProduct %} data-filter-item="{{ item | toFilterJsonAttr }}"{% endif %}>
-```
-
-**Why this conditional:**
-
-- `list-item.html` is shared by multiple content types.
-- Only products need the filter data attribute.
-- Properties are out of scope - they'll be handled in a future update.
-
-### 3. Register plugin in `.eleventy.js`
+### 4. Register in `.eleventy.js`
 
 **File**: `.eleventy.js` (MODIFY)
 
@@ -97,11 +112,18 @@ configureItemFilterData(eleventyConfig);
 
 Cover at minimum:
 
-- title lowercasing
-- lowest option price extraction
-- slugified `filters` via `parseFilterAttributes`
-- missing `filter_attributes` produces `{}`
-- output is attribute-safe (quotes escaped)
+- `toFilterJsonAttr` escapes quotes, ampersands, angle brackets
+- Round-trips through `JSON.parse` after unescaping
+
+**File**: `/test/unit/eleventy/eleventyComputed.test.js` (MODIFY or NEW)
+
+Cover:
+
+- `filter_data` title lowercasing
+- `filter_data` lowest option price extraction
+- `filter_data` slugified filters via `parseFilterAttributes`
+- `filter_data` missing `filter_attributes` produces `filters: {}`
+- `filter_data` missing `options` produces `price: 0`
 
 ### Manual verification
 
@@ -116,11 +138,12 @@ Cover at minimum:
 
 ## Files changed
 
-- Create: `/src/_lib/eleventy/item-filter-data.js`
-- Create: `/test/unit/eleventy/item-filter-data.test.js`
-- Modify: `.eleventy.js`
-- Modify: `/src/_includes/list-item.html`
+- Modify: `/src/_data/eleventyComputed.js` (add `filter_data` computed property)
+- Create: `/src/_lib/eleventy/item-filter-data.js` (HTML-escaping filter only)
+- Modify: `.eleventy.js` (register filter)
+- Modify: `/src/_includes/list-item.html` (add data attribute)
+- Create/modify: test files
 
 ## Rollback
 
-Remove `data-filter-item` from `list-item.html`, remove plugin import/registration from `.eleventy.js`, delete new plugin/test files.
+Remove `filter_data` from `eleventyComputed.js`, remove `data-filter-item` from `list-item.html`, remove filter registration from `.eleventy.js`, delete new filter file.
