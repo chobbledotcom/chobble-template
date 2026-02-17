@@ -78,6 +78,7 @@ const computeWrappedImageHtml = memoize(
     aspectRatio,
     loading,
     noLqip = false,
+    skipMaxWidth = false,
   }) => {
     if (PLACEHOLDER_MODE) {
       return generatePlaceholderHtml({
@@ -152,6 +153,7 @@ const computeWrappedImageHtml = memoize(
           aspectRatio,
           metadata,
           getAspectRatio,
+          skipMaxWidth,
         ),
       },
       innerHTML,
@@ -179,6 +181,7 @@ const processAndWrapImage = async ({
   aspectRatio = null,
   loading = null,
   noLqip = false,
+  skipMaxWidth = false,
   document = null,
 }) => {
   if (isExternalUrl(imageName)) {
@@ -204,6 +207,7 @@ const processAndWrapImage = async ({
     aspectRatio,
     loading,
     noLqip,
+    skipMaxWidth,
   });
 
   return returnElement ? await parseHtml(html, document) : html;
@@ -237,6 +241,7 @@ const configureImages = async (eleventyConfig) => {
  * @param {string | null} [aspectRatio]
  * @param {string | null} [loading]
  * @param {boolean} [noLqip]
+ * @param {boolean} [skipMaxWidth] - Skip max-width constraint (for background images)
  */
 const imageShortcode = async (
   imageName,
@@ -247,6 +252,7 @@ const imageShortcode = async (
   aspectRatio = null,
   loading = null,
   noLqip = false,
+  skipMaxWidth = false,
 ) =>
   processAndWrapImage({
     logName: `imageShortcode: ${imageName}`,
@@ -258,6 +264,7 @@ const imageShortcode = async (
     aspectRatio,
     loading,
     noLqip,
+    skipMaxWidth,
     returnElement: false,
   });
 

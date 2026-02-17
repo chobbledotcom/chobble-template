@@ -83,17 +83,25 @@ const buildPictureAttributes = (classes) =>
 /**
  * Build wrapper styles for responsive images.
  * Creates CSS style string with background image, aspect ratio, and max-width.
+ * @param {string | null} bgImage - LQIP background image CSS value
+ * @param {string | null} aspectRatio - Aspect ratio string
+ * @param {object} metadata - Image metadata with width property
+ * @param {Function} getAspectRatioFn - Function to compute aspect ratio
+ * @param {boolean} [skipMaxWidth=false] - Skip max-width constraint (for background images)
  */
 export const buildWrapperStyles = (
   bgImage,
   aspectRatio,
   metadata,
   getAspectRatioFn,
+  skipMaxWidth = false,
 ) =>
   compact([
     bgImage && `background-image: ${bgImage}`,
     `aspect-ratio: ${getAspectRatioFn(aspectRatio, metadata)}`,
-    metadata.width && `max-width: min(${metadata.width}px, 100%)`,
+    !skipMaxWidth &&
+      metadata.width &&
+      `max-width: min(${metadata.width}px, 100%)`,
   ]).join("; ");
 
 /**
