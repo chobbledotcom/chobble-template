@@ -52,15 +52,16 @@ describe("eleventyComputed.filter_data", () => {
     });
   });
 
-  test("includes slug from page.fileSlug", () => {
+  test("skips filter_attributes without name (proxy objects)", () => {
     const data = {
       title: "Test Product",
       tags: ["products"],
-      page: { fileSlug: "my-product-slug" },
+      page: { fileSlug: "test" },
+      filter_attributes: [{}, {}, {}],
     };
 
     const result = eleventyComputed.filter_data(data);
-    expect(result.slug).toBe("my-product-slug");
+    expect(result.filters).toEqual({});
   });
 
   test("complete filter_data structure", () => {
@@ -77,7 +78,6 @@ describe("eleventyComputed.filter_data", () => {
 
     const result = eleventyComputed.filter_data(data);
     expect(result).toEqual({
-      slug: "premium-widget",
       title: "premium widget",
       price: 99,
       filters: {

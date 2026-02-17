@@ -58,7 +58,6 @@ describe("configureItemFilterData", () => {
     const filter = config.filters.toFilterJsonAttr;
 
     const original = {
-      slug: "test-product",
       title: 'test & <special> "product"',
       price: 99,
       filters: { size: "large", color: "red" },
@@ -77,7 +76,6 @@ describe("configureItemFilterData", () => {
     const filter = config.filters.toFilterJsonAttr;
 
     const original = {
-      slug: "complex",
       title: "complex product",
       price: 0,
       filters: {

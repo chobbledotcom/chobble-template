@@ -4,6 +4,7 @@ import quoteFieldsFn from "#data/quote-fields.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
 import { validateBlocks } from "#utils/block-schema.js";
+import { getFilterAttributes } from "#utils/mock-filter-attributes.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
   buildBaseMeta,
@@ -68,18 +69,32 @@ export default {
     data.description || data.snippet || data.meta_description || "",
 
   /**
+   * Override filter_attributes with mock values in FAST_INACCURATE_BUILDS mode.
+   * Only applies to items that have filter_attributes defined (products, properties).
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {Array<{name: string, value: string}>|undefined} Filter attributes
+   */
+  filter_attributes: (data) => {
+    const attrs = getFilterAttributes(
+      data.filter_attributes,
+      data.page.inputPath,
+    );
+    if (!Array.isArray(attrs)) return attrs;
+    if (attrs.every(Boolean)) return attrs;
+    const filtered = attrs.filter(Boolean);
+    return filtered.length > 0 ? filtered : undefined;
+  },
+
+  /**
    * Pre-computed filter data for client-side filtering.
    * Only computed for collection items (pages with tags); utility templates
    * like feed.liquid are excluded.
-   * Reads filter_attributes directly from frontmatter (not via a computed
-   * property) so the data cascade can't overwrite the original array.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {{ slug: string, title: string, price: number, filters: Record<string, string> }|undefined}
+   * @returns {{ title: string, price: number, filters: Record<string, string> }|undefined}
    */
   filter_data: (data) => {
     if (!data.tags) return undefined;
     return {
-      slug: data.page.fileSlug,
       title: data.title.toLowerCase(),
       price: data.options
         ? Math.min(...data.options.map((o) => o.unit_price))
