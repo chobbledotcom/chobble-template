@@ -15,10 +15,5 @@ onReady(() => {
     originalIndex: index,
   }));
 
-  window.__filter = {
-    apply: (filters, sort) =>
-      applyFiltersAndSort(items, list, filters || {}, sort || "default"),
-    reset: () => applyFiltersAndSort(items, list, {}, "default"),
-    items,
-  };
+  applyFiltersAndSort(items, list, {}, "default");
 });
