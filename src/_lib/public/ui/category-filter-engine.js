@@ -1,0 +1,36 @@
+const SORT_COMPARATORS = {
+  default: (a, b) => a.originalIndex - b.originalIndex,
+  "price-asc": (a, b) => a.data.price - b.data.price,
+  "price-desc": (a, b) => b.data.price - a.data.price,
+  "name-asc": (a, b) => a.data.title.localeCompare(b.data.title),
+  "name-desc": (a, b) => b.data.title.localeCompare(a.data.title),
+};
+
+const applyFiltersAndSort = (
+  allItems,
+  itemsList,
+  activeFilters,
+  activeSortKey,
+) => {
+  const filterEntries = Object.entries(activeFilters);
+  const matched = allItems.filter((item) =>
+    filterEntries.every(([key, value]) => item.data.filters[key] === value),
+  );
+  const comparator =
+    SORT_COMPARATORS[activeSortKey] || SORT_COMPARATORS.default;
+  matched.sort(comparator);
+
+  for (const item of allItems) {
+    item.element.style.display = matched.includes(item) ? "" : "none";
+  }
+
+  if (itemsList) {
+    for (const item of matched) {
+      itemsList.append(item.element);
+    }
+  }
+
+  return matched.length;
+};
+
+export { applyFiltersAndSort };
