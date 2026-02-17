@@ -45,6 +45,7 @@ const cropImage = dedupeAsync(
 
     const sharp = await getSharp();
     await sharp(sourcePath)
+      .rotate()
       .resize(metadata.width, cropHeight, { fit: "cover" })
       .toFile(cachedPath);
 
