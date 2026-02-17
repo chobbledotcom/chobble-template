@@ -7,6 +7,10 @@ import {
   updateOptionActiveStates,
   updateOptionVisibility,
 } from "#public/ui/category-filter-ui.js";
+import {
+  buildFilterHash,
+  parseFiltersFromHash,
+} from "#public/ui/category-filter-url.js";
 import { onReady } from "#public/utils/on-ready.js";
 import { omit } from "#toolkit/fp/object.js";
 
@@ -29,9 +33,19 @@ onReady(() => {
   const labelLookup = buildLabelLookup(container);
   const pillContainer = container.querySelector("[data-active-filters]");
 
+  // Parse initial state from hash if present, else fall back to server-rendered state
+  const hashState = parseFiltersFromHash(window.location.hash);
+  const hasHashState =
+    Object.keys(hashState.filters).length > 0 ||
+    hashState.sortKey !== "default";
+
   const state = {
-    activeFilters: readInitialFilters(container),
-    activeSortKey: readInitialSort(container),
+    activeFilters: hasHashState
+      ? hashState.filters
+      : readInitialFilters(container),
+    activeSortKey: hasHashState
+      ? hashState.sortKey
+      : readInitialSort(container),
     jsHasTakenOver: false,
   };
 
@@ -53,6 +67,18 @@ onReady(() => {
       allItems,
       state.activeFilters,
       matchCount,
+    );
+  };
+
+  // Track whether the current hash change was triggered by us
+  // to avoid re-rendering on our own updates
+  const hashGuard = { ours: false };
+
+  const updateHash = () => {
+    hashGuard.ours = true;
+    window.location.hash = buildFilterHash(
+      state.activeFilters,
+      state.activeSortKey,
     );
   };
 
@@ -87,6 +113,7 @@ onReady(() => {
     }
 
     renderFilterState();
+    updateHash();
   });
 
   container.addEventListener("click", (e) => {
@@ -99,6 +126,7 @@ onReady(() => {
       state.activeFilters,
     );
     renderFilterState();
+    updateHash();
   });
 
   container.addEventListener("click", (e) => {
@@ -107,7 +135,9 @@ onReady(() => {
     e.preventDefault();
     takeOver();
     state.activeFilters = {};
+    state.activeSortKey = "default";
     renderFilterState();
+    updateHash();
   });
 
   container.addEventListener("change", (e) => {
@@ -120,7 +150,22 @@ onReady(() => {
     takeOver();
     state.activeSortKey = select.options[select.selectedIndex].dataset.sortKey;
     renderFilterState();
+    updateHash();
   });
 
+  // Restore state on browser back/forward (hash changes)
+  window.addEventListener("hashchange", () => {
+    if (hashGuard.ours) {
+      hashGuard.ours = false;
+      return;
+    }
+    takeOver();
+    const parsed = parseFiltersFromHash(window.location.hash);
+    state.activeFilters = parsed.filters;
+    state.activeSortKey = parsed.sortKey;
+    renderFilterState();
+  });
+
+  // Initial render
   renderFilterState();
 });

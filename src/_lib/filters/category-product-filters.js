@@ -1,29 +1,19 @@
 /**
  * Category-scoped product filtering.
  *
- * Generates filter pages and UI data for products within each category.
- * All data is computed once per build and cached - the four collection functions
- * just pull from this shared cache.
+ * Provides filter UI data for products within each category.
+ * All data is computed once per build and cached.
  *
- * Collections: filteredCategoryProductPages, categoryFilterAttributes,
- * categoryFilterRedirects, categoryListingFilterUI
+ * Collections: categoryFilterAttributes, categoryListingFilterUI
  *
  * Filters: buildCategoryFilterUIData
  */
-import {
-  expandWithSortVariants,
-  generateFilterCombinations,
-  generateFilterRedirects,
-  generateSortOnlyPages,
-} from "#filters/filter-combinations.js";
+import { generateFilterCombinations } from "#filters/filter-combinations.js";
 import {
   buildDisplayLookup,
-  buildItemLookup,
   getAllFilterAttributes,
-  matchWithSort,
 } from "#filters/filter-core.js";
 import {
-  buildFilterPageBase,
   buildFilterUIData,
   buildPathLookup,
   buildUIWithLookup,
@@ -43,45 +33,13 @@ const pagesByCategory = groupByWithCache((page) => [page.categorySlug]);
 const getBasePaths = (pages) =>
   pages.filter((p) => !p.sortKey || p.sortKey === "default");
 
-/**
- * Build a single filter page with all its data.
- */
-const buildPage = (ctx, combo) => {
-  const matchedProducts = matchWithSort(ctx.products, {
-    filters: combo.filters,
-    lookup: ctx.itemLookup,
-    sortKey: combo.sortKey,
-  });
-  return {
-    categorySlug: ctx.slug,
-    categoryUrl: ctx.baseUrl,
-    sortKey: combo.sortKey,
-    ...buildFilterPageBase(combo, ctx.displayLookup),
-    products: matchedProducts,
-    filterUI: buildUIWithLookup(ctx, combo),
-  };
-};
-
-/**
- * Build all filter pages for a category.
- */
-const buildPages = (ctx, combinations) => {
-  const allCombinations = [
-    ...expandWithSortVariants(combinations),
-    ...generateSortOnlyPages(ctx.products.length),
-  ];
-  return allCombinations.map((combo) => buildPage(ctx, combo));
-};
-
-/** Build context object for page generation */
+/** Build context object for filter UI generation */
 const buildContext = (slug, sortedProducts, combinations) => {
   const displayLookup = buildDisplayLookup(sortedProducts);
   return {
     slug,
     products: sortedProducts,
     baseUrl: `/categories/${slug}`,
-    itemLookup: buildItemLookup(sortedProducts),
-    displayLookup,
     filterData: {
       attributes: getAllFilterAttributes(sortedProducts),
       displayLookup,
@@ -99,7 +57,7 @@ const buildListingUI = (ctx, productCount) =>
   });
 
 /**
- * Build all filter data for a single category.
+ * Build filter UI data for a single category.
  * Returns null if category has no products or no filter attributes.
  */
 const buildCategoryData = (slug, products) => {
@@ -113,10 +71,8 @@ const buildCategoryData = (slug, products) => {
 
   return {
     slug,
-    pages: buildPages(ctx, combinations),
     attributes: ctx.filterData,
     listingUI: buildListingUI(ctx, sortedProducts.length),
-    redirects: generateFilterRedirects(sortedProducts, `${ctx.baseUrl}/search`),
   };
 };
 
@@ -138,8 +94,6 @@ const computeAllCategoryData = memoizeByRef(
     })(categories);
 
     return {
-      pages: categoryData.flatMap((c) => c.pages),
-      redirects: categoryData.flatMap((c) => c.redirects),
       attributes: Object.fromEntries(
         categoryData.map((c) => [c.slug, c.attributes]),
       ),
@@ -151,25 +105,11 @@ const computeAllCategoryData = memoizeByRef(
 );
 
 /**
- * Get all filtered category product pages.
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- */
-const filteredCategoryPages = (collectionApi) =>
-  computeAllCategoryData(collectionApi).pages;
-
-/**
  * Get filter attributes for each category.
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  */
 const createCategoryFilterAttributes = (collectionApi) =>
   computeAllCategoryData(collectionApi).attributes;
-
-/**
- * Get redirects for invalid filter paths.
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- */
-const createCategoryFilterRedirects = (collectionApi) =>
-  computeAllCategoryData(collectionApi).redirects;
 
 /**
  * Get filter UI for category listing pages.
@@ -180,7 +120,6 @@ const categoryListingUI = (collectionApi) =>
 
 /**
  * Build category-scoped filter UI data for templates.
- * Used when rendering filter UI on filtered-category-products pages.
  */
 const categoryFilterData = (
   categoryFilterAttrs,
@@ -210,8 +149,6 @@ const categoryFilterData = (
 
 export {
   categoryFilterData,
-  filteredCategoryPages,
   createCategoryFilterAttributes,
-  createCategoryFilterRedirects,
   categoryListingUI,
 };
