@@ -1,8 +1,11 @@
 /**
  * URL management helpers for client-side category filtering.
  *
- * Pure functions for converting between filter/sort state and URL paths.
- * Used by category-filter.js for history API integration.
+ * Uses hash fragments for filter state, e.g.:
+ *   /categories/widgets/#colour/red/size/large/price-asc
+ *
+ * This works on static sites without server-side routing - the browser
+ * always requests the base page, and JS reads the hash on load.
  */
 
 const SORT_KEYS = {
@@ -13,7 +16,7 @@ const SORT_KEYS = {
 };
 
 /**
- * Convert filter object to URL path segment.
+ * Convert filter object to path segment.
  * Keys are sorted alphabetically for stable URLs.
  * { colour: "red", size: "large" } => "colour/red/size/large"
  *
@@ -32,32 +35,30 @@ const filterToPath = (filters) => {
 };
 
 /**
- * Build a full URL from the current pathname, filters, and sort key.
+ * Build a hash fragment from filters and sort key.
  *
- * @param {string} pathname - Current page pathname
  * @param {Record<string, string>} filters - Active filter key/value pairs
  * @param {string} sortKey - Current sort key ("default" means no sort suffix)
- * @returns {string} New URL path
+ * @returns {string} Hash string including "#", or "" if no state
  */
-const buildFilterURL = (pathname, filters, sortKey) => {
-  const basePath = pathname.split("/search/")[0].replace(/\/$/, "");
+const buildFilterHash = (filters, sortKey) => {
   const path = filterToPath(filters);
   const suffix = sortKey && sortKey !== "default" ? sortKey : "";
-  const searchPart = [path, suffix].filter(Boolean).join("/");
-  return searchPart ? `${basePath}/search/${searchPart}/` : `${basePath}/`;
+  const fragment = [path, suffix].filter(Boolean).join("/");
+  return fragment ? `#${fragment}` : "";
 };
 
 /**
- * Parse filter state from a URL pathname.
+ * Parse filter state from a hash fragment.
  *
- * @param {string} pathname - URL pathname to parse
+ * @param {string} hash - Hash string (e.g. "#colour/red/price-asc" or "")
  * @returns {{ filters: Record<string, string>, sortKey: string }}
  */
-const parseFiltersFromPath = (pathname) => {
-  const match = pathname.match(/\/search\/(.+?)\/?$/);
-  if (!match) return { filters: {}, sortKey: "default" };
+const parseFiltersFromHash = (hash) => {
+  const raw = hash.replace(/^#/, "");
+  if (!raw) return { filters: {}, sortKey: "default" };
 
-  const parts = match[1].split("/").filter(Boolean);
+  const parts = raw.split("/").filter(Boolean);
   const hasSortSuffix = parts.length > 0 && SORT_KEYS[parts[parts.length - 1]];
   const sortKey = hasSortSuffix ? parts[parts.length - 1] : "default";
   const filterParts = hasSortSuffix ? parts.slice(0, -1) : parts;
@@ -72,4 +73,4 @@ const parseFiltersFromPath = (pathname) => {
   return { filters, sortKey };
 };
 
-export { buildFilterURL, parseFiltersFromPath };
+export { buildFilterHash, parseFiltersFromHash };
