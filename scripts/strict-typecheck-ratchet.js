@@ -109,7 +109,7 @@ if (errorCount > CURRENT_ERROR_COUNT) {
   console.error("   3. Add JSDoc type annotations if needed");
   console.error("   4. Update CURRENT_ERROR_COUNT when done fixing errors");
   console.error("");
-  console.error("   🔍 New errors introduced:");
+  console.error("   🔍 All errors in non-strict files (review to find what changed):");
   for (const [file, errors] of errorsByFile) {
     if (!STRICT_CLEAN_FILES.includes(file)) {
       console.error(`\n      ${file}`);
