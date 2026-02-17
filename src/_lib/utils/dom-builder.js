@@ -119,5 +119,6 @@ export {
   createHtml,
   parseHtml,
   getSharedDocument,
+  escapeAttrValue,
   VOID_ELEMENTS,
 };

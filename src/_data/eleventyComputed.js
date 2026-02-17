@@ -1,6 +1,7 @@
 import getConfig from "#data/config.js";
 import contactFormFn from "#data/contact-form.js";
 import quoteFieldsFn from "#data/quote-fields.js";
+import { parseFilterAttributes } from "#filters/filter-core.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
 import { validateBlocks } from "#utils/block-schema.js";
@@ -70,11 +71,46 @@ export default {
   /**
    * Override filter_attributes with mock values in FAST_INACCURATE_BUILDS mode.
    * Only applies to items that have filter_attributes defined (products, properties).
+   * Filters out any undefined/null items to ensure a clean array.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {Array<{name: string, value: string}>|undefined} Filter attributes
    */
-  filter_attributes: (data) =>
-    getFilterAttributes(data.filter_attributes, data.page.inputPath),
+  filter_attributes: (data) => {
+    const attrs = getFilterAttributes(
+      data.filter_attributes,
+      data.page.inputPath,
+    );
+    if (!attrs) return attrs;
+    // Only filter if there are actually undefined/null items (YAML parsing edge case)
+    if (attrs.every((item) => item)) return attrs;
+    const filtered = attrs.filter((item) => item);
+    return filtered.length > 0 ? filtered : undefined;
+  },
+
+  /**
+   * Pre-computed filter data for client-side filtering.
+   * Added to all items so properties can use it in the future.
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {{ slug: string, title: string, price: number, filters: Record<string, string> }}
+   */
+  filter_data: (data) => {
+    const price =
+      !Array.isArray(data.options) || data.options.length === 0
+        ? 0
+        : Math.min(...data.options.map((o) => o.unit_price || 0));
+
+    // Ensure we have a clean array, filtering undefined items at the boundary
+    const attrs = Array.isArray(data.filter_attributes)
+      ? data.filter_attributes.filter(Boolean)
+      : [];
+
+    return {
+      slug: data.page?.fileSlug ?? "",
+      title: (data.title ?? "").toLowerCase(),
+      price,
+      filters: parseFilterAttributes(attrs.length > 0 ? attrs : undefined),
+    };
+  },
 
   contactForm: () => contactFormFn(),
   quoteFields: () => quoteFieldsFn(),
