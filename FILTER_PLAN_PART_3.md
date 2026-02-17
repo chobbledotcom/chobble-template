@@ -2,58 +2,105 @@
 
 ## Goal
 
-Connect the filtering engine to the existing filter UI. Make filter buttons, sort dropdowns, and "clear filters" links actually work via JavaScript instead of navigation.
+Wire the filtering engine to the existing filter UI. Filter clicks, sort changes, and "clear all" work via JavaScript instead of page navigation.
 
 ## Prerequisites
 
-- Stage 1 completed: `data-filter-item` attributes exist
-- Stage 2 completed: Filtering engine works via console API
+- Stage 1 complete: data attributes on items
+- Stage 2 complete: filtering engine works via console API
 
 ## Success Criteria
 
-✅ Clicking filter options filters products instantly (no page load)
-✅ Sort dropdown changes order without navigation
-✅ Active filter pills appear and have working remove buttons
-✅ "Clear all filters" link works
-✅ No-results state shows when no products match
-✅ Filter UI shows active state correctly
-✅ Integration tests pass
+- Clicking a filter option shows/hides products instantly (no page load)
+- Sort dropdown reorders products without navigation
+- Active filter pills have working remove buttons
+- "Clear all" link resets to all products
+- Empty-state message appears when zero items match
+- No new CSS classes needed
+- Unit and integration tests pass
+
+---
 
 ## Implementation Steps
 
-### 1. Update Filter UI Data Generation
+### 1. Add `data-filter-container` to item-filter.html
+
+**File**: `/src/_includes/item-filter.html` (MODIFY)
+
+The filtering engine (Stage 2) looks for `[data-filter-container]` to initialise. Add the attribute to the existing wrapper:
+
+**Before (line 8):**
+```liquid
+<div class="item-filter">
+```
+
+**After:**
+```liquid
+<div class="item-filter" data-filter-container>
+```
+
+No CSS class added - uses a data attribute as the semantic hook for JS.
+
+### 2. Add data attributes to filter option links
+
+**File**: `/src/_includes/filter-options-list.html` (MODIFY)
+
+The current template (line 12) renders plain links:
+```liquid
+<a href="{{ option.url }}">{{ option.value }}</a>
+```
+
+Add data attributes so JS can intercept clicks:
+
+```liquid
+<a href="{{ option.url }}"{% if option.filterKey %} data-filter-key="{{ option.filterKey }}" data-filter-value="{{ option.filterValue }}"{% endif %}>{{ option.value }}</a>
+```
+
+The `{% if option.filterKey %}` guard means this is backwards-compatible: sort options (which don't have `filterKey`) and pages without client-side filtering are unaffected.
+
+### 3. Add data attributes to active filter pills
+
+**File**: `/src/_includes/item-filter.html` (MODIFY)
+
+The current template (line 14) renders remove links:
+```liquid
+<a href="{{ filter.removeUrl }}" aria-label="Remove {{ filter.key }} filter">×</a>
+```
+
+Add a data attribute for JS interception:
+```liquid
+<a href="{{ filter.removeUrl }}" aria-label="Remove {{ filter.key }} filter" data-remove-filter="{{ filter.removeFilterKey }}">×</a>
+```
+
+### 4. Provide the data attributes from filter-ui.js
 
 **File**: `/src/_lib/filters/filter-ui.js` (MODIFY)
 
-**In `buildAttributeGroups()` function (lines 92-111)**:
+Three small additions to existing return objects:
 
+**In `buildAttributeGroups` (line 98-102)** - add `filterKey` and `filterValue`:
 ```javascript
-// Line 98-102 - ADD filterKey and filterValue
 return {
   value: ctx.filterData.displayLookup[value],
   url: searchUrl(ctx.baseUrl, toSortedPath(newFilters, combo.sortKey)),
   active: isActive,
-  filterKey: attrName,      // ADD THIS
-  filterValue: value,        // ADD THIS
+  filterKey: attrName,
+  filterValue: value,
 };
 ```
 
-**In `buildSortGroup()` function (lines 70-78)**:
-
+**In `buildSortGroup` (line 73-77)** - add `sortKey`:
 ```javascript
-// Line 73-77 - ADD sortKey to each option
 options: SORT_OPTIONS.map((sortOption) => ({
   value: sortOption.label,
   url: searchUrl(ctx.baseUrl, toSortedPath(combo.filters, sortOption.key)),
   active: combo.sortKey === sortOption.key,
-  sortKey: sortOption.key,  // ADD THIS
+  sortKey: sortOption.key,
 })),
 ```
 
-**In `buildActiveFilters()` function (lines 81-89)**:
-
+**In `buildActiveFilters` (line 82-88)** - add `removeFilterKey`:
 ```javascript
-// Line 82-88 - ADD removeFilterKey
 mapEntries((key, value) => ({
   key: ctx.filterData.displayLookup[key],
   value: ctx.filterData.displayLookup[value],
@@ -61,365 +108,272 @@ mapEntries((key, value) => ({
     ctx.baseUrl,
     toSortedPath(omit([key])(combo.filters), combo.sortKey),
   ),
-  removeFilterKey: key,  // ADD THIS
+  removeFilterKey: key,
 }))(combo.filters);
 ```
 
-### 2. Update Category Filter JS with Event Handlers
+### 5. Handle the sort-dropdown.js conflict
 
-**File**: `/src/_lib/public/ui/category-filter.js` (MODIFY)
+**Critical issue:** The existing `sort-dropdown.js` (line 6) does `window.location.href = event.target.value`. The sort `<option>` values are currently full URLs. We need client-side filtering to intercept sort changes instead.
 
-Replace the Stage 2 debug code with real event handlers:
+**Solution:** Keep the `<option value>` as the URL (for progressive enhancement), but add `data-sort-key` so our JS can read the sort key without parsing the URL:
+
+**File**: `/src/_includes/filter-sort-dropdown.html` (MODIFY)
+
+**Before (line 10):**
+```liquid
+<option value="{{ option.url }}"{% if option.active %} selected{% endif %}>{{ option.value }}</option>
+```
+
+**After:**
+```liquid
+<option value="{{ option.url }}"{% if option.sortKey %} data-sort-key="{{ option.sortKey }}"{% endif %}{% if option.active %} selected{% endif %}>{{ option.value }}</option>
+```
+
+Then in `category-filter.js`, we intercept the `change` event _before_ `sort-dropdown.js` can navigate:
 
 ```javascript
-// REMOVE the window.__categoryFilter debug API
-
-// ADD event handlers
-const attachEventListeners = (container) => {
-  // Filter option clicks (event delegation)
-  container.addEventListener('click', (e) => {
-    const filterLink = e.target.closest('a[data-filter-key]');
-    if (filterLink) {
-      e.preventDefault();
-      const key = filterLink.dataset.filterKey;
-      const value = filterLink.dataset.filterValue;
-      activeFilters = { ...activeFilters, [key]: value };
-      applyFiltersAndSort();
-    }
-
-    // Remove filter pill clicks
-    const removeLink = e.target.closest('.filter-active a[data-remove-filter-key]');
-    if (removeLink) {
-      e.preventDefault();
-      const key = removeLink.dataset.removeFilterKey;
-      const { [key]: _, ...remaining } = activeFilters;
-      activeFilters = remaining;
-      applyFiltersAndSort();
-    }
-
-    // Clear all filters
-    if (e.target.closest('.clear-filters-link')) {
-      e.preventDefault();
-      activeFilters = {};
-      applyFiltersAndSort();
-    }
-  });
-
-  // Sort dropdown changes
-  document.addEventListener('change', (e) => {
-    if (e.target.matches('.sort-select')) {
-      e.preventDefault();
-      activeSortKey = e.target.value;
-      applyFiltersAndSort();
-    }
-  });
-};
-
-// ADD UI update functions
-const updateFilterUIActiveStates = () => {
-  // Update active state on filter options
-  const allOptions = document.querySelectorAll('a[data-filter-key]');
-  for (const option of allOptions) {
-    const key = option.dataset.filterKey;
-    const value = option.dataset.filterValue;
-    const isActive = activeFilters[key] === value;
-    option.closest('li')?.classList.toggle('active', isActive);
-  }
-};
-
-const updateNoResultsState = (isEmpty) => {
-  const noResults = document.querySelector('[data-empty-state]');
-  const itemsList = document.querySelector('.items');
-
-  if (noResults && itemsList) {
-    if (isEmpty) {
-      noResults.style.display = 'block';
-      itemsList.style.display = 'none';
-    } else {
-      noResults.style.display = 'none';
-      itemsList.style.display = '';
-    }
-  }
-};
-
-// UPDATE applyFiltersAndSort to call UI updates
-const applyFiltersAndSort = () => {
-  // ... existing filter and sort logic ...
-
-  updateFilterUIActiveStates();
-  updateNoResultsState(matchedItems.length === 0);
-};
-
-// UPDATE onReady to attach event listeners
-onReady(() => {
-  const filterContainer = document.querySelector('.item-filter');
-  if (!filterContainer) return;
-
-  allItems = parseItemsFromDOM();
-  attachEventListeners(filterContainer);
-  applyFiltersAndSort();
+// In category-filter.js event setup (runs before sort-dropdown.js via import order)
+container.closest(".filtered-items")?.addEventListener("change", (e) => {
+  const select = e.target.closest(".sort-select");
+  if (!select) return;
+  const option = select.options[select.selectedIndex];
+  const sortKey = option.dataset.sortKey;
+  if (!sortKey) return; // Let sort-dropdown.js handle it (non-filter pages)
+  e.stopPropagation(); // Prevent sort-dropdown.js from navigating
+  // ... apply sort
 });
 ```
 
-### 3. Update Filter Templates
+**Why this works:** By scoping the listener to `.filtered-items` and calling `e.stopPropagation()`, the existing `sort-dropdown.js` (which listens on `document`) never sees the event on filter pages. On non-filter pages, `sort-dropdown.js` works as before.
 
-**File**: `/src/_includes/filter-options-list.html` (CHECK/MODIFY if needed)
+### 6. Rewrite category-filter.js with full UI wiring
 
-Verify filter option links have data attributes (should be auto-populated from filter-ui.js changes):
+**File**: `/src/_lib/public/ui/category-filter.js` (REPLACE Stage 2 version)
 
-```liquid
-<ul class="filter-options-list">
-  {%- for option in options -%}
-  <li{% if option.active %} class="active"{% endif %}>
-    {%- if option.active -%}
-    <span>{{ option.value }}</span>
-    {%- else -%}
-    <a href="{{ option.url }}"
-       data-filter-key="{{ option.filterKey }}"
-       data-filter-value="{{ option.filterValue }}">
-      {{ option.value }}
-    </a>
-    {%- endif -%}
-  </li>
-  {%- endfor -%}
-</ul>
+```javascript
+import { onReady } from "#public/utils/on-ready.js";
+
+// ── Pure functions (inlined, see Stage 2 notes) ──
+
+const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const filterToPath = (filters) => {
+  const keys = Object.keys(filters).sort();
+  if (keys.length === 0) return "";
+  return keys.flatMap((k) => [encodeURIComponent(k), encodeURIComponent(filters[k])]).join("/");
+};
+
+const SORT_KEYS = {
+  "default": (a, b) => a.order - b.order,
+  "price-asc": (a, b) => a.data.price - b.data.price,
+  "price-desc": (a, b) => b.data.price - a.data.price,
+  "name-asc": (a, b) => a.data.title.localeCompare(b.data.title),
+  "name-desc": (a, b) => b.data.title.localeCompare(a.data.title),
+};
+
+// ── Core logic ──
+
+const parseItemsFromDOM = () => {
+  const items = [];
+  for (const li of document.querySelectorAll("li[data-filter-item]")) {
+    const data = JSON.parse(li.dataset.filterItem);
+    items.push({ element: li, data, order: items.length });
+  }
+  return items;
+};
+
+const itemMatchesFilters = (item, filters) => {
+  for (const [key, value] of Object.entries(filters)) {
+    if (item.data.filters[key] !== value) return false;
+  }
+  return true;
+};
+
+// ── State + rendering ──
+
+const init = (container) => {
+  const allItems = parseItemsFromDOM();
+  const itemsList = allItems[0]?.element.closest(".items");
+  const emptyState = container.closest(".filtered-items")?.querySelector("[data-empty-state]");
+  let activeFilters = {};
+  let activeSortKey = "default";
+
+  const render = () => {
+    const matched = allItems.filter((item) => itemMatchesFilters(item, activeFilters));
+    matched.sort(SORT_KEYS[activeSortKey] || SORT_KEYS.default);
+
+    for (const item of allItems) {
+      item.element.style.display = matched.includes(item) ? "" : "none";
+    }
+
+    if (emptyState) emptyState.style.display = matched.length === 0 ? "" : "none";
+    if (itemsList) itemsList.style.display = matched.length === 0 ? "none" : "";
+
+    // Update active states on filter option links
+    for (const link of container.querySelectorAll("[data-filter-key]")) {
+      const isActive = activeFilters[link.dataset.filterKey] === link.dataset.filterValue;
+      link.closest("li")?.classList.toggle("active", isActive);
+    }
+  };
+
+  // ── Event delegation ──
+
+  container.addEventListener("click", (e) => {
+    // Filter option click
+    const filterLink = e.target.closest("[data-filter-key]");
+    if (filterLink) {
+      e.preventDefault();
+      activeFilters = { ...activeFilters, [filterLink.dataset.filterKey]: filterLink.dataset.filterValue };
+      render();
+      return;
+    }
+
+    // Remove active filter pill
+    const removeLink = e.target.closest("[data-remove-filter]");
+    if (removeLink) {
+      e.preventDefault();
+      const { [removeLink.dataset.removeFilter]: _, ...rest } = activeFilters;
+      activeFilters = rest;
+      render();
+      return;
+    }
+  });
+
+  // Clear all (the "Clear all" link is inside .filter-active ul)
+  container.querySelector(".filter-active")?.addEventListener("click", (e) => {
+    const clearLink = e.target.closest("a[href$='#content']");
+    // The "Clear all" link href ends with the base category URL + #content
+    // and does NOT have data-remove-filter (that's individual pills)
+    if (clearLink && !clearLink.dataset.removeFilter) {
+      e.preventDefault();
+      activeFilters = {};
+      render();
+    }
+  });
+
+  // Sort dropdown (intercept before sort-dropdown.js can navigate)
+  container.closest(".filtered-items")?.addEventListener("change", (e) => {
+    const select = e.target.closest(".sort-select");
+    if (!select) return;
+    const option = select.options[select.selectedIndex];
+    const sortKey = option.dataset.sortKey;
+    if (!sortKey) return;
+    e.stopPropagation();
+    activeSortKey = sortKey;
+    render();
+  });
+
+  render(); // Initial render (shows all, default sort)
+};
+
+// ── Bootstrap ──
+
+onReady(() => {
+  const container = document.querySelector("[data-filter-container]");
+  if (!container) return;
+  init(container);
+});
+
+export { normalize, filterToPath, parseItemsFromDOM, itemMatchesFilters, SORT_KEYS };
 ```
 
-**File**: `/src/_includes/filter-sort-dropdown.html` or similar (CHECK/MODIFY if needed)
-
-Verify sort dropdown uses `sortKey` as value:
-
-```liquid
-<select class="sort-select">
-  {%- for option in group.options -%}
-  <option value="{{ option.sortKey }}"{% if option.active %} selected{% endif %}>
-    {{ option.value }}
-  </option>
-  {%- endfor -%}
-</select>
-```
-
-**File**: Active filter pills template (CHECK/MODIFY if needed)
-
-Verify remove links have `data-remove-filter-key`:
-
-```liquid
-{%- for filter in filterUI.activeFilters -%}
-<span class="filter-active">
-  {{ filter.key }}: {{ filter.value }}
-  <a href="{{ filter.removeUrl }}" data-remove-filter-key="{{ filter.removeFilterKey }}">✕</a>
-</span>
-{%- endfor -%}
-```
-
-### 4. Add No-Results Element
+### 7. Add empty-state element
 
 **File**: `/src/_includes/filtered-items-section.html` (MODIFY)
 
-Add no-results message after the items list:
-
+**Before:**
 ```liquid
 <div class="filtered-items">
+  {{ "icons/spinner.svg" | inline_asset }}
   <div class="filtered-content">
     {{- content -}}
     {%- include "items.html", items: items -%}
-    <p data-empty-state style="display: none;">
-      No products match your filters.
-      <a href="#" class="clear-filters-link">Clear filters</a>
-    </p>
   </div>
 </div>
 ```
 
-**Note**: Uses `data-empty-state` instead of a CSS class. All styling via existing classes + inline `style.display`.
+**After:**
+```liquid
+<div class="filtered-items">
+  {{ "icons/spinner.svg" | inline_asset }}
+  <div class="filtered-content">
+    {{- content -}}
+    {%- include "items.html", items: items -%}
+    <p data-empty-state style="display: none">No items match your filters.</p>
+  </div>
+</div>
+```
+
+**Notes:**
+- Uses `data-empty-state` attribute, not a CSS class
+- Says "items" not "products" - works for properties too
+- Hidden by default via inline style
+- No "clear filters" link needed here - the active filter pills already have "Clear all"
+
+---
 
 ## Testing
 
-### Integration Tests
+### Updated unit tests
 
-**File**: `/test/integration/category-filtering.test.js` (NEW)
+**File**: `/test/unit/ui/category-filter.test.js` (same as Stage 2, pure function tests unchanged)
+
+### Integration tests
+
+**File**: `/test/unit/filters/filter-ui.test.js` (ADD to existing)
 
 ```javascript
-import { describe, expect, test } from "bun:test";
-import { buildFilterUIData } from "#filters/filter-ui.js";
+test("buildAttributeGroups includes filterKey and filterValue", () => {
+  // ... setup ctx and combo with real filter data ...
+  const groups = buildAttributeGroups(ctx, combo);
+  const option = groups[0].options[0];
+  expect(option).toHaveProperty("filterKey");
+  expect(option).toHaveProperty("filterValue");
+});
 
-describe("filter UI data attributes integration", () => {
-  test("filter options include filterKey and filterValue for JS handlers", () => {
-    const filterData = {
-      attributes: { size: ["small", "large"], type: ["basic", "premium"] },
-      displayLookup: {
-        size: "Size",
-        small: "Small",
-        large: "Large",
-        type: "Type",
-        basic: "Basic",
-        premium: "Premium",
-      },
-    };
+test("buildSortGroup includes sortKey on each option", () => {
+  // ... setup ...
+  const group = buildSortGroup(ctx, combo);
+  expect(group.options[0].sortKey).toBe("default");
+  expect(group.options[1].sortKey).toBe("price-asc");
+});
 
-    const validPages = [
-      { path: "size/small" },
-      { path: "size/large" },
-      { path: "type/basic" },
-    ];
-
-    const uiData = buildFilterUIData(
-      filterData,
-      {}, // current filters
-      validPages,
-      "/products",
-      "default",
-      10 // count
-    );
-
-    const sizeGroup = uiData.groups.find(g => g.name === "size");
-    expect(sizeGroup).toBeDefined();
-
-    const smallOption = sizeGroup.options.find(o => o.value === "Small");
-    expect(smallOption.filterKey).toBe("size");
-    expect(smallOption.filterValue).toBe("small");
-    expect(smallOption.url).toBeDefined(); // Still has URL for progressive enhancement
-  });
-
-  test("sort options include sortKey for dropdown value", () => {
-    const filterData = {
-      attributes: {},
-      displayLookup: {},
-    };
-
-    const uiData = buildFilterUIData(
-      filterData,
-      {},
-      [],
-      "/products",
-      "default",
-      10
-    );
-
-    const sortGroup = uiData.groups.find(g => g.name === "sort");
-    expect(sortGroup).toBeDefined();
-
-    const priceAscOption = sortGroup.options.find(o => o.value === "Price: Low to High");
-    expect(priceAscOption.sortKey).toBe("price-asc");
-  });
-
-  test("active filters include removeFilterKey for pill removal", () => {
-    const filterData = {
-      attributes: { size: ["small", "large"] },
-      displayLookup: {
-        size: "Size",
-        small: "Small",
-      },
-    };
-
-    const validPages = [{ path: "size/small" }];
-
-    const uiData = buildFilterUIData(
-      filterData,
-      { size: "small" }, // active filter
-      validPages,
-      "/products",
-      "default",
-      5
-    );
-
-    expect(uiData.hasActiveFilters).toBe(true);
-    expect(uiData.activeFilters).toHaveLength(1);
-    expect(uiData.activeFilters[0].removeFilterKey).toBe("size");
-    expect(uiData.activeFilters[0].removeUrl).toBeDefined();
-  });
+test("buildActiveFilters includes removeFilterKey", () => {
+  // ... setup with active filters ...
+  const active = buildActiveFilters(ctx, combo);
+  expect(active[0]).toHaveProperty("removeFilterKey");
 });
 ```
 
-### Manual Testing Checklist
+### Manual verification
 
-1. **Build and serve**:
-   ```bash
-   bun run build
-   bun run serve
-   ```
+1. `bun run build && bun run serve`
+2. Navigate to a category page with filters
+3. Click a filter option - products filter instantly, no page load
+4. Click a second filter - AND logic, fewer products shown
+5. Click x on an active filter pill - that filter removed
+6. Click "Clear all" - all products shown
+7. Change sort dropdown - products reorder, no page load
+8. Apply filters that match zero items - "No items match" message appears
+9. On a non-filter page (e.g. news), sort dropdown still navigates (sort-dropdown.js)
+10. No JavaScript errors in console
 
-2. **Navigate to category page**: `/categories/widgets/`
+---
 
-3. **Test filter clicks**:
-   - ✅ Click a filter option (e.g., "Small")
-   - ✅ Products filter instantly (no page load)
-   - ✅ Filter option shows active state
-   - ✅ URL does NOT change yet (Stage 4 adds URL management)
+## Files changed
 
-4. **Test multiple filters**:
-   - ✅ Click another filter (e.g., "Premium")
-   - ✅ Only products matching BOTH filters show
-   - ✅ Both filters show active state
+| Action | File | Change |
+|--------|------|--------|
+| Modify | `/src/_lib/public/ui/category-filter.js` | Replace Stage 2 version (~110 lines) |
+| Modify | `/src/_includes/item-filter.html` | +1 data attribute on wrapper, +1 on remove links |
+| Modify | `/src/_includes/filter-options-list.html` | +1 data attributes on links |
+| Modify | `/src/_includes/filter-sort-dropdown.html` | +1 data attribute on options |
+| Modify | `/src/_lib/filters/filter-ui.js` | +3 fields across 3 functions |
+| Modify | `/src/_includes/filtered-items-section.html` | +1 empty-state `<p>` |
 
-5. **Test sort dropdown**:
-   - ✅ Select "Price: Low to High"
-   - ✅ Products reorder instantly
-   - ✅ No page load
+Zero new CSS classes. All JS hooks use data attributes. All selectors target existing markup structure.
 
-6. **Test active filter pills**:
-   - ✅ Active filters appear as pills/chips
-   - ✅ Click ✕ on a pill
-   - ✅ That filter removes, products update
+## Rollback
 
-7. **Test "Clear all"**:
-   - ✅ Apply multiple filters
-   - ✅ Click "Clear all filters" link
-   - ✅ All products show again
-
-8. **Test no-results state**:
-   - ✅ Apply filters that match zero products
-   - ✅ "No products match" message appears (uses existing markup + inline styles)
-   - ✅ Product list hidden
-   - ✅ Click "Clear filters" in message
-   - ✅ All products show again
-
-9. **Test browser console**:
-   - ✅ No JavaScript errors
-   - ✅ No 404s or network errors
-
-## Verification Checklist
-
-- ✅ Filter buttons work without page navigation
-- ✅ Sort dropdown works without page navigation
-- ✅ Active filter pills display correctly
-- ✅ Remove filter buttons work
-- ✅ Clear all filters works
-- ✅ No-results state appears when appropriate
-- ✅ No-results "clear filters" link works
-- ✅ No JavaScript errors in console
-- ✅ Integration tests pass: `bun test test/integration/category-filtering.test.js`
-- ✅ Unit tests still pass: `bun test test/unit/ui/category-filter.test.js`
-
-## Files Changed
-
-- ✅ Modified: `/src/_lib/public/ui/category-filter.js` (~100 lines added)
-- ✅ Modified: `/src/_lib/filters/filter-ui.js` (~6 lines added across 3 functions)
-- ✅ Modified: `/src/_includes/filtered-items-section.html` (~5 lines added)
-- ✅ Created: `/test/integration/category-filtering.test.js` (~80 lines)
-- ✅ Check/modify: Filter templates if data attributes not auto-populated
-
-## Known Limitations (Fixed in Stage 4)
-
-⚠️ URL does not update when filters applied (no bookmarking/sharing yet)
-⚠️ Browser back/forward buttons don't work yet
-⚠️ Cannot load page with filters from URL
-⚠️ Old filter pages still generated (build time not improved yet)
-
-These are intentional - Stage 4 adds URL management and migration.
-
-## Rollback Plan
-
-If issues arise:
-1. Revert changes to `category-filter.js` (keep Stage 2 version with `window.__categoryFilter`)
-2. Revert changes to `filter-ui.js`
-3. Remove no-results element
-4. Run `bun run build`
-
-## Next Stage
-
-Stage 4 will add:
-- URL management (History API)
-- Feature flag to disable old prerendered pages
-- Redirects for old URLs
-- Build time improvements
+Revert `category-filter.js` to Stage 2 version, remove data attributes from templates, revert filter-ui.js additions. Existing sort-dropdown.js and filter navigation continue working.

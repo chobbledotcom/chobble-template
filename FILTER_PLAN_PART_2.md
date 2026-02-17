@@ -2,382 +2,241 @@
 
 ## Goal
 
-Create the core JavaScript filtering and sorting engine that reads data attributes and shows/hides products. No UI integration yet - just the core logic.
+Create the core JavaScript module that reads data attributes, filters items, sorts them, and shows/hides via `display: none`. No UI wiring yet - just the engine with a temporary console API for manual testing.
 
 ## Prerequisites
 
-- Stage 1 completed: `data-filter-item` attributes exist on all list items
+- Stage 1 complete: `data-filter-item` attributes present on filterable `<li>` elements
 
 ## Success Criteria
 
-✅ JavaScript parses all product data from DOM on page load
-✅ Filtering logic correctly matches products against filter criteria
-✅ Sorting logic correctly orders products by price/name/order
-✅ Show/hide logic works (display: none)
-✅ Unit tests pass for all core functions
-✅ No errors in browser console
+- JS parses all product data from DOM on page load
+- Filtering correctly matches items against filter criteria
+- Sorting correctly orders by price/name/DOM-position
+- Show/hide works via `style.display`
+- Unit tests pass for all pure functions
+- No console errors
+
+---
 
 ## Implementation Steps
 
-### 1. Create Core Filtering Engine
+### 1. Create the filtering module
 
 **File**: `/src/_lib/public/ui/category-filter.js` (NEW)
 
 ```javascript
 import { onReady } from "#public/utils/on-ready.js";
-import { normalize } from "#filters/filter-core.js";
 
-// State (scoped to module)
-let allItems = [];
-let activeFilters = {};
-let activeSortKey = "default";
+// ── Pure functions (inlined to avoid pulling server-side modules into bundle) ──
 
-// Sort comparators (mirror filter-core.js SORT_OPTIONS)
-const SORT_COMPARATORS = {
-  'default': (a, b) => a.data.order - b.data.order,
-  'price-asc': (a, b) => a.data.price - b.data.price,
-  'price-desc': (a, b) => b.data.price - a.data.price,
-  'name-asc': (a, b) => a.data.title.localeCompare(b.data.title),
-  'name-desc': (a, b) => b.data.title.localeCompare(a.data.title),
+// Mirrors filter-core.js normalize(), but we inline it here because
+// filter-core.js imports #toolkit/fp/array.js, #toolkit/fp/memoize.js, etc.
+// which are server-only modules that would bloat or break the client bundle.
+const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+// Mirrors filter-core.js filterToPath() - sorted key/value pairs joined by /
+const filterToPath = (filters) => {
+  const keys = Object.keys(filters).sort();
+  if (keys.length === 0) return "";
+  return keys.flatMap((k) => [encodeURIComponent(k), encodeURIComponent(filters[k])]).join("/");
 };
 
-// Parse all li[data-filter-item] once on page load
+// ── Sort comparators ──
+
+const SORT_KEYS = {
+  "default": (a, b) => a.order - b.order,
+  "price-asc": (a, b) => a.data.price - b.data.price,
+  "price-desc": (a, b) => b.data.price - a.data.price,
+  "name-asc": (a, b) => a.data.title.localeCompare(b.data.title),
+  "name-desc": (a, b) => b.data.title.localeCompare(a.data.title),
+};
+
+// ── Core logic ──
+
 const parseItemsFromDOM = () => {
   const items = [];
-  const elements = document.querySelectorAll('li[data-filter-item]');
-
-  for (const li of elements) {
-    try {
-      const data = JSON.parse(li.dataset.filterItem);
-      items.push({ element: li, data });
-    } catch (e) {
-      console.warn('Failed to parse filter data:', li, e);
-    }
+  for (const li of document.querySelectorAll("li[data-filter-item]")) {
+    const data = JSON.parse(li.dataset.filterItem);
+    items.push({ element: li, data, order: items.length });
   }
-
   return items;
 };
 
-// Check if item matches all active filters
 const itemMatchesFilters = (item, filters) => {
   for (const [key, value] of Object.entries(filters)) {
-    const itemValue = item.data.filters[key];
-    if (!itemValue || normalize(itemValue) !== normalize(value)) {
-      return false;
-    }
+    if (item.data.filters[key] !== value) return false;
   }
   return true;
 };
 
-// Main filtering and sorting logic
-const applyFiltersAndSort = () => {
-  // Filter items
-  let matchedItems = allItems.filter(item =>
-    itemMatchesFilters(item, activeFilters)
-  );
+const applyFiltersAndSort = (allItems, activeFilters, activeSortKey) => {
+  const matched = allItems.filter((item) => itemMatchesFilters(item, activeFilters));
+  const comparator = SORT_KEYS[activeSortKey] || SORT_KEYS.default;
+  matched.sort(comparator);
 
-  // Sort items
-  const comparator = SORT_COMPARATORS[activeSortKey] || SORT_COMPARATORS.default;
-  matchedItems.sort(comparator);
-
-  // Show/hide items (O(n) operation, fast for hundreds of items)
   for (const item of allItems) {
-    item.element.style.display =
-      matchedItems.includes(item) ? '' : 'none';
+    item.element.style.display = matched.includes(item) ? "" : "none";
   }
 
-  // Log for testing/debugging (Stage 2 only)
-  console.log(`Filtered: ${matchedItems.length} of ${allItems.length} items`);
-  console.log('Active filters:', activeFilters);
-  console.log('Sort key:', activeSortKey);
+  return matched.length;
 };
 
-// Initialize on page load
+// ── Initialisation ──
+
 onReady(() => {
-  const filterContainer = document.querySelector('.item-filter');
-  if (!filterContainer) return; // No filters on this page
+  const container = document.querySelector("[data-filter-container]");
+  if (!container) return;
 
-  allItems = parseItemsFromDOM();
-  console.log(`Parsed ${allItems.length} items from DOM`);
+  const allItems = parseItemsFromDOM();
 
-  // Stage 2: Manual testing via browser console
-  // Expose functions globally for testing
-  window.__categoryFilter = {
-    allItems,
-    setFilters: (filters) => {
-      activeFilters = filters;
-      applyFiltersAndSort();
-    },
-    setSort: (sortKey) => {
-      activeSortKey = sortKey;
-      applyFiltersAndSort();
-    },
-    reset: () => {
-      activeFilters = {};
-      activeSortKey = 'default';
-      applyFiltersAndSort();
-    },
+  // Temporary console API for Stage 2 manual testing (removed in Stage 3)
+  window.__filter = {
+    apply: (filters, sort) => applyFiltersAndSort(allItems, filters, sort || "default"),
+    reset: () => applyFiltersAndSort(allItems, {}, "default"),
+    items: allItems,
   };
-
-  console.log('Category filter initialized. Test via window.__categoryFilter');
-  applyFiltersAndSort(); // Initial render (shows all)
 });
 
-// Export for testing
-export { parseItemsFromDOM, itemMatchesFilters, SORT_COMPARATORS };
+export { normalize, filterToPath, parseItemsFromDOM, itemMatchesFilters, applyFiltersAndSort, SORT_KEYS };
 ```
 
-### 2. Add to Bundle
+**Key decisions:**
+
+- **`normalize` and `filterToPath` are inlined**, not imported from `#filters/filter-core.js`. The server-side module imports `#toolkit/fp/array.js`, `#toolkit/fp/memoize.js`, `#toolkit/fp/grouping.js` and more. Pulling that dependency tree into the client bundle would bloat it or break it. These two functions are 3 lines each - inlining is the right call.
+
+- **No runtime normalisation needed on filter matching.** Both the data-attribute values (slugified at build time by `parseFilterAttributes` via `slugify()`) and the filter option values in the UI (also slugified at build time) are already normalised. A simple `===` comparison works. `normalize` is only needed for URL parsing (Stage 4).
+
+- **DOM position as default sort order.** `items.push({ ..., order: items.length })` captures the render order. This replaces the `forloop.index0` approach that would have broken inside `cachedBlock`.
+
+- **`[data-filter-container]` instead of `.item-filter`.** Uses a data attribute on the filter container instead of relying on a CSS class. We add this attribute to `item-filter.html` in Stage 3. For now, the init function just bails out.
+
+- **Pure functions are exported for testing.** The module's side effects (DOM manipulation) only run inside `onReady`. The pure functions can be imported and tested in isolation.
+
+- **No `console.warn` on parse failure.** The `JSON.parse` call has no try/catch - if the server generates invalid JSON, it should fail loudly so the developer notices. This follows the project's "fail fast, never mask" principle.
+
+### 2. Add to bundle
 
 **File**: `/src/_lib/public/bundle.js` (MODIFY)
 
+Add after line 18 (after sort-dropdown.js):
+
 ```javascript
-// Add after line 18 (with other UI imports)
 import "#public/ui/category-filter.js";
 ```
 
+---
+
 ## Testing
 
-### Unit Tests
+### Unit tests
 
 **File**: `/test/unit/ui/category-filter.test.js` (NEW)
 
 ```javascript
-import { describe, expect, test, beforeEach } from "bun:test";
-import { parseItemsFromDOM, itemMatchesFilters, SORT_COMPARATORS } from "#public/ui/category-filter.js";
-import { JSDOM } from "jsdom";
+import { describe, expect, test } from "bun:test";
+import {
+  normalize,
+  filterToPath,
+  itemMatchesFilters,
+  SORT_KEYS,
+} from "#public/ui/category-filter.js";
 
-describe("category-filter parsing", () => {
-  test("parseItemsFromDOM extracts all products with valid JSON", () => {
-    const dom = new JSDOM(`
-      <ul class="items">
-        <li data-filter-item='{"slug":"a","title":"product a","price":10,"order":0,"filters":{"size":"small"}}'>A</li>
-        <li data-filter-item='{"slug":"b","title":"product b","price":20,"order":1,"filters":{"size":"large"}}'>B</li>
-      </ul>
-    `);
-    global.document = dom.window.document;
-
-    const items = parseItemsFromDOM();
-
-    expect(items).toHaveLength(2);
-    expect(items[0].data.slug).toBe("a");
-    expect(items[0].data.price).toBe(10);
-    expect(items[0].element.tagName).toBe("LI");
-    expect(items[1].data.slug).toBe("b");
+describe("normalize", () => {
+  test("lowercases and strips non-alphanumeric characters", () => {
+    expect(normalize("Hello World!")).toBe("helloworld");
+    expect(normalize("Price: £50")).toBe("price50");
   });
 
-  test("parseItemsFromDOM handles malformed JSON gracefully", () => {
-    const dom = new JSDOM(`
-      <ul class="items">
-        <li data-filter-item='{"slug":"valid","price":10,"order":0,"filters":{}}'>Valid</li>
-        <li data-filter-item='invalid json here'>Invalid</li>
-        <li data-filter-item='{"slug":"also-valid","price":20,"order":1,"filters":{}}'>Also Valid</li>
-      </ul>
-    `);
-    global.document = dom.window.document;
-
-    const items = parseItemsFromDOM();
-
-    // Should skip invalid JSON but parse valid items
-    expect(items).toHaveLength(2);
-    expect(items[0].data.slug).toBe("valid");
-    expect(items[1].data.slug).toBe("also-valid");
+  test("matches server-side normalize for slugified values", () => {
+    // Slugified values are already lowercase alphanumeric + hyphens
+    // normalize strips the hyphens, which is fine for comparison
+    expect(normalize("extra-large")).toBe("extralarge");
   });
 });
 
-describe("category-filter matching", () => {
-  test("itemMatchesFilters returns true when all filters match", () => {
-    const item = {
-      data: {
-        filters: { size: "small", type: "premium" }
-      }
-    };
+describe("filterToPath", () => {
+  test("sorts keys alphabetically", () => {
+    expect(filterToPath({ size: "small", color: "red" })).toBe("color/red/size/small");
+  });
 
+  test("returns empty string for no filters", () => {
+    expect(filterToPath({})).toBe("");
+  });
+
+  test("encodes special characters", () => {
+    expect(filterToPath({ "a&b": "c/d" })).toBe("a%26b/c%2Fd");
+  });
+});
+
+describe("itemMatchesFilters", () => {
+  const item = { data: { filters: { size: "small", type: "premium" } } };
+
+  test("matches when all filters match", () => {
     expect(itemMatchesFilters(item, { size: "small" })).toBe(true);
-    expect(itemMatchesFilters(item, { type: "premium" })).toBe(true);
     expect(itemMatchesFilters(item, { size: "small", type: "premium" })).toBe(true);
   });
 
-  test("itemMatchesFilters returns false when any filter doesn't match", () => {
-    const item = {
-      data: {
-        filters: { size: "small", type: "premium" }
-      }
-    };
-
+  test("rejects when any filter does not match", () => {
     expect(itemMatchesFilters(item, { size: "large" })).toBe(false);
     expect(itemMatchesFilters(item, { size: "small", type: "basic" })).toBe(false);
   });
 
-  test("itemMatchesFilters returns true for empty filter set", () => {
-    const item = {
-      data: {
-        filters: { size: "small" }
-      }
-    };
-
+  test("matches everything when filter set is empty", () => {
     expect(itemMatchesFilters(item, {})).toBe(true);
   });
 
-  test("itemMatchesFilters handles missing filter attributes", () => {
-    const item = {
-      data: {
-        filters: { size: "small" }
-      }
-    };
-
-    // Item doesn't have 'color' attribute
-    expect(itemMatchesFilters(item, { color: "blue" })).toBe(false);
+  test("rejects when item lacks the filter attribute entirely", () => {
+    expect(itemMatchesFilters(item, { color: "red" })).toBe(false);
   });
 });
 
-describe("category-filter sorting", () => {
-  test("default sort uses order index", () => {
-    const items = [
-      { data: { order: 2 } },
-      { data: { order: 0 } },
-      { data: { order: 1 } },
-    ];
-
-    items.sort(SORT_COMPARATORS.default);
-
-    expect(items[0].data.order).toBe(0);
-    expect(items[1].data.order).toBe(1);
-    expect(items[2].data.order).toBe(2);
+describe("SORT_KEYS", () => {
+  test("default sorts by order (DOM position)", () => {
+    const items = [{ order: 2 }, { order: 0 }, { order: 1 }];
+    items.sort(SORT_KEYS.default);
+    expect(items.map((i) => i.order)).toEqual([0, 1, 2]);
   });
 
-  test("price-asc sorts by price ascending", () => {
-    const items = [
-      { data: { price: 100 } },
-      { data: { price: 50 } },
-      { data: { price: 75 } },
-    ];
-
-    items.sort(SORT_COMPARATORS['price-asc']);
-
-    expect(items[0].data.price).toBe(50);
-    expect(items[1].data.price).toBe(75);
-    expect(items[2].data.price).toBe(100);
+  test("price-asc sorts cheapest first", () => {
+    const items = [{ data: { price: 99 } }, { data: { price: 10 } }, { data: { price: 50 } }];
+    items.sort(SORT_KEYS["price-asc"]);
+    expect(items.map((i) => i.data.price)).toEqual([10, 50, 99]);
   });
 
-  test("price-desc sorts by price descending", () => {
-    const items = [
-      { data: { price: 50 } },
-      { data: { price: 100 } },
-      { data: { price: 75 } },
-    ];
-
-    items.sort(SORT_COMPARATORS['price-desc']);
-
-    expect(items[0].data.price).toBe(100);
-    expect(items[1].data.price).toBe(75);
-    expect(items[2].data.price).toBe(50);
-  });
-
-  test("name-asc sorts alphabetically", () => {
-    const items = [
-      { data: { title: "zebra" } },
-      { data: { title: "apple" } },
-      { data: { title: "mango" } },
-    ];
-
-    items.sort(SORT_COMPARATORS['name-asc']);
-
-    expect(items[0].data.title).toBe("apple");
-    expect(items[1].data.title).toBe("mango");
-    expect(items[2].data.title).toBe("zebra");
-  });
-
-  test("name-desc sorts reverse alphabetically", () => {
-    const items = [
-      { data: { title: "apple" } },
-      { data: { title: "zebra" } },
-      { data: { title: "mango" } },
-    ];
-
-    items.sort(SORT_COMPARATORS['name-desc']);
-
-    expect(items[0].data.title).toBe("zebra");
-    expect(items[1].data.title).toBe("mango");
-    expect(items[2].data.title).toBe("apple");
+  test("name-desc sorts Z to A", () => {
+    const items = [{ data: { title: "apple" } }, { data: { title: "zebra" } }];
+    items.sort(SORT_KEYS["name-desc"]);
+    expect(items.map((i) => i.data.title)).toEqual(["zebra", "apple"]);
   });
 });
 ```
 
-**Run tests**:
-```bash
-bun test test/unit/ui/category-filter.test.js
-```
+**Test quality:**
+- Tests pure exported functions, not DOM setup
+- Not tautological: `filterToPath` tests verify key sorting, `itemMatchesFilters` tests verify rejection logic
+- Each test has one reason to fail
 
-### Manual Browser Testing
+### Manual verification
 
-1. **Build and serve**:
-   ```bash
-   bun run build
-   bun run serve
-   ```
+1. `bun run build && bun run serve`
+2. Open a category page, open browser console
+3. `window.__filter.items` - should list parsed products
+4. `window.__filter.apply({ size: "small" })` - products filter (check DOM)
+5. `window.__filter.apply({}, "price-asc")` - products reorder
+6. `window.__filter.reset()` - all products visible again
+7. No console errors
 
-2. **Open category page**: Navigate to `/categories/widgets/`
+---
 
-3. **Open browser console** and test the exposed API:
+## Files changed
 
-   ```javascript
-   // Check initialization
-   window.__categoryFilter
-   // Should show: { allItems: [...], setFilters: f, setSort: f, reset: f }
+| Action | File | Lines |
+|--------|------|-------|
+| Create | `/src/_lib/public/ui/category-filter.js` | ~70 |
+| Create | `/test/unit/ui/category-filter.test.js` | ~80 |
+| Modify | `/src/_lib/public/bundle.js` | +1 |
 
-   // Test filtering by size
-   window.__categoryFilter.setFilters({ size: "small" })
-   // Check: Only "small" products visible on page
+## Rollback
 
-   // Test multiple filters
-   window.__categoryFilter.setFilters({ size: "small", type: "premium" })
-   // Check: Only products matching BOTH filters visible
-
-   // Test sorting by price
-   window.__categoryFilter.setSort("price-asc")
-   // Check: Products reorder (cheapest first)
-
-   // Test sorting by name
-   window.__categoryFilter.setSort("name-asc")
-   // Check: Products reorder alphabetically
-
-   // Reset to default
-   window.__categoryFilter.reset()
-   // Check: All products visible, default order
-   ```
-
-4. **Verify in DevTools**:
-   - Elements tab: Check `style="display: none"` on hidden items
-   - Console: No errors
-   - Network tab: No page loads when filtering
-
-## Verification Checklist
-
-- ✅ Console shows "Parsed N items from DOM"
-- ✅ Console shows "Category filter initialized"
-- ✅ `window.__categoryFilter` is available in console
-- ✅ `setFilters({ size: "small" })` hides non-matching products
-- ✅ `setSort("price-asc")` reorders products by price
-- ✅ `reset()` shows all products again
-- ✅ No JavaScript errors in console
-- ✅ Unit tests pass: `bun test test/unit/ui/category-filter.test.js`
-
-## Files Changed
-
-- ✅ Created: `/src/_lib/public/ui/category-filter.js` (~120 lines)
-- ✅ Created: `/test/unit/ui/category-filter.test.js` (~150 lines)
-- ✅ Modified: `/src/_lib/public/bundle.js` (+1 line)
-
-## Rollback Plan
-
-If issues arise:
-1. Remove import from `bundle.js`
-2. Delete `category-filter.js`
-3. Run `bun run build`
-
-No changes to templates or existing functionality.
-
-## Next Stage
-
-Stage 3 will connect this engine to the filter UI (buttons, dropdowns) and remove the `window.__categoryFilter` debug API.
+Remove import from `bundle.js`, delete `category-filter.js`. No template or config changes.

@@ -2,19 +2,21 @@
 
 ## Goal
 
-Add `data-filter-item` JSON attributes to product list items without affecting existing functionality. This stage creates the data layer that will power client-side filtering.
+Add `data-filter-item` JSON attributes to filterable list items. This stage creates the data layer that powers client-side filtering.
 
 ## Success Criteria
 
-✅ Each `<li>` in category pages has `data-filter-item` with valid JSON
-✅ JSON includes: slug, title, price, order, filters
-✅ Build completes successfully
-✅ Existing filter pages still work (no breaking changes)
-✅ Unit tests pass for JSON generation
+- Each product/property `<li>` has `data-filter-item` with valid JSON
+- JSON includes: slug, title, price, filters
+- Non-filterable items (events, news) are untouched
+- Build completes, existing filter pages still work
+- Unit tests pass
+
+---
 
 ## Implementation Steps
 
-### 1. Create Eleventy Filter Plugin
+### 1. Create Eleventy filter plugin
 
 **File**: `/src/_lib/eleventy/item-filter-data.js` (NEW)
 
@@ -23,204 +25,146 @@ import { parseFilterAttributes } from "#filters/filter-core.js";
 
 const getLowestPrice = (options) => {
   if (!options?.length) return 0;
-  return Math.min(...options.map(o => o.unit_price || 0));
+  return Math.min(...options.map((o) => o.unit_price || 0));
 };
 
-const buildFilterData = (item, index) => ({
+const buildFilterData = (item) => ({
   slug: item.fileSlug,
   title: item.data.title.toLowerCase(),
   price: getLowestPrice(item.data.options),
-  order: index,
-  filters: parseFilterAttributes(item.data.filter_attributes || []),
+  filters: parseFilterAttributes(item.data.filter_attributes),
 });
 
 export const configureItemFilterData = (eleventyConfig) => {
-  eleventyConfig.addFilter("toFilterJson", (item, index) =>
-    JSON.stringify(buildFilterData(item, index))
+  eleventyConfig.addFilter("toFilterJson", (item) =>
+    JSON.stringify(buildFilterData(item)),
   );
 };
 ```
 
-### 2. Register Plugin
+**Key decisions:**
 
-**File**: `.eleventy.js` (MODIFY)
+- **No `order` field.** The items are already rendered in the correct order by Eleventy. The client-side JS uses DOM position as the default sort index. This avoids the `forloop.index0` problem entirely: `items.html` (line 11) wraps `list-item.html` inside `cachedBlock`, so the Liquid `forloop` object is not reliably available inside the include. DOM position is the correct source of truth.
 
-```javascript
-import { configureItemFilterData } from "#eleventy/item-filter-data.js";
+- **No fallback for missing `filter_attributes`.** `parseFilterAttributes` already handles `undefined` by returning `{}` (filter-core.js:57-58). Items without `filter_attributes` get `filters: {}`.
 
-// Add after other filter registrations (around line 36)
-configureItemFilterData(eleventyConfig);
-```
+- **`getLowestPrice` returns 0 for items without options.** Non-priced items sort to the top in price-asc, which is the expected behaviour.
 
-### 3. Update List Item Template
+### 2. Only add data attribute to filterable items
 
 **File**: `/src/_includes/list-item.html` (MODIFY)
 
-**Before**:
+**Before:**
 ```liquid
 <li>
   {%- for field in listItemFields -%}
 ```
 
-**After**:
+**After:**
 ```liquid
-<li data-filter-item="{{ item | toFilterJson: forloop.index0 }}">
+<li{% if item.data.filter_attributes %} data-filter-item="{{ item | toFilterJson }}"{% endif %}>
   {%- for field in listItemFields -%}
 ```
 
-**Note**: `forloop.index0` comes from the parent loop in `items.html`
+**Why conditional:** `list-item.html` is shared by products, properties, events, news, locations and more. Only products and properties have `filter_attributes`. Adding a JSON blob to every event and news `<li>` wastes bytes and confuses client-side code.
+
+**Caching note:** `items.html` wraps this include in `cachedBlock` keyed on `item.url + listItemFields`. Since `filter_attributes` is constant per item, the cached output is correct.
+
+### 3. Register plugin in `.eleventy.js`
+
+**File**: `.eleventy.js` (MODIFY)
+
+```javascript
+import { configureItemFilterData } from "#eleventy/item-filter-data.js";
+```
+
+Add the call near the other filter registrations (around line 109):
+
+```javascript
+configureItemFilterData(eleventyConfig);
+```
+
+---
 
 ## Testing
 
-### Unit Tests
+### Unit tests
 
 **File**: `/test/unit/eleventy/item-filter-data.test.js` (NEW)
 
 ```javascript
 import { describe, expect, test } from "bun:test";
 import { configureItemFilterData } from "#eleventy/item-filter-data.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
-describe("toFilterJson filter", () => {
-  let toFilterJson;
-
-  // Mock Eleventy config to extract the filter
-  const mockConfig = {
-    addFilter: (name, fn) => {
-      if (name === "toFilterJson") toFilterJson = fn;
-    },
-  };
-
+describe("toFilterJson", () => {
+  const mockConfig = createMockEleventyConfig();
   configureItemFilterData(mockConfig);
-
-  test("generates valid JSON with all required fields", () => {
-    const item = {
-      fileSlug: "test-product",
-      data: {
-        title: "Test Product",
-        options: [{ unit_price: 99.99 }, { unit_price: 79.99 }],
-        filter_attributes: [
-          { name: "Size", value: "Large" },
-          { name: "Color", value: "Blue" },
-        ],
-      },
-    };
-
-    const json = toFilterJson(item, 5);
-    const parsed = JSON.parse(json);
-
-    expect(parsed.slug).toBe("test-product");
-    expect(parsed.title).toBe("test product");
-    expect(parsed.price).toBe(79.99); // lowest price
-    expect(parsed.order).toBe(5);
-    expect(parsed.filters).toEqual({
-      size: "large",
-      color: "blue",
-    });
-  });
-
-  test("handles items without options", () => {
-    const item = {
-      fileSlug: "no-options",
-      data: {
-        title: "No Options Item",
-        filter_attributes: [],
-      },
-    };
-
-    const json = toFilterJson(item, 0);
-    const parsed = JSON.parse(json);
-
-    expect(parsed.price).toBe(0);
-    expect(parsed.filters).toEqual({});
-  });
-
-  test("handles items with empty filter_attributes", () => {
-    const item = {
-      fileSlug: "test",
-      data: {
-        title: "Test",
-        options: [{ unit_price: 10 }],
-        filter_attributes: null,
-      },
-    };
-
-    const json = toFilterJson(item, 0);
-    const parsed = JSON.parse(json);
-
-    expect(parsed.filters).toEqual({});
-  });
+  const toFilterJson = mockConfig.getFilter("toFilterJson");
 
   test("lowercases title for case-insensitive sorting", () => {
     const item = {
       fileSlug: "test",
+      data: { title: "UPPERCASE Product", filter_attributes: [] },
+    };
+    const result = JSON.parse(toFilterJson(item));
+    expect(result.title).toBe("uppercase product");
+  });
+
+  test("extracts lowest option price", () => {
+    const item = {
+      fileSlug: "test",
       data: {
-        title: "UPPERCASE TITLE",
+        title: "Test",
+        options: [{ unit_price: 100 }, { unit_price: 25 }, { unit_price: 50 }],
         filter_attributes: [],
       },
     };
+    const result = JSON.parse(toFilterJson(item));
+    expect(result.price).toBe(25);
+  });
 
-    const json = toFilterJson(item, 0);
-    const parsed = JSON.parse(json);
+  test("slugifies filter attribute names and values", () => {
+    const item = {
+      fileSlug: "test",
+      data: {
+        title: "Test",
+        filter_attributes: [{ name: "Frame Size", value: "Extra Large" }],
+      },
+    };
+    const result = JSON.parse(toFilterJson(item));
+    expect(result.filters["frame-size"]).toBe("extra-large");
+  });
 
-    expect(parsed.title).toBe("uppercase title");
+  test("returns empty filters for items without filter_attributes", () => {
+    const item = { fileSlug: "test", data: { title: "Test" } };
+    const result = JSON.parse(toFilterJson(item));
+    expect(result.filters).toEqual({});
   });
 });
 ```
 
-### Manual Verification
+**Test quality:** Each test verifies a specific _transformation_ (lowercasing, price extraction, slugification), not just input passthrough.
 
-1. **Build the site**:
-   ```bash
-   bun run build
-   ```
+### Manual verification
 
-2. **Start dev server**:
-   ```bash
-   bun run serve
-   ```
+1. `bun run build` - completes successfully
+2. `bun run serve` - navigate to a category page
+3. DevTools Elements: product `<li>` elements have `data-filter-item`
+4. Event/news `<li>` elements do NOT have `data-filter-item`
+5. Existing filter pages still work
 
-3. **Inspect HTML** (navigate to `/categories/widgets/`):
-   - Open DevTools → Elements
-   - Find a `<li>` element in the products list
-   - Verify it has `data-filter-item` attribute
-   - Verify the JSON is valid and complete
+---
 
-4. **Check for regressions**:
-   - Existing filter pages should still work (`/categories/widgets/search/size/small/`)
-   - Products should still display correctly
-   - Cart buttons should still work
+## Files changed
 
-### Expected Output
+| Action | File | Lines |
+|--------|------|-------|
+| Create | `/src/_lib/eleventy/item-filter-data.js` | ~20 |
+| Create | `/test/unit/eleventy/item-filter-data.test.js` | ~50 |
+| Modify | `.eleventy.js` | +2 |
+| Modify | `/src/_includes/list-item.html` | 1 line change |
 
-**HTML should look like**:
-```html
-<li data-filter-item='{"slug":"widget-pro","title":"widget pro","price":99.99,"order":0,"filters":{"size":"large","type":"premium"}}'>
-  <a class="image-link" href="/products/widget-pro/#content">
-    <img src="..." alt="Widget Pro">
-  </a>
-  <h3><a href="/products/widget-pro/#content">Widget Pro</a></h3>
-  <p class="price">£99.99</p>
-  ...
-</li>
-```
+## Rollback
 
-## Files Changed
-
-- ✅ Created: `/src/_lib/eleventy/item-filter-data.js` (~25 lines)
-- ✅ Created: `/test/unit/eleventy/item-filter-data.test.js` (~80 lines)
-- ✅ Modified: `.eleventy.js` (+2 lines)
-- ✅ Modified: `/src/_includes/list-item.html` (+1 line change)
-
-## Rollback Plan
-
-If issues arise:
-1. Remove import from `.eleventy.js`
-2. Remove `data-filter-item` from `list-item.html`
-3. Delete `item-filter-data.js`
-4. Run `bun run build`
-
-No existing functionality is affected - data attributes are purely additive.
-
-## Next Stage
-
-Stage 2 will create the client-side filtering engine that reads and uses this data.
+Remove conditional from `list-item.html`, remove import from `.eleventy.js`, delete new files. Purely additive change - nothing existing is affected.
