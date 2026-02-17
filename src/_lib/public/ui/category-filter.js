@@ -7,6 +7,10 @@ import {
   updateOptionActiveStates,
   updateOptionVisibility,
 } from "#public/ui/category-filter-ui.js";
+import {
+  buildFilterURL,
+  parseFiltersFromPath,
+} from "#public/ui/category-filter-url.js";
 import { onReady } from "#public/utils/on-ready.js";
 import { omit } from "#toolkit/fp/object.js";
 
@@ -29,9 +33,18 @@ onReady(() => {
   const labelLookup = buildLabelLookup(container);
   const pillContainer = container.querySelector("[data-active-filters]");
 
+  // Parse initial state from URL if present, else fall back to server-rendered state
+  const urlState = parseFiltersFromPath(window.location.pathname);
+  const hasUrlFilters =
+    Object.keys(urlState.filters).length > 0 || urlState.sortKey !== "default";
+
   const state = {
-    activeFilters: readInitialFilters(container),
-    activeSortKey: readInitialSort(container),
+    activeFilters: hasUrlFilters
+      ? urlState.filters
+      : readInitialFilters(container),
+    activeSortKey: hasUrlFilters
+      ? urlState.sortKey
+      : readInitialSort(container),
     jsHasTakenOver: false,
   };
 
@@ -53,6 +66,19 @@ onReady(() => {
       allItems,
       state.activeFilters,
       matchCount,
+    );
+  };
+
+  const pushURL = () => {
+    const url = buildFilterURL(
+      window.location.pathname,
+      state.activeFilters,
+      state.activeSortKey,
+    );
+    window.history.pushState(
+      { filters: state.activeFilters, sortKey: state.activeSortKey },
+      "",
+      url,
     );
   };
 
@@ -87,6 +113,7 @@ onReady(() => {
     }
 
     renderFilterState();
+    pushURL();
   });
 
   container.addEventListener("click", (e) => {
@@ -99,6 +126,7 @@ onReady(() => {
       state.activeFilters,
     );
     renderFilterState();
+    pushURL();
   });
 
   container.addEventListener("click", (e) => {
@@ -108,6 +136,7 @@ onReady(() => {
     takeOver();
     state.activeFilters = {};
     renderFilterState();
+    pushURL();
   });
 
   container.addEventListener("change", (e) => {
@@ -120,7 +149,30 @@ onReady(() => {
     takeOver();
     state.activeSortKey = select.options[select.selectedIndex].dataset.sortKey;
     renderFilterState();
+    pushURL();
   });
 
+  // Restore state on browser back/forward
+  window.addEventListener("popstate", (e) => {
+    takeOver();
+    if (e.state?.filters) {
+      state.activeFilters = e.state.filters;
+      state.activeSortKey = e.state.sortKey || "default";
+    } else {
+      const parsed = parseFiltersFromPath(window.location.pathname);
+      state.activeFilters = parsed.filters;
+      state.activeSortKey = parsed.sortKey;
+    }
+    renderFilterState();
+  });
+
+  // Initial render
   renderFilterState();
+
+  // Replace current history entry with state so back/forward works from the start
+  window.history.replaceState(
+    { filters: state.activeFilters, sortKey: state.activeSortKey },
+    "",
+    window.location.pathname,
+  );
 });

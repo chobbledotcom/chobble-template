@@ -4,6 +4,10 @@ import {
   applyFiltersAndSort,
   itemMatchesFilters,
 } from "#public/ui/category-filter-engine.js";
+import {
+  buildFilterURL,
+  parseFiltersFromPath,
+} from "#public/ui/category-filter-url.js";
 
 // ============================================
 // Test helpers
@@ -259,5 +263,132 @@ describe("feasibility check logic", () => {
   test("always shows active option as feasible", () => {
     const active = { colour: "red" };
     expect(isOptionFeasible(active, "colour", "red", 2)).toBe(true);
+  });
+});
+
+// ============================================
+// URL helpers
+// ============================================
+
+describe("buildFilterURL", () => {
+  test("builds URL with filters", () => {
+    const url = buildFilterURL(
+      "/categories/widgets/",
+      { colour: "red" },
+      "default",
+    );
+    expect(url).toBe("/categories/widgets/search/colour/red/");
+  });
+
+  test("builds URL with multiple filters in alphabetical key order", () => {
+    const url = buildFilterURL(
+      "/categories/widgets/",
+      { size: "large", colour: "red" },
+      "default",
+    );
+    expect(url).toBe("/categories/widgets/search/colour/red/size/large/");
+  });
+
+  test("builds URL with sort key only", () => {
+    const url = buildFilterURL("/categories/widgets/", {}, "price-asc");
+    expect(url).toBe("/categories/widgets/search/price-asc/");
+  });
+
+  test("builds URL with filters and sort key", () => {
+    const url = buildFilterURL(
+      "/categories/widgets/",
+      { colour: "red" },
+      "name-desc",
+    );
+    expect(url).toBe("/categories/widgets/search/colour/red/name-desc/");
+  });
+
+  test("returns base URL when no filters and default sort", () => {
+    const url = buildFilterURL("/categories/widgets/", {}, "default");
+    expect(url).toBe("/categories/widgets/");
+  });
+
+  test("strips existing /search/ segment from pathname", () => {
+    const url = buildFilterURL(
+      "/categories/widgets/search/colour/red/",
+      { size: "large" },
+      "default",
+    );
+    expect(url).toBe("/categories/widgets/search/size/large/");
+  });
+
+  test("encodes special characters in filter keys and values", () => {
+    const url = buildFilterURL(
+      "/categories/widgets/",
+      { "pet-friendly": "yes" },
+      "default",
+    );
+    expect(url).toBe("/categories/widgets/search/pet-friendly/yes/");
+  });
+});
+
+describe("parseFiltersFromPath", () => {
+  test("parses filters from URL path", () => {
+    const result = parseFiltersFromPath(
+      "/categories/widgets/search/colour/red/",
+    );
+    expect(result).toEqual({ filters: { colour: "red" }, sortKey: "default" });
+  });
+
+  test("parses multiple filters from URL path", () => {
+    const result = parseFiltersFromPath(
+      "/categories/widgets/search/colour/red/size/large/",
+    );
+    expect(result).toEqual({
+      filters: { colour: "red", size: "large" },
+      sortKey: "default",
+    });
+  });
+
+  test("parses sort key from URL path", () => {
+    const result = parseFiltersFromPath(
+      "/categories/widgets/search/price-asc/",
+    );
+    expect(result).toEqual({ filters: {}, sortKey: "price-asc" });
+  });
+
+  test("parses filters and sort key together", () => {
+    const result = parseFiltersFromPath(
+      "/categories/widgets/search/colour/red/name-desc/",
+    );
+    expect(result).toEqual({
+      filters: { colour: "red" },
+      sortKey: "name-desc",
+    });
+  });
+
+  test("returns empty state for path without /search/", () => {
+    const result = parseFiltersFromPath("/categories/widgets/");
+    expect(result).toEqual({ filters: {}, sortKey: "default" });
+  });
+
+  test("decodes URI-encoded keys and values", () => {
+    const result = parseFiltersFromPath(
+      "/categories/widgets/search/pet-friendly/yes/",
+    );
+    expect(result).toEqual({
+      filters: { "pet-friendly": "yes" },
+      sortKey: "default",
+    });
+  });
+
+  test("round-trips with buildFilterURL", () => {
+    const filters = { colour: "red", size: "large" };
+    const sortKey = "price-asc";
+    const url = buildFilterURL("/categories/widgets/", filters, sortKey);
+    const parsed = parseFiltersFromPath(url);
+    expect(parsed).toEqual({ filters, sortKey });
+  });
+
+  test("handles encoded special characters round-trip", () => {
+    const filters = { "pet-friendly": "yes" };
+    const url = buildFilterURL("/categories/widgets/", filters, "default");
+    const parsed = parseFiltersFromPath(url);
+    expect(parsed.filters).toEqual(filters);
   });
 });
