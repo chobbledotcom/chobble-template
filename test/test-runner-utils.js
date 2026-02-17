@@ -71,6 +71,11 @@ export const COMMON_STEPS = {
   lintFix: { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
   knipFix: { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
   typecheck: { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
+  typecheckStrict: {
+    name: "typecheck:strict",
+    cmd: "bun",
+    args: ["run", "typecheck:strict"],
+  },
   cpdFp: { name: "cpd:fp", cmd: "bun", args: ["run", "cpd:fp"] },
   cpdDesignSystem: {
     name: "cpd:design-system",

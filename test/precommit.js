@@ -19,6 +19,7 @@ const steps = [
   COMMON_STEPS.lintFix,
   COMMON_STEPS.knipFix,
   COMMON_STEPS.typecheck,
+  COMMON_STEPS.typecheckStrict,
   COMMON_STEPS.cpdFp,
   COMMON_STEPS.cpdDesignSystem,
   COMMON_STEPS.cpd,
