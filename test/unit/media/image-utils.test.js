@@ -144,6 +144,29 @@ describe("image-utils", () => {
       const styles = buildWrapperStyles(null, "16:9", {}, mockGetAspectRatio);
       expect(styles).not.toContain("max-width");
     });
+
+    test("omits max-width when skipMaxWidth is true", () => {
+      const styles = buildWrapperStyles(
+        null,
+        "16:9",
+        { width: 800 },
+        mockGetAspectRatio,
+        true,
+      );
+      expect(styles).not.toContain("max-width");
+      expect(styles).toContain("aspect-ratio: 16:9");
+    });
+
+    test("includes max-width when skipMaxWidth is false", () => {
+      const styles = buildWrapperStyles(
+        null,
+        "16:9",
+        { width: 800 },
+        mockGetAspectRatio,
+        false,
+      );
+      expect(styles).toContain("max-width: min(800px, 100%)");
+    });
   });
 
   describe("getPathAwareBasename", () => {

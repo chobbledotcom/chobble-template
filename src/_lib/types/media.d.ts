@@ -18,6 +18,7 @@ export type ImageProps = {
   aspectRatio?: string | null;
   loading?: string | null;
   noLqip?: boolean;
+  skipMaxWidth?: boolean;
   document?: Document | null;
 };
 
@@ -33,6 +34,7 @@ export type ComputeImageProps = {
   aspectRatio?: string | null;
   loading?: string | null;
   noLqip?: boolean;
+  skipMaxWidth?: boolean;
 };
 
 /**
