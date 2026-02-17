@@ -1,58 +1,53 @@
-# Stage 4: Migration & URL Management
+# Stage 4 (v2): URL Management, Migration, and Build-Time Reduction
 
 ## Goal
 
-Add URL management for bookmarking/sharing, enable the feature flag to stop generating prerendered filter pages, and clean up.
+Add URL state support (bookmark/share/back-forward), then migrate away from prerendered filter pages behind a feature flag without breaking existing routes.
 
 ## Prerequisites
 
-- Stages 1-3 complete: filtering works end-to-end via UI clicks
+- Stages 1-3 complete and stable
 
 ## Success Criteria
 
-- URLs update when filters/sort applied (bookmarkable, shareable)
-- Direct URLs with filters work on page load
-- Browser back/forward restores filter state
-- Feature flag stops prerendered page generation
-- Build time reduced
-- Old filter URLs handled gracefully
+- URL updates on filter/sort changes
+- Direct filtered URLs hydrate correctly on page load
+- Browser back/forward restores UI state
+- Feature flag can disable prerendered filter pages safely
+- Build time decreases when prerendered pages are disabled
+- Old `/search/...` URLs are handled via explicit routing strategy
 - Full test suite passes
 
 ---
 
 ## Implementation Steps
 
-### 1. Add URL management to category-filter.js
+### 1. Add pure URL helpers to category-filter.js
 
 **File**: `/src/_lib/public/ui/category-filter.js` (MODIFY)
 
-Add three functions and wire them into `init()`:
+Use pure helpers (pathname in, data out), then wire to `window.location.pathname` at runtime:
 
 ```javascript
-// ── URL management ──
-
-const buildFilterURL = (filters, sortKey) => {
-  const basePath = window.location.pathname.split("/search/")[0];
+const buildFilterURL = (pathname, filters, sortKey) => {
+  const basePath = pathname.split("/search/")[0].replace(/\/$/, "");
   const path = filterToPath(filters);
-  const sortSuffix = sortKey && sortKey !== "default" ? sortKey : "";
-  const searchPart = [path, sortSuffix].filter(Boolean).join("/");
+  const suffix = sortKey && sortKey !== "default" ? sortKey : "";
+  const searchPart = [path, suffix].filter(Boolean).join("/");
   return searchPart ? `${basePath}/search/${searchPart}/` : `${basePath}/`;
 };
 
-const parseFiltersFromURL = () => {
-  const path = window.location.pathname;
-  const searchMatch = path.match(/\/search\/(.+?)\/?\s*$/);
-  if (!searchMatch) return { filters: {}, sortKey: "default" };
+const parseFiltersFromPath = (pathname) => {
+  const match = pathname.match(/\/search\/(.+?)\/?$/);
+  if (!match) return { filters: {}, sortKey: "default" };
 
-  const parts = searchMatch[1].split("/").filter(Boolean);
+  const parts = match[1].split("/").filter(Boolean);
   let sortKey = "default";
 
-  // Check if last segment is a known sort key
   if (parts.length > 0 && SORT_KEYS[parts[parts.length - 1]]) {
     sortKey = parts.pop();
   }
 
-  // Remaining segments are key/value pairs
   const filters = {};
   for (let i = 0; i + 1 < parts.length; i += 2) {
     filters[decodeURIComponent(parts[i])] = decodeURIComponent(parts[i + 1]);
@@ -62,232 +57,108 @@ const parseFiltersFromURL = () => {
 };
 ```
 
-**Wire into `init()`** - modify the bootstrap section:
+### 2. Wire history lifecycle correctly
 
-```javascript
-const init = (container) => {
-  const allItems = parseItemsFromDOM();
-  // ... existing setup ...
+In `init()`:
 
-  // Parse initial state from URL (supports bookmarks/shared links)
-  const urlState = parseFiltersFromURL();
-  let activeFilters = urlState.filters;
-  let activeSortKey = urlState.sortKey;
+- parse initial state from `parseFiltersFromPath(window.location.pathname)`
+- call `history.replaceState` once after initial render
+- on user actions, call `history.pushState` with latest state/url
+- on `popstate`, restore from `event.state` if present, else parse current pathname
 
-  const render = () => {
-    // ... existing filter/sort/show/hide logic ...
+This avoids duplicate initial entries and keeps back/forward reliable.
 
-    // Update URL without navigation
-    const url = buildFilterURL(activeFilters, activeSortKey);
-    if (url !== window.location.pathname) {
-      history.replaceState({ filters: activeFilters, sortKey: activeSortKey }, "", url);
-    }
-  };
-
-  // Browser back/forward
-  window.addEventListener("popstate", (e) => {
-    if (e.state) {
-      activeFilters = e.state.filters || {};
-      activeSortKey = e.state.sortKey || "default";
-      render();
-    }
-  });
-
-  // ... existing event handlers ...
-
-  // Push (not replace) on user-initiated filter changes
-  // Modify the click/change handlers to push state before render:
-  // history.pushState({ filters: activeFilters, sortKey: activeSortKey }, "", url);
-};
-```
-
-**Key decisions:**
-
-- **`replaceState` on render, `pushState` on user action.** This prevents the initial page load from creating a duplicate history entry. User clicks push new entries so back/forward works. The `render()` function uses `replaceState`, while event handlers call `pushState` before `render()`.
-
-- **`decodeURIComponent` on URL parsing.** Filter values in the URL are encoded by `filterToPath`. When parsing them back, we decode. This round-trips correctly.
-
-- **No `#content` in URLs.** The old system appended `#content` to filter URLs. We drop this - it's a scroll anchor, not part of filter state. If needed, scroll behaviour can be handled separately.
-
-- **Graceful handling of old URLs.** If a user bookmarked `/categories/widgets/search/size/small/price-asc/` from the old system, `parseFiltersFromURL` parses it correctly. The prerendered page no longer exists, but the category page renders all products and the JS applies the filters from the URL. No redirect needed.
-
-### 2. Enable feature flag
+### 3. Enable feature flag
 
 **File**: `/src/_data/config.json` (MODIFY)
 
-Add after `has_products_filter` (line 2):
-
 ```json
-{
-  "has_products_filter": true,
-  "client_side_filters": true,
-  "has_properties_filter": null,
+"client_side_filters": true
 ```
 
-### 3. Conditionally skip prerendered page generation
+### 4. Split category filter data from page generation
 
-**File**: `/src/_lib/filters/configure-filters.js` (MODIFY)
+**Files**:
 
-```javascript
-import config from "#data/config.json" with { type: "json" };
+- `/src/_lib/filters/category-product-filters.js` (MODIFY)
+- `/src/_lib/filters/configure-filters.js` (MODIFY)
 
-export const configureFilters = (eleventyConfig) => {
-  if (config.client_side_filters) {
-    // Only register the collections needed for filter UI data
-    eleventyConfig.addCollection("categoryFilterAttributes", createCategoryFilterAttributes);
-    eleventyConfig.addCollection("categoryListingFilterUI", categoryListingUI);
-    // Empty collections so pagination templates don't break
-    eleventyConfig.addCollection("filteredCategoryProductPages", () => []);
-    eleventyConfig.addCollection("categoryFilterRedirects", () => []);
-  } else {
-    // Original behaviour: generate all prerendered filter pages
-    for (const [name, fn] of Object.entries(categoryCollections)) {
-      eleventyConfig.addCollection(name, fn);
-    }
-  }
+Required architecture change:
 
-  eleventyConfig.addFilter("buildCategoryFilterUIData", categoryFilterData);
+- separate "UI-support data" (`attributes`, `listingUI`) from "page/redirect generation" (`pages`, `redirects`)
+- in `client_side_filters` mode, register only the lightweight collections/filters needed for UI render
+- do not call full-page generation paths in client-side mode
 
-  // Product and property item-level filters (unchanged)
-  for (const cfg of itemFilterConfigs) {
-    createFilterConfig(cfg).configure(eleventyConfig);
-  }
-};
-```
+This is necessary for real build-time gains.
 
-**Why `categoryFilterAttributes` and `categoryListingFilterUI` are still needed:** These collections provide the filter UI data (attribute names, values, display labels) that the templates use to render the filter buttons. The client-side JS doesn't generate the UI - Eleventy still renders the filter options at build time. We only skip generating the hundreds of per-combination _pages_.
+### 5. Define old URL compatibility strategy
 
-### 4. Verify pagination template handles empty collection
+Old URLs like `/categories/widgets/search/size/small/` only work after prerender removal if routing supports it.
 
-**File**: `/src/pages/filtered-category-products.html` (CHECK)
+Choose one migration mode:
 
-Verify this template uses `pagination` over `filteredCategoryProductPages`. When that collection returns `[]`, Eleventy generates zero pages from this template. No modification needed - Eleventy handles empty pagination gracefully.
+- **Preferred**: host rewrite from `/categories/:slug/search/*` to `/categories/:slug/` while preserving URL in browser
+- **Fallback**: keep generating compatibility search pages until rewrite support is available
+
+Do not claim "old URLs handled gracefully" without one of these in place.
+
+### 6. Delay destructive cleanup
+
+Do not remove legacy files (for example `src/pages/filtered-category-products.html`) until:
+
+- rewrite/compat mode is proven in production
+- monitoring confirms no route breakage
 
 ---
 
 ## Testing
 
-### Unit tests for URL functions
+### Unit tests (URL helpers)
 
-**File**: `/test/unit/ui/category-filter.test.js` (ADD)
+**File**: `/test/unit/ui/category-filter.test.js` (MODIFY)
 
-```javascript
-describe("buildFilterURL", () => {
-  test("returns base path when no filters or sort", () => {
-    // Mock window.location
-    delete window.location;
-    window.location = { pathname: "/categories/widgets/" };
-    expect(buildFilterURL({}, "default")).toBe("/categories/widgets/");
-  });
+Add tests for:
 
-  test("includes filter path", () => {
-    window.location = { pathname: "/categories/widgets/" };
-    expect(buildFilterURL({ size: "small" }, "default")).toBe("/categories/widgets/search/size/small/");
-  });
+- `buildFilterURL(pathname, filters, sortKey)`
+- `parseFiltersFromPath(pathname)`
+- encoded key/value round-trip
+- sort-only URL and no-filter URL behavior
 
-  test("includes sort key after filters", () => {
-    window.location = { pathname: "/categories/widgets/" };
-    expect(buildFilterURL({ size: "small" }, "price-asc")).toBe("/categories/widgets/search/size/small/price-asc/");
-  });
+### Integration tests
 
-  test("includes sort key alone", () => {
-    window.location = { pathname: "/categories/widgets/" };
-    expect(buildFilterURL({}, "price-asc")).toBe("/categories/widgets/search/price-asc/");
-  });
+Add tests for:
 
-  test("strips /search/ from base path if already present", () => {
-    window.location = { pathname: "/categories/widgets/search/size/small/" };
-    expect(buildFilterURL({ type: "premium" }, "default")).toBe("/categories/widgets/search/type/premium/");
-  });
-});
-
-describe("parseFiltersFromURL", () => {
-  test("returns empty state for base category URL", () => {
-    window.location = { pathname: "/categories/widgets/" };
-    expect(parseFiltersFromURL()).toEqual({ filters: {}, sortKey: "default" });
-  });
-
-  test("extracts filters from path", () => {
-    window.location = { pathname: "/categories/widgets/search/size/small/type/premium/" };
-    const { filters, sortKey } = parseFiltersFromURL();
-    expect(filters).toEqual({ size: "small", type: "premium" });
-    expect(sortKey).toBe("default");
-  });
-
-  test("extracts sort key from end of path", () => {
-    window.location = { pathname: "/categories/widgets/search/size/small/price-asc/" };
-    const { filters, sortKey } = parseFiltersFromURL();
-    expect(filters).toEqual({ size: "small" });
-    expect(sortKey).toBe("price-asc");
-  });
-
-  test("handles sort key with no filters", () => {
-    window.location = { pathname: "/categories/widgets/search/name-desc/" };
-    const { filters, sortKey } = parseFiltersFromURL();
-    expect(filters).toEqual({});
-    expect(sortKey).toBe("name-desc");
-  });
-
-  test("decodes URI components", () => {
-    window.location = { pathname: "/categories/widgets/search/a%26b/c%2Fd/" };
-    const { filters } = parseFiltersFromURL();
-    expect(filters).toEqual({ "a&b": "c/d" });
-  });
-});
-```
+- initial hydration from URL
+- pushState on user actions
+- popstate restores previous state
 
 ### Build verification
 
-```bash
-# Measure build time before
-time bun run build
+1. Measure `time bun run build` with flag off
+2. Measure again with flag on
+3. Verify generated `_site` output does not include full category search page tree when disabled
+4. Verify category pages still include functional filter UI
 
-# Enable flag, rebuild
-# Edit config.json: "client_side_filters": true
-time bun run build
+### Manual end-to-end
 
-# Verify no /search/ pages generated
-ls _site/categories/*/search/ 2>/dev/null
-# Should show nothing or "No such file or directory"
-
-# Verify category pages still exist
-ls _site/categories/*/index.html
-```
-
-### Manual end-to-end checklist
-
-1. Navigate to `/categories/widgets/`
-2. Click filter - URL updates to `/categories/widgets/search/size/small/`
-3. Copy URL, open in new tab - filters applied on load
-4. Click back button - previous state restored
-5. Click forward button - filter state restored
-6. Bookmark a filtered URL, navigate away, return via bookmark - works
-7. Try an old-style URL from before migration - filters applied correctly
-8. Change sort - URL updates to include sort key
-9. Build time noticeably faster
-10. `bun test` - full suite passes
+1. Apply filters and confirm URL updates
+2. Open filtered URL in new tab and confirm state hydration
+3. Use back/forward and confirm state restoration
+4. Validate old bookmarked `/search/...` URLs under chosen compatibility mode
+5. Run `bun test`
 
 ---
 
 ## Files changed
 
-| Action | File | Change |
-|--------|------|--------|
-| Modify | `/src/_lib/public/ui/category-filter.js` | +~50 lines (URL functions) |
-| Modify | `/src/_data/config.json` | +1 line (feature flag) |
-| Modify | `/src/_lib/filters/configure-filters.js` | ~15 lines (conditional logic) |
-| Add | `/test/unit/ui/category-filter.test.js` | +~50 lines (URL tests) |
+- Modify: `/src/_lib/public/ui/category-filter.js`
+- Modify: `/src/_data/config.json`
+- Modify: `/src/_lib/filters/category-product-filters.js`
+- Modify: `/src/_lib/filters/configure-filters.js`
+- Modify: `/test/unit/ui/category-filter.test.js`
 
-## Future cleanup (not in this stage)
-
-After the client-side system is proven stable:
-
-- Delete `/src/pages/filtered-category-products.html`
-- Delete `/src/_lib/filters/filter-combinations.js`
-- Remove dead code from `category-product-filters.js`
-- Remove tests for `filteredCategoryPages` collection
-- Remove the feature flag (make client-side the only path)
+Optional compatibility routing/config files depend on deployment platform.
 
 ## Rollback
 
-Set `client_side_filters: false` in config.json, rebuild. Old prerendered pages regenerate immediately. The client-side JS still runs but is harmless (it just renders the same state the server already rendered).
+Set `client_side_filters` to `false` and rebuild. Server-generated filter pages become the primary behavior again.
