@@ -21,76 +21,80 @@ describe("configureItemFilterData", () => {
     expect(config.filters.toFilterJsonAttr).toBeDefined();
   });
 
-  test("toFilterJsonAttr escapes quotes", () => {
+  test("merges filter_data with parsed filter_attributes", () => {
     const config = createMockEleventyConfig();
     configureItemFilterData(config);
     const filter = config.filters.toFilterJsonAttr;
 
-    const result = filter({ name: 'Product "Special"' });
-    expect(result).toContain("&quot;");
-    expect(result).not.toContain('"Product "Special"');
+    const filterData = { title: "test product", price: 99 };
+    const filterAttributes = [
+      { name: "Size", value: "Large" },
+      { name: "Color", value: "Red" },
+    ];
+
+    const escaped = filter(filterData, filterAttributes);
+    const parsed = JSON.parse(unescapeHtml(escaped));
+
+    expect(parsed).toEqual({
+      title: "test product",
+      price: 99,
+      filters: { size: "large", color: "red" },
+    });
   });
 
-  test("toFilterJsonAttr escapes ampersands", () => {
+  test("handles empty filter_attributes", () => {
     const config = createMockEleventyConfig();
     configureItemFilterData(config);
     const filter = config.filters.toFilterJsonAttr;
 
-    const result = filter({ name: "Salt & Pepper" });
+    const filterData = { title: "test product", price: 0 };
+    const parsed = JSON.parse(unescapeHtml(filter(filterData, [])));
+
+    expect(parsed.filters).toEqual({});
+  });
+
+  test("escapes HTML entities for safe attribute embedding", () => {
+    const config = createMockEleventyConfig();
+    configureItemFilterData(config);
+    const filter = config.filters.toFilterJsonAttr;
+
+    const filterData = { title: 'salt & pepper "deluxe"', price: 0 };
+    const result = filter(filterData, []);
+
     expect(result).toContain("&amp;");
-    expect(result).not.toContain("Salt & Pepper");
+    expect(result).toContain("&quot;");
+    expect(result).not.toContain('"salt & pepper');
   });
 
-  test("toFilterJsonAttr escapes angle brackets", () => {
+  test("escapes angle brackets to prevent XSS", () => {
     const config = createMockEleventyConfig();
     configureItemFilterData(config);
     const filter = config.filters.toFilterJsonAttr;
 
-    const result = filter({ name: "<script>alert('xss')</script>" });
+    const filterData = { title: "<script>alert('xss')</script>", price: 0 };
+    const result = filter(filterData, []);
+
     expect(result).toContain("&lt;");
     expect(result).toContain("&gt;");
     expect(result).not.toContain("<script>");
   });
 
-  test("toFilterJsonAttr round-trips through JSON.parse after unescaping", () => {
+  test("round-trips through JSON.parse after unescaping", () => {
     const config = createMockEleventyConfig();
     configureItemFilterData(config);
     const filter = config.filters.toFilterJsonAttr;
 
-    const original = {
-      title: 'test & <special> "product"',
-      price: 99,
-      filters: { size: "large", color: "red" },
-    };
+    const filterData = { title: 'test & <special> "product"', price: 99 };
+    const filterAttributes = [
+      { name: "Brand", value: "Acme & Co" },
+      { name: "Category", value: "Home>Garden" },
+    ];
 
-    const escaped = filter(original);
-
-    // Unescape HTML entities
+    const escaped = filter(filterData, filterAttributes);
     const parsed = JSON.parse(unescapeHtml(escaped));
-    expect(parsed).toEqual(original);
-  });
 
-  test("toFilterJsonAttr handles complex nested objects", () => {
-    const config = createMockEleventyConfig();
-    configureItemFilterData(config);
-    const filter = config.filters.toFilterJsonAttr;
-
-    const original = {
-      title: "complex product",
-      price: 0,
-      filters: {
-        "brand-name": "test&co",
-        category: "home>garden",
-      },
-    };
-
-    const escaped = filter(original);
-    expect(escaped).toContain("&amp;");
-    expect(escaped).toContain("&gt;");
-
-    // Verify it can be unescaped and parsed
-    const parsed = JSON.parse(unescapeHtml(escaped));
-    expect(parsed.filters["brand-name"]).toBe("test&co");
-    expect(parsed.filters.category).toBe("home>garden");
+    expect(parsed.title).toBe('test & <special> "product"');
+    expect(parsed.filters.brand).toBe("acme-and-co");
+    expect(parsed.filters.category).toBe("home-garden");
   });
 });

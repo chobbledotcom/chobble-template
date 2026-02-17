@@ -12,7 +12,6 @@ import {
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
-import { slugify } from "#utils/slug-utils.js";
 import { getVideoThumbnailUrl } from "#utils/video.js";
 
 /**
@@ -74,35 +73,24 @@ export default {
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {Array<{name: string, value: string}>|undefined} Filter attributes
    */
-  filter_attributes: (data) => {
-    const attrs = getFilterAttributes(
-      data.filter_attributes,
-      data.page.inputPath,
-    );
-    if (!Array.isArray(attrs)) return attrs;
-    if (attrs.every(Boolean)) return attrs;
-    const filtered = attrs.filter(Boolean);
-    return filtered.length > 0 ? filtered : undefined;
-  },
+  filter_attributes: (data) =>
+    getFilterAttributes(data.filter_attributes, data.page.inputPath),
 
   /**
    * Pre-computed filter data for client-side filtering.
-   * Only computed for collection items (pages with tags); utility templates
-   * like feed.liquid are excluded.
+   * Only computed for products. filter_attributes are parsed at render
+   * time by toFilterJsonAttr to avoid Eleventy's ComputedDataProxy.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {{ title: string, price: number, filters: Record<string, string> }|undefined}
+   * @returns {{ title: string, price: number }|undefined}
    */
   filter_data: (data) => {
-    if (!data.tags) return undefined;
+    if (!hasTag(data, "products")) return undefined;
     return {
       title: data.title.toLowerCase(),
-      price: data.options
-        ? Math.min(...data.options.map((o) => o.unit_price))
-        : 0,
-      filters: Object.fromEntries(
-        (data.filter_attributes || [])
-          .filter((attr) => attr.name)
-          .map((attr) => [slugify(attr.name), slugify(attr.value)]),
+      price: Math.min(
+        .../** @type {Array<{unit_price: number}>} */ (data.options).map(
+          (o) => o.unit_price,
+        ),
       ),
     };
   },

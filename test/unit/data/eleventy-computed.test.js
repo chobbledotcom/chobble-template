@@ -351,24 +351,6 @@ describe("eleventyComputed", () => {
       };
       expect(eleventyComputed.filter_attributes(data)).toBe(filterAttrs);
     });
-
-    test("Filters out falsy items from filter_attributes", () => {
-      const data = {
-        filter_attributes: [{ name: "Color", value: "Red" }, null, undefined],
-        page: { inputPath: "/products/test.md" },
-      };
-      expect(eleventyComputed.filter_attributes(data)).toEqual([
-        { name: "Color", value: "Red" },
-      ]);
-    });
-
-    test("Returns undefined when all filter_attributes are falsy", () => {
-      const data = {
-        filter_attributes: [null, undefined],
-        page: { inputPath: "/products/test.md" },
-      };
-      expect(eleventyComputed.filter_attributes(data)).toBeUndefined();
-    });
   });
 
   describe("contactForm", () => {

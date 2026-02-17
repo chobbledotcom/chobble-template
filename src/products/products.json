@@ -1,4 +1,6 @@
 {
 	"layout": "item.html",
-	"tags": ["products"]
+	"tags": ["products"],
+	"filter_attributes": [],
+	"options": []
 }
