@@ -12,6 +12,7 @@ import {
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
+import { slugify } from "#utils/slug-utils.js";
 import { getVideoThumbnailUrl } from "#utils/video.js";
 
 /**
@@ -75,6 +76,28 @@ export default {
    */
   filter_attributes: (data) =>
     getFilterAttributes(data.filter_attributes, data.page.inputPath),
+
+  /**
+   * Pre-computed filter data for client-side filtering.
+   * Only computed for products. Uses .filter(Boolean) before .map() because
+   * Eleventy's ComputedDataProxy wraps arrays as sparse `new Array(N)` —
+   * .map() preserves holes causing Object.fromEntries to fail, while
+   * .filter(Boolean) materializes the proxy into a real empty array.
+   * @param {import("#lib/types").ProductItemData & import("#lib/types").EleventyComputedData} data - Page data (products only)
+   * @returns {{ title: string, price: number, filters: Record<string, string> }|undefined}
+   */
+  filter_data: (data) => {
+    if (!hasTag(data, "products")) return undefined;
+    return {
+      title: data.title.toLowerCase(),
+      price: Math.min(...data.options.map((o) => o.unit_price)),
+      filters: Object.fromEntries(
+        data.filter_attributes
+          .filter(Boolean)
+          .map((attr) => [slugify(attr.name), slugify(attr.value)]),
+      ),
+    };
+  },
 
   contactForm: () => contactFormFn(),
   quoteFields: () => quoteFieldsFn(),

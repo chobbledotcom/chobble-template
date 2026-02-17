@@ -69,16 +69,16 @@ export type BaseItemData = {
  * Product-specific data fields
  */
 export type ProductItemData = BaseItemData & {
-  /** Product options (sizes, variants, etc.) */
-  options?: PagesCMSOption[];
+  /** Product options (sizes, variants, etc.). Defaults to [] via products.json */
+  options: PagesCMSOption[];
   /** Product specifications */
   specs?: PagesCMSSpec[];
   /** Frequently asked questions */
   faqs?: PagesCMSFaq[];
   /** Additional content tabs (body may be undefined before eleventyComputed) */
   tabs?: RawTab[];
-  /** Filter attributes for faceted search */
-  filter_attributes?: PagesCMSFilterAttribute[];
+  /** Filter attributes for faceted search. Defaults to [] via products.json */
+  filter_attributes: PagesCMSFilterAttribute[];
   /** Category slugs this product belongs to */
   categories: string[];
   /** Gallery image paths */
