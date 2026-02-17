@@ -3,7 +3,6 @@ import contactFormFn from "#data/contact-form.js";
 import quoteFieldsFn from "#data/quote-fields.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
-import { slugify } from "#utils/slug-utils.js";
 import { validateBlocks } from "#utils/block-schema.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
@@ -12,6 +11,7 @@ import {
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
+import { slugify } from "#utils/slug-utils.js";
 import { getVideoThumbnailUrl } from "#utils/video.js";
 
 /**
