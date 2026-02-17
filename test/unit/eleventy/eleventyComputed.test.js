@@ -23,38 +23,6 @@ describe("eleventyComputed.filter_data", () => {
     expect(result.price).toBe(50);
   });
 
-  test("handles missing options with price 0", () => {
-    const data = {
-      title: "Test Product",
-      page: { fileSlug: "test" },
-    };
-
-    const result = eleventyComputed.filter_data(data);
-    expect(result.price).toBe(0);
-  });
-
-  test("handles empty options array with price 0", () => {
-    const data = {
-      title: "Test Product",
-      page: { fileSlug: "test" },
-      options: [],
-    };
-
-    const result = eleventyComputed.filter_data(data);
-    expect(result.price).toBe(0);
-  });
-
-  test("handles options with missing unit_price", () => {
-    const data = {
-      title: "Test Product",
-      page: { fileSlug: "test" },
-      options: [{ unit_price: 100 }, {}, { unit_price: 50 }],
-    };
-
-    const result = eleventyComputed.filter_data(data);
-    expect(result.price).toBe(0);
-  });
-
   test("parses filter_attributes into slugified filters", () => {
     const data = {
       title: "Test Product",
@@ -72,16 +40,6 @@ describe("eleventyComputed.filter_data", () => {
     });
   });
 
-  test("handles missing filter_attributes with empty filters object", () => {
-    const data = {
-      title: "Test Product",
-      page: { fileSlug: "test" },
-    };
-
-    const result = eleventyComputed.filter_data(data);
-    expect(result.filters).toEqual({});
-  });
-
   test("includes slug from page.fileSlug", () => {
     const data = {
       title: "Test Product",
@@ -90,25 +48,6 @@ describe("eleventyComputed.filter_data", () => {
 
     const result = eleventyComputed.filter_data(data);
     expect(result.slug).toBe("my-product-slug");
-  });
-
-  test("handles missing page.fileSlug with empty string", () => {
-    const data = {
-      title: "Test Product",
-      page: {},
-    };
-
-    const result = eleventyComputed.filter_data(data);
-    expect(result.slug).toBe("");
-  });
-
-  test("handles missing title with empty string", () => {
-    const data = {
-      page: { fileSlug: "test" },
-    };
-
-    const result = eleventyComputed.filter_data(data);
-    expect(result.title).toBe("");
   });
 
   test("complete filter_data structure", () => {

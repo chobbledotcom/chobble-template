@@ -71,7 +71,6 @@ export default {
   /**
    * Override filter_attributes with mock values in FAST_INACCURATE_BUILDS mode.
    * Only applies to items that have filter_attributes defined (products, properties).
-   * Filters out any undefined/null items to ensure a clean array.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {Array<{name: string, value: string}>|undefined} Filter attributes
    */
@@ -80,10 +79,10 @@ export default {
       data.filter_attributes,
       data.page.inputPath,
     );
-    if (!attrs) return attrs;
-    // Only filter if there are actually undefined/null items (YAML parsing edge case)
-    if (attrs.every((item) => item)) return attrs;
-    const filtered = attrs.filter((item) => item);
+    if (!Array.isArray(attrs)) return attrs;
+    // Only create new array if there are actually falsy items to filter
+    if (attrs.every(Boolean)) return attrs;
+    const filtered = attrs.filter(Boolean);
     return filtered.length > 0 ? filtered : undefined;
   },
 
@@ -94,21 +93,17 @@ export default {
    * @returns {{ slug: string, title: string, price: number, filters: Record<string, string> }}
    */
   filter_data: (data) => {
-    const price =
-      !Array.isArray(data.options) || data.options.length === 0
-        ? 0
-        : Math.min(...data.options.map((o) => o.unit_price || 0));
-
-    // Ensure we have a clean array, filtering undefined items at the boundary
     const attrs = Array.isArray(data.filter_attributes)
       ? data.filter_attributes.filter(Boolean)
-      : [];
+      : data.filter_attributes;
 
     return {
-      slug: data.page?.fileSlug ?? "",
-      title: (data.title ?? "").toLowerCase(),
-      price,
-      filters: parseFilterAttributes(attrs.length > 0 ? attrs : undefined),
+      slug: data.page.fileSlug || "",
+      title: (data.title || "").toLowerCase(),
+      price: data.options
+        ? Math.min(...data.options.map((o) => o.unit_price))
+        : 0,
+      filters: parseFilterAttributes(attrs),
     };
   },
 
