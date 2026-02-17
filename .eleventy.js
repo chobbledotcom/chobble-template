@@ -21,6 +21,7 @@ import { configureTags } from "#collections/tags.js";
 import { configureAreaList } from "#eleventy/area-list.js";
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { configureCollectionLookup } from "#eleventy/collection-lookup.js";
+import { configureItemFilterData } from "#eleventy/item-filter-data.js";
 // Validation
 import { configureCollectionValidation } from "#eleventy/validate-collections.js";
 // Eleventy plugins
@@ -98,6 +99,7 @@ export default async function (eleventyConfig) {
   configureJsConfig(eleventyConfig);
   configureIconify(eleventyConfig);
   configureInlineAsset(eleventyConfig);
+  configureItemFilterData(eleventyConfig);
   await prefetchSpecIcons();
   configureLocations(eleventyConfig);
   configureMenus(eleventyConfig);
