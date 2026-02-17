@@ -21,36 +21,21 @@ describe("configureItemFilterData", () => {
     expect(config.filters.toFilterJsonAttr).toBeDefined();
   });
 
-  test("merges filter_data with parsed filter_attributes", () => {
+  test("serializes filter_data to escaped JSON", () => {
     const config = createMockEleventyConfig();
     configureItemFilterData(config);
     const filter = config.filters.toFilterJsonAttr;
 
-    const filterData = { title: "test product", price: 99 };
-    const filterAttributes = [
-      { name: "Size", value: "Large" },
-      { name: "Color", value: "Red" },
-    ];
-
-    const escaped = filter(filterData, filterAttributes);
-    const parsed = JSON.parse(unescapeHtml(escaped));
-
-    expect(parsed).toEqual({
+    const filterData = {
       title: "test product",
       price: 99,
       filters: { size: "large", color: "red" },
-    });
-  });
+    };
 
-  test("handles empty filter_attributes", () => {
-    const config = createMockEleventyConfig();
-    configureItemFilterData(config);
-    const filter = config.filters.toFilterJsonAttr;
+    const escaped = filter(filterData);
+    const parsed = JSON.parse(unescapeHtml(escaped));
 
-    const filterData = { title: "test product", price: 0 };
-    const parsed = JSON.parse(unescapeHtml(filter(filterData, [])));
-
-    expect(parsed.filters).toEqual({});
+    expect(parsed).toEqual(filterData);
   });
 
   test("escapes HTML entities for safe attribute embedding", () => {
@@ -58,8 +43,7 @@ describe("configureItemFilterData", () => {
     configureItemFilterData(config);
     const filter = config.filters.toFilterJsonAttr;
 
-    const filterData = { title: 'salt & pepper "deluxe"', price: 0 };
-    const result = filter(filterData, []);
+    const result = filter({ title: 'salt & pepper "deluxe"' });
 
     expect(result).toContain("&amp;");
     expect(result).toContain("&quot;");
@@ -71,8 +55,7 @@ describe("configureItemFilterData", () => {
     configureItemFilterData(config);
     const filter = config.filters.toFilterJsonAttr;
 
-    const filterData = { title: "<script>alert('xss')</script>", price: 0 };
-    const result = filter(filterData, []);
+    const result = filter({ title: "<script>alert('xss')</script>" });
 
     expect(result).toContain("&lt;");
     expect(result).toContain("&gt;");
@@ -84,17 +67,14 @@ describe("configureItemFilterData", () => {
     configureItemFilterData(config);
     const filter = config.filters.toFilterJsonAttr;
 
-    const filterData = { title: 'test & <special> "product"', price: 99 };
-    const filterAttributes = [
-      { name: "Brand", value: "Acme & Co" },
-      { name: "Category", value: "Home>Garden" },
-    ];
+    const original = {
+      title: 'test & <special> "product"',
+      price: 99,
+      filters: { brand: "acme", category: "home-garden" },
+    };
 
-    const escaped = filter(filterData, filterAttributes);
+    const escaped = filter(original);
     const parsed = JSON.parse(unescapeHtml(escaped));
-
-    expect(parsed.title).toBe('test & <special> "product"');
-    expect(parsed.filters.brand).toBe("acme-and-co");
-    expect(parsed.filters.category).toBe("home-garden");
+    expect(parsed).toEqual(original);
   });
 });

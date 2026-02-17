@@ -16,6 +16,7 @@ describe("eleventyComputed.filter_data", () => {
       title: "UPPERCASE PRODUCT",
       tags: ["products"],
       options: [{ unit_price: 10 }],
+      filter_attributes: [],
     };
 
     const result = eleventyComputed.filter_data(data);
@@ -27,9 +28,40 @@ describe("eleventyComputed.filter_data", () => {
       title: "Test Product",
       tags: ["products"],
       options: [{ unit_price: 100 }, { unit_price: 50 }, { unit_price: 75 }],
+      filter_attributes: [],
     };
 
     const result = eleventyComputed.filter_data(data);
     expect(result.price).toBe(50);
+  });
+
+  test("parses filter_attributes into slugified filters", () => {
+    const data = {
+      title: "Test Product",
+      tags: ["products"],
+      options: [{ unit_price: 10 }],
+      filter_attributes: [
+        { name: "Size", value: "Large" },
+        { name: "Color", value: "Red" },
+      ],
+    };
+
+    const result = eleventyComputed.filter_data(data);
+    expect(result.filters).toEqual({
+      size: "large",
+      color: "red",
+    });
+  });
+
+  test("returns empty filters when filter_attributes is empty", () => {
+    const data = {
+      title: "Test Product",
+      tags: ["products"],
+      options: [{ unit_price: 10 }],
+      filter_attributes: [],
+    };
+
+    const result = eleventyComputed.filter_data(data);
+    expect(result.filters).toEqual({});
   });
 });

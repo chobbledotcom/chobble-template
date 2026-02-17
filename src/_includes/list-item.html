@@ -1,5 +1,5 @@
 {%- assign isProduct = item.data.tags contains "products" -%}
-<li{% if isProduct %} data-filter-item="{{ item.data.filter_data | toFilterJsonAttr: item.data.filter_attributes }}"{% endif %}>
+<li{% if isProduct %} data-filter-item="{{ item.data.filter_data | toFilterJsonAttr }}"{% endif %}>
   {%- for field in listItemFields -%}
     {%- case field -%}
       {%- when "thumbnail" -%}
