@@ -2,9 +2,19 @@ import { describe, expect, test } from "bun:test";
 import eleventyComputed from "#data/eleventyComputed.js";
 
 describe("eleventyComputed.filter_data", () => {
+  test("returns undefined for pages without tags", () => {
+    const data = {
+      title: "No Tags Page",
+      page: { fileSlug: "test" },
+    };
+
+    expect(eleventyComputed.filter_data(data)).toBeUndefined();
+  });
+
   test("lowercases title", () => {
     const data = {
       title: "UPPERCASE PRODUCT",
+      tags: ["products"],
       page: { fileSlug: "test" },
     };
 
@@ -15,6 +25,7 @@ describe("eleventyComputed.filter_data", () => {
   test("extracts lowest option price", () => {
     const data = {
       title: "Test Product",
+      tags: ["products"],
       page: { fileSlug: "test" },
       options: [{ unit_price: 100 }, { unit_price: 50 }, { unit_price: 75 }],
     };
@@ -26,6 +37,7 @@ describe("eleventyComputed.filter_data", () => {
   test("parses filter_attributes into slugified filters", () => {
     const data = {
       title: "Test Product",
+      tags: ["products"],
       page: { fileSlug: "test" },
       filter_attributes: [
         { name: "Size", value: "Large" },
@@ -43,6 +55,7 @@ describe("eleventyComputed.filter_data", () => {
   test("includes slug from page.fileSlug", () => {
     const data = {
       title: "Test Product",
+      tags: ["products"],
       page: { fileSlug: "my-product-slug" },
     };
 
@@ -53,6 +66,7 @@ describe("eleventyComputed.filter_data", () => {
   test("complete filter_data structure", () => {
     const data = {
       title: "Premium Widget",
+      tags: ["products"],
       page: { fileSlug: "premium-widget" },
       options: [{ unit_price: 99 }, { unit_price: 149 }],
       filter_attributes: [
