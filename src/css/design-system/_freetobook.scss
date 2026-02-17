@@ -7,7 +7,7 @@
 .design-system {
   .freetobook {
     .iframe-container {
-      @include card;
+      @include card($padding: 0);
       iframe {
         border: none;
         width: 100%;
