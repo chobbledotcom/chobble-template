@@ -1,12 +1,8 @@
 ---
-layout: base
+layout: design-system-base.html
+blocks: false
 ---
 
-<h1>{{ title }}</h1>
-
-{% if guide-category %}
-  {% assign category = collections.guide-categories | getBySlug: guide-category %}
-  <p><a href="{{ category.url }}">Back to {{ category.data.title }}</a></p>
-{% endif %}
-
-<div class="prose">{{ content }}</div>
+{%- for section in guidePageOrder -%}
+  {%- include section -%}
+{%- endfor -%}
