@@ -9,6 +9,7 @@ const mockFetchJson = mock(() => Promise.resolve(null));
 const mockShowNotification = mock();
 mock.module("#public/utils/http.js", () => ({
   fetchJson: (...args) => mockFetchJson(...args),
+  postJson: mock(() => Promise.resolve(null)),
 }));
 mock.module("#public/utils/config.js", () => ({
   default: { ecommerce_api_host: "test.example.com" },
