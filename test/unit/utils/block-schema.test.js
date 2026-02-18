@@ -197,6 +197,21 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
+  test("allows all valid keys for contact_form with headers", () => {
+    const blocks = [
+      {
+        type: "contact_form",
+        content: "Get in touch",
+        header_title: "Contact Us",
+        header_subtitle: "We'd love to hear from you",
+        header_level: 2,
+        header_align: "center",
+        header_class: "custom",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
   test("reports multiple unknown keys", () => {
     const blocks = [{ type: "stats", foo: "bar", baz: "qux" }];
     expect(() => validateBlocks(blocks)).toThrow('"foo"');

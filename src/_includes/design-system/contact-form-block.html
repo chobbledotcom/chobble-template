@@ -1,3 +1,14 @@
+{%- if block.header_title -%}
+  {%- include "design-system/section-header.html",
+     block: {
+       title: block.header_title,
+       subtitle: block.header_subtitle,
+       level: block.header_level,
+       align: block.header_align,
+       class: block.header_class
+     }
+  -%}
+{%- endif -%}
 <div class="contact-form-block">
   <div class="prose">
     {{ block.content | renderContent: "md" }}
