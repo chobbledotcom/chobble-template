@@ -389,14 +389,14 @@
 
 // Aspect ratio container
 @mixin aspect-ratio($width: 16, $height: 9) {
-  aspect-ratio: $width / $height;
+  aspect-ratio: #{$width} / #{$height};
 }
 
 // Responsive iframe embed (maps, videos, etc.)
 @mixin iframe-embed($ratio-w: 16, $ratio-h: 9) {
   position: relative;
   width: 100%;
-  aspect-ratio: $ratio-w / $ratio-h;
+  aspect-ratio: #{$ratio-w} / #{$ratio-h};
   overflow: hidden;
 
   iframe {
