@@ -1,4 +1,0 @@
-{%- if config.has_properties_filter -%}
-{%- assign filterUI = collections.propertyFilterAttributes | buildPropertyFilterUIData: currentFilters, collections.filteredPropertyPages -%}
-{%- include "item-filter.html", filterUI: filterUI -%}
-{%- endif -%}
