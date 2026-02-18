@@ -30,6 +30,17 @@ const DEFAULTS = frozenObject({
   navigation_content_anchor: false,
   category_order: null,
   property_order: null,
+  guide_page_order: [
+    "guide/header.html",
+    "guide/navigation.html",
+    "guide/content.html",
+    "guide/faqs.html",
+  ],
+  guide_category_order: [
+    "guide/header.html",
+    "guide/content.html",
+    "guide/guide-pages-list.html",
+  ],
   screenshots: {},
   design_system_layouts: ["design-system-base.html"],
   phoneNumberLength: 11,
