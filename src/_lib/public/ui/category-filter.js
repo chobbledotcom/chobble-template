@@ -34,7 +34,6 @@ onReady(() => {
   const labelLookup = buildLabelLookup(container);
   const filteredItems = list.closest(".filtered-items");
 
-  // Ensure pill container exists (server only renders it when filters are active)
   const pillContainer =
     container.querySelector("[data-active-filters]") ||
     (() => {
