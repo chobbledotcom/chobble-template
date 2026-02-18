@@ -10,15 +10,11 @@ import {
   categoryFilterData,
   categoryListingUI,
   createCategoryFilterAttributes,
-  createCategoryFilterRedirects,
-  filteredCategoryPages,
 } from "#filters/category-product-filters.js";
 import { createFilterConfig } from "#filters/item-filters.js";
 
 const categoryCollections = {
-  filteredCategoryProductPages: filteredCategoryPages,
   categoryFilterAttributes: createCategoryFilterAttributes,
-  categoryFilterRedirects: createCategoryFilterRedirects,
   categoryListingFilterUI: categoryListingUI,
 };
 

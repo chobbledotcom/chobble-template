@@ -34,4 +34,15 @@ const applyFiltersAndSort = (
   return matched.length;
 };
 
-export { applyFiltersAndSort };
+/**
+ * Check if a single item matches a set of filters.
+ * @param {{ data: { filters: Record<string, string> } }} item
+ * @param {Record<string, string>} filters
+ * @returns {boolean}
+ */
+const itemMatchesFilters = (item, filters) => {
+  const entries = Object.entries(filters);
+  return entries.every(([key, value]) => item.data.filters[key] === value);
+};
+
+export { applyFiltersAndSort, itemMatchesFilters };

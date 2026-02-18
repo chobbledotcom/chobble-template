@@ -74,6 +74,7 @@ const buildSortGroup = (ctx, combo) => ({
     value: sortOption.label,
     url: searchUrl(ctx.baseUrl, toSortedPath(combo.filters, sortOption.key)),
     active: combo.sortKey === sortOption.key,
+    sortKey: sortOption.key,
   })),
 });
 
@@ -86,6 +87,7 @@ const buildActiveFilters = (ctx, combo) =>
       ctx.baseUrl,
       toSortedPath(omit([key])(combo.filters), combo.sortKey),
     ),
+    removeFilterKey: key,
   }))(combo.filters);
 
 /** Build filter attribute groups with option links */
@@ -99,6 +101,10 @@ const buildAttributeGroups = (ctx, combo) =>
         value: ctx.filterData.displayLookup[value],
         url: searchUrl(ctx.baseUrl, toSortedPath(newFilters, combo.sortKey)),
         active: isActive,
+        filterKey: attrName,
+        filterValue: value,
+        filterKeyLabel: ctx.filterData.displayLookup[attrName],
+        filterValueLabel: ctx.filterData.displayLookup[value],
       };
     })(attrValues);
 
