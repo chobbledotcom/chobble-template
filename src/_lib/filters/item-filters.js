@@ -80,14 +80,35 @@ const buildFilterPages =
     return enhanceWithFilterUI(pages, filterData, baseUrl, baseCombinations);
   };
 
-/** Compute all filter data for a tag in a single pass */
-const computeFilterData = (tag, baseUrl, itemsKey, collectionApi) => {
+/**
+ * Compute filter data and listing UI for a set of items.
+ * Shared between createFilterConfig and createListingFilterUI.
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @param {string} tag - Eleventy collection tag
+ * @param {string} baseUrl - Base URL for filter links
+ */
+export const computeFilterBase = (collectionApi, tag, baseUrl) => {
   const items = collectionApi.getFilteredByTag(tag);
   const baseCombinations = generateFilterCombinations(items);
   const filterData = {
     attributes: getAllFilterAttributes(items),
     displayLookup: buildDisplayLookup(items),
   };
+  const listingFilterUI = buildFilterUIData(
+    filterData,
+    {},
+    baseCombinations,
+    baseUrl,
+    "default",
+    items.length,
+  );
+  return { items, baseCombinations, filterData, listingFilterUI };
+};
+
+/** Compute all filter data for a tag in a single pass */
+const computeFilterData = (tag, baseUrl, itemsKey, collectionApi) => {
+  const { items, baseCombinations, filterData, listingFilterUI } =
+    computeFilterBase(collectionApi, tag, baseUrl);
   const makePages = buildFilterPages(itemsKey, baseUrl);
   const pages =
     baseCombinations.length === 0
@@ -98,14 +119,7 @@ const computeFilterData = (tag, baseUrl, itemsKey, collectionApi) => {
     pages,
     redirects: generateFilterRedirects(items, `${baseUrl}/search`),
     filterData,
-    listingFilterUI: buildFilterUIData(
-      filterData,
-      {},
-      baseCombinations,
-      baseUrl,
-      "default",
-      items.length,
-    ),
+    listingFilterUI,
   };
 };
 
