@@ -165,6 +165,24 @@ export const updateGroupOptions = (
   );
 
 /**
+ * Replay the loading spinner and content-fade animations.
+ * Resets the CSS animations on .filter-spinner and .filtered-content
+ * so the brief loading effect plays again on filter changes.
+ * @param {Element|null} filteredItems - The .filtered-items container
+ */
+export const replayLoadingAnimation = (filteredItems) => {
+  if (!filteredItems) return;
+  const spinner = filteredItems.querySelector(".filter-spinner");
+  const content = filteredItems.querySelector(".filtered-content");
+  if (!spinner || !content) return;
+  for (const el of [spinner, content]) {
+    el.style.animation = "none";
+    void el.offsetHeight;
+    el.style.animation = "";
+  }
+};
+
+/**
  * Update option visibility based on feasibility.
  * Hides options that would produce zero results or the same result set.
  * Hides entire groups when all their options are hidden.

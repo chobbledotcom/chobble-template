@@ -99,6 +99,10 @@
     padding-bottom: 1rem;
     border-bottom: var(--border);
 
+    &:empty {
+      display: none;
+    }
+
     li {
       display: flex;
       align-items: center;
@@ -181,9 +185,11 @@
           }
 
           &.active {
-            padding: 0.25rem 0.75rem;
             background: var(--color-link);
-            color: var(--color-bg);
+
+            a {
+              color: var(--color-bg);
+            }
           }
         }
       }
