@@ -3,6 +3,7 @@ import { generateFilterCombinations } from "#filters/filter-combinations.js";
 import {
   buildDisplayLookup,
   getAllFilterAttributes,
+  SORT_OPTIONS,
 } from "#filters/filter-core.js";
 import { buildFilterUIData } from "#filters/filter-ui.js";
 import { computeFilterBase } from "#filters/item-filters.js";
@@ -102,6 +103,60 @@ const testPropertyItems = () =>
   ]);
 
 describe("item-filters", () => {
+  describe("sort options", () => {
+    const getSortOption = (key) => {
+      const option = SORT_OPTIONS.find((sortOption) => sortOption.key === key);
+      if (!option) {
+        throw new Error(`Sort option not found: ${key}`);
+      }
+      return option;
+    };
+
+    test("price sort comparators handle missing prices", () => {
+      const items = [
+        filterItem("No Price"),
+        baseItem("Low", { price: 10 }),
+        baseItem("High", { price: 30 }),
+      ];
+
+      const priceAsc = [...items].sort(getSortOption("price-asc").compare);
+      const priceDesc = [...items].sort(getSortOption("price-desc").compare);
+
+      expect(priceAsc.map((item) => item.data.title)).toEqual([
+        "Low",
+        "High",
+        "No Price",
+      ]);
+      expect(priceDesc.map((item) => item.data.title)).toEqual([
+        "High",
+        "Low",
+        "No Price",
+      ]);
+    });
+
+    test("name sort comparators are case-insensitive", () => {
+      const items = [
+        filterItem("zebra"),
+        filterItem("Alpha"),
+        filterItem("middle"),
+      ];
+
+      const nameAsc = [...items].sort(getSortOption("name-asc").compare);
+      const nameDesc = [...items].sort(getSortOption("name-desc").compare);
+
+      expect(nameAsc.map((item) => item.data.title)).toEqual([
+        "Alpha",
+        "middle",
+        "zebra",
+      ]);
+      expect(nameDesc.map((item) => item.data.title)).toEqual([
+        "zebra",
+        "middle",
+        "Alpha",
+      ]);
+    });
+  });
+
   // ============================================
   // Attributes tests
   // (covers: getAllFilterAttributes, buildDisplayLookup)

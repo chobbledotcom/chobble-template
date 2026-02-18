@@ -1,0 +1,22 @@
+Running precommit checks...
+
+============================================================
+PRECOMMIT SUMMARY
+============================================================
+✅ Passed: install, generate-types, lint:fix, knip:fix, typecheck, typecheck:strict, cpd:fp, cpd:design-system, cpd, cpd:ratchet
+
+❌ Failed: test
+
+test errors:
+  error: unable to get local issuer certificate
+  at <anonymous> (/home/user/git/chobble-template/test/integration/build/image.test.js:135:17)
+  at <anonymous> (/home/user/git/chobble-template/test/integration/build/image.test.js:132:56)
+  error: unable to get local issuer certificate
+  at <anonymous> (/home/user/git/chobble-template/test/unit/media/image-external.test.js:17:17)
+  at <anonymous> (/home/user/git/chobble-template/test/unit/media/image-external.test.js:7:56)
+  244 |       }), !softFail)
+  error: ECONNREFUSED
+  at <anonymous> (node:_http_client:246:19)
+  error: expect(received).toEqual(expected)
+  ... and 27 errors (use --verbose to see all)
+============================================================
