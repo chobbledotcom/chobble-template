@@ -95,7 +95,6 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/collections/missing-folders-lib.test.js",
   "test/unit/collections/properties.test.js",
   "test/unit/eleventy/layout-aliases.test.js",
-  "test/unit/filters/item-filters.test.js",
   "test/unit/frontend/checkout.test.js",
   "test/unit/frontend/config.test.js",
   "test/unit/utils/object-entries.test.js",
@@ -153,7 +152,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
   "src/_lib/filters/category-product-filters.js", // Helpers split for function length and readability
   "src/_lib/filters/filter-ui.js", // UI builders split from buildUIWithLookup for function length
-  "src/_lib/filters/item-filters.js",
   "src/_lib/transforms/external-links.js", // attrTuple for TypeScript tuple inference
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
@@ -300,8 +298,6 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/filter-core.js:142",
   "src/_lib/filters/filter-core.js:196",
   "src/_lib/filters/filter-core.js:202",
-  "src/_lib/filters/item-filters.js:157", // Normalize null/undefined filters from templates
-
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:96",
   "src/_lib/public/cart/cart.js:97",

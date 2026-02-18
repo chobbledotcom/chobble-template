@@ -2,8 +2,6 @@
  * Product listing filter UI for client-side filtering.
  *
  * Computes the initial filter UI data for the products listing page.
- * Unlike the full createFilterConfig (used by properties), this only
- * generates the listing UI - no server-side filter pages or redirects.
  * Filtering is handled entirely client-side via hash navigation.
  */
 import { computeFilterBase } from "#filters/item-filters.js";

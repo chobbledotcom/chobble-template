@@ -1,9 +1,2 @@
-{%- if filterPage -%}
-  {%- assign currentFilters = filterPage.filters -%}
-  {%- include "properties-filter.html" -%}
-  {%- include "filtered-items-section.html", items: filterPage.properties -%}
-{%- else -%}
-  {%- include "properties-filter.html" -%}
-  {%- assign properties = collections.properties -%}
-  {%- include "items.html", items: properties -%}
-{%- endif -%}
+{%- assign properties = collections.properties -%}
+{%- include "items.html", items: properties -%}

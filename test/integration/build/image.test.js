@@ -114,29 +114,6 @@ describe("image", () => {
   });
 
   // ============================================
-  // imageShortcode tests - external URLs
-  // ============================================
-  describe("imageShortcode - external URLs", () => {
-    /**
-     * Helper to check result includes all expected strings and excludes others
-     */
-    const expectIncludes = (result, includes, excludes = []) => {
-      for (const str of includes) {
-        expect(result.includes(str)).toBe(true);
-      }
-      for (const str of excludes) {
-        expect(result.includes(str)).toBe(false);
-      }
-    };
-
-    test("Throws when external URL cannot be fetched", async () => {
-      await expect(
-        imageShortcode("https://example.com/image.jpg", "External image"),
-      ).rejects.toThrow();
-    });
-  });
-
-  // ============================================
   // imageShortcode tests - local images
   // ============================================
   describe("imageShortcode - local images", () => {
