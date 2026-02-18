@@ -19,9 +19,10 @@ const applyFiltersAndSort = (
   const comparator =
     SORT_COMPARATORS[activeSortKey] || SORT_COMPARATORS.default;
   matched.sort(comparator);
+  const matchedSet = new Set(matched);
 
   for (const item of allItems) {
-    item.element.style.display = matched.includes(item) ? "" : "none";
+    item.element.style.display = matchedSet.has(item) ? "" : "none";
   }
 
   if (itemsList) {
