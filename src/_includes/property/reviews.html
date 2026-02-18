@@ -1,7 +1,7 @@
 {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags %}
 {%- if reviews.size > 0 -%}
 <section class="compact">
-  <div class="container container--default">
+  <div class="container">
     {%- include "item-reviews-section.html" -%}
   </div>
 </section>

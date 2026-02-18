@@ -1,7 +1,7 @@
 {%- assign guide_pages = collections.guide-pages | guidesByCategory: page.fileSlug -%}
 {%- if guide_pages.size > 0 -%}
 <section>
-  <div class="container container--default">
+  <div class="container">
     <ul class="guide-list">
       {%- for guide_page in guide_pages -%}
         <li>

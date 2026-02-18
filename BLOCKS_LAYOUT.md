@@ -457,8 +457,8 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 
 | Class | Max-width | Usage |
 |---|---|---|
-| `.container` | 1200px (`$width-wide`) | Default block container. Flex-col with `$space-lg` gap. |
-| `.container--default` | 900px (`$width-default`) | Narrower content. |
+| `.container` | 900px (`$width-default`) | Default block container. Flex-col with `$space-lg` gap. |
+| `.container--wide` | 1200px (`$width-wide`) | Wide content (galleries, grids). |
 | `.container--narrow` | 680px (`$width-narrow`) | Prose-width content. |
 
 ### Grid Classes

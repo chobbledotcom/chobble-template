@@ -224,14 +224,14 @@
   // ===========================================================================
 
   .container {
-    @include container($width-wide);
+    @include container($width-default);
     @include flex-col($space-lg);
 
+    &--wide {
+      @include container($width-wide);
+    }
     &--narrow {
       @include container($width-narrow);
-    }
-    &--default {
-      @include container($width-default);
     }
   }
 

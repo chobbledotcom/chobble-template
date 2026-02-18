@@ -1,7 +1,7 @@
 {%- for block in blocks -%}
 <section{% if block.section_class != "" %} class="{{ block.section_class }}"{% endif %}>
   {%- assign is_full_width = block.full_width -%}
-  {%- unless is_full_width -%}<div class="container">{%- endunless -%}
+  {%- unless is_full_width -%}<div class="container container--wide">{%- endunless -%}
   {%- include "design-system/render-block.html", block: block -%}
   {%- unless is_full_width -%}</div>{%- endunless -%}
 </section>
