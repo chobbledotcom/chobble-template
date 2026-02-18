@@ -1,6 +1,8 @@
 import { describe, expect, mock, test } from "bun:test";
-import { fetchJson, postJson } from "#public/utils/http.js";
 import { withMockFetch } from "#test/test-utils.js";
+
+mock.restore();
+const { fetchJson, postJson } = await import("#public/utils/http.js");
 
 const withRejectedFetch = async (fn) => {
   const origFetch = globalThis.fetch;

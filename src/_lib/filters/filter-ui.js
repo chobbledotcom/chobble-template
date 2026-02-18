@@ -5,7 +5,8 @@
  * - Active filter pills with remove URLs
  * - Filter groups with options
  * - Sort group with options
- * - Filter descriptions for headings
+ *
+ * All filter URLs use client-side hash fragments (e.g. /products#price/midrange).
  *
  * Performance note: buildPathLookup should be called once per category/item-type,
  * then passed to buildUIWithLookup for each page. This avoids O(n²)
@@ -34,37 +35,8 @@ import { mapEntries, omit, toObject } from "#toolkit/fp/object.js";
 export const buildPathLookup = (validPages) =>
   toObject(validPages, (p) => [p.path, true]);
 
-/**
- * Build filter description parts from filters using display lookup
- * Returns structured data for template rendering
- * { size: "compact", type: "pro" } => [{ key: "Size", value: "compact" }, ...]
- * @param {FilterSet} filters - Current filters
- * @param {Record<string, string>} displayLookup - Slug to display text lookup
- * @returns {{ key: string, value: string }[]} Filter description parts
- */
-export const buildFilterDescription = (filters, displayLookup) =>
-  mapEntries((key, value) => ({
-    key: displayLookup[key],
-    value: displayLookup[value],
-  }))(filters);
-
-/**
- * Build base page object from a filter combination.
- * Note: Does not include items/indices - caller adds those with appropriate key.
- * @param {Object} combo - { filters, path, count }
- * @param {Object} displayLookup - Display text lookup
- * @returns {Object} Base page properties
- */
-export const buildFilterPageBase = (combo, displayLookup) => ({
-  filters: combo.filters,
-  path: combo.path,
-  count: combo.count,
-  filterDescription: buildFilterDescription(combo.filters, displayLookup),
-});
-
-/** Build a search URL from base URL and path */
-const searchUrl = (baseUrl, path) =>
-  path ? `${baseUrl}/search/${path}/#content` : `${baseUrl}/#content`;
+/** Build a hash URL from base URL and path */
+const buildUrl = (baseUrl, path) => (path ? `${baseUrl}#${path}` : baseUrl);
 
 /** Build sort option entries for the sort group */
 const buildSortGroup = (ctx, combo) => ({
@@ -72,7 +44,7 @@ const buildSortGroup = (ctx, combo) => ({
   label: "Sort",
   options: SORT_OPTIONS.map((sortOption) => ({
     value: sortOption.label,
-    url: searchUrl(ctx.baseUrl, toSortedPath(combo.filters, sortOption.key)),
+    url: buildUrl(ctx.baseUrl, toSortedPath(combo.filters, sortOption.key)),
     active: combo.sortKey === sortOption.key,
     sortKey: sortOption.key,
   })),
@@ -83,7 +55,7 @@ const buildActiveFilters = (ctx, combo) =>
   mapEntries((key, value) => ({
     key: ctx.filterData.displayLookup[key],
     value: ctx.filterData.displayLookup[value],
-    removeUrl: searchUrl(
+    removeUrl: buildUrl(
       ctx.baseUrl,
       toSortedPath(omit([key])(combo.filters), combo.sortKey),
     ),
@@ -99,7 +71,7 @@ const buildAttributeGroups = (ctx, combo) =>
       if (!isActive && !ctx.pathLookup[filterToPath(newFilters)]) return null;
       return {
         value: ctx.filterData.displayLookup[value],
-        url: searchUrl(ctx.baseUrl, toSortedPath(newFilters, combo.sortKey)),
+        url: buildUrl(ctx.baseUrl, toSortedPath(newFilters, combo.sortKey)),
         active: isActive,
         filterKey: attrName,
         filterValue: value,
@@ -123,7 +95,7 @@ const buildAttributeGroups = (ctx, combo) =>
  * @param {Object} ctx - Context with filter infrastructure
  * @param {FilterAttributeData} ctx.filterData - Filter attribute data
  * @param {Record<string, true>} ctx.pathLookup - Pre-built lookup from buildPathLookup
- * @param {string} ctx.baseUrl - Base URL for the item type (e.g., "/products" or "/properties")
+ * @param {string} ctx.baseUrl - Base URL for the item type (e.g., "/products")
  * @param {Object} combo - Current filter/sort combination
  * @param {FilterSet} combo.filters - Current active filters (use {} for no filters)
  * @param {string} combo.sortKey - Current sort key (use "default" for default sort)
@@ -144,7 +116,7 @@ export const buildUIWithLookup = (ctx, combo) => {
     hasFilters: groups.length > 0 || hasActiveFilters,
     hasActiveFilters,
     activeFilters: buildActiveFilters(ctx, combo),
-    clearAllUrl: `${ctx.baseUrl}/#content`,
+    clearAllUrl: buildUrl(ctx.baseUrl, ""),
     groups,
   };
 };
@@ -157,7 +129,7 @@ export const buildUIWithLookup = (ctx, combo) => {
  * @param {FilterAttributeData} filterData - Filter attribute data
  * @param {FilterSet} currentFilters - Current active filters (use {} for no filters)
  * @param {{ path: string }[]} validPages - Array of valid page paths
- * @param {string} baseUrl - Base URL for the item type (e.g., "/products" or "/properties")
+ * @param {string} baseUrl - Base URL for the item type (e.g., "/products")
  * @param {string} [currentSortKey="default"] - Current sort key
  * @param {number} [count=2] - Current item count (used to hide sort/filters when <= 1)
  * @returns {FilterUIData} Complete UI data ready for simple template loops
@@ -174,35 +146,3 @@ export const buildFilterUIData = (
     { filterData, pathLookup: buildPathLookup(validPages), baseUrl },
     { filters: currentFilters, sortKey: currentSortKey, count },
   );
-
-/**
- * Add filterUI to each page object with sort support.
- * Builds the path lookup once and reuses it for all pages (avoids O(n²) work).
- *
- * @param {Array} pages - Page objects to enhance
- * @param {Object} filterData - { attributes, displayLookup }
- * @param {string} baseUrl - Base URL for filter links
- * @param {{ path: string }[]} validBasePaths - Valid base paths (without sort) for validation
- * @returns {Array} New pages array with filterUI added
- */
-export const enhanceWithFilterUI = (
-  pages,
-  filterData,
-  baseUrl,
-  validBasePaths,
-) => {
-  // Build lookup once, reuse for all pages
-  const pathLookup = buildPathLookup(validBasePaths);
-
-  return pages.map((page) => ({
-    ...page,
-    filterUI: buildUIWithLookup(
-      { filterData, pathLookup, baseUrl },
-      {
-        filters: page.filters,
-        sortKey: page.sortKey || "default",
-        count: page.count,
-      },
-    ),
-  }));
-};

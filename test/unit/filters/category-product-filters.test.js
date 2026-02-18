@@ -87,10 +87,10 @@ describe("category-product-filters", () => {
         widgetFilteredPages(),
       );
       expect(result.hasFilters).toBe(true);
-      expect(result.clearAllUrl).toBe("/categories/widgets/#content");
+      expect(result.clearAllUrl).toBe("/categories/widgets");
       // groups[0] is sort, groups[1] is size
       expect(result.groups[0].name).toBe("sort");
-      expect(result.groups[1].options[0].url).toContain("/categories/widgets/");
+      expect(result.groups[1].options[0].url).toContain("/categories/widgets#");
     });
 
     test("Filters pages to only include current category", () => {
@@ -135,9 +135,7 @@ describe("category-product-filters", () => {
       );
       expect(result.hasActiveFilters).toBe(true);
       expect(result.activeFilters[0].key).toBe("Size");
-      expect(result.activeFilters[0].removeUrl).toBe(
-        "/categories/widgets/#content",
-      );
+      expect(result.activeFilters[0].removeUrl).toBe("/categories/widgets");
     });
   });
 
@@ -235,7 +233,7 @@ describe("category-product-filters", () => {
       expect(result.widgets).toBeDefined();
       expect(result.widgets.hasFilters).toBe(true);
       expect(result.widgets.hasActiveFilters).toBe(false);
-      expect(result.widgets.clearAllUrl).toBe("/categories/widgets/#content");
+      expect(result.widgets.clearAllUrl).toBe("/categories/widgets");
     });
 
     test("Hides filters when only 1 product in category", () => {

@@ -11,24 +11,11 @@ import {
   categoryListingUI,
   createCategoryFilterAttributes,
 } from "#filters/category-product-filters.js";
-import { createFilterConfig } from "#filters/item-filters.js";
 import { createListingFilterUI } from "#filters/product-listing-filter.js";
 
 const categoryCollections = {
   categoryFilterAttributes: createCategoryFilterAttributes,
   categoryListingFilterUI: categoryListingUI,
-};
-
-const propertyFilterConfig = {
-  tag: "property",
-  permalinkDir: strings.property_permalink_dir,
-  itemsKey: "properties",
-  collections: {
-    pages: "filteredPropertyPages",
-    redirects: "propertyFilterRedirects",
-    attributes: "propertyFilterAttributes",
-  },
-  uiDataFilterName: "buildPropertyFilterUIData",
 };
 
 /**
@@ -47,7 +34,4 @@ export const configureFilters = (eleventyConfig) => {
     "filteredProductPagesListingFilterUI",
     createListingFilterUI("products", `/${strings.product_permalink_dir}`),
   );
-
-  // Property filters (server-side pagination)
-  createFilterConfig(propertyFilterConfig).configure(eleventyConfig);
 };
