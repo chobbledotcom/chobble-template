@@ -6,6 +6,7 @@ const DEFAULT_ORDER = [
   "property/gallery.html",
   "property/content.html",
   "property/features.html",
+  "property/guides.html",
   "property/specs.html",
   "property/tabs.html",
   "property/map.html",
