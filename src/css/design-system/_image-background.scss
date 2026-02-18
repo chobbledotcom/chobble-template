@@ -46,9 +46,9 @@
       // Extend the image beyond the container so it has room to translate
       inset: -15%;
 
-      @supports (animation-timeline: scroll()) {
+      @supports (animation-timeline: view()) {
         animation: parallax-scroll linear;
-        animation-timeline: scroll(nearest block);
+        animation-timeline: view(block);
         animation-range: entry 0% exit 100%;
       }
     }
