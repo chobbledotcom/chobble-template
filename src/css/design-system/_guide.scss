@@ -13,12 +13,7 @@
   @mixin guide-card-text {
     a {
       @include heading-sm;
-      color: var(--color-text);
-      text-decoration: none;
-
-      &:hover {
-        color: var(--color-link);
-      }
+      @include link-card;
     }
 
     p {
@@ -41,38 +36,7 @@
   .guide-navigation {
     a {
       @include body-sm;
-      color: var(--color-link);
-      text-decoration: none;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  // ===========================================================================
-  // CONTENT
-  // ===========================================================================
-
-  .guide-content {
-    @include flex-col($space-md);
-  }
-
-  // ===========================================================================
-  // FAQS
-  // ===========================================================================
-
-  .guide-faqs {
-    @include flex-col($space-md);
-
-    dt {
-      @include heading-sm;
-    }
-
-    dd {
-      @include body-base;
-      color: var(--color-text-muted);
-      line-height: $line-height-relaxed;
+      @include link-plain;
     }
   }
 

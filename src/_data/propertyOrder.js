@@ -10,7 +10,7 @@ const DEFAULT_ORDER = [
   "property/tabs.html",
   "property/map.html",
   "property/reviews.html",
-  "property/faqs.html",
+  "faqs.html",
   "property/contact.html",
 ];
 

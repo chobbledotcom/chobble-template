@@ -160,12 +160,7 @@
         @include heading-sm;
 
         a {
-          color: var(--color-text);
-          text-decoration: none;
-
-          &:hover {
-            color: var(--color-link);
-          }
+          @include link-card;
         }
       }
 

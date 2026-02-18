@@ -34,7 +34,7 @@ const DEFAULTS = frozenObject({
     "guide/header.html",
     "guide/navigation.html",
     "guide/content.html",
-    "guide/faqs.html",
+    "faqs.html",
   ],
   guide_category_order: [
     "guide/header.html",
