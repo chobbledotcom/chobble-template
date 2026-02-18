@@ -4,6 +4,7 @@ import {
   readInitialFilters,
   readInitialSort,
   rebuildPills,
+  replayLoadingAnimation,
   updateOptionActiveStates,
   updateOptionVisibility,
 } from "#public/ui/category-filter-ui.js";
@@ -31,7 +32,8 @@ onReady(() => {
   }));
 
   const labelLookup = buildLabelLookup(container);
-  const pillContainer = container.querySelector("[data-active-filters]");
+  let pillContainer = container.querySelector("[data-active-filters]");
+  const filteredItems = list.closest(".filtered-items");
 
   // Parse initial state from hash if present, else fall back to server-rendered state
   const hashState = parseFiltersFromHash(window.location.hash);
@@ -82,6 +84,12 @@ onReady(() => {
     );
   };
 
+  const commitChange = () => {
+    replayLoadingAnimation(filteredItems);
+    renderFilterState();
+    updateHash();
+  };
+
   const takeOver = () => {
     if (!state.jsHasTakenOver) {
       state.jsHasTakenOver = true;
@@ -90,13 +98,14 @@ onReady(() => {
         ul.className = "filter-active";
         ul.dataset.activeFilters = "";
         container.prepend(ul);
+        pillContainer = ul;
       }
     }
   };
 
   container.addEventListener("click", (e) => {
     const link = e.target.closest("[data-filter-key]");
-    if (!link || link.tagName !== "A") return;
+    if (!link) return;
 
     e.preventDefault();
     takeOver();
@@ -112,8 +121,7 @@ onReady(() => {
       };
     }
 
-    renderFilterState();
-    updateHash();
+    commitChange();
   });
 
   container.addEventListener("click", (e) => {
@@ -125,8 +133,7 @@ onReady(() => {
     state.activeFilters = omit([removeLink.dataset.removeFilter])(
       state.activeFilters,
     );
-    renderFilterState();
-    updateHash();
+    commitChange();
   });
 
   container.addEventListener("click", (e) => {
@@ -136,8 +143,7 @@ onReady(() => {
     takeOver();
     state.activeFilters = {};
     state.activeSortKey = "default";
-    renderFilterState();
-    updateHash();
+    commitChange();
   });
 
   container.addEventListener("change", (e) => {
@@ -149,8 +155,7 @@ onReady(() => {
     e.stopPropagation();
     takeOver();
     state.activeSortKey = select.options[select.selectedIndex].dataset.sortKey;
-    renderFilterState();
-    updateHash();
+    commitChange();
   });
 
   // Restore state on browser back/forward (hash changes)

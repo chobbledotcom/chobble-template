@@ -6,11 +6,7 @@ Parameters:
 <ul>
   {%- for option in options -%}
   <li{% if option.active %} class="active"{% endif %}>
-    {%- if option.active -%}
-    <span data-filter-key="{{ option.filterKey }}" data-filter-value="{{ option.filterValue }}" data-filter-key-label="{{ option.filterKeyLabel }}" data-filter-value-label="{{ option.filterValueLabel }}">{{ option.value }}</span>
-    {%- else -%}
     <a href="{{ option.url }}" data-filter-key="{{ option.filterKey }}" data-filter-value="{{ option.filterValue }}" data-filter-key-label="{{ option.filterKeyLabel }}" data-filter-value-label="{{ option.filterValueLabel }}">{{ option.value }}</a>
-    {%- endif -%}
   </li>
   {%- endfor -%}
 </ul>

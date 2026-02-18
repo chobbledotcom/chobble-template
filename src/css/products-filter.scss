@@ -181,9 +181,11 @@
           }
 
           &.active {
-            padding: 0.25rem 0.75rem;
             background: var(--color-link);
-            color: var(--color-bg);
+
+            a {
+              color: var(--color-bg);
+            }
           }
         }
       }
