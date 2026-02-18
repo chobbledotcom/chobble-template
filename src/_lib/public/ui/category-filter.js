@@ -32,8 +32,18 @@ onReady(() => {
   }));
 
   const labelLookup = buildLabelLookup(container);
-  let pillContainer = container.querySelector("[data-active-filters]");
   const filteredItems = list.closest(".filtered-items");
+
+  // Ensure pill container exists (server only renders it when filters are active)
+  const pillContainer =
+    container.querySelector("[data-active-filters]") ||
+    (() => {
+      const ul = document.createElement("ul");
+      ul.className = "filter-active";
+      ul.dataset.activeFilters = "";
+      container.prepend(ul);
+      return ul;
+    })();
 
   // Parse initial state from hash if present, else fall back to server-rendered state
   const hashState = parseFiltersFromHash(window.location.hash);
@@ -48,7 +58,6 @@ onReady(() => {
     activeSortKey: hasHashState
       ? hashState.sortKey
       : readInitialSort(container),
-    jsHasTakenOver: false,
   };
 
   const renderFilterState = () => {
@@ -59,10 +68,7 @@ onReady(() => {
       state.activeSortKey,
     );
 
-    if (state.jsHasTakenOver && pillContainer) {
-      rebuildPills(pillContainer, state.activeFilters, labelLookup);
-    }
-
+    rebuildPills(pillContainer, state.activeFilters, labelLookup);
     updateOptionActiveStates(container, state.activeFilters);
     updateOptionVisibility(
       container,
@@ -90,25 +96,11 @@ onReady(() => {
     updateHash();
   };
 
-  const takeOver = () => {
-    if (!state.jsHasTakenOver) {
-      state.jsHasTakenOver = true;
-      if (!pillContainer) {
-        const ul = document.createElement("ul");
-        ul.className = "filter-active";
-        ul.dataset.activeFilters = "";
-        container.prepend(ul);
-        pillContainer = ul;
-      }
-    }
-  };
-
   container.addEventListener("click", (e) => {
     const link = e.target.closest("[data-filter-key]");
     if (!link) return;
 
     e.preventDefault();
-    takeOver();
 
     if (
       state.activeFilters[link.dataset.filterKey] === link.dataset.filterValue
@@ -129,7 +121,6 @@ onReady(() => {
     if (!removeLink) return;
 
     e.preventDefault();
-    takeOver();
     state.activeFilters = omit([removeLink.dataset.removeFilter])(
       state.activeFilters,
     );
@@ -140,7 +131,6 @@ onReady(() => {
     if (!e.target.closest("[data-clear-filters]")) return;
 
     e.preventDefault();
-    takeOver();
     state.activeFilters = {};
     state.activeSortKey = "default";
     commitChange();
@@ -153,7 +143,6 @@ onReady(() => {
     if (!select.options[select.selectedIndex]?.dataset.sortKey) return;
 
     e.stopPropagation();
-    takeOver();
     state.activeSortKey = select.options[select.selectedIndex].dataset.sortKey;
     commitChange();
   });
@@ -164,7 +153,6 @@ onReady(() => {
       hashGuard.ours = false;
       return;
     }
-    takeOver();
     const parsed = parseFiltersFromHash(window.location.hash);
     state.activeFilters = parsed.filters;
     state.activeSortKey = parsed.sortKey;

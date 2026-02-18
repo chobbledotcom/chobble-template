@@ -99,6 +99,10 @@
     padding-bottom: 1rem;
     border-bottom: var(--border);
 
+    &:empty {
+      display: none;
+    }
+
     li {
       display: flex;
       align-items: center;

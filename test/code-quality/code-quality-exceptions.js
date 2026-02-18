@@ -128,9 +128,6 @@ const ALLOWED_LET = frozenSet([
 
   // src/_lib/media/image-external.js - let html for try/catch fallback pattern
   "src/_lib/media/image-external.js",
-
-  // src/_lib/public/ui/category-filter.js - let pillContainer reassigned in takeOver()
-  "src/_lib/public/ui/category-filter.js",
 ]);
 
 // ============================================
