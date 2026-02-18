@@ -82,6 +82,7 @@ const BLOCK_SCHEMAS = {
   content: [],
   include: ["file"],
   properties: [],
+  "guide-categories": [],
 };
 
 /**

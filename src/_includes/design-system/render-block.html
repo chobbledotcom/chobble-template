@@ -58,4 +58,7 @@ Renders a single block by type. Used by blocks.html.
   {%- when "items" -%}
     {%- include "design-system/items-block.html", block: block -%}
 
+  {%- when "guide-categories" -%}
+    {%- include "design-system/guide-categories-block.html" -%}
+
 {%- endcase -%}

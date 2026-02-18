@@ -22,6 +22,7 @@ describe("BLOCK_SCHEMAS", () => {
       "content",
       "include",
       "properties",
+      "guide-categories",
     ];
     expect(Object.keys(BLOCK_SCHEMAS).sort()).toEqual(expectedTypes.sort());
   });

@@ -214,6 +214,31 @@
   }
 }
 
+// Card link: solid text, highlight on hover
+@mixin link-card {
+  color: var(--color-text);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-link);
+  }
+}
+
+// FAQ definition list: question/answer pairs
+@mixin faqs-list {
+  @include flex-col($space-md);
+
+  dt {
+    @include heading-sm;
+  }
+
+  dd {
+    @include body-base;
+    color: var(--color-text-muted);
+    line-height: $line-height-relaxed;
+  }
+}
+
 // Contrast text custom properties for primary/dark panels
 @mixin contrast-text-vars {
   color: var(--color-contrast-text);

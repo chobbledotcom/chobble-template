@@ -1,22 +1,7 @@
 ---
-layout: base
+layout: design-system-base.html
+blocks:
+  - type: content
+  - type: guide-categories
 ---
-
-<div class="prose">{{ content }}</div>
-
-{% if collections.guide-categories.size > 0 %}
-<ul id="guide-categories">
-  {%- for category in collections.guide-categories -%}
-  <li>
-    {%- if category.data.icon -%}
-    {{ category.data.icon | renderIcon }}
-    {%- endif -%}
-    <a href="{{ category.url }}#content">{{ category.data.title }}</a>
-    {%- if category.data.subtitle -%}
-    <p>{{ category.data.subtitle }}</p>
-    {%- endif -%}
-  </li>
-  {%- endfor -%}
-</ul>
-{% endif %}
-
+{{- content -}}
