@@ -18,6 +18,5 @@ import { memoizeByRef } from "#toolkit/fp/memoize.js";
 export const createListingFilterUI = (tag, baseUrl) =>
   memoizeByRef(
     (collectionApi) =>
-      computeFilterBase(collectionApi, tag, baseUrl, { useHashUrls: true })
-        .listingFilterUI,
+      computeFilterBase(collectionApi, tag, baseUrl).listingFilterUI,
   );

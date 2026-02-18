@@ -86,14 +86,8 @@ const buildFilterPages =
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @param {string} tag - Eleventy collection tag
  * @param {string} baseUrl - Base URL for filter links
- * @param {{ useHashUrls?: boolean }} [options] - URL generation options
  */
-export const computeFilterBase = (
-  collectionApi,
-  tag,
-  baseUrl,
-  { useHashUrls = false } = {},
-) => {
+export const computeFilterBase = (collectionApi, tag, baseUrl) => {
   const items = collectionApi.getFilteredByTag(tag);
   const baseCombinations = generateFilterCombinations(items);
   const filterData = {
@@ -107,7 +101,6 @@ export const computeFilterBase = (
     baseUrl,
     "default",
     items.length,
-    useHashUrls,
   );
   return { items, baseCombinations, filterData, listingFilterUI };
 };

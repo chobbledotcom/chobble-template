@@ -63,14 +63,8 @@ export const buildFilterPageBase = (combo, displayLookup) => ({
 });
 
 /** Build a search URL from base URL and path */
-const searchUrl = (baseUrl, path, useHash) =>
-  useHash
-    ? path
-      ? `${baseUrl}#${path}`
-      : baseUrl
-    : path
-      ? `${baseUrl}/search/${path}/#content`
-      : `${baseUrl}/#content`;
+const searchUrl = (baseUrl, path) =>
+  path ? `${baseUrl}/search/${path}/#content` : `${baseUrl}/#content`;
 
 /** Build sort option entries for the sort group */
 const buildSortGroup = (ctx, combo) => ({
@@ -78,11 +72,7 @@ const buildSortGroup = (ctx, combo) => ({
   label: "Sort",
   options: SORT_OPTIONS.map((sortOption) => ({
     value: sortOption.label,
-    url: searchUrl(
-      ctx.baseUrl,
-      toSortedPath(combo.filters, sortOption.key),
-      ctx.useHashUrls,
-    ),
+    url: searchUrl(ctx.baseUrl, toSortedPath(combo.filters, sortOption.key)),
     active: combo.sortKey === sortOption.key,
     sortKey: sortOption.key,
   })),
@@ -96,7 +86,6 @@ const buildActiveFilters = (ctx, combo) =>
     removeUrl: searchUrl(
       ctx.baseUrl,
       toSortedPath(omit([key])(combo.filters), combo.sortKey),
-      ctx.useHashUrls,
     ),
     removeFilterKey: key,
   }))(combo.filters);
@@ -110,11 +99,7 @@ const buildAttributeGroups = (ctx, combo) =>
       if (!isActive && !ctx.pathLookup[filterToPath(newFilters)]) return null;
       return {
         value: ctx.filterData.displayLookup[value],
-        url: searchUrl(
-          ctx.baseUrl,
-          toSortedPath(newFilters, combo.sortKey),
-          ctx.useHashUrls,
-        ),
+        url: searchUrl(ctx.baseUrl, toSortedPath(newFilters, combo.sortKey)),
         active: isActive,
         filterKey: attrName,
         filterValue: value,
@@ -159,7 +144,7 @@ export const buildUIWithLookup = (ctx, combo) => {
     hasFilters: groups.length > 0 || hasActiveFilters,
     hasActiveFilters,
     activeFilters: buildActiveFilters(ctx, combo),
-    clearAllUrl: ctx.useHashUrls ? ctx.baseUrl : `${ctx.baseUrl}/#content`,
+    clearAllUrl: `${ctx.baseUrl}/#content`,
     groups,
   };
 };
@@ -184,15 +169,9 @@ export const buildFilterUIData = (
   baseUrl,
   currentSortKey = "default",
   count = 2,
-  useHashUrls = false,
 ) =>
   buildUIWithLookup(
-    {
-      filterData,
-      pathLookup: buildPathLookup(validPages),
-      baseUrl,
-      useHashUrls,
-    },
+    { filterData, pathLookup: buildPathLookup(validPages), baseUrl },
     { filters: currentFilters, sortKey: currentSortKey, count },
   );
 

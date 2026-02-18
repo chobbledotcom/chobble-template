@@ -40,7 +40,6 @@ const buildContext = (slug, sortedProducts, combinations) => {
     slug,
     products: sortedProducts,
     baseUrl: `/categories/${slug}`,
-    useHashUrls: true,
     filterData: {
       attributes: getAllFilterAttributes(sortedProducts),
       displayLookup,
@@ -145,7 +144,6 @@ const categoryFilterData = (
     baseUrl,
     currentSortKey,
     count,
-    true,
   );
 };
 
