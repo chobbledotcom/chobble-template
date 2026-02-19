@@ -24,6 +24,12 @@ const getDOMClass = memoize(async () => {
   return class {
     constructor(html = "") {
       this.window = new Window();
+      // Workaround for happy-dom bug where built-in error constructors
+      // are undefined on the window object in Bun's VM context.
+      // See: https://github.com/capricorn86/happy-dom/issues/1762
+      if (!this.window.SyntaxError) {
+        this.window.SyntaxError = SyntaxError;
+      }
       if (html) {
         this.window.document.write(html);
       }
