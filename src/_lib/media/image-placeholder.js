@@ -11,6 +11,7 @@ const PLACEHOLDER_PNG =
 /**
  * Generate placeholder HTML without any image processing.
  * Returns a simple wrapper with a 1px transparent PNG.
+ * @param {{ alt?: string, classes?: string, sizes?: string, loading?: string, aspectRatio?: string }} options
  */
 const generatePlaceholderHtml = async ({
   alt = "",

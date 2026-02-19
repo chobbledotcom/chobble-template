@@ -4,6 +4,7 @@ import {
   withNavigationAnchor,
 } from "#utils/navigation-utils.js";
 
+/** @type {{ eleventyComputed: Record<string, (data: *) => *> }} */
 export default {
   eleventyComputed: {
     keywords: (data) => data.keywords || [],

@@ -10,12 +10,17 @@ const JS_CONFIG_KEYS = [
   "product_mode",
 ];
 
+/** @param {*} eleventyConfig */
 export const configureJsConfig = (eleventyConfig) => {
-  eleventyConfig.addFilter("jsConfigJson", (config) => {
-    const jsConfig = toObject(
-      JS_CONFIG_KEYS.filter((key) => config[key] != null),
-      (key) => [key, config[key]],
-    );
-    return JSON.stringify(jsConfig);
-  });
+  eleventyConfig.addFilter(
+    "jsConfigJson",
+    /** @param {Record<string, unknown>} config */
+    (config) => {
+      const jsConfig = toObject(
+        JS_CONFIG_KEYS.filter((key) => config[key] != null),
+        (key) => [key, config[key]],
+      );
+      return JSON.stringify(jsConfig);
+    },
+  );
 };

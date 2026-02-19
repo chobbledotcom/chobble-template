@@ -4,6 +4,7 @@
  */
 import { canonicalUrl } from "#utils/canonical-url.js";
 
+/** @param {*} eleventyConfig */
 export const configureCanonicalUrl = (eleventyConfig) => {
   eleventyConfig.addFilter("canonicalUrl", canonicalUrl);
 };

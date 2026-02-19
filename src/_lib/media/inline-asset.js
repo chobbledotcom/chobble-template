@@ -17,7 +17,7 @@ const isAllowedExtension = memberOf(ALLOWED_EXTENSIONS);
  * For images (webp, jpeg, png, gif), returns base64 data URI.
  * Cache is keyed by (assetPath, baseDir) to handle different base directories.
  *
- * Synchronous file reader with memoization — files are only read once.
+ * Synchronous file reader with memoization -- files are only read once.
  *
  * @param {string} assetPath - Path relative to assets directory
  * @param {string} baseDir - Base directory (defaults to ROOT_DIR)
@@ -25,6 +25,10 @@ const isAllowedExtension = memberOf(ALLOWED_EXTENSIONS);
  * @throws {Error} If file doesn't exist or has unsupported extension
  */
 export const memoizedInlineAsset = memoize(
+  /**
+   * @param {string} assetPath
+   * @param {string} baseDir
+   */
   (assetPath, baseDir = ROOT_DIR) => {
     const fullPath = path.join(baseDir, "src", "assets", assetPath);
     const ext = path.extname(assetPath).toLowerCase();
@@ -53,7 +57,7 @@ export const memoizedInlineAsset = memoize(
 
 /**
  * Configure the inline_asset filter for Eleventy
- * @param {object} eleventyConfig - Eleventy configuration object
+ * @param {*} eleventyConfig - Eleventy configuration object
  */
 export const configureInlineAsset = (eleventyConfig) => {
   eleventyConfig.addFilter("inline_asset", memoizedInlineAsset);

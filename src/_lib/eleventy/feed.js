@@ -5,6 +5,7 @@ import {
   getNewestCollectionItemDate,
 } from "@11ty/eleventy-plugin-rss";
 
+/** @param {*} eleventyConfig */
 const configureFeed = async (eleventyConfig) => {
   // Load the HTML Base plugin for URL transformations in feeds
   // This provides htmlBaseUrl and transformWithHtmlBase filters

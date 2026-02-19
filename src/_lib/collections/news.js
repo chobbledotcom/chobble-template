@@ -19,9 +19,12 @@ import { sortByDateDescending } from "#utils/sorting.js";
 const createNewsCollection = (collectionApi) =>
   collectionApi
     .getFilteredByTag("news")
-    .filter((post) => post.data.no_index !== true)
+    .filter(
+      (/** @type {NewsCollectionItem} */ post) => post.data.no_index !== true,
+    )
     .sort(sortByDateDescending);
 
+/** @param {*} eleventyConfig */
 const configureNews = (eleventyConfig) => {
   eleventyConfig.addCollection("news", createNewsCollection);
 };

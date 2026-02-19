@@ -7,7 +7,7 @@
  */
 
 /**
- * @param {Object} data - Page data containing eleventyNavigation and config
+ * @param {*} data - Page data containing eleventyNavigation and config
  * @param {import("#lib/types").EleventyNav | false} [nav] - The eleventyNavigation object, false to suppress, or undefined if not set
  * @returns {import("#lib/types").EleventyNav | false | undefined} The navigation object, potentially with url added
  */
@@ -24,9 +24,9 @@ export const withNavigationAnchor = (data, nav) => {
 /**
  * Builds eleventyNavigation, respecting existing nav config if present.
  * If data.eleventyNavigation exists, uses it (with anchor). Otherwise calls buildNav.
- * @param {Object} data - Page data
- * @param {(data: Object) => import("#lib/types").EleventyNav | false} buildNav - Function that takes data and returns navigation config
- * @returns {import("#lib/types").EleventyNav | false} The navigation object
+ * @param {*} data - Page data
+ * @param {(data: *) => import("#lib/types").EleventyNav | false | undefined} buildNav - Function that takes data and returns navigation config
+ * @returns {import("#lib/types").EleventyNav | false | undefined} The navigation object
  */
 export const buildNavigation = (data, buildNav) => {
   if (data.eleventyNavigation) {

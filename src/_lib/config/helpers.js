@@ -69,6 +69,7 @@ const getProducts = ({ products = {} }) => pickTruthy(products);
 
 /**
  * Get form target URL from config, preferring explicit target over formspark
+ * @param {{ contact_form_target?: string | null, formspark_id?: string | null }} configData
  */
 const getFormTarget = (configData) => {
   if (configData.contact_form_target) {

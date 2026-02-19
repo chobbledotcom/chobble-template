@@ -20,6 +20,7 @@ const getOpeningTimesHtml = memoize(async () => {
   return renderOpeningTimes(siteData.default.opening_times);
 });
 
+/** @param {*} eleventyConfig */
 const configureOpeningTimes = (eleventyConfig) => {
   eleventyConfig.addAsyncShortcode("opening_times", getOpeningTimesHtml);
 };

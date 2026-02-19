@@ -27,6 +27,7 @@ const guidesByCategory = (guidePages, categorySlug) =>
 const guideCategoriesByProperty = (guideCategories, propertySlug) =>
   indexByProperty(guideCategories)[propertySlug] ?? [];
 
+/** @param {*} eleventyConfig */
 const configureGuides = (eleventyConfig) => {
   eleventyConfig.addFilter("guidesByCategory", guidesByCategory);
   addDataFilter(

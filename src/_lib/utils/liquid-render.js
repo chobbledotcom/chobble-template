@@ -22,13 +22,16 @@ const createTemplateLoader = (templateName) =>
  * @param {string} dataKey - Key name for the data in the template context
  * @returns {Function} Async function that renders the template with data
  */
-const createTemplateRenderer = (getTemplate, dataKey) => async (data) => {
-  if (!data || data.length === 0) {
-    return "";
-  }
+const createTemplateRenderer =
+  (getTemplate, dataKey) =>
+  /** @param {unknown[]} data */
+  async (data) => {
+    if (!data || data.length === 0) {
+      return "";
+    }
 
-  const template = await getTemplate();
-  return liquid.parseAndRender(template, { [dataKey]: data });
-};
+    const template = await getTemplate();
+    return liquid.parseAndRender(template, { [dataKey]: data });
+  };
 
 export { createTemplateLoader, createTemplateRenderer };
