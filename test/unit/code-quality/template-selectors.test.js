@@ -1,10 +1,11 @@
 // Template selector contract tests
 // Verifies that HTML templates contain all required template IDs
 
-import { describe, expect, test } from "bun:test";
+import { beforeAll, describe, expect, test } from "bun:test";
 import { IDS } from "#public/utils/selectors.js";
-import { DOM, fs, path, rootDir } from "#test/test-utils.js";
+import { fs, path, rootDir } from "#test/test-utils.js";
 import { mapObject } from "#toolkit/fp/object.js";
+import { loadDOM } from "#utils/lazy-dom.js";
 
 // Build a lookup for Liquid variable expansion (IDS from selectors.js)
 const LIQUID_LOOKUP = mapObject((key, value) => [
@@ -15,7 +16,7 @@ const LIQUID_LOOKUP = mapObject((key, value) => [
 // Load and parse HTML template files
 const templatesDir = path.join(rootDir, "src/_includes/templates");
 
-const loadTemplate = (filename) => {
+const loadTemplate = async (filename) => {
   const filepath = path.join(templatesDir, filename);
   if (!fs.existsSync(filepath)) {
     return null;
@@ -40,14 +41,29 @@ const loadTemplate = (filename) => {
     return value !== undefined ? value : match;
   });
 
-  return new DOM(content);
+  const { window } = await loadDOM(content);
+  return window.document;
 };
 
 // Load all template files
-const cartTemplates = loadTemplate("cart.html");
-const galleryTemplates = loadTemplate("gallery.html");
-const quotePriceTemplates = loadTemplate("quote-price.html");
-const quoteStepIndicatorTemplates = loadTemplate("quote-step-indicator.html");
+let cartTemplates;
+let galleryTemplates;
+let quotePriceTemplates;
+let quoteStepIndicatorTemplates;
+
+beforeAll(async () => {
+  [
+    cartTemplates,
+    galleryTemplates,
+    quotePriceTemplates,
+    quoteStepIndicatorTemplates,
+  ] = await Promise.all([
+    loadTemplate("cart.html"),
+    loadTemplate("gallery.html"),
+    loadTemplate("quote-price.html"),
+    loadTemplate("quote-step-indicator.html"),
+  ]);
+});
 
 describe("Template selector contracts", () => {
   describe("All template IDs exist in HTML", () => {
@@ -60,7 +76,7 @@ describe("Template selector contracts", () => {
           quotePriceTemplates,
           quoteStepIndicatorTemplates,
         ]) {
-          if (dom?.window.document.getElementById(id)) {
+          if (dom?.getElementById(id)) {
             found = true;
             break;
           }

@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import {
+  DEFAULT_LIST_ITEM_FIELDS,
+  selectListItemFields,
+} from "#config/list-config.js";
 import listItemFields from "#data/listItemFields.js";
-
-const { DEFAULT_FIELDS, selectListItemFields } = listItemFields._helpers;
 
 describe("list-item-fields", () => {
   test("listItemFields exports an array", () => {
@@ -20,22 +22,22 @@ describe("list-item-fields", () => {
 
   test("selectListItemFields returns DEFAULT_FIELDS when given an empty array", () => {
     const result = selectListItemFields([]);
-    expect(result).toEqual(DEFAULT_FIELDS);
+    expect(result).toEqual(DEFAULT_LIST_ITEM_FIELDS);
   });
 
   test("selectListItemFields returns DEFAULT_FIELDS when given null", () => {
     const result = selectListItemFields(null);
-    expect(result).toEqual(DEFAULT_FIELDS);
+    expect(result).toEqual(DEFAULT_LIST_ITEM_FIELDS);
   });
 
   test("selectListItemFields returns DEFAULT_FIELDS when given undefined", () => {
     const result = selectListItemFields(undefined);
-    expect(result).toEqual(DEFAULT_FIELDS);
+    expect(result).toEqual(DEFAULT_LIST_ITEM_FIELDS);
   });
 
   test("selectListItemFields returns DEFAULT_FIELDS when given a non-array value", () => {
     const result = selectListItemFields("not-an-array");
-    expect(result).toEqual(DEFAULT_FIELDS);
+    expect(result).toEqual(DEFAULT_LIST_ITEM_FIELDS);
   });
 
   test("DEFAULT_FIELDS contains all expected field names", () => {
@@ -50,9 +52,9 @@ describe("list-item-fields", () => {
       "specs",
       "cart-button",
     ];
-    expect(DEFAULT_FIELDS).toHaveLength(expected.length);
+    expect(DEFAULT_LIST_ITEM_FIELDS).toHaveLength(expected.length);
     for (const field of expected) {
-      expect(DEFAULT_FIELDS.includes(field)).toBe(true);
+      expect(DEFAULT_LIST_ITEM_FIELDS.includes(field)).toBe(true);
     }
   });
 });

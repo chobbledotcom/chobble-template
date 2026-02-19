@@ -8,7 +8,6 @@ import { expect } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { Window } from "happy-dom";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
 import { map } from "#toolkit/fp/array.js";
 import { omit } from "#toolkit/fp/object.js";
@@ -89,6 +88,7 @@ import {
 
 const rootDir = ROOT_DIR;
 const srcDir = SRC_DIR;
+const CART_STORAGE_KEY = "shopping_cart";
 
 // Wrap toolkit's createTempDir to use test directory (not cwd)
 const createTempDir = (testName, suffix = "") => {
@@ -180,16 +180,6 @@ const compileScss = async (inputContent, inputPath) => {
   const compiler = createScssCompiler(inputContent, inputPath);
   return await compiler({});
 };
-
-// JSDOM-compatible wrapper for happy-dom
-class DOM {
-  constructor(html = "", _options = {}) {
-    this.window = new Window({ url: _options.url || "http://localhost" });
-    if (html) {
-      this.window.document.write(html);
-    }
-  }
-}
 
 // HTML wrapper for creating complete documents in transform tests
 const wrapHtml = (body) => `<html><body>${body}</body></html>`;
@@ -369,7 +359,6 @@ export {
 // Export project-specific utilities
 export {
   // Core
-  DOM,
   wrapHtml,
   compileScss,
   everyEntry,
@@ -379,6 +368,7 @@ export {
   path,
   rootDir,
   srcDir,
+  CART_STORAGE_KEY,
   // File discovery
   getFiles,
   SRC_JS_FILES,

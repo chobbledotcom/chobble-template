@@ -5,14 +5,7 @@
  * avoiding DOM parsing overhead.
  */
 import { transformHtml } from "#utils/html-tokenizer.js";
-
-/**
- * Check if URL is external (http:// or https://)
- * @param {string} url
- * @returns {boolean}
- */
-const isExternalUrl = (url) =>
-  url.startsWith("http://") || url.startsWith("https://");
+import { isExternalUrl } from "#utils/url-utils.js";
 
 /**
  * Create new attributes array with an attribute added or updated (immutable).

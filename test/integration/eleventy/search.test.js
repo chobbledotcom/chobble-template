@@ -15,18 +15,18 @@ describe("search", () => {
       contentFile("pages", "about", "About Us", { permalink: "/about/" }),
     ];
 
-    await withTestSite({ files }, (site) => {
-      const productDoc = site.getDoc("products/widget/index.html");
+    await withTestSite({ files }, async (site) => {
+      const productDoc = await site.getDoc("products/widget/index.html");
       expect(productDoc.querySelector("[data-pagefind-body]") !== null).toBe(
         true,
       );
 
-      const categoryDoc = site.getDoc("categories/tools/index.html");
+      const categoryDoc = await site.getDoc("categories/tools/index.html");
       expect(categoryDoc.querySelector("[data-pagefind-body]") !== null).toBe(
         true,
       );
 
-      const aboutDoc = site.getDoc("about/index.html");
+      const aboutDoc = await site.getDoc("about/index.html");
       expect(aboutDoc.querySelector("[data-pagefind-body]")).toBe(null);
     });
   });
@@ -39,8 +39,8 @@ describe("search", () => {
       }),
     ];
 
-    await withTestSite({ files }, (site) => {
-      const doc = site.getDoc("search/index.html");
+    await withTestSite({ files }, async (site) => {
+      const doc = await site.getDoc("search/index.html");
 
       expect(doc.querySelector(".search-box") !== null).toBe(true);
       expect(doc.querySelector("#search-results") !== null).toBe(true);
@@ -58,13 +58,13 @@ describe("search", () => {
 
     await withTestSite(
       { files, config: { search_collections: ["products"] } },
-      (site) => {
-        const productDoc = site.getDoc("products/gadget/index.html");
+      async (site) => {
+        const productDoc = await site.getDoc("products/gadget/index.html");
         expect(productDoc.querySelector("[data-pagefind-body]") !== null).toBe(
           true,
         );
 
-        const newsDoc = site.getDoc("news/update/index.html");
+        const newsDoc = await site.getDoc("news/update/index.html");
         expect(newsDoc.querySelector("[data-pagefind-body]")).toBe(null);
       },
     );

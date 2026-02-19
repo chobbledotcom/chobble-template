@@ -37,9 +37,10 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
+import { wrapImageHtml } from "#media/image-wrapper.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
-import { createHtml, parseHtml } from "#utils/dom-builder.js";
+import { parseHtml } from "#utils/dom-builder.js";
 
 const DEFAULT_OPTIONS = frozenObject({
   outputDir: ".image-cache",
@@ -144,20 +145,16 @@ const computeWrappedImageHtml = memoize(
       pictureAttributes,
     );
 
-    return await createHtml(
-      "div",
-      {
-        class: classes ? `image-wrapper ${classes}` : "image-wrapper",
-        style: buildWrapperStyles(
-          bgImage,
-          aspectRatio,
-          metadata,
-          getAspectRatio,
-          skipMaxWidth,
-        ),
-      },
-      innerHTML,
-    );
+    return await wrapImageHtml(innerHTML, {
+      classes,
+      style: buildWrapperStyles(
+        bgImage,
+        aspectRatio,
+        metadata,
+        getAspectRatio,
+        skipMaxWidth,
+      ),
+    });
   },
   { cacheKey: jsonKey },
 );

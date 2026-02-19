@@ -31,7 +31,7 @@ import { fromPairs, frozenObject } from "#toolkit/fp/object.js";
 
 export const SCOPES = ["header", "nav", "article", "form", "button"];
 
-const SCOPE_SELECTORS = frozenObject({
+export const SCOPE_SELECTORS = frozenObject({
   header: "header",
   nav: "nav",
   article: "article",

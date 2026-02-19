@@ -6,7 +6,7 @@ import {
   calculateDays,
   initHireCalculator,
 } from "#public/cart/hire-calculator.js";
-import { STORAGE_KEY } from "#public/utils/cart-utils.js";
+import { CART_STORAGE_KEY } from "#test/test-utils.js";
 
 // Helper to run tests with isolated localStorage
 const withHireMockStorage = (fn) => {
@@ -25,7 +25,7 @@ const getTodayIso = () => new Date().toISOString().split("T")[0];
 const withHireTestSetup = ({ start = "", end = "", days = "" } = {}, fn) =>
   withHireMockStorage((storage) => {
     storage.setItem(
-      STORAGE_KEY,
+      CART_STORAGE_KEY,
       JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
     );
     document.body.innerHTML = `
@@ -83,7 +83,7 @@ describe("hire-calculator", () => {
   test("initHireCalculator does nothing when start input missing", () => {
     withHireMockStorage((storage) => {
       storage.setItem(
-        STORAGE_KEY,
+        CART_STORAGE_KEY,
         JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
       );
       document.body.innerHTML = '<input type="date" name="end_date" />';
@@ -100,7 +100,7 @@ describe("hire-calculator", () => {
   test("initHireCalculator does nothing when cart has no hire items", () => {
     withHireMockStorage((storage) => {
       storage.setItem(
-        STORAGE_KEY,
+        CART_STORAGE_KEY,
         JSON.stringify([{ item_name: "Widget", product_mode: "buy" }]),
       );
 

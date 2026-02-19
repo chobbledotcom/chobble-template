@@ -8,30 +8,13 @@
  * always requests the base page, and JS reads the hash on load.
  */
 
+import { filterToPath } from "#utils/filter-path.js";
+
 const SORT_KEYS = {
   "price-asc": true,
   "price-desc": true,
   "name-asc": true,
   "name-desc": true,
-};
-
-/**
- * Convert filter object to path segment.
- * Keys are sorted alphabetically for stable URLs.
- * { colour: "red", size: "large" } => "colour/red/size/large"
- *
- * @param {Record<string, string>} filters
- * @returns {string}
- */
-const filterToPath = (filters) => {
-  const keys = Object.keys(filters).sort();
-  if (keys.length === 0) return "";
-  return keys
-    .flatMap((key) => [
-      encodeURIComponent(key),
-      encodeURIComponent(filters[key]),
-    ])
-    .join("/");
 };
 
 /**

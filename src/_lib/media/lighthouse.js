@@ -1,7 +1,6 @@
 import {
-  buildOutputPath,
   buildUrl,
-  createOperationContext,
+  createOperationContextWithPathConfig,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
   frozenObject,
@@ -33,6 +32,8 @@ const DEFAULT_OPTIONS = frozenObject({
   onlyCategories: null,
   thresholds: null,
 });
+
+/** @typedef {import("#media/browser-utils.js").OperationContext<typeof DEFAULT_OPTIONS>} LighthouseContext */
 
 export const runLighthouse = async (url, outputPath, options) => {
   const runLighthouseAudit = async (chrome) => {
@@ -97,18 +98,17 @@ export const runLighthouse = async (url, outputPath, options) => {
 export const lighthouse = async (pagePath, options = {}) => {
   const formatExtension = (fmt) =>
     ({ html: "html", json: "json", csv: "csv" })[fmt] || "html";
-  const buildReportPath = (opts, path) =>
-    buildOutputPath(path, {
-      outputDir: opts.outputDir,
-      extension: formatExtension(opts.format),
-    });
 
-  const { opts, url, outputPath } = createOperationContext(
+  /** @type {LighthouseContext} */
+  const context = createOperationContextWithPathConfig(
     pagePath,
     DEFAULT_OPTIONS,
     options,
-    buildReportPath,
+    {
+      extension: (opts) => formatExtension(opts.format),
+    },
   );
+  const { opts, url, outputPath } = context;
   log(`Running Lighthouse on ${url}`);
 
   const result = await runLighthouse(url, outputPath, opts);

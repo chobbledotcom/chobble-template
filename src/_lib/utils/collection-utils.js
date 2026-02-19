@@ -69,6 +69,16 @@ export const createFieldIndexer = (field) =>
   });
 
 /**
+ * Get children from a field indexer, returning empty array when missing.
+ * @param {(items: any[]) => Record<string, any[]>} indexer
+ * @param {any[]} items
+ * @param {string} parentSlug
+ * @returns {any[]}
+ */
+export const getByParent = (indexer, items, parentSlug) =>
+  indexer(items)[parentSlug] ?? [];
+
+/**
  * Create an indexer that groups items by a field that contains an array of slugs.
  * Returns a memoized function for O(1) lookups.
  * Normalizes slug references so "events/foo.md", "events/foo", and "foo" all match.

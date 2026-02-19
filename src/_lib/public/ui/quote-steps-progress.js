@@ -1,8 +1,6 @@
 // Renders and updates the step progress indicator
 
-import { onReady } from "#public/utils/on-ready.js";
-import { IDS } from "#public/utils/selectors.js";
-import { getTemplate } from "#public/utils/template.js";
+import { getTemplate, IDS, onReady } from "#public/utils/ui-deps.js";
 
 export function renderStepProgress(container, steps, completedSteps) {
   const ul = document.createElement("ul");

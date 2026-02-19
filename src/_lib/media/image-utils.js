@@ -6,6 +6,8 @@
  */
 import { compact } from "#toolkit/fp/array.js";
 
+export { isExternalUrl } from "#utils/url-utils.js";
+
 const DEFAULT_WIDTHS = [240, 480, 900, 1300];
 const DEFAULT_SIZE = "auto";
 
@@ -26,12 +28,6 @@ export const normalizeImagePath = (imageName) => {
   if (imageName.startsWith("images/")) return `./src/${imageName}`;
   return `./src/images/${imageName}`;
 };
-
-/**
- * Check if URL is external (http:// or https://).
- */
-export const isExternalUrl = (url) =>
-  url.startsWith("http://") || url.startsWith("https://");
 
 /**
  * Parse widths parameter and add "auto" for original source image.

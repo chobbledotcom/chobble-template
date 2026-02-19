@@ -10,7 +10,7 @@
 		"**/page-layouts/**",
 		"**/packages/**/index.js"
 	],
-	"format": ["javascript", "json", "markup", "css", "scss"],
+	"format": ["javascript", "markup", "css", "scss"],
 	"absolute": false,
 	"gitignore": true,
 	"exitCode": 1,

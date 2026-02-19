@@ -263,15 +263,6 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
 // Use `new DOM(html)` only when parsing generated HTML for assertions,
 // NOT for mocking the global document.
 const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
-  // Infrastructure: DOM class definition
-  "test/test-utils.js:186",
-
-  // Parsing build output into queryable documents
-  "test/test-site-factory.js:331",
-
-  // Parsing generated HTML for assertions
-  "test/unit/code-quality/template-selectors.test.js:43",
-
   // This test file tests these patterns
   "test/unit/code-quality/dom-mocking.test.js",
 ]);

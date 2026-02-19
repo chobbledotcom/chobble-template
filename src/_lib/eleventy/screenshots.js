@@ -11,6 +11,8 @@ import {
 import { map, pipe } from "#toolkit/fp/array.js";
 import { log, error as logError } from "#utils/console.js";
 
+/** @typedef {import("#media/browser-utils.js").DevServerHandle} DevServerHandle */
+
 /** @returns {import("#lib/types").ScreenshotConfig} */
 const getScreenshotConfig = () => getConfig().screenshots;
 
@@ -51,6 +53,7 @@ export const captureScreenshots = async (
   screenshotConfig,
   outputDir,
 ) => {
+  /** @type {DevServerHandle} */
   const server = await startServer(outputDir, screenshotConfig.port || 8080);
   const configOutputDir = screenshotConfig.outputDir || "screenshots";
 

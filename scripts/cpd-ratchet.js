@@ -11,7 +11,7 @@ import { spawnSync } from "node:child_process";
 import { ROOT_DIR } from "#lib/paths.js";
 
 // Current threshold from package.json cpd script
-const CURRENT_MIN_TOKENS = 23;
+const CURRENT_MIN_TOKENS = 22;
 const RATCHET_MIN_TOKENS = CURRENT_MIN_TOKENS - 1;
 
 // Paths matching the cpd script in package.json

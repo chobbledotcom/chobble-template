@@ -1,7 +1,6 @@
 import {
   BROWSER_ARGS,
-  buildOutputPath,
-  createOperationContext,
+  createOperationContextWithPathConfig,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
   ensurePlaywrightBrowsers,
@@ -30,6 +29,8 @@ const DEFAULT_OPTIONS = frozenObject({
   backgroundColor: "FFFFFF",
   virtualTimeBudget: 5000,
 });
+
+/** @typedef {import("#media/browser-utils.js").OperationContext<typeof DEFAULT_OPTIONS>} ScreenshotContext */
 
 export const buildViewportSuffix = (viewport) =>
   viewport !== "desktop" ? `-${viewport}` : "";
@@ -77,19 +78,17 @@ export const takeScreenshotWithPlaywright = async (
 export const screenshot = async (pagePath, options = {}) => {
   await ensurePlaywrightBrowsers();
 
-  const buildScreenshotPath = (opts, path) =>
-    buildOutputPath(path, {
-      outputDir: opts.outputDir,
-      suffix: buildViewportSuffix(opts.viewport),
-      extension: "png",
-    });
-
-  const { opts, url, outputPath } = createOperationContext(
+  /** @type {ScreenshotContext} */
+  const context = createOperationContextWithPathConfig(
     pagePath,
     DEFAULT_OPTIONS,
     options,
-    buildScreenshotPath,
+    {
+      suffix: (opts) => buildViewportSuffix(opts.viewport),
+      extension: "png",
+    },
   );
+  const { opts, url, outputPath } = context;
   log(`Taking screenshot of ${url} (${opts.viewport})`);
 
   const result = await takeScreenshotWithPlaywright(
