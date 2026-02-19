@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { Window } from "happy-dom";
 import {
   applyFiltersAndSort,
   itemMatchesFilters,
@@ -8,13 +7,14 @@ import {
   buildFilterHash,
   parseFiltersFromHash,
 } from "#public/ui/category-filter-url.js";
+import { loadDOM } from "#utils/lazy-dom.js";
 
 // ============================================
 // Test helpers
 // ============================================
 
-const createDOMItems = (specs) => {
-  const window = new Window();
+const createDOMItems = async (specs) => {
+  const { window } = await loadDOM();
   const ul = window.document.createElement("ul");
   window.document.body.appendChild(ul);
 
@@ -52,16 +52,16 @@ const expectVisibility = (items, visibleIndices) => {
 // ============================================
 
 describe("applyFiltersAndSort filtering", () => {
-  test("hides non-matching items and shows matching ones", () => {
-    const { ul, items } = createDOMItems();
+  test("hides non-matching items and shows matching ones", async () => {
+    const { ul, items } = await createDOMItems();
 
     applyFiltersAndSort(items, ul, { colour: "red" }, "default");
 
     expectVisibility(items, [0]);
   });
 
-  test("shows all items when filters are empty", () => {
-    const { ul, items } = createDOMItems();
+  test("shows all items when filters are empty", async () => {
+    const { ul, items } = await createDOMItems();
 
     const count = applyFiltersAndSort(items, ul, {}, "default");
 
@@ -71,8 +71,8 @@ describe("applyFiltersAndSort filtering", () => {
     }
   });
 
-  test("returns count of matched items", () => {
-    const { ul, items } = createDOMItems();
+  test("returns count of matched items", async () => {
+    const { ul, items } = await createDOMItems();
 
     const count = applyFiltersAndSort(
       items,
@@ -84,8 +84,8 @@ describe("applyFiltersAndSort filtering", () => {
     expect(count).toBe(1);
   });
 
-  test("rejects items when filter key does not exist", () => {
-    const { ul, items } = createDOMItems();
+  test("rejects items when filter key does not exist", async () => {
+    const { ul, items } = await createDOMItems();
 
     const count = applyFiltersAndSort(
       items,
@@ -97,8 +97,8 @@ describe("applyFiltersAndSort filtering", () => {
     expect(count).toBe(0);
   });
 
-  test("applies AND logic across multiple filter keys", () => {
-    const { ul, items } = createDOMItems([
+  test("applies AND logic across multiple filter keys", async () => {
+    const { ul, items } = await createDOMItems([
       { title: "A", price: 0, filters: { colour: "red", size: "large" } },
       { title: "B", price: 0, filters: { colour: "red", size: "small" } },
       { title: "C", price: 0, filters: { colour: "blue", size: "large" } },
@@ -121,40 +121,40 @@ describe("applyFiltersAndSort filtering", () => {
 // ============================================
 
 describe("applyFiltersAndSort sorting", () => {
-  test("reorders DOM children by name ascending", () => {
-    const { ul, items } = createDOMItems();
+  test("reorders DOM children by name ascending", async () => {
+    const { ul, items } = await createDOMItems();
 
     applyFiltersAndSort(items, ul, {}, "name-asc");
 
     expect(getChildTexts(ul)).toEqual(["Apple", "Banana", "Cherry"]);
   });
 
-  test("reorders DOM children by name descending", () => {
-    const { ul, items } = createDOMItems();
+  test("reorders DOM children by name descending", async () => {
+    const { ul, items } = await createDOMItems();
 
     applyFiltersAndSort(items, ul, {}, "name-desc");
 
     expect(getChildTexts(ul)).toEqual(["Cherry", "Banana", "Apple"]);
   });
 
-  test("reorders DOM children by price ascending", () => {
-    const { ul, items } = createDOMItems();
+  test("reorders DOM children by price ascending", async () => {
+    const { ul, items } = await createDOMItems();
 
     applyFiltersAndSort(items, ul, {}, "price-asc");
 
     expect(getChildTexts(ul)).toEqual(["Apple", "Banana", "Cherry"]);
   });
 
-  test("reorders DOM children by price descending", () => {
-    const { ul, items } = createDOMItems();
+  test("reorders DOM children by price descending", async () => {
+    const { ul, items } = await createDOMItems();
 
     applyFiltersAndSort(items, ul, {}, "price-desc");
 
     expect(getChildTexts(ul)).toEqual(["Cherry", "Banana", "Apple"]);
   });
 
-  test("restores original order with default sort after reorder", () => {
-    const { ul, items } = createDOMItems();
+  test("restores original order with default sort after reorder", async () => {
+    const { ul, items } = await createDOMItems();
 
     applyFiltersAndSort(items, ul, {}, "name-asc");
     applyFiltersAndSort(items, ul, {}, "default");
@@ -162,8 +162,8 @@ describe("applyFiltersAndSort sorting", () => {
     expect(getChildTexts(ul)).toEqual(["Cherry", "Apple", "Banana"]);
   });
 
-  test("falls back to default sort for unknown sort key", () => {
-    const { ul, items } = createDOMItems();
+  test("falls back to default sort for unknown sort key", async () => {
+    const { ul, items } = await createDOMItems();
 
     applyFiltersAndSort(items, ul, {}, "nonexistent");
 

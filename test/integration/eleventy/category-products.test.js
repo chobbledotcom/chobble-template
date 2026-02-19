@@ -30,8 +30,8 @@ describe("category-products", () => {
   test("Category page renders products assigned to that category", async () => {
     await withTestSite(
       { files: [widgetsCategory(), widgetProduct] },
-      (site) => {
-        const doc = site.getDoc("/categories/widgets/index.html");
+      async (site) => {
+        const doc = await site.getDoc("/categories/widgets/index.html");
         const html = doc.body.innerHTML;
 
         expect(html.includes("Test Widget")).toBe(true);
@@ -43,8 +43,8 @@ describe("category-products", () => {
   });
 
   test("Product without thumbnail shows placeholder by default", async () => {
-    await withTestSite({ files: categoryWithProduct }, (site) => {
-      const doc = site.getDoc("/categories/widgets/index.html");
+    await withTestSite({ files: categoryWithProduct }, async (site) => {
+      const doc = await site.getDoc("/categories/widgets/index.html");
       // With placeholder_images: true (default), products get placeholder thumbnails
       expect(doc.querySelector(".image-link") !== null).toBe(true);
     });
@@ -53,8 +53,8 @@ describe("category-products", () => {
   test("Product without thumbnail shows no image when placeholder_images disabled", async () => {
     await withTestSite(
       { config: { placeholder_images: false }, files: categoryWithProduct },
-      (site) => {
-        const doc = site.getDoc("/categories/widgets/index.html");
+      async (site) => {
+        const doc = await site.getDoc("/categories/widgets/index.html");
         // With placeholder_images: false, no thumbnail means no image rendered
         expect(doc.querySelector(".image-link")).toBe(null);
       },
@@ -97,10 +97,10 @@ describe("category-products", () => {
           },
         ],
       },
-      (site) => {
+      async (site) => {
         // News posts without thumbnails should have no placeholder image when placeholder_images: false
         // This exercises the return null path in getPlaceholderIfEnabled (lines 51-52)
-        const newsDoc = site.getDoc("/news/no-thumb/index.html");
+        const newsDoc = await site.getDoc("/news/no-thumb/index.html");
         expect(newsDoc.querySelector(".post-meta figure")).toBe(null);
         expect(newsDoc.querySelector(".post-meta img")).toBe(null);
       },

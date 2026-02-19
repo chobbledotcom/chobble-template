@@ -6,6 +6,8 @@
  */
 
 import { itemMatchesFilters } from "#public/ui/category-filter-engine.js";
+import { flatMap, pipe } from "#toolkit/fp/array.js";
+import { fromPairs } from "#toolkit/fp/object.js";
 
 /**
  * Build a lookup from filter key/value slugs to their display labels
@@ -14,12 +16,23 @@ import { itemMatchesFilters } from "#public/ui/category-filter-engine.js";
  * @returns {Record<string, string>} Slug to display label map
  */
 export const buildLabelLookup = (container) =>
-  Array.from(container.querySelectorAll("[data-filter-key-label]"), (el) => [
-    [el.dataset.filterKey, el.dataset.filterKeyLabel],
-    [el.dataset.filterValue, el.dataset.filterValueLabel],
-  ])
-    .flat()
-    .reduce((acc, [k, v]) => Object.assign(acc, { [k]: v }), {});
+  pipe(
+    (el) => Array.from(el.querySelectorAll("[data-filter-key-label]")),
+    flatMap((el) => [
+      [el.dataset.filterKey, el.dataset.filterKeyLabel],
+      [el.dataset.filterValue, el.dataset.filterValueLabel],
+    ]),
+    fromPairs,
+  )(container);
+
+const createPillLink = ({ text, dataset, ariaLabel }) => {
+  const link = document.createElement("a");
+  link.href = "#";
+  Object.assign(link.dataset, dataset);
+  if (ariaLabel) link.setAttribute("aria-label", ariaLabel);
+  link.textContent = text;
+  return link;
+};
 
 /**
  * Read active filters from server-rendered active filter pills.
@@ -66,22 +79,22 @@ export const rebuildPills = (pillContainer, activeFilters, labelLookup) => {
     const li = document.createElement("li");
     const span = document.createElement("span");
     span.textContent = `${labelLookup[filterKey]}: ${labelLookup[filterValue]}`;
-    const a = document.createElement("a");
-    a.href = "#";
-    a.dataset.removeFilter = filterKey;
-    a.setAttribute("aria-label", `Remove ${labelLookup[filterKey]} filter`);
-    a.textContent = "\u00d7";
-    li.append(span, a);
+    const removeLink = createPillLink({
+      text: "\u00d7",
+      dataset: { removeFilter: filterKey },
+      ariaLabel: `Remove ${labelLookup[filterKey]} filter`,
+    });
+    li.append(span, removeLink);
     pillContainer.append(li);
   }
 
   if (Object.keys(activeFilters).length > 0) {
     const li = document.createElement("li");
-    const a = document.createElement("a");
-    a.href = "#";
-    a.dataset.clearFilters = "";
-    a.textContent = "Clear all";
-    li.append(a);
+    const clearLink = createPillLink({
+      text: "Clear all",
+      dataset: { clearFilters: "" },
+    });
+    li.append(clearLink);
     pillContainer.append(li);
   }
 };

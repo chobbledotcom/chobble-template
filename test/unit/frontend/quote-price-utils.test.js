@@ -6,13 +6,12 @@ import { describe, expect, mock, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import { Liquid } from "liquidjs";
-import { STORAGE_KEY } from "#public/utils/cart-utils.js";
 import {
   setupDetailsBlurHandlers,
   updateQuotePrice,
 } from "#public/utils/quote-price-utils.js";
 import { IDS } from "#public/utils/selectors.js";
-import { rootDir } from "#test/test-utils.js";
+import { CART_STORAGE_KEY, rootDir } from "#test/test-utils.js";
 
 // Set up Liquid engine to render actual templates
 const liquid = new Liquid({
@@ -63,7 +62,7 @@ describe("quote-price-utils", () => {
     // Use actual production templates to ensure tests match real behavior
     const setupDOM = async (cart = [], formFields = "") => {
       const templates = await renderQuotePriceTemplates();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
       document.body.innerHTML = `
         <script id="site-config" type="application/json">{"currency":"GBP"}</script>
         <script class="quote-field-labels" type="application/json">{"name": "Your Name", "email": "Email", "phone": "Phone", "contact": "Preferred Contact", "event_type": "Event Type", "message": "Message"}</script>
@@ -354,7 +353,7 @@ describe("quote-price-utils", () => {
 
     test("uses quote-steps container for field details when available", async () => {
       const templates = await renderQuotePriceTemplates();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([buyItem()]));
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify([buyItem()]));
       document.body.innerHTML = `
         <script id="site-config" type="application/json">{"currency":"GBP"}</script>
         <script class="quote-field-labels" type="application/json">{"name": "Your Name"}</script>
@@ -386,7 +385,7 @@ describe("quote-price-utils", () => {
   // ----------------------------------------
   describe("setupDetailsBlurHandlers", () => {
     const setupBlurTestDOM = (formHtml, useQuoteSteps = false) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify([]));
       const containerHtml = useQuoteSteps
         ? `<div class="quote-steps">${formHtml}</div>`
         : `<form>${formHtml}</form>`;

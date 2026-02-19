@@ -1,6 +1,4 @@
-import { onReady } from "#public/utils/on-ready.js";
-import { IDS } from "#public/utils/selectors.js";
-import { getTemplate } from "#public/utils/template.js";
+import { getTemplate, IDS, onReady } from "#public/utils/ui-deps.js";
 
 const NAV_PREV = '[data-nav="prev"]';
 const NAV_NEXT = '[data-nav="next"]';

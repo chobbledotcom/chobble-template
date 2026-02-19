@@ -11,6 +11,8 @@ import {
 import { map, pipe } from "#toolkit/fp/array.js";
 import { log, error as logError } from "#utils/console.js";
 
+/** @typedef {import("#media/browser-utils.js").DevServerHandle} DevServerHandle */
+
 /** @returns {import("#lib/types").ScreenshotConfig} */
 const getScreenshotConfig = () => getConfig().screenshots;
 

@@ -19,21 +19,11 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { Window } from "happy-dom";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
 import { filter, flatMap, map, pipe, unique } from "#toolkit/fp/array.js";
 import { memoize } from "#toolkit/fp/memoize.js";
-
-// JSDOM-compatible wrapper for happy-dom
-class DOM {
-  constructor(html = "") {
-    this.window = new Window();
-    if (html) {
-      this.window.document.write(html);
-    }
-  }
-}
+import { loadDOM } from "#utils/lazy-dom.js";
 
 const rootDir = ROOT_DIR;
 
@@ -327,8 +317,9 @@ const createTestSite = async (options = {}) => {
         return fs.readFileSync(fullPath, "utf-8");
       },
 
-      getDoc(filePath) {
-        return new DOM(this.getOutput(filePath)).window.document;
+      async getDoc(filePath) {
+        const { window } = await loadDOM(this.getOutput(filePath));
+        return window.document;
       },
 
       hasOutput(filePath) {
