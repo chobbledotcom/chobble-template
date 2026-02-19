@@ -43,7 +43,7 @@ export type ComputeImageProps = {
  */
 export type ImageTransformOptions = {
   logName: string;
-  imageName: string | null;
+  imageName: string;
   alt: string | null;
   classes: string | null;
   sizes: string | null;

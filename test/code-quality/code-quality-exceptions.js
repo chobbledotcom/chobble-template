@@ -290,7 +290,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 
   // src/_lib/build - build-time utilities
   "src/_lib/build/scss.js:22", // Lazy module loading pattern
-  "src/_lib/build/theme-compiler.js:57", // Theme variables extraction fallback
+  "src/_lib/build/theme-compiler.js:59", // Theme variables extraction fallback
 
   // src/_lib/filters - URL-based filtering
   "src/_lib/filters/category-product-filters.js:142", // Liquid template boundary (currentFilters from template can be null)

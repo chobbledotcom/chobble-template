@@ -45,9 +45,12 @@ const extractImageOptions = (img, document) => {
   const noLqip = img.hasAttribute(NO_LQIP_ATTRIBUTE);
   if (noLqip) img.removeAttribute(NO_LQIP_ATTRIBUTE);
 
+  const imageName = img.getAttribute("src");
+  if (!imageName) throw new Error("img element missing src attribute");
+
   return {
     logName: `transformImages: ${img}`,
-    imageName: img.getAttribute("src"),
+    imageName,
     alt: img.getAttribute("alt"),
     classes: img.getAttribute("class"),
     sizes: img.getAttribute("sizes"),
