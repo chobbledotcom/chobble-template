@@ -24,6 +24,9 @@ const getDOMClass = memoize(async () => {
   return class {
     constructor(html = "") {
       this.window = new Window();
+      if (!this.window.SyntaxError) {
+        this.window.SyntaxError = SyntaxError;
+      }
       if (html) {
         this.window.document.write(html);
       }
