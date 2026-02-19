@@ -12,6 +12,7 @@ const DEFAULT_FIELDS = [
   "cart-button",
 ];
 
+/** @param {unknown} configFields */
 const selectListItemFields = (configFields) =>
   Array.isArray(configFields) && configFields.length > 0
     ? configFields

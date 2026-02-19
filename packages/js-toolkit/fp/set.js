@@ -34,7 +34,10 @@ const createMethodCache = () => new Map();
  * @param {string | symbol} prop
  * @returns {unknown}
  */
-const getSetProperty = (target, prop) => target[prop];
+const getSetProperty = (target, prop) =>
+  /** @type {Record<string | symbol, unknown>} */ (
+    /** @type {unknown} */ (target)
+  )[prop];
 
 /**
  * Create a proxy handler with cached bound methods for performance

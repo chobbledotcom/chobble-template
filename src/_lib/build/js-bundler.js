@@ -1,3 +1,4 @@
+/** @param {*} eleventyConfig */
 export const configureJsBundler = (eleventyConfig) => {
   eleventyConfig.on("eleventy.before", async () => {
     const isDevelopment = process.env.ELEVENTY_RUN_MODE === "serve";

@@ -33,9 +33,11 @@ const getPropertiesByLocation = (properties, locationSlug) => {
 const propertiesWithReviewsPage = withReviewsPage("properties", addGallery);
 const propertyReviewsRedirects = reviewsRedirects("properties");
 
+/** @param {*} collectionApi */
 const createPropertiesCollection = (collectionApi) =>
   collectionApi.getFilteredByTag("properties").map(addGallery);
 
+/** @param {*} eleventyConfig */
 const configureProperties = (eleventyConfig) => {
   eleventyConfig.addCollection("properties", createPropertiesCollection);
   eleventyConfig.addCollection(

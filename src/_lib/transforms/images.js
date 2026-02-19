@@ -74,7 +74,7 @@ const processImageElement = async (img, document, processAndWrapImage) => {
   }
   if (img.parentElement?.classList?.contains("image-wrapper")) return;
   const wrapped = await processAndWrapImage(extractImageOptions(img, document));
-  if (typeof wrapped !== "string") {
+  if (typeof wrapped !== "string" && img.parentElement) {
     img.parentElement.replaceChild(wrapped, img);
   }
 };

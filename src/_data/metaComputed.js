@@ -36,9 +36,9 @@ export default function () {
     organization: {
       name: siteData.name,
       url: siteData.url,
-      description: metaData.organization?.description || siteData.description,
       ...(logoUrl && { logo: logoUrl }),
       ...metaData.organization,
+      description: metaData.organization?.description || siteData.description,
       founders: uniqueFounders,
       sameAs,
     },

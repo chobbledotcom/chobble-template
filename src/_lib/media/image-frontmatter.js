@@ -10,7 +10,10 @@ import { SRC_DIR } from "#lib/paths.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 
 // Memoize the file existence check since the same images are checked repeatedly
-const checkImageExists = memoize((fullPath) => existsSync(fullPath));
+const checkImageExists = memoize(
+  /** @param {string} fullPath */
+  (fullPath) => existsSync(fullPath),
+);
 
 /**
  * Validates an image path from frontmatter.

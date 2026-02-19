@@ -20,6 +20,7 @@ const isServeMode = () => {
   );
 };
 
+/** @param {...unknown} args */
 export const log = (...args) => {
   if (isServeMode()) {
     // biome-ignore lint/suspicious/noConsole: controlled console wrapper
@@ -27,6 +28,7 @@ export const log = (...args) => {
   }
 };
 
+/** @param {...unknown} args */
 export const error = (...args) => {
   if (isServeMode()) {
     // biome-ignore lint/suspicious/noConsole: controlled console wrapper

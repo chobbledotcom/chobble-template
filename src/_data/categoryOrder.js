@@ -10,6 +10,7 @@ const DEFAULT_ORDER = [
   "category-below-products.html",
 ];
 
+/** @param {unknown} configOrder */
 const getCategoryOrder = (configOrder) =>
   Array.isArray(configOrder) && configOrder.length > 0
     ? configOrder

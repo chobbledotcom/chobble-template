@@ -15,6 +15,7 @@ const DEFAULT_ORDER = [
   "property/contact.html",
 ];
 
+/** @param {unknown} configOrder */
 const getPropertyOrder = (configOrder) =>
   Array.isArray(configOrder) && configOrder.length > 0
     ? configOrder

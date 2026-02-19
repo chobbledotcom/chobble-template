@@ -6,6 +6,7 @@ import {
 } from "#utils/navigation-utils.js";
 
 export default linkableContent("location", {
+  /** @param {*} data */
   parentLocation: (data) => {
     const regex = new RegExp(
       `/${strings.location_permalink_dir}/([^/]+)/[^/]+\\.md$`,
@@ -13,6 +14,7 @@ export default linkableContent("location", {
     const match = data.page.inputPath.match(regex);
     return match ? match[1] : null;
   },
+  /** @param {*} data */
   permalink: (data) => {
     if (data.permalink) return data.permalink;
     if (data.parentLocation) {
@@ -20,6 +22,7 @@ export default linkableContent("location", {
     }
     return `/${strings.location_permalink_dir}/${data.page.fileSlug}/`;
   },
+  /** @param {*} data */
   eleventyNavigation: (data) =>
     buildNavigation(data, (d) => {
       if (d.parentLocation) {
