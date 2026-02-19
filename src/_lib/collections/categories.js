@@ -4,16 +4,17 @@
  * @module #collections/categories
  */
 
+import { createChildThumbnailResolver } from "#collections/thumbnail-resolvers.js";
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
 import {
   createFieldIndexer,
   featuredCollection,
+  getByParent,
   getCategoriesFromApi,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
-import { findFirst, findFromChildren } from "#utils/thumbnail-finder.js";
 
 /** @typedef {import("#lib/types").CategoryCollectionItem} CategoryCollectionItem */
 /** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
@@ -69,7 +70,7 @@ const extractProductPropertyEntries = (propertyName) => (product) => {
   return product.data.categories.map((slug) => ({
     categorySlug: normaliseSlug(slug),
     value,
-    order: product.data.order ?? 0,
+    order: product.data.order,
   }));
 };
 
@@ -122,34 +123,28 @@ const snapshotOwnImages = (categories) =>
  * @param {Record<string, {header_image?: string, thumbnail?: string}>} ownImages
  * @param {CategoryPropertyMap} productThumbnails - Product-only thumbnail lookup
  * @param {Map<string, CategoryCollectionItem[]>} childrenByParent
- * @returns {(slug: string) => string | undefined}
+ * @returns {(category: CategoryCollectionItem) => string | undefined}
  */
 const createThumbnailResolver = (
   ownImages,
   productThumbnails,
   childrenByParent,
 ) => {
-  const resolveChild = (slug) => {
-    const own = ownImages[slug];
-    return findFirst(
-      () => (isRealImage(own?.thumbnail) ? own.thumbnail : undefined),
-      () =>
-        findFromChildren(childrenByParent.get(slug), (child) =>
-          resolveChild(child.fileSlug),
-        ),
-      () => {
-        const thumb = productThumbnails[slug]?.[0];
-        return isRealImage(thumb) ? thumb : undefined;
-      },
-    );
-  };
+  const resolveChild = createChildThumbnailResolver({
+    childrenByParent,
+    getOwnThumbnail: (category) => {
+      const own = ownImages[category.fileSlug];
+      return isRealImage(own?.thumbnail) ? own.thumbnail : undefined;
+    },
+    getFallbackThumbnail: (category) => {
+      const thumb = productThumbnails[category.fileSlug]?.[0];
+      return isRealImage(thumb) ? thumb : undefined;
+    },
+  });
 
-  return (slug) => {
-    const own = ownImages[slug];
-    return findFirst(
-      () => own?.header_image,
-      () => resolveChild(slug),
-    );
+  return (category) => {
+    const own = ownImages[category.fileSlug];
+    return own?.header_image ?? resolveChild(category);
   };
 };
 
@@ -179,7 +174,7 @@ const createCategoriesCollection = (collectionApi) => {
 
   return categories.map((category) => {
     category.data.header_image = images[category.fileSlug]?.[0];
-    const thumb = resolveThumbnail(category.fileSlug);
+    const thumb = resolveThumbnail(category);
     if (thumb) category.data.thumbnail = thumb;
     return category;
   });
@@ -188,7 +183,7 @@ const createCategoriesCollection = (collectionApi) => {
 const indexByParent = createFieldIndexer("parent");
 
 const getSubcategories = (categories, parentSlug) =>
-  indexByParent(categories)[parentSlug] ?? [];
+  getByParent(indexByParent, categories, parentSlug);
 const configureCategories = (eleventyConfig) => {
   eleventyConfig.addCollection("categories", createCategoriesCollection);
   eleventyConfig.addCollection(

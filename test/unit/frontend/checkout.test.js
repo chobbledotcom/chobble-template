@@ -3,7 +3,6 @@
 // Uses actual cart-utils.js and renders real Liquid templates
 
 import { describe, expect, mock, test } from "bun:test";
-import { Window } from "happy-dom";
 import { Liquid } from "liquidjs";
 import { configureJsConfig } from "#eleventy/js-config.js";
 
@@ -19,12 +18,12 @@ import {
   attachRemoveHandlers,
   formatPrice,
   getCart,
-  STORAGE_KEY,
   saveCart,
   updateCartIcon,
   updateItemQuantity,
 } from "#public/utils/cart-utils.js";
 import {
+  CART_STORAGE_KEY,
   createMockEleventyConfig,
   expectObjectProps,
   fs,
@@ -32,6 +31,7 @@ import {
   rootDir,
 } from "#test/test-utils.js";
 import { formatPrice as formatCurrency } from "#utils/format-price.js";
+import { loadDOM } from "#utils/lazy-dom.js";
 
 // Get the jsConfigJson filter via Eleventy registration
 const getJsConfigFilter = () => {
@@ -166,8 +166,7 @@ const createCheckoutPage = async (options = {}) => {
     </html>
   `;
 
-  const window = new Window({ url: "https://example.com" });
-  window.document.write(html);
+  const { window } = await loadDOM(html, { url: "https://example.com" });
   return { window };
 };
 
@@ -270,7 +269,7 @@ describe("checkout", () => {
 
   test("getCart throws on corrupt JSON in localStorage", () => {
     withCheckoutMockStorage((storage) => {
-      storage.setItem(STORAGE_KEY, "not valid json {{{");
+      storage.setItem(CART_STORAGE_KEY, "not valid json {{{");
       expect(() => getCart()).toThrow();
     });
   });
@@ -670,8 +669,7 @@ describe("checkout", () => {
       { config, item },
     );
 
-    const window = new Window();
-    window.document.write(`<div>${html}</div>`);
+    const { window } = await loadDOM(`<div>${html}</div>`);
     const doc = window.document;
     const button = doc.querySelector(".add-to-cart");
 
@@ -719,8 +717,7 @@ describe("checkout", () => {
       { config, item },
     );
 
-    const window = new Window();
-    window.document.write(`<div>${html}</div>`);
+    const { window } = await loadDOM(`<div>${html}</div>`);
     const doc = window.document;
     const button = doc.querySelector(".add-to-cart");
     const link = doc.querySelector("a.button");

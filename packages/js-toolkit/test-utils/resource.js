@@ -18,16 +18,41 @@ import path from "node:path";
  * @param {boolean} passResource - Whether to pass resource to callback
  * @returns {Function} (arg, callback) => result
  */
-const bracket =
-  (setup, teardown, passResource = true) =>
+const runBracketCore =
+  (setup, teardown, passResource, runCallback, awaitResult) =>
   (arg, callback) => {
     const resource = setup(arg);
+    const invoke = passResource ? () => callback(resource) : () => callback();
+
+    if (awaitResult) {
+      return (async () => {
+        try {
+          return await runCallback(invoke);
+        } finally {
+          teardown(resource);
+        }
+      })();
+    }
+
     try {
-      return passResource ? callback(resource) : callback();
+      return runCallback(invoke);
     } finally {
       teardown(resource);
     }
   };
+
+const createBracket =
+  (awaitResult) =>
+  (setup, teardown, passResource = true) =>
+    runBracketCore(
+      setup,
+      teardown,
+      passResource,
+      (invoke) => invoke(),
+      awaitResult,
+    );
+
+const bracket = createBracket(false);
 
 /**
  * Async bracket pattern for resource management.
@@ -38,16 +63,7 @@ const bracket =
  * @param {boolean} passResource - Whether to pass resource to callback
  * @returns {Function} async (arg, callback) => result
  */
-const bracketAsync =
-  (setup, teardown, passResource = true) =>
-  async (arg, callback) => {
-    const resource = setup(arg);
-    try {
-      return passResource ? await callback(resource) : await callback();
-    } finally {
-      teardown(resource);
-    }
-  };
+const bracketAsync = createBracket(true);
 
 /**
  * Create a unique temporary directory for tests

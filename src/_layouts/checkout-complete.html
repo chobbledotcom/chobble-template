@@ -3,12 +3,3 @@ layout: page
 ---
 
 {{ content }}
-
-<script>
-  (function() {
-    localStorage.removeItem('shopping_cart');
-    document.querySelectorAll('.cart-icon').forEach(function(icon) {
-      icon.style.display = 'none';
-    });
-  })();
-</script>

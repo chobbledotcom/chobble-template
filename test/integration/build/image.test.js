@@ -209,9 +209,9 @@ describe("image", () => {
           ],
           images: [{ src: "src/images/party.jpg", dest: "test-image.jpg" }],
         },
-        (site) => {
+        async (site) => {
           const html = site.getOutput("/test/index.html");
-          const doc = site.getDoc("/test/index.html");
+          const doc = await site.getDoc("/test/index.html");
 
           // Verify image was processed into picture element
           expect(html.includes("<picture")).toBe(true);

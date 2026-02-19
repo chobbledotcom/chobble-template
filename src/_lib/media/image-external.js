@@ -21,6 +21,7 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
+import { wrapImageHtml } from "#media/image-wrapper.js";
 import { compact } from "#toolkit/fp/array.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
@@ -109,14 +110,10 @@ const computeExternalImageHtml = memoize(
 
     const maxWidth = htmlMetadata.webp?.[htmlMetadata.webp.length - 1]?.width;
 
-    return await createHtml(
-      "div",
-      {
-        class: classes ? `image-wrapper ${classes}` : "image-wrapper",
-        style: buildExternalWrapperStyles(bgImage, aspectRatio, maxWidth),
-      },
-      innerHTML,
-    );
+    return await wrapImageHtml(innerHTML, {
+      classes,
+      style: buildExternalWrapperStyles(bgImage, aspectRatio, maxWidth),
+    });
   },
   { cacheKey: jsonKey },
 );
@@ -132,16 +129,10 @@ const generateRickAstleyPlaceholder = async (classes, aspectRatio) => {
     alt: "Video thumbnail",
     loading: "lazy",
   });
-  return createHtml(
-    "div",
-    {
-      class: classes ? `image-wrapper ${classes}` : "image-wrapper",
-      style: compact([aspectRatio && `aspect-ratio: ${aspectRatio}`]).join(
-        "; ",
-      ),
-    },
-    imgHtml,
-  );
+  return wrapImageHtml(imgHtml, {
+    classes,
+    style: compact([aspectRatio && `aspect-ratio: ${aspectRatio}`]).join("; "),
+  });
 };
 
 /**
@@ -174,24 +165,20 @@ const processExternalImage = async ({
   returnElement,
   document,
 }) => {
-  let html;
-  try {
-    html = await computeExternalImageHtml({
-      src,
-      alt,
-      loading,
-      classes,
-      sizes,
-      widths,
-      aspectRatio,
-    });
-  } catch (error) {
-    if (isRickAstleyThumbnail(src)) {
-      html = await generateRickAstleyPlaceholder(classes, aspectRatio);
-    } else {
+  const html = await computeExternalImageHtml({
+    src,
+    alt,
+    loading,
+    classes,
+    sizes,
+    widths,
+    aspectRatio,
+  }).catch(async (error) => {
+    if (!isRickAstleyThumbnail(src)) {
       throw error;
     }
-  }
+    return generateRickAstleyPlaceholder(classes, aspectRatio);
+  });
 
   return returnElement ? await parseHtml(html, document) : html;
 };

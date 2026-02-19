@@ -136,12 +136,6 @@ const checkoutWithStripe = () => {
   window.location.href = "/stripe-checkout/";
 };
 
-const clearCart = () => {
-  saveCart([]);
-  updateCartDisplay();
-  updateCartIcon();
-};
-
 const getOptionIndex = (button) =>
   button.classList.contains("product-option-button")
     ? Number.parseInt(
@@ -307,4 +301,4 @@ const setup = () => {
 
 onReady(() => setup());
 
-export { addItem, clearCart, getCartTotal, openCart, closeCart };
+export { addItem, getCartTotal, openCart, closeCart };

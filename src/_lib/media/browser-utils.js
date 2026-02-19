@@ -36,6 +36,68 @@ export const buildOutputPath = (
   { outputDir, suffix = "", extension },
 ) => join(outputDir, `${sanitizePagePath(pagePath)}${suffix}.${extension}`);
 
+/**
+ * @typedef {{ outputDir: string, baseUrl: string, outputPath: string | null }} BaseOperationOptions
+ */
+
+/**
+ * @template {object} Options
+ * @typedef {BaseOperationOptions & Options} OperationOptions
+ */
+
+/**
+ * @template {object} Options
+ * @typedef {OperationOptions<Options>} OutputPathOpts
+ */
+
+/**
+ * @template {object} Options
+ * @typedef {(opts: OutputPathOpts<Options>, path: string) => string} OutputPathBuilder
+ */
+
+/**
+ * @template {object} Options
+ * @typedef {string | ((opts: OutputPathOpts<Options>) => string)} OutputPathValue
+ */
+
+/**
+ * @template {object} Options
+ * @typedef {{ opts: OperationOptions<Options>, url: string, outputPath: string }} OperationContext
+ */
+
+/**
+ * @template {object} Options
+ * @param {OutputPathValue<Options>} value
+ * @param {OutputPathOpts<Options>} opts
+ * @returns {string}
+ */
+const resolveOutputPathValue = (value, opts) =>
+  typeof value === "function" ? value(opts) : value;
+
+/**
+ * Create a buildOutputPath wrapper with configurable suffix/extension.
+ * @template {object} Options
+ * @param {{ suffix?: OutputPathValue<Options>, extension: OutputPathValue<Options> }} options
+ * @returns {OutputPathBuilder<Options>}
+ */
+export const createOutputPathBuilder =
+  ({ suffix = "", extension }) =>
+  (opts, path) => {
+    return buildOutputPath(path, {
+      outputDir: opts.outputDir,
+      suffix: resolveOutputPathValue(suffix, opts),
+      extension: resolveOutputPathValue(extension, opts),
+    });
+  };
+
+/**
+ * @template {object} Options
+ * @param {string} pagePath
+ * @param {OperationOptions<Options>} defaultOpts
+ * @param {Partial<OperationOptions<Options>>} userOptions
+ * @param {(opts: OperationOptions<Options>, path: string) => string} buildPath
+ * @returns {OperationContext<Options>}
+ */
 export const createOperationContext = (
   pagePath,
   defaultOpts,
@@ -51,13 +113,44 @@ export const createOperationContext = (
 };
 
 /**
+ * Create operation context using a path-builder config.
+ * @template {object} O
+ * @param {string} pagePath
+ * @param {OutputPathOpts<O>} defaultOpts
+ * @param {Partial<OutputPathOpts<O>>} userOptions
+ * @param {{ suffix?: OutputPathValue<O>, extension: OutputPathValue<O> }} pathConfig
+ * @returns {OperationContext<O>}
+ */
+export const createPathContext = (
+  pagePath,
+  defaultOpts,
+  userOptions,
+  pathConfig,
+) => {
+  const buildPath = createOutputPathBuilder(pathConfig);
+  return createOperationContext(pagePath, defaultOpts, userOptions, buildPath);
+};
+
+/**
  * Creates an error info factory for page path batch operations
+ * @template {string} P
+ * @param {P[]} pagePaths
+ * @returns {(i: number, reason: Error) => { pagePath: P, error: string }}
  */
 export const pathErrorInfo = (pagePaths) => (i, reason) => ({
   pagePath: pagePaths[i],
   error: reason.message,
 });
 
+/**
+ * @template T
+ * @template R
+ * @template E
+ * @param {T[]} items
+ * @param {(item: T) => Promise<R>} operationFn
+ * @param {(i: number, reason: Error) => E} makeErrorInfo
+ * @returns {Promise<{ results: R[], errors: E[] }>}
+ */
 export const runBatchOperations = async (items, operationFn, makeErrorInfo) => {
   const settled = await Promise.allSettled(items.map(operationFn));
   return {
@@ -86,6 +179,15 @@ export const waitForServer = async (baseUrl, maxAttempts = 30, delay = 250) => {
   );
 };
 
+/**
+ * @typedef {{ process: import("bun").Subprocess, port: number, baseUrl: string, stop: () => void }} DevServerHandle
+ */
+
+/**
+ * @param {string} siteDir
+ * @param {number} [port]
+ * @returns {Promise<DevServerHandle>}
+ */
 export const startServer = async (siteDir, port = 8080) => {
   const serverProcess = Bun.spawn(
     [

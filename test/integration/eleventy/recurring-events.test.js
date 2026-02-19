@@ -215,9 +215,9 @@ describe("recurring-events", () => {
           eventsTestPage(),
         ],
       },
-      (site) => {
+      async (site) => {
         const html = site.getOutput("/test/index.html");
-        const doc = site.getDoc("/test/index.html");
+        const doc = await site.getDoc("/test/index.html");
 
         expect(html.includes("Weekly Meetup")).toBe(true);
         expect(html.includes("Monthly Workshop")).toBe(true);
