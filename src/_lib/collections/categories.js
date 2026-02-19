@@ -70,7 +70,7 @@ const extractProductPropertyEntries = (propertyName) => (product) => {
   return product.data.categories.map((slug) => ({
     categorySlug: normaliseSlug(slug),
     value,
-    order: product.data.order ?? 0,
+    order: product.data.order,
   }));
 };
 

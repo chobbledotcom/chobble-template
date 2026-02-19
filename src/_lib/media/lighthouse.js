@@ -1,6 +1,6 @@
 import {
   buildUrl,
-  createOperationContextWithPathConfig,
+  createPathContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
   frozenObject,
@@ -98,9 +98,7 @@ export const runLighthouse = async (url, outputPath, options) => {
 export const lighthouse = async (pagePath, options = {}) => {
   const formatExtension = (fmt) =>
     ({ html: "html", json: "json", csv: "csv" })[fmt] || "html";
-
-  /** @type {LighthouseContext} */
-  const context = createOperationContextWithPathConfig(
+  const context = createPathContext(
     pagePath,
     DEFAULT_OPTIONS,
     options,
@@ -108,10 +106,13 @@ export const lighthouse = async (pagePath, options = {}) => {
       extension: (opts) => formatExtension(opts.format),
     },
   );
-  const { opts, url, outputPath } = context;
-  log(`Running Lighthouse on ${url}`);
+  log(`Running Lighthouse on ${context.url}`);
 
-  const result = await runLighthouse(url, outputPath, opts);
+  const result = await runLighthouse(
+    context.url,
+    context.outputPath,
+    context.opts,
+  );
   const formatScore = (s) => (s === null ? "N/A" : `${Math.round(s * 100)}`);
   const scoreStr = Object.entries(result.scores)
     .map(([k, v]) => `${k}: ${formatScore(v)}`)

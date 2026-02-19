@@ -123,7 +123,7 @@ const categoryListingUI = (collectionApi) =>
 const categoryFilterData = (
   categoryFilterAttrs,
   categorySlug,
-  currentFilters,
+  currentFilters = {},
   filteredPages,
   currentSortKey = "default",
   count = 2,
@@ -138,7 +138,7 @@ const categoryFilterData = (
 
   return buildFilterUIData(
     filterData,
-    currentFilters ?? {},
+    currentFilters,
     getBasePaths(categoryPages),
     baseUrl,
     currentSortKey,

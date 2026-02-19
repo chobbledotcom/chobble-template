@@ -1,6 +1,6 @@
 import {
   BROWSER_ARGS,
-  createOperationContextWithPathConfig,
+  createPathContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
   ensurePlaywrightBrowsers,
@@ -78,8 +78,7 @@ export const takeScreenshotWithPlaywright = async (
 export const screenshot = async (pagePath, options = {}) => {
   await ensurePlaywrightBrowsers();
 
-  /** @type {ScreenshotContext} */
-  const context = createOperationContextWithPathConfig(
+  const context = createPathContext(
     pagePath,
     DEFAULT_OPTIONS,
     options,
@@ -88,14 +87,13 @@ export const screenshot = async (pagePath, options = {}) => {
       extension: "png",
     },
   );
-  const { opts, url, outputPath } = context;
-  log(`Taking screenshot of ${url} (${opts.viewport})`);
+  log(`Taking screenshot of ${context.url} (${context.opts.viewport})`);
 
   const result = await takeScreenshotWithPlaywright(
-    url,
-    outputPath,
-    opts.viewport,
-    opts,
+    context.url,
+    context.outputPath,
+    context.opts.viewport,
+    context.opts,
   );
   log(`Screenshot saved: ${result.path}`);
   return result;

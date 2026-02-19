@@ -167,6 +167,11 @@ export const countMatches = (lookup, filters, totalItems) =>
 /** @param {{ data: { title: string } }} item */
 const getName = (item) => item.data.title.toLowerCase();
 
+const priceWithFallback = (item, fallback) =>
+  item.data.price === undefined || item.data.price === null
+    ? fallback
+    : item.data.price;
+
 /**
  * Available sort options with display label and comparator.
  * Keys (except "default") are appended to filter URLs (e.g., /size/small/price-asc/)
@@ -176,13 +181,13 @@ export const SORT_OPTIONS = [
   {
     key: "price-asc",
     label: "Price: Low to High",
-    compare: compareBy((item) => item.data.price ?? Number.MAX_VALUE),
+    compare: compareBy((item) => priceWithFallback(item, Number.MAX_VALUE)),
   },
   {
     key: "price-desc",
     label: "Price: High to Low",
     compare: descending(
-      compareBy((item) => item.data.price ?? Number.MIN_VALUE),
+      compareBy((item) => priceWithFallback(item, Number.MIN_VALUE)),
     ),
   },
   { key: "name-asc", label: "Name: A-Z", compare: compareBy(getName) },

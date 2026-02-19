@@ -46,11 +46,4 @@ const getPropertyOrder = (configOrder) =>
 const selectListItemFields = (configFields) =>
   resolveConfigList(configFields, DEFAULT_LIST_ITEM_FIELDS);
 
-export {
-  DEFAULT_CATEGORY_ORDER,
-  DEFAULT_PROPERTY_ORDER,
-  DEFAULT_LIST_ITEM_FIELDS,
-  getCategoryOrder,
-  getPropertyOrder,
-  selectListItemFields,
-};
+export { getCategoryOrder, getPropertyOrder, selectListItemFields };

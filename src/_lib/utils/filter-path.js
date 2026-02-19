@@ -7,7 +7,8 @@ import { flatMap, join, pipe } from "#toolkit/fp/array.js";
  * @returns {string}
  */
 const filterToPath = (filters) => {
-  const keys = Object.keys(filters || {}).sort();
+  if (!filters) return "";
+  const keys = Object.keys(filters).sort();
   if (keys.length === 0) return "";
   return pipe(
     flatMap((key) => [

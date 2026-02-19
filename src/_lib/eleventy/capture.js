@@ -46,7 +46,9 @@ const push = (inputPath, name, content) => {
 
 const render = (inputPath, name) => {
   const page = getPageSlots(inputPath);
-  return page?.get(name) || "";
+  if (!page) return "";
+  const value = page.get(name);
+  return value === undefined ? "" : value;
 };
 
 /**

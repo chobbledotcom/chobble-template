@@ -20,28 +20,26 @@ import { memoize } from "#toolkit/fp/memoize.js";
  * @param {Object} [options] - Happy-DOM Window options
  * @returns {Promise<DOM>} DOM instance
  */
-const loadDOM = (() => {
-  const getDOMClass = memoize(async () => {
-    const { Window } = await import("happy-dom");
-    return class {
-      constructor(html = "", options = undefined) {
-        this.window = new Window(options || undefined);
-        this.window.SyntaxError = this.window.SyntaxError || SyntaxError;
-        html && this.window.document.write(html);
-      }
+const getDOMClass = memoize(async () => {
+  const { Window } = await import("happy-dom");
+  return class {
+    constructor(html = "", options = undefined) {
+      this.window = new Window(options || undefined);
+      this.window.SyntaxError = this.window.SyntaxError || SyntaxError;
+      html && this.window.document.write(html);
+    }
 
-      serialize() {
-        const { doctype, documentElement } = this.window.document;
-        const doctypeString = doctype ? `<!DOCTYPE ${doctype.name}>` : "";
-        return doctypeString + documentElement.outerHTML;
-      }
-    };
-  });
-
-  return async (html = "", options = undefined) => {
-    const DOM = await getDOMClass();
-    return new DOM(html, options);
+    serialize() {
+      const { doctype, documentElement } = this.window.document;
+      const doctypeString = doctype ? `<!DOCTYPE ${doctype.name}>` : "";
+      return doctypeString + documentElement.outerHTML;
+    }
   };
-})();
+});
+
+const loadDOM = async (html = "", options = undefined) => {
+  const DOM = await getDOMClass();
+  return new DOM(html, options);
+};
 
 export { loadDOM };

@@ -18,15 +18,16 @@ import path from "node:path";
  * @param {boolean} passResource - Whether to pass resource to callback
  * @returns {Function} (arg, callback) => result
  */
-const runBracketCore = (setup, teardown, passResource, runCallback) => (arg, callback) => {
-  const resource = setup(arg);
-  try {
-    const invoke = passResource ? () => callback(resource) : () => callback();
-    return runCallback(invoke);
-  } finally {
-    teardown(resource);
-  }
-};
+const runBracketCore =
+  (setup, teardown, passResource, runCallback) => (arg, callback) => {
+    const resource = setup(arg);
+    try {
+      const invoke = passResource ? () => callback(resource) : () => callback();
+      return runCallback(invoke);
+    } finally {
+      teardown(resource);
+    }
+  };
 
 const bracket = (setup, teardown, passResource = true) =>
   runBracketCore(setup, teardown, passResource, (invoke) => invoke());

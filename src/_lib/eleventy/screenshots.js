@@ -53,7 +53,6 @@ export const captureScreenshots = async (
   screenshotConfig,
   outputDir,
 ) => {
-  /** @type {DevServerHandle} */
   const server = await startServer(outputDir, screenshotConfig.port || 8080);
   const configOutputDir = screenshotConfig.outputDir || "screenshots";
 

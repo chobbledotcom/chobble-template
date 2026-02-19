@@ -121,7 +121,7 @@ export const createOperationContext = (
  * @param {{ suffix?: OutputPathValue<O>, extension: OutputPathValue<O> }} pathConfig
  * @returns {OperationContext<O>}
  */
-export const createOperationContextWithPathConfig = (
+export const createPathContext = (
   pagePath,
   defaultOpts,
   userOptions,

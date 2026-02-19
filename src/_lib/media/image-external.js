@@ -165,24 +165,20 @@ const processExternalImage = async ({
   returnElement,
   document,
 }) => {
-  let html;
-  try {
-    html = await computeExternalImageHtml({
-      src,
-      alt,
-      loading,
-      classes,
-      sizes,
-      widths,
-      aspectRatio,
-    });
-  } catch (error) {
-    if (isRickAstleyThumbnail(src)) {
-      html = await generateRickAstleyPlaceholder(classes, aspectRatio);
-    } else {
+  const html = await computeExternalImageHtml({
+    src,
+    alt,
+    loading,
+    classes,
+    sizes,
+    widths,
+    aspectRatio,
+  }).catch(async (error) => {
+    if (!isRickAstleyThumbnail(src)) {
       throw error;
     }
-  }
+    return generateRickAstleyPlaceholder(classes, aspectRatio);
+  });
 
   return returnElement ? await parseHtml(html, document) : html;
 };

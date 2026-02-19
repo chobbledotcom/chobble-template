@@ -8,6 +8,7 @@ import { flatMap } from "#toolkit/fp/array.js";
 import { frozenSet } from "#toolkit/fp/set.js";
 
 /** @typedef {{ type: "text" | "url" | "email" | "phone" | "configLink", value: string }} TextPart */
+/** @typedef {{ parts: TextPart[], lastIndex: number }} TextPartsAccumulator */
 
 /** Matches http:// or https:// URLs in text */
 const URL_PATTERN = /https?:\/\/[^\s<>]+/g;
@@ -55,6 +56,9 @@ const emailPart = (value) => ({ type: "email", value });
 /** @type {(value: string) => TextPart} */
 const phonePart = (value) => ({ type: "phone", value });
 
+/** @returns {TextPartsAccumulator} */
+const createTextPartsAccumulator = () => ({ parts: [], lastIndex: 0 });
+
 /**
  * Parse text into parts based on a pattern
  * @param {string} text
@@ -78,8 +82,7 @@ const parseTextByPattern = (text, pattern, partFactory) => {
       ],
       lastIndex: match.index + match[0].length,
     }),
-    /** @type {{ parts: TextPart[], lastIndex: number }} */
-    ({ parts: [], lastIndex: 0 }),
+    createTextPartsAccumulator(),
   );
 
   return lastIndex < text.length

@@ -1,10 +1,22 @@
 import { describe } from "bun:test";
-import {
-  DEFAULT_PROPERTY_ORDER,
-  getPropertyOrder,
-} from "#config/list-config.js";
+import { getPropertyOrder } from "#config/list-config.js";
 import propertyOrder from "#data/propertyOrder.js";
 import { defineOrderTests } from "#test/unit/frontend/order-test-helpers.js";
+
+const DEFAULT_PROPERTY_ORDER = [
+  "property/header.html",
+  "property/freetobook.html",
+  "property/gallery.html",
+  "property/content.html",
+  "property/features.html",
+  "property/guides.html",
+  "property/specs.html",
+  "property/tabs.html",
+  "property/map.html",
+  "property/reviews.html",
+  "faqs.html",
+  "property/contact.html",
+];
 
 describe("property-order", () => {
   defineOrderTests({
