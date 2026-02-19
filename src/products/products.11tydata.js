@@ -28,29 +28,21 @@ const getDefaultMaxQuantity = (data) => {
 };
 
 export default linkableContent("product", {
-  /** @param {*} data */
   categories: (data) => (data.categories || []).map(normaliseSlug),
-  /** @param {*} data */
   keywords: (data) => data.keywords || [],
   gallery: computeGallery,
-  /** @param {*} data */
   product_mode: (data) => getProductMode(data),
-  /** @param {*} data */
   options: (data) =>
     computeOptions(data, getProductMode(data), getDefaultMaxQuantity(data)),
-  /** @param {*} data */
   specs: (data) => computeSpecs(data.specs || []),
-  /** @param {*} data */
   highlighted_specs: (data) => {
     const specs = computeSpecs(data.specs || []);
     return getHighlightedSpecs(specs);
   },
-  /** @param {*} data */
   list_item_specs: (data) => {
     const specs = computeSpecs(data.specs || []);
     return getListItemSpecs(specs);
   },
-  /** @param {*} data */
   cart_attributes: (data) => {
     const mode = getProductMode(data);
     const defaultMaxQuantity = getDefaultMaxQuantity(data);
@@ -62,17 +54,14 @@ export default linkableContent("product", {
       mode,
     });
   },
-  /** @param {*} data */
   cart_btn_text: (data) => {
     const mode = getProductMode(data);
     return mode === "hire" ? "Add To Quote" : "Add to Cart";
   },
-  /** @param {*} data */
   has_single_cart_option: (data) => {
     const mode = getProductMode(data);
     return mode === "hire" || (data.options || []).length <= 1;
   },
-  /** @param {*} data */
   show_cart_quantity_selector: (data) => {
     const config = getConfig();
     if (config.cart_mode !== "quote") return false;

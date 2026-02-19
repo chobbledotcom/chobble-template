@@ -1,10 +1,9 @@
 import { normaliseSlug } from "#utils/slug-utils.js";
 
+/** @type {{ eleventyComputed: Record<string, (data: *) => *> }} */
 export default {
   eleventyComputed: {
-    /** @param {*} data */
     title: (data) => data.title || data.name,
-    /** @param {*} data */
     menus: (data) => {
       const menus = data.menus || [];
       return menus.map(normaliseSlug);

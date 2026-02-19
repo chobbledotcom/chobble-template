@@ -3,10 +3,8 @@ import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
 export default linkableContent("guide", {
-  /** @param {*} data */
   property: (data) =>
     data.property ? normaliseSlug(data.property) : undefined,
-  /** @param {*} data */
   eleventyNavigation: (data) => {
     if (data.eleventyNavigation) {
       return withNavigationAnchor(data, data.eleventyNavigation);

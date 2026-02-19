@@ -6,18 +6,14 @@ import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 export default linkableContent("menus", {
-  /** @param {*} data */
   subtitle: (data) => data.subtitle || "",
-  /** @param {*} data */
   pdfFilename: (data) => buildPdfFilename(data.site.name, data.page.fileSlug),
-  /** @param {*} data */
   eleventyNavigation: (data) =>
     withNavigationAnchor(data, {
       key: data.title,
       parent: data.strings.menus_name,
       order: data.order || 0,
     }),
-  /** @param {*} data */
   allDietaryKeys: (data) => {
     const menuCategories = pipe(
       filter((cat) => cat.data.menus?.includes(data.page.fileSlug)),

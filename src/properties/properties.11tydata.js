@@ -3,7 +3,6 @@ import { linkableContent } from "#utils/linkable-content.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
 export default linkableContent("property", {
-  /** @param {*} data */
   locations: (data) => (data.locations || []).map(normaliseSlug),
   gallery: computeGallery,
 });

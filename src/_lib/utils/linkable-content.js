@@ -18,10 +18,10 @@ const getString = (key) => /** @type {Record<string, string>} */ (strings)[key];
  *
  * @param {string} type - String key prefix (e.g. "event" -> strings.event_name,
  *   strings.event_permalink_dir)
- * @param {Record<string, Function>} [extraComputed] - Additional computed
+ * @param {Record<string, (data: *) => *>} [extraComputed] - Additional computed
  *   properties merged into eleventyComputed. These override the defaults, so
  *   a custom permalink function can be passed here.
- * @returns {{ eleventyComputed: Record<string, Function> }}
+ * @returns {{ eleventyComputed: Record<string, (data: *) => *> }}
  */
 const linkableContent = (type, extraComputed = {}) => {
   const nameKey = `${type}_name`;
@@ -36,7 +36,6 @@ const linkableContent = (type, extraComputed = {}) => {
   return {
     eleventyComputed: {
       navigationParent: () => getString(nameKey),
-      /** @param {*} data */
       permalink: (data) => buildPermalink(data, getString(dirKey)),
       ...extraComputed,
     },

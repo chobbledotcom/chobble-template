@@ -4,12 +4,11 @@ import {
   withNavigationAnchor,
 } from "#utils/navigation-utils.js";
 
+/** @type {{ eleventyComputed: Record<string, (data: *) => *> }} */
 export default {
   eleventyComputed: {
-    /** @param {*} data */
     keywords: (data) => data.keywords || [],
     navigationParent: () => strings.product_name,
-    /** @param {*} data */
     eleventyNavigation: (data) =>
       buildNavigation(data, (d) => {
         if (d.parent !== null && d.parent !== undefined) return false;
