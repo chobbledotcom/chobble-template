@@ -32,6 +32,17 @@ const runBracketCore =
 const bracket = (setup, teardown, passResource = true) =>
   runBracketCore(setup, teardown, passResource, (invoke) => invoke());
 
+const runBracketAsyncCore =
+  (setup, teardown, passResource) => async (arg, callback) => {
+    const resource = setup(arg);
+    try {
+      const invoke = passResource ? () => callback(resource) : () => callback();
+      return await invoke();
+    } finally {
+      teardown(resource);
+    }
+  };
+
 /**
  * Async bracket pattern for resource management.
  * Same as bracket but properly awaits async callbacks before teardown.
@@ -42,7 +53,7 @@ const bracket = (setup, teardown, passResource = true) =>
  * @returns {Function} async (arg, callback) => result
  */
 const bracketAsync = (setup, teardown, passResource = true) =>
-  runBracketCore(setup, teardown, passResource, async (invoke) => invoke());
+  runBracketAsyncCore(setup, teardown, passResource);
 
 /**
  * Create a unique temporary directory for tests
