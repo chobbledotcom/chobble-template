@@ -18,6 +18,25 @@ const setupCapture = () => {
 };
 
 describe("capture", () => {
+  test("Slot before reset returns empty string", () => {
+    const config = createMockEleventyConfig();
+    configureCapture(config);
+    const ctx = { page: { inputPath: "/pre-reset.html" } };
+
+    const result = config.shortcodes.slot.call(ctx, "templates");
+    expect(result).toBe("");
+  });
+
+  test("First push initializes slots without reset", () => {
+    const config = createMockEleventyConfig();
+    configureCapture(config);
+    const ctx = { page: { inputPath: "/pre-reset.html" } };
+
+    config.pairedShortcodes.push.call(ctx, "Init content", "templates");
+    const result = config.shortcodes.slot.call(ctx, "templates");
+    expect(result).toBe("Init content");
+  });
+
   test("Registers paired shortcode and shortcode", () => {
     const config = createMockEleventyConfig();
     configureCapture(config);
