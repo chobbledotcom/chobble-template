@@ -98,14 +98,9 @@ export const runLighthouse = async (url, outputPath, options) => {
 export const lighthouse = async (pagePath, options = {}) => {
   const formatExtension = (fmt) =>
     ({ html: "html", json: "json", csv: "csv" })[fmt] || "html";
-  const context = createPathContext(
-    pagePath,
-    DEFAULT_OPTIONS,
-    options,
-    {
-      extension: (opts) => formatExtension(opts.format),
-    },
-  );
+  const context = createPathContext(pagePath, DEFAULT_OPTIONS, options, {
+    extension: (opts) => formatExtension(opts.format),
+  });
   log(`Running Lighthouse on ${context.url}`);
 
   const result = await runLighthouse(

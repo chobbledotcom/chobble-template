@@ -78,15 +78,10 @@ export const takeScreenshotWithPlaywright = async (
 export const screenshot = async (pagePath, options = {}) => {
   await ensurePlaywrightBrowsers();
 
-  const context = createPathContext(
-    pagePath,
-    DEFAULT_OPTIONS,
-    options,
-    {
-      suffix: (opts) => buildViewportSuffix(opts.viewport),
-      extension: "png",
-    },
-  );
+  const context = createPathContext(pagePath, DEFAULT_OPTIONS, options, {
+    suffix: (opts) => buildViewportSuffix(opts.viewport),
+    extension: "png",
+  });
   log(`Taking screenshot of ${context.url} (${context.opts.viewport})`);
 
   const result = await takeScreenshotWithPlaywright(
