@@ -285,17 +285,18 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 
   // src/_lib/filters - URL-based filtering
   "src/_lib/filters/category-product-filters.js:142", // Liquid template boundary (currentFilters from template can be null)
-  "src/_lib/filters/filter-core.js:141", // Lazy init nested lookup (??= avoids object-mutation violation)
-  "src/_lib/filters/filter-core.js:142",
-  "src/_lib/filters/filter-core.js:196",
-  "src/_lib/filters/filter-core.js:202",
+  "src/_lib/filters/filter-core.js:124", // Lazy init nested lookup (??= avoids object-mutation violation)
+  "src/_lib/filters/filter-core.js:125",
+  "src/_lib/filters/filter-core.js:179",
+  "src/_lib/filters/filter-core.js:185",
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:96",
   "src/_lib/public/cart/cart.js:97",
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions
-  "src/_lib/utils/collection-utils.js:85", // CMS boundary: frontmatter array fields may be null before eleventyComputed
+  "src/_lib/utils/collection-utils.js:79", // CMS boundary: frontmatter array fields may be null before eleventyComputed
+  "src/_lib/utils/collection-utils.js:95",
   "src/_lib/utils/sorting.js:56", // eleventyNavigation.order (separate from item order)
 ]);
 
