@@ -34,6 +34,7 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 # - screenshot.js, screenshots.js, lighthouse.js, browser-utils.js: Playwright/Chrome browser automation
 # - configure-filters.js: Eleventy registration wiring (functions it calls are fully tested)
 coveragePathIgnorePatterns = [
+  ".cache/*",
   "src/_lib/filters/configure-filters.js",
   "test/ensure-deps.js",
   "src/_lib/config/validated-config.js",
