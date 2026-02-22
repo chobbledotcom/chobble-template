@@ -20,7 +20,7 @@ const TEMP_SCHEMA_PATH = path.join(
  * valid field types from its directory structure, and validates our config.
  */
 describe("pages.yml validation against Pages CMS schema", () => {
-  let ConfigSchema;
+  const state = { ConfigSchema: null };
 
   beforeAll(async () => {
     // Clone pages-cms if not already cached
@@ -39,19 +39,19 @@ describe("pages.yml validation against Pages CMS schema", () => {
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name);
 
-    // Read the actual configSchema.ts from Pages CMS
-    let schemaSource = fs.readFileSync(
-      path.join(PAGES_CMS_CACHE, "lib", "configSchema.ts"),
-      "utf8",
-    );
-
-    // Replace the field registry import with a static set derived from the
-    // actual core field types directory. The registry uses webpack's
-    // require.context which isn't available outside Next.js.
-    schemaSource = schemaSource.replace(
-      /import\s*\{[^}]*fieldTypes[^}]*\}\s*from\s*["']@\/fields\/registry["'];?/,
-      `const fieldTypes = new Set(${JSON.stringify(coreFieldTypes)});`,
-    );
+    // Read the actual configSchema.ts from Pages CMS and replace the field
+    // registry import with a static set derived from the actual core field
+    // types directory. The registry uses webpack's require.context which
+    // isn't available outside Next.js.
+    const schemaSource = fs
+      .readFileSync(
+        path.join(PAGES_CMS_CACHE, "lib", "configSchema.ts"),
+        "utf8",
+      )
+      .replace(
+        /import\s*\{[^}]*fieldTypes[^}]*\}\s*from\s*["']@\/fields\/registry["'];?/,
+        `const fieldTypes = new Set(${JSON.stringify(coreFieldTypes)});`,
+      );
 
     // Write modified schema to .cache/ (gitignored)
     fs.mkdirSync(path.join(ROOT_DIR, ".cache"), { recursive: true });
@@ -59,15 +59,11 @@ describe("pages.yml validation against Pages CMS schema", () => {
 
     // Dynamically import the schema
     const mod = await import(TEMP_SCHEMA_PATH);
-    ConfigSchema = mod.ConfigSchema;
+    state.ConfigSchema = mod.ConfigSchema;
   }, 180_000);
 
   afterAll(() => {
-    try {
-      fs.unlinkSync(TEMP_SCHEMA_PATH);
-    } catch {
-      // ignore cleanup errors
-    }
+    fs.rmSync(TEMP_SCHEMA_PATH, { force: true });
   });
 
   test(".pages.yml passes Pages CMS config schema validation", () => {
@@ -76,7 +72,7 @@ describe("pages.yml validation against Pages CMS schema", () => {
       "utf8",
     );
     const config = YAML.parse(pagesYmlContent);
-    const result = ConfigSchema.safeParse(config);
+    const result = state.ConfigSchema.safeParse(config);
 
     if (!result.success) {
       const messages = result.error.issues.map((issue) => {
