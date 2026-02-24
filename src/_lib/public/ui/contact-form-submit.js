@@ -1,4 +1,5 @@
 import { submitForm } from "#public/utils/http.js";
+import { sendNtfyNotification } from "#public/utils/ntfy.js";
 import { onReady } from "#public/utils/on-ready.js";
 
 const FORM_SELECTOR = "form.contact-form";
@@ -20,6 +21,9 @@ onReady(() => {
         return;
       }
 
+      sendNtfyNotification(
+        `Contact form submission failed: ${result.error.message}`,
+      );
       button.disabled = false;
       button.textContent = button.dataset.originalText;
       alert(
