@@ -9,12 +9,16 @@ onReady(() => {
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const button = event.target.querySelector("button[type=submit]");
+      const redirectInput = event.target.querySelector(
+        'input[name="_redirect"]',
+      );
+      const redirectUrl = redirectInput?.value || "";
 
       button.dataset.originalText = button.textContent;
       button.disabled = true;
       button.textContent = "Submitting..";
 
-      const result = await submitForm(event.target);
+      const result = await submitForm(event.target, redirectUrl);
 
       if (result.ok) {
         window.location.href = result.url;

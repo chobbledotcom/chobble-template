@@ -89,10 +89,49 @@ describe("submitForm", () => {
   mockForm.action = "https://forms.example.com/submit";
   mockForm.method = "POST";
 
-  test("returns ok with final url on success", async () => {
+  test("treats opaqueredirect as success with provided redirect URL", async () => {
     const origFetch = globalThis.fetch;
     globalThis.fetch = mock(() =>
       Promise.resolve({
+        type: "opaqueredirect",
+        ok: false,
+        status: 0,
+        url: "https://forms.example.com/submit",
+      }),
+    );
+    try {
+      const result = await submitForm(
+        mockForm,
+        "https://example.com/thank-you/",
+      );
+      expect(result.ok).toBe(true);
+      expect(result.url).toBe("https://example.com/thank-you/");
+      expect(result.error).toBeNull();
+    } finally {
+      globalThis.fetch = origFetch;
+    }
+  });
+
+  test("passes redirect: manual to fetch", async () => {
+    const origFetch = globalThis.fetch;
+    const fetchMock = mock(() =>
+      Promise.resolve({ type: "opaqueredirect", ok: false, status: 0 }),
+    );
+    globalThis.fetch = fetchMock;
+    try {
+      await submitForm(mockForm);
+      const [, options] = fetchMock.mock.calls[0];
+      expect(options.redirect).toBe("manual");
+    } finally {
+      globalThis.fetch = origFetch;
+    }
+  });
+
+  test("returns ok with response url on 200 OK", async () => {
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = mock(() =>
+      Promise.resolve({
+        type: "basic",
         ok: true,
         url: "https://example.com/thank-you/",
       }),
@@ -111,6 +150,7 @@ describe("submitForm", () => {
     const origFetch = globalThis.fetch;
     globalThis.fetch = mock(() =>
       Promise.resolve({
+        type: "basic",
         ok: false,
         status: 422,
         url: "https://forms.example.com/submit",
