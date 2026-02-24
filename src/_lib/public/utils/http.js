@@ -40,4 +40,27 @@ const postJson = (url, data) =>
     }),
   );
 
-export { fetchJson, postJson };
+/**
+ * Submit a form via fetch, returning { ok, error }.
+ * @param {HTMLFormElement} form - The form element to submit
+ * @returns {Promise<{ ok: boolean, error: Error|null }>}
+ */
+const submitForm = async (form) => {
+  try {
+    const response = await fetch(form.action, {
+      method: form.method,
+      body: new FormData(form),
+    });
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: new Error(`Server responded with ${response.status}`),
+      };
+    }
+    return { ok: true, error: null };
+  } catch (err) {
+    return { ok: false, error: err };
+  }
+};
+
+export { fetchJson, postJson, submitForm };
