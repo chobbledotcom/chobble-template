@@ -8,6 +8,7 @@ const JS_CONFIG_KEYS = [
   "ecommerce_api_host",
   "currency",
   "product_mode",
+  "ntfy_channel",
 ];
 
 /** @param {*} eleventyConfig */

@@ -6,6 +6,7 @@ import { getCart, saveCart } from "#public/utils/cart-utils.js";
 import Config from "#public/utils/config.js";
 import { fetchJson } from "#public/utils/http.js";
 import { showNotification } from "#public/utils/notify.js";
+import { sendNtfyNotification } from "#public/utils/ntfy.js";
 
 const CACHE_KEY = "products_cache";
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
@@ -80,6 +81,9 @@ const validateCartWithCache = async () => {
     (await fetchJson(`https://${Config.ecommerce_api_host}/api/products`));
 
   if (!products) {
+    sendNtfyNotification(
+      `Ecommerce API unreachable: ${Config.ecommerce_api_host}`,
+    );
     showNotification(
       "Unable to reach the store to verify product availability. Please check your connection and try again.",
     );

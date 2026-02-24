@@ -4,6 +4,7 @@
 import { getCart, getCheckoutItems } from "#public/utils/cart-utils.js";
 import Config from "#public/utils/config.js";
 import { postJson } from "#public/utils/http.js";
+import { sendNtfyNotification } from "#public/utils/ntfy.js";
 import { validateCartWithCache } from "#public/utils/products-cache.js";
 
 const showStatusError = (message) => {
@@ -39,6 +40,7 @@ const checkout = async () => {
   }
 
   if (!Config.ecommerce_api_host) {
+    sendNtfyNotification("Checkout backend is not configured");
     showStatusError("Checkout backend is not configured");
     return;
   }
@@ -59,6 +61,7 @@ const checkout = async () => {
   const result = await createStripeSession(getCheckoutItems());
 
   if (result.error) {
+    sendNtfyNotification(`Stripe checkout failed: ${result.error}`);
     showStatusError(result.error);
     return;
   }
