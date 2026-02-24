@@ -4,6 +4,8 @@ subtitle: Charming 2-bedroom retreat with ocean views
 locations:
   - springfield
 featured: true
+gallery:
+  - /images/breakfast.jpg
 
 filter_attributes:
   - name: Bedrooms
