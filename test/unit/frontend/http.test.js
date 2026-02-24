@@ -2,9 +2,7 @@ import { describe, expect, mock, test } from "bun:test";
 import { withMockFetch } from "#test/test-utils.js";
 
 mock.restore();
-const { fetchJson, postJson, submitForm } = await import(
-  "#public/utils/http.js"
-);
+const { fetchJson, postJson } = await import("#public/utils/http.js");
 
 const withRejectedFetch = async (fn) => {
   const origFetch = globalThis.fetch;
@@ -80,97 +78,6 @@ describe("postJson", () => {
     await withRejectedFetch(async () => {
       const result = await postJson("https://api.example.com/checkout", {});
       expect(result).toBeNull();
-    });
-  });
-});
-
-describe("submitForm", () => {
-  const mockForm = document.createElement("form");
-  mockForm.action = "https://forms.example.com/submit";
-  mockForm.method = "POST";
-
-  test("treats opaqueredirect as success with provided redirect URL", async () => {
-    const origFetch = globalThis.fetch;
-    globalThis.fetch = mock(() =>
-      Promise.resolve({
-        type: "opaqueredirect",
-        ok: false,
-        status: 0,
-        url: "https://forms.example.com/submit",
-      }),
-    );
-    try {
-      const result = await submitForm(
-        mockForm,
-        "https://example.com/thank-you/",
-      );
-      expect(result.ok).toBe(true);
-      expect(result.url).toBe("https://example.com/thank-you/");
-      expect(result.error).toBeNull();
-    } finally {
-      globalThis.fetch = origFetch;
-    }
-  });
-
-  test("passes redirect: manual to fetch", async () => {
-    const origFetch = globalThis.fetch;
-    const fetchMock = mock(() =>
-      Promise.resolve({ type: "opaqueredirect", ok: false, status: 0 }),
-    );
-    globalThis.fetch = fetchMock;
-    try {
-      await submitForm(mockForm);
-      const [, options] = fetchMock.mock.calls[0];
-      expect(options.redirect).toBe("manual");
-    } finally {
-      globalThis.fetch = origFetch;
-    }
-  });
-
-  test("returns ok with response url on 200 OK", async () => {
-    const origFetch = globalThis.fetch;
-    globalThis.fetch = mock(() =>
-      Promise.resolve({
-        type: "basic",
-        ok: true,
-        url: "https://example.com/thank-you/",
-      }),
-    );
-    try {
-      const result = await submitForm(mockForm);
-      expect(result.ok).toBe(true);
-      expect(result.url).toBe("https://example.com/thank-you/");
-      expect(result.error).toBeNull();
-    } finally {
-      globalThis.fetch = origFetch;
-    }
-  });
-
-  test("returns error with status on non-OK response", async () => {
-    const origFetch = globalThis.fetch;
-    globalThis.fetch = mock(() =>
-      Promise.resolve({
-        type: "basic",
-        ok: false,
-        status: 422,
-        url: "https://forms.example.com/submit",
-      }),
-    );
-    try {
-      const result = await submitForm(mockForm);
-      expect(result.ok).toBe(false);
-      expect(result.error.message).toBe("Server responded with 422");
-    } finally {
-      globalThis.fetch = origFetch;
-    }
-  });
-
-  test("returns error on network failure", async () => {
-    await withRejectedFetch(async () => {
-      const result = await submitForm(mockForm);
-      expect(result.ok).toBe(false);
-      expect(result.url).toBe("");
-      expect(result.error.message).toBe("Network error");
     });
   });
 });

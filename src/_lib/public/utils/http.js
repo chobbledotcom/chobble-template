@@ -40,35 +40,4 @@ const postJson = (url, data) =>
     }),
   );
 
-/**
- * Submit a form via fetch, returning { ok, url, error }.
- * Uses manual redirect handling to avoid cross-origin redirect errors
- * when posting to external form services (e.g. Formspark).
- * @param {HTMLFormElement} form - The form element to submit
- * @param {string} [redirectUrl] - URL to navigate to on success
- * @returns {Promise<{ ok: boolean, url: string, error: Error|null }>}
- */
-const submitForm = async (form, redirectUrl = "") => {
-  try {
-    const response = await fetch(form.action, {
-      method: form.method,
-      body: new FormData(form),
-      redirect: "manual",
-    });
-    // An opaqueredirect means the server accepted the submission and
-    // responded with a redirect — this is the expected success path
-    // for external form services like Formspark.
-    if (response.type === "opaqueredirect" || response.ok) {
-      return { ok: true, url: redirectUrl || response.url, error: null };
-    }
-    return {
-      ok: false,
-      url: response.url,
-      error: new Error(`Server responded with ${response.status}`),
-    };
-  } catch (err) {
-    return { ok: false, url: "", error: err };
-  }
-};
-
-export { fetchJson, postJson, submitForm };
+export { fetchJson, postJson };
