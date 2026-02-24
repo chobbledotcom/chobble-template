@@ -14,6 +14,18 @@ import { memoize } from "#toolkit/fp/memoize.js";
  */
 
 /**
+ * Default happy-dom settings for server-side rendering.
+ * Disables CSS file loading and iframe page loading since:
+ * - CSS files aren't needed for DOM manipulation transforms
+ * - Iframe page loading triggers happy-dom bugs (SyntaxError undefined in iframe windows)
+ * - Neither feature is useful during server-side HTML transforms
+ */
+const SSR_SETTINGS = {
+  disableCSSFileLoading: true,
+  disableIframePageLoading: true,
+};
+
+/**
  * Create a DOM instance with optional HTML content and Window options.
  * Memoizes the DOM wrapper class to avoid repeated module loading.
  * @param {string} [html=""] - Initial HTML content
@@ -24,7 +36,11 @@ const getDOMClass = memoize(async () => {
   const { Window } = await import("happy-dom");
   return class {
     constructor(html = "", options = undefined) {
-      this.window = new Window(options || undefined);
+      const mergedOptions = {
+        ...options,
+        settings: { ...SSR_SETTINGS, ...options?.settings },
+      };
+      this.window = new Window(mergedOptions);
       this.window.SyntaxError = this.window.SyntaxError || SyntaxError;
       html && this.window.document.write(html);
     }

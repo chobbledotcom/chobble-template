@@ -4,4 +4,9 @@
  */
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 
-GlobalRegistrator.register();
+GlobalRegistrator.register({
+  settings: {
+    disableCSSFileLoading: true,
+    disableIframePageLoading: true,
+  },
+});
