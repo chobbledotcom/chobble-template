@@ -14,6 +14,25 @@ import { memoize } from "#toolkit/fp/memoize.js";
  */
 
 /**
+ * Default happy-dom settings for server-side rendering.
+ * Only DOM querying/manipulation is needed for HTML transforms, so we disable
+ * everything else: CSS/JS file loading, iframe navigation, computed styles, etc.
+ * Individual callers can override via loadDOM(html, { settings: { ... } }).
+ */
+const SSR_SETTINGS = {
+  disableCSSFileLoading: true,
+  disableJavaScriptFileLoading: true,
+  disableJavaScriptEvaluation: true,
+  disableIframePageLoading: true,
+  disableComputedStyleRendering: true,
+  navigation: {
+    disableMainFrameNavigation: true,
+    disableChildFrameNavigation: true,
+    disableChildPageNavigation: true,
+  },
+};
+
+/**
  * Create a DOM instance with optional HTML content and Window options.
  * Memoizes the DOM wrapper class to avoid repeated module loading.
  * @param {string} [html=""] - Initial HTML content
@@ -24,7 +43,11 @@ const getDOMClass = memoize(async () => {
   const { Window } = await import("happy-dom");
   return class {
     constructor(html = "", options = undefined) {
-      this.window = new Window(options || undefined);
+      const mergedOptions = {
+        ...options,
+        settings: { ...SSR_SETTINGS, ...options?.settings },
+      };
+      this.window = new Window(mergedOptions);
       this.window.SyntaxError = this.window.SyntaxError || SyntaxError;
       html && this.window.document.write(html);
     }

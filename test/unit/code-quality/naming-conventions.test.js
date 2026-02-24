@@ -10,6 +10,7 @@ const _PREFERRED_WORDS = 3;
 const IGNORED_IDENTIFIERS = frozenSet([
   "eleventyImageOnRequestDuringServePlugin", // Eleventy
   "getNewestCollectionItemDate", // Eleventy
+  "disableJavaScriptFileLoading", // happy-dom settings
 ]);
 
 /**
