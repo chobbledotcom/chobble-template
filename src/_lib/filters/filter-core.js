@@ -9,7 +9,7 @@
  * - Sorting filtered results
  */
 
-import { flatMap, join, pipe, sort } from "#toolkit/fp/array.js";
+import { flatMap, pipe } from "#toolkit/fp/array.js";
 import {
   buildFirstOccurrenceLookup,
   groupValuesBy,
@@ -17,6 +17,7 @@ import {
 import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { mapBoth, toObject } from "#toolkit/fp/object.js";
 import { compareBy, descending } from "#toolkit/fp/sorting.js";
+import { filterToPath } from "#utils/filter-path.js";
 import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -57,25 +58,7 @@ const parseFilterAttributesInner = memoizeByRef((filterAttributes) =>
 export const parseFilterAttributes = (filterAttributes) =>
   filterAttributes ? parseFilterAttributesInner(filterAttributes) : {};
 
-/**
- * Convert filter object to URL path segment.
- * { size: "small", capacity: "3" } => "capacity/3/size/small"
- * Keys are sorted alphabetically for a stable URL regardless of object key order.
- *
- * @param {FilterSet | null | undefined} filters - Filter object
- * @returns {string} URL path segment
- */
-export const filterToPath = (filters) => {
-  if (!filters || Object.keys(filters).length === 0) return "";
-
-  return pipe(
-    flatMap((key) => [
-      encodeURIComponent(key),
-      encodeURIComponent(filters[key]),
-    ]),
-    join("/"),
-  )(Object.keys(filters).sort());
-};
+export { filterToPath };
 
 /**
  * Build a map of all filter attributes and their possible values
@@ -184,6 +167,11 @@ export const countMatches = (lookup, filters, totalItems) =>
 /** @param {{ data: { title: string } }} item */
 const getName = (item) => item.data.title.toLowerCase();
 
+const priceWithFallback = (item, fallback) =>
+  item.data.price === undefined || item.data.price === null
+    ? fallback
+    : item.data.price;
+
 /**
  * Available sort options with display label and comparator.
  * Keys (except "default") are appended to filter URLs (e.g., /size/small/price-asc/)
@@ -193,13 +181,13 @@ export const SORT_OPTIONS = [
   {
     key: "price-asc",
     label: "Price: Low to High",
-    compare: compareBy((item) => item.data.price ?? Number.MAX_VALUE),
+    compare: compareBy((item) => priceWithFallback(item, Number.MAX_VALUE)),
   },
   {
     key: "price-desc",
     label: "Price: High to Low",
     compare: descending(
-      compareBy((item) => item.data.price ?? Number.MIN_VALUE),
+      compareBy((item) => priceWithFallback(item, Number.MIN_VALUE)),
     ),
   },
   { key: "name-asc", label: "Name: A-Z", compare: compareBy(getName) },
@@ -209,14 +197,6 @@ export const SORT_OPTIONS = [
     compare: descending(compareBy(getName)),
   },
 ];
-
-/**
- * Get the sort comparator for a given sort key
- * @param {string | undefined} sortKey - Sort option key
- * @returns {(a: EleventyCollectionItem, b: EleventyCollectionItem) => number} Comparator function
- */
-export const getSortComparator = (sortKey) =>
-  SORT_OPTIONS.find((o) => o.key === sortKey)?.compare || sortItems;
 
 /**
  * Convert filter object and optional sort to URL path segment.
@@ -231,63 +211,3 @@ export const toSortedPath = (filters, sortKey) => {
   const suffix = sortKey && sortKey !== "default" ? sortKey : "";
   return [filterToPath(filters), suffix].filter(Boolean).join("/");
 };
-
-/**
- * Per-items cache for matched results. Uses memoizeByRef so each items
- * array gets its own Map, and the Map is garbage collected when the
- * items array is no longer referenced.
- */
-const getMatchCache = memoizeByRef(() => new Map());
-
-/**
- * Get items that match a set of filters (without sorting).
- *
- * Results are cached per items array and filter path. When the same filter
- * set is used with different sort orders (e.g. "price-asc", "name-desc"),
- * the expensive item-matching work only happens once. With 13,000 filter
- * combinations × 5 sort options = 65,000 pages, this avoids ~52,000
- * redundant scans.
- *
- * @param {EleventyCollectionItem[]} items - All items
- * @param {FilterSet} filters - Filter object (can be empty)
- * @param {Object} lookup - Lookup table from buildItemLookup
- * @returns {EleventyCollectionItem[]} Matching items (unsorted)
- */
-export const getMatchingItems = (items, filters, lookup) => {
-  if (!filters || Object.keys(filters).length === 0) return items;
-
-  const cache = getMatchCache(items);
-  const path = filterToPath(filters);
-  const cached = cache.get(path);
-  if (cached) return cached;
-
-  const matched = findMatchingPositions(lookup, normalizeAttrs(filters)).map(
-    (pos) => items[pos],
-  );
-
-  cache.set(path, matched);
-  return matched;
-};
-
-/**
- * Get items matching the given filters, then sort them.
- *
- * @param {EleventyCollectionItem[]} items - All items
- * @param {Object} options - Filter and sort options
- * @param {FilterSet} options.filters - Filters to apply (can be empty)
- * @param {Object} options.lookup - Lookup table from buildItemLookup
- * @param {string | undefined} options.sortKey - Sort option key
- * @returns {EleventyCollectionItem[]} Matching items, sorted
- */
-export const matchWithSort = (items, { filters, lookup, sortKey }) =>
-  sort(getSortComparator(sortKey))(getMatchingItems(items, filters, lookup));
-
-/**
- * Get items matching the given filters with specified sort order.
- *
- * @param {EleventyCollectionItem[]} items - Collection items
- * @param {{ filters: FilterSet, sortKey?: string }} combo - Filter and sort options
- * @returns {EleventyCollectionItem[]} Filtered and sorted items
- */
-export const filterWithSort = (items, { filters, sortKey }) =>
-  matchWithSort(items, { filters, lookup: buildItemLookup(items), sortKey });

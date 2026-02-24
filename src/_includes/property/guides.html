@@ -1,0 +1,23 @@
+{%- assign propertyGuides = collections.guide-categories | guideCategoriesByProperty: page.fileSlug -%}
+{%- if propertyGuides.size > 0 -%}
+<section class="compact">
+  <div class="container">
+    <h2>{{ strings.guide_name }}</h2>
+    <ul class="features" role="list">
+      {%- for category in propertyGuides -%}
+      <li>
+        <article class="feature" data-reveal>
+          {%- if category.data.icon -%}
+            {%- include "design-system/icon-badge.html", icon: category.data.icon, label: category.data.title -%}
+          {%- endif -%}
+          <h3><a href="{{ category.url }}">{{ category.data.title }}</a></h3>
+          {%- if category.data.subtitle -%}
+            <p>{{ category.data.subtitle }}</p>
+          {%- endif -%}
+        </article>
+      </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+{%- endif -%}

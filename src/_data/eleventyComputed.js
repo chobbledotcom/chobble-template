@@ -25,6 +25,7 @@ const hasTag = (data, tag) => (data.tags || []).includes(tag);
 /**
  * Default values for block types. Applied at build time so templates
  * don't need to handle defaults.
+ * @type {Record<string, Record<string, unknown>>}
  */
 const BLOCK_DEFAULTS = {
   features: { reveal: true, heading_level: 3, grid_class: "features" },
@@ -178,19 +179,20 @@ export default {
    * Validates and applies default values to blocks. Works for any content
    * with blocks.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Array|undefined} Blocks with defaults applied
+   * @returns {Array<Record<string, unknown>>|undefined} Blocks with defaults applied
    * @throws {Error} If any block contains unknown keys
    */
   blocks: (data) => {
     if (!data.blocks) return data.blocks;
     validateBlocks(data.blocks, ` in ${data.page.inputPath}`);
     return data.blocks.map((block) => {
-      const merged = {
-        section_class: "",
-        ...BLOCK_DEFAULTS[block.type],
-        ...block,
-      };
-      if (block.type === "split" && !block.reveal_content) {
+      const blockType = String(block.type);
+      const merged = Object.assign(
+        { section_class: "" },
+        BLOCK_DEFAULTS[blockType],
+        block,
+      );
+      if (blockType === "split" && !block.reveal_content) {
         merged.reveal_content = block.reverse ? "right" : "left";
       }
       return merged;
@@ -201,7 +203,7 @@ export default {
    * Adds thumbnail_url to each video object. YouTube videos get a thumbnail URL,
    * custom iframe URLs (starting with "http") get null.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Array|undefined} Videos with thumbnail_url added
+   * @returns {Array<Record<string, unknown>>|undefined} Videos with thumbnail_url added
    */
   videos: (data) => {
     if (!data.videos) return data.videos;

@@ -14,19 +14,42 @@ import { memoize } from "#toolkit/fp/memoize.js";
  */
 
 /**
- * Get the memoized DOM wrapper class
- * @returns {Promise<new (html?: string) => DOM>} DOM class constructor
+ * Default happy-dom settings for server-side rendering.
+ * Only DOM querying/manipulation is needed for HTML transforms, so we disable
+ * everything else: CSS/JS file loading, iframe navigation, computed styles, etc.
+ * Individual callers can override via loadDOM(html, { settings: { ... } }).
+ */
+const SSR_SETTINGS = {
+  disableCSSFileLoading: true,
+  disableJavaScriptFileLoading: true,
+  disableJavaScriptEvaluation: true,
+  disableIframePageLoading: true,
+  disableComputedStyleRendering: true,
+  navigation: {
+    disableMainFrameNavigation: true,
+    disableChildFrameNavigation: true,
+    disableChildPageNavigation: true,
+  },
+};
+
+/**
+ * Create a DOM instance with optional HTML content and Window options.
+ * Memoizes the DOM wrapper class to avoid repeated module loading.
+ * @param {string} [html=""] - Initial HTML content
+ * @param {Object} [options] - Happy-DOM Window options
+ * @returns {Promise<DOM>} DOM instance
  */
 const getDOMClass = memoize(async () => {
   const { Window } = await import("happy-dom");
-
-  // Wrapper class providing DOM document access
   return class {
-    constructor(html = "") {
-      this.window = new Window();
-      if (html) {
-        this.window.document.write(html);
-      }
+    constructor(html = "", options = undefined) {
+      const mergedOptions = {
+        ...options,
+        settings: { ...SSR_SETTINGS, ...options?.settings },
+      };
+      this.window = new Window(mergedOptions);
+      this.window.SyntaxError = this.window.SyntaxError || SyntaxError;
+      html && this.window.document.write(html);
     }
 
     serialize() {
@@ -37,14 +60,9 @@ const getDOMClass = memoize(async () => {
   };
 });
 
-/**
- * Create a DOM instance with optional HTML content
- * @param {string} [html=""] - Initial HTML content
- * @returns {Promise<DOM>} DOM instance
- */
-const loadDOM = async (html = "") => {
+const loadDOM = async (html = "", options = undefined) => {
   const DOM = await getDOMClass();
-  return new DOM(html);
+  return new DOM(html, options);
 };
 
 export { loadDOM };

@@ -4,6 +4,7 @@ import {
   readInitialFilters,
   readInitialSort,
   rebuildPills,
+  replayLoadingAnimation,
   updateOptionActiveStates,
   updateOptionVisibility,
 } from "#public/ui/category-filter-ui.js";
@@ -31,7 +32,17 @@ onReady(() => {
   }));
 
   const labelLookup = buildLabelLookup(container);
-  const pillContainer = container.querySelector("[data-active-filters]");
+  const filteredItems = list.closest(".filtered-items");
+
+  const pillContainer =
+    container.querySelector("[data-active-filters]") ||
+    (() => {
+      const ul = document.createElement("ul");
+      ul.className = "filter-active";
+      ul.dataset.activeFilters = "";
+      container.prepend(ul);
+      return ul;
+    })();
 
   // Parse initial state from hash if present, else fall back to server-rendered state
   const hashState = parseFiltersFromHash(window.location.hash);
@@ -46,7 +57,6 @@ onReady(() => {
     activeSortKey: hasHashState
       ? hashState.sortKey
       : readInitialSort(container),
-    jsHasTakenOver: false,
   };
 
   const renderFilterState = () => {
@@ -57,10 +67,7 @@ onReady(() => {
       state.activeSortKey,
     );
 
-    if (state.jsHasTakenOver && pillContainer) {
-      rebuildPills(pillContainer, state.activeFilters, labelLookup);
-    }
-
+    rebuildPills(pillContainer, state.activeFilters, labelLookup);
     updateOptionActiveStates(container, state.activeFilters);
     updateOptionVisibility(
       container,
@@ -82,24 +89,17 @@ onReady(() => {
     );
   };
 
-  const takeOver = () => {
-    if (!state.jsHasTakenOver) {
-      state.jsHasTakenOver = true;
-      if (!pillContainer) {
-        const ul = document.createElement("ul");
-        ul.className = "filter-active";
-        ul.dataset.activeFilters = "";
-        container.prepend(ul);
-      }
-    }
+  const commitChange = () => {
+    replayLoadingAnimation(filteredItems);
+    renderFilterState();
+    updateHash();
   };
 
   container.addEventListener("click", (e) => {
     const link = e.target.closest("[data-filter-key]");
-    if (!link || link.tagName !== "A") return;
+    if (!link) return;
 
     e.preventDefault();
-    takeOver();
 
     if (
       state.activeFilters[link.dataset.filterKey] === link.dataset.filterValue
@@ -112,8 +112,7 @@ onReady(() => {
       };
     }
 
-    renderFilterState();
-    updateHash();
+    commitChange();
   });
 
   container.addEventListener("click", (e) => {
@@ -121,23 +120,19 @@ onReady(() => {
     if (!removeLink) return;
 
     e.preventDefault();
-    takeOver();
     state.activeFilters = omit([removeLink.dataset.removeFilter])(
       state.activeFilters,
     );
-    renderFilterState();
-    updateHash();
+    commitChange();
   });
 
   container.addEventListener("click", (e) => {
     if (!e.target.closest("[data-clear-filters]")) return;
 
     e.preventDefault();
-    takeOver();
     state.activeFilters = {};
     state.activeSortKey = "default";
-    renderFilterState();
-    updateHash();
+    commitChange();
   });
 
   container.addEventListener("change", (e) => {
@@ -147,10 +142,8 @@ onReady(() => {
     if (!select.options[select.selectedIndex]?.dataset.sortKey) return;
 
     e.stopPropagation();
-    takeOver();
     state.activeSortKey = select.options[select.selectedIndex].dataset.sortKey;
-    renderFilterState();
-    updateHash();
+    commitChange();
   });
 
   // Restore state on browser back/forward (hash changes)
@@ -159,7 +152,6 @@ onReady(() => {
       hashGuard.ours = false;
       return;
     }
-    takeOver();
     const parsed = parseFiltersFromHash(window.location.hash);
     state.activeFilters = parsed.filters;
     state.activeSortKey = parsed.sortKey;

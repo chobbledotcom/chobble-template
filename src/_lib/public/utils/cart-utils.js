@@ -4,7 +4,7 @@
 import { showNotification } from "#public/utils/notify.js";
 import { formatPrice as formatCurrency } from "#utils/format-price.js";
 
-export const STORAGE_KEY = "shopping_cart";
+const STORAGE_KEY = "shopping_cart";
 
 export function getCart() {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -53,6 +53,19 @@ export function updateCartIcon() {
   for (const icon of document.querySelectorAll(".cart-icon")) {
     updateSingleCartIcon(icon, count);
   }
+}
+
+export function clearCart({ hideIcons = false } = {}) {
+  localStorage.removeItem(STORAGE_KEY);
+
+  if (hideIcons) {
+    for (const icon of document.querySelectorAll(".cart-icon")) {
+      icon.style.display = "none";
+    }
+    return;
+  }
+
+  updateCartIcon();
 }
 
 export const clampQuantity = (quantity, maxQuantity) => {

@@ -30,10 +30,13 @@
   "list_item_fields": null,
   "category_order": null,
   "property_order": null,
+  "guide_page_order": null,
+  "guide_category_order": null,
   "navigation_content_anchor": null,
   "screenshots": null,
   "phoneNumberLength": null,
   "use_visual_editor": true,
   "default_max_quantity": null,
-  "search_collections": null
+  "search_collections": null,
+  "ntfy_channel": null
 }

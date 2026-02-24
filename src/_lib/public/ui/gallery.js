@@ -1,6 +1,4 @@
-import { onReady } from "#public/utils/on-ready.js";
-import { IDS } from "#public/utils/selectors.js";
-import { getTemplate } from "#public/utils/template.js";
+import { getTemplate, IDS, onReady } from "#public/utils/ui-deps.js";
 
 const NAV_PREV = '[data-nav="prev"]';
 const NAV_NEXT = '[data-nav="next"]';
@@ -15,6 +13,32 @@ const state = {
 const getTotalImages = () =>
   document.querySelectorAll('[class^="full-image-"]').length;
 
+const getScrollOffset = (li, slider) => {
+  const liRect = li.getBoundingClientRect();
+  const sliderRect = slider.getBoundingClientRect();
+
+  const fullyVisible =
+    liRect.left >= sliderRect.left && liRect.right <= sliderRect.right;
+  if (fullyVisible) return 0;
+
+  const items = slider.querySelectorAll(":scope > li");
+  const isEdge = li === items[0] || li === items[items.length - 1];
+  const extra = isEdge ? 0 : li.offsetWidth / 2;
+
+  return liRect.left < sliderRect.left
+    ? liRect.left - sliderRect.left - extra
+    : liRect.right - sliderRect.right + extra;
+};
+
+const scrollThumbnailIntoView = (imageLink) => {
+  const li = imageLink.closest("li");
+  const slider = li?.closest(".slider");
+  if (!slider) return;
+
+  const offset = getScrollOffset(li, slider);
+  if (offset) slider.scrollBy({ left: offset, behavior: "smooth" });
+};
+
 const loadImage = (event) => {
   const imageLink = event.target.closest(".image-link");
   if (!imageLink) return;
@@ -23,6 +47,7 @@ const loadImage = (event) => {
 
   const index = imageLink.getAttribute("data-index");
   showImageByIndex(Number.parseInt(index, 10));
+  scrollThumbnailIntoView(imageLink);
 };
 
 const showImageByIndex = (index) => {

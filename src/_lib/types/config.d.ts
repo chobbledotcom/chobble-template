@@ -64,6 +64,8 @@ export type SiteConfig = {
   currency: string;
   default_max_quantity: number;
   search_collections: string[];
+  guide_page_order: string[];
+  guide_category_order: string[];
   products: ProductConfig;
 
   // Optional (may be null)

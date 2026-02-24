@@ -1,0 +1,10 @@
+{%- if guide-category -%}
+<section class="compact">
+  <div class="container container--wide">
+    {%- assign category = collections.guide-categories | getBySlug: guide-category -%}
+    <nav class="guide-navigation" aria-label="Guide breadcrumb">
+      <a href="{{ category.url }}">&larr; Back to {{ category.data.title }}</a>
+    </nav>
+  </div>
+</section>
+{%- endif -%}

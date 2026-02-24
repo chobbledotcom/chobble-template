@@ -69,12 +69,20 @@ const BLOCK_SCHEMAS = {
   ],
   "image-background": ["image", "image_alt", "content", "class", "parallax"],
   items: ["collection", "intro", "horizontal"],
-  contact_form: ["content"],
+  contact_form: [
+    "content",
+    "header_title",
+    "header_subtitle",
+    "header_level",
+    "header_align",
+    "header_class",
+  ],
   markdown: ["content"],
   html: ["content"],
   content: [],
   include: ["file"],
   properties: [],
+  "guide-categories": [],
 };
 
 /**

@@ -1,5 +1,5 @@
 <section>
-  <div class="container container--default">
+  <div class="container">
     <div class="property-content">
       {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags %}
       {% assign rating = collections.reviews | getRating: page.fileSlug, tags %}

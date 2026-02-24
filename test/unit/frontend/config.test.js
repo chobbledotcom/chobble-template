@@ -40,6 +40,8 @@ describe("config", () => {
       "navigation_content_anchor",
       "category_order",
       "property_order",
+      "guide_page_order",
+      "guide_category_order",
       "screenshots",
       "design_system_layouts",
       "phoneNumberLength",

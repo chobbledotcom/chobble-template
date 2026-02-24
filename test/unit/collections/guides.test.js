@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { configureGuides, guidesByCategory } from "#collections/guides.js";
+import {
+  configureGuides,
+  guideCategoriesByProperty,
+  guidesByCategory,
+} from "#collections/guides.js";
 import {
   createMockEleventyConfig,
   expectResultTitles,
@@ -13,6 +17,11 @@ const guide = (title, category) => ({
 /** Create multiple guides from [title, category] pairs */
 const guides = (pairs) =>
   pairs.map(([title, category]) => guide(title, category));
+
+/** Create a guide category with title and optional property */
+const guideCategory = (title, property) => ({
+  data: { title, ...(property && { property }) },
+});
 
 describe("guides", () => {
   test("Filters guide pages by category slug", () => {
@@ -100,5 +109,61 @@ describe("guides", () => {
 
     expect(typeof mockConfig.filters.guidesByCategory).toBe("function");
     expect(mockConfig.filters.guidesByCategory).toBe(guidesByCategory);
+  });
+
+  test("Adds guideCategoriesByProperty filter", () => {
+    const mockConfig = createMockEleventyConfig();
+
+    configureGuides(mockConfig);
+
+    expect(typeof mockConfig.filters.guideCategoriesByProperty).toBe(
+      "function",
+    );
+    expect(mockConfig.filters.guideCategoriesByProperty).toBe(
+      guideCategoriesByProperty,
+    );
+  });
+});
+
+describe("guideCategoriesByProperty", () => {
+  test("Filters guide categories by property slug", () => {
+    const categories = [
+      guideCategory("Getting Started", "seaside-cottage"),
+      guideCategory("Advanced", "mountain-lodge"),
+      guideCategory("Tips", "seaside-cottage"),
+    ];
+
+    const result = guideCategoriesByProperty(categories, "seaside-cottage");
+
+    expectResultTitles(result, ["Getting Started", "Tips"]);
+  });
+
+  test("Returns empty array when no categories match property", () => {
+    const categories = [
+      guideCategory("Getting Started", "seaside-cottage"),
+      guideCategory("Advanced", "mountain-lodge"),
+    ];
+
+    const result = guideCategoriesByProperty(categories, "nonexistent");
+
+    expect(result).toEqual([]);
+  });
+
+  test("Handles empty categories array", () => {
+    const result = guideCategoriesByProperty([], "seaside-cottage");
+
+    expect(result).toEqual([]);
+  });
+
+  test("Skips categories without property field", () => {
+    const categories = [
+      guideCategory("Getting Started", "seaside-cottage"),
+      guideCategory("Advanced"), // no property
+      guideCategory("Tips", "seaside-cottage"),
+    ];
+
+    const result = guideCategoriesByProperty(categories, "seaside-cottage");
+
+    expectResultTitles(result, ["Getting Started", "Tips"]);
   });
 });

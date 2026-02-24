@@ -23,7 +23,8 @@
 	],
 	"ignoreDependencies": [
 		"bun-types",
-		"pagefind"
+		"pagefind",
+		"zod"
 	],
 	"ignoreBinaries": [],
 	"ignoreExportsUsedInFile": true,

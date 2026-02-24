@@ -7,7 +7,8 @@
 import { buildReverseIndex } from "./grouping.js";
 
 const DEFAULT_MAX_CACHE_SIZE = 2000;
-const DEFAULT_KEY_FN = (args) => args[0];
+/** @param {unknown[]} args @returns {string | number} */
+const DEFAULT_KEY_FN = (args) => /** @type {string | number} */ (args[0]);
 
 /**
  * Memoize a function with optional custom cache key.
@@ -25,6 +26,7 @@ const memoize = (fn, options = {}) => {
   const keyFn = options.cacheKey || DEFAULT_KEY_FN;
   const maxSize = options.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE;
 
+  /** @param {unknown[]} args */
   return (...args) => {
     const key = keyFn(args);
     if (cache.has(key)) return cache.get(key);
@@ -108,8 +110,9 @@ const memoizeByRef = (buildFn) => {
 const cachedEntries = (toEntries) =>
   memoizeByRef((arr) => Object.fromEntries(toEntries(arr)));
 
-const indexBy = (getKey) =>
-  cachedEntries((arr) => arr.map((item) => [getKey(item), item]));
+const indexBy =
+  /** @param {(item: *) => string} getKey */
+  (getKey) => cachedEntries((arr) => arr.map((item) => [getKey(item), item]));
 
 /**
  * Create a grouper that builds and caches a reverse index for arrays.

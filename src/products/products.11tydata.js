@@ -12,11 +12,13 @@ import {
 } from "#utils/product-cart-data.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
+/** @param {*} data */
 const getProductMode = (data) => {
   const config = getConfig();
   return data.product_mode || config.product_mode;
 };
 
+/** @param {*} data */
 const getDefaultMaxQuantity = (data) => {
   if (data.max_quantity != null) {
     return data.max_quantity;
@@ -66,6 +68,7 @@ export default linkableContent("product", {
     const mode = getProductMode(data);
     const defaultMaxQuantity = getDefaultMaxQuantity(data);
     const options = computeOptions(data, mode, defaultMaxQuantity);
-    return options[0]?.max_quantity > 1;
+    const maxQuantity = options[0]?.max_quantity;
+    return maxQuantity !== undefined && maxQuantity > 1;
   },
 });

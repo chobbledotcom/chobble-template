@@ -1,0 +1,17 @@
+{%- assign guide_pages = collections.guide-pages | guidesByCategory: page.fileSlug -%}
+{%- if guide_pages.size > 0 -%}
+<section>
+  <div class="container">
+    <ul class="guide-list">
+      {%- for guide_page in guide_pages -%}
+        <li>
+          <a href="{{ guide_page.url }}">{{ guide_page.data.title }}</a>
+          {%- if guide_page.data.subtitle -%}
+            <p>{{ guide_page.data.subtitle }}</p>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+{%- endif -%}

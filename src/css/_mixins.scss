@@ -214,6 +214,31 @@
   }
 }
 
+// Card link: solid text, highlight on hover
+@mixin link-card {
+  color: var(--color-text);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-link);
+  }
+}
+
+// FAQ definition list: question/answer pairs
+@mixin faqs-list {
+  @include flex-col($space-md);
+
+  dt {
+    @include heading-sm;
+  }
+
+  dd {
+    @include body-base;
+    color: var(--color-text-muted);
+    line-height: $line-height-relaxed;
+  }
+}
+
 // Contrast text custom properties for primary/dark panels
 @mixin contrast-text-vars {
   color: var(--color-contrast-text);
@@ -389,14 +414,14 @@
 
 // Aspect ratio container
 @mixin aspect-ratio($width: 16, $height: 9) {
-  aspect-ratio: $width / $height;
+  aspect-ratio: #{$width} / #{$height};
 }
 
 // Responsive iframe embed (maps, videos, etc.)
 @mixin iframe-embed($ratio-w: 16, $ratio-h: 9) {
   position: relative;
   width: 100%;
-  aspect-ratio: $ratio-w / $ratio-h;
+  aspect-ratio: #{$ratio-w} / #{$ratio-h};
   overflow: hidden;
 
   iframe {

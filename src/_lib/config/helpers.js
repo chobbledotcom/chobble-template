@@ -30,6 +30,17 @@ const DEFAULTS = frozenObject({
   navigation_content_anchor: false,
   category_order: null,
   property_order: null,
+  guide_page_order: [
+    "guide/header.html",
+    "guide/navigation.html",
+    "guide/content.html",
+    "faqs.html",
+  ],
+  guide_category_order: [
+    "guide/header.html",
+    "guide/content.html",
+    "guide/guide-pages-list.html",
+  ],
   screenshots: {},
   design_system_layouts: ["design-system-base.html"],
   phoneNumberLength: 11,
@@ -58,6 +69,7 @@ const getProducts = ({ products = {} }) => pickTruthy(products);
 
 /**
  * Get form target URL from config, preferring explicit target over formspark
+ * @param {{ contact_form_target?: string | null, formspark_id?: string | null }} configData
  */
 const getFormTarget = (configData) => {
   if (configData.contact_form_target) {

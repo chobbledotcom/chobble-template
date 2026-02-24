@@ -25,20 +25,30 @@ const reset = () => {
   slots = new Map();
 };
 
+const getPageSlots = (inputPath, { create = false } = {}) => {
+  if (!slots) {
+    if (!create) return null;
+    slots = new Map();
+  }
+  if (!slots.has(inputPath)) {
+    if (!create) return null;
+    slots.set(inputPath, new Map());
+  }
+  return slots.get(inputPath);
+};
+
 const push = (inputPath, name, content) => {
-  if (!slots) slots = new Map();
-  if (!slots.has(inputPath)) slots.set(inputPath, new Map());
-  const page = slots.get(inputPath);
+  const page = getPageSlots(inputPath, { create: true });
   if (!page.has(name)) page.set(name, "");
   page.set(name, page.get(name) + content);
   return "";
 };
 
 const render = (inputPath, name) => {
-  if (!slots?.has(inputPath)) return "";
-  const page = slots.get(inputPath);
-  if (!page.has(name)) return "";
-  return page.get(name);
+  const page = getPageSlots(inputPath);
+  if (!page) return "";
+  const value = page.get(name);
+  return value === undefined ? "" : value;
 };
 
 /**

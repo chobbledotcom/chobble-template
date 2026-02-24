@@ -22,6 +22,7 @@ describe("BLOCK_SCHEMAS", () => {
       "content",
       "include",
       "properties",
+      "guide-categories",
     ];
     expect(Object.keys(BLOCK_SCHEMAS).sort()).toEqual(expectedTypes.sort());
   });
@@ -192,6 +193,21 @@ describe("validateBlocks", () => {
         right_button: { text: "Click", href: "/" },
         reveal_left: "left",
         reveal_right: "right",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("allows all valid keys for contact_form with headers", () => {
+    const blocks = [
+      {
+        type: "contact_form",
+        content: "Get in touch",
+        header_title: "Contact Us",
+        header_subtitle: "We'd love to hear from you",
+        header_level: 2,
+        header_align: "center",
+        header_class: "custom",
       },
     ];
     expect(() => validateBlocks(blocks)).not.toThrow();

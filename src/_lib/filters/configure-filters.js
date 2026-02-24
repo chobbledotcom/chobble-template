@@ -11,36 +11,12 @@ import {
   categoryListingUI,
   createCategoryFilterAttributes,
 } from "#filters/category-product-filters.js";
-import { createFilterConfig } from "#filters/item-filters.js";
+import { createListingFilterUI } from "#filters/product-listing-filter.js";
 
 const categoryCollections = {
   categoryFilterAttributes: createCategoryFilterAttributes,
   categoryListingFilterUI: categoryListingUI,
 };
-
-const itemFilterConfigs = [
-  {
-    tag: "products",
-    permalinkDir: strings.product_permalink_dir,
-    itemsKey: "products",
-    collections: {
-      pages: "filteredProductPages",
-      redirects: "filterRedirects",
-    },
-    uiDataFilterName: "buildFilterUIData",
-  },
-  {
-    tag: "property",
-    permalinkDir: strings.property_permalink_dir,
-    itemsKey: "properties",
-    collections: {
-      pages: "filteredPropertyPages",
-      redirects: "propertyFilterRedirects",
-      attributes: "propertyFilterAttributes",
-    },
-    uiDataFilterName: "buildPropertyFilterUIData",
-  },
-];
 
 /**
  * Configure all filter collections and filters
@@ -53,8 +29,9 @@ export const configureFilters = (eleventyConfig) => {
   }
   eleventyConfig.addFilter("buildCategoryFilterUIData", categoryFilterData);
 
-  // Product and property filters
-  for (const config of itemFilterConfigs) {
-    createFilterConfig(config).configure(eleventyConfig);
-  }
+  // Product listing filter UI (client-side filtering, server-rendered UI)
+  eleventyConfig.addCollection(
+    "filteredProductPagesListingFilterUI",
+    createListingFilterUI("products", `/${strings.product_permalink_dir}`),
+  );
 };

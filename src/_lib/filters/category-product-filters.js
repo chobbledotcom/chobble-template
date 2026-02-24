@@ -8,16 +8,14 @@
  *
  * Filters: buildCategoryFilterUIData
  */
-import { generateFilterCombinations } from "#filters/filter-combinations.js";
 import {
   buildDisplayLookup,
-  getAllFilterAttributes,
-} from "#filters/filter-core.js";
-import {
   buildFilterUIData,
   buildPathLookup,
   buildUIWithLookup,
-} from "#filters/filter-ui.js";
+  generateFilterCombinations,
+  getAllFilterAttributes,
+} from "#filters/item-filters.js";
 import { mapFilter } from "#toolkit/fp/array.js";
 import { groupByWithCache, memoizeByRef } from "#toolkit/fp/memoize.js";
 import { createArrayFieldIndexer } from "#utils/collection-utils.js";
@@ -47,6 +45,11 @@ const buildContext = (slug, sortedProducts, combinations) => {
     pathLookup: buildPathLookup(combinations),
   };
 };
+
+const mapBySlug = (categoryData, key) =>
+  Object.fromEntries(
+    categoryData.map((category) => [category.slug, category[key]]),
+  );
 
 /** Build listing UI for category main page */
 const buildListingUI = (ctx, productCount) =>
@@ -94,12 +97,8 @@ const computeAllCategoryData = memoizeByRef(
     })(categories);
 
     return {
-      attributes: Object.fromEntries(
-        categoryData.map((c) => [c.slug, c.attributes]),
-      ),
-      listingUI: Object.fromEntries(
-        categoryData.map((c) => [c.slug, c.listingUI]),
-      ),
+      attributes: mapBySlug(categoryData, "attributes"),
+      listingUI: mapBySlug(categoryData, "listingUI"),
     };
   },
 );
@@ -124,7 +123,7 @@ const categoryListingUI = (collectionApi) =>
 const categoryFilterData = (
   categoryFilterAttrs,
   categorySlug,
-  currentFilters,
+  currentFilters = {},
   filteredPages,
   currentSortKey = "default",
   count = 2,
@@ -139,7 +138,7 @@ const categoryFilterData = (
 
   return buildFilterUIData(
     filterData,
-    currentFilters ?? {},
+    currentFilters,
     getBasePaths(categoryPages),
     baseUrl,
     currentSortKey,

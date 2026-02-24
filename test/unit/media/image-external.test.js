@@ -1,27 +1,28 @@
 import { describe, expect, test } from "bun:test";
 import { processExternalImage } from "#media/image-external.js";
+import { expectAsyncThrows } from "#test/test-utils.js";
 import { RICK_ASTLEY_VIDEO_ID } from "#utils/video.js";
 
 describe("image-external", () => {
   describe("processExternalImage", () => {
     test("throws when external URL cannot be fetched", async () => {
-      await expect(
+      await expectAsyncThrows(() =>
         processExternalImage({
-          src: "https://example.com/nonexistent-image.jpg",
+          src: "https://",
           alt: "Test image",
           loading: "lazy",
           classes: "featured",
           returnElement: false,
           document: null,
         }),
-      ).rejects.toThrow();
+      );
     });
 
     test("returns placeholder HTML for Rick Astley thumbnail fetch failure", async () => {
-      // Use a non-existent host that contains the Rick Astley video ID
-      // so isRickAstleyThumbnail returns true but the fetch always fails
+      // Use a malformed URL that still contains the Rick Astley video ID
+      // so isRickAstleyThumbnail returns true and processing falls back
       const result = await processExternalImage({
-        src: `https://nonexistent.invalid/${RICK_ASTLEY_VIDEO_ID}.jpg`,
+        src: `https://?v=${RICK_ASTLEY_VIDEO_ID}`,
         alt: "Video thumbnail",
         loading: "lazy",
         classes: null,

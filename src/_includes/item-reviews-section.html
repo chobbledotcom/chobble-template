@@ -1,14 +1,16 @@
 {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags %}
 {%- if reviews.size > 0 -%}
-  <h2 id="reviews">Reviews</h2>
-  {% assign limit = config.reviews_truncate_limit %}
-  {%- if limit != -1 and reviews.size > limit -%}
-    {% assign reviews = reviews | slice: 0, limit %}
-    {% include "reviews-list.html", compact: true %}
-    <p><a href="{{ page.url }}reviews/">See all reviews</a></p>
-  {%- else -%}
-    {% include "reviews-list.html", compact: true %}
-  {%- endif -%}
+  <div class="stack">
+    <h2 id="reviews">Reviews</h2>
+    {% assign limit = config.reviews_truncate_limit %}
+    {%- if limit != -1 and reviews.size > limit -%}
+      {% assign reviews = reviews | slice: 0, limit %}
+      {% include "reviews-list.html", compact: true %}
+      <p><a href="{{ page.url }}reviews/">See all reviews</a></p>
+    {%- else -%}
+      {% include "reviews-list.html", compact: true %}
+    {%- endif -%}
+  </div>
 {%- endif -%}
 {%- if tags contains "product" -%}
   {%- include "purchase-button.html" -%}

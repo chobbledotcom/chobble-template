@@ -260,17 +260,7 @@
   // FAQS
   // ===========================================================================
 
-  .property-faqs {
-    @include flex-col($space-md);
-
-    dt {
-      @include heading-sm;
-    }
-
-    dd {
-      @include body-base;
-      color: var(--color-text-muted);
-      line-height: $line-height-relaxed;
-    }
+  .faqs {
+    @include faqs-list;
   }
 }

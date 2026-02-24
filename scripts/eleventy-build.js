@@ -87,7 +87,7 @@ const runPagefind = () => {
       "--site",
       "_site",
       "--exclude-selectors",
-      "body.filtered-products [data-pagefind-body], body.filtered-properties [data-pagefind-body], body.base [data-pagefind-body]",
+      "body.filtered-properties [data-pagefind-body], body.base [data-pagefind-body]",
     ],
     { stdio: "inherit", env: process.env },
   );

@@ -30,6 +30,7 @@ import {
   isControlEnabled,
   parseBorderValue,
   parseThemeContent,
+  SCOPE_SELECTORS,
   SCOPES,
   shouldIncludeScopedVar,
 } from "#public/theme/theme-editor-lib.js";
@@ -43,14 +44,6 @@ const ELEMENT_IDS = frozenObject({
   download: "download-theme",
 });
 
-const SCOPE_DOM_SELECTORS = frozenObject({
-  header: "header",
-  nav: "nav",
-  article: "article",
-  form: "form",
-  button: "button, .button, input[type='submit']",
-});
-
 const SCOPED_VARS_TO_CLEAR = [
   "--color-bg",
   "--color-text",
@@ -60,6 +53,9 @@ const SCOPED_VARS_TO_CLEAR = [
 ];
 
 const formEl = createFormEl(ELEMENT_IDS.form);
+
+const formatBorderValue = (widthInput, styleSelect, colorInput) =>
+  `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
 
 const ThemeEditor = {
   initialized: false,
@@ -233,11 +229,15 @@ const ThemeEditor = {
     this.applyBorderToInputs(parsed, widthInput, styleSelect, colorInput);
 
     if (outputInput) {
-      outputInput.value = `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
+      outputInput.value = formatBorderValue(
+        widthInput,
+        styleSelect,
+        colorInput,
+      );
     }
 
     const updateBorder = () => {
-      const borderVal = `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
+      const borderVal = formatBorderValue(widthInput, styleSelect, colorInput);
       if (outputInput) outputInput.value = borderVal;
       if (isGlobal) {
         document.documentElement.style.setProperty("--border", borderVal);
@@ -324,7 +324,7 @@ const ThemeEditor = {
     };
 
     for (const scope of SCOPES) {
-      const selector = SCOPE_DOM_SELECTORS[scope];
+      const selector = SCOPE_SELECTORS[scope];
       const elements = document.querySelectorAll(selector);
       const vars = scopeVars[scope] || {};
 

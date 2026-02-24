@@ -207,8 +207,8 @@ describe("test-site-factory", () => {
       expect(site.hasOutput("nonexistent/file.html")).toBe(false);
     });
 
-    test("getDoc returns a DOM document for querying HTML", () => {
-      const doc = site.getDoc("test/index.html");
+    test("getDoc returns a DOM document for querying HTML", async () => {
+      const doc = await site.getDoc("test/index.html");
 
       // Should return a document we can query
       expect(doc.querySelector("h1")).toBeTruthy();

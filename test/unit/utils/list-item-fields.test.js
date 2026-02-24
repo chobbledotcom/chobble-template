@@ -1,7 +1,18 @@
 import { describe, expect, test } from "bun:test";
+import { selectListItemFields } from "#config/list-config.js";
 import listItemFields from "#data/listItemFields.js";
 
-const { DEFAULT_FIELDS, selectListItemFields } = listItemFields._helpers;
+const EXPECTED_LIST_ITEM_FIELDS = [
+  "thumbnail",
+  "link",
+  "price",
+  "date",
+  "subtitle",
+  "location",
+  "event-date",
+  "specs",
+  "cart-button",
+];
 
 describe("list-item-fields", () => {
   test("listItemFields exports an array", () => {
@@ -20,39 +31,30 @@ describe("list-item-fields", () => {
 
   test("selectListItemFields returns DEFAULT_FIELDS when given an empty array", () => {
     const result = selectListItemFields([]);
-    expect(result).toEqual(DEFAULT_FIELDS);
+    expect(result).toEqual(EXPECTED_LIST_ITEM_FIELDS);
   });
 
   test("selectListItemFields returns DEFAULT_FIELDS when given null", () => {
     const result = selectListItemFields(null);
-    expect(result).toEqual(DEFAULT_FIELDS);
+    expect(result).toEqual(EXPECTED_LIST_ITEM_FIELDS);
   });
 
   test("selectListItemFields returns DEFAULT_FIELDS when given undefined", () => {
     const result = selectListItemFields(undefined);
-    expect(result).toEqual(DEFAULT_FIELDS);
+    expect(result).toEqual(EXPECTED_LIST_ITEM_FIELDS);
   });
 
   test("selectListItemFields returns DEFAULT_FIELDS when given a non-array value", () => {
     const result = selectListItemFields("not-an-array");
-    expect(result).toEqual(DEFAULT_FIELDS);
+    expect(result).toEqual(EXPECTED_LIST_ITEM_FIELDS);
   });
 
   test("DEFAULT_FIELDS contains all expected field names", () => {
-    const expected = [
-      "thumbnail",
-      "link",
-      "price",
-      "date",
-      "subtitle",
-      "location",
-      "event-date",
-      "specs",
-      "cart-button",
-    ];
-    expect(DEFAULT_FIELDS).toHaveLength(expected.length);
-    for (const field of expected) {
-      expect(DEFAULT_FIELDS.includes(field)).toBe(true);
+    expect(EXPECTED_LIST_ITEM_FIELDS).toHaveLength(
+      EXPECTED_LIST_ITEM_FIELDS.length,
+    );
+    for (const field of EXPECTED_LIST_ITEM_FIELDS) {
+      expect(EXPECTED_LIST_ITEM_FIELDS.includes(field)).toBe(true);
     }
   });
 });

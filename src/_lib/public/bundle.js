@@ -17,6 +17,7 @@ import "#public/ui/tabs.js";
 import "#public/ui/shuffle-properties.js";
 import "#public/ui/sort-dropdown.js";
 import "#public/ui/category-filter.js";
+import "#public/ui/contact-form-submit.js";
 
 // Design system (scoped to .design-system containers)
 import "#public/design-system.js";
@@ -30,6 +31,7 @@ import "#public/cart/cart.js";
 import "#public/cart/quote.js";
 import "#public/cart/quote-checkout.js";
 import "#public/cart/quote-complete.js";
+import "#public/cart/order-complete.js";
 import "#public/cart/quote-steps.js";
 import "#public/ui/quote-steps-progress.js";
 import "#public/cart/hire-calculator.js";

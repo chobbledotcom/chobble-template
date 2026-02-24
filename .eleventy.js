@@ -64,6 +64,7 @@ export default async function (eleventyConfig) {
   });
   eleventyConfig
     .addPassthroughCopy("src/assets")
+    .addPassthroughCopy("src/images")
     .addPassthroughCopy({ "src/assets/favicon/*": "/" });
 
   // Static analysis: validates template collection references before build

@@ -44,11 +44,6 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
   "test/ensure-deps.js:16",
-
-  // src/_lib/media/image-external.js - Rick Astley placeholder video thumbnail fallback
-  // Needed: external HTTP fetch of YouTube thumbnail can fail on network-restricted environments;
-  // for the known placeholder video (Rick Astley), we fall back to a placeholder SVG
-  "src/_lib/media/image-external.js:178",
 ]);
 
 // ============================================
@@ -95,7 +90,6 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/collections/missing-folders-lib.test.js",
   "test/unit/collections/properties.test.js",
   "test/unit/eleventy/layout-aliases.test.js",
-  "test/unit/filters/item-filters.test.js",
   "test/unit/frontend/checkout.test.js",
   "test/unit/frontend/config.test.js",
   "test/unit/utils/object-entries.test.js",
@@ -125,9 +119,6 @@ const ALLOWED_LET = frozenSet([
   "test/integration/test-site-factory.test.js",
   "test/code-scanner.js",
   "test/unit/transforms/images.test.js",
-
-  // src/_lib/media/image-external.js - let html for try/catch fallback pattern
-  "src/_lib/media/image-external.js",
 ]);
 
 // ============================================
@@ -153,7 +144,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
   "src/_lib/filters/category-product-filters.js", // Helpers split for function length and readability
   "src/_lib/filters/filter-ui.js", // UI builders split from buildUIWithLookup for function length
-  "src/_lib/filters/item-filters.js",
   "src/_lib/transforms/external-links.js", // attrTuple for TypeScript tuple inference
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
@@ -246,12 +236,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 // ============================================
 
 const ALLOWED_DATA_FALLBACKS = frozenSet([
-  "src/_lib/collections/categories.js:72",
   "src/_lib/collections/events.js:23",
   "src/_lib/collections/products.js:97",
   "src/_lib/eleventy/ical.js:42",
-  "src/_lib/filters/filter-core.js:196",
-  "src/_lib/filters/filter-core.js:202",
   "src/_lib/utils/schema-helper.js:143",
   "src/_lib/utils/schema-helper.js:148",
 ]);
@@ -265,15 +252,6 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
 // Use `new DOM(html)` only when parsing generated HTML for assertions,
 // NOT for mocking the global document.
 const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
-  // Infrastructure: DOM class definition
-  "test/test-utils.js:186",
-
-  // Parsing build output into queryable documents
-  "test/test-site-factory.js:331",
-
-  // Parsing generated HTML for assertions
-  "test/unit/code-quality/template-selectors.test.js:43",
-
   // This test file tests these patterns
   "test/unit/code-quality/dom-mocking.test.js",
 ]);
@@ -292,23 +270,19 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 
   // src/_lib/build - build-time utilities
   "src/_lib/build/scss.js:22", // Lazy module loading pattern
-  "src/_lib/build/theme-compiler.js:55", // Theme variables extraction fallback
+  "src/_lib/build/theme-compiler.js:59", // Theme variables extraction fallback
 
   // src/_lib/filters - URL-based filtering
-  "src/_lib/filters/category-product-filters.js:142", // Liquid template boundary (currentFilters from template can be null)
-  "src/_lib/filters/filter-core.js:141", // Lazy init nested lookup (??= avoids object-mutation violation)
-  "src/_lib/filters/filter-core.js:142",
-  "src/_lib/filters/filter-core.js:196",
-  "src/_lib/filters/filter-core.js:202",
-  "src/_lib/filters/item-filters.js:143", // Normalize null/undefined filters from templates
-
+  "src/_lib/filters/filter-core.js:124", // Lazy init nested lookup (??= avoids object-mutation violation)
+  "src/_lib/filters/filter-core.js:125",
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:96",
   "src/_lib/public/cart/cart.js:97",
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions
-  "src/_lib/utils/collection-utils.js:85", // CMS boundary: frontmatter array fields may be null before eleventyComputed
+  "src/_lib/utils/collection-utils.js:79", // CMS boundary: frontmatter array fields may be null before eleventyComputed
+  "src/_lib/utils/collection-utils.js:95",
   "src/_lib/utils/sorting.js:56", // eleventyNavigation.order (separate from item order)
 ]);
 

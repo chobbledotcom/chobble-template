@@ -1,0 +1,17 @@
+{%- if collections.guide-categories.size > 0 -%}
+<ul class="guide-categories-list">
+  {%- for category in collections.guide-categories -%}
+    <li>
+      {%- if category.data.icon -%}
+        <div class="guide-category-icon">{{ category.data.icon | renderIcon }}</div>
+      {%- endif -%}
+      <div class="guide-category-info">
+        <a href="{{ category.url }}">{{ category.data.title }}</a>
+        {%- if category.data.subtitle -%}
+          <p>{{ category.data.subtitle }}</p>
+        {%- endif -%}
+      </div>
+    </li>
+  {%- endfor -%}
+</ul>
+{%- endif -%}

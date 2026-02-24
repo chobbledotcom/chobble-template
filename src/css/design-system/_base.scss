@@ -159,6 +159,17 @@
     }
   }
 
+  // Details/summary: hide content by default, show when open.
+  // Uses the ::details-content pseudo-element for progressive enhancement
+  // (browsers without support fall back to native details behavior).
+  details::details-content {
+    display: none;
+  }
+
+  details[open]::details-content {
+    display: block;
+  }
+
   img,
   .image-wrapper {
     max-width: 100%;
@@ -213,14 +224,14 @@
   // ===========================================================================
 
   .container {
-    @include container($width-wide);
+    @include container($width-default);
     @include flex-col($space-lg);
 
+    &--wide {
+      @include container($width-wide);
+    }
     &--narrow {
       @include container($width-narrow);
-    }
-    &--default {
-      @include container($width-default);
     }
   }
 
