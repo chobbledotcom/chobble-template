@@ -16,8 +16,7 @@ onReady(() => {
       const result = await submitForm(event.target);
 
       if (result.ok) {
-        const redirect = event.target.querySelector('input[name="_redirect"]');
-        window.location.href = redirect ? redirect.value : "/thank-you/";
+        window.location.href = result.url;
         return;
       }
 

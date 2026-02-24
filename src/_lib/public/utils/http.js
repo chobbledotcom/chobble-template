@@ -41,9 +41,10 @@ const postJson = (url, data) =>
   );
 
 /**
- * Submit a form via fetch, returning { ok, error }.
+ * Submit a form via fetch, returning { ok, url, error }.
+ * Follows redirects automatically — url is the final destination.
  * @param {HTMLFormElement} form - The form element to submit
- * @returns {Promise<{ ok: boolean, error: Error|null }>}
+ * @returns {Promise<{ ok: boolean, url: string, error: Error|null }>}
  */
 const submitForm = async (form) => {
   try {
@@ -54,12 +55,13 @@ const submitForm = async (form) => {
     if (!response.ok) {
       return {
         ok: false,
+        url: response.url,
         error: new Error(`Server responded with ${response.status}`),
       };
     }
-    return { ok: true, error: null };
+    return { ok: true, url: response.url, error: null };
   } catch (err) {
-    return { ok: false, error: err };
+    return { ok: false, url: "", error: err };
   }
 };
 
