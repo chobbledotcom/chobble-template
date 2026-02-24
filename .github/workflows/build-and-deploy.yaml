@@ -39,6 +39,7 @@ jobs:
           sed -i 's|"ecommerce_api_host": null|"ecommerce_api_host": "${{ secrets.ECOMMERCE_API_HOST }}"|g' src/_data/config.json
           sed -i 's|"stripe_publishable_key": null|"stripe_publishable_key": "${{ secrets.STRIPE_PUBLISHABLE_KEY }}"|g' src/_data/config.json
           sed -i 's|"cart_mode": null|"cart_mode": "${{ secrets.CART_MODE }}"|g' src/_data/config.json
+          sed -i 's|"ntfy_channel": null|"ntfy_channel": "${{ secrets.NTFY_FRONTEND_CHANNEL }}"|g' src/_data/config.json
 
       - name: Build Site
         run: |
