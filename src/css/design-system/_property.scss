@@ -46,7 +46,6 @@
         @include image-wrapper($radius-md);
         @include aspect-ratio(4, 3);
         width: 100%;
-        max-width: none;
 
         img {
           @include cover-img;
