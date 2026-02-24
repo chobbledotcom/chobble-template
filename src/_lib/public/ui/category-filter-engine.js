@@ -1,3 +1,5 @@
+import { frozenSet } from "#toolkit/fp/set.js";
+
 const SORT_COMPARATORS = {
   default: (a, b) => a.originalIndex - b.originalIndex,
   "price-asc": (a, b) => a.data.price - b.data.price,
@@ -19,7 +21,7 @@ const applyFiltersAndSort = (
   const comparator =
     SORT_COMPARATORS[activeSortKey] || SORT_COMPARATORS.default;
   matched.sort(comparator);
-  const matchedSet = new Set(matched);
+  const matchedSet = frozenSet(matched);
 
   for (const item of allItems) {
     item.element.style.display = matchedSet.has(item) ? "" : "none";
