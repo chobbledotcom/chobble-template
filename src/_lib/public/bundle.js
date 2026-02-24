@@ -17,6 +17,7 @@ import "#public/ui/tabs.js";
 import "#public/ui/shuffle-properties.js";
 import "#public/ui/sort-dropdown.js";
 import "#public/ui/category-filter.js";
+import "#public/ui/contact-form-submit.js";
 
 // Design system (scoped to .design-system containers)
 import "#public/design-system.js";

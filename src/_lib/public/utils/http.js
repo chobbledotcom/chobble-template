@@ -40,4 +40,29 @@ const postJson = (url, data) =>
     }),
   );
 
-export { fetchJson, postJson };
+/**
+ * Submit a form via fetch, returning { ok, url, error }.
+ * Follows redirects automatically — url is the final destination.
+ * @param {HTMLFormElement} form - The form element to submit
+ * @returns {Promise<{ ok: boolean, url: string, error: Error|null }>}
+ */
+const submitForm = async (form) => {
+  try {
+    const response = await fetch(form.action, {
+      method: form.method,
+      body: new FormData(form),
+    });
+    if (!response.ok) {
+      return {
+        ok: false,
+        url: response.url,
+        error: new Error(`Server responded with ${response.status}`),
+      };
+    }
+    return { ok: true, url: response.url, error: null };
+  } catch (err) {
+    return { ok: false, url: "", error: err };
+  }
+};
+
+export { fetchJson, postJson, submitForm };
