@@ -15,14 +15,21 @@ import { memoize } from "#toolkit/fp/memoize.js";
 
 /**
  * Default happy-dom settings for server-side rendering.
- * Disables CSS file loading and iframe page loading since:
- * - CSS files aren't needed for DOM manipulation transforms
- * - Iframe page loading triggers happy-dom bugs (SyntaxError undefined in iframe windows)
- * - Neither feature is useful during server-side HTML transforms
+ * Only DOM querying/manipulation is needed for HTML transforms, so we disable
+ * everything else: CSS/JS file loading, iframe navigation, computed styles, etc.
+ * Individual callers can override via loadDOM(html, { settings: { ... } }).
  */
 const SSR_SETTINGS = {
   disableCSSFileLoading: true,
+  disableJavaScriptFileLoading: true,
+  disableJavaScriptEvaluation: true,
   disableIframePageLoading: true,
+  disableComputedStyleRendering: true,
+  navigation: {
+    disableMainFrameNavigation: true,
+    disableChildFrameNavigation: true,
+    disableChildPageNavigation: true,
+  },
 };
 
 /**
