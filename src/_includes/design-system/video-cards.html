@@ -40,7 +40,7 @@ Usage:
       aria-label="Play {{ video.title }}"
     >
       {%- if video.thumbnail_url -%}
-      {%- image video.thumbnail_url, video.title, "", "", "", "16/9" -%}
+      {%- image video.thumbnail_url, video.title, "", "", "", "16/9", nil, false, true -%}
       {%- endif -%}
       <span class="video-play-button" aria-hidden="true">
         <svg viewBox="0 0 68 48" width="68" height="48">
