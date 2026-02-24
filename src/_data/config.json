@@ -11,7 +11,7 @@
   "sticky_mobile_nav": null,
   "horizontal_nav": null,
   "collapse_mobile_menu": true,
-  "navigation_is_clicky": true,
+  "navigation_is_clicky": false,
   "enable_theme_switcher": true,
   "externalLinksTargetBlank": null,
   "template_repo_url": null,
