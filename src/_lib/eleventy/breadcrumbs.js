@@ -28,7 +28,11 @@ const makeCrumb = (item, isCurrentPage) => ({
   url: isCurrentPage ? null : item.url,
 });
 
-/** Append a non-linked title crumb to a crumbs array */
+/**
+ * Append a non-linked title crumb to a crumbs array
+ * @param {Array<{label: string, url: string | null}>} crumbs
+ * @param {string} title
+ */
 const withTitleCrumb = (crumbs, title) => [
   ...crumbs,
   { label: title, url: null },

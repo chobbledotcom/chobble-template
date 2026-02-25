@@ -26,6 +26,7 @@ import { sortItems } from "#utils/sorting.js";
 /** @typedef {import("#lib/types").FilterSet} FilterSet */
 
 /** Convert a filter attribute to a [slugified-name, slugified-value] pair */
+/** @returns {[string, string]} */
 export const slugifyAttr = (attr) => [slugify(attr.name), slugify(attr.value)];
 
 /**

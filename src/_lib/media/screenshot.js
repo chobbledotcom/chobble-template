@@ -9,6 +9,7 @@ import {
   getDefaultOutputDir,
   log,
   prepareOutputDir,
+  runBatchOperations,
 } from "#media/browser-utils.js";
 
 const VIEWPORTS = frozenObject({

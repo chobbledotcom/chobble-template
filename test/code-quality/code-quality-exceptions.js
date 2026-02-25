@@ -273,8 +273,8 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/build/theme-compiler.js:59", // Theme variables extraction fallback
 
   // src/_lib/filters - URL-based filtering
-  "src/_lib/filters/filter-core.js:124", // Lazy init nested lookup (??= avoids object-mutation violation)
-  "src/_lib/filters/filter-core.js:125",
+  "src/_lib/filters/filter-core.js:125", // Lazy init nested lookup (??= avoids object-mutation violation)
+  "src/_lib/filters/filter-core.js:126",
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:86",
   "src/_lib/public/cart/cart.js:87",
