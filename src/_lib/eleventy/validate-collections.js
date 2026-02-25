@@ -85,15 +85,8 @@ const buildRegisteredNames = (srcDir) => {
       (n) => n.endsWith(".js"),
       ADD_COLLECTION_PATTERN,
     ),
-    ...extractNamesFromFiles(
-      srcDir,
-      (n) => n.endsWith(".json"),
-      TAG_ARRAY_PATTERN,
-    ),
-    ...extractNamesFromFiles(
-      srcDir,
-      (n) => n.endsWith(".json"),
-      TAG_STRING_PATTERN,
+    ...[TAG_ARRAY_PATTERN, TAG_STRING_PATTERN].flatMap((pattern) =>
+      extractNamesFromFiles(srcDir, (n) => n.endsWith(".json"), pattern),
     ),
     ...filterNames,
     ...extractAllMatches(filterSource, CATEGORY_KEY_PATTERN),

@@ -9,22 +9,17 @@
  * - LQIP (Low Quality Image Placeholder) generation
  */
 import crypto from "node:crypto";
-import {
-  extractLqipFromMetadata,
-  getEleventyImg,
-  LQIP_WIDTH,
-  removeLqip,
-} from "#media/image-lqip.js";
+import { getEleventyImg, LQIP_WIDTH } from "#media/image-lqip.js";
+import * as pipeline from "#media/image-pipeline.js";
 import {
   DEFAULT_IMAGE_OPTIONS,
-  JPEG_FALLBACK_WIDTH,
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
 import { wrapImageHtml } from "#media/image-wrapper.js";
 import { compact } from "#toolkit/fp/array.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
-import { createHtml, parseHtml } from "#utils/dom-builder.js";
+import { createHtml } from "#utils/dom-builder.js";
 import { slugify } from "#utils/slug-utils.js";
 import { isRickAstleyThumbnail } from "#utils/video.js";
 
@@ -73,7 +68,7 @@ const computeExternalImageHtml = memoize(
   async ({ src, alt, loading, classes, sizes, widths, aspectRatio }) => {
     const requestedWidths = parseWidths(widths);
     const webpWidths = [LQIP_WIDTH, ...requestedWidths];
-    const eleventyImg = await getEleventyImg();
+    const { default: imageFn } = await getEleventyImg();
     const attrs = prepareImageAttributes({ alt, sizes, loading, classes });
 
     const filenameSlug = `${slugify(alt || "external-image")}-${shortHash(src)}`;
@@ -83,26 +78,17 @@ const computeExternalImageHtml = memoize(
       slug: filenameSlug,
     };
 
-    const [webpMetadata, jpegMetadata] = await Promise.all([
-      eleventyImg.default(src, {
-        ...imageOptions,
-        formats: ["webp"],
-        widths: webpWidths,
-      }),
-      eleventyImg.default(src, {
-        ...imageOptions,
-        formats: ["jpeg"],
-        widths: [JPEG_FALLBACK_WIDTH],
-      }),
-    ]);
+    const imageMetadata = await pipeline.processFormats(
+      imageFn,
+      src,
+      imageOptions,
+      webpWidths,
+    );
 
-    const imageMetadata = { ...webpMetadata, ...jpegMetadata };
+    const { bgImage, htmlMetadata } =
+      await pipeline.prepareLqipMetadata(imageMetadata);
 
-    const bgImage = await extractLqipFromMetadata(imageMetadata);
-
-    const htmlMetadata = removeLqip(imageMetadata);
-
-    const innerHTML = eleventyImg.generateHTML(
+    const innerHTML = await pipeline.generatePictureHtml(
       htmlMetadata,
       attrs.imgAttributes,
       attrs.pictureAttributes,
@@ -155,32 +141,23 @@ const generateRickAstleyPlaceholder = async (classes, aspectRatio) => {
  * @returns {Promise<string | Element>} HTML string or element
  */
 const processExternalImage = async ({
-  src,
-  alt,
-  loading,
-  classes,
-  sizes,
-  widths,
-  aspectRatio,
   returnElement,
-  document,
+  document: doc,
+  ...imageProps
 }) => {
-  const html = await computeExternalImageHtml({
-    src,
-    alt,
-    loading,
-    classes,
-    sizes,
-    widths,
-    aspectRatio,
-  }).catch(async (error) => {
-    if (!isRickAstleyThumbnail(src)) {
-      throw error;
-    }
-    return generateRickAstleyPlaceholder(classes, aspectRatio);
-  });
+  const html = await computeExternalImageHtml(imageProps).catch(
+    async (error) => {
+      if (!isRickAstleyThumbnail(imageProps.src)) {
+        throw error;
+      }
+      return generateRickAstleyPlaceholder(
+        imageProps.classes,
+        imageProps.aspectRatio,
+      );
+    },
+  );
 
-  return returnElement ? await parseHtml(html, document) : html;
+  return pipeline.resolveOutput(html, returnElement, doc);
 };
 
 export { processExternalImage };

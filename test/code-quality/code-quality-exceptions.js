@@ -276,8 +276,8 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/filter-core.js:124", // Lazy init nested lookup (??= avoids object-mutation violation)
   "src/_lib/filters/filter-core.js:125",
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
-  "src/_lib/public/cart/cart.js:96",
-  "src/_lib/public/cart/cart.js:97",
+  "src/_lib/public/cart/cart.js:91",
+  "src/_lib/public/cart/cart.js:92",
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions

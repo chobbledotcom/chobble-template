@@ -30,9 +30,12 @@ function buildMenuPdfData(menu, { menuCategories, menuItems }) {
     sort(sortItems),
   )(menuCategories);
 
+  const inCategory = (category) => (item) =>
+    item.data.menu_categories?.includes(category.fileSlug);
+
   const itemsInCategory = (category) =>
     pipe(
-      filter((item) => item.data.menu_categories?.includes(category.fileSlug)),
+      filter(inCategory(category)),
       map((item) => ({
         name: item.data.name,
         price: item.data.price,
@@ -55,9 +58,7 @@ function buildMenuPdfData(menu, { menuCategories, menuItems }) {
   const allDietaryKeys = pipe(
     flatMap((category) =>
       items
-        .filter((item) =>
-          item.data.menu_categories?.includes(category.fileSlug),
-        )
+        .filter(inCategory(category))
         .flatMap((item) => item.data.dietaryKeys),
     ),
     uniqueDietaryKeys,

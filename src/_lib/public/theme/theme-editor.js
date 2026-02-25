@@ -26,6 +26,7 @@ import {
   controlToVarEntry,
   createFormEl,
   generateThemeCss,
+  getCssVarValue,
   inputToScopedEntry,
   isControlEnabled,
   parseBorderValue,
@@ -177,14 +178,18 @@ const ThemeEditor = {
     this.initBorderControl("", rootVars["--border"]);
   },
 
+  bindThemeUpdate(input) {
+    input.addEventListener("input", () => this.updateThemeFromControls());
+  },
+
   initScopedColorInput(input, scopeVars, docStyle) {
     if (scopeVars[input.dataset.var]) {
       input.value = scopeVars[input.dataset.var];
     } else {
-      const globalValue = docStyle.getPropertyValue(input.dataset.var).trim();
+      const globalValue = getCssVarValue(docStyle, input);
       if (globalValue?.startsWith("#")) input.value = globalValue;
     }
-    input.addEventListener("input", () => this.updateThemeFromControls());
+    this.bindThemeUpdate(input);
   },
 
   initScopedControls(scope, scopeVars) {
@@ -255,7 +260,7 @@ const ThemeEditor = {
       for (const o of input.querySelectorAll("option")) {
         if (document.body.classList.contains(o.value)) input.value = o.value;
       }
-      input.addEventListener("input", () => this.updateThemeFromControls());
+      this.bindThemeUpdate(input);
     }
   },
 
