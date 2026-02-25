@@ -22,6 +22,7 @@
   {%- endif -%}
 </head>
 <body class="design-system {{ layout | getBodyClasses: config }}">
+  {%- include "body-scripts.html" -%}
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
   {%- endunless -%}

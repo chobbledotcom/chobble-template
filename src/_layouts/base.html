@@ -2,6 +2,7 @@
 <html lang="en">
 {% include "head.html" %}
 <body class="{{ layout | getBodyClasses: config, body-classes }}">
+  {%- include "body-scripts.html" -%}
   {%- include "header.html" -%}
   <main>
     {%- include "navigation.html" -%}
