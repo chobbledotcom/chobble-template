@@ -11,11 +11,7 @@
 import crypto from "node:crypto";
 import { getEleventyImg, LQIP_WIDTH } from "#media/image-lqip.js";
 import * as pipeline from "#media/image-pipeline.js";
-import {
-  DEFAULT_IMAGE_OPTIONS,
-  parseWidths,
-  prepareImageAttributes,
-} from "#media/image-utils.js";
+import * as imageUtils from "#media/image-utils.js";
 import { wrapImageHtml } from "#media/image-wrapper.js";
 import { compact } from "#toolkit/fp/array.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
@@ -66,14 +62,19 @@ const buildExternalWrapperStyles = (bgImage, aspectRatio, maxWidth) =>
  */
 const computeExternalImageHtml = memoize(
   async ({ src, alt, loading, classes, sizes, widths, aspectRatio }) => {
-    const requestedWidths = parseWidths(widths);
+    const requestedWidths = imageUtils.parseWidths(widths);
     const webpWidths = [LQIP_WIDTH, ...requestedWidths];
     const { default: imageFn } = await getEleventyImg();
-    const attrs = prepareImageAttributes({ alt, sizes, loading, classes });
+    const attrs = imageUtils.prepareImageAttributes({
+      alt,
+      sizes,
+      loading,
+      classes,
+    });
 
     const filenameSlug = `${slugify(alt || "external-image")}-${shortHash(src)}`;
     const imageOptions = {
-      ...DEFAULT_IMAGE_OPTIONS,
+      ...imageUtils.DEFAULT_IMAGE_OPTIONS,
       filenameFormat: externalFilenameFormat,
       slug: filenameSlug,
     };

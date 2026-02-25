@@ -165,6 +165,16 @@ export const runBatchOperations = async (items, operationFn, makeErrorInfo) => {
   };
 };
 
+/** Create a batch runner that runs an operation across multiple page paths */
+export const createBatchRunner =
+  (operationFn) =>
+  (pagePaths, options = {}) =>
+    runBatchOperations(
+      pagePaths,
+      (pagePath) => operationFn(pagePath, options),
+      pathErrorInfo(pagePaths),
+    );
+
 export const waitForServer = async (baseUrl, maxAttempts = 30, delay = 250) => {
   for (let i = 0; i < maxAttempts; i++) {
     const [result] = await Promise.allSettled([fetch(baseUrl)]);

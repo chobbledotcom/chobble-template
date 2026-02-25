@@ -1,6 +1,5 @@
 import { readdirSync } from "node:fs";
-import { join } from "node:path";
-import { SRC_DIR } from "#lib/paths.js";
+import { join, SRC_DIR } from "#lib/paths.js";
 
 /** @param {*} eleventyConfig */
 export const configureLayoutAliases = (eleventyConfig, baseDir = SRC_DIR) => {

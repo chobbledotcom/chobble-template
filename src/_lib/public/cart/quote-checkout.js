@@ -52,10 +52,7 @@ const populateForm = () => {
   cartItemsField.value = cartText;
 
   // Build visual summary
-  itemsEl.innerHTML = "";
-  for (const item of cart) {
-    itemsEl.appendChild(renderCheckoutItem(item));
-  }
+  itemsEl.replaceChildren(...cart.map(renderCheckoutItem));
 };
 
 // Calculate days from date inputs (returns 1 if dates not set)

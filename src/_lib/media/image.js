@@ -156,43 +156,25 @@ const computeWrappedImageHtml = memoize(
  */
 const processAndWrapImage = async ({
   logName: _logName,
-  imageName,
-  alt,
-  classes,
-  sizes = null,
-  widths = null,
   returnElement = false,
-  aspectRatio = null,
-  loading = null,
-  noLqip = false,
-  skipMaxWidth = false,
   document = null,
+  ...imageProps
 }) => {
-  if (isExternalUrl(imageName)) {
+  if (isExternalUrl(imageProps.imageName)) {
     return await processExternalImage({
-      src: imageName,
-      alt,
-      loading,
-      classes,
-      sizes,
-      widths,
-      aspectRatio,
+      src: imageProps.imageName,
+      alt: imageProps.alt,
+      loading: imageProps.loading,
+      classes: imageProps.classes,
+      sizes: imageProps.sizes,
+      widths: imageProps.widths,
+      aspectRatio: imageProps.aspectRatio,
       returnElement,
       document,
     });
   }
 
-  const html = await computeWrappedImageHtml({
-    imageName,
-    alt,
-    classes,
-    sizes,
-    widths,
-    aspectRatio,
-    loading,
-    noLqip,
-    skipMaxWidth,
-  });
+  const html = await computeWrappedImageHtml(imageProps);
 
   return resolveOutput(html, returnElement, document);
 };

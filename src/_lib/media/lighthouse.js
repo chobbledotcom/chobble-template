@@ -1,5 +1,6 @@
 import {
   buildUrl,
+  createBatchRunner,
   createPathContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
@@ -8,9 +9,7 @@ import {
   getDefaultOutputDir,
   launchChromeHeadless,
   log,
-  pathErrorInfo,
   prepareOutputDir,
-  runBatchOperations,
   sanitizePagePath,
   startServer,
 } from "#media/browser-utils.js";
@@ -118,12 +117,7 @@ export const lighthouse = async (pagePath, options = {}) => {
   return result;
 };
 
-export const lighthouseMultiple = (pagePaths, options = {}) =>
-  runBatchOperations(
-    pagePaths,
-    (pagePath) => lighthouse(pagePath, options),
-    pathErrorInfo(pagePaths),
-  );
+export const lighthouseMultiple = createBatchRunner(lighthouse);
 
 export const getCategories = () => ({ ...CATEGORIES });
 

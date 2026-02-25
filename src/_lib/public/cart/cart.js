@@ -33,13 +33,8 @@ const resetProductSelects = () => {
   }
 };
 
-const getCartTotal = () => {
-  const cart = getCart();
-  return cart.reduce(
-    (total, item) => total + item.unit_price * item.quantity,
-    0,
-  );
-};
+const getCartTotal = () =>
+  getCart().reduce((total, item) => total + item.unit_price * item.quantity, 0);
 
 const showAddedFeedback = () => {
   for (const icon of document.querySelectorAll(".cart-icon")) {
@@ -125,9 +120,7 @@ const addItem = (item, quantity = 1) => {
 };
 
 const checkoutWithStripe = () => {
-  const cart = getCart();
-  if (cart.length === 0) return;
-
+  if (getCart().length === 0) return;
   window.location.href = "/stripe-checkout/";
 };
 
