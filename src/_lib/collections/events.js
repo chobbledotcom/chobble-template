@@ -58,9 +58,9 @@ const indexProductsByEvent = createArrayFieldIndexer("events");
  */
 const createEventsCollection = (collectionApi) => {
   const events = getEventsFromApi(collectionApi);
+  const products = getProductsFromApi(collectionApi);
   if (events.length === 0) return [];
 
-  const products = getProductsFromApi(collectionApi);
   const productsByEvent = indexProductsByEvent(products);
 
   return events.map((event) => {

@@ -26,7 +26,7 @@ onReady(() => {
       event.preventDefault();
       const targetId = link.getAttribute("href");
       setActiveTab(container, targetId);
-      history.pushState({}, "", targetId);
+      history.replaceState({}, "", targetId);
       history.pushState({}, "", targetId);
       history.back();
     });

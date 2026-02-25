@@ -1,5 +1,6 @@
 import { applyFiltersAndSort } from "#public/ui/category-filter-engine.js";
 import {
+  addFilter,
   buildLabelLookup,
   readInitialFilters,
   readInitialSort,
@@ -95,44 +96,46 @@ onReady(() => {
     updateHash();
   };
 
-  container.addEventListener("click", (e) => {
-    const link = e.target.closest("[data-filter-key]");
-    if (!link) return;
-
-    e.preventDefault();
-
-    if (
+  const handleFilterToggle = (link) => {
+    state.activeFilters =
       state.activeFilters[link.dataset.filterKey] === link.dataset.filterValue
-    ) {
-      state.activeFilters = omit([link.dataset.filterKey])(state.activeFilters);
-    } else {
-      state.activeFilters = {
-        ...state.activeFilters,
-        [link.dataset.filterKey]: link.dataset.filterValue,
-      };
-    }
+        ? omit([link.dataset.filterKey])(state.activeFilters)
+        : addFilter(state.activeFilters, link);
+  };
 
-    commitChange();
-  });
-
-  container.addEventListener("click", (e) => {
-    const removeLink = e.target.closest("[data-remove-filter]");
-    if (!removeLink) return;
-
-    e.preventDefault();
+  const handleFilterRemove = (removeLink) => {
     state.activeFilters = omit([removeLink.dataset.removeFilter])(
       state.activeFilters,
     );
-    commitChange();
-  });
+  };
 
-  container.addEventListener("click", (e) => {
-    if (!e.target.closest("[data-clear-filters]")) return;
-
-    e.preventDefault();
+  const handleFilterClear = () => {
     state.activeFilters = {};
     state.activeSortKey = "default";
-    commitChange();
+  };
+
+  container.addEventListener("click", (e) => {
+    const link = e.target.closest("[data-filter-key]");
+    if (link) {
+      e.preventDefault();
+      handleFilterToggle(link);
+      commitChange();
+      return;
+    }
+
+    const removeLink = e.target.closest("[data-remove-filter]");
+    if (removeLink) {
+      e.preventDefault();
+      handleFilterRemove(removeLink);
+      commitChange();
+      return;
+    }
+
+    if (e.target.closest("[data-clear-filters]")) {
+      e.preventDefault();
+      handleFilterClear();
+      commitChange();
+    }
   });
 
   container.addEventListener("change", (e) => {

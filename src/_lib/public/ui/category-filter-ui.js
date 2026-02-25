@@ -9,6 +9,12 @@ import { itemMatchesFilters } from "#public/ui/category-filter-engine.js";
 import { flatMap, pipe } from "#toolkit/fp/array.js";
 import { fromPairs } from "#toolkit/fp/object.js";
 
+/** Build a new filter object with the given link's filter key/value added */
+export const addFilter = (filters, link) => ({
+  ...filters,
+  [link.dataset.filterKey]: link.dataset.filterValue,
+});
+
 /**
  * Build a lookup from filter key/value slugs to their display labels
  * by scanning data attributes on filter option links/spans.
@@ -136,10 +142,7 @@ export const isOptionVisible = (
     return true;
   }
 
-  const hypothetical = {
-    ...activeFilters,
-    [link.dataset.filterKey]: link.dataset.filterValue,
-  };
+  const hypothetical = addFilter(activeFilters, link);
   const count = allItems.filter((item) =>
     itemMatchesFilters(item, hypothetical),
   ).length;

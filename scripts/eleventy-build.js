@@ -50,11 +50,13 @@ const containsError = (text) =>
 
 const isImageProcessingNoise = (text) => text.includes("[11ty/eleventy-img]");
 
+const BANNER_LINE = "=".repeat(60);
+
 const printFailureBanner = () => {
   console.error("\n");
-  console.error("=".repeat(60));
+  console.error(BANNER_LINE);
   console.error("BUILD FAILED - Terminating immediately");
-  console.error("=".repeat(60));
+  console.error(BANNER_LINE);
   console.error("\nThe error above caused the build to fail.");
   console.error("Fix the issue and rebuild.\n");
 };

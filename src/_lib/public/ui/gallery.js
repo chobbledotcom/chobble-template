@@ -101,24 +101,20 @@ const appendNavButton = (templateId, shouldHide) => {
   state.imagePopup.appendChild(btn);
 };
 
-const addNavigationButtons = (totalImages) => {
-  if (totalImages <= 1) return;
-  appendNavButton(IDS.GALLERY_NAV_PREV, state.currentPopupIndex <= 1);
-};
-
-const addNextButton = (totalImages) => {
-  if (totalImages <= 1) return;
-  appendNavButton(IDS.GALLERY_NAV_NEXT, state.currentPopupIndex >= totalImages);
-};
-
 const openPopup = () => {
   const image = state.currentImage.querySelector(".image-wrapper");
   const totalImages = getTotalImages();
+  const hasNav = totalImages > 1;
 
   state.imagePopup.innerHTML = "";
-  addNavigationButtons(totalImages);
+  if (hasNav)
+    appendNavButton(IDS.GALLERY_NAV_PREV, state.currentPopupIndex <= 1);
   state.imagePopup.appendChild(image.cloneNode(true));
-  addNextButton(totalImages);
+  if (hasNav)
+    appendNavButton(
+      IDS.GALLERY_NAV_NEXT,
+      state.currentPopupIndex >= totalImages,
+    );
 
   for (const el of state.imagePopup.querySelectorAll("[sizes]")) {
     el.sizes = "100vw";

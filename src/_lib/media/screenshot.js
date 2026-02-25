@@ -1,5 +1,6 @@
 import {
   BROWSER_ARGS,
+  createBatchRunner,
   createPathContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
@@ -7,9 +8,7 @@ import {
   frozenObject,
   getDefaultOutputDir,
   log,
-  pathErrorInfo,
   prepareOutputDir,
-  runBatchOperations,
 } from "#media/browser-utils.js";
 
 const VIEWPORTS = frozenObject({
@@ -94,12 +93,7 @@ export const screenshot = async (pagePath, options = {}) => {
   return result;
 };
 
-export const screenshotMultiple = (pagePaths, options = {}) =>
-  runBatchOperations(
-    pagePaths,
-    (pagePath) => screenshot(pagePath, options),
-    pathErrorInfo(pagePaths),
-  );
+export const screenshotMultiple = createBatchRunner(screenshot);
 
 export const screenshotAllViewports = (pagePath, options = {}) => {
   const viewportNames = Object.keys(VIEWPORTS);

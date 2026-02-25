@@ -1,6 +1,7 @@
 import getConfig from "#data/config.js";
 import contactFormFn from "#data/contact-form.js";
 import quoteFieldsFn from "#data/quote-fields.js";
+import { slugifyAttr } from "#filters/filter-core.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
 import { validateBlocks } from "#utils/block-schema.js";
@@ -12,7 +13,6 @@ import {
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
-import { slugify } from "#utils/slug-utils.js";
 import { getVideoThumbnailUrl } from "#utils/video.js";
 
 /**
@@ -93,9 +93,7 @@ export default {
       title: data.title.toLowerCase(),
       price: Math.min(...data.options.map((o) => o.unit_price)),
       filters: Object.fromEntries(
-        data.filter_attributes
-          .filter(Boolean)
-          .map((attr) => [slugify(attr.name), slugify(attr.value)]),
+        data.filter_attributes.filter(Boolean).map(slugifyAttr),
       ),
     };
   },

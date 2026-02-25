@@ -29,7 +29,7 @@
 		"typecheck:strict": "bun scripts/strict-typecheck-ratchet.js",
 		"cpd:fp": "jscpd packages/js-toolkit/fp --min-tokens 12",
 		"cpd:design-system": "jscpd src/css/design-system --min-tokens 17",
-		"cpd": "jscpd && jscpd src/_lib src/_data scripts packages --min-tokens 19 --ignore '**/index.js,**/page-layouts/**,**/customise-cms/**'",
+		"cpd": "jscpd && jscpd src/_lib src/_data scripts packages --min-tokens 18 --ignore '**/index.js,**/page-layouts/**,**/customise-cms/**'",
 		"cpd:ratchet": "bun scripts/cpd-ratchet.js",
 		"knip": "knip",
 		"knip:fix": "knip --fix",

@@ -28,6 +28,12 @@ const makeCrumb = (item, isCurrentPage) => ({
   url: isCurrentPage ? null : item.url,
 });
 
+/** Append a non-linked title crumb to a crumbs array */
+const withTitleCrumb = (crumbs, title) => [
+  ...crumbs,
+  { label: title, url: null },
+];
+
 /** Get index URL for a navigation parent, falling back to first path segment */
 const getIndexUrl = (navigationParent, pageUrl) =>
   PARENT_URL_MAP[navigationParent] ||
@@ -39,7 +45,7 @@ const buildParentCrumbs = (page, baseCrumbs, title, parent) => {
   const crumb = makeCrumb(parent, isAtParent);
   return isAtParent
     ? [...baseCrumbs, crumb]
-    : [...baseCrumbs, crumb, { label: title, url: null }];
+    : withTitleCrumb([...baseCrumbs, crumb], title);
 };
 
 /** Find parent from categories or locations by slug */
@@ -114,14 +120,10 @@ const buildPropertyCrumbs = (
       collections["guide-categories"],
       parentGuideCategory,
     );
-    return [
-      ...baseCrumbs,
-      makeCrumb(guideCat, false),
-      { label: title, url: null },
-    ];
+    return withTitleCrumb([...baseCrumbs, makeCrumb(guideCat, false)], title);
   }
 
-  return [...baseCrumbs, { label: title, url: null }];
+  return withTitleCrumb(baseCrumbs, title);
 };
 
 /**
@@ -165,7 +167,7 @@ const buildStandardCrumbs = (
 
   if (parent) return buildParentCrumbs(page, baseCrumbs, title, parent);
 
-  return [...baseCrumbs, { label: title, url: null }];
+  return withTitleCrumb(baseCrumbs, title);
 };
 
 /**
