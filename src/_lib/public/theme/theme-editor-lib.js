@@ -200,12 +200,21 @@ export const controlToVarEntry = (el) => {
 };
 
 /**
+ * Get the computed value of a CSS custom property from an input's data-var attribute.
+ * @param {CSSStyleDeclaration} docStyle - Computed style of document element
+ * @param {HTMLInputElement} input - Input with data-var attribute
+ * @returns {string} Trimmed CSS property value
+ */
+export const getCssVarValue = (docStyle, input) =>
+  docStyle.getPropertyValue(input.dataset.var).trim();
+
+/**
  * Create a function to convert color input to scoped var entry
  * @param {CSSStyleDeclaration} docStyle - Computed style of document element
  * @returns {Function} (input) => [varName, value] or null
  */
 export const inputToScopedEntry = (docStyle) => (input) => {
-  const globalValue = docStyle.getPropertyValue(input.dataset.var).trim();
+  const globalValue = getCssVarValue(docStyle, input);
   return shouldIncludeScopedVar(input.value, globalValue)
     ? [input.dataset.var, input.value]
     : null;

@@ -48,19 +48,14 @@ const showAddedFeedback = () => {
   }
 };
 
-const openCart = () => {
-  const cartOverlay = getCartOverlay();
-  if (cartOverlay) {
-    cartOverlay.showModal();
-  }
+const withCartOverlay = (action) => {
+  const overlay = getCartOverlay();
+  if (overlay) action(overlay);
 };
 
-const closeCart = () => {
-  const cartOverlay = getCartOverlay();
-  if (cartOverlay) {
-    cartOverlay.close();
-  }
-};
+const openCart = () => withCartOverlay((overlay) => overlay.showModal());
+
+const closeCart = () => withCartOverlay((overlay) => overlay.close());
 
 const updateStripeBtn = (btn, isBelowMinimum) => {
   btn.style.display = isBelowMinimum ? "none" : "";
