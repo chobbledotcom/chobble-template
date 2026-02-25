@@ -200,16 +200,19 @@ export default {
   },
 
   /**
-   * Adds thumbnail_url to each video object. YouTube videos get a thumbnail URL,
-   * custom iframe URLs (starting with "http") get null.
+   * Adds thumbnail_url to each video object. YouTube videos get a static
+   * thumbnail URL, Vimeo videos get one via the oEmbed API, and other custom
+   * iframe URLs get null.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Array<Record<string, unknown>>|undefined} Videos with thumbnail_url added
+   * @returns {Promise<Array<Record<string, unknown>>>|undefined} Videos with thumbnail_url added
    */
-  videos: (data) => {
+  videos: async (data) => {
     if (!data.videos) return data.videos;
-    return data.videos.map((video) => ({
-      ...video,
-      thumbnail_url: getVideoThumbnailUrl(video.id),
-    }));
+    return Promise.all(
+      data.videos.map(async (video) => ({
+        ...video,
+        thumbnail_url: await getVideoThumbnailUrl(video.id),
+      })),
+    );
   },
 };

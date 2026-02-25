@@ -557,19 +557,19 @@ describe("eleventyComputed", () => {
   });
 
   describe("videos", () => {
-    test("Returns undefined when videos not set", () => {
+    test("Returns undefined when videos not set", async () => {
       const data = {};
-      expect(eleventyComputed.videos(data)).toBeUndefined();
+      expect(await eleventyComputed.videos(data)).toBeUndefined();
     });
 
-    test("Adds thumbnail_url for YouTube video IDs", () => {
+    test("Adds thumbnail_url for YouTube video IDs", async () => {
       const data = {
         videos: [
           { id: "dQw4w9WgXcQ", title: "YouTube Video" },
           { id: "abc123xyz", title: "Another Video" },
         ],
       };
-      const result = eleventyComputed.videos(data);
+      const result = await eleventyComputed.videos(data);
       expect(result[0].thumbnail_url).toBe(
         "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
       );
@@ -578,23 +578,19 @@ describe("eleventyComputed", () => {
       );
     });
 
-    test("Sets thumbnail_url to null for custom URLs", () => {
+    test("Sets thumbnail_url to null for non-video custom URLs", async () => {
       const data = {
-        videos: [
-          { id: "https://player.vimeo.com/video/123456", title: "Vimeo Video" },
-          { id: "http://example.com/embed", title: "Custom Embed" },
-        ],
+        videos: [{ id: "http://example.com/embed", title: "Custom Embed" }],
       };
-      const result = eleventyComputed.videos(data);
+      const result = await eleventyComputed.videos(data);
       expect(result[0].thumbnail_url).toBe(null);
-      expect(result[1].thumbnail_url).toBe(null);
     });
 
-    test("Preserves other video properties", () => {
+    test("Preserves other video properties", async () => {
       const data = {
         videos: [{ id: "dQw4w9WgXcQ", title: "Test", customField: "value" }],
       };
-      const result = eleventyComputed.videos(data);
+      const result = await eleventyComputed.videos(data);
       expect(result[0].id).toBe("dQw4w9WgXcQ");
       expect(result[0].title).toBe("Test");
       expect(result[0].customField).toBe("value");
