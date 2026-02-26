@@ -79,24 +79,6 @@ const fetchVimeoThumbnail = memoize(async (vimeoId) => {
 });
 
 /**
- * Ensure a Vimeo URL has autoplay and loop parameters set.
- * Adds autoplay=1 and loop=1 if they are not already present in the URL.
- *
- * @param {string} url - A Vimeo embed URL
- * @returns {string} The URL with autoplay and loop params guaranteed
- */
-const ensureVimeoParams = (url) => {
-  const parsed = new URL(url);
-  if (!parsed.searchParams.has("autoplay")) {
-    parsed.searchParams.set("autoplay", "1");
-  }
-  if (!parsed.searchParams.has("loop")) {
-    parsed.searchParams.set("loop", "1");
-  }
-  return parsed.toString();
-};
-
-/**
  * Get the embed URL for a video
  *
  * For Vimeo URLs, ensures autoplay=1 and loop=1 params are present.
@@ -120,7 +102,14 @@ const ensureVimeoParams = (url) => {
  */
 const getVideoEmbedUrl = (videoId, options = {}) => {
   if (isVimeoUrl(videoId)) {
-    return ensureVimeoParams(videoId);
+    const parsed = new URL(videoId);
+    if (!parsed.searchParams.has("autoplay")) {
+      parsed.searchParams.set("autoplay", "1");
+    }
+    if (!parsed.searchParams.has("loop")) {
+      parsed.searchParams.set("loop", "1");
+    }
+    return parsed.toString();
   }
 
   if (isCustomVideoUrl(videoId)) {
