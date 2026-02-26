@@ -22,6 +22,7 @@
     gap: $space-lg;
     overflow-x: auto;
     overflow-y: hidden;
+    scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     padding-bottom: $space-sm; // Space for scrollbar
@@ -50,6 +51,7 @@
 
     > * {
       flex-shrink: 0;
+      scroll-snap-align: start;
     }
 
     // Default card width - can be overridden
