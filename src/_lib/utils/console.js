@@ -17,10 +17,12 @@ const isServeMode =
       location.hostname === "127.0.0.1" ||
       location.hostname === ""));
 
-/** @param {"log" | "error"} method */
+/**
+ * @param {"log" | "error"} method
+ * @returns {(...args: unknown[]) => void}
+ */
 const createLogger =
   (method) =>
-  /** @param {...unknown} args */
   (...args) => {
     if (isServeMode) {
       // biome-ignore lint/suspicious/noConsole: controlled console wrapper
