@@ -6,6 +6,7 @@
 
 - [example.chobble.com](https://example.chobble.com)
 - [tradesperson-example.chobble.com](https://tradesperson-example.chobble.com)
+- [funprouk.co.uk](https://www.funprouk.co.uk)
 - [southportorganics.co.uk](https://www.southportorganics.co.uk)
 - [house-of-desserts.co.uk](https://www.house-of-desserts.co.uk)
 - [ukegroupnorth.com](https://www.ukegroupnorth.com)
