@@ -406,13 +406,13 @@ No parameters. Renders `{{ content }}` if non-empty. Used for pages that combine
 
 ---
 
-### `anchor-button`
+### `block-link`
 
 Standalone centered button linking to an anchor or URL.
 
-**Template:** `src/_includes/design-system/anchor-button.html`
-**SCSS:** `src/css/design-system/_anchor-button.scss`
-**HTML root:** `<div class="anchor-button">`
+**Template:** `src/_includes/design-system/block-link.html`
+**SCSS:** `src/css/design-system/_block-link.scss`
+**HTML root:** `<div class="block-link">`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -585,7 +585,7 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 | `items-block.html` | `items` |
 | `properties-block.html` | `properties` |
 | `content-block.html` | `content` |
-| `anchor-button.html` | `anchor-button` |
+| `block-link.html` | `block-link` |
 
 ### SCSS Files (`src/css/design-system/`)
 
@@ -613,7 +613,7 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 | `_footer.scss` | Page footer |
 | `_reviews.scss` | Review components |
 | `_utilities.scss` | Utility classes |
-| `_anchor-button.scss` | Anchor button centering |
+| `_block-link.scss` | Block link centering |
 
 ### Key Layout Files
 

@@ -1,5 +1,5 @@
 {%- comment -%}
-Anchor button block - a standalone button linking to an anchor or URL.
+Block link - a standalone button linking to an anchor or URL.
 
 Parameters (via block object):
   - block.text: Button label (required)
@@ -15,7 +15,7 @@ Parameters (via block object):
   {%- if block.size -%}
     {%- assign btnClass = btnClass | append: " btn--" | append: block.size -%}
   {%- endif -%}
-  <div class="anchor-button"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
+  <div class="block-link"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
     <a href="{{ block.href }}" class="{{ btnClass }}">{{ block.text }}</a>
   </div>
 {%- endif -%}

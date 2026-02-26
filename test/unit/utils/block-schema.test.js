@@ -23,7 +23,7 @@ describe("BLOCK_SCHEMAS", () => {
       "include",
       "properties",
       "guide-categories",
-      "anchor-button",
+      "block-link",
     ];
     expect(Object.keys(BLOCK_SCHEMAS).sort()).toEqual(expectedTypes.sort());
   });
@@ -236,10 +236,10 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).toThrow("block 2");
   });
 
-  test("allows all valid keys for anchor-button", () => {
+  test("allows all valid keys for block-link", () => {
     const blocks = [
       {
-        type: "anchor-button",
+        type: "block-link",
         text: "Book Now",
         href: "#booking",
         variant: "primary",
