@@ -169,6 +169,7 @@ const processAndWrapImage = async ({
       sizes: imageProps.sizes,
       widths: imageProps.widths,
       aspectRatio: imageProps.aspectRatio,
+      skipMaxWidth: imageProps.skipMaxWidth,
       returnElement,
       document,
     });
