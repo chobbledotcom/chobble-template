@@ -2,7 +2,7 @@
   {%- for image in gallery -%}
     {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
     <div class="full-image-{{ forloop.index }}">
-      {% image image, alt_text, "", "fade-in" %}
+      {% image image, alt_text, "", "fade-in", "", "", null, false, true %}
     </div>
   {% endfor %}
 </div>
