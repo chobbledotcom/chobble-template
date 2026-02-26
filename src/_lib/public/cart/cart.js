@@ -142,9 +142,13 @@ const buildFullItemName = (itemName, optionName) =>
     ? `${itemName} - ${optionName}`
     : itemName;
 
-const handleOptionChange = (e) => {
-  if (!e.target.classList.contains("product-options-select")) return;
+/** Wrap a handler so it only fires when e.target has the given class */
+const delegateByClass = (className, handler) => (e) => {
+  if (!e.target.classList.contains(className)) return;
+  handler(e);
+};
 
+const handleOptionChange = delegateByClass("product-options-select", (e) => {
   const selectedOption = e.target.options[e.target.selectedIndex];
   const button = e.target.parentElement.querySelector(".product-option-button");
 
@@ -156,7 +160,7 @@ const handleOptionChange = (e) => {
     button.disabled = false;
     button.textContent = `Add to Cart - ${formatPrice(option.unit_price)}`;
   }
-};
+});
 
 const handleCartIconClick = (e) => {
   if (!e.target.closest(".cart-icon")) return false;
@@ -204,8 +208,7 @@ const getQuantityFromInput = (button) => {
   return Number.isNaN(value) || value < 1 ? 1 : value;
 };
 
-const handleAddToCart = (e) => {
-  if (!e.target.classList.contains("add-to-cart")) return;
+const handleAddToCart = delegateByClass("add-to-cart", (e) => {
   e.preventDefault();
 
   if (!validateProductOption(e.target)) return;
@@ -213,7 +216,7 @@ const handleAddToCart = (e) => {
   const item = extractItemFromButton(e.target);
   const quantity = getQuantityFromInput(e.target);
   addItem(item, quantity);
-};
+});
 
 const setupOverlayListeners = () => {
   const cartOverlay = getCartOverlay();

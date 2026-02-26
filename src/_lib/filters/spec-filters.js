@@ -1,5 +1,5 @@
 import specsIconsRaw from "#data/specs-icons.json" with { type: "json" };
-import { getIcon } from "#media/iconify.js";
+import { getIcon, normalizeIconName } from "#media/iconify.js";
 import { memoizedInlineAsset } from "#media/inline-asset.js";
 import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { mapObject } from "#toolkit/fp/object.js";
@@ -21,12 +21,8 @@ const resolveIconAssetPath = (icon) => {
   }
 
   const [prefix, ...nameParts] = icon.split(":");
-  const name = nameParts
-    .join(":")
-    .trim()
-    .toLowerCase()
-    .replace(/[_\s]+/g, "-");
-  const assetPath = `icons/iconify/${prefix.trim().toLowerCase()}/${name}.svg`;
+  const name = normalizeIconName(nameParts.join(":"));
+  const assetPath = `icons/iconify/${normalizeIconName(prefix)}/${name}.svg`;
   return { assetPath, isLocal: false };
 };
 
