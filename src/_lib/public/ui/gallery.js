@@ -67,15 +67,7 @@ const scrollThumbnailIntoView = (imageLink) => {
   const offset = getScrollOffset(li, slider);
   if (!offset) return;
 
-  slider.style.scrollSnapType = "none";
   slider.scrollBy({ left: offset, behavior: "smooth" });
-  slider.addEventListener(
-    "scrollend",
-    () => {
-      slider.style.scrollSnapType = "";
-    },
-    { once: true },
-  );
 };
 
 const loadImage = (event) => {
