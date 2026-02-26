@@ -13,21 +13,50 @@ const state = {
 const getTotalImages = () =>
   document.querySelectorAll('[class^="full-image-"]').length;
 
+const NEIGHBOR_REVEAL_RATIO = 0.5;
+
+const getNeighborOffset = (li, sliderRect) => {
+  const nextLi = li.nextElementSibling;
+  if (nextLi) {
+    const nextRect = nextLi.getBoundingClientRect();
+    const visibleWidth = Math.max(0, sliderRect.right - nextRect.left);
+    const targetWidth = nextLi.offsetWidth * NEIGHBOR_REVEAL_RATIO;
+    if (visibleWidth < targetWidth) {
+      return targetWidth - visibleWidth;
+    }
+  }
+
+  const prevLi = li.previousElementSibling;
+  if (prevLi) {
+    const prevRect = prevLi.getBoundingClientRect();
+    const visibleWidth = Math.max(0, prevRect.right - sliderRect.left);
+    const targetWidth = prevLi.offsetWidth * NEIGHBOR_REVEAL_RATIO;
+    if (visibleWidth < targetWidth) {
+      return -(targetWidth - visibleWidth);
+    }
+  }
+
+  return 0;
+};
+
 const getScrollOffset = (li, slider) => {
   const liRect = li.getBoundingClientRect();
   const sliderRect = slider.getBoundingClientRect();
 
   const fullyVisible =
     liRect.left >= sliderRect.left && liRect.right <= sliderRect.right;
-  if (fullyVisible) return 0;
 
-  const items = slider.querySelectorAll(":scope > li");
-  const isEdge = li === items[0] || li === items[items.length - 1];
-  const extra = isEdge ? 0 : li.offsetWidth / 2;
+  if (!fullyVisible) {
+    const items = slider.querySelectorAll(":scope > li");
+    const isEdge = li === items[0] || li === items[items.length - 1];
+    const extra = isEdge ? 0 : li.offsetWidth / 2;
 
-  return liRect.left < sliderRect.left
-    ? liRect.left - sliderRect.left - extra
-    : liRect.right - sliderRect.right + extra;
+    return liRect.left < sliderRect.left
+      ? liRect.left - sliderRect.left - extra
+      : liRect.right - sliderRect.right + extra;
+  }
+
+  return getNeighborOffset(li, sliderRect);
 };
 
 const scrollThumbnailIntoView = (imageLink) => {
@@ -36,7 +65,19 @@ const scrollThumbnailIntoView = (imageLink) => {
   if (!slider) return;
 
   const offset = getScrollOffset(li, slider);
-  if (offset) slider.scrollBy({ left: offset, behavior: "smooth" });
+  if (!offset) return;
+
+  // Temporarily disable scroll-snap so the browser doesn't override
+  // our precise positioning (e.g. snapping back to a snap point)
+  slider.style.scrollSnapType = "none";
+  slider.scrollBy({ left: offset, behavior: "smooth" });
+  slider.addEventListener(
+    "scrollend",
+    () => {
+      slider.style.scrollSnapType = "";
+    },
+    { once: true },
+  );
 };
 
 const loadImage = (event) => {
