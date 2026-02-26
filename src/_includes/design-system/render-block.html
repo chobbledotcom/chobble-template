@@ -61,4 +61,7 @@ Renders a single block by type. Used by blocks.html.
   {%- when "guide-categories" -%}
     {%- include "design-system/guide-categories-block.html" -%}
 
+  {%- when "anchor-button" -%}
+    {%- include "design-system/anchor-button.html", block: block -%}
+
 {%- endcase -%}
