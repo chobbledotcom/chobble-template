@@ -26,10 +26,10 @@ import {
   shouldGenerateLqip,
 } from "#media/image-lqip.js";
 import {
-  generatePictureHtml,
   prepareLqipMetadata,
   processFormats,
   resolveOutput,
+  wrapProcessedImage,
 } from "#media/image-pipeline.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import {
@@ -40,7 +40,6 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
-import { wrapImageHtml } from "#media/image-wrapper.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
 
@@ -126,22 +125,21 @@ const computeWrappedImageHtml = memoize(
       generateLqip,
     );
 
-    const innerHTML = await generatePictureHtml(
+    return await wrapProcessedImage(
       htmlMetadata,
       imgAttributes,
       pictureAttributes,
+      {
+        classes,
+        style: buildWrapperStyles(
+          bgImage,
+          aspectRatio,
+          metadata,
+          getAspectRatio,
+          skipMaxWidth,
+        ),
+      },
     );
-
-    return await wrapImageHtml(innerHTML, {
-      classes,
-      style: buildWrapperStyles(
-        bgImage,
-        aspectRatio,
-        metadata,
-        getAspectRatio,
-        skipMaxWidth,
-      ),
-    });
   },
   { cacheKey: jsonKey },
 );
@@ -169,6 +167,7 @@ const processAndWrapImage = async ({
       sizes: imageProps.sizes,
       widths: imageProps.widths,
       aspectRatio: imageProps.aspectRatio,
+      skipMaxWidth: imageProps.skipMaxWidth,
       returnElement,
       document,
     });

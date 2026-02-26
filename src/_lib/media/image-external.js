@@ -11,9 +11,13 @@
 import crypto from "node:crypto";
 import { getEleventyImg, LQIP_WIDTH } from "#media/image-lqip.js";
 import * as pipeline from "#media/image-pipeline.js";
-import * as imageUtils from "#media/image-utils.js";
+import {
+  buildImageWrapperStyles,
+  DEFAULT_IMAGE_OPTIONS,
+  parseWidths,
+  prepareImageAttributes,
+} from "#media/image-utils.js";
 import { wrapImageHtml } from "#media/image-wrapper.js";
-import { compact } from "#toolkit/fp/array.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { createHtml } from "#utils/dom-builder.js";
 import { slugify } from "#utils/slug-utils.js";
@@ -24,21 +28,6 @@ const shortHash = (str) =>
 
 const externalFilenameFormat = (_id, _src, width, format, options) =>
   `${options.slug}-${width}.${format}`;
-
-/**
- * Build wrapper styles for external images.
- * Uses CSS aspect-ratio since we can't read source metadata before processing.
- * @param {string | null} bgImage - LQIP background image data URL
- * @param {string | null} aspectRatio - Aspect ratio like "16/9"
- * @param {number | null} maxWidth - Maximum width from processed metadata
- * @returns {string} CSS style string
- */
-const buildExternalWrapperStyles = (bgImage, aspectRatio, maxWidth) =>
-  compact([
-    bgImage && `background-image: ${bgImage}`,
-    aspectRatio && `aspect-ratio: ${aspectRatio}`,
-    maxWidth && `max-width: min(${maxWidth}px, 100%)`,
-  ]).join("; ");
 
 /**
  * Process an external image URL through eleventy-img.
@@ -58,14 +47,24 @@ const buildExternalWrapperStyles = (bgImage, aspectRatio, maxWidth) =>
  * @param {string | null} options.sizes - Sizes attribute
  * @param {string | string[] | null} options.widths - Responsive widths
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
+ * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
  * @returns {Promise<string>} Wrapped image HTML
  */
 const computeExternalImageHtml = memoize(
-  async ({ src, alt, loading, classes, sizes, widths, aspectRatio }) => {
-    const requestedWidths = imageUtils.parseWidths(widths);
+  async ({
+    src,
+    alt,
+    loading,
+    classes,
+    sizes,
+    widths,
+    aspectRatio,
+    skipMaxWidth = false,
+  }) => {
+    const requestedWidths = parseWidths(widths);
     const webpWidths = [LQIP_WIDTH, ...requestedWidths];
     const { default: imageFn } = await getEleventyImg();
-    const attrs = imageUtils.prepareImageAttributes({
+    const attrs = prepareImageAttributes({
       alt,
       sizes,
       loading,
@@ -74,7 +73,7 @@ const computeExternalImageHtml = memoize(
 
     const filenameSlug = `${slugify(alt || "external-image")}-${shortHash(src)}`;
     const imageOptions = {
-      ...imageUtils.DEFAULT_IMAGE_OPTIONS,
+      ...DEFAULT_IMAGE_OPTIONS,
       filenameFormat: externalFilenameFormat,
       slug: filenameSlug,
     };
@@ -89,18 +88,22 @@ const computeExternalImageHtml = memoize(
     const { bgImage, htmlMetadata } =
       await pipeline.prepareLqipMetadata(imageMetadata);
 
-    const innerHTML = await pipeline.generatePictureHtml(
+    const maxWidth = htmlMetadata.webp?.[htmlMetadata.webp.length - 1]?.width;
+
+    return await pipeline.wrapProcessedImage(
       htmlMetadata,
       attrs.imgAttributes,
       attrs.pictureAttributes,
+      {
+        classes,
+        style: buildImageWrapperStyles({
+          bgImage,
+          aspectRatio,
+          maxWidth,
+          skipMaxWidth,
+        }),
+      },
     );
-
-    const maxWidth = htmlMetadata.webp?.[htmlMetadata.webp.length - 1]?.width;
-
-    return await wrapImageHtml(innerHTML, {
-      classes,
-      style: buildExternalWrapperStyles(bgImage, aspectRatio, maxWidth),
-    });
   },
   { cacheKey: jsonKey },
 );
@@ -118,7 +121,7 @@ const generateRickAstleyPlaceholder = async (classes, aspectRatio) => {
   });
   return wrapImageHtml(imgHtml, {
     classes,
-    style: compact([aspectRatio && `aspect-ratio: ${aspectRatio}`]).join("; "),
+    style: buildImageWrapperStyles({ bgImage: null, aspectRatio }),
   });
 };
 
@@ -137,6 +140,7 @@ const generateRickAstleyPlaceholder = async (classes, aspectRatio) => {
  * @param {string | null} options.sizes - Sizes attribute
  * @param {string | string[] | null} options.widths - Responsive widths
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
+ * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
  * @param {boolean} options.returnElement - Whether to return Element or HTML string
  * @param {Document | null} options.document - Optional document for element creation
  * @returns {Promise<string | Element>} HTML string or element

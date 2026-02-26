@@ -77,13 +77,35 @@ const buildPictureAttributes = (classes) =>
   classes?.trim() ? { class: classes } : {};
 
 /**
- * Build wrapper styles for responsive images.
- * Creates CSS style string with background image, aspect ratio, and max-width.
+ * Build wrapper styles for images from pre-computed values.
+ * Shared by both local and external image processing paths.
+ * @param {Object} options
+ * @param {string | null} options.bgImage - LQIP background image CSS value
+ * @param {string | null} options.aspectRatio - Pre-computed aspect ratio string
+ * @param {number | null} [options.maxWidth] - Maximum width in pixels
+ * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
+ * @returns {string} CSS style string
+ */
+export const buildImageWrapperStyles = ({
+  bgImage,
+  aspectRatio,
+  maxWidth,
+  skipMaxWidth = false,
+}) =>
+  compact([
+    bgImage && `background-image: ${bgImage}`,
+    aspectRatio && `aspect-ratio: ${aspectRatio}`,
+    !skipMaxWidth && maxWidth && `max-width: min(${maxWidth}px, 100%)`,
+  ]).join("; ");
+
+/**
+ * Build wrapper styles for local images.
+ * Computes aspect ratio from metadata, then delegates to buildImageWrapperStyles.
  * @param {string | null} bgImage - LQIP background image CSS value
  * @param {string | null} aspectRatio - Aspect ratio string
  * @param {object} metadata - Image metadata with width property
  * @param {Function} getAspectRatioFn - Function to compute aspect ratio
- * @param {boolean} [skipMaxWidth=false] - Skip max-width constraint (for background images)
+ * @param {boolean} [skipMaxWidth=false] - Skip max-width constraint
  */
 export const buildWrapperStyles = (
   bgImage,
@@ -92,13 +114,12 @@ export const buildWrapperStyles = (
   getAspectRatioFn,
   skipMaxWidth = false,
 ) =>
-  compact([
-    bgImage && `background-image: ${bgImage}`,
-    `aspect-ratio: ${getAspectRatioFn(aspectRatio, metadata)}`,
-    !skipMaxWidth &&
-      metadata.width &&
-      `max-width: min(${metadata.width}px, 100%)`,
-  ]).join("; ");
+  buildImageWrapperStyles({
+    bgImage,
+    aspectRatio: getAspectRatioFn(aspectRatio, metadata),
+    maxWidth: metadata.width,
+    skipMaxWidth,
+  });
 
 /**
  * Converts a file path to a unique, filename-safe basename.

@@ -13,6 +13,7 @@ import {
   removeLqip,
 } from "#media/image-lqip.js";
 import { JPEG_FALLBACK_WIDTH } from "#media/image-utils.js";
+import { wrapImageHtml } from "#media/image-wrapper.js";
 import { parseHtml } from "#utils/dom-builder.js";
 
 /**
@@ -75,6 +76,31 @@ export const generatePictureHtml = async (
 ) => {
   const { generateHTML } = await getEleventyImg();
   return generateHTML(htmlMetadata, imgAttributes, pictureAttributes);
+};
+
+/**
+ * Generate picture HTML and wrap it in the standard image wrapper.
+ * Shared by both local and external image processing paths.
+ * @param {Object} htmlMetadata - Metadata (with LQIP filtered out)
+ * @param {Object} imgAttributes - Image element attributes
+ * @param {Object} pictureAttributes - Picture element attributes
+ * @param {Object} wrapperOptions
+ * @param {string | null} wrapperOptions.classes - CSS classes
+ * @param {string} wrapperOptions.style - CSS style string
+ * @returns {Promise<string>} Wrapped picture HTML
+ */
+export const wrapProcessedImage = async (
+  htmlMetadata,
+  imgAttributes,
+  pictureAttributes,
+  { classes, style },
+) => {
+  const innerHTML = await generatePictureHtml(
+    htmlMetadata,
+    imgAttributes,
+    pictureAttributes,
+  );
+  return wrapImageHtml(innerHTML, { classes, style });
 };
 
 /**
