@@ -16,21 +16,21 @@ const getTotalImages = () =>
 const NEIGHBOR_REVEAL_RATIO = 0.5;
 
 const getNeighborOffset = (li, sliderRect) => {
-  const nextLi = li.nextElementSibling;
-  if (nextLi) {
-    const nextRect = nextLi.getBoundingClientRect();
+  if (li.nextElementSibling) {
+    const nextRect = li.nextElementSibling.getBoundingClientRect();
     const visibleWidth = Math.max(0, sliderRect.right - nextRect.left);
-    const targetWidth = nextLi.offsetWidth * NEIGHBOR_REVEAL_RATIO;
+    const targetWidth =
+      li.nextElementSibling.offsetWidth * NEIGHBOR_REVEAL_RATIO;
     if (visibleWidth < targetWidth) {
       return targetWidth - visibleWidth;
     }
   }
 
-  const prevLi = li.previousElementSibling;
-  if (prevLi) {
-    const prevRect = prevLi.getBoundingClientRect();
+  if (li.previousElementSibling) {
+    const prevRect = li.previousElementSibling.getBoundingClientRect();
     const visibleWidth = Math.max(0, prevRect.right - sliderRect.left);
-    const targetWidth = prevLi.offsetWidth * NEIGHBOR_REVEAL_RATIO;
+    const targetWidth =
+      li.previousElementSibling.offsetWidth * NEIGHBOR_REVEAL_RATIO;
     if (visibleWidth < targetWidth) {
       return -(targetWidth - visibleWidth);
     }
@@ -67,8 +67,6 @@ const scrollThumbnailIntoView = (imageLink) => {
   const offset = getScrollOffset(li, slider);
   if (!offset) return;
 
-  // Temporarily disable scroll-snap so the browser doesn't override
-  // our precise positioning (e.g. snapping back to a snap point)
   slider.style.scrollSnapType = "none";
   slider.scrollBy({ left: offset, behavior: "smooth" });
   slider.addEventListener(
