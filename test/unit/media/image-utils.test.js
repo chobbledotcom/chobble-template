@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildImageWrapperStyles,
   buildWrapperStyles,
   filenameFormat,
   getPathAwareBasename,
@@ -166,6 +167,56 @@ describe("image-utils", () => {
         false,
       );
       expect(styles).toContain("max-width: min(800px, 100%)");
+    });
+  });
+
+  describe("buildImageWrapperStyles", () => {
+    test("builds style string with all properties", () => {
+      const styles = buildImageWrapperStyles({
+        bgImage: "url(thumb.jpg)",
+        aspectRatio: "16/9",
+        maxWidth: 800,
+      });
+      expect(styles).toContain("background-image: url(thumb.jpg)");
+      expect(styles).toContain("aspect-ratio: 16/9");
+      expect(styles).toContain("max-width: min(800px, 100%)");
+    });
+
+    test("omits background image when null", () => {
+      const styles = buildImageWrapperStyles({
+        bgImage: null,
+        aspectRatio: "16/9",
+        maxWidth: 800,
+      });
+      expect(styles).not.toContain("background-image");
+    });
+
+    test("omits aspect ratio when null", () => {
+      const styles = buildImageWrapperStyles({
+        bgImage: null,
+        aspectRatio: null,
+        maxWidth: 800,
+      });
+      expect(styles).not.toContain("aspect-ratio");
+    });
+
+    test("omits max-width when skipMaxWidth is true", () => {
+      const styles = buildImageWrapperStyles({
+        bgImage: null,
+        aspectRatio: "16/9",
+        maxWidth: 800,
+        skipMaxWidth: true,
+      });
+      expect(styles).not.toContain("max-width");
+      expect(styles).toContain("aspect-ratio: 16/9");
+    });
+
+    test("omits max-width when maxWidth is not provided", () => {
+      const styles = buildImageWrapperStyles({
+        bgImage: null,
+        aspectRatio: "16/9",
+      });
+      expect(styles).not.toContain("max-width");
     });
   });
 
