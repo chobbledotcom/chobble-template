@@ -83,6 +83,7 @@ const BLOCK_SCHEMAS = {
   include: ["file"],
   properties: [],
   "guide-categories": [],
+  "link-button": ["text", "href", "variant", "size", "reveal"],
 };
 
 /**

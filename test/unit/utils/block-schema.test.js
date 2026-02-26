@@ -23,6 +23,7 @@ describe("BLOCK_SCHEMAS", () => {
       "include",
       "properties",
       "guide-categories",
+      "link-button",
     ];
     expect(Object.keys(BLOCK_SCHEMAS).sort()).toEqual(expectedTypes.sort());
   });
@@ -233,6 +234,20 @@ describe("validateBlocks", () => {
       { type: "video-background", video_url: "bad" },
     ];
     expect(() => validateBlocks(blocks)).toThrow("block 2");
+  });
+
+  test("allows all valid keys for link-button", () => {
+    const blocks = [
+      {
+        type: "link-button",
+        text: "Book Now",
+        href: "#booking",
+        variant: "primary",
+        size: "lg",
+        reveal: "scale",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
   test("handles empty array", () => {
