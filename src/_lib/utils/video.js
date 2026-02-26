@@ -79,9 +79,28 @@ const fetchVimeoThumbnail = memoize(async (vimeoId) => {
 });
 
 /**
+ * Ensure a Vimeo URL has autoplay and loop parameters set.
+ * Adds autoplay=1 and loop=1 if they are not already present in the URL.
+ *
+ * @param {string} url - A Vimeo embed URL
+ * @returns {string} The URL with autoplay and loop params guaranteed
+ */
+const ensureVimeoParams = (url) => {
+  const parsed = new URL(url);
+  if (!parsed.searchParams.has("autoplay")) {
+    parsed.searchParams.set("autoplay", "1");
+  }
+  if (!parsed.searchParams.has("loop")) {
+    parsed.searchParams.set("loop", "1");
+  }
+  return parsed.toString();
+};
+
+/**
  * Get the embed URL for a video
  *
- * For custom URLs (starting with "http"), returns the URL as-is.
+ * For Vimeo URLs, ensures autoplay=1 and loop=1 params are present.
+ * For other custom URLs (starting with "http"), returns the URL as-is.
  * For YouTube IDs, constructs a privacy-respecting youtube-nocookie.com URL.
  *
  * @param {string} videoId - YouTube video ID or custom URL
@@ -97,9 +116,13 @@ const fetchVimeoThumbnail = memoize(async (vimeoId) => {
  * // "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&playlist=dQw4w9WgXcQ"
  *
  * getVideoEmbedUrl("https://player.vimeo.com/video/123456")
- * // "https://player.vimeo.com/video/123456"
+ * // "https://player.vimeo.com/video/123456?autoplay=1&loop=1"
  */
 const getVideoEmbedUrl = (videoId, options = {}) => {
+  if (isVimeoUrl(videoId)) {
+    return ensureVimeoParams(videoId);
+  }
+
   if (isCustomVideoUrl(videoId)) {
     return videoId;
   }

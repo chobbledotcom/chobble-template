@@ -33,20 +33,57 @@ describe("getVideoEmbedUrl", () => {
     });
   });
 
+  describe("with Vimeo URL", () => {
+    test("adds autoplay and loop params to Vimeo player URL", () => {
+      expect(getVideoEmbedUrl("https://player.vimeo.com/video/123456")).toBe(
+        "https://player.vimeo.com/video/123456?autoplay=1&loop=1",
+      );
+    });
+
+    test("adds autoplay and loop params to vimeo.com URL", () => {
+      expect(getVideoEmbedUrl("https://vimeo.com/123456")).toBe(
+        "https://vimeo.com/123456?autoplay=1&loop=1",
+      );
+    });
+
+    test("preserves existing autoplay param on Vimeo URL", () => {
+      expect(
+        getVideoEmbedUrl("https://player.vimeo.com/video/123456?autoplay=0"),
+      ).toBe("https://player.vimeo.com/video/123456?autoplay=0&loop=1");
+    });
+
+    test("preserves existing loop param on Vimeo URL", () => {
+      expect(
+        getVideoEmbedUrl("https://player.vimeo.com/video/123456?loop=0"),
+      ).toBe("https://player.vimeo.com/video/123456?loop=0&autoplay=1");
+    });
+
+    test("does not duplicate params when both already present", () => {
+      expect(
+        getVideoEmbedUrl(
+          "https://player.vimeo.com/video/123456?autoplay=1&loop=1",
+        ),
+      ).toBe("https://player.vimeo.com/video/123456?autoplay=1&loop=1");
+    });
+
+    test("preserves existing query params like h= hash", () => {
+      expect(
+        getVideoEmbedUrl("https://player.vimeo.com/video/123456?h=abc123"),
+      ).toBe(
+        "https://player.vimeo.com/video/123456?h=abc123&autoplay=1&loop=1",
+      );
+    });
+  });
+
   describe("with custom URL", () => {
-    test("returns the URL unchanged for https URL", () => {
-      const customUrl = "https://player.vimeo.com/video/123456?autoplay=1";
+    test("returns the URL unchanged for non-Vimeo https URL", () => {
+      const customUrl = "https://example.com/embed/video";
       expect(getVideoEmbedUrl(customUrl)).toBe(customUrl);
     });
 
     test("returns the URL unchanged for http URL", () => {
       const customUrl = "http://example.com/embed/video";
       expect(getVideoEmbedUrl(customUrl)).toBe(customUrl);
-    });
-
-    test("ignores background option for custom URLs", () => {
-      const customUrl = "https://player.vimeo.com/video/123456";
-      expect(getVideoEmbedUrl(customUrl, { background: true })).toBe(customUrl);
     });
   });
 });
