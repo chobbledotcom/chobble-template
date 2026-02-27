@@ -83,6 +83,7 @@ const BLOCK_SCHEMAS = {
   include: ["file"],
   properties: [],
   "guide-categories": [],
+  "link-button": ["text", "href", "variant", "size", "reveal"],
 };
 
 /**
@@ -117,11 +118,10 @@ const validateBlocks = (blocks, context = "") => {
     );
 
     if (unknownKeys.length > 0) {
-      const unknownList = unknownKeys.map((k) => `"${k}"`).join(", ");
-      const allowedList = allAllowedKeys.map((k) => `"${k}"`).join(", ");
+      const quoteJoin = (arr) => arr.map((k) => `"${k}"`).join(", ");
       throw new Error(
-        `Block type "${block.type}" has unknown keys: ${unknownList}${blockContext}. ` +
-          `Allowed keys: ${allowedList}`,
+        `Block type "${block.type}" has unknown keys: ${quoteJoin(unknownKeys)}${blockContext}. ` +
+          `Allowed keys: ${quoteJoin(allAllowedKeys)}`,
       );
     }
   }

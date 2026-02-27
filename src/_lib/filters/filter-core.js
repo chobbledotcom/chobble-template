@@ -25,6 +25,10 @@ import { sortItems } from "#utils/sorting.js";
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
 /** @typedef {import("#lib/types").FilterSet} FilterSet */
 
+/** Convert a filter attribute to a [slugified-name, slugified-value] pair */
+/** @returns {[string, string]} */
+export const slugifyAttr = (attr) => [slugify(attr.name), slugify(attr.value)];
+
 /**
  * Normalize a string for comparison: lowercase, strip spaces and special chars
  * @param {string} str - String to normalize
@@ -41,10 +45,7 @@ export const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
  * @returns {FilterSet} Parsed filter object
  */
 const parseFilterAttributesInner = memoizeByRef((filterAttributes) =>
-  toObject(filterAttributes, (attr) => [
-    slugify(attr.name),
-    slugify(attr.value),
-  ]),
+  toObject(filterAttributes, slugifyAttr),
 );
 
 /**

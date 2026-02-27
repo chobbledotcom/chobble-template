@@ -1,6 +1,7 @@
 import getConfig from "#data/config.js";
 import contactFormFn from "#data/contact-form.js";
 import quoteFieldsFn from "#data/quote-fields.js";
+import { slugifyAttr } from "#filters/filter-core.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
 import { validateBlocks } from "#utils/block-schema.js";
@@ -12,7 +13,6 @@ import {
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
-import { slugify } from "#utils/slug-utils.js";
 import { getVideoThumbnailUrl } from "#utils/video.js";
 
 /**
@@ -93,9 +93,7 @@ export default {
       title: data.title.toLowerCase(),
       price: Math.min(...data.options.map((o) => o.unit_price)),
       filters: Object.fromEntries(
-        data.filter_attributes
-          .filter(Boolean)
-          .map((attr) => [slugify(attr.name), slugify(attr.value)]),
+        data.filter_attributes.filter(Boolean).map(slugifyAttr),
       ),
     };
   },
@@ -200,16 +198,19 @@ export default {
   },
 
   /**
-   * Adds thumbnail_url to each video object. YouTube videos get a thumbnail URL,
-   * custom iframe URLs (starting with "http") get null.
+   * Adds thumbnail_url to each video object. YouTube videos get a static
+   * thumbnail URL, Vimeo videos get one via the oEmbed API, and other custom
+   * iframe URLs get null.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Array<Record<string, unknown>>|undefined} Videos with thumbnail_url added
+   * @returns {Promise<Array<Record<string, unknown>>>|undefined} Videos with thumbnail_url added
    */
-  videos: (data) => {
+  videos: async (data) => {
     if (!data.videos) return data.videos;
-    return data.videos.map((video) => ({
-      ...video,
-      thumbnail_url: getVideoThumbnailUrl(video.id),
-    }));
+    return Promise.all(
+      data.videos.map(async (video) => ({
+        ...video,
+        thumbnail_url: await getVideoThumbnailUrl(video.id),
+      })),
+    );
   },
 };

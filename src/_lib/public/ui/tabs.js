@@ -26,9 +26,7 @@ onReady(() => {
       event.preventDefault();
       const targetId = link.getAttribute("href");
       setActiveTab(container, targetId);
-      history.pushState({}, "", targetId);
-      history.pushState({}, "", targetId);
-      history.back();
+      history.replaceState(null, "", targetId);
     });
   }
 });

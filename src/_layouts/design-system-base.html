@@ -22,6 +22,7 @@
   {%- endif -%}
 </head>
 <body class="design-system {{ layout | getBodyClasses: config }}">
+  {%- include "body-scripts.html" -%}
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
   {%- endunless -%}
@@ -34,6 +35,7 @@
   </main>
   {%- include "design-system/footer.html" -%}
   {%- include "image-popup.html" -%}
+  {%- include "client-templates.html" -%}
   {%- include "theme-switcher.html" -%}
   {%- include "cart-icon.html" -%}
   {%- include "cart-overlay.html" -%}

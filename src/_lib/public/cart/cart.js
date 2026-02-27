@@ -33,13 +33,8 @@ const resetProductSelects = () => {
   }
 };
 
-const getCartTotal = () => {
-  const cart = getCart();
-  return cart.reduce(
-    (total, item) => total + item.unit_price * item.quantity,
-    0,
-  );
-};
+const getCartTotal = () =>
+  getCart().reduce((total, item) => total + item.unit_price * item.quantity, 0);
 
 const showAddedFeedback = () => {
   for (const icon of document.querySelectorAll(".cart-icon")) {
@@ -48,19 +43,14 @@ const showAddedFeedback = () => {
   }
 };
 
-const openCart = () => {
-  const cartOverlay = getCartOverlay();
-  if (cartOverlay) {
-    cartOverlay.showModal();
-  }
+const withCartOverlay = (action) => {
+  const overlay = getCartOverlay();
+  if (overlay) action(overlay);
 };
 
-const closeCart = () => {
-  const cartOverlay = getCartOverlay();
-  if (cartOverlay) {
-    cartOverlay.close();
-  }
-};
+const openCart = () => withCartOverlay((overlay) => overlay.showModal());
+
+const closeCart = () => withCartOverlay((overlay) => overlay.close());
 
 const updateStripeBtn = (btn, isBelowMinimum) => {
   btn.style.display = isBelowMinimum ? "none" : "";
@@ -130,9 +120,7 @@ const addItem = (item, quantity = 1) => {
 };
 
 const checkoutWithStripe = () => {
-  const cart = getCart();
-  if (cart.length === 0) return;
-
+  if (getCart().length === 0) return;
   window.location.href = "/stripe-checkout/";
 };
 
@@ -154,9 +142,13 @@ const buildFullItemName = (itemName, optionName) =>
     ? `${itemName} - ${optionName}`
     : itemName;
 
-const handleOptionChange = (e) => {
-  if (!e.target.classList.contains("product-options-select")) return;
+/** Wrap a handler so it only fires when e.target has the given class */
+const delegateByClass = (className, handler) => (e) => {
+  if (!e.target.classList.contains(className)) return;
+  handler(e);
+};
 
+const handleOptionChange = delegateByClass("product-options-select", (e) => {
   const selectedOption = e.target.options[e.target.selectedIndex];
   const button = e.target.parentElement.querySelector(".product-option-button");
 
@@ -168,7 +160,7 @@ const handleOptionChange = (e) => {
     button.disabled = false;
     button.textContent = `Add to Cart - ${formatPrice(option.unit_price)}`;
   }
-};
+});
 
 const handleCartIconClick = (e) => {
   if (!e.target.closest(".cart-icon")) return false;
@@ -216,8 +208,7 @@ const getQuantityFromInput = (button) => {
   return Number.isNaN(value) || value < 1 ? 1 : value;
 };
 
-const handleAddToCart = (e) => {
-  if (!e.target.classList.contains("add-to-cart")) return;
+const handleAddToCart = delegateByClass("add-to-cart", (e) => {
   e.preventDefault();
 
   if (!validateProductOption(e.target)) return;
@@ -225,7 +216,7 @@ const handleAddToCart = (e) => {
   const item = extractItemFromButton(e.target);
   const quantity = getQuantityFromInput(e.target);
   addItem(item, quantity);
-};
+});
 
 const setupOverlayListeners = () => {
   const cartOverlay = getCartOverlay();

@@ -23,7 +23,7 @@ const getAspectRatio = (aspectRatio, metadata) =>
 
 const cropImage = dedupeAsync(
   async (aspectRatio, sourcePath, metadata) => {
-    if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
+    if (!aspectRatio) return sourcePath;
 
     const cacheHash = crypto
       .createHash("md5")

@@ -241,12 +241,9 @@ const printSummary = (steps, results, title = "SUMMARY") => {
   console.log("=".repeat(60));
 
   const ranSteps = steps.filter((step) => results[step.name]);
-  const passedSteps = ranSteps
-    .filter((step) => results[step.name].status === 0)
-    .map((s) => s.name);
-  const failedSteps = ranSteps
-    .filter((step) => results[step.name].status !== 0)
-    .map((s) => s.name);
+  const isPassed = (step) => results[step.name].status === 0;
+  const passedSteps = ranSteps.filter(isPassed).map((s) => s.name);
+  const failedSteps = ranSteps.filter((s) => !isPassed(s)).map((s) => s.name);
 
   const allPassed = failedSteps.length === 0;
 

@@ -209,8 +209,8 @@ function initQuoteSteps() {
 
   function updateUI() {
     const currentStep = getCurrentStep();
-    for (const [index, step] of steps.entries()) {
-      step.classList.toggle("active", index === currentStep);
+    for (const [index, stepEl] of steps.entries()) {
+      stepEl.classList.toggle("active", index === currentStep);
     }
     updateStepProgress(progressContainer, baseCompletedSteps + currentStep);
     updateButtons(

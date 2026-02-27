@@ -107,10 +107,7 @@ export const runWithServer = async (handler, input, options, server) => {
 export const runCli = async (
   parseOptions,
   usage,
-  selectHandler,
-  getInput,
-  buildOptions,
-  extraExitChecks,
+  { selectHandler, getInput, buildOptions, extraExitChecks },
 ) => {
   const { values, positionals } = parseCliArgs(parseOptions);
   const doShowHelp = () => showHelp(usage);

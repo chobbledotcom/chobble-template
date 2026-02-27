@@ -406,6 +406,26 @@ No parameters. Renders `{{ content }}` if non-empty. Used for pages that combine
 
 ---
 
+### `link-button`
+
+Standalone centered button linking to an anchor or URL.
+
+**Template:** `src/_includes/design-system/link-button.html`
+**SCSS:** `src/css/design-system/_link-button.scss`
+**HTML root:** `<div class="link-button">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `text` | string | **required** | Button label. |
+| `href` | string | **required** | Link URL or anchor (e.g. `"#contact"`, `"/about"`). |
+| `variant` | string | `"primary"` | Button variant: `"primary"`, `"secondary"`, or `"ghost"`. |
+| `size` | string | — | Button size: `"sm"`, `"lg"`, or omit for default. |
+| `reveal` | string | — | `data-reveal` value. |
+
+**Layout:** Flex container with `justify-content: center`. Renders a single `<a>` with `.btn` classes.
+
+---
+
 ### `include`
 
 Includes an arbitrary template file.
@@ -565,6 +585,7 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 | `items-block.html` | `items` |
 | `properties-block.html` | `properties` |
 | `content-block.html` | `content` |
+| `link-button.html` | `link-button` |
 
 ### SCSS Files (`src/css/design-system/`)
 
@@ -592,6 +613,7 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 | `_footer.scss` | Page footer |
 | `_reviews.scss` | Review components |
 | `_utilities.scss` | Utility classes |
+| `_link-button.scss` | Link button centering |
 
 ### Key Layout Files
 

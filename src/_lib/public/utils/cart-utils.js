@@ -29,10 +29,8 @@ const removeItem = (itemName) => {
   return cart;
 };
 
-const getItemCount = () => {
-  const cart = getCart();
-  return cart.reduce((count, item) => count + item.quantity, 0);
-};
+const getItemCount = () =>
+  getCart().reduce((count, item) => count + item.quantity, 0);
 
 export function getCheckoutItems() {
   return getCart().map(({ sku, quantity }) => ({ sku, quantity }));

@@ -21,26 +21,27 @@ import { PLACEHOLDER_MODE } from "#build/build-mode.js";
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import { processExternalImage } from "#media/image-external.js";
 import {
-  extractLqipFromMetadata,
   getEleventyImg,
   LQIP_WIDTH,
-  removeLqip,
   shouldGenerateLqip,
 } from "#media/image-lqip.js";
+import {
+  prepareLqipMetadata,
+  processFormats,
+  resolveOutput,
+  wrapProcessedImage,
+} from "#media/image-pipeline.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import {
   buildWrapperStyles,
   filenameFormat,
   isExternalUrl,
-  JPEG_FALLBACK_WIDTH,
   normalizeImagePath,
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
-import { wrapImageHtml } from "#media/image-wrapper.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
-import { parseHtml } from "#utils/dom-builder.js";
 
 const DEFAULT_OPTIONS = frozenObject({
   outputDir: ".image-cache",
@@ -101,7 +102,7 @@ const computeWrappedImageHtml = memoize(
       loading,
       classes,
     });
-    const { default: Image, generateHTML } = await getEleventyImg();
+    const { default: Image } = await getEleventyImg();
 
     // Check if LQIP should be generated (skip for SVGs, small files, or if noLqip is set)
     const generateLqip = !noLqip && shouldGenerateLqip(finalPath, metadata);
@@ -112,49 +113,33 @@ const computeWrappedImageHtml = memoize(
       ? [LQIP_WIDTH, ...requestedWidths]
       : requestedWidths;
 
-    const [webpMetadata, jpegMetadata] = await Promise.all([
-      Image(finalPath, {
-        ...DEFAULT_OPTIONS,
-        formats: ["webp"],
-        widths: webpWidths,
-        fixOrientation: true,
-      }),
-      Image(finalPath, {
-        ...DEFAULT_OPTIONS,
-        formats: ["jpeg"],
-        widths: [JPEG_FALLBACK_WIDTH],
-        fixOrientation: true,
-      }),
-    ]);
+    const imageMetadata = await processFormats(
+      Image,
+      finalPath,
+      { ...DEFAULT_OPTIONS, fixOrientation: true },
+      webpWidths,
+    );
 
-    const imageMetadata = { ...webpMetadata, ...jpegMetadata };
+    const { bgImage, htmlMetadata } = await prepareLqipMetadata(
+      imageMetadata,
+      generateLqip,
+    );
 
-    // Extract LQIP from the 32px webp before filtering it out
-    const bgImage = generateLqip
-      ? await extractLqipFromMetadata(imageMetadata)
-      : null;
-
-    // Filter out LQIP width from metadata so it doesn't appear in srcset
-    const htmlMetadata = generateLqip
-      ? removeLqip(imageMetadata)
-      : imageMetadata;
-
-    const innerHTML = generateHTML(
+    return await wrapProcessedImage(
       htmlMetadata,
       imgAttributes,
       pictureAttributes,
+      {
+        classes,
+        style: buildWrapperStyles(
+          bgImage,
+          aspectRatio,
+          metadata,
+          getAspectRatio,
+          skipMaxWidth,
+        ),
+      },
     );
-
-    return await wrapImageHtml(innerHTML, {
-      classes,
-      style: buildWrapperStyles(
-        bgImage,
-        aspectRatio,
-        metadata,
-        getAspectRatio,
-        skipMaxWidth,
-      ),
-    });
   },
   { cacheKey: jsonKey },
 );
@@ -169,45 +154,28 @@ const computeWrappedImageHtml = memoize(
  */
 const processAndWrapImage = async ({
   logName: _logName,
-  imageName,
-  alt,
-  classes,
-  sizes = null,
-  widths = null,
   returnElement = false,
-  aspectRatio = null,
-  loading = null,
-  noLqip = false,
-  skipMaxWidth = false,
   document = null,
+  ...imageProps
 }) => {
-  if (isExternalUrl(imageName)) {
+  if (isExternalUrl(imageProps.imageName)) {
     return await processExternalImage({
-      src: imageName,
-      alt,
-      loading,
-      classes,
-      sizes,
-      widths,
-      aspectRatio,
+      src: imageProps.imageName,
+      alt: imageProps.alt,
+      loading: imageProps.loading,
+      classes: imageProps.classes,
+      sizes: imageProps.sizes,
+      widths: imageProps.widths,
+      aspectRatio: imageProps.aspectRatio,
+      skipMaxWidth: imageProps.skipMaxWidth,
       returnElement,
       document,
     });
   }
 
-  const html = await computeWrappedImageHtml({
-    imageName,
-    alt,
-    classes,
-    sizes,
-    widths,
-    aspectRatio,
-    loading,
-    noLqip,
-    skipMaxWidth,
-  });
+  const html = await computeWrappedImageHtml(imageProps);
 
-  return returnElement ? await parseHtml(html, document) : html;
+  return resolveOutput(html, returnElement, document);
 };
 
 const configureImages = async (eleventyConfig) => {

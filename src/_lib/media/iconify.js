@@ -8,6 +8,17 @@ const ICONIFY_API_BASE = "https://api.iconify.design";
 const ICONS_DIR = "src/assets/icons/iconify";
 
 /**
+ * Normalize an icon name segment: trim, lowercase, convert underscores/spaces to hyphens.
+ * @param {string} name
+ * @returns {string}
+ */
+export const normalizeIconName = (name) =>
+  name
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
+
+/**
  * Get an icon SVG, reading from disk cache or fetching from Iconify API.
  * Icons are saved to src/assets/icons/iconify/{prefix}/{name}.svg
  *
@@ -36,12 +47,8 @@ export const getIcon = dedupeAsync(
       );
     }
 
-    // Normalize: trim, lowercase, convert underscores/spaces to hyphens
-    const prefix = rawPrefix.trim().toLowerCase();
-    const name = rawName
-      .trim()
-      .toLowerCase()
-      .replace(/[_\s]+/g, "-");
+    const prefix = normalizeIconName(rawPrefix);
+    const name = normalizeIconName(rawName);
     const filePath = path.join(baseDir, ICONS_DIR, prefix, `${name}.svg`);
 
     // Return cached icon if it exists on disk (Bun.file().exists() is async)

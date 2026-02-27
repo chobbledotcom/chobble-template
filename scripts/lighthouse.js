@@ -159,13 +159,9 @@ const extraExitChecks = (v) => {
 const getInput = ({ positionals, isMultiple }) =>
   isMultiple ? positionals : positionals[0];
 
-const selectHandlerFromCtx = ({ isMultiple }) => selectHandler(isMultiple);
-
-runCli(
-  PARSE_OPTIONS,
-  USAGE,
-  selectHandlerFromCtx,
+runCli(PARSE_OPTIONS, USAGE, {
+  selectHandler: ({ isMultiple }) => selectHandler(isMultiple),
   getInput,
   buildOptions,
   extraExitChecks,
-);
+});
