@@ -94,8 +94,6 @@ const setupLinkToggle = (item, isClicky) => {
 };
 
 onReady(() => {
-  // Force nav-toggle closed on page load. Browsers may restore checkbox state
-  // via autocomplete or bfcache, causing the menu to appear open on load.
   const navToggle = document.getElementById("nav-toggle");
   if (navToggle) {
     navToggle.checked = false;
