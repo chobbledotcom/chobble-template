@@ -1,3 +1,4 @@
+import config from "#data/config.js";
 import { getBySlug } from "#eleventy/collection-lookup.js";
 import { imageShortcode } from "#media/image.js";
 import { filter, mapAsync, pipe, sort } from "#toolkit/fp/array.js";
@@ -51,8 +52,9 @@ const renderNavEntry = async (
     ? await createHtml("span", {}, entry.title)
     : entry.title;
   const anchor = await createHtml("a", anchorAttrs, thumbnailHtml + titleHtml);
-  const caretHtml =
-    isRootLevel && childrenHtml ? await renderCaretButton(entry.title) : "";
+  const showCaret =
+    isRootLevel && childrenHtml && config().navigation_is_clicky;
+  const caretHtml = showCaret ? await renderCaretButton(entry.title) : "";
   return createHtml("li", {}, anchor + caretHtml + childrenHtml);
 };
 
