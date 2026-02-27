@@ -46,6 +46,7 @@ export type SiteConfig = {
   sticky_mobile_nav: boolean;
   horizontal_nav: boolean;
   collapse_mobile_menu: boolean;
+  navigation_is_clicky: boolean;
   homepage_news: boolean;
   homepage_products: boolean;
   externalLinksTargetBlank: boolean;
@@ -80,6 +81,9 @@ export type SiteConfig = {
   category_order: string[] | null;
   screenshots: ScreenshotConfig | null;
   form_target: string | null;
+
+  // Derived (computed from other config values)
+  internal_link_suffix: string;
 };
 
 /**

@@ -235,8 +235,13 @@
     display: none;
   }
 
-  > ul > li.expanded > ul,
-  > ul > li:has(> ul a.active) > ul {
+  > ul > li.expanded > ul {
+    display: flex;
+  }
+
+  // Auto-expand active parent only when JS hasn't taken over toggle control.
+  // Once JS adds .js-toggle, the expanded class manages visibility instead.
+  > ul > li:not(.js-toggle):has(> ul a.active) > ul {
     display: flex;
   }
 }

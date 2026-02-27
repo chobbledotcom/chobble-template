@@ -1,9 +1,9 @@
 /**
  * Navigation utilities for eleventyNavigation processing.
  *
- * Adds #content anchor to eleventyNavigation URLs when the
- * config.navigation_content_anchor flag is enabled, allowing users
- * to skip header navigation and jump directly to main content.
+ * Appends config.internal_link_suffix to eleventyNavigation URLs,
+ * allowing users to skip header navigation and jump directly to
+ * main content when the suffix is configured (e.g. "#content").
  */
 
 /**
@@ -12,12 +12,13 @@
  * @returns {import("#lib/types").EleventyNav | false | undefined} The navigation object, potentially with url added
  */
 export const withNavigationAnchor = (data, nav) => {
-  const skipAnchor = !nav || !data.config?.navigation_content_anchor || nav.url;
+  const suffix = data.config?.internal_link_suffix;
+  const skipAnchor = !nav || !suffix || nav.url;
   if (skipAnchor) return nav;
 
   return {
     ...nav,
-    url: `${data.page.url}#content`,
+    url: `${data.page.url}${suffix}`,
   };
 };
 

@@ -145,7 +145,7 @@ export default {
       : [],
 
   /**
-   * Adds #content anchor to navigation URLs if config flag is enabled
+   * Appends internal_link_suffix to navigation URLs
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {import("#lib/types").EleventyNav | false | undefined} Navigation object with optional url anchor
    */

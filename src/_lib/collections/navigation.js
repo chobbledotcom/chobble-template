@@ -8,28 +8,6 @@ import { sortNavigationItems } from "#utils/sorting.js";
 const NAV_THUMBNAIL_WIDTHS = ["64", "128", "480", "600"];
 const NAV_THUMBNAIL_ASPECT = "1/1";
 
-/** Renders a caret toggle button for root-level parent items */
-const renderCaretButton = (title) =>
-  createHtml(
-    "button",
-    { class: "nav-caret", "aria-label": `Toggle ${title} submenu` },
-    "",
-  );
-
-/** Resolve thumbnail HTML for a navigation entry */
-const resolveThumbnail = (entry, isRootLevel) =>
-  isRootLevel || !entry.data?.thumbnail
-    ? Promise.resolve("")
-    : imageShortcode(
-        entry.data.thumbnail,
-        "",
-        NAV_THUMBNAIL_WIDTHS,
-        "",
-        null,
-        NAV_THUMBNAIL_ASPECT,
-        "lazy",
-      );
-
 /** Renders a single navigation entry with optional thumbnail (not at root level) */
 const renderNavEntry = async (
   entry,
@@ -38,23 +16,36 @@ const renderNavEntry = async (
   isRootLevel,
 ) => {
   const [thumbnailHtml, childrenHtml] = await Promise.all([
-    resolveThumbnail(entry, isRootLevel),
+    isRootLevel || !entry.data?.thumbnail
+      ? Promise.resolve("")
+      : imageShortcode(
+          entry.data.thumbnail,
+          "",
+          NAV_THUMBNAIL_WIDTHS,
+          "",
+          null,
+          NAV_THUMBNAIL_ASPECT,
+          "lazy",
+        ),
     entry.children?.length
       ? renderChildren(entry.children)
       : Promise.resolve(""),
   ]);
-  const isActive = activeKey === entry.key;
   const anchorAttrs = {
-    ...(isActive && { class: "active" }),
-    ...(entry.url && { href: entry.url }),
+    class: activeKey === entry.key ? "active" : null,
+    href: entry.url,
   };
-  const titleHtml = thumbnailHtml
-    ? await createHtml("span", {}, entry.title)
-    : entry.title;
+  const titleHtml = await createHtml("span", {}, entry.title);
   const anchor = await createHtml("a", anchorAttrs, thumbnailHtml + titleHtml);
   const showCaret =
     isRootLevel && childrenHtml && config().navigation_is_clicky;
-  const caretHtml = showCaret ? await renderCaretButton(entry.title) : "";
+  const caretHtml = showCaret
+    ? await createHtml(
+        "button",
+        { class: "nav-caret", "aria-label": `Toggle ${entry.title} submenu` },
+        "",
+      )
+    : "";
   return createHtml("li", {}, anchor + caretHtml + childrenHtml);
 };
 
