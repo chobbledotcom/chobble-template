@@ -11,12 +11,12 @@ import { createHtml } from "#utils/dom-builder.js";
 const getConfig = memoize(configModule);
 
 /**
- * Get the anchor suffix based on config
- * @returns {Promise<string>} "#content" or ""
+ * Get the internal link suffix from config
+ * @returns {Promise<string>} e.g. "#content" or ""
  */
 const getAnchorSuffix = async () => {
   const config = await getConfig();
-  return config?.navigation_content_anchor ? "#content" : "";
+  return config.internal_link_suffix;
 };
 
 /**

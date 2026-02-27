@@ -327,14 +327,18 @@ describe("unused-classes", () => {
       }
     }
 
+    // IDs referenced dynamically via config variables (e.g. config.internal_link_suffix = "#content")
+    const dynamicIds = new Set(["content"]);
+
     // Check each ID for references
     for (const [idName, definedIn] of allIds) {
+      if (dynamicIds.has(idName)) continue;
       const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const inScss = findSelectorReferencesInScss(scssContent, idName, "#");
       const inJs = findReferencesInJs("id")(idName)(jsContent);
       // Check HTML references: href="#id", for="id", list="id"
       const htmlPatterns = [
-        new RegExp(`href=["'][^"']*#${escaped}["']`),
+        new RegExp(`href=["'][^"']*#${escaped}[^"']*["']`),
         new RegExp(`for=["']${escaped}["']`),
         new RegExp(`list=["']${escaped}["']`),
       ];

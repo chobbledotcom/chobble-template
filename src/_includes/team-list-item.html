@@ -1,10 +1,10 @@
 <li class="{%- if person.data.image -%} has-image {%- endif -%}">
   {%- if person.data.image-%}
-    <a class="image-link" href="{{ person.url }}#content" aria-hidden="true" tabindex="-1">
+    <a class="image-link" href="{{ person.url }}{{ config.internal_link_suffix }}" aria-hidden="true" tabindex="-1">
       {% image person.data.image, "", "240,480,640" %}
     </a>
   {%- endif -%}
-  <h2><a href="{{ person.url }}#content">{{- person.data.title -}}</a></h2>
+  <h2><a href="{{ person.url }}{{ config.internal_link_suffix }}">{{- person.data.title -}}</a></h2>
   {%- if  person.data.snippet -%}
     <p>{{- person.data.snippet -}}</p>
   {%- endif -%}
