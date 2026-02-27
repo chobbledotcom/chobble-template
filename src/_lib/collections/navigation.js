@@ -1,3 +1,4 @@
+import config from "#data/config.js";
 import { getBySlug } from "#eleventy/collection-lookup.js";
 import { imageShortcode } from "#media/image.js";
 import { filter, mapAsync, pipe, sort } from "#toolkit/fp/array.js";
@@ -30,16 +31,22 @@ const renderNavEntry = async (
       ? renderChildren(entry.children)
       : Promise.resolve(""),
   ]);
-  const isActive = activeKey === entry.key;
   const anchorAttrs = {
-    ...(isActive && { class: "active" }),
-    ...(entry.url && { href: entry.url }),
+    class: activeKey === entry.key ? "active" : null,
+    href: entry.url,
   };
-  const titleHtml = thumbnailHtml
-    ? await createHtml("span", {}, entry.title)
-    : entry.title;
+  const titleHtml = await createHtml("span", {}, entry.title);
   const anchor = await createHtml("a", anchorAttrs, thumbnailHtml + titleHtml);
-  return createHtml("li", {}, anchor + childrenHtml);
+  const showCaret =
+    isRootLevel && childrenHtml && config().navigation_is_clicky;
+  const caretHtml = showCaret
+    ? await createHtml(
+        "button",
+        { class: "nav-caret", "aria-label": `Toggle ${entry.title} submenu` },
+        "",
+      )
+    : "";
+  return createHtml("li", {}, anchor + caretHtml + childrenHtml);
 };
 
 /** Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }} */

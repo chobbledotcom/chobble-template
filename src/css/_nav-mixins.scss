@@ -34,6 +34,10 @@
   li:has(> ul a.active) > a {
     color: var(--color-text);
   }
+
+  .nav-caret {
+    display: none;
+  }
 }
 
 // Shared caret styles for dropdown navigation
@@ -247,13 +251,34 @@
 // -----------------------------------------------------------------------------
 
 @mixin nav-clicky-desktop {
-  // First-level items with children: add caret to link
-  nav > ul > li:has(> ul) > a {
-    @include nav-caret;
+  // Parent items: flex row so link and caret button sit side by side
+  nav > ul > li:has(> .nav-caret) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    > ul {
+      flex-basis: 100%;
+    }
   }
 
-  nav > ul > li.expanded > a::after {
+  // Show and style the caret toggle button
+  nav > ul > li > .nav-caret {
+    @include nav-caret;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    gap: 0;
+  }
+
+  nav > ul > li.expanded > .nav-caret::after {
     @include nav-caret-rotated;
+  }
+
+  // Remove caret from link (now on the button)
+  nav > ul > li:has(> ul) > a::after {
+    display: none;
   }
 
   // Disable hover-based dropdowns for first-level
