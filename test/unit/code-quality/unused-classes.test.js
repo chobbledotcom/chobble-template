@@ -334,7 +334,7 @@ describe("unused-classes", () => {
       const inJs = findReferencesInJs("id")(idName)(jsContent);
       // Check HTML references: href="#id", for="id", list="id"
       const htmlPatterns = [
-        new RegExp(`href=["'][^"']*#${escaped}["']`),
+        new RegExp(`href=["'][^"']*#${escaped}[^"']*["']`),
         new RegExp(`for=["']${escaped}["']`),
         new RegExp(`list=["']${escaped}["']`),
       ];

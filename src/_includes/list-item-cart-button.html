@@ -1,6 +1,6 @@
 {%- if config.cart_mode and item.data.cart_attributes -%}
   {%- unless item.data.has_single_cart_option -%}
-    <a href="{{ item.url }}#content" class="button">Select Options</a>
+    <a href="{{ item.url }}{%- if config.navigation_content_anchor -%}#content{%- endif -%}" class="button">Select Options</a>
   {%- else -%}
     {%- include "templates/add-to-cart-button.html",
         cart_attributes: item.data.cart_attributes,

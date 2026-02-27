@@ -59,7 +59,7 @@ describe("recurring-events", () => {
     }
 
     const actualHref = link.getAttribute("href");
-    expect(actualHref).toBe("/events/market-day/#content");
+    expect(actualHref).toBe("/events/market-day/");
     expect(link.textContent).toBe("Farmers Market");
   });
 

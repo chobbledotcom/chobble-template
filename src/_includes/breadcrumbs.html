@@ -6,7 +6,7 @@
     <li>
       {%- unless forloop.first -%}<span class="separator" aria-hidden="true">/</span>{%- endunless -%}
       {%- if crumb.url -%}
-      <a href="{{ crumb.url }}#content">{{ crumb.label }}</a>
+      <a href="{{ crumb.url }}{%- if config.navigation_content_anchor -%}#content{%- endif -%}">{{ crumb.label }}</a>
       {%- else -%}
       <span aria-current="page">{{ crumb.label }}</span>
       {%- endif -%}
