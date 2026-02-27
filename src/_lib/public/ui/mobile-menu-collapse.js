@@ -94,6 +94,11 @@ const setupLinkToggle = (item, isClicky) => {
 };
 
 onReady(() => {
+  const navToggle = document.getElementById("nav-toggle");
+  if (navToggle) {
+    navToggle.checked = false;
+  }
+
   const isClicky = document.body.classList.contains("clicky-nav");
   const isStickyMobile = document.body.classList.contains("sticky-mobile-nav");
 
