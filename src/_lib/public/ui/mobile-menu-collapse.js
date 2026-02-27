@@ -32,9 +32,23 @@ const collapseAll = () => {
   }
 };
 
+const setExpanded = (item, expanded) => {
+  const link = item.querySelector(":scope > a");
+  const caret = item.querySelector(":scope > .nav-caret");
+  if (link) link.setAttribute("aria-expanded", String(expanded));
+  if (caret) caret.setAttribute("aria-expanded", String(expanded));
+  if (expanded) {
+    item.classList.add("expanded");
+  } else {
+    item.classList.remove("expanded");
+  }
+};
+
 const setupLinkToggle = (item, isClicky) => {
   const link = item.querySelector(":scope > a");
   if (!link) return;
+
+  const caretButton = item.querySelector(":scope > .nav-caret");
 
   // Mark this item as JS-managed so CSS defers to the expanded class
   item.classList.add("js-toggle");
@@ -42,22 +56,41 @@ const setupLinkToggle = (item, isClicky) => {
   // If a child link is active (current page), start expanded
   const hasActiveChild = item.querySelector(":scope > ul a.active");
   if (hasActiveChild) {
-    item.classList.add("expanded");
-    link.setAttribute("aria-expanded", "true");
+    setExpanded(item, true);
   } else {
     link.setAttribute("aria-expanded", "false");
   }
 
-  link.addEventListener("click", (event) => {
-    event.preventDefault();
-
-    if (isClicky) {
+  if (isClicky && caretButton) {
+    // Desktop clicky-nav: separate caret button for toggling
+    caretButton.addEventListener("click", () => {
       collapseSiblings(item);
-    }
+      const isExpanded = !item.classList.contains("expanded");
+      setExpanded(item, isExpanded);
+    });
 
-    const isExpanded = item.classList.toggle("expanded");
-    link.setAttribute("aria-expanded", String(isExpanded));
-  });
+    // Link: expand on first click, navigate when already expanded
+    link.addEventListener("click", (event) => {
+      if (item.classList.contains("expanded")) {
+        return; // Allow navigation to parent page
+      }
+      event.preventDefault();
+      collapseSiblings(item);
+      setExpanded(item, true);
+    });
+  } else {
+    // Mobile or fallback: link toggles submenu
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      if (isClicky) {
+        collapseSiblings(item);
+      }
+
+      const isExpanded = item.classList.toggle("expanded");
+      link.setAttribute("aria-expanded", String(isExpanded));
+    });
+  }
 };
 
 onReady(() => {

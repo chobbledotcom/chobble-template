@@ -234,6 +234,23 @@ describe("toNavigation", () => {
     expect(result.match(/<ul/g).length).toBeGreaterThan(1);
   });
 
+  test("Renders caret button for root-level parent items with children", async () => {
+    const pages = [
+      navEntry("Products", {
+        children: [navEntry("Category A")],
+      }),
+    ];
+    const result = await toNavigation(pages, "");
+    expect(result).toContain('class="nav-caret"');
+    expect(result).toContain('aria-label="Toggle Products submenu"');
+  });
+
+  test("Does not render caret button for items without children", async () => {
+    const pages = [navEntry("About")];
+    const result = await toNavigation(pages, "");
+    expect(result).not.toContain("nav-caret");
+  });
+
   test("Renders entry without href when url is missing", async () => {
     const pages = [
       {
