@@ -7,6 +7,28 @@ import { sortNavigationItems } from "#utils/sorting.js";
 const NAV_THUMBNAIL_WIDTHS = ["64", "128", "480", "600"];
 const NAV_THUMBNAIL_ASPECT = "1/1";
 
+/** Renders a caret toggle button for root-level parent items */
+const renderCaretButton = (title) =>
+  createHtml(
+    "button",
+    { class: "nav-caret", "aria-label": `Toggle ${title} submenu` },
+    "",
+  );
+
+/** Resolve thumbnail HTML for a navigation entry */
+const resolveThumbnail = (entry, isRootLevel) =>
+  isRootLevel || !entry.data?.thumbnail
+    ? Promise.resolve("")
+    : imageShortcode(
+        entry.data.thumbnail,
+        "",
+        NAV_THUMBNAIL_WIDTHS,
+        "",
+        null,
+        NAV_THUMBNAIL_ASPECT,
+        "lazy",
+      );
+
 /** Renders a single navigation entry with optional thumbnail (not at root level) */
 const renderNavEntry = async (
   entry,
@@ -15,17 +37,7 @@ const renderNavEntry = async (
   isRootLevel,
 ) => {
   const [thumbnailHtml, childrenHtml] = await Promise.all([
-    isRootLevel || !entry.data?.thumbnail
-      ? Promise.resolve("")
-      : imageShortcode(
-          entry.data.thumbnail,
-          "",
-          NAV_THUMBNAIL_WIDTHS,
-          "",
-          null,
-          NAV_THUMBNAIL_ASPECT,
-          "lazy",
-        ),
+    resolveThumbnail(entry, isRootLevel),
     entry.children?.length
       ? renderChildren(entry.children)
       : Promise.resolve(""),
@@ -39,7 +51,9 @@ const renderNavEntry = async (
     ? await createHtml("span", {}, entry.title)
     : entry.title;
   const anchor = await createHtml("a", anchorAttrs, thumbnailHtml + titleHtml);
-  return createHtml("li", {}, anchor + childrenHtml);
+  const caretHtml =
+    isRootLevel && childrenHtml ? await renderCaretButton(entry.title) : "";
+  return createHtml("li", {}, anchor + caretHtml + childrenHtml);
 };
 
 /** Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }} */
