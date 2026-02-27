@@ -89,9 +89,20 @@ export default {
    */
   filter_data: (data) => {
     if (!hasTag(data, "products")) return undefined;
+
+    const getPrice = () => {
+      if (data.options.length > 0) {
+        return Math.min(...data.options.map((o) => o.unit_price));
+      }
+      if (data.price === undefined || data.price === null) return undefined;
+      const numeric = String(data.price).replace(/[^0-9.]/g, "");
+      if (numeric === "") return undefined;
+      return Number(numeric);
+    };
+
     return {
       title: data.title.toLowerCase(),
-      price: Math.min(...data.options.map((o) => o.unit_price)),
+      price: getPrice(),
       filters: Object.fromEntries(
         data.filter_attributes.filter(Boolean).map(slugifyAttr),
       ),

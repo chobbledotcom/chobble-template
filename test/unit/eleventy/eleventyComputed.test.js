@@ -64,4 +64,68 @@ describe("eleventyComputed.filter_data", () => {
     const result = eleventyComputed.filter_data(data);
     expect(result.filters).toEqual({});
   });
+
+  test("falls back to product price field when options is empty", () => {
+    const data = {
+      title: "Test Product",
+      tags: ["products"],
+      options: [],
+      price: 29.99,
+      filter_attributes: [],
+    };
+
+    const result = eleventyComputed.filter_data(data);
+    expect(result.price).toBe(29.99);
+  });
+
+  test("strips non-numeric characters from price field", () => {
+    const data = {
+      title: "Test Product",
+      tags: ["products"],
+      options: [],
+      price: "$19.99",
+      filter_attributes: [],
+    };
+
+    const result = eleventyComputed.filter_data(data);
+    expect(result.price).toBe(19.99);
+  });
+
+  test("strips currency symbols and spaces from price field", () => {
+    const data = {
+      title: "Test Product",
+      tags: ["products"],
+      options: [],
+      price: "£ 150.00",
+      filter_attributes: [],
+    };
+
+    const result = eleventyComputed.filter_data(data);
+    expect(result.price).toBe(150);
+  });
+
+  test("returns undefined price when no options and no price field", () => {
+    const data = {
+      title: "Test Product",
+      tags: ["products"],
+      options: [],
+      filter_attributes: [],
+    };
+
+    const result = eleventyComputed.filter_data(data);
+    expect(result.price).toBeUndefined();
+  });
+
+  test("prefers option prices over product price field", () => {
+    const data = {
+      title: "Test Product",
+      tags: ["products"],
+      options: [{ unit_price: 25 }],
+      price: "50.00",
+      filter_attributes: [],
+    };
+
+    const result = eleventyComputed.filter_data(data);
+    expect(result.price).toBe(25);
+  });
 });
