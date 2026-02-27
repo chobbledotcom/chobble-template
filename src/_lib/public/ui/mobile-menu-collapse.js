@@ -36,7 +36,17 @@ const setupLinkToggle = (item, isClicky) => {
   const link = item.querySelector(":scope > a");
   if (!link) return;
 
-  link.setAttribute("aria-expanded", "false");
+  // Mark this item as JS-managed so CSS defers to the expanded class
+  item.classList.add("js-toggle");
+
+  // If a child link is active (current page), start expanded
+  const hasActiveChild = item.querySelector(":scope > ul a.active");
+  if (hasActiveChild) {
+    item.classList.add("expanded");
+    link.setAttribute("aria-expanded", "true");
+  } else {
+    link.setAttribute("aria-expanded", "false");
+  }
 
   link.addEventListener("click", (event) => {
     event.preventDefault();
