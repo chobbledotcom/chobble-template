@@ -53,13 +53,8 @@ const setupLinkToggle = (item, isClicky) => {
   // Mark this item as JS-managed so CSS defers to the expanded class
   item.classList.add("js-toggle");
 
-  // If a child link is active (current page), start expanded
-  const hasActiveChild = item.querySelector(":scope > ul a.active");
-  if (hasActiveChild) {
-    setExpanded(item, true);
-  } else {
-    link.setAttribute("aria-expanded", "false");
-  }
+  // All dropdowns start collapsed on page load
+  link.setAttribute("aria-expanded", "false");
 
   if (isClicky && caretButton) {
     // Desktop clicky-nav: separate caret button for toggling
