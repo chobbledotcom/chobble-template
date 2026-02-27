@@ -29,13 +29,38 @@ const normaliseSlug = (reference) => {
 };
 
 /**
+ * Normalise a user-provided permalink so Eleventy treats it as a directory.
+ *
+ * Bare strings like "foo-bar" become "/foo-bar/".  Permalinks that already
+ * have the right shape, contain Liquid templates, or include a file extension
+ * are returned unchanged.
+ *
+ * @param {string} permalink - Raw permalink from frontmatter
+ * @returns {string} Normalised permalink
+ */
+const normalisePermalink = (permalink) => {
+  if (typeof permalink !== "string") return permalink;
+
+  // Don't touch Liquid/Nunjucks templates or paths with file extensions
+  if (permalink.includes("{{") || permalink.includes(".")) return permalink;
+
+  const withLeadingSlash = permalink.startsWith("/")
+    ? permalink
+    : `/${permalink}`;
+
+  return withLeadingSlash.endsWith("/")
+    ? withLeadingSlash
+    : `${withLeadingSlash}/`;
+};
+
+/**
  * Build a permalink for a page
  * @param {PageData} data - Page data from Eleventy
  * @param {string} dir - Directory name for URL
  * @returns {string} Permalink URL
  */
 const buildPermalink = (data, dir) => {
-  if (data.permalink) return data.permalink;
+  if (data.permalink) return normalisePermalink(data.permalink);
   return `/${dir}/${data.page.fileSlug}/`;
 };
 
@@ -48,4 +73,10 @@ const buildPermalink = (data, dir) => {
 const buildPdfFilename = (businessName, menuSlug) =>
   `${slugify(businessName)}-${menuSlug}.pdf`;
 
-export { slugify, normaliseSlug, buildPermalink, buildPdfFilename };
+export {
+  slugify,
+  normaliseSlug,
+  normalisePermalink,
+  buildPermalink,
+  buildPdfFilename,
+};

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   buildPdfFilename,
   buildPermalink,
+  normalisePermalink,
   normaliseSlug,
 } from "#utils/slug-utils.js";
 
@@ -35,10 +36,63 @@ describe("normaliseSlug", () => {
   });
 });
 
+describe("normalisePermalink", () => {
+  test("adds leading and trailing slashes to bare slug", () => {
+    expect(normalisePermalink("foo-bar")).toBe("/foo-bar/");
+  });
+
+  test("adds trailing slash when only leading slash present", () => {
+    expect(normalisePermalink("/foo-bar")).toBe("/foo-bar/");
+  });
+
+  test("adds leading slash when only trailing slash present", () => {
+    expect(normalisePermalink("foo-bar/")).toBe("/foo-bar/");
+  });
+
+  test("returns already-normalised permalink unchanged", () => {
+    expect(normalisePermalink("/custom/path/")).toBe("/custom/path/");
+  });
+
+  test("returns root permalink unchanged", () => {
+    expect(normalisePermalink("/")).toBe("/");
+  });
+
+  test("does not modify Liquid templates", () => {
+    expect(normalisePermalink("/{{ page.fileSlug }}/index.html")).toBe(
+      "/{{ page.fileSlug }}/index.html",
+    );
+  });
+
+  test("does not modify paths with file extensions", () => {
+    expect(normalisePermalink("/page/index.html")).toBe("/page/index.html");
+    expect(normalisePermalink("feed.xml")).toBe("feed.xml");
+  });
+
+  test("returns non-string values unchanged", () => {
+    expect(normalisePermalink(false)).toBe(false);
+    expect(normalisePermalink(undefined)).toBe(undefined);
+    expect(normalisePermalink(null)).toBe(null);
+  });
+
+  test("normalises multi-segment bare paths", () => {
+    expect(normalisePermalink("special-products/my-product")).toBe(
+      "/special-products/my-product/",
+    );
+  });
+});
+
 describe("buildPermalink", () => {
-  test("returns existing permalink if set", () => {
+  test("normalises existing permalink if set", () => {
     const data = { permalink: "/custom/path/", page: { fileSlug: "ignored" } };
     expect(buildPermalink(data, "products")).toBe("/custom/path/");
+  });
+
+  test("normalises bare slug permalink", () => {
+    const data = {
+      permalink: "specsavers-case-study",
+      page: { fileSlug: "ignored" },
+    };
+    expect(buildPermalink(data, "products")).toBe("/specsavers-case-study/");
   });
 
   test("builds permalink from dir and fileSlug when no permalink set", () => {
