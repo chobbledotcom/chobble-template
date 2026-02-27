@@ -23,32 +23,6 @@ import { getVideoThumbnailUrl } from "#utils/video.js";
 const hasTag = (data, tag) => (data.tags || []).includes(tag);
 
 /**
- * Extract the numeric price from a product's price field.
- * Strips all non-numeric characters except the decimal point.
- * @param {string|number|undefined|null} price - Raw price value
- * @returns {number|undefined} Parsed numeric price, or undefined if not parseable
- */
-const parseNumericPrice = (price) => {
-  if (price === undefined || price === null) return undefined;
-  const numeric = String(price).replace(/[^0-9.]/g, "");
-  if (numeric === "") return undefined;
-  return Number(numeric);
-};
-
-/**
- * Get the price for filter/sort purposes.
- * Prefers the lowest option price; falls back to the product's price field.
- * @param {import("#lib/types").ProductItemData & import("#lib/types").EleventyComputedData} data - Product data
- * @returns {number|undefined} Price for sorting, or undefined if no price available
- */
-const getFilterPrice = (data) => {
-  if (data.options.length > 0) {
-    return Math.min(...data.options.map((o) => o.unit_price));
-  }
-  return parseNumericPrice(data.price);
-};
-
-/**
  * Default values for block types. Applied at build time so templates
  * don't need to handle defaults.
  * @type {Record<string, Record<string, unknown>>}
@@ -115,9 +89,20 @@ export default {
    */
   filter_data: (data) => {
     if (!hasTag(data, "products")) return undefined;
+
+    const getPrice = () => {
+      if (data.options.length > 0) {
+        return Math.min(...data.options.map((o) => o.unit_price));
+      }
+      if (data.price === undefined || data.price === null) return undefined;
+      const numeric = String(data.price).replace(/[^0-9.]/g, "");
+      if (numeric === "") return undefined;
+      return Number(numeric);
+    };
+
     return {
       title: data.title.toLowerCase(),
-      price: getFilterPrice(data),
+      price: getPrice(),
       filters: Object.fromEntries(
         data.filter_attributes.filter(Boolean).map(slugifyAttr),
       ),
