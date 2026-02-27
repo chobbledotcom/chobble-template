@@ -35,6 +35,7 @@ const createToggleElements = (document, id, labelText) => {
   checkbox.type = "checkbox";
   checkbox.id = id;
   checkbox.className = "read-more-toggle";
+  checkbox.autocomplete = "off";
   checkbox.setAttribute("aria-hidden", "true");
 
   const label = document.createElement("label");

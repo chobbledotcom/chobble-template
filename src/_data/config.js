@@ -23,6 +23,7 @@ const baseConfig = {
 const config = {
   ...baseConfig,
   form_target: getFormTarget(baseConfig),
+  internal_link_suffix: baseConfig.navigation_content_anchor ? "#content" : "",
 };
 
 /**

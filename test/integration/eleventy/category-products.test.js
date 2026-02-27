@@ -35,9 +35,7 @@ describe("category-products", () => {
         const html = doc.body.innerHTML;
 
         expect(html.includes("Test Widget")).toBe(true);
-        expect(html.includes('href="/products/test-widget/#content"')).toBe(
-          true,
-        );
+        expect(html.includes('href="/products/test-widget/"')).toBe(true);
       },
     );
   });

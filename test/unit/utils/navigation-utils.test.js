@@ -8,7 +8,7 @@ import {
 const createDataWithUrl =
   (defaultUrl) =>
   (overrides = {}) => ({
-    config: { navigation_content_anchor: true },
+    config: { internal_link_suffix: "#content" },
     page: { url: defaultUrl },
     ...overrides,
   });
@@ -75,11 +75,11 @@ describe("withNavigationAnchor", () => {
       expect(result).toBe(nav); // Same object reference
     };
 
-    test("returns nav unchanged when flag is false", () => {
-      expectNavUnchanged({ navigation_content_anchor: false });
+    test("returns nav unchanged when suffix is empty string", () => {
+      expectNavUnchanged({ internal_link_suffix: "" });
     });
 
-    test("returns nav unchanged when flag is missing", () => {
+    test("returns nav unchanged when suffix is missing", () => {
       expectNavUnchanged({});
     });
 
