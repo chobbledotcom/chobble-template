@@ -6,7 +6,7 @@
   {%- for event in events -%}
   {%- assign event_data = event.data -%}
   <li>
-    <strong><a href="{{ event.url }}{%- if config.navigation_content_anchor -%}#content{%- endif -%}">{{ event_data.title }}</a></strong
+    <strong><a href="{{ event.url }}{{ config.internal_link_suffix }}">{{ event_data.title }}</a></strong
     ><br />
     {{ event_data.recurring_date }}
     {%- if event_data.event_location -%}

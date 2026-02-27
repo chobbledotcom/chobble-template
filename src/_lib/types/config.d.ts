@@ -80,6 +80,9 @@ export type SiteConfig = {
   category_order: string[] | null;
   screenshots: ScreenshotConfig | null;
   form_target: string | null;
+
+  // Derived (computed from other config values)
+  internal_link_suffix: string;
 };
 
 /**
