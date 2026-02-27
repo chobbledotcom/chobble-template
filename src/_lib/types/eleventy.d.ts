@@ -71,6 +71,8 @@ export type BaseItemData = {
 export type ProductItemData = BaseItemData & {
   /** Product options (sizes, variants, etc.). Defaults to [] via products.json */
   options: PagesCMSOption[];
+  /** Standalone price field (used when options is empty). May contain currency symbols. */
+  price?: string | number;
   /** Product specifications */
   specs?: PagesCMSSpec[];
   /** Frequently asked questions */
