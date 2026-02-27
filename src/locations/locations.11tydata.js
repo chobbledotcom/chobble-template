@@ -4,6 +4,7 @@ import {
   buildNavigation,
   withNavigationAnchor,
 } from "#utils/navigation-utils.js";
+import { normalisePermalink } from "#utils/slug-utils.js";
 
 export default linkableContent("location", {
   parentLocation: (data) => {
@@ -14,7 +15,7 @@ export default linkableContent("location", {
     return match ? match[1] : null;
   },
   permalink: (data) => {
-    if (data.permalink) return data.permalink;
+    if (data.permalink) return normalisePermalink(data.permalink);
     if (data.parentLocation) {
       return `/${strings.location_permalink_dir}/${data.parentLocation}/${data.page.fileSlug}/`;
     }

@@ -19,6 +19,12 @@ describe("linkableContent", () => {
     expect(result.eleventyComputed.permalink(data)).toBe("/custom/");
   });
 
+  test("permalink normalises bare slug from frontmatter", () => {
+    const result = linkableContent("property");
+    const data = { permalink: "my-custom-page", page: { fileSlug: "ignored" } };
+    expect(result.eleventyComputed.permalink(data)).toBe("/my-custom-page/");
+  });
+
   test("merges extra computed properties", () => {
     const extra = { myField: (data) => data.title };
     const result = linkableContent("event", extra);

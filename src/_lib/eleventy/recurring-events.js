@@ -5,6 +5,7 @@ import {
   createTemplateLoader,
   createTemplateRenderer,
 } from "#utils/liquid-render.js";
+import { normalisePermalink } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 const getTemplate = createTemplateLoader("recurring-events-list.html");
@@ -46,7 +47,8 @@ const getRecurringEventsHtml = memoize(async () => {
         .replace(".md", "")
         .replace(/^\d{4}-\d{2}-\d{2}-/, "");
       const url =
-        data.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`;
+        normalisePermalink(data.permalink) ||
+        `/${strings.event_permalink_dir}/${fileSlug}/`;
       return [
         {
           url,
