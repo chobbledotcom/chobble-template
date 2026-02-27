@@ -351,6 +351,7 @@
     li {
       text-align: left;
       position: relative;
+      align-self: baseline;
 
       // First-level dropdown
       > ul {
