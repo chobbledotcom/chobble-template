@@ -9,6 +9,7 @@ import {
   path,
   rootDir,
   SRC_HTML_FILES,
+  SRC_JS_FILES,
   SRC_SCSS_FILES,
 } from "#test/test-utils.js";
 import {
@@ -309,6 +310,11 @@ describe("unused-classes", () => {
     const htmlContent = htmlFiles
       .map((f) => readFileSync(f, "utf-8"))
       .join("\n");
+    // All source JS for detecting anchor-style "#id" references (e.g. config defining "#content")
+    const allJsContent = SRC_JS_FILES()
+      .map((f) => join(rootDir, f))
+      .map((f) => readFileSync(f, "utf-8"))
+      .join("\n");
 
     const unusedClasses = [];
     const unusedIds = [];
@@ -327,12 +333,8 @@ describe("unused-classes", () => {
       }
     }
 
-    // IDs referenced dynamically via config variables (e.g. config.internal_link_suffix = "#content")
-    const dynamicIds = new Set(["content"]);
-
     // Check each ID for references
     for (const [idName, definedIn] of allIds) {
-      if (dynamicIds.has(idName)) continue;
       const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const inScss = findSelectorReferencesInScss(scssContent, idName, "#");
       const inJs = findReferencesInJs("id")(idName)(jsContent);
@@ -343,8 +345,11 @@ describe("unused-classes", () => {
         new RegExp(`list=["']${escaped}["']`),
       ];
       const inHtml = htmlPatterns.some((pattern) => pattern.test(htmlContent));
+      // Check all source JS for anchor-style "#id" references (e.g. "#content" in config)
+      const anchorRefPattern = new RegExp(`["'\`]#${escaped}["'\`]`);
+      const inAnchorRef = anchorRefPattern.test(allJsContent);
 
-      if (!inScss && !inJs && !inHtml) {
+      if (!inScss && !inJs && !inHtml && !inAnchorRef) {
         unusedIds.push({ name: idName, definedIn });
       }
     }
