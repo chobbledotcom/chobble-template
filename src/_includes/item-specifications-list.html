@@ -10,7 +10,7 @@
         {%- if spec.icon -%}{%- include "design-system/icon-badge.html", icon: spec.icon -%}{%- endif -%}
         <div class="spec-content">
           <dt>{{ spec.name }}</dt>
-          <dd>{{ spec.value }}</dd>
+          <dd>{{ spec.value | newline_to_br }}</dd>
         </div>
       </div>
     {%- endfor -%}
