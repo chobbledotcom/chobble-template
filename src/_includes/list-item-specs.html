@@ -3,7 +3,7 @@
     {%- for spec in item.data.list_item_specs -%}
       <li>
         {%- if spec.icon -%}{{ spec.icon }}{%- endif -%}
-        <span>{{ spec.value | newline_to_br }}</span>
+        <span>{{ spec.value }}</span>
       </li>
     {%- endfor -%}
   </ul>
