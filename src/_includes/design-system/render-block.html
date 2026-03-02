@@ -64,4 +64,7 @@ Renders a single block by type. Used by blocks.html.
   {%- when "link-button" -%}
     {%- include "design-system/link-button.html", block: block -%}
 
+  {%- when "reviews" -%}
+    {%- include "design-system/reviews-block.html", block: block -%}
+
 {%- endcase -%}

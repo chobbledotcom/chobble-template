@@ -4,5 +4,9 @@ blocks: false
 ---
 
 {%- for section in propertyOrder -%}
-  {%- include section -%}
+  {%- if section == "property/reviews.html" -%}
+    {%- include "design-system/reviews-block.html", current_item: true -%}
+  {%- else -%}
+    {%- include section -%}
+  {%- endif -%}
 {%- endfor -%}

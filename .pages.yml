@@ -874,6 +874,10 @@ content:
                   - { name: href, type: string, label: URL, required: true }
                   - { name: variant, type: string, label: Variant }
                   - { name: size, type: string, label: Size }
+          - name: reviews
+            label: Reviews
+            fields:
+              - { name: current_item, type: boolean, label: Filter to current item }
       - { name: body, type: rich-text, label: Body }
   - name: page-services
     label: Services Page
@@ -931,6 +935,10 @@ content:
                 fields:
                   - { name: value, type: string, label: Value, required: true }
                   - { name: label, type: string, label: Label, required: true }
+          - name: reviews
+            label: Reviews
+            fields:
+              - { name: current_item, type: boolean, label: Filter to current item }
       - { name: body, type: rich-text, label: Body }
   - name: homepage
     label: Homepage Settings
