@@ -1,0 +1,17 @@
+{%- comment -%}
+Reviews block: renders reviews collection with optional filtering to current item.
+
+Parameters (from block):
+  current_item  - If true, filters reviews to the current item by slug and tags
+{%- endcomment -%}
+
+{%- if block.current_item -%}
+  {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags %}
+{%- else -%}
+  {% assign reviews = collections.reviews %}
+{%- endif -%}
+
+{%- if reviews.size > 0 -%}
+  {%- assign product_links = true -%}
+  {%- include "reviews-list.html" -%}
+{%- endif -%}
