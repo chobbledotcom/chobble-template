@@ -12,9 +12,15 @@
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import config from "#data/config.js";
 import { addDataFilter } from "#eleventy/add-data-filter.js";
-import { filterMap, findDuplicate, memberOf } from "#toolkit/fp/array.js";
+import {
+  filterMap,
+  findDuplicate,
+  memberOf,
+  notMemberOf,
+} from "#toolkit/fp/array.js";
 import {
   createArrayFieldIndexer,
+  createIndexer,
   featuredCollection,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
@@ -26,6 +32,50 @@ const indexByCategory = createArrayFieldIndexer("categories");
 
 /** Index products by event for O(1) lookups, cached per products array */
 const indexByEvent = createArrayFieldIndexer("events");
+
+/** Index products by fileSlug for O(1) lookups, cached per products array */
+const indexBySlug = createIndexer((product) =>
+  product.fileSlug ? [product.fileSlug] : [],
+);
+
+/**
+ * Merge products explicitly listed in a parent item's frontmatter with
+ * products found via reverse lookup (products that reference the parent).
+ * Explicit products maintain their frontmatter order; reverse-lookup
+ * products are sorted by order/title and appended after.
+ * Duplicates are removed (explicit list takes precedence).
+ *
+ * @param {ProductCollectionItem[]} reverseProducts - Products from reverse lookup, already sorted
+ * @param {ProductCollectionItem[]} allProducts - All products (for slug lookups)
+ * @param {string} parentSlug - The category or event slug
+ * @param {Array<{fileSlug: string, data: {products?: string[]}}>} [parentItems] - Categories or events collection
+ * @returns {ProductCollectionItem[]} Merged product list
+ */
+const mergeWithExplicitProducts = (
+  reverseProducts,
+  allProducts,
+  parentSlug,
+  parentItems,
+) => {
+  if (!parentItems) return reverseProducts;
+
+  const parent = parentItems.find((p) => p.fileSlug === parentSlug);
+  if (!parent?.data?.products?.length) return reverseProducts;
+
+  const slugIndex = indexBySlug(allProducts);
+  const explicitSlugs = parent.data.products.map(normaliseSlug);
+
+  const explicitProducts = explicitSlugs
+    .map((slug) => slugIndex[slug]?.[0])
+    .filter(Boolean);
+
+  const isNotExplicit = notMemberOf(explicitSlugs);
+  const additionalProducts = reverseProducts.filter((p) =>
+    isNotExplicit(p.fileSlug),
+  );
+
+  return [...explicitProducts, ...additionalProducts];
+};
 
 /**
  * Compute gallery array from gallery or header_image (for eleventyComputed).
@@ -70,14 +120,26 @@ const createProductsCollection = (collectionApi) =>
   getProductsFromApi(collectionApi).map(addGallery);
 
 /**
- * Get products belonging to a specific category.
+ * Create a bidirectional product filter for a given indexer.
+ * Combines products from reverse lookup (products referencing a parent) with
+ * products explicitly listed in the parent's frontmatter.
  *
- * @param {ProductCollectionItem[]} products - All products
- * @param {string} categorySlug - Category slug to filter by
- * @returns {ProductCollectionItem[]} Sorted products in this category
+ * @param {(products: ProductCollectionItem[]) => Record<string, ProductCollectionItem[]>} indexer
+ * @returns {(products: ProductCollectionItem[], slug: string, parentItems?: any[]) => ProductCollectionItem[]}
  */
-const getProductsByCategory = (products, categorySlug) =>
-  (indexByCategory(products)[categorySlug] ?? []).sort(sortItems);
+const createBidirectionalFilter = (indexer) => (products, slug, parentItems) =>
+  mergeWithExplicitProducts(
+    (indexer(products)[slug] ?? []).sort(sortItems),
+    products,
+    slug,
+    parentItems,
+  );
+
+/** Get products belonging to a specific category (bidirectional). */
+const getProductsByCategory = createBidirectionalFilter(indexByCategory);
+
+/** Get products belonging to a specific event (bidirectional). */
+const getProductsByEvent = createBidirectionalFilter(indexByEvent);
 
 /**
  * Get unique products that belong to any of the given categories.
@@ -100,16 +162,6 @@ const getProductsByCategories = (products, categorySlugs) => {
     )
     .sort(sortItems);
 };
-
-/**
- * Get products belonging to a specific event.
- *
- * @param {ProductCollectionItem[]} products - All products
- * @param {string} eventSlug - Event slug to filter by
- * @returns {ProductCollectionItem[]} Sorted products for this event
- */
-const getProductsByEvent = (products, eventSlug) =>
-  (indexByEvent(products)[eventSlug] ?? []).sort(sortItems);
 
 /** @typedef {[string, { name: string, unit_price: string | number, max_quantity: number | null }]} SkuEntry */
 
