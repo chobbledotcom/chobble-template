@@ -6,6 +6,7 @@ import {
 } from "#collections/products.js";
 import {
   createMockEleventyConfig,
+  createProduct,
   data,
   expectResultTitles,
   item,
@@ -310,6 +311,190 @@ describe("products", () => {
       const result = filters.getProductsByEvent(testProducts, "summer-sale");
 
       expectResultTitles(result, ["Product 1", "Product 2", "Product 3"]);
+    });
+  });
+
+  describe("bidirectional category-product relationships", () => {
+    /** Reusable product with slug and category membership */
+    const widgetA = (categories = []) =>
+      createProduct({ slug: "widget-a", title: "Widget A", categories });
+    const widgetB = (categories = []) =>
+      createProduct({ slug: "widget-b", title: "Widget B", categories });
+
+    test("includes products listed in page frontmatter", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = [widgetA(), widgetB()];
+
+      const result = filters.getProductsByCategory(testProducts, "widgets", [
+        "widget-a",
+        "widget-b",
+      ]);
+
+      expectResultTitles(result, ["Widget A", "Widget B"]);
+    });
+
+    test("combines reverse-lookup and explicit products", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = [widgetA(["widgets"]), widgetB()];
+
+      const result = filters.getProductsByCategory(testProducts, "widgets", [
+        "widget-b",
+      ]);
+
+      expectResultTitles(result, ["Widget B", "Widget A"]);
+    });
+
+    test("deduplicates products in both directions", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = [widgetA(["widgets"]), widgetB(["widgets"])];
+
+      const result = filters.getProductsByCategory(testProducts, "widgets", [
+        "widget-b",
+        "widget-a",
+      ]);
+
+      // Explicit order wins: widget-b first, widget-a second
+      expectResultTitles(result, ["Widget B", "Widget A"]);
+    });
+
+    test("explicit products maintain frontmatter order over order field", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = [
+        createProduct({ slug: "alpha", title: "Alpha", order: 1 }),
+        createProduct({ slug: "beta", title: "Beta", order: 2 }),
+        createProduct({ slug: "gamma", title: "Gamma", order: 3 }),
+      ];
+
+      const result = filters.getProductsByCategory(testProducts, "widgets", [
+        "gamma",
+        "alpha",
+        "beta",
+      ]);
+
+      expectResultTitles(result, ["Gamma", "Alpha", "Beta"]);
+    });
+
+    test("reverse-lookup products sorted by order after explicit ones", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = [
+        createProduct({ slug: "explicit-one", title: "Explicit One" }),
+        createProduct({
+          slug: "reverse-b",
+          title: "Reverse B",
+          order: 2,
+          categories: ["widgets"],
+        }),
+        createProduct({
+          slug: "reverse-a",
+          title: "Reverse A",
+          order: 1,
+          categories: ["widgets"],
+        }),
+      ];
+
+      const result = filters.getProductsByCategory(testProducts, "widgets", [
+        "explicit-one",
+      ]);
+
+      expectResultTitles(result, ["Explicit One", "Reverse A", "Reverse B"]);
+    });
+
+    test("falls back to reverse lookup when no explicit products passed", () => {
+      const { filters } = setupProductsConfig();
+
+      const result = filters.getProductsByCategory(
+        [widgetA(["widgets"])],
+        "widgets",
+      );
+
+      expectResultTitles(result, ["Widget A"]);
+    });
+
+    test("falls back when explicit products list is empty", () => {
+      const { filters } = setupProductsConfig();
+
+      const result = filters.getProductsByCategory(
+        [widgetA(["widgets"])],
+        "widgets",
+        [],
+      );
+
+      expectResultTitles(result, ["Widget A"]);
+    });
+
+    test("normalises path-style slugs in explicit products", () => {
+      const { filters } = setupProductsConfig();
+
+      const result = filters.getProductsByCategory([widgetA()], "widgets", [
+        "products/widget-a.md",
+      ]);
+
+      expectResultTitles(result, ["Widget A"]);
+    });
+
+    test("skips non-existent product slugs in explicit products", () => {
+      const { filters } = setupProductsConfig();
+
+      const result = filters.getProductsByCategory([widgetA()], "widgets", [
+        "nonexistent",
+        "widget-a",
+      ]);
+
+      expectResultTitles(result, ["Widget A"]);
+    });
+  });
+
+  describe("bidirectional event-product relationships", () => {
+    const productA = (events = []) =>
+      createProduct({ slug: "product-a", title: "Product A", events });
+    const productB = (events = []) =>
+      createProduct({ slug: "product-b", title: "Product B", events });
+
+    test("includes products listed in page frontmatter", () => {
+      const { filters } = setupProductsConfig();
+
+      const result = filters.getProductsByEvent(
+        [productA(), productB()],
+        "summer-sale",
+        ["product-a", "product-b"],
+      );
+
+      expectResultTitles(result, ["Product A", "Product B"]);
+    });
+
+    test("combines reverse-lookup and explicit products for events", () => {
+      const { filters } = setupProductsConfig();
+
+      const result = filters.getProductsByEvent(
+        [productA(["summer-sale"]), productB()],
+        "summer-sale",
+        ["product-b"],
+      );
+
+      expectResultTitles(result, ["Product B", "Product A"]);
+    });
+
+    test("deduplicates products in both directions for events", () => {
+      const { filters } = setupProductsConfig();
+
+      const result = filters.getProductsByEvent(
+        [productA(["summer-sale"]), productB(["summer-sale"])],
+        "summer-sale",
+        ["product-b", "product-a"],
+      );
+
+      expectResultTitles(result, ["Product B", "Product A"]);
+    });
+
+    test("falls back to reverse lookup when no explicit products passed", () => {
+      const { filters } = setupProductsConfig();
+
+      const result = filters.getProductsByEvent(
+        [productA(["summer-sale"])],
+        "summer-sale",
+      );
+
+      expectResultTitles(result, ["Product A"]);
     });
   });
 
