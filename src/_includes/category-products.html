@@ -1,4 +1,4 @@
-{% assign products = collections.products | getProductsByCategory: page.fileSlug, collections.categories %}
+{% assign products = collections.products | getProductsByCategory: page.fileSlug, products %}
 
 {% if products.size > 0 %}
   {%- assign filterUI = collections.categoryListingFilterUI[page.fileSlug] -%}

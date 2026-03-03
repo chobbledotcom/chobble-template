@@ -315,24 +315,19 @@ describe("products", () => {
   });
 
   describe("bidirectional category-product relationships", () => {
-    /** Create a parent item (category/event) with optional products list */
-    const parentItem = (slug, products) => ({
-      fileSlug: slug,
-      data: { title: slug, ...(products && { products }) },
-    });
-
     /** Reusable product with slug and category membership */
     const widgetA = (categories = []) =>
       createProduct({ slug: "widget-a", title: "Widget A", categories });
     const widgetB = (categories = []) =>
       createProduct({ slug: "widget-b", title: "Widget B", categories });
 
-    test("includes products listed in category frontmatter", () => {
+    test("includes products listed in page frontmatter", () => {
       const { filters } = setupProductsConfig();
       const testProducts = [widgetA(), widgetB()];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
-        parentItem("widgets", ["widget-a", "widget-b"]),
+        "widget-a",
+        "widget-b",
       ]);
 
       expectResultTitles(result, ["Widget A", "Widget B"]);
@@ -343,7 +338,7 @@ describe("products", () => {
       const testProducts = [widgetA(["widgets"]), widgetB()];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
-        parentItem("widgets", ["widget-b"]),
+        "widget-b",
       ]);
 
       expectResultTitles(result, ["Widget B", "Widget A"]);
@@ -354,7 +349,8 @@ describe("products", () => {
       const testProducts = [widgetA(["widgets"]), widgetB(["widgets"])];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
-        parentItem("widgets", ["widget-b", "widget-a"]),
+        "widget-b",
+        "widget-a",
       ]);
 
       // Explicit order wins: widget-b first, widget-a second
@@ -370,7 +366,9 @@ describe("products", () => {
       ];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
-        parentItem("widgets", ["gamma", "alpha", "beta"]),
+        "gamma",
+        "alpha",
+        "beta",
       ]);
 
       expectResultTitles(result, ["Gamma", "Alpha", "Beta"]);
@@ -395,13 +393,13 @@ describe("products", () => {
       ];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
-        parentItem("widgets", ["explicit-one"]),
+        "explicit-one",
       ]);
 
       expectResultTitles(result, ["Explicit One", "Reverse A", "Reverse B"]);
     });
 
-    test("falls back to reverse lookup when no categories passed", () => {
+    test("falls back to reverse lookup when no explicit products passed", () => {
       const { filters } = setupProductsConfig();
 
       const result = filters.getProductsByCategory(
@@ -412,33 +410,34 @@ describe("products", () => {
       expectResultTitles(result, ["Widget A"]);
     });
 
-    test("falls back when category has no products field", () => {
+    test("falls back when explicit products list is empty", () => {
       const { filters } = setupProductsConfig();
 
       const result = filters.getProductsByCategory(
         [widgetA(["widgets"])],
         "widgets",
-        [parentItem("widgets")],
+        [],
       );
 
       expectResultTitles(result, ["Widget A"]);
     });
 
-    test("normalises path-style slugs in category products field", () => {
+    test("normalises path-style slugs in explicit products", () => {
       const { filters } = setupProductsConfig();
 
       const result = filters.getProductsByCategory([widgetA()], "widgets", [
-        parentItem("widgets", ["products/widget-a.md"]),
+        "products/widget-a.md",
       ]);
 
       expectResultTitles(result, ["Widget A"]);
     });
 
-    test("skips non-existent product slugs in category frontmatter", () => {
+    test("skips non-existent product slugs in explicit products", () => {
       const { filters } = setupProductsConfig();
 
       const result = filters.getProductsByCategory([widgetA()], "widgets", [
-        parentItem("widgets", ["nonexistent", "widget-a"]),
+        "nonexistent",
+        "widget-a",
       ]);
 
       expectResultTitles(result, ["Widget A"]);
@@ -446,23 +445,18 @@ describe("products", () => {
   });
 
   describe("bidirectional event-product relationships", () => {
-    const parentItem = (slug, products) => ({
-      fileSlug: slug,
-      data: { title: slug, ...(products && { products }) },
-    });
-
     const productA = (events = []) =>
       createProduct({ slug: "product-a", title: "Product A", events });
     const productB = (events = []) =>
       createProduct({ slug: "product-b", title: "Product B", events });
 
-    test("includes products listed in event frontmatter", () => {
+    test("includes products listed in page frontmatter", () => {
       const { filters } = setupProductsConfig();
 
       const result = filters.getProductsByEvent(
         [productA(), productB()],
         "summer-sale",
-        [parentItem("summer-sale", ["product-a", "product-b"])],
+        ["product-a", "product-b"],
       );
 
       expectResultTitles(result, ["Product A", "Product B"]);
@@ -474,7 +468,7 @@ describe("products", () => {
       const result = filters.getProductsByEvent(
         [productA(["summer-sale"]), productB()],
         "summer-sale",
-        [parentItem("summer-sale", ["product-b"])],
+        ["product-b"],
       );
 
       expectResultTitles(result, ["Product B", "Product A"]);
@@ -486,13 +480,13 @@ describe("products", () => {
       const result = filters.getProductsByEvent(
         [productA(["summer-sale"]), productB(["summer-sale"])],
         "summer-sale",
-        [parentItem("summer-sale", ["product-b", "product-a"])],
+        ["product-b", "product-a"],
       );
 
       expectResultTitles(result, ["Product B", "Product A"]);
     });
 
-    test("falls back to reverse lookup when no events passed", () => {
+    test("falls back to reverse lookup when no explicit products passed", () => {
       const { filters } = setupProductsConfig();
 
       const result = filters.getProductsByEvent(

@@ -47,23 +47,18 @@ const indexBySlug = createIndexer((product) =>
  *
  * @param {ProductCollectionItem[]} reverseProducts - Products from reverse lookup, already sorted
  * @param {ProductCollectionItem[]} allProducts - All products (for slug lookups)
- * @param {string} parentSlug - The category or event slug
- * @param {Array<{fileSlug: string, data: {products?: string[]}}>} [parentItems] - Categories or events collection
+ * @param {string[] | undefined} [explicitProductRefs] - Product slugs/paths from the page's frontmatter
  * @returns {ProductCollectionItem[]} Merged product list
  */
 const mergeWithExplicitProducts = (
   reverseProducts,
   allProducts,
-  parentSlug,
-  parentItems,
+  explicitProductRefs,
 ) => {
-  if (!parentItems) return reverseProducts;
-
-  const parent = parentItems.find((p) => p.fileSlug === parentSlug);
-  if (!parent?.data?.products?.length) return reverseProducts;
+  if (!explicitProductRefs?.length) return reverseProducts;
 
   const slugIndex = indexBySlug(allProducts);
-  const explicitSlugs = parent.data.products.flatMap((ref) => {
+  const explicitSlugs = explicitProductRefs.flatMap((ref) => {
     const slug = normaliseSlug(ref);
     return slug ? [slug] : [];
   });
@@ -125,18 +120,18 @@ const createProductsCollection = (collectionApi) =>
 /**
  * Create a bidirectional product filter for a given indexer.
  * Combines products from reverse lookup (products referencing a parent) with
- * products explicitly listed in the parent's frontmatter.
+ * products explicitly listed in the page's frontmatter products field.
  *
  * @param {(products: ProductCollectionItem[]) => Record<string, ProductCollectionItem[]>} indexer
- * @returns {(products: ProductCollectionItem[], slug: string, parentItems?: any[]) => ProductCollectionItem[]}
+ * @returns {(products: ProductCollectionItem[], slug: string, explicitProductRefs?: string[]) => ProductCollectionItem[]}
  */
-const createBidirectionalFilter = (indexer) => (products, slug, parentItems) =>
-  mergeWithExplicitProducts(
-    (indexer(products)[slug] ?? []).sort(sortItems),
-    products,
-    slug,
-    parentItems,
-  );
+const createBidirectionalFilter =
+  (indexer) => (products, slug, explicitProductRefs) =>
+    mergeWithExplicitProducts(
+      (indexer(products)[slug] ?? []).sort(sortItems),
+      products,
+      explicitProductRefs,
+    );
 
 /** Get products belonging to a specific category (bidirectional). */
 const getProductsByCategory = createBidirectionalFilter(indexByCategory);
