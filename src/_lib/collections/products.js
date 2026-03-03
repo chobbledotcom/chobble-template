@@ -63,7 +63,10 @@ const mergeWithExplicitProducts = (
   if (!parent?.data?.products?.length) return reverseProducts;
 
   const slugIndex = indexBySlug(allProducts);
-  const explicitSlugs = parent.data.products.map(normaliseSlug);
+  const explicitSlugs = parent.data.products.flatMap((ref) => {
+    const slug = normaliseSlug(ref);
+    return slug ? [slug] : [];
+  });
 
   const explicitProducts = explicitSlugs
     .map((slug) => slugIndex[slug]?.[0])
@@ -156,9 +159,7 @@ const getProductsByCategories = (products, categorySlugs) => {
 
   return products
     .filter((p) =>
-      (p.data.categories ?? []).some((cat) =>
-        isSelectedCategory(normaliseSlug(cat)),
-      ),
+      p.data.categories.some((cat) => isSelectedCategory(normaliseSlug(cat))),
     )
     .sort(sortItems);
 };
