@@ -33,6 +33,13 @@ const indexByCategory = createArrayFieldIndexer("categories");
 /** Index products by event for O(1) lookups, cached per products array */
 const indexByEvent = createArrayFieldIndexer("events");
 
+/**
+ * Normalise a slug reference, falling back to empty string for null/undefined.
+ * @param {string} ref
+ * @returns {string}
+ */
+const normaliseSlugOrEmpty = (ref) => normaliseSlug(ref) ?? "";
+
 /** Index products by fileSlug for O(1) lookups, cached per products array */
 const indexBySlug = createIndexer((product) =>
   product.fileSlug ? [product.fileSlug] : [],
@@ -63,11 +70,12 @@ const mergeWithExplicitProducts = (
   if (!parent?.data?.products?.length) return reverseProducts;
 
   const slugIndex = indexBySlug(allProducts);
-  const explicitSlugs = parent.data.products.map(normaliseSlug);
 
-  const explicitProducts = explicitSlugs
-    .map((slug) => slugIndex[slug]?.[0])
+  const explicitProducts = parent.data.products
+    .map((ref) => slugIndex[normaliseSlugOrEmpty(ref)]?.[0])
     .filter(Boolean);
+
+  const explicitSlugs = parent.data.products.map(normaliseSlugOrEmpty);
 
   const isNotExplicit = notMemberOf(explicitSlugs);
   const additionalProducts = reverseProducts.filter((p) =>
