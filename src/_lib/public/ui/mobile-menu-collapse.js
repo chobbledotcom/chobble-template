@@ -56,15 +56,16 @@ const setupLinkToggle = (item, isClicky) => {
   // All dropdowns start collapsed on page load
   link.setAttribute("aria-expanded", "false");
 
-  if (isClicky && caretButton) {
-    // Desktop clicky-nav: separate caret button for toggling
-    caretButton.addEventListener("click", () => {
-      collapseSiblings(item);
-      const isExpanded = !item.classList.contains("expanded");
-      setExpanded(item, isExpanded);
-    });
+  if (isClicky) {
+    // Clicky-nav: expand on first click, navigate when already expanded
+    if (caretButton) {
+      caretButton.addEventListener("click", () => {
+        collapseSiblings(item);
+        const isExpanded = !item.classList.contains("expanded");
+        setExpanded(item, isExpanded);
+      });
+    }
 
-    // Link: expand on first click, navigate when already expanded
     link.addEventListener("click", (event) => {
       if (item.classList.contains("expanded")) {
         return; // Allow navigation to parent page
@@ -74,14 +75,9 @@ const setupLinkToggle = (item, isClicky) => {
       setExpanded(item, true);
     });
   } else {
-    // Mobile or fallback: link toggles submenu
+    // Mobile sticky-nav fallback: link toggles submenu
     link.addEventListener("click", (event) => {
       event.preventDefault();
-
-      if (isClicky) {
-        collapseSiblings(item);
-      }
-
       const isExpanded = item.classList.toggle("expanded");
       link.setAttribute("aria-expanded", String(isExpanded));
     });
