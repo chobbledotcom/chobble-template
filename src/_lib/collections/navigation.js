@@ -1,5 +1,9 @@
+import fs from "node:fs";
+import { join } from "node:path";
 import config from "#data/config.js";
 import { getBySlug } from "#eleventy/collection-lookup.js";
+import { PAGES_DIR } from "#lib/paths.js";
+import { getIcon } from "#media/iconify.js";
 import { imageShortcode } from "#media/image.js";
 import { filter, mapAsync, pipe, sort } from "#toolkit/fp/array.js";
 import { createHtml } from "#utils/dom-builder.js";
@@ -7,6 +11,8 @@ import { sortNavigationItems } from "#utils/sorting.js";
 
 const NAV_THUMBNAIL_WIDTHS = ["64", "128", "480", "600"];
 const NAV_THUMBNAIL_ASPECT = "1/1";
+const SEARCH_PAGE_PATH = join(PAGES_DIR, "search.md");
+const SEARCH_ICON_ID = "hugeicons:search-02";
 
 /** Renders a single navigation entry with optional thumbnail (not at root level) */
 const renderNavEntry = async (
@@ -49,6 +55,24 @@ const renderNavEntry = async (
   return createHtml("li", {}, anchor + caretHtml + childrenHtml);
 };
 
+/** Renders the search box list item for the navigation */
+const renderSearchItem = async () => {
+  const iconSvg = await getIcon(SEARCH_ICON_ID);
+  const searchButton = await createHtml("button", { type: "submit" }, iconSvg);
+  const searchInput = await createHtml("input", {
+    type: "search",
+    name: "q",
+    placeholder: "Search...",
+    autocomplete: "off",
+  });
+  const searchForm = await createHtml(
+    "form",
+    { action: "/search/", method: "get", class: "search-box" },
+    searchInput + searchButton,
+  );
+  return createHtml("li", { class: "nav-search" }, searchForm);
+};
+
 /** Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }} */
 const toNavigation = async (pages, activeKey = "") => {
   if (!pages?.length) return "";
@@ -61,9 +85,13 @@ const toNavigation = async (pages, activeKey = "") => {
     )(children);
     return createHtml("ul", {}, items.join("\n"));
   };
-  const items = await mapAsync((entry) =>
+  const navItems = await mapAsync((entry) =>
     renderNavEntry(entry, activeKey, renderChildren, true),
   )(pages);
+  const searchItem = fs.existsSync(SEARCH_PAGE_PATH)
+    ? [await renderSearchItem()]
+    : [];
+  const items = [...navItems, ...searchItem];
   return createHtml("ul", { class: "nav-thumbnails" }, items.join("\n"));
 };
 

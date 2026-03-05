@@ -133,6 +133,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/collections/events.js", // Thumbnail resolution from products
   "src/_lib/collections/locations.js", // Thumbnail resolution from child locations
   "src/_lib/collections/menus.js",
+  "src/_lib/collections/navigation.js", // Search box builder kept separate for function length
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // isReviewableTag type guard for TypeScript
   "src/_lib/public/ui/mobile-menu-collapse.js", // DOM helpers extracted for complexity management
