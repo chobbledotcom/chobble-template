@@ -38,6 +38,10 @@ nav {
   body.sticky-mobile-nav nav {
     @include nav.nav-submenu-toggle;
   }
+
+  body.clicky-nav {
+    @include nav.nav-clicky-base;
+  }
 }
 
 @include breakpoints.up("md") {

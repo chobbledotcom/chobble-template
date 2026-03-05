@@ -55,6 +55,10 @@
         @include nav.nav-submenu-toggle;
       }
     }
+
+    &.clicky-nav {
+      @include nav.nav-clicky-base;
+    }
   }
 
   // ===========================================================================

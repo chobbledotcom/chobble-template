@@ -56,32 +56,36 @@ const setupLinkToggle = (item, isClicky) => {
   // All dropdowns start collapsed on page load
   link.setAttribute("aria-expanded", "false");
 
-  if (caretButton) {
-    // Caret button always toggles expand/collapse
+  if (isClicky && caretButton) {
+    // Desktop clicky-nav: separate caret button for toggling
     caretButton.addEventListener("click", () => {
       collapseSiblings(item);
       const isExpanded = !item.classList.contains("expanded");
       setExpanded(item, isExpanded);
     });
-  }
 
-  link.addEventListener("click", (event) => {
-    // When the caret button is visible (desktop clicky-nav), the link
-    // navigates to the parent page when the submenu is already expanded.
-    // When the caret is hidden (mobile), the link toggles the submenu
-    // since there is no other control to expand/collapse it.
-    const caretVisible = caretButton?.offsetParent !== null;
-
-    if (caretVisible && item.classList.contains("expanded")) {
-      return; // Allow navigation to parent page
-    }
-
-    event.preventDefault();
-    if (isClicky) {
+    // Link: expand on first click, navigate when already expanded
+    link.addEventListener("click", (event) => {
+      if (item.classList.contains("expanded")) {
+        return; // Allow navigation to parent page
+      }
+      event.preventDefault();
       collapseSiblings(item);
-    }
-    setExpanded(item, !item.classList.contains("expanded"));
-  });
+      setExpanded(item, true);
+    });
+  } else {
+    // Mobile or fallback: link toggles submenu
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      if (isClicky) {
+        collapseSiblings(item);
+      }
+
+      const isExpanded = item.classList.toggle("expanded");
+      link.setAttribute("aria-expanded", String(isExpanded));
+    });
+  }
 };
 
 onReady(() => {
