@@ -55,6 +55,24 @@ const renderNavEntry = async (
   return createHtml("li", {}, anchor + caretHtml + childrenHtml);
 };
 
+/** Renders the search box list item for the navigation */
+const renderSearchItem = async () => {
+  const iconSvg = await getIcon(SEARCH_ICON_ID);
+  const searchButton = await createHtml("button", { type: "submit" }, iconSvg);
+  const searchInput = await createHtml("input", {
+    type: "search",
+    name: "q",
+    placeholder: "Search...",
+    autocomplete: "off",
+  });
+  const searchForm = await createHtml(
+    "form",
+    { action: "/search/", method: "get", class: "search-box" },
+    searchInput + searchButton,
+  );
+  return createHtml("li", { class: "nav-search" }, searchForm);
+};
+
 /** Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }} */
 const toNavigation = async (pages, activeKey = "") => {
   if (!pages?.length) return "";
@@ -67,34 +85,13 @@ const toNavigation = async (pages, activeKey = "") => {
     )(children);
     return createHtml("ul", {}, items.join("\n"));
   };
-  const items = await mapAsync((entry) =>
+  const navItems = await mapAsync((entry) =>
     renderNavEntry(entry, activeKey, renderChildren, true),
   )(pages);
-  if (fs.existsSync(SEARCH_PAGE_PATH)) {
-    const iconSvg = await getIcon(SEARCH_ICON_ID);
-    const searchButton = await createHtml(
-      "button",
-      { type: "submit" },
-      iconSvg,
-    );
-    const searchInput = await createHtml("input", {
-      type: "search",
-      name: "q",
-      placeholder: "Search...",
-      autocomplete: "off",
-    });
-    const searchForm = await createHtml(
-      "form",
-      { action: "/search/", method: "get", class: "search-box" },
-      searchInput + searchButton,
-    );
-    const searchLi = await createHtml(
-      "li",
-      { class: "nav-search" },
-      searchForm,
-    );
-    items.push(searchLi);
-  }
+  const searchItem = fs.existsSync(SEARCH_PAGE_PATH)
+    ? [await renderSearchItem()]
+    : [];
+  const items = [...navItems, ...searchItem];
   return createHtml("ul", { class: "nav-thumbnails" }, items.join("\n"));
 };
 
