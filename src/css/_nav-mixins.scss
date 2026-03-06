@@ -244,13 +244,10 @@
 }
 
 // -----------------------------------------------------------------------------
-// CLICKY NAV (shared mobile + desktop)
+// CLICKY NAV (click-based dropdowns)
 // -----------------------------------------------------------------------------
 
-// Styles for clicky-nav that apply at all breakpoints, including mobile.
-// Shows the .nav-caret button and hides the a::after caret so the toggle
-// button is the only expand/collapse control.
-@mixin nav-clicky-base {
+@mixin nav-clicky {
   // Parent items: flex row so link and caret button sit side by side
   nav > ul > li:has(> .nav-caret) {
     display: flex;
@@ -280,11 +277,6 @@
   nav > ul > li:has(> ul) > a::after {
     display: none;
   }
-}
-
-// Desktop-only additions on top of the base clicky styles.
-@mixin nav-clicky-desktop {
-  @include nav-clicky-base;
 
   // Disable hover-based dropdowns for first-level
   nav > ul > li:hover > ul {

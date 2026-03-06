@@ -38,10 +38,10 @@ nav {
   body.sticky-mobile-nav nav {
     @include nav.nav-submenu-toggle;
   }
+}
 
-  body.clicky-nav {
-    @include nav.nav-clicky-base;
-  }
+body.clicky-nav {
+  @include nav.nav-clicky;
 }
 
 @include breakpoints.up("md") {
@@ -62,9 +62,6 @@ nav {
       nav {
         @include nav.nav-horizontal-dropdown(2rem, 0.5rem);
       }
-    }
-    &.clicky-nav {
-      @include nav.nav-clicky-desktop;
     }
   }
 }
