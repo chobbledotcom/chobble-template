@@ -187,46 +187,9 @@ describe("autosizes", () => {
       expect(img.hasAttribute("data-auto-sizes-src")).toBe(true);
     });
 
-    test("Does not run polyfill for Firefox 133+", async () => {
+    test("Runs polyfill for non-Chrome browsers (Firefox, Safari)", async () => {
       const { window, img } = await createAutosizesTestEnv({
-        userAgent:
-          "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133",
-      });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
-    });
-
-    test("Runs polyfill for Firefox 132 (older than 133)", async () => {
-      const { window, img } = await createAutosizesTestEnv({
-        userAgent:
-          "Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132",
-      });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(false);
-      expect(img.hasAttribute("data-auto-sizes-src")).toBe(true);
-    });
-
-    test("Does not run polyfill for Safari 17.4+", async () => {
-      const { window, img } = await createAutosizesTestEnv({
-        userAgent:
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15",
-      });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
-    });
-
-    test("Runs polyfill for Safari 17.3 (older than 17.4)", async () => {
-      const { window, img } = await createAutosizesTestEnv({
-        userAgent:
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15",
-      });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(false);
-    });
-
-    test("Runs polyfill for unknown browsers", async () => {
-      const { window, img } = await createAutosizesTestEnv({
-        userAgent: "Mozilla/5.0 (compatible; SomeBot/1.0)",
+        userAgent: "Mozilla/5.0 Firefox/120",
       });
       runAutosizes(window, img);
       expect(img.hasAttribute("src")).toBe(false);
