@@ -4,7 +4,7 @@ meta_description: Example site for the Chobble template - an Eleventy site, buil
 meta_title: Chobble Template | Eleventy Starter | AGPLv3
 
 layout: home.html
-permalink: /
+permalink: /home/
 eleventyNavigation:
   key: Home
   order: 1
