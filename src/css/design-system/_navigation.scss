@@ -55,6 +55,15 @@
         @include nav.nav-submenu-toggle;
       }
     }
+
+  }
+
+  // ===========================================================================
+  // CLICKY NAV (all breakpoints)
+  // ===========================================================================
+
+  &.clicky-nav {
+    @include nav.nav-clicky;
   }
 
   // ===========================================================================
@@ -82,10 +91,6 @@
       padding-block: $space-xs;
       margin-inline: $space-sm;
       border-radius: var(--border-radius);
-    }
-
-    &.clicky-nav {
-      @include nav.nav-clicky-desktop;
     }
   }
 }

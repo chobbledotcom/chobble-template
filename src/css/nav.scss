@@ -40,6 +40,10 @@ nav {
   }
 }
 
+body.clicky-nav {
+  @include nav.nav-clicky;
+}
+
 @include breakpoints.up("md") {
   .toggle,
   .toggle-label {
@@ -58,9 +62,6 @@ nav {
       nav {
         @include nav.nav-horizontal-dropdown(2rem, 0.5rem);
       }
-    }
-    &.clicky-nav {
-      @include nav.nav-clicky-desktop;
     }
   }
 }
