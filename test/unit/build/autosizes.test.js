@@ -299,6 +299,46 @@ describe("autosizes", () => {
     });
   });
 
+  describe("Picture source handling", () => {
+    const setupPictureTest = async (sourceSrcset) => {
+      const { window, img } = await createAutosizesTestEnv({
+        imgAttrs: { ...SRC_SRCSET_ATTRS },
+      });
+      const picture = window.document.createElement("picture");
+      const source = window.document.createElement("source");
+      source.setAttribute("type", "image/webp");
+      source.setAttribute("srcset", sourceSrcset);
+      source.setAttribute("sizes", "auto");
+      picture.appendChild(source);
+      img.parentElement.replaceChild(picture, img);
+      picture.appendChild(img);
+      return { window, img, source };
+    };
+
+    test("Strips srcset from source elements inside picture before FCP", async () => {
+      const srcset = "/img-300.webp 300w, /img-600.webp 600w";
+      const { window, img, source } = await setupPictureTest(srcset);
+
+      runAutosizes(window, img);
+
+      expect(source.hasAttribute("srcset")).toBe(false);
+      expect(source.getAttribute("data-auto-sizes-srcset")).toBe(srcset);
+    });
+
+    test("Restores source srcset after FCP", async () => {
+      const srcset = "/img-300.webp 300w";
+      const { window, img, source } = await setupPictureTest(srcset);
+
+      runAutosizes(window, img);
+      expect(source.hasAttribute("srcset")).toBe(false);
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(source.getAttribute("srcset")).toBe(srcset);
+      expect(source.hasAttribute("data-auto-sizes-srcset")).toBe(false);
+    });
+  });
+
   describe("Multiple images", () => {
     test("Defers all images with sizes=auto and loading=lazy", async () => {
       const { window } = await createAutosizesTestEnv({ imgAttrs: {} });
