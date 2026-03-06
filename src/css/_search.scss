@@ -9,6 +9,7 @@
   border: var(--border);
   border-radius: var(--border-radius);
   overflow: hidden;
+  min-width: fit-content;
 
   input[type="search"] {
     flex: 1;
@@ -19,6 +20,8 @@
     border: none;
     outline: none;
     min-width: 0;
+    width: 10rem;
+    margin: 0;
   }
 
   button {
@@ -31,5 +34,8 @@
     border: none;
     cursor: pointer;
     font: inherit;
+    margin: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 }
