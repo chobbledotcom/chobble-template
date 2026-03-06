@@ -24,7 +24,8 @@
  * SOFTWARE.
  *
  * Algorithm:
- * 1. polyfillAutoSizes(): Uses UA sniffing to detect Chrome < 126 (no native support).
+ * 1. polyfillAutoSizes(): Uses UA sniffing to detect browsers without native support
+ *    (Chrome < 126, Firefox < 133, Safari < 17.4).
  *    Avoids polyfilling if browser is too old (no PerformanceObserver/paint timing).
  * 2. Before FCP: Store src/srcset in data attributes and remove originals to prevent loading.
  * 3. After FCP: Calculate displayed width via getBoundingClientRect() and set sizes attribute,
@@ -32,6 +33,21 @@
  * 4. MutationObserver watches for new images with sizes="auto" and loading="lazy".
  */
 (() => {
+  const uaVersion = (pattern) => {
+    const match = navigator.userAgent.match(pattern);
+    return match ? Number.parseFloat(match[1]) : null;
+  };
+
+  const hasNativeAutoSizes = () => {
+    const chrome = uaVersion(/Chrome\/(\d+)/);
+    if (chrome !== null) return chrome >= 126;
+    const firefox = uaVersion(/Firefox\/(\d+)/);
+    if (firefox !== null) return firefox >= 133;
+    const safari = uaVersion(/Version\/(\d+\.\d+).*Safari/);
+    if (safari !== null) return safari >= 17.4;
+    return false;
+  };
+
   const polyfillAutoSizes = () => {
     if (
       !("PerformanceObserver" in window) ||
@@ -39,15 +55,7 @@
     ) {
       return false;
     }
-
-    const chromeMatch = navigator.userAgent.match(/Chrome\/(\d+)/);
-
-    if (!chromeMatch) {
-      return true;
-    }
-
-    const chromeVersion = Number.parseInt(chromeMatch[1], 10);
-    return chromeVersion < 126;
+    return !hasNativeAutoSizes();
   };
 
   if (!polyfillAutoSizes()) {
