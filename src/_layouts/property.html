@@ -4,16 +4,5 @@ blocks: false
 ---
 
 {%- for section in propertyOrder -%}
-  {%- if section == "property/reviews.html" -%}
-    {%- assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags -%}
-    {%- if reviews.size > 0 -%}
-      <section class="compact">
-        <div class="container">
-          {%- include "design-system/reviews-block.html", current_item: true -%}
-        </div>
-      </section>
-    {%- endif -%}
-  {%- else -%}
-    {%- include section -%}
-  {%- endif -%}
+  {%- include section -%}
 {%- endfor -%}
