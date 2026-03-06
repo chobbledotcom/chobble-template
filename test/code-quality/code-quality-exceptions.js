@@ -278,7 +278,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:86",
   "src/_lib/public/cart/cart.js:87",
-  "src/_lib/public/ui/autosizes.js:70",
+  "src/_lib/public/ui/autosizes.js:76",
 
   // src/_lib/utils - utility functions
   "src/_lib/utils/collection-utils.js:79", // CMS boundary: frontmatter array fields may be null before eleventyComputed

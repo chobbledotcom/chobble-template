@@ -27,8 +27,9 @@
  * 1. polyfillAutoSizes(): Uses UA sniffing to detect Chrome < 126 (no native support).
  *    Avoids polyfilling if browser is too old (no PerformanceObserver/paint timing).
  * 2. Before FCP: Store src/srcset in data attributes and remove originals to prevent loading.
- * 3. After FCP: Calculate displayed width via getBoundingClientRect() and set sizes attribute,
- *    then restore original src/srcset to trigger loading with correct sizes value.
+ *    Also strips srcset from <source> elements inside <picture> to prevent bypass.
+ * 3. After FCP: Calculate displayed width via getBoundingClientRect() and set sizes attribute
+ *    on both <img> and sibling <source> elements, then restore src/srcset.
  * 4. MutationObserver watches for new images with sizes="auto" and loading="lazy".
  */
 (() => {
@@ -66,10 +67,18 @@
     return `${width}px`;
   }
 
+  const getSibblingSources = (img) => {
+    const picture = img.closest("picture");
+    return picture ? Array.from(picture.querySelectorAll("source")) : [];
+  };
+
   function calculateAndSetSizes(img) {
     const sizes = elemWidth(img) ?? elemWidth(img.parentElement);
     if (sizes) {
       img.sizes = sizes;
+      for (const source of getSibblingSources(img)) {
+        source.setAttribute("sizes", sizes);
+      }
     }
   }
 
@@ -85,13 +94,22 @@
   const shouldProcessImage = (img) =>
     !img.complete && hasAutoSizesLazy(img) && isLocalSrc(img);
 
+  const storeAttr = (el, attr) => {
+    if (!el.hasAttribute(attr)) return;
+    el.setAttribute(`${prefix}${attr}`, el.getAttribute(attr));
+    el.removeAttribute(attr);
+  };
+
+  const restoreAttr = (el, attr) => {
+    const temp = `${prefix}${attr}`;
+    if (!el.hasAttribute(temp)) return;
+    el.setAttribute(attr, el.getAttribute(temp));
+    el.removeAttribute(temp);
+  };
+
   function storeAndRemoveAttributes(img) {
-    for (const attribute of attributes) {
-      if (img.hasAttribute(attribute)) {
-        img.setAttribute(`${prefix}${attribute}`, img.getAttribute(attribute));
-        img.removeAttribute(attribute);
-      }
-    }
+    for (const attr of attributes) storeAttr(img, attr);
+    for (const source of getSibblingSources(img)) storeAttr(source, "srcset");
   }
 
   const processImageForDefer = (img) => {
@@ -110,12 +128,8 @@
   };
 
   const restoreStoredAttributes = (img) => {
-    for (const attribute of attributes) {
-      const tempAttribute = `${prefix}${attribute}`;
-      if (!img.hasAttribute(tempAttribute)) continue;
-      img.setAttribute(attribute, img.getAttribute(tempAttribute));
-      img.removeAttribute(tempAttribute);
-    }
+    for (const attr of attributes) restoreAttr(img, attr);
+    for (const source of getSibblingSources(img)) restoreAttr(source, "srcset");
   };
 
   const restoreImageAttributes = () => {
