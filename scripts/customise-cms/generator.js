@@ -962,6 +962,34 @@ const collectUniqueBlocks = (blocks) => {
  * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
  * @returns {object} CMS blocks field configuration using type: block
  */
+/**
+ * Convert a block's field schema to CMS field, with special handling for
+ * markdown block types where "content" should be a rich-text/code field
+ * @param {string} blockType - The block type (e.g., "markdown", "split")
+ * @param {string} name - Field name
+ * @param {object} fieldSchema - Field schema from JSON
+ * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
+ * @returns {object} CMS field configuration
+ */
+const blockFieldToCmsField = (
+  blockType,
+  name,
+  fieldSchema,
+  useVisualEditor,
+) => {
+  if (blockType === "markdown" && name === "content") {
+    return createMarkdownField(
+      name,
+      fieldSchema.label || name,
+      useVisualEditor,
+      {
+        ...(fieldSchema.required && { required: true }),
+      },
+    );
+  }
+  return schemaFieldToCmsField(name, fieldSchema, useVisualEditor);
+};
+
 const generateBlocksField = (schema, useVisualEditor) => {
   const uniqueBlocks = collectUniqueBlocks(schema.blocks);
 
@@ -969,7 +997,7 @@ const generateBlocksField = (schema, useVisualEditor) => {
     name: type,
     label: blockTypeToLabel(type),
     fields: Object.entries(fields).map(([name, fieldSchema]) =>
-      schemaFieldToCmsField(name, fieldSchema, useVisualEditor),
+      blockFieldToCmsField(type, name, fieldSchema, useVisualEditor),
     ),
   }));
 
