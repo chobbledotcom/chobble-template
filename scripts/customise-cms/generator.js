@@ -889,6 +889,20 @@ const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
 });
 
 /**
+ * Valid field types for page layout schema fields.
+ * Use "markdown" for rich-text/code editor fields — never "rich-text" directly.
+ * @type {Set<string>}
+ */
+const VALID_SCHEMA_FIELD_TYPES = new Set([
+  "string",
+  "number",
+  "boolean",
+  "image",
+  "object",
+  "markdown",
+]);
+
+/**
  * Convert a page layout block schema field to a CMS field
  * @param {string} name - Field name
  * @param {object} fieldSchema - Field schema from JSON
@@ -896,6 +910,14 @@ const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
  * @returns {object} CMS field configuration
  */
 const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
+  if (!VALID_SCHEMA_FIELD_TYPES.has(fieldSchema.type)) {
+    throw new Error(
+      `Invalid field type "${fieldSchema.type}" for field "${name}". ` +
+        `Valid types: ${[...VALID_SCHEMA_FIELD_TYPES].join(", ")}. ` +
+        `Use "markdown" instead of "rich-text" for rich text editor fields.`,
+    );
+  }
+
   if (fieldSchema.type === "markdown") {
     return createMarkdownField(
       name,
@@ -962,34 +984,6 @@ const collectUniqueBlocks = (blocks) => {
  * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
  * @returns {object} CMS blocks field configuration using type: block
  */
-/**
- * Convert a block's field schema to CMS field, with special handling for
- * markdown block types where "content" should be a rich-text/code field
- * @param {string} blockType - The block type (e.g., "markdown", "split")
- * @param {string} name - Field name
- * @param {object} fieldSchema - Field schema from JSON
- * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} CMS field configuration
- */
-const blockFieldToCmsField = (
-  blockType,
-  name,
-  fieldSchema,
-  useVisualEditor,
-) => {
-  if (blockType === "markdown" && name === "content") {
-    return createMarkdownField(
-      name,
-      fieldSchema.label || name,
-      useVisualEditor,
-      {
-        ...(fieldSchema.required && { required: true }),
-      },
-    );
-  }
-  return schemaFieldToCmsField(name, fieldSchema, useVisualEditor);
-};
-
 const generateBlocksField = (schema, useVisualEditor) => {
   const uniqueBlocks = collectUniqueBlocks(schema.blocks);
 
@@ -997,7 +991,7 @@ const generateBlocksField = (schema, useVisualEditor) => {
     name: type,
     label: blockTypeToLabel(type),
     fields: Object.entries(fields).map(([name, fieldSchema]) =>
-      blockFieldToCmsField(type, name, fieldSchema, useVisualEditor),
+      schemaFieldToCmsField(name, fieldSchema, useVisualEditor),
     ),
   }));
 

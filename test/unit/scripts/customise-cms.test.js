@@ -563,6 +563,15 @@ describe("customise-cms generator", () => {
     expect(yaml).toContain("path: images");
   });
 
+  test("generatePagesYaml validates page layout field types", () => {
+    // Ensures page layout JSON files don't use invalid types like "rich-text"
+    // (should use "markdown" instead — the generator converts to rich-text/code)
+    const config = createTestConfig({
+      features: { use_visual_editor: true },
+    });
+    expect(() => generatePagesYaml(config)).not.toThrow();
+  });
+
   test("generatePagesYaml excludes homepage when customHomePage is true", () => {
     const yaml = generatePagesYaml(createTestConfig({ customHomePage: true }));
 

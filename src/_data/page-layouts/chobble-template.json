@@ -29,7 +29,7 @@
         "video_id": { "type": "string", "label": "Video Embed URL", "required": true },
         "video_title": { "type": "string", "label": "Video Title" },
         "aspect_ratio": { "type": "string", "label": "Aspect Ratio" },
-        "content": { "type": "rich-text", "label": "Overlay Content" }
+        "content": { "type": "markdown", "label": "Overlay Content" }
       }
     },
     {
@@ -75,7 +75,7 @@
         "reveal_left": { "type": "string", "label": "Reveal Left Animation" },
         "reveal_right": { "type": "string", "label": "Reveal Right Animation" },
         "left_title": { "type": "string", "label": "Left Title" },
-        "left_content": { "type": "rich-text", "label": "Left Content" },
+        "left_content": { "type": "markdown", "label": "Left Content" },
         "left_button": {
           "type": "object",
           "label": "Left Button",
@@ -86,7 +86,7 @@
           }
         },
         "right_title": { "type": "string", "label": "Right Title" },
-        "right_content": { "type": "rich-text", "label": "Right Content" }
+        "right_content": { "type": "markdown", "label": "Right Content" }
       }
     },
     {
@@ -96,7 +96,7 @@
         "title": { "type": "string", "label": "Title" },
         "reverse": { "type": "boolean", "label": "Reverse Layout" },
         "reveal_content": { "type": "string", "label": "Reveal Animation" },
-        "content": { "type": "rich-text", "label": "Content" },
+        "content": { "type": "markdown", "label": "Content" },
         "button": {
           "type": "object",
           "label": "Button",
@@ -115,7 +115,7 @@
         "figure_filename": { "type": "string", "label": "Figure Code Filename" },
         "figure_code": { "type": "string", "label": "Figure Code Content" },
         "figure_language": { "type": "string", "label": "Figure Code Language" },
-        "figure_html": { "type": "rich-text", "label": "Figure HTML Content" }
+        "figure_html": { "type": "markdown", "label": "Figure HTML Content" }
       }
     },
     {
@@ -146,7 +146,7 @@
         "title": { "type": "string", "label": "Title" },
         "reverse": { "type": "boolean", "label": "Reverse Layout" },
         "reveal_content": { "type": "string", "label": "Reveal Animation" },
-        "content": { "type": "rich-text", "label": "Content" },
+        "content": { "type": "markdown", "label": "Content" },
         "figure_type": { "type": "string", "label": "Figure Type (image, video, code, html)" }
       }
     },
@@ -175,7 +175,7 @@
         "title": { "type": "string", "label": "Title" },
         "reverse": { "type": "boolean", "label": "Reverse Layout" },
         "reveal_content": { "type": "string", "label": "Reveal Animation" },
-        "content": { "type": "rich-text", "label": "Content" },
+        "content": { "type": "markdown", "label": "Content" },
         "figure_type": { "type": "string", "label": "Figure Type (image, video, code, html)" }
       }
     },
@@ -187,7 +187,7 @@
         "reveal_left": { "type": "string", "label": "Reveal Left Animation" },
         "reveal_right": { "type": "string", "label": "Reveal Right Animation" },
         "left_title": { "type": "string", "label": "Left Title" },
-        "left_content": { "type": "rich-text", "label": "Left Content" },
+        "left_content": { "type": "markdown", "label": "Left Content" },
         "left_button": {
           "type": "object",
           "label": "Left Button",
@@ -197,21 +197,21 @@
             "variant": { "type": "string", "label": "Variant" }
           }
         },
-        "right_content": { "type": "rich-text", "label": "Right Content" }
+        "right_content": { "type": "markdown", "label": "Right Content" }
       }
     },
     {
       "type": "items",
       "fields": {
         "collection": { "type": "string", "label": "Collection Name", "required": true },
-        "intro": { "type": "rich-text", "label": "Intro Content (Markdown)" },
+        "intro": { "type": "markdown", "label": "Intro Content (Markdown)" },
         "horizontal": { "type": "boolean", "label": "Horizontal Slider" }
       }
     },
     {
       "type": "contact_form",
       "fields": {
-        "content": { "type": "rich-text", "label": "Content" }
+        "content": { "type": "markdown", "label": "Content" }
       }
     },
     {
