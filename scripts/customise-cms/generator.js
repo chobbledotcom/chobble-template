@@ -889,6 +889,20 @@ const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
 });
 
 /**
+ * Valid field types for page layout schema fields.
+ * Use "markdown" for rich-text/code editor fields — never "rich-text" directly.
+ * @type {Set<string>}
+ */
+const VALID_SCHEMA_FIELD_TYPES = new Set([
+  "string",
+  "number",
+  "boolean",
+  "image",
+  "object",
+  "markdown",
+]);
+
+/**
  * Convert a page layout block schema field to a CMS field
  * @param {string} name - Field name
  * @param {object} fieldSchema - Field schema from JSON
@@ -896,6 +910,14 @@ const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
  * @returns {object} CMS field configuration
  */
 const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
+  if (!VALID_SCHEMA_FIELD_TYPES.has(fieldSchema.type)) {
+    throw new Error(
+      `Invalid field type "${fieldSchema.type}" for field "${name}". ` +
+        `Valid types: ${[...VALID_SCHEMA_FIELD_TYPES].join(", ")}. ` +
+        `Use "markdown" instead of "rich-text" for rich text editor fields.`,
+    );
+  }
+
   if (fieldSchema.type === "markdown") {
     return createMarkdownField(
       name,
