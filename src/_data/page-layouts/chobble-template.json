@@ -230,6 +230,12 @@
           }
         }
       }
+    },
+    {
+      "type": "markdown",
+      "fields": {
+        "content": { "type": "markdown", "label": "Content", "required": true }
+      }
     }
   ]
 }
