@@ -896,7 +896,7 @@ const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
  * @returns {object} CMS field configuration
  */
 const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
-  if (fieldSchema.type === "markdown" || fieldSchema.type === "rich-text") {
+  if (fieldSchema.type === "markdown") {
     return createMarkdownField(
       name,
       fieldSchema.label || name,
