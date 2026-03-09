@@ -4,7 +4,6 @@ const DEFAULTS = frozenObject({
   sticky_mobile_nav: true,
   horizontal_nav: true,
   collapse_mobile_menu: false,
-  navigation_is_clicky: false,
   homepage_news: true,
   homepage_products: true,
   show_breadcrumbs: false,

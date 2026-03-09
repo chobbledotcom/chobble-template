@@ -84,8 +84,5 @@
       border-radius: var(--border-radius);
     }
 
-    &.clicky-nav {
-      @include nav.nav-clicky-desktop;
-    }
   }
 }

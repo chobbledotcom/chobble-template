@@ -51,7 +51,6 @@ describe("style-bundle", () => {
     const baseConfig = {
       sticky_mobile_nav: false,
       horizontal_nav: true,
-      navigation_is_clicky: false,
     };
 
     test("includes layout name without .html extension", () => {
@@ -88,19 +87,6 @@ describe("style-bundle", () => {
       expect(result).not.toContain("horizontal-nav");
     });
 
-    test("adds clicky-nav class when enabled", () => {
-      const result = getBodyClasses("base.html", {
-        ...baseConfig,
-        navigation_is_clicky: true,
-      });
-      expect(result).toContain("clicky-nav");
-    });
-
-    test("does not add clicky-nav class when disabled", () => {
-      const result = getBodyClasses("base.html", baseConfig);
-      expect(result).not.toContain("clicky-nav");
-    });
-
     test("auto-detects hasRightContent from filesystem", () => {
       // The test runs from the project root where src/snippets/right-content.md exists
       const result = getBodyClasses("base.html", baseConfig);
@@ -120,12 +106,10 @@ describe("style-bundle", () => {
       const result = getBodyClasses("base.html", {
         sticky_mobile_nav: true,
         horizontal_nav: true,
-        navigation_is_clicky: true,
       });
       expect(result).toContain("base");
       expect(result).toContain("sticky-mobile-nav");
       expect(result).toContain("horizontal-nav");
-      expect(result).toContain("clicky-nav");
     });
   });
 

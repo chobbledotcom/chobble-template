@@ -14,7 +14,6 @@ describe("config", () => {
       "sticky_mobile_nav",
       "horizontal_nav",
       "collapse_mobile_menu",
-      "navigation_is_clicky",
       "homepage_news",
       "homepage_products",
       "show_breadcrumbs",
