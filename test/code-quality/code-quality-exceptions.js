@@ -218,6 +218,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/public/ui/search.js:loadPagefind",
   "src/_lib/public/ui/search.js:readQueryParam",
   "src/_lib/public/ui/search.js:handleSubmit",
+  "src/_lib/public/ui/nav-dropdown.js:initNavDropdown",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/block-schema.js:BLOCK_SCHEMAS", // Schema definitions exported for test verification

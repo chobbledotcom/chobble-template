@@ -36,26 +36,46 @@
   }
 }
 
-// Shared caret styles for dropdown navigation
-// Used by nav-submenu-toggle and nav-horizontal-dropdown
+// Chevron pseudo-element shared by all caret variants
+@mixin nav-caret-chevron {
+  content: "";
+  border: solid var(--color-link);
+  border-width: 0 2px 2px 0;
+  display: inline-block;
+  padding: 3px;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+@mixin nav-caret-rotated {
+  transform: rotate(-45deg);
+}
+
+// Caret on <a> links (hover-mode horizontal dropdowns)
 @mixin nav-caret {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
 
   &::after {
-    content: "";
-    border: solid var(--color-link);
-    border-width: 0 2px 2px 0;
-    display: inline-block;
-    padding: 3px;
-    transform: rotate(45deg);
-    transition: transform 0.2s ease;
+    @include nav-caret-chevron;
   }
 }
 
-@mixin nav-caret-rotated {
-  transform: rotate(-45deg);
+// Unstyled button used as click target for expanding submenus
+@mixin nav-caret-button {
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+
+  &::after {
+    @include nav-caret-chevron;
+  }
 }
 
 @mixin nav-thumbnails($gap) {
@@ -217,26 +237,38 @@
 // -----------------------------------------------------------------------------
 
 @mixin nav-submenu-toggle {
-  // First-level items with children: add caret to link
-  > ul > li:has(> ul) > a {
-    @include nav-caret;
+  // Items with children: row layout for link + caret button side by side
+  > ul > li:has(> ul) {
+    flex-wrap: wrap;
+
+    > a {
+      flex: 1;
+
+      // Hide the CSS caret from hover mode; the button replaces it
+      &::after {
+        display: none;
+      }
+    }
   }
 
-  > ul > li.expanded > a::after {
+  // JS-injected caret toggle button
+  .nav-caret {
+    @include nav-caret-button;
+  }
+
+  > ul > li.expanded > .nav-caret::after {
     @include nav-caret-rotated;
   }
 
-  // Hide submenus by default, show when expanded or has active child
+  // Hide submenus by default, show when expanded
   > ul > li:has(> ul) > ul {
     display: none;
+    flex-basis: 100%;
   }
 
   > ul > li.expanded > ul {
     display: flex;
   }
-
-  // Active parent styling is handled via .expanded class set by JS on click.
-  // Dropdowns always start collapsed on page load.
 }
 
 // -----------------------------------------------------------------------------
