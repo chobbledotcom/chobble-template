@@ -106,6 +106,14 @@ export interface PagesCMSTab {
 }
 
 /**
+ * @typedef {Object} PagesCMSProduct
+ * @property {string} ?product - Product
+ */
+export interface PagesCMSProduct {
+  product?: string;
+}
+
+/**
  * @typedef {Object} PagesCMSOpeningTime
  * @property {string} day - Day
  * @property {string} hours - Hours
