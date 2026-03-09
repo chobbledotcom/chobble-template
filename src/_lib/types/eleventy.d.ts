@@ -99,6 +99,8 @@ export type CategoryItemData = BaseItemData & {
   menus?: string[];
   /** Parent category slug for hierarchical categories */
   parent?: string;
+  /** Explicit product references for this category */
+  products?: {product: string}[];
   /** Search keywords for this category (guaranteed [] by 11tydata boundary) */
   keywords: string[];
 };
@@ -115,6 +117,8 @@ export type EventItemData = BaseItemData & {
   event_location?: string;
   /** iCal URL */
   ical_url?: string;
+  /** Explicit product references for this event */
+  products?: {product: string}[];
 };
 
 /**
