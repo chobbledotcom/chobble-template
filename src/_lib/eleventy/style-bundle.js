@@ -40,7 +40,6 @@ const getBodyClasses = (layout, siteConfig, extraClasses = []) => {
     siteConfig.sticky_mobile_nav ? "sticky-mobile-nav" : null,
     siteConfig.horizontal_nav !== false ? "horizontal-nav" : "left-nav",
     detectRightContent() ? "two-columns" : "one-column",
-    siteConfig.navigation_is_clicky ? "clicky-nav" : null,
     ...extraClasses,
   ];
 

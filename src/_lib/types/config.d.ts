@@ -46,7 +46,6 @@ export type SiteConfig = {
   sticky_mobile_nav: boolean;
   horizontal_nav: boolean;
   collapse_mobile_menu: boolean;
-  navigation_is_clicky: boolean;
   homepage_news: boolean;
   homepage_products: boolean;
   externalLinksTargetBlank: boolean;

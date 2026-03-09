@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import { join } from "node:path";
-import config from "#data/config.js";
 import { getBySlug } from "#eleventy/collection-lookup.js";
 import { PAGES_DIR } from "#lib/paths.js";
 import { getIcon } from "#media/iconify.js";
@@ -43,16 +42,7 @@ const renderNavEntry = async (
   };
   const titleHtml = await createHtml("span", {}, entry.title);
   const anchor = await createHtml("a", anchorAttrs, thumbnailHtml + titleHtml);
-  const showCaret =
-    isRootLevel && childrenHtml && config().navigation_is_clicky;
-  const caretHtml = showCaret
-    ? await createHtml(
-        "button",
-        { class: "nav-caret", "aria-label": `Toggle ${entry.title} submenu` },
-        "",
-      )
-    : "";
-  return createHtml("li", {}, anchor + caretHtml + childrenHtml);
+  return createHtml("li", {}, anchor + childrenHtml);
 };
 
 /** Renders the search box list item for the navigation */
