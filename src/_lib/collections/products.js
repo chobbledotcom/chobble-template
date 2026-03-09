@@ -47,7 +47,7 @@ const indexBySlug = createIndexer((product) =>
  *
  * @param {ProductCollectionItem[]} reverseProducts - Products from reverse lookup, already sorted
  * @param {ProductCollectionItem[]} allProducts - All products (for slug lookups)
- * @param {string[] | undefined} [explicitProductRefs] - Product slugs/paths from the page's frontmatter
+ * @param {{product: string}[] | undefined} [explicitProductRefs] - Product references from the page's frontmatter
  * @returns {ProductCollectionItem[]} Merged product list
  */
 const mergeWithExplicitProducts = (
@@ -59,7 +59,7 @@ const mergeWithExplicitProducts = (
 
   const slugIndex = indexBySlug(allProducts);
   const explicitSlugs = explicitProductRefs.flatMap((ref) => {
-    const slug = normaliseSlug(ref);
+    const slug = normaliseSlug(ref.product);
     return slug ? [slug] : [];
   });
 
@@ -123,7 +123,7 @@ const createProductsCollection = (collectionApi) =>
  * products explicitly listed in the page's frontmatter products field.
  *
  * @param {(products: ProductCollectionItem[]) => Record<string, ProductCollectionItem[]>} indexer
- * @returns {(products: ProductCollectionItem[], slug: string, explicitProductRefs?: string[]) => ProductCollectionItem[]}
+ * @returns {(products: ProductCollectionItem[], slug: string, explicitProductRefs?: {product: string}[]) => ProductCollectionItem[]}
  */
 const createBidirectionalFilter =
   (indexer) => (products, slug, explicitProductRefs) =>

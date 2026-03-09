@@ -326,8 +326,8 @@ describe("products", () => {
       const testProducts = [widgetA(), widgetB()];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
-        "widget-a",
-        "widget-b",
+        { product: "widget-a" },
+        { product: "widget-b" },
       ]);
 
       expectResultTitles(result, ["Widget A", "Widget B"]);
@@ -338,7 +338,7 @@ describe("products", () => {
       const testProducts = [widgetA(["widgets"]), widgetB()];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
-        "widget-b",
+        { product: "widget-b" },
       ]);
 
       expectResultTitles(result, ["Widget B", "Widget A"]);
@@ -349,8 +349,8 @@ describe("products", () => {
       const testProducts = [widgetA(["widgets"]), widgetB(["widgets"])];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
-        "widget-b",
-        "widget-a",
+        { product: "widget-b" },
+        { product: "widget-a" },
       ]);
 
       // Explicit order wins: widget-b first, widget-a second
@@ -366,9 +366,9 @@ describe("products", () => {
       ];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
-        "gamma",
-        "alpha",
-        "beta",
+        { product: "gamma" },
+        { product: "alpha" },
+        { product: "beta" },
       ]);
 
       expectResultTitles(result, ["Gamma", "Alpha", "Beta"]);
@@ -393,7 +393,7 @@ describe("products", () => {
       ];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
-        "explicit-one",
+        { product: "explicit-one" },
       ]);
 
       expectResultTitles(result, ["Explicit One", "Reverse A", "Reverse B"]);
@@ -426,7 +426,7 @@ describe("products", () => {
       const { filters } = setupProductsConfig();
 
       const result = filters.getProductsByCategory([widgetA()], "widgets", [
-        "products/widget-a.md",
+        { product: "products/widget-a.md" },
       ]);
 
       expectResultTitles(result, ["Widget A"]);
@@ -436,8 +436,8 @@ describe("products", () => {
       const { filters } = setupProductsConfig();
 
       const result = filters.getProductsByCategory([widgetA()], "widgets", [
-        "nonexistent",
-        "widget-a",
+        { product: "nonexistent" },
+        { product: "widget-a" },
       ]);
 
       expectResultTitles(result, ["Widget A"]);
@@ -456,7 +456,7 @@ describe("products", () => {
       const result = filters.getProductsByEvent(
         [productA(), productB()],
         "summer-sale",
-        ["product-a", "product-b"],
+        [{ product: "product-a" }, { product: "product-b" }],
       );
 
       expectResultTitles(result, ["Product A", "Product B"]);
@@ -468,7 +468,7 @@ describe("products", () => {
       const result = filters.getProductsByEvent(
         [productA(["summer-sale"]), productB()],
         "summer-sale",
-        ["product-b"],
+        [{ product: "product-b" }],
       );
 
       expectResultTitles(result, ["Product B", "Product A"]);
@@ -480,7 +480,7 @@ describe("products", () => {
       const result = filters.getProductsByEvent(
         [productA(["summer-sale"]), productB(["summer-sale"])],
         "summer-sale",
-        ["product-b", "product-a"],
+        [{ product: "product-b" }, { product: "product-a" }],
       );
 
       expectResultTitles(result, ["Product B", "Product A"]);
