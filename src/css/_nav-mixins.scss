@@ -270,17 +270,13 @@
   }
 }
 
-@mixin nav-horizontal-dropdown($gap, $sub-gap) {
+@mixin nav-horizontal-layout($gap, $sub-gap) {
   margin-bottom: math.div($gap, 2);
   justify-content: center;
 
   // First-level items with children: add caret to link
   > ul > li:has(> ul) > a {
     @include nav-caret;
-  }
-
-  > ul > li:hover > a::after {
-    @include nav-caret-rotated;
   }
 
   ul {
@@ -342,16 +338,20 @@
               height: auto;
             }
           }
-
-          &:hover > ul {
-            display: flex;
-          }
         }
       }
-
-      &:hover > ul {
-        display: flex;
-      }
     }
+  }
+}
+
+// Hover-only interaction rules for horizontal dropdowns.
+// Apply under .nav-can-hover so touch devices use click-toggle instead.
+@mixin nav-hover-dropdowns {
+  > ul > li:hover > a::after {
+    @include nav-caret-rotated;
+  }
+
+  ul li:hover > ul {
+    display: flex;
   }
 }
