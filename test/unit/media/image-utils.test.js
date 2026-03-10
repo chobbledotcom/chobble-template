@@ -99,6 +99,14 @@ describe("image-utils", () => {
       expect(imgAttributes.decoding).toBe("async");
     });
 
+    test("falls back to lazy when loading is a non-string truthy value", () => {
+      const { imgAttributes } = prepareImageAttributes({
+        alt: "Photo",
+        loading: {},
+      });
+      expect(imgAttributes.loading).toBe("lazy");
+    });
+
     test("returns empty picture attributes when classes is null", () => {
       const { pictureAttributes } = prepareImageAttributes({
         alt: "Photo",

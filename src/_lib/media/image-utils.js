@@ -63,7 +63,7 @@ const buildImgAttributes = ({
   ...(src && { src }),
   alt,
   sizes: sizes || DEFAULT_SIZE,
-  loading: loading || "lazy",
+  loading: typeof loading === "string" ? loading : "lazy",
   decoding: "async",
   ...(classes && { class: classes }),
 });
