@@ -60,10 +60,7 @@ const mergeWithExplicitProducts = (
 
   const slugIndex = indexBySlug(allProducts);
   const explicitSlugs = unique(
-    explicitProductRefs.flatMap((ref) => {
-      const slug = normaliseSlug(ref.product);
-      return slug ? [slug] : [];
-    }),
+    explicitProductRefs.map((ref) => normaliseSlug(ref.product)),
   );
 
   const explicitProducts = explicitSlugs
