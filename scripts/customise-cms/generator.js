@@ -617,25 +617,16 @@ const getValidatedViewConfig = (collectionName, config, fieldContext) => {
 };
 
 /**
- * Collections that use filename-based primary key
+ * Collections that use the default date-based filename pattern
  * @type {string[]}
  */
-const FILENAME_COLLECTIONS = [
-  "categories",
-  "team",
-  "events",
-  "locations",
-  "properties",
-  "guide-categories",
-  "guide-pages",
-  "snippets",
-];
+const DATE_FILENAME_COLLECTIONS = ["news"];
 
 /**
- * Check if a collection uses filename-based primary key
+ * Check if a collection uses filename-based primary key (all except date-based ones)
  * @type {(name: string) => boolean}
  */
-const hasFilenameConfig = memberOf(FILENAME_COLLECTIONS);
+const hasFilenameConfig = (name) => !memberOf(DATE_FILENAME_COLLECTIONS)(name);
 
 /**
  * Helper to get data path based on whether src folder exists
