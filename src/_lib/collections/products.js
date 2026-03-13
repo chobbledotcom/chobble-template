@@ -17,6 +17,7 @@ import {
   findDuplicate,
   memberOf,
   notMemberOf,
+  unique,
 } from "#toolkit/fp/array.js";
 import {
   createArrayFieldIndexer,
@@ -58,10 +59,9 @@ const mergeWithExplicitProducts = (
   if (!explicitProductRefs?.length) return reverseProducts;
 
   const slugIndex = indexBySlug(allProducts);
-  const explicitSlugs = explicitProductRefs.flatMap((ref) => {
-    const slug = normaliseSlug(ref.product);
-    return slug ? [slug] : [];
-  });
+  const explicitSlugs = unique(
+    explicitProductRefs.map((ref) => normaliseSlug(ref.product)),
+  );
 
   const explicitProducts = explicitSlugs
     .map((slug) => slugIndex[slug]?.[0])

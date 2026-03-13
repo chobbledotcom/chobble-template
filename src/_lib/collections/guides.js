@@ -4,8 +4,8 @@ import { normaliseSlug } from "#utils/slug-utils.js";
 
 /** Index guides by category for O(1) lookups, cached per guides array */
 const indexByGuideCategory = createIndexer((page) => {
-  const category = normaliseSlug(page.data["guide-category"]);
-  return category ? [category] : [];
+  const raw = page.data["guide-category"];
+  return raw ? [normaliseSlug(raw)] : [];
 });
 
 /** Index guide categories by property for O(1) lookups */

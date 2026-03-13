@@ -106,12 +106,14 @@ describe("news", () => {
     expect(normaliseSlug("jane-doe.md")).toBe("jane-doe");
   });
 
-  test("Returns null for null input", () => {
-    expect(normaliseSlug(null)).toBe(null);
+  test("Throws on null input", () => {
+    expect(() => normaliseSlug(null)).toThrow("requires a non-empty string");
   });
 
-  test("Returns undefined for undefined input", () => {
-    expect(normaliseSlug(undefined)).toBe(undefined);
+  test("Throws on undefined input", () => {
+    expect(() => normaliseSlug(undefined)).toThrow(
+      "requires a non-empty string",
+    );
   });
 
   // Integration tests with test site

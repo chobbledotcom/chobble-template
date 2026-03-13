@@ -163,7 +163,7 @@ const createCategoriesCollection = (collectionApi) => {
   const images = buildCategoryPropertyMap(categories, products, "header_image");
   const productThumbnails = buildProductThumbnailMap(products);
   const childrenByParent = groupBy(categories, (c) =>
-    normaliseSlug(c.data.parent),
+    c.data.parent ? normaliseSlug(c.data.parent) : null,
   );
   const ownImages = snapshotOwnImages(categories);
   const resolveThumbnail = createThumbnailResolver(
