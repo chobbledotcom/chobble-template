@@ -131,6 +131,35 @@ describe("category product ordering", () => {
       },
     );
   });
+
+  test("duplicate explicit product refs only appear once", async () => {
+    const category = {
+      path: "categories/widgets.md",
+      frontmatter: {
+        title: "Widgets",
+        products: [
+          { product: "alpha" },
+          { product: "beta" },
+          { product: "alpha" },
+        ],
+      },
+      content: "",
+    };
+
+    await withTestSite(
+      {
+        files: [
+          category,
+          standaloneProduct("alpha", "Alpha", 1),
+          standaloneProduct("beta", "Beta", 2),
+        ],
+      },
+      async (site) => {
+        const titles = await getCategoryProductTitles(site, "widgets");
+        expect(titles).toEqual(["Alpha", "Beta"]);
+      },
+    );
+  });
 });
 
 // ============================================
@@ -238,6 +267,129 @@ describe("event product ordering", () => {
       async (site) => {
         const titles = await getEventProductTitles(site, "summer-expo");
         expect(titles).toEqual(["Zulu", "Alpha"]);
+      },
+    );
+  });
+
+  test("date-prefixed event file preserves explicit product order", async () => {
+    // Event files often have date prefixes (e.g. 2026-06-19-summer-expo.md).
+    // Eleventy strips the date prefix from page.fileSlug → "summer-expo".
+    // The explicit products array should still determine display order.
+    const event = {
+      path: "events/2026-06-19-summer-expo.md",
+      frontmatter: {
+        title: "Summer Expo",
+        event_date: "2026-06-19",
+        products: [
+          { product: "gamma" },
+          { product: "alpha" },
+          { product: "beta" },
+        ],
+      },
+      content: "",
+    };
+
+    await withTestSite(
+      {
+        files: [
+          event,
+          eventStandaloneProduct("alpha", "Alpha", 1),
+          eventStandaloneProduct("beta", "Beta", 2),
+          eventStandaloneProduct("gamma", "Gamma", 3),
+        ],
+      },
+      async (site) => {
+        // Eleventy strips date prefix: permalink is /events/summer-expo/
+        const titles = await getEventProductTitles(site, "summer-expo");
+        expect(titles).toEqual(["Gamma", "Alpha", "Beta"]);
+      },
+    );
+  });
+
+  test("date-prefixed event file finds reverse-lookup products", async () => {
+    // Event file: 2026-06-19-summer-expo.md (fileSlug → "summer-expo")
+    // Products reference "summer-expo" in their events field.
+    const event = {
+      path: "events/2026-06-19-summer-expo.md",
+      frontmatter: {
+        title: "Summer Expo",
+        event_date: "2026-06-19",
+        products: [{ product: "explicit-one" }],
+      },
+      content: "",
+    };
+
+    await withTestSite(
+      {
+        files: [
+          event,
+          eventStandaloneProduct("explicit-one", "Explicit One", 0),
+          eventReverseProduct("reverse-a", "Reverse A", 1),
+          eventReverseProduct("reverse-b", "Reverse B", 2),
+        ],
+      },
+      async (site) => {
+        const titles = await getEventProductTitles(site, "summer-expo");
+        expect(titles).toEqual(["Explicit One", "Reverse A", "Reverse B"]);
+      },
+    );
+  });
+
+  test("duplicate explicit product refs only appear once", async () => {
+    // Same product listed twice in the explicit array — should appear only once.
+    const event = {
+      path: "events/summer-expo.md",
+      frontmatter: {
+        title: "Summer Expo",
+        event_date: "2026-06-19",
+        products: [
+          { product: "alpha" },
+          { product: "beta" },
+          { product: "alpha" },
+        ],
+      },
+      content: "",
+    };
+
+    await withTestSite(
+      {
+        files: [
+          event,
+          eventStandaloneProduct("alpha", "Alpha", 1),
+          eventStandaloneProduct("beta", "Beta", 2),
+        ],
+      },
+      async (site) => {
+        const titles = await getEventProductTitles(site, "summer-expo");
+        expect(titles).toEqual(["Alpha", "Beta"]);
+      },
+    );
+  });
+
+  test("product in both explicit list and reverse-lookup appears only in explicit position", async () => {
+    // "widget-a" is both explicitly listed AND reverse-references the event.
+    // It should appear once, in its explicit position (second), not duplicated.
+    const event = {
+      path: "events/summer-expo.md",
+      frontmatter: {
+        title: "Summer Expo",
+        event_date: "2026-06-19",
+        products: [{ product: "widget-b" }, { product: "widget-a" }],
+      },
+      content: "",
+    };
+
+    await withTestSite(
+      {
+        files: [
+          event,
+          eventReverseProduct("widget-a", "Widget A", 1),
+          eventReverseProduct("widget-b", "Widget B", 2),
+        ],
+      },
+      async (site) => {
+        const titles = await getEventProductTitles(site, "summer-expo");
+        expect(titles).toEqual(["Widget B", "Widget A"]);
       },
     );
   });
