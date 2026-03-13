@@ -64,8 +64,8 @@ export const configureCollectionUtils = (_eleventyConfig) => {
  */
 export const createFieldIndexer = (field) =>
   groupByWithCache((item) => {
-    const key = normaliseSlug(item.data[field]);
-    return key ? [key] : [];
+    const value = item.data[field];
+    return value ? [normaliseSlug(value)] : [];
   });
 
 /**

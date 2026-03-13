@@ -16,6 +16,10 @@ import { normaliseSlug } from "#utils/slug-utils.js";
 
 /** @typedef {import("#lib/types").LocationCollectionItem} LocationCollectionItem */
 
+/** @param {LocationCollectionItem} loc */
+const parentSlug = (loc) =>
+  loc.data.parentLocation ? normaliseSlug(loc.data.parentLocation) : null;
+
 /**
  * Get root locations (locations without a parent).
  *
@@ -36,9 +40,7 @@ const getRootLocations = (locations) =>
  */
 const getSiblingLocations = (locations, parentLocationSlug, currentUrl) =>
   pipe(
-    filter(
-      (loc) => normaliseSlug(loc.data.parentLocation) === parentLocationSlug,
-    ),
+    filter((loc) => parentSlug(loc) === parentLocationSlug),
     filter((loc) => loc.url !== currentUrl),
   )(locations);
 
@@ -63,9 +65,7 @@ const createLocationsCollection = (collectionApi) => {
   const locations = getLocationsFromApi(collectionApi);
   if (locations.length === 0) return [];
 
-  const childrenByParent = groupBy(locations, (loc) =>
-    normaliseSlug(loc.data.parentLocation),
-  );
+  const childrenByParent = groupBy(locations, parentSlug);
   const resolveThumbnail = createLocationThumbnailResolver(childrenByParent);
 
   return locations.map((location) => {

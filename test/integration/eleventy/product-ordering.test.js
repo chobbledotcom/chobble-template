@@ -2,162 +2,122 @@ import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
 
 // ============================================
+// Shared helpers
+// ============================================
+
+/** Product with given categories (default: none). */
+const product = (slug, title, order = 0, extras = {}) => ({
+  path: `products/${slug}.md`,
+  frontmatter: { title, order, categories: [], ...extras },
+  content: "",
+});
+
+/** Build a products frontmatter array from slug strings. */
+const productRefs = (slugs) => slugs.map((p) => ({ product: p }));
+
+/** Build a test category file with optional explicit products. */
+const category = (slug, title, products) => ({
+  path: `categories/${slug}.md`,
+  frontmatter: {
+    title,
+    ...(products ? { products: productRefs(products) } : {}),
+  },
+  content: "",
+});
+
+const EXPO_DATE = "2026-06-19";
+
+/** Build a test event file with optional explicit products. */
+const eventWithProducts = (slug, title, products) => ({
+  path: `events/${slug}.md`,
+  frontmatter: {
+    title,
+    event_date: EXPO_DATE,
+    ...(products ? { products: productRefs(products) } : {}),
+  },
+  content: "",
+});
+
+/**
+ * Assert that a page renders products in the expected order.
+ * Builds a test site from files, navigates to pageUrl, and checks .items h3 text.
+ */
+const expectProductOrder = async (files, pageUrl, expectedTitles) => {
+  await withTestSite({ files }, async (site) => {
+    const doc = await site.getDoc(pageUrl);
+    const headings = [...doc.querySelectorAll(".items h3")];
+    const titles = headings.map((h) => h.textContent.trim());
+    expect(titles).toEqual(expectedTitles);
+  });
+};
+
+const CATEGORY_URL = "/categories/widgets/index.html";
+const EVENT_URL = "/events/summer-expo/index.html";
+
+// ============================================
 // Category product ordering
 // ============================================
 
-/** Product that reverse-references the "widgets" category. */
-const categoryReverseProduct = (slug, title, order) => ({
-  path: `products/${slug}.md`,
-  frontmatter: { title, order, categories: ["widgets"] },
-  content: "",
-});
-
-/** Product that does NOT reference any category in its own frontmatter. */
-const standaloneProduct = (slug, title, order = 0) => ({
-  path: `products/${slug}.md`,
-  frontmatter: { title, order, categories: [] },
-  content: "",
-});
-
-/** Extract ordered product titles from a rendered category page. */
-const getCategoryProductTitles = async (site, categorySlug) => {
-  const doc = await site.getDoc(`/categories/${categorySlug}/index.html`);
-  const headings = [...doc.querySelectorAll(".items h3")];
-  return headings.map((h) => h.textContent.trim());
-};
-
 describe("category product ordering", () => {
   test("explicit products array determines display order", async () => {
-    // Category lists products in a specific order (gamma, alpha, beta)
-    // which differs from both alphabetical and numeric `order` sorting.
-    const category = {
-      path: "categories/widgets.md",
-      frontmatter: {
-        title: "Widgets",
-        products: [
-          { product: "gamma" },
-          { product: "alpha" },
-          { product: "beta" },
-        ],
-      },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          category,
-          standaloneProduct("alpha", "Alpha", 1),
-          standaloneProduct("beta", "Beta", 2),
-          standaloneProduct("gamma", "Gamma", 3),
-        ],
-      },
-      async (site) => {
-        const titles = await getCategoryProductTitles(site, "widgets");
-        expect(titles).toEqual(["Gamma", "Alpha", "Beta"]);
-      },
+    await expectProductOrder(
+      [
+        category("widgets", "Widgets", ["gamma", "alpha", "beta"]),
+        product("alpha", "Alpha", 1),
+        product("beta", "Beta", 2),
+        product("gamma", "Gamma", 3),
+      ],
+      CATEGORY_URL,
+      ["Gamma", "Alpha", "Beta"],
     );
   });
 
   test("reverse-lookup products appear after explicit ones in default order", async () => {
-    const category = {
-      path: "categories/widgets.md",
-      frontmatter: {
-        title: "Widgets",
-        products: [{ product: "explicit-one" }],
-      },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          category,
-          standaloneProduct("explicit-one", "Explicit One", 0),
-          categoryReverseProduct("reverse-a", "Reverse A", 1),
-          categoryReverseProduct("reverse-b", "Reverse B", 2),
-        ],
-      },
-      async (site) => {
-        const titles = await getCategoryProductTitles(site, "widgets");
-        expect(titles).toEqual(["Explicit One", "Reverse A", "Reverse B"]);
-      },
+    await expectProductOrder(
+      [
+        category("widgets", "Widgets", ["explicit-one"]),
+        product("explicit-one", "Explicit One"),
+        product("reverse-a", "Reverse A", 1, { categories: ["widgets"] }),
+        product("reverse-b", "Reverse B", 2, { categories: ["widgets"] }),
+      ],
+      CATEGORY_URL,
+      ["Explicit One", "Reverse A", "Reverse B"],
     );
   });
 
   test("duplicates are removed when product is both explicit and reverse-lookup", async () => {
-    const category = {
-      path: "categories/widgets.md",
-      frontmatter: {
-        title: "Widgets",
-        products: [{ product: "widget-b" }, { product: "widget-a" }],
-      },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          category,
-          categoryReverseProduct("widget-a", "Widget A", 1),
-          categoryReverseProduct("widget-b", "Widget B", 2),
-        ],
-      },
-      async (site) => {
-        const titles = await getCategoryProductTitles(site, "widgets");
-        expect(titles).toEqual(["Widget B", "Widget A"]);
-      },
+    await expectProductOrder(
+      [
+        category("widgets", "Widgets", ["widget-b", "widget-a"]),
+        product("widget-a", "Widget A", 1, { categories: ["widgets"] }),
+        product("widget-b", "Widget B", 2, { categories: ["widgets"] }),
+      ],
+      CATEGORY_URL,
+      ["Widget B", "Widget A"],
     );
   });
 
   test("without explicit products array, reverse-lookup products use default order", async () => {
-    const category = {
-      path: "categories/widgets.md",
-      frontmatter: { title: "Widgets" },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          category,
-          categoryReverseProduct("zulu", "Zulu", 1),
-          categoryReverseProduct("alpha", "Alpha", 2),
-        ],
-      },
-      async (site) => {
-        const titles = await getCategoryProductTitles(site, "widgets");
-        expect(titles).toEqual(["Zulu", "Alpha"]);
-      },
+    await expectProductOrder(
+      [
+        category("widgets", "Widgets"),
+        product("zulu", "Zulu", 1, { categories: ["widgets"] }),
+        product("alpha", "Alpha", 2, { categories: ["widgets"] }),
+      ],
+      CATEGORY_URL,
+      ["Zulu", "Alpha"],
     );
   });
 
   test("duplicate explicit product refs only appear once", async () => {
-    const category = {
-      path: "categories/widgets.md",
-      frontmatter: {
-        title: "Widgets",
-        products: [
-          { product: "alpha" },
-          { product: "beta" },
-          { product: "alpha" },
-        ],
-      },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          category,
-          standaloneProduct("alpha", "Alpha", 1),
-          standaloneProduct("beta", "Beta", 2),
-        ],
-      },
-      async (site) => {
-        const titles = await getCategoryProductTitles(site, "widgets");
-        expect(titles).toEqual(["Alpha", "Beta"]);
-      },
+    await expectProductOrder(
+      [
+        category("widgets", "Widgets", ["alpha", "beta", "alpha"]),
+        product("alpha", "Alpha", 1),
+        product("beta", "Beta", 2),
+      ],
+      CATEGORY_URL,
+      ["Alpha", "Beta"],
     );
   });
 });
@@ -166,231 +126,85 @@ describe("category product ordering", () => {
 // Event product ordering
 // ============================================
 
-/** Product that reverse-references the "summer-expo" event. */
-const eventReverseProduct = (slug, title, order) => ({
-  path: `products/${slug}.md`,
-  frontmatter: { title, order, categories: [], events: ["summer-expo"] },
-  content: "",
-});
-
-/** Product with no event references. */
-const eventStandaloneProduct = (slug, title, order = 0) => ({
-  path: `products/${slug}.md`,
-  frontmatter: { title, order, categories: [] },
-  content: "",
-});
-
-/** Extract ordered product titles from a rendered event page. */
-const getEventProductTitles = async (site, eventSlug) => {
-  const doc = await site.getDoc(`/events/${eventSlug}/index.html`);
-  const headings = [...doc.querySelectorAll(".items h3")];
-  return headings.map((h) => h.textContent.trim());
-};
+// Eleventy strips date prefixes from fileSlug (e.g. "2026-06-19-summer-expo" → "summer-expo").
+// Both slug variants must produce the same ordering at /events/summer-expo/.
+const EVENT_SLUGS = ["summer-expo", "2026-06-19-summer-expo"];
 
 describe("event product ordering", () => {
-  test("explicit products array determines display order on event page", async () => {
-    const event = {
-      path: "events/summer-expo.md",
-      frontmatter: {
-        title: "Summer Expo",
-        event_date: "2026-06-19",
-        products: [
-          { product: "gamma" },
-          { product: "alpha" },
-          { product: "beta" },
-        ],
-      },
-      content: "",
-    };
+  for (const eventSlug of EVENT_SLUGS) {
+    const prefix = eventSlug.includes("-expo-") ? "(date-prefixed) " : "";
 
-    await withTestSite(
-      {
-        files: [
-          event,
-          eventStandaloneProduct("alpha", "Alpha", 1),
-          eventStandaloneProduct("beta", "Beta", 2),
-          eventStandaloneProduct("gamma", "Gamma", 3),
+    test(`${prefix}explicit products array determines display order`, async () => {
+      await expectProductOrder(
+        [
+          eventWithProducts(eventSlug, "Summer Expo", [
+            "gamma",
+            "alpha",
+            "beta",
+          ]),
+          product("alpha", "Alpha", 1),
+          product("beta", "Beta", 2),
+          product("gamma", "Gamma", 3),
         ],
-      },
-      async (site) => {
-        const titles = await getEventProductTitles(site, "summer-expo");
-        expect(titles).toEqual(["Gamma", "Alpha", "Beta"]);
-      },
-    );
-  });
+        EVENT_URL,
+        ["Gamma", "Alpha", "Beta"],
+      );
+    });
 
-  test("reverse-lookup products appear after explicit ones on event page", async () => {
-    const event = {
-      path: "events/summer-expo.md",
-      frontmatter: {
-        title: "Summer Expo",
-        event_date: "2026-06-19",
-        products: [{ product: "explicit-one" }],
-      },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          event,
-          eventStandaloneProduct("explicit-one", "Explicit One", 0),
-          eventReverseProduct("reverse-a", "Reverse A", 1),
-          eventReverseProduct("reverse-b", "Reverse B", 2),
+    test(`${prefix}reverse-lookup products appear after explicit ones`, async () => {
+      await expectProductOrder(
+        [
+          eventWithProducts(eventSlug, "Summer Expo", ["explicit-one"]),
+          product("explicit-one", "Explicit One"),
+          product("reverse-a", "Reverse A", 1, { events: ["summer-expo"] }),
+          product("reverse-b", "Reverse B", 2, { events: ["summer-expo"] }),
         ],
-      },
-      async (site) => {
-        const titles = await getEventProductTitles(site, "summer-expo");
-        expect(titles).toEqual(["Explicit One", "Reverse A", "Reverse B"]);
-      },
-    );
-  });
+        EVENT_URL,
+        ["Explicit One", "Reverse A", "Reverse B"],
+      );
+    });
+  }
 
   test("without explicit products, event uses default order", async () => {
-    const event = {
-      path: "events/summer-expo.md",
-      frontmatter: {
-        title: "Summer Expo",
-        event_date: "2026-06-19",
-      },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          event,
-          eventReverseProduct("zulu", "Zulu", 1),
-          eventReverseProduct("alpha", "Alpha", 2),
-        ],
-      },
-      async (site) => {
-        const titles = await getEventProductTitles(site, "summer-expo");
-        expect(titles).toEqual(["Zulu", "Alpha"]);
-      },
-    );
-  });
-
-  test("date-prefixed event file preserves explicit product order", async () => {
-    // Event files often have date prefixes (e.g. 2026-06-19-summer-expo.md).
-    // Eleventy strips the date prefix from page.fileSlug → "summer-expo".
-    // The explicit products array should still determine display order.
-    const event = {
-      path: "events/2026-06-19-summer-expo.md",
-      frontmatter: {
-        title: "Summer Expo",
-        event_date: "2026-06-19",
-        products: [
-          { product: "gamma" },
-          { product: "alpha" },
-          { product: "beta" },
-        ],
-      },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          event,
-          eventStandaloneProduct("alpha", "Alpha", 1),
-          eventStandaloneProduct("beta", "Beta", 2),
-          eventStandaloneProduct("gamma", "Gamma", 3),
-        ],
-      },
-      async (site) => {
-        // Eleventy strips date prefix: permalink is /events/summer-expo/
-        const titles = await getEventProductTitles(site, "summer-expo");
-        expect(titles).toEqual(["Gamma", "Alpha", "Beta"]);
-      },
-    );
-  });
-
-  test("date-prefixed event file finds reverse-lookup products", async () => {
-    // Event file: 2026-06-19-summer-expo.md (fileSlug → "summer-expo")
-    // Products reference "summer-expo" in their events field.
-    const event = {
-      path: "events/2026-06-19-summer-expo.md",
-      frontmatter: {
-        title: "Summer Expo",
-        event_date: "2026-06-19",
-        products: [{ product: "explicit-one" }],
-      },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          event,
-          eventStandaloneProduct("explicit-one", "Explicit One", 0),
-          eventReverseProduct("reverse-a", "Reverse A", 1),
-          eventReverseProduct("reverse-b", "Reverse B", 2),
-        ],
-      },
-      async (site) => {
-        const titles = await getEventProductTitles(site, "summer-expo");
-        expect(titles).toEqual(["Explicit One", "Reverse A", "Reverse B"]);
-      },
+    await expectProductOrder(
+      [
+        eventWithProducts("summer-expo", "Summer Expo"),
+        product("zulu", "Zulu", 1, { events: ["summer-expo"] }),
+        product("alpha", "Alpha", 2, { events: ["summer-expo"] }),
+      ],
+      EVENT_URL,
+      ["Zulu", "Alpha"],
     );
   });
 
   test("duplicate explicit product refs only appear once", async () => {
-    // Same product listed twice in the explicit array — should appear only once.
-    const event = {
-      path: "events/summer-expo.md",
-      frontmatter: {
-        title: "Summer Expo",
-        event_date: "2026-06-19",
-        products: [
-          { product: "alpha" },
-          { product: "beta" },
-          { product: "alpha" },
-        ],
-      },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          event,
-          eventStandaloneProduct("alpha", "Alpha", 1),
-          eventStandaloneProduct("beta", "Beta", 2),
-        ],
-      },
-      async (site) => {
-        const titles = await getEventProductTitles(site, "summer-expo");
-        expect(titles).toEqual(["Alpha", "Beta"]);
-      },
+    await expectProductOrder(
+      [
+        eventWithProducts("summer-expo", "Summer Expo", [
+          "alpha",
+          "beta",
+          "alpha",
+        ]),
+        product("alpha", "Alpha", 1),
+        product("beta", "Beta", 2),
+      ],
+      EVENT_URL,
+      ["Alpha", "Beta"],
     );
   });
 
   test("product in both explicit list and reverse-lookup appears only in explicit position", async () => {
-    // "widget-a" is both explicitly listed AND reverse-references the event.
-    // It should appear once, in its explicit position (second), not duplicated.
-    const event = {
-      path: "events/summer-expo.md",
-      frontmatter: {
-        title: "Summer Expo",
-        event_date: "2026-06-19",
-        products: [{ product: "widget-b" }, { product: "widget-a" }],
-      },
-      content: "",
-    };
-
-    await withTestSite(
-      {
-        files: [
-          event,
-          eventReverseProduct("widget-a", "Widget A", 1),
-          eventReverseProduct("widget-b", "Widget B", 2),
-        ],
-      },
-      async (site) => {
-        const titles = await getEventProductTitles(site, "summer-expo");
-        expect(titles).toEqual(["Widget B", "Widget A"]);
-      },
+    await expectProductOrder(
+      [
+        eventWithProducts("summer-expo", "Summer Expo", [
+          "widget-b",
+          "widget-a",
+        ]),
+        product("widget-a", "Widget A", 1, { events: ["summer-expo"] }),
+        product("widget-b", "Widget B", 2, { events: ["summer-expo"] }),
+      ],
+      EVENT_URL,
+      ["Widget B", "Widget A"],
     );
   });
 });

@@ -16,11 +16,15 @@ import { pipe, split } from "#toolkit/fp/array.js";
 
 /**
  * Normalize a PagesCMS reference to just the filename without extension
- * @param {string | null | undefined} reference - Full path reference
- * @returns {string | null | undefined} Normalized slug
+ * @param {string} reference - Full path reference (must be a non-empty string)
+ * @returns {string} Normalized slug
  */
 const normaliseSlug = (reference) => {
-  if (!reference) return reference;
+  if (typeof reference !== "string" || reference === "") {
+    throw new Error(
+      `normaliseSlug requires a non-empty string, got: ${String(reference)}`,
+    );
+  }
   return pipe(
     split("/"),
     (parts) => parts.at(-1),

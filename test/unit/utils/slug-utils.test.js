@@ -7,10 +7,18 @@ import {
 } from "#utils/slug-utils.js";
 
 describe("normaliseSlug", () => {
-  test("returns falsy values unchanged", () => {
-    expect(normaliseSlug(null)).toBe(null);
-    expect(normaliseSlug(undefined)).toBe(undefined);
-    expect(normaliseSlug("")).toBe("");
+  test("throws on null", () => {
+    expect(() => normaliseSlug(null)).toThrow("requires a non-empty string");
+  });
+
+  test("throws on undefined", () => {
+    expect(() => normaliseSlug(undefined)).toThrow(
+      "requires a non-empty string",
+    );
+  });
+
+  test("throws on empty string", () => {
+    expect(() => normaliseSlug("")).toThrow("requires a non-empty string");
   });
 
   test("removes .md extension", () => {

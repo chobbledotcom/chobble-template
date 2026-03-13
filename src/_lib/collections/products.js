@@ -59,7 +59,6 @@ const mergeWithExplicitProducts = (
   if (!explicitProductRefs?.length) return reverseProducts;
 
   const slugIndex = indexBySlug(allProducts);
-  /** @type {string[]} */
   const explicitSlugs = unique(
     explicitProductRefs.map((ref) => normaliseSlug(ref.product)),
   );
