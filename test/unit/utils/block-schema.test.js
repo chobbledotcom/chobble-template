@@ -256,7 +256,10 @@ describe("validateBlocks", () => {
     const blocks = [
       {
         type: "gallery",
-        images: ["/images/photo1.jpg", "/images/photo2.jpg"],
+        items: [
+          { image: "/images/photo1.jpg", caption: "First photo" },
+          { image: "/images/photo2.jpg" },
+        ],
         aspect_ratio: "16/9",
       },
     ];
