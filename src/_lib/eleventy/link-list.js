@@ -70,4 +70,4 @@ const configureLinkList = (eleventyConfig) => {
   eleventyConfig.addFilter("linkList", linkList);
 };
 
-export { linkList, configureLinkList };
+export { configureLinkList, linkList };

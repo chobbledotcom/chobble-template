@@ -40,4 +40,4 @@ const configureTags = (eleventyConfig) => {
   addDataFilter(eleventyConfig, "tags", extractTags);
 };
 
-export { extractTags, configureTags };
+export { configureTags, extractTags };

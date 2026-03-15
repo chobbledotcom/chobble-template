@@ -85,6 +85,7 @@ const BLOCK_SCHEMAS = {
   "guide-categories": [],
   "link-button": ["text", "href", "variant", "size", "reveal"],
   reviews: ["current_item"],
+  gallery: ["items", "aspect_ratio"],
 };
 
 /**

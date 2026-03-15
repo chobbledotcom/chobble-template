@@ -304,11 +304,11 @@ const printSummary = (steps, results, title = "SUMMARY") => {
 };
 
 export {
-  printTruncatedList,
   COMMON_STEPS,
   coverageStep,
-  runStep,
   extractErrorsFromOutput,
-  runSteps,
   printSummary,
+  printTruncatedList,
+  runStep,
+  runSteps,
 };

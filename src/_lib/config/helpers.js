@@ -80,4 +80,4 @@ const getFormTarget = (configData) => {
   return null;
 };
 
-export { DEFAULTS, DEFAULT_PRODUCT_DATA, getProducts, getFormTarget };
+export { DEFAULT_PRODUCT_DATA, DEFAULTS, getFormTarget, getProducts };

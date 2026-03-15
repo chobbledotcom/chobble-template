@@ -53,4 +53,4 @@ const configureScss = (eleventyConfig) => {
   });
 };
 
-export { createScssCompiler, configureScss, shouldCompileScss };
+export { configureScss, createScssCompiler, shouldCompileScss };

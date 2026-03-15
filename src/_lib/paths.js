@@ -14,5 +14,4 @@ const IMAGES_DIR = join(SRC_DIR, "images");
 const PAGES_DIR = join(SRC_DIR, "pages");
 
 // Re-export join since `join(SRC_DIR, ...)` is a common pattern
-export { join };
-export { SRC_DIR, ROOT_DIR, IMAGES_DIR, PAGES_DIR };
+export { IMAGES_DIR, join, PAGES_DIR, ROOT_DIR, SRC_DIR };

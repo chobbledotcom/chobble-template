@@ -119,8 +119,8 @@ const groupBy = (items, getKey) =>
   )(items);
 
 export {
-  buildReverseIndex,
-  groupValuesBy,
   buildFirstOccurrenceLookup,
+  buildReverseIndex,
   groupBy,
+  groupValuesBy,
 };

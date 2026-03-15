@@ -218,7 +218,7 @@ const buildOrganizationMeta = (data) => ({
 
 export {
   buildBaseMeta,
-  buildProductMeta,
-  buildPostMeta,
   buildOrganizationMeta,
+  buildPostMeta,
+  buildProductMeta,
 };

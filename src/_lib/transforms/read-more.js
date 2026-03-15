@@ -128,16 +128,16 @@ const processReadMore = (document) => {
 };
 
 export {
-  processReadMore,
-  hasReadMoreMarker,
-  READ_MORE_PATTERN,
-  splitAtMarker,
-  createToggleElements,
-  resetIdCounter,
-  nextId,
-  findMarkerNode,
   collectSiblings,
-  createInlineSpan,
   createBlockWrapper,
+  createInlineSpan,
+  createToggleElements,
+  findMarkerNode,
+  hasReadMoreMarker,
+  nextId,
+  processReadMore,
+  READ_MORE_PATTERN,
+  resetIdCounter,
+  splitAtMarker,
   transformMarker,
 };

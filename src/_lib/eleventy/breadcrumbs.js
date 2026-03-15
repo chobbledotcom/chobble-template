@@ -235,11 +235,11 @@ const configureBreadcrumbs = (eleventyConfig) => {
 };
 
 export {
-  configureBreadcrumbs,
-  buildParentCrumbs,
   buildCategoryCrumbs,
+  buildParentCrumbs,
   buildPropertyCrumbs,
   buildStandardCrumbs,
+  configureBreadcrumbs,
   findParent,
   getIndexUrl,
   resolvePropertySlug,

@@ -25,6 +25,7 @@ describe("BLOCK_SCHEMAS", () => {
       "guide-categories",
       "link-button",
       "reviews",
+      "gallery",
     ];
     expect(Object.keys(BLOCK_SCHEMAS).sort()).toEqual(expectedTypes.sort());
   });
@@ -246,6 +247,20 @@ describe("validateBlocks", () => {
         variant: "primary",
         size: "lg",
         reveal: "scale",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("allows all valid keys for gallery", () => {
+    const blocks = [
+      {
+        type: "gallery",
+        items: [
+          { image: "/images/photo1.jpg", caption: "First photo" },
+          { image: "/images/photo2.jpg" },
+        ],
+        aspect_ratio: "16/9",
       },
     ];
     expect(() => validateBlocks(blocks)).not.toThrow();

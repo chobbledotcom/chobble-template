@@ -244,4 +244,4 @@ const configureProducts = (eleventyConfig) => {
   addDataFilter(eleventyConfig, "getProductsByEvent", getProductsByEvent);
 };
 
-export { configureProducts, computeGallery, addGallery, getProductsByCategory };
+export { addGallery, computeGallery, configureProducts, getProductsByCategory };

@@ -195,11 +195,11 @@ const createMockReview = ({
 
 export {
   addOptionalProps,
+  createMockReview,
   createObjectBuilder,
+  createPostSchemaData,
+  createProductSchemaData,
+  createSchemaData,
   createSchemaPage,
   createSchemaSite,
-  createSchemaData,
-  createProductSchemaData,
-  createPostSchemaData,
-  createMockReview,
 };
