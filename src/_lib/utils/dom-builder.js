@@ -115,10 +115,10 @@ const parseHtml = async (html, document = null) => {
 };
 
 export {
-  elementToHtml,
   createHtml,
-  parseHtml,
-  getSharedDocument,
+  elementToHtml,
   escapeAttrValue,
+  getSharedDocument,
+  parseHtml,
   VOID_ELEMENTS,
 };

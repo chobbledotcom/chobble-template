@@ -264,4 +264,4 @@ export const configurePdf = (eleventyConfig) => {
   });
 };
 
-export { generateMenuPdf, buildMenuPdfData };
+export { buildMenuPdfData, generateMenuPdf };

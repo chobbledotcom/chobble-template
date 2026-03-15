@@ -101,4 +101,4 @@ export const configureScreenshots = (eleventyConfig) => {
   });
 };
 
-export { screenshot, screenshotMultiple, screenshotAllViewports, startServer };
+export { screenshot, screenshotAllViewports, screenshotMultiple, startServer };

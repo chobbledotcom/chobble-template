@@ -287,9 +287,9 @@ const extractFunctions = (source) => {
 };
 
 export {
-  getFiles,
-  memoizedFileGetter,
+  ALWAYS_SKIP,
   createExtractor,
   extractFunctions,
-  ALWAYS_SKIP,
+  getFiles,
+  memoizedFileGetter,
 };

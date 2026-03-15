@@ -139,10 +139,10 @@ const expectAsyncThrows = async (asyncFn) => {
 };
 
 export {
-  expectObjectProps,
   expectArrayProp,
-  expectProp,
+  expectAsyncThrows,
   expectDataArray,
   expectErrorsInclude,
-  expectAsyncThrows,
+  expectObjectProps,
+  expectProp,
 };

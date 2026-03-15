@@ -382,4 +382,4 @@ const cleanupAllTestSites = () => {
   }
 };
 
-export { createTestSite, withTestSite, withSetupTestSite, cleanupAllTestSites };
+export { cleanupAllTestSites, createTestSite, withSetupTestSite, withTestSite };

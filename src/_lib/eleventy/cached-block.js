@@ -93,4 +93,4 @@ export const configureCachedBlock = (eleventyConfig) => {
   );
 };
 
-export { resetCache, createCachedBlockTag };
+export { createCachedBlockTag, resetCache };

@@ -102,11 +102,11 @@ const processImages = async (document, _config, processAndWrapImage) => {
 };
 
 export {
-  processImages,
-  fixDivsInParagraphs,
-  extractImageOptions,
-  processImageElement,
   ASPECT_RATIO_ATTRIBUTE,
+  extractImageOptions,
+  fixDivsInParagraphs,
   IGNORE_ATTRIBUTE,
   NO_LQIP_ATTRIBUTE,
+  processImageElement,
+  processImages,
 };

@@ -327,79 +327,76 @@ const getCollectionFrom = (collectionName) => (configureFn) => (tagMap) => {
 // ============================================
 
 // Re-export toolkit utilities
+// Export project-specific utilities
 export {
+  ALL_JS_FILES,
+  // Code analysis (from toolkit)
+  ALWAYS_SKIP,
   // Resource management (from toolkit)
   bracket,
   bracketAsync,
-  cleanupTempDir,
-  createTempFile,
-  withMockedCwd,
-  withMockedCwdAsync,
-  withMockedProcessExit,
-  withSubDir,
-  withSubDirAsync,
+  CART_STORAGE_KEY,
   // Mocking (from toolkit)
   captureConsole,
   captureConsoleLogAsync,
+  cleanupTempDir,
+  // Collection API mocks
+  collectionApi,
+  compileScss,
   createConsoleCapture,
-  mockFetch,
-  withMockFetch,
+  createExtractor,
+  createFrontmatter,
+  // Temp file management
+  createMockEleventyConfig,
+  createProduct,
+  createTempDir,
+  createTempFile,
+  createTempSnippetsDir,
+  // Data transforms
+  data,
+  everyEntry,
+  expect,
   // Assertions (from toolkit)
   expectArrayProp,
   expectAsyncThrows,
   expectDataArray,
   expectErrorsInclude,
+  expectGalleries,
   expectObjectProps,
   expectProp,
-  // Code analysis (from toolkit)
-  ALWAYS_SKIP,
-  extractFunctions,
-};
-
-// Export project-specific utilities
-export {
-  // Core
-  wrapHtml,
-  compileScss,
-  everyEntry,
-  expect,
-  fs,
-  omit,
-  path,
-  rootDir,
-  srcDir,
-  CART_STORAGE_KEY,
-  // File discovery
-  getFiles,
-  SRC_JS_FILES,
-  SRC_HTML_FILES,
-  SRC_SCSS_FILES,
-  TEST_FILES,
-  ALL_JS_FILES,
-  createExtractor,
-  // Temp file management
-  createMockEleventyConfig,
-  createTempDir,
-  createTempSnippetsDir,
-  withTempDir,
-  withTempDirAsync,
-  withTempFile,
+  expectResultTitles,
   // Assertions
   expectValidScriptTag,
-  expectResultTitles,
-  expectGalleries,
-  // Data transforms
-  data,
-  toData,
+  extractFunctions,
+  fs,
+  getCollectionFrom,
+  // File discovery
+  getFiles,
   // Fixture factories
   item,
   items,
-  createFrontmatter,
-  createProduct,
-  // Collection API mocks
-  collectionApi,
+  mockFetch,
+  omit,
+  path,
+  rootDir,
+  SRC_HTML_FILES,
+  SRC_JS_FILES,
+  SRC_SCSS_FILES,
+  srcDir,
+  TEST_FILES,
   taggedCollectionApi,
+  toData,
   // Curried config mock factories
   withConfiguredMock,
-  getCollectionFrom,
+  withMockedCwd,
+  withMockedCwdAsync,
+  withMockedProcessExit,
+  withMockFetch,
+  withSubDir,
+  withSubDirAsync,
+  withTempDir,
+  withTempDirAsync,
+  withTempFile,
+  // Core
+  wrapHtml,
 };

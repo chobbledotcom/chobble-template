@@ -262,4 +262,4 @@ const configureReviews = (eleventyConfig) => {
   eleventyConfig.addFilter("reviewerAvatar", reviewerAvatar);
 };
 
-export { getReviewsFor, withReviewsPage, reviewsRedirects, configureReviews };
+export { configureReviews, getReviewsFor, reviewsRedirects, withReviewsPage };

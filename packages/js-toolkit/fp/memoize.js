@@ -184,10 +184,10 @@ const dedupeAsync = (fn, { cacheKey = DEFAULT_KEY_FN } = {}) => {
 };
 
 export {
-  memoize,
-  indexBy,
-  groupByWithCache,
-  memoizeByRef,
-  jsonKey,
   dedupeAsync,
+  groupByWithCache,
+  indexBy,
+  jsonKey,
+  memoize,
+  memoizeByRef,
 };

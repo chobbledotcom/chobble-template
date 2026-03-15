@@ -729,46 +729,46 @@ const expectScanResult = (result, expected) => {
 };
 
 export {
-  // Common patterns
-  COMMENT_LINE_PATTERNS,
-  isCommentLine,
-  // Brace depth tracking
-  removeStrings,
-  countChar,
-  getBraceDepthChange,
-  createBraceDepthScanner,
-  expectScanResult,
-  // File reading
-  readSource,
-  toLines,
-  // File list utilities
-  excludeFiles,
-  combineFileLists,
-  // Pattern matching
-  matchesAny,
-  scanLines,
-  findPatterns,
-  createPatternMatcher,
   // File analysis
   analyzeFiles,
-  scanFilesForViolations,
-  // Code checker factory
-  createCodeChecker,
   // Allowlist analysis
   analyzeWithAllowlist,
-  withAllowlist,
-  // Violation reporting
-  formatViolationReport,
   assertNoViolations,
+  // Common patterns
+  COMMENT_LINE_PATTERNS,
+  combineFileLists,
+  countChar,
+  createBraceDepthScanner,
+  // Code checker factory
+  createCodeChecker,
+  createPatternMatcher,
   // Violation factory
   createViolation,
-  // Exception validation
-  validateExceptions,
+  // File list utilities
+  excludeFiles,
   expectNoStaleExceptions,
-  // Function allowlist validation
-  isFunctionDefined,
-  validateFunctionAllowlist,
-  noStaleAllowlist,
+  expectScanResult,
   // Export detection
   extractExports,
+  findPatterns,
+  // Violation reporting
+  formatViolationReport,
+  getBraceDepthChange,
+  isCommentLine,
+  // Function allowlist validation
+  isFunctionDefined,
+  // Pattern matching
+  matchesAny,
+  noStaleAllowlist,
+  // File reading
+  readSource,
+  // Brace depth tracking
+  removeStrings,
+  scanFilesForViolations,
+  scanLines,
+  toLines,
+  // Exception validation
+  validateExceptions,
+  validateFunctionAllowlist,
+  withAllowlist,
 };
