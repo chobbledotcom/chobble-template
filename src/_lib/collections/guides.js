@@ -37,4 +37,4 @@ const configureGuides = (eleventyConfig) => {
   );
 };
 
-export { guidesByCategory, guideCategoriesByProperty, configureGuides };
+export { configureGuides, guideCategoriesByProperty, guidesByCategory };

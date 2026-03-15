@@ -292,4 +292,4 @@ const setup = () => {
 
 onReady(() => setup());
 
-export { addItem, getCartTotal, openCart, closeCart };
+export { addItem, closeCart, getCartTotal, openCart };

@@ -90,4 +90,4 @@ const configureLocations = (eleventyConfig) => {
   eleventyConfig.addFilter("getChildLocations", getChildLocations);
 };
 
-export { getSiblingLocations, getChildLocations, configureLocations };
+export { configureLocations, getChildLocations, getSiblingLocations };

@@ -40,8 +40,8 @@ const testIndicatorStates = (completedCount, expectedAriaStep) => {
 };
 
 export {
+  indicatorTemplate,
   QUOTE_STEPS,
   QUOTE_STEPS_JSON,
-  indicatorTemplate,
   testIndicatorStates,
 };

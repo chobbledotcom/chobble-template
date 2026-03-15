@@ -189,13 +189,13 @@ const frozenObject = (obj) => new Proxy(obj, createFrozenObjectHandler());
 
 export {
   filterObject,
+  fromPairs,
+  frozenObject,
+  mapBoth,
   mapEntries,
   mapObject,
-  mapBoth,
-  pickTruthy,
-  pickNonNull,
-  toObject,
-  fromPairs,
   omit,
-  frozenObject,
+  pickNonNull,
+  pickTruthy,
+  toObject,
 };

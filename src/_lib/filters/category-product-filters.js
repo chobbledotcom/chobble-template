@@ -148,6 +148,6 @@ const categoryFilterData = (
 
 export {
   categoryFilterData,
-  createCategoryFilterAttributes,
   categoryListingUI,
+  createCategoryFilterAttributes,
 };

@@ -29,4 +29,4 @@ const configureNews = (eleventyConfig) => {
   eleventyConfig.addCollection("news", createNewsCollection);
 };
 
-export { createNewsCollection, configureNews };
+export { configureNews, createNewsCollection };

@@ -78,9 +78,9 @@ const buildPdfFilename = (businessName, menuSlug) =>
   `${slugify(businessName)}-${menuSlug}.pdf`;
 
 export {
-  slugify,
-  normaliseSlug,
-  normalisePermalink,
-  buildPermalink,
   buildPdfFilename,
+  buildPermalink,
+  normalisePermalink,
+  normaliseSlug,
+  slugify,
 };

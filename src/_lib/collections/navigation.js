@@ -107,4 +107,4 @@ const configureNavigation = async (eleventyConfig) => {
   );
 };
 
-export { findPageUrl, configureNavigation, toNavigation };
+export { configureNavigation, findPageUrl, toNavigation };

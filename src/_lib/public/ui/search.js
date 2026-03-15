@@ -128,10 +128,10 @@ const initSearch = () => {
 onReady(initSearch);
 
 export {
-  initSearch,
-  renderResult,
   createSearchController,
+  handleSubmit,
+  initSearch,
   loadPagefind,
   readQueryParam,
-  handleSubmit,
+  renderResult,
 };

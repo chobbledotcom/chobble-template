@@ -56,9 +56,9 @@ const removeLqip = mapObject((format, images) => [
 ]);
 
 export {
-  getEleventyImg,
-  shouldGenerateLqip,
   extractLqipFromMetadata,
-  removeLqip,
+  getEleventyImg,
   LQIP_WIDTH,
+  removeLqip,
+  shouldGenerateLqip,
 };
