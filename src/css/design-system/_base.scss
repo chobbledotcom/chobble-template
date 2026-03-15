@@ -177,6 +177,12 @@
     display: block;
   }
 
+  .image-wrapper {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
   // Override the 695px max-width from legacy page styles when design-system
   // blocks appear inside .content (e.g. page.html layout)
   body.page .content & img,
