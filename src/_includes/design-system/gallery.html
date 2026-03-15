@@ -1,0 +1,49 @@
+{%- comment -%}
+Gallery block - displays a grid of images with optional aspect ratio cropping.
+
+Parameters (via block object):
+  - block.images: Array of image paths (required)
+  - block.aspect_ratio: Aspect ratio for images (e.g., "16/9", "1/1", "4/3"). Default: no cropping
+{%- endcomment -%}
+
+{%- if block.images.size > 0 -%}
+  <div class="gallery">
+    <div class="current-image">
+      {%- assign image = block.images[0] -%}
+      {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+      {% image image, alt_text, "", "", "", block.aspect_ratio, "", false, true %}
+    </div>
+    <div aria-hidden="true" class="gallery-full-size-images">
+      {%- for image in block.images -%}
+        {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+        <div class="full-image-{{ forloop.index }}">
+          {% image image, alt_text, "", "fade-in", "", block.aspect_ratio, "", false, true %}
+        </div>
+      {% endfor %}
+    </div>
+    {%- if block.images.size > 1 -%}
+      <ul id="gallery" class="image-gallery">
+        {%- for image in block.images -%}
+          {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+          <li>
+            <a
+              href="
+                {%- if image[0] == "/" -%}
+                  {{- image -}}
+                {%- else -%}
+                  /images/{{ image -}}
+                {%- endif -%}
+              "
+              data-index="{{ forloop.index }}"
+              class="image-link"
+            >
+              <figure>
+                {% image image, alt_text, "", "", "", block.aspect_ratio | default: "1/1" %}
+              </figure>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+{%- endif -%}
