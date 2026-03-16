@@ -442,6 +442,30 @@ describe("products", () => {
 
       expectResultTitles(result, ["Widget A"]);
     });
+
+    test("ignores empty objects in explicit products from PagesCMS", () => {
+      const { filters } = setupProductsConfig();
+
+      const result = filters.getProductsByCategory(
+        [widgetA(["widgets"]), widgetB()],
+        "widgets",
+        [{}, { product: "widget-b" }, {}],
+      );
+
+      expectResultTitles(result, ["Widget B", "Widget A"]);
+    });
+
+    test("falls back to reverse lookup when all explicit refs are empty", () => {
+      const { filters } = setupProductsConfig();
+
+      const result = filters.getProductsByCategory(
+        [widgetA(["widgets"])],
+        "widgets",
+        [{}, {}],
+      );
+
+      expectResultTitles(result, ["Widget A"]);
+    });
   });
 
   describe("bidirectional event-product relationships", () => {
