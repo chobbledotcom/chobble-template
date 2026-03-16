@@ -15,7 +15,6 @@ const NAV_HTML = `
 </nav>
 `;
 
-/* jscpd:ignore-start */
 const initWithMode = (hoverMatches) => {
   document.body.innerHTML = NAV_HTML;
   // biome-ignore lint/suspicious/noEmptyBlockStatements: noop stub
@@ -37,7 +36,6 @@ const initWithMode = (hoverMatches) => {
     state.onChange(query);
   };
 };
-/* jscpd:ignore-end */
 
 const parentItem = () => document.querySelector("nav > ul > li:has(> ul)");
 
