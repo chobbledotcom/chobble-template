@@ -9,6 +9,7 @@ nav {
   }
 }
 
+// Mobile layout (hamburger, sticky bar, slide-out panel) - breakpoint-based
 @include breakpoints.down("md") {
   html:has(body.sticky-mobile-nav) {
     scroll-padding-top: 5rem;
@@ -34,12 +35,7 @@ nav {
   }
 }
 
-@include breakpoints.down("md") {
-  body.sticky-mobile-nav nav {
-    @include nav.nav-submenu-toggle;
-  }
-}
-
+// Desktop layout - breakpoint-based
 @include breakpoints.up("md") {
   .toggle,
   .toggle-label {
@@ -56,8 +52,18 @@ nav {
     }
     &.horizontal-nav {
       nav {
-        @include nav.nav-horizontal-dropdown(2rem, 0.5rem);
+        @include nav.nav-horizontal-layout(2rem, 0.5rem);
       }
     }
   }
+}
+
+// Click-mode dropdown interaction (when device lacks hover)
+body:not(.nav-can-hover) nav {
+  @include nav.nav-submenu-toggle;
+}
+
+// Hover-mode dropdown interaction (when device supports hover)
+body.nav-can-hover.horizontal-nav nav {
+  @include nav.nav-hover-dropdowns;
 }

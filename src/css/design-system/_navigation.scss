@@ -23,7 +23,7 @@
   }
 
   // ===========================================================================
-  // MOBILE NAV (md and below)
+  // MOBILE NAV (md and below) - layout only
   // ===========================================================================
 
   @include breakpoint.down("md") {
@@ -50,15 +50,11 @@
           @include nav.nav-mobile-menu($space-sm, $transition-normal);
         }
       }
-
-      nav {
-        @include nav.nav-submenu-toggle;
-      }
     }
   }
 
   // ===========================================================================
-  // DESKTOP NAV (md and up)
+  // DESKTOP NAV (md and up) - layout only
   // ===========================================================================
 
   @include breakpoint.up("md") {
@@ -73,7 +69,7 @@
     }
 
     &.horizontal-nav nav {
-      @include nav.nav-horizontal-dropdown($space-lg, $space-xs);
+      @include nav.nav-horizontal-layout($space-lg, $space-xs);
       position: sticky;
       top: $space-sm;
       z-index: $z-sticky;
@@ -84,5 +80,19 @@
       border-radius: var(--border-radius);
     }
 
+  }
+
+  // ===========================================================================
+  // MODE-BASED DROPDOWN INTERACTION
+  // ===========================================================================
+
+  // Click-mode (when device lacks hover)
+  &:not(.nav-can-hover) nav {
+    @include nav.nav-submenu-toggle;
+  }
+
+  // Hover-mode (when device supports hover)
+  &.nav-can-hover.horizontal-nav nav {
+    @include nav.nav-hover-dropdowns;
   }
 }

@@ -136,7 +136,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/collections/navigation.js", // Search box builder kept separate for function length
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // isReviewableTag type guard for TypeScript
-  "src/_lib/public/ui/mobile-menu-collapse.js", // DOM helpers extracted for complexity management
+  "src/_lib/public/ui/nav-dropdown.js", // DOM helpers extracted for complexity management
   "src/_lib/media/image-external.js", // External wrapper styles helper
   "src/_lib/media/image-utils.js", // buildImgAttributes, buildPictureAttributes - helper functions for prepareImageAttributes
   "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
@@ -218,6 +218,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/public/ui/search.js:loadPagefind",
   "src/_lib/public/ui/search.js:readQueryParam",
   "src/_lib/public/ui/search.js:handleSubmit",
+  "src/_lib/public/ui/nav-dropdown.js:initNavDropdown",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/block-schema.js:BLOCK_SCHEMAS", // Schema definitions exported for test verification
