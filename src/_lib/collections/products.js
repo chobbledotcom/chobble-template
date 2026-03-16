@@ -118,7 +118,7 @@ const addGallery = (item) => {
  * @returns {ProductCollectionItem[]}
  */
 const createProductsCollection = (collectionApi) =>
-  getProductsFromApi(collectionApi).map(addGallery);
+  getProductsFromApi(collectionApi).map(addGallery).sort(sortItems);
 
 /**
  * Create a bidirectional product filter for a given indexer.
