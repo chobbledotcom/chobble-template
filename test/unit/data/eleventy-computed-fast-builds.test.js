@@ -54,12 +54,12 @@ describe("generateMockFilterAttributes", () => {
 });
 
 describe("getFilterAttributes", () => {
-  test("Returns undefined when filterAttributes is undefined", () => {
-    expect(getFilterAttributes(undefined, "/products/test.md")).toBeUndefined();
+  test("Returns empty array when filterAttributes is undefined", () => {
+    expect(getFilterAttributes(undefined, "/products/test.md")).toEqual([]);
   });
 
-  test("Returns null when filterAttributes is null", () => {
-    expect(getFilterAttributes(null, "/products/test.md")).toBeNull();
+  test("Returns empty array when filterAttributes is null", () => {
+    expect(getFilterAttributes(null, "/products/test.md")).toEqual([]);
   });
 
   test("Returns original attributes when FAST_INACCURATE_BUILDS is off", () => {

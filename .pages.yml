@@ -112,6 +112,7 @@ content:
         label: Filter Attributes
         type: object
         list: true
+        default: []
         fields:
           - { name: name, type: string, label: Name, required: true }
           - { name: value, type: string, label: Value, required: true }
@@ -469,6 +470,14 @@ content:
       - { name: sleeps, type: number, label: Sleeps }
       - { name: price_per_night, type: number, label: Price Per Night }
       - { name: features, type: string, label: Features, list: true }
+      - name: filter_attributes
+        label: Filter Attributes
+        type: object
+        list: true
+        default: []
+        fields:
+          - { name: name, type: string, label: Name, required: true }
+          - { name: value, type: string, label: Value, required: true }
       - { name: body, type: rich-text, label: Body }
       - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
       - name: meta_description

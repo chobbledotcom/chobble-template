@@ -1,4 +1,5 @@
 {
 	"layout": "property.html",
-	"tags": ["properties"]
+	"tags": ["properties"],
+	"filter_attributes": []
 }

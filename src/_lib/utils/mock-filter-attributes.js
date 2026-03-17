@@ -21,12 +21,13 @@ const generateMockFilterAttributes = (inputPath = "") => {
 
 /**
  * Get filter attributes, returning mock values in FAST_INACCURATE_BUILDS mode.
+ * Defaults to empty array when filter_attributes is not defined.
  * @param {Array<{name: string, value: string}>|undefined} filterAttributes - Original attributes
  * @param {string} inputPath - The file path of the item
- * @returns {Array<{name: string, value: string}>|undefined}
+ * @returns {Array<{name: string, value: string}>}
  */
 const getFilterAttributes = (filterAttributes, inputPath) => {
-  if (!filterAttributes) return filterAttributes;
+  if (!Array.isArray(filterAttributes)) return [];
   if (FAST_INACCURATE_BUILDS) return generateMockFilterAttributes(inputPath);
   return filterAttributes;
 };
