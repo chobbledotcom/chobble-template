@@ -26,7 +26,7 @@
   {%- endunless -%}
   <main{% if pagefind_body %} data-pagefind-body{% endif %}>
     {%- if config.show_breadcrumbs and page.url != "/" -%}
-      {%- include "breadcrumbs.html" -%}
+      {%- include "breadcrumbs-nav.html" -%}
     {%- endif -%}
     {%- if blocks -%}
       {%- include "design-system/blocks.html", blocks: blocks -%}
