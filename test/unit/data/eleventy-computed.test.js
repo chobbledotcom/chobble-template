@@ -335,9 +335,9 @@ describe("eleventyComputed", () => {
   });
 
   describe("filter_attributes", () => {
-    test("Returns undefined when filter_attributes not set", () => {
+    test("Returns empty array when filter_attributes not set", () => {
       const data = { page: { inputPath: "/products/test.md" } };
-      expect(eleventyComputed.filter_attributes(data)).toBeUndefined();
+      expect(eleventyComputed.filter_attributes(data)).toEqual([]);
     });
 
     test("Returns filter_attributes unchanged in normal mode", () => {
