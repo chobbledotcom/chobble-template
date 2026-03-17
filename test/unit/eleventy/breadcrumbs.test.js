@@ -152,6 +152,22 @@ describe("breadcrumbsFilter", () => {
     expect(parentCrumbs[2]).toEqual({ label: "London", url: null });
   });
 
+  test("does not duplicate title when navigationParent is missing on child page", () => {
+    const mockConfig = setupFilter();
+    const crumbs = callFilter(
+      mockConfig,
+      { url: "/perfect-for/political-organising/" },
+      "Political Organising",
+      undefined,
+      null,
+    );
+
+    expect(crumbs).toEqual([
+      { label: "Home", url: "/" },
+      { label: "Political Organising", url: null },
+    ]);
+  });
+
   test("derives URL from page URL for unknown navigation parent", () => {
     const mockConfig = setupFilter();
     const crumbs = callFilter(
