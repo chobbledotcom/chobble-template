@@ -145,12 +145,20 @@ const buildStandardCrumbs = (
 ) => {
   const indexUrl = getIndexUrl(navigationParent, page.url);
   const isAtIndex = page.url === indexUrl;
-  const baseCrumbs = [
-    { label: "Home", url: "/" },
-    { label: navigationParent || title, url: isAtIndex ? null : indexUrl },
-  ];
 
-  if (isAtIndex) return baseCrumbs;
+  if (isAtIndex) {
+    return [
+      { label: "Home", url: "/" },
+      { label: navigationParent || title, url: null },
+    ];
+  }
+
+  const baseCrumbs = navigationParent
+    ? [
+        { label: "Home", url: "/" },
+        { label: navigationParent, url: indexUrl },
+      ]
+    : [{ label: "Home", url: "/" }];
 
   if (itemCategories?.[0] && collections.categories) {
     return buildCategoryCrumbs(
