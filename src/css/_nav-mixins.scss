@@ -239,6 +239,7 @@
 @mixin nav-submenu-toggle {
   // Items with children: row layout for link + caret button side by side
   > ul > li:has(> ul) {
+    flex-direction: row;
     flex-wrap: wrap;
 
     > a {
