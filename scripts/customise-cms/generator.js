@@ -195,8 +195,9 @@ const getCollectionFieldBuilders = (config, fields) => ({
       config.features.videos && VIDEOS_FIELD,
     ]),
 
-  categories: () =>
-    compact([
+  categories: () => {
+    const enabled = memberOf(config.collections);
+    return compact([
       COMMON_FIELDS.title,
       COMMON_FIELDS.thumbnail,
       config.features.parent_categories &&
@@ -207,6 +208,7 @@ const getCollectionFieldBuilders = (config, fields) => ({
           "title",
           false,
         ),
+      productsRefList(enabled),
       fields.body,
       config.features.below_products &&
         createMarkdownField(
@@ -219,7 +221,8 @@ const getCollectionFieldBuilders = (config, fields) => ({
       ...getHeaderFields(config),
       ...META_FIELDS,
       COMMON_FIELDS.subtitle,
-    ]),
+    ]);
+  },
 
   team: () =>
     compact([
@@ -280,6 +283,17 @@ const categoriesRef = (enabled) =>
   createReferenceField("categories", "Categories", "categories");
 
 /**
+ * Create a products object list field with nested reference
+ * @param {(name: string) => boolean} enabled - Collection enablement checker
+ * @returns {false | CmsField} Products object list field or false
+ */
+const productsRefList = (enabled) =>
+  enabled("products") &&
+  createObjectListField("products", "Products", [
+    createReferenceField("product", "Product", "products", "title", false),
+  ]);
+
+/**
  * Build fields for the products collection
  * @param {CmsConfig} config - CMS configuration
  * @param {FieldContext} fields - Precomputed fields
@@ -324,7 +338,7 @@ const buildReviewsFields = (config, fields) =>
  * @returns {CmsField[]} Events collection fields
  */
 const buildEventsFields = (config, fields) =>
-  buildItem(() => [
+  buildItem((enabled) => [
     COMMON_FIELDS.featured,
     config.features.event_locations_and_dates && {
       name: "event_date",
@@ -343,6 +357,7 @@ const buildEventsFields = (config, fields) =>
       type: "string",
       label: "Event Location",
     },
+    productsRefList(enabled),
     config.features.event_locations_and_dates && {
       name: "map_embed_src",
       type: "string",

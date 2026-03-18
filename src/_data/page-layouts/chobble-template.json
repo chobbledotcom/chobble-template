@@ -220,6 +220,7 @@
     {
       "type": "items_array",
       "fields": {
+        "collection": { "type": "string", "label": "Collection Name", "required": true },
         "items": { "type": "reference", "label": "Items", "collection": "pages", "search": "title", "multiple": true },
         "intro": { "type": "markdown", "label": "Intro Content (Markdown)" },
         "horizontal": { "type": "boolean", "label": "Horizontal Slider" },

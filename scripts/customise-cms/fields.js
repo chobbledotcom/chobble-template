@@ -48,13 +48,13 @@ export const COMMON_FIELDS = {
     name: "meta_title",
     type: "string",
     label: "Meta Title",
-    maxlength: 55,
+    options: { maxlength: 55 },
   },
   meta_description: {
     name: "meta_description",
     type: "string",
     label: "Meta Description",
-    maxlength: 155,
+    options: { maxlength: 155 },
   },
   permalink: { name: "permalink", type: "string", label: "Permalink" },
   redirect_from: {

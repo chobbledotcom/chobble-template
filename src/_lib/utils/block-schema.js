@@ -69,7 +69,7 @@ const BLOCK_SCHEMAS = {
   ],
   "image-background": ["image", "image_alt", "content", "class", "parallax"],
   items: ["collection", "intro", "horizontal", "filter"],
-  items_array: ["items", "intro", "horizontal", "filter"],
+  items_array: ["collection", "items", "intro", "horizontal", "filter"],
   contact_form: [
     "content",
     "header_title",
