@@ -891,6 +891,15 @@ content:
                 type: rich-text
                 label: Intro Content (Markdown)
               - { name: horizontal, type: boolean, label: Horizontal Slider }
+              - name: filter
+                type: object
+                label: Filter
+                fields:
+                  - name: property
+                    type: string
+                    label: Property (e.g. url, data.title)
+                  - { name: includes, type: string, label: Contains }
+                  - { name: equals, type: string, label: Equals }
           - name: contact_form
             label: Contact Form
             fields:

@@ -28,6 +28,7 @@ import { configureCollectionValidation } from "#eleventy/validate-collections.js
 import { configureCacheBuster } from "#eleventy/cache-buster.js";
 import { configureCachedBlock } from "#eleventy/cached-block.js";
 import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
+import { configureCollectionFilter } from "#eleventy/collection-filter.js";
 import { configureCapture } from "#eleventy/capture.js";
 import { configureFeed } from "#eleventy/feed.js";
 import { configureFileUtils } from "#eleventy/file-utils.js";
@@ -84,6 +85,7 @@ export default async function (eleventyConfig) {
   configureCollectionLookup(eleventyConfig);
   configureCollectionUtils(eleventyConfig);
   configureCanonicalUrl(eleventyConfig);
+  configureCollectionFilter(eleventyConfig);
   configureCapture(eleventyConfig);
   configureCategories(eleventyConfig);
   configureEvents(eleventyConfig);

@@ -205,7 +205,16 @@
       "fields": {
         "collection": { "type": "string", "label": "Collection Name", "required": true },
         "intro": { "type": "markdown", "label": "Intro Content (Markdown)" },
-        "horizontal": { "type": "boolean", "label": "Horizontal Slider" }
+        "horizontal": { "type": "boolean", "label": "Horizontal Slider" },
+        "filter": {
+          "type": "object",
+          "label": "Filter",
+          "fields": {
+            "property": { "type": "string", "label": "Property (e.g. url, data.title)" },
+            "includes": { "type": "string", "label": "Contains" },
+            "equals": { "type": "string", "label": "Equals" }
+          }
+        }
       }
     },
     {
