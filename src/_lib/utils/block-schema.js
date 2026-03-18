@@ -11,20 +11,28 @@
  */
 const COMMON_BLOCK_KEYS = ["section_class", "full_width"];
 
+/** Keys for optional section-header rendering within a block. */
+const HEADER_KEYS = [
+  "header_title",
+  "header_subtitle",
+  "header_level",
+  "header_align",
+  "header_class",
+];
+
 /**
  * Allowed keys per block type (excluding common keys and "type").
  */
 const BLOCK_SCHEMAS = {
   "section-header": ["title", "subtitle", "level", "align", "class"],
-  features: [
+  features: ["items", "reveal", "heading_level", "grid_class", ...HEADER_KEYS],
+  "image-cards": [
     "items",
     "reveal",
     "heading_level",
-    "grid_class",
-    "header_title",
-    "header_subtitle",
+    "image_aspect_ratio",
+    ...HEADER_KEYS,
   ],
-  "image-cards": ["items", "reveal", "heading_level", "image_aspect_ratio"],
   stats: ["items", "reveal"],
   "code-block": ["filename", "code", "language", "reveal"],
   hero: ["badge", "title", "lead", "buttons", "class", "reveal"],
@@ -68,16 +76,16 @@ const BLOCK_SCHEMAS = {
     "class",
   ],
   "image-background": ["image", "image_alt", "content", "class", "parallax"],
-  items: ["collection", "intro", "horizontal", "filter"],
-  items_array: ["collection", "items", "intro", "horizontal", "filter"],
-  contact_form: [
-    "content",
-    "header_title",
-    "header_subtitle",
-    "header_level",
-    "header_align",
-    "header_class",
+  items: ["collection", "intro", "horizontal", "filter", ...HEADER_KEYS],
+  items_array: [
+    "collection",
+    "items",
+    "intro",
+    "horizontal",
+    "filter",
+    ...HEADER_KEYS,
   ],
+  contact_form: ["content", ...HEADER_KEYS],
   markdown: ["content"],
   html: ["content"],
   content: [],
