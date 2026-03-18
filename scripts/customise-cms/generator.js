@@ -891,6 +891,7 @@ const VALID_SCHEMA_FIELD_TYPES = new Set([
   "image",
   "object",
   "markdown",
+  "reference",
 ]);
 
 /**
@@ -917,6 +918,16 @@ const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
       {
         ...(fieldSchema.required && { required: true }),
       },
+    );
+  }
+
+  if (fieldSchema.type === "reference") {
+    return createReferenceField(
+      name,
+      fieldSchema.label || name,
+      fieldSchema.collection,
+      fieldSchema.search || "title",
+      fieldSchema.multiple !== false,
     );
   }
 

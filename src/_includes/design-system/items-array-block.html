@@ -1,0 +1,22 @@
+{%- comment -%}
+Items array block: renders items from an explicit list of paths using items.html.
+
+Parameters (from block):
+  items       - Array of file paths (e.g. from PagesCMS references)
+  intro       - Optional markdown content rendered above the items
+  horizontal  - If true, renders as a horizontal slider
+  filter      - Optional object to filter the resolved items:
+                  property: dot-notation path (e.g. "url", "data.title")
+                  includes: string the property must contain
+                  equals:   exact value the property must match
+{%- endcomment -%}
+
+{%- if block.intro -%}
+  <div class="prose">{{ block.intro | renderContent: "md" }}</div>
+{%- endif -%}
+
+{%- assign blockItems = collections.all | getItemsByPath: block.items -%}
+{%- if block.filter -%}
+  {%- assign blockItems = blockItems | filterItems: block.filter -%}
+{%- endif -%}
+{%- include "items.html", items: blockItems, horizontal: block.horizontal -%}

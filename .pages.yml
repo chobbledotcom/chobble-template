@@ -14,6 +14,7 @@ content:
     path: src/pages
     type: collection
     subfolders: false
+    filename: "{primary}.md"
     view:
       fields:
         - permalink
@@ -22,18 +23,17 @@ content:
       sort:
         - meta_title
     exclude:
-      - about.md
-      - chobble-template.md
       - services.md
+      - chobble-template.md
+      - about.md
     fields:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Body }
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - name: eleventyNavigation
         label: Navigation
         type: object
@@ -68,6 +68,7 @@ content:
     path: src/products
     type: collection
     subfolders: false
+    filename: "{primary}.md"
     fields:
       - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
@@ -112,17 +113,15 @@ content:
         label: Filter Attributes
         type: object
         list: true
-        default: []
         fields:
           - { name: name, type: string, label: Name, required: true }
           - { name: value, type: string, label: Value, required: true }
       - { name: body, type: rich-text, label: Body }
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -182,32 +181,17 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - name: products
-        label: Products
-        type: object
-        list: true
-        fields:
-          - name: product
-            label: Product
-            type: reference
-            options:
-              collection: products
-              multiple: false
-              search: title
-              value: "{path}"
-              label: "{title}"
       - { name: body, type: rich-text, label: Body }
       - name: below_products
         type: rich-text
         label: Below Products Description
       - { name: featured, type: boolean, label: Featured }
       - { name: keywords, type: string, label: Search Keywords, list: true }
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - { name: subtitle, type: string, label: Subtitle }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
@@ -242,12 +226,11 @@ content:
           label: "{title}"
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Body }
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - { name: no_index, type: boolean, label: Hide from listings }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
@@ -291,31 +274,16 @@ content:
         label: Recurring Date (e.g. "Every Friday at 2 PM")
         required: false
       - { name: event_location, type: string, label: Event Location }
-      - name: products
-        label: Products
-        type: object
-        list: true
-        fields:
-          - name: product
-            label: Product
-            type: reference
-            options:
-              collection: products
-              multiple: false
-              search: title
-              value: "{path}"
-              label: "{title}"
       - name: map_embed_src
         type: string
         label: Map Embed URL
         required: false
       - { name: body, type: rich-text, label: Body }
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -361,6 +329,7 @@ content:
     path: src/reviews
     type: collection
     subfolders: false
+    filename: "{primary}.md"
     fields:
       - { name: name, type: string, label: Name }
       - { name: url, type: string, label: URL }
@@ -414,12 +383,11 @@ content:
           value: "{path}"
           label: "{title}"
       - { name: body, type: rich-text, label: Body }
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -470,21 +438,12 @@ content:
       - { name: sleeps, type: number, label: Sleeps }
       - { name: price_per_night, type: number, label: Price Per Night }
       - { name: features, type: string, label: Features, list: true }
-      - name: filter_attributes
-        label: Filter Attributes
-        type: object
-        list: true
-        default: []
-        fields:
-          - { name: name, type: string, label: Name, required: true }
-          - { name: value, type: string, label: Value, required: true }
       - { name: body, type: rich-text, label: Body }
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -583,18 +542,18 @@ content:
     path: src/menus
     type: collection
     subfolders: false
+    filename: "{primary}.md"
     fields:
       - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
       - { name: body, type: rich-text, label: Body }
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -614,6 +573,7 @@ content:
     path: src/menu-categories
     type: collection
     subfolders: false
+    filename: "{primary}.md"
     fields:
       - { name: name, type: string, label: Name }
       - { name: thumbnail, type: image, label: Thumbnail }
@@ -647,6 +607,7 @@ content:
     path: src/menu-items
     type: collection
     subfolders: false
+    filename: "{primary}.md"
     fields:
       - { name: name, type: string, label: Name }
       - { name: thumbnail, type: image, label: Thumbnail }
@@ -687,17 +648,16 @@ content:
     fields:
       - { name: name, type: string, label: Name }
       - { name: body, type: rich-text, label: Body }
-  - name: page-about
-    label: About Page
+  - name: page-services
+    label: Services Page
     type: file
-    path: src/pages/about.md
+    path: src/pages/services.md
     fields:
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - name: blocks
         label: Content Blocks
         type: block
@@ -725,6 +685,14 @@ content:
                     type: string
                     label: Description
                     required: true
+          - name: code-block
+            label: Code Block
+            fields:
+              - name: filename
+                type: string
+                label: Filename
+                required: true
+              - { name: code, type: string, label: Code, required: true }
           - name: stats
             label: Stats
             fields:
@@ -741,12 +709,11 @@ content:
     type: file
     path: src/pages/chobble-template.md
     fields:
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - name: blocks
         label: Content Blocks
         type: block
@@ -900,6 +867,31 @@ content:
                     label: Property (e.g. url, data.title)
                   - { name: includes, type: string, label: Contains }
                   - { name: equals, type: string, label: Equals }
+          - name: items_array
+            label: Items Array
+            fields:
+              - name: items
+                label: Items
+                type: reference
+                options:
+                  collection: pages
+                  multiple: true
+                  search: title
+                  value: "{path}"
+                  label: "{title}"
+              - name: intro
+                type: rich-text
+                label: Intro Content (Markdown)
+              - { name: horizontal, type: boolean, label: Horizontal Slider }
+              - name: filter
+                type: object
+                label: Filter
+                fields:
+                  - name: property
+                    type: string
+                    label: Property (e.g. url, data.title)
+                  - { name: includes, type: string, label: Contains }
+                  - { name: equals, type: string, label: Equals }
           - name: contact_form
             label: Contact Form
             fields:
@@ -920,22 +912,17 @@ content:
                   - { name: href, type: string, label: URL, required: true }
                   - { name: variant, type: string, label: Variant }
                   - { name: size, type: string, label: Size }
-          - name: reviews
-            label: Reviews
-            fields:
-              - { name: current_item, type: boolean, label: Filter to current item }
       - { name: body, type: rich-text, label: Body }
-  - name: page-services
-    label: Services Page
+  - name: page-about
+    label: About Page
     type: file
-    path: src/pages/services.md
+    path: src/pages/about.md
     fields:
-      - { name: meta_title, type: string, label: Meta Title, options: { maxlength: 55 } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
-        options:
-          maxlength: 155
+        maxlength: 155
       - name: blocks
         label: Content Blocks
         type: block
@@ -963,14 +950,6 @@ content:
                     type: string
                     label: Description
                     required: true
-          - name: code-block
-            label: Code Block
-            fields:
-              - name: filename
-                type: string
-                label: Filename
-                required: true
-              - { name: code, type: string, label: Code, required: true }
           - name: stats
             label: Stats
             fields:
@@ -981,10 +960,6 @@ content:
                 fields:
                   - { name: value, type: string, label: Value, required: true }
                   - { name: label, type: string, label: Label, required: true }
-          - name: reviews
-            label: Reviews
-            fields:
-              - { name: current_item, type: boolean, label: Filter to current item }
       - { name: body, type: rich-text, label: Body }
   - name: homepage
     label: Homepage Settings

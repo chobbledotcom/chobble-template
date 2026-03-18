@@ -16,6 +16,7 @@ describe("BLOCK_SCHEMAS", () => {
       "video-background",
       "image-background",
       "items",
+      "items_array",
       "contact_form",
       "markdown",
       "html",
