@@ -1,15 +1,16 @@
 {%- comment -%}
-Items block: renders a collection using items.html with optional intro and horizontal slider.
+Items array block: renders items from an explicit list of paths using items.html.
 
 Parameters (from block):
-  collection  - Name of an Eleventy collection (e.g. "featuredProducts")
+  collection  - Name of an Eleventy collection to resolve paths against
+  items       - Array of file paths (e.g. from PagesCMS references)
   intro       - Optional markdown content rendered above the items
   horizontal  - If true, renders as a horizontal slider
-  filter      - Optional object to filter the collection:
+  filter      - Optional object to filter the resolved items:
                   property: dot-notation path (e.g. "url", "data.title")
                   includes: string the property must contain
                   equals:   exact value the property must match
 {%- endcomment -%}
 
-{%- assign blockItems = collections[block.collection] -%}
+{%- assign blockItems = collections.all | getItemsByPath: block.items -%}
 {%- include "design-system/render-items-block.html" -%}

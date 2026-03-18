@@ -34,6 +34,16 @@ import { normaliseSlug } from "#utils/slug-utils.js";
 export const indexBySlug = indexBy((item) => item.fileSlug);
 
 /**
+ * Shared inputPath indexer - cached per collection reference.
+ * Creates an inputPath → item lookup object for O(1) access.
+ *
+ * @template {EleventyCollectionItem} T
+ * @param {T[]} collection - Collection to index
+ * @returns {Record<string, T>} Lookup object keyed by inputPath
+ */
+export const indexByInputPath = indexBy((item) => item.inputPath);
+
+/**
  * Look up a single item by its fileSlug.
  * Uses cached index for O(1) lookups across all pages.
  * Throws if the slug is not found - a missing slug indicates a data error.
@@ -59,6 +69,26 @@ export const getBySlug = (collection, slug) => {
 };
 
 /**
+ * Resolve an array of file paths to collection items.
+ * Skips paths that don't match any item (e.g. deleted content).
+ * Preserves the order of the input paths array.
+ *
+ * @template {EleventyCollectionItem} T
+ * @param {T[]} collection - The full collection (typically collections.all)
+ * @param {string[]} paths - Array of inputPath values to resolve
+ * @returns {T[]} Matching items in the order of the input paths
+ */
+export const getItemsByPath = (collection, paths) => {
+  if (!Array.isArray(paths) || paths.length === 0) return [];
+  const index = indexByInputPath(collection);
+  /** @param {string} p */
+  const normalize = (p) => (p.startsWith("./") ? p : `./${p}`);
+  return paths
+    .map((p) => index[p] || index[normalize(p)])
+    .filter((item) => item !== undefined);
+};
+
+/**
  * Configure collection lookup filter for Eleventy.
  *
  * Replaces O(n) patterns like:
@@ -74,4 +104,5 @@ export const getBySlug = (collection, slug) => {
  */
 export const configureCollectionLookup = (eleventyConfig) => {
   eleventyConfig.addFilter("getBySlug", getBySlug);
+  eleventyConfig.addFilter("getItemsByPath", getItemsByPath);
 };

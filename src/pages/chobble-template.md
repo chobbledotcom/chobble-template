@@ -44,6 +44,18 @@ blocks:
       Display any collection in grids or with horizontal sliders.
     horizontal: true
 
+  # Items Array - explicit product selection
+  - type: items_array
+    collection: products
+    items:
+      - src/products/mini-gizmo.md
+      - src/products/ultrawidget-pro.md
+      - src/products/heritage-thingy-deluxe.md
+    intro: |
+      ## A Selection of Products
+
+      Hand-pick specific items from any collection using the items array block.
+
   # Stats
   - type: stats
     section_class: alt

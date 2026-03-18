@@ -277,9 +277,9 @@ describe("customise-cms fields", () => {
     expect(COMMON_FIELDS.body.type).toBe("code");
   });
 
-  test("COMMON_FIELDS includes meta fields with maxlength", () => {
-    expect(COMMON_FIELDS.meta_title.maxlength).toBe(55);
-    expect(COMMON_FIELDS.meta_description.maxlength).toBe(155);
+  test("COMMON_FIELDS includes meta fields with maxlength in options", () => {
+    expect(COMMON_FIELDS.meta_title.options.maxlength).toBe(55);
+    expect(COMMON_FIELDS.meta_description.options.maxlength).toBe(155);
   });
 
   // ============================================

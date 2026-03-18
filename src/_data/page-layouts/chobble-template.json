@@ -218,6 +218,24 @@
       }
     },
     {
+      "type": "items_array",
+      "fields": {
+        "collection": { "type": "string", "label": "Collection Name", "required": true },
+        "items": { "type": "reference", "label": "Items", "collection": "pages", "search": "title", "multiple": true },
+        "intro": { "type": "markdown", "label": "Intro Content (Markdown)" },
+        "horizontal": { "type": "boolean", "label": "Horizontal Slider" },
+        "filter": {
+          "type": "object",
+          "label": "Filter",
+          "fields": {
+            "property": { "type": "string", "label": "Property (e.g. url, data.title)" },
+            "includes": { "type": "string", "label": "Contains" },
+            "equals": { "type": "string", "label": "Equals" }
+          }
+        }
+      }
+    },
+    {
       "type": "contact_form",
       "fields": {
         "content": { "type": "markdown", "label": "Content" }
