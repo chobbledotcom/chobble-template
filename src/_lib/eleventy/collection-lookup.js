@@ -14,7 +14,6 @@
  * {% assign author = collections.team | getBySlug: authorSlug %}
  */
 
-import { compact } from "#toolkit/fp/array.js";
 import { indexBy } from "#toolkit/fp/memoize.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
@@ -82,7 +81,7 @@ export const getBySlug = (collection, slug) => {
 export const getItemsByPath = (collection, paths) => {
   if (!Array.isArray(paths) || paths.length === 0) return [];
   const index = indexByInputPath(collection);
-  return compact(paths.map((p) => index[p]));
+  return paths.map((p) => index[p]).filter((item) => item !== undefined);
 };
 
 /**

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   configureCollectionLookup,
   getBySlug,
+  getItemsByPath,
   indexBySlug,
 } from "#eleventy/collection-lookup.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
@@ -133,6 +134,56 @@ describe("collection-lookup", () => {
       const index = indexBySlug(collection);
 
       expect(index.widget.data.title).toBe("Second Widget");
+    });
+  });
+
+  describe("getItemsByPath", () => {
+    const pathItem = (inputPath, title) => ({
+      inputPath,
+      fileSlug: inputPath.split("/").pop().replace(".md", ""),
+      data: { title },
+    });
+
+    test("Returns items matching paths in order", () => {
+      const collection = [
+        pathItem("src/products/widget.md", "Widget"),
+        pathItem("src/products/gadget.md", "Gadget"),
+        pathItem("src/events/launch.md", "Launch"),
+      ];
+
+      const result = getItemsByPath(collection, [
+        "src/events/launch.md",
+        "src/products/widget.md",
+      ]);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].data.title).toBe("Launch");
+      expect(result[1].data.title).toBe("Widget");
+    });
+
+    test("Skips paths that do not match any item", () => {
+      const collection = [pathItem("src/products/widget.md", "Widget")];
+
+      const result = getItemsByPath(collection, [
+        "src/products/widget.md",
+        "src/products/missing.md",
+      ]);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].data.title).toBe("Widget");
+    });
+
+    test("Returns empty array for empty paths", () => {
+      const collection = [pathItem("src/products/widget.md", "Widget")];
+
+      expect(getItemsByPath(collection, [])).toEqual([]);
+    });
+
+    test("Returns empty array for non-array paths", () => {
+      const collection = [pathItem("src/products/widget.md", "Widget")];
+
+      expect(getItemsByPath(collection, null)).toEqual([]);
+      expect(getItemsByPath(collection, undefined)).toEqual([]);
     });
   });
 
