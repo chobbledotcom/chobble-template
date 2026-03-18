@@ -83,8 +83,10 @@ export const getItemsByPath = (collection, paths) => {
   const index = indexByInputPath(collection);
   /** @param {string} p */
   const normalize = (p) => (p.startsWith("./") ? p : `./${p}`);
+  /** @param {string} p */
+  const withSrc = (p) => `./src/${p.replace(/^\.?\//, "")}`;
   return paths
-    .map((p) => index[p] || index[normalize(p)])
+    .map((p) => index[p] || index[normalize(p)] || index[withSrc(p)])
     .filter((item) => item !== undefined);
 };
 
