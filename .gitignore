@@ -154,3 +154,5 @@ test/.test-sites/
 screenshots/
 lighthouse-reports/
 src/assets/icons/iconify/test/
+
+.claude
