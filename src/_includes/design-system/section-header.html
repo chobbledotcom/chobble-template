@@ -28,8 +28,8 @@ Usage (block object - used by blocks.html):
   {%- assign _sh_classes = _sh_classes | append: " " | append: _sh_class -%}
 {%- endif -%}
 
-<div class="section-header stack--sm {{ _sh_classes }}">
-  {%- if _sh_intro -%}
-    <div class="prose">{{ _sh_intro | renderContent: "md" }}</div>
-  {%- endif -%}
+{%- if _sh_intro -%}
+<div class="section-header prose {{ _sh_classes }}">
+  {{ _sh_intro | renderContent: "md" }}
 </div>
+{%- endif -%}
