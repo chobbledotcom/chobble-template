@@ -12,19 +12,13 @@
 const COMMON_BLOCK_KEYS = ["section_class", "full_width"];
 
 /** Keys for optional section-header rendering within a block. */
-const HEADER_KEYS = [
-  "header_title",
-  "header_subtitle",
-  "header_level",
-  "header_align",
-  "header_class",
-];
+const HEADER_KEYS = ["header_intro", "header_align", "header_class"];
 
 /**
  * Allowed keys per block type (excluding common keys and "type").
  */
 const BLOCK_SCHEMAS = {
-  "section-header": ["title", "subtitle", "level", "align", "class"],
+  "section-header": ["intro", "align", "class"],
   features: ["items", "reveal", "heading_level", "grid_class", ...HEADER_KEYS],
   "image-cards": [
     "items",

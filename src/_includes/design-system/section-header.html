@@ -1,27 +1,23 @@
 {%- comment -%}
-Section header with title and optional subtitle.
+Section header with rich text intro.
 
 Parameters (via named params or block object):
-  - title / block.title: The section title (required)
-  - subtitle / block.subtitle: Optional description text
-  - level / block.level: Heading level, defaults to 2 (h2)
+  - intro / block.intro: Rich text content rendered as markdown
   - align / block.align: Text alignment, defaults to "center"
   - header_class / block.class: Additional CSS classes
 
 Usage (named params - preferred for re-use from other includes):
   {% include "design-system/section-header.html",
-     title: "My Section", subtitle: "Optional description here"
+     intro: "## My Section\nOptional description here"
   %}
 
 Usage (block object - used by blocks.html):
   {% include "design-system/section-header.html",
-     block: { title: "My Section", subtitle: "Optional description here" }
+     block: { intro: "## My Section\nOptional description here" }
   %}
 {%- endcomment -%}
 
-{%- assign _sh_title = title | default: block.title -%}
-{%- assign _sh_subtitle = subtitle | default: block.subtitle -%}
-{%- assign _sh_level = level | default: block.level | default: 2 -%}
+{%- assign _sh_intro = intro | default: block.intro -%}
 {%- assign _sh_align = align | default: block.align | default: "center" -%}
 {%- assign _sh_class = header_class | default: block.class -%}
 {%- assign _sh_classes = "" -%}
@@ -32,9 +28,8 @@ Usage (block object - used by blocks.html):
   {%- assign _sh_classes = _sh_classes | append: " " | append: _sh_class -%}
 {%- endif -%}
 
-<hgroup class="section-header stack--sm {{ _sh_classes }}">
-  <h{{ _sh_level }}>{{ _sh_title }}</h{{ _sh_level }}>
-  {%- if _sh_subtitle -%}
-    <p class="text-muted">{{ _sh_subtitle }}</p>
+<div class="section-header stack--sm {{ _sh_classes }}">
+  {%- if _sh_intro -%}
+    <div class="prose">{{ _sh_intro | renderContent: "md" }}</div>
   {%- endif -%}
-</hgroup>
+</div>

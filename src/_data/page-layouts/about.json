@@ -4,8 +4,7 @@
     {
       "type": "section-header",
       "fields": {
-        "title": { "type": "string", "label": "Title", "required": true },
-        "subtitle": { "type": "string", "label": "Subtitle" }
+        "intro": { "type": "markdown", "label": "Section Header Intro" }
       }
     },
     {
@@ -26,8 +25,7 @@
     {
       "type": "section-header",
       "fields": {
-        "title": { "type": "string", "label": "Title", "required": true },
-        "subtitle": { "type": "string", "label": "Subtitle" }
+        "intro": { "type": "markdown", "label": "Section Header Intro" }
       }
     },
     {

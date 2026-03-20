@@ -72,10 +72,10 @@ blocks:
 
   # Features - Everything Your Business Needs
   - type: features
-    header_title: What's Included
-    header_subtitle: >-
-      Product catalogs, event calendars, holiday lets, restaurant menus, and more.
-      All from one template.
+    header_intro: |-
+      ## What's Included
+
+      Product catalogs, event calendars, holiday lets, restaurant menus, and more. All from one template.
     items:
       - icon: "hugeicons:shopping-cart-01"
         title: E-Commerce Ready
@@ -175,8 +175,10 @@ blocks:
   - type: features
     section_class: alt
 
-    header_title: Commerce Options
-    header_subtitle: Sell products, take quotes, or both. Card payments and enquiry forms are built in.
+    header_intro: |-
+      ## Commerce Options
+
+      Sell products, take quotes, or both. Card payments and enquiry forms are built in.
     grid_class: grid--4 text-center
     heading_level: 4
     items:
@@ -216,8 +218,10 @@ blocks:
   - type: features
     section_class: alt
 
-    header_title: Built-in SEO
-    header_subtitle: Structured data is generated automatically from your content.
+    header_intro: |-
+      ## Built-in SEO
+
+      Structured data is generated automatically from your content.
     grid_class: grid
     heading_level: 4
     items:
