@@ -42,9 +42,7 @@ describe("BLOCK_SCHEMAS", () => {
 
 describe("validateBlocks", () => {
   test("accepts valid block with known type and keys", () => {
-    const blocks = [
-      { type: "section-header", title: "Hello", subtitle: "World" },
-    ];
+    const blocks = [{ type: "section-header", intro: "## Hello\n\nWorld" }];
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
@@ -84,9 +82,7 @@ describe("validateBlocks", () => {
     const blocks = [
       {
         type: "section-header",
-        title: "Title",
-        subtitle: "Subtitle",
-        level: 2,
+        intro: "## Title\n\nSubtitle text",
         align: "center",
         class: "custom",
       },
@@ -207,9 +203,7 @@ describe("validateBlocks", () => {
       {
         type: "contact_form",
         content: "Get in touch",
-        header_title: "Contact Us",
-        header_subtitle: "We'd love to hear from you",
-        header_level: 2,
+        header_intro: "## Contact Us\n\nWe'd love to hear from you",
         header_align: "center",
         header_class: "custom",
       },
@@ -225,7 +219,7 @@ describe("validateBlocks", () => {
 
   test("validates all blocks in array", () => {
     const blocks = [
-      { type: "section-header", title: "Hello" },
+      { type: "section-header", intro: "## Hello" },
       { type: "stats", items: [] },
     ];
     expect(() => validateBlocks(blocks)).not.toThrow();
@@ -233,7 +227,7 @@ describe("validateBlocks", () => {
 
   test("throws with block index in error message", () => {
     const blocks = [
-      { type: "section-header", title: "Hello" },
+      { type: "section-header", intro: "## Hello" },
       { type: "video-background", video_url: "bad" },
     ];
     expect(() => validateBlocks(blocks)).toThrow("block 2");

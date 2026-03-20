@@ -4,8 +4,10 @@ meta_description: Learn more about our widgets, wotzits, and gizmos, and the tea
 layout: design-system-base.html
 blocks:
   - type: section-header
-    title: About Our Business
-    subtitle: Quality widgets, wotzits, and gizmos since 2010
+    intro: |-
+      ## About Our Business
+
+      Quality widgets, wotzits, and gizmos since 2010
   - type: features
     items:
       - icon: "hugeicons:rocket"
@@ -18,8 +20,10 @@ blocks:
         title: Expert Support
         description: Our team of specialists is here to help you 24/7.
   - type: section-header
-    title: Our Numbers
-    subtitle: See what we have achieved
+    intro: |-
+      ## Our Numbers
+
+      See what we have achieved
   - type: stats
     items:
       - value: "10k+"

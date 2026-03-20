@@ -1,12 +1,8 @@
-{%- if block.header_title -%}
+{%- if block.header_intro -%}
   {%- include "design-system/section-header.html",
-     block: {
-       title: block.header_title,
-       subtitle: block.header_subtitle,
-       level: block.header_level,
-       align: block.header_align,
-       class: block.header_class
-     }
+     intro: block.header_intro,
+     align: block.header_align,
+     header_class: block.header_class
   -%}
 {%- endif -%}
 <div class="contact-form-block">

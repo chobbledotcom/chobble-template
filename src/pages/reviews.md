@@ -8,7 +8,8 @@ eleventyNavigation:
   order: 4
 blocks:
   - type: section-header
-    title: Customer Feedback
+    intro: |-
+      ## Customer Feedback
   - type: reviews
     current_item: false
 ---

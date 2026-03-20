@@ -31,7 +31,7 @@ const BLOCK_DEFAULTS = {
   features: { reveal: true, heading_level: 3, grid_class: "features" },
   stats: { reveal: true },
   split: { title_level: 2, reveal_figure: "scale" },
-  "section-header": { level: 2, align: "center" },
+  "section-header": { align: "center" },
   "image-cards": { reveal: true, heading_level: 3 },
   "code-block": { reveal: true },
   "video-background": { aspect_ratio: "16/9" },

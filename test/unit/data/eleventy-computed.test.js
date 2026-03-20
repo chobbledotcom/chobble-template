@@ -461,14 +461,13 @@ describe("eleventyComputed", () => {
 
     test("Applies defaults for section-header block type", () => {
       const data = {
-        blocks: [{ type: "section-header", title: "Header" }],
+        blocks: [{ type: "section-header", intro: "## Header" }],
         page,
       };
       const result = eleventyComputed.blocks(data);
       expect(result[0]).toEqual({
         type: "section-header",
-        title: "Header",
-        level: 2,
+        intro: "## Header",
         align: "center",
         section_class: "",
       });

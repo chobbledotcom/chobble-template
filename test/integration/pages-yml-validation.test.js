@@ -7,10 +7,11 @@ import { ROOT_DIR } from "#lib/paths.js";
 
 const PAGES_CMS_REPO = "https://github.com/pages-cms/pages-cms";
 const PAGES_CMS_CACHE = "/tmp/pages-cms-validation-cache";
+const SCHEMA_FILENAME = "config-schema.ts";
 const TEMP_SCHEMA_PATH = path.join(
   ROOT_DIR,
   ".cache",
-  "pages-cms-configSchema.ts",
+  `pages-cms-${SCHEMA_FILENAME}`,
 );
 
 /**
@@ -23,8 +24,9 @@ describe("pages.yml validation against Pages CMS schema", () => {
   const state = { ConfigSchema: null };
 
   beforeAll(async () => {
-    // Clone pages-cms if not already cached
-    if (!fs.existsSync(path.join(PAGES_CMS_CACHE, "lib", "configSchema.ts"))) {
+    // Clone pages-cms if not already cached (remove stale cache first)
+    if (!fs.existsSync(path.join(PAGES_CMS_CACHE, "lib", SCHEMA_FILENAME))) {
+      fs.rmSync(PAGES_CMS_CACHE, { recursive: true, force: true });
       execSync(`git clone --depth 1 ${PAGES_CMS_REPO} ${PAGES_CMS_CACHE}`, {
         stdio: "pipe",
         timeout: 120_000,
@@ -39,15 +41,12 @@ describe("pages.yml validation against Pages CMS schema", () => {
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name);
 
-    // Read the actual configSchema.ts from Pages CMS and replace the field
+    // Read the actual config-schema.ts from Pages CMS and replace the field
     // registry import with a static set derived from the actual core field
     // types directory. The registry uses webpack's require.context which
     // isn't available outside Next.js.
     const schemaSource = fs
-      .readFileSync(
-        path.join(PAGES_CMS_CACHE, "lib", "configSchema.ts"),
-        "utf8",
-      )
+      .readFileSync(path.join(PAGES_CMS_CACHE, "lib", SCHEMA_FILENAME), "utf8")
       .replace(
         /import\s*\{[^}]*fieldTypes[^}]*\}\s*from\s*["']@\/fields\/registry["'];?/,
         `const fieldTypes = new Set(${JSON.stringify(coreFieldTypes)});`,

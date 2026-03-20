@@ -4,8 +4,10 @@ meta_description: Explore our range of services for widgets, wotzits, and gizmos
 layout: design-system-base.html
 blocks:
   - type: section-header
-    title: Our Services
-    subtitle: What we can do for you
+    intro: |-
+      ## Our Services
+
+      What we can do for you
   - type: features
     items:
       - icon: "hugeicons:wrench-01"
