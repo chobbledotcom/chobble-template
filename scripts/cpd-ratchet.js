@@ -9,12 +9,10 @@
  * to force updating the threshold.
  */
 
-// jscpd:ignore-start
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
-// jscpd:ignore-end
 
 // Read current threshold from package.json cpd script (single source of truth)
 const pkg = JSON.parse(readFileSync(join(ROOT_DIR, "package.json"), "utf-8"));
