@@ -11,6 +11,7 @@
 		"**/packages/**/index.js"
 	],
 	"format": ["javascript", "markup", "css", "scss"],
+	"ignorePattern": ["import.*from"],
 	"absolute": false,
 	"gitignore": true,
 	"exitCode": 1,

@@ -305,7 +305,9 @@ const findHtmlInJs = (source) =>
 // Complete analyzer - find + allowlist + files in one definition
 const htmlInJsAnalysis = withAllowlist({
   find: findHtmlInJs,
-  allowlist: new Set(),
+  allowlist: new Set([
+    "src/_lib/utils/block-schema.js", // htmlRoot documentation strings describe template markup
+  ]),
   files: () => SRC_JS_FILES(),
 });
 

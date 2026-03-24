@@ -96,6 +96,7 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/transforms/images.test.js",
   "test/unit/eleventy/cached-block.test.js",
   "test/unit/toolkit/set.test.js",
+  "test/unit/utils/block-docs.test.js",
 ]);
 
 // ============================================
@@ -221,6 +222,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/public/ui/nav-dropdown.js:initNavDropdown",
 
   // Utility functions - tested for shared logic
+  "src/_lib/utils/block-schema.js:BLOCK_DOCS", // Documentation exported for test verification and script generation
   "src/_lib/utils/block-schema.js:BLOCK_SCHEMAS", // Schema definitions exported for test verification
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
