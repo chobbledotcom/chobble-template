@@ -165,6 +165,12 @@ const OVERLAY_CONTENT_PARAM = {
     'Overlay content. Rendered as markdown in `<figcaption class="prose">`.',
 };
 
+/** Shared SCSS and htmlRoot for card-grid blocks (image-cards, gallery). */
+const ITEMS_GRID_META = {
+  scss: "src/css/design-system/_items.scss",
+  htmlRoot: '<ul class="items" role="list">',
+};
+
 const BLOCK_DOCS = {
   hero: {
     summary:
@@ -257,8 +263,7 @@ const BLOCK_DOCS = {
     summary:
       "Grid of cards featuring images with titles and optional descriptions.",
     template: "src/_includes/design-system/image-cards.html",
-    scss: "src/css/design-system/_items.scss",
-    htmlRoot: '<ul class="items" role="list">',
+    ...ITEMS_GRID_META,
     params: {
       items: {
         type: "array",
@@ -602,7 +607,7 @@ const BLOCK_DOCS = {
     summary:
       "Displays an Eleventy collection as a card grid or horizontal slider.",
     template: "src/_includes/design-system/items-block.html",
-    scss: "src/css/design-system/_items.scss",
+    scss: ITEMS_GRID_META.scss,
     params: {
       collection: {
         type: "string",
@@ -619,7 +624,7 @@ const BLOCK_DOCS = {
     summary:
       "Renders items from an explicit list of paths (e.g. from Pages CMS content references).",
     template: "src/_includes/design-system/items-array-block.html",
-    scss: "src/css/design-system/_items.scss",
+    scss: ITEMS_GRID_META.scss,
     params: {
       collection: {
         type: "string",
@@ -723,8 +728,7 @@ const BLOCK_DOCS = {
   gallery: {
     summary: "Image grid with optional aspect ratio cropping and captions.",
     template: "src/_includes/design-system/gallery.html",
-    scss: "src/css/design-system/_items.scss",
-    htmlRoot: '<ul class="items" role="list">',
+    ...ITEMS_GRID_META,
     params: {
       items: {
         type: "array",
