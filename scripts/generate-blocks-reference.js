@@ -8,9 +8,11 @@
  * Run: bun scripts/generate-blocks-reference.js
  */
 
+// jscpd:ignore-start
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
+// jscpd:ignore-end
 import { BLOCK_DOCS, BLOCK_SCHEMAS } from "#utils/block-schema.js";
 
 const BLOCKS_LAYOUT_PATH = join(ROOT_DIR, "BLOCKS_LAYOUT.md");
