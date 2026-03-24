@@ -33,6 +33,8 @@ export const normalizeImagePath = (imageName) => {
  * Parse widths parameter and add "auto" for original source image.
  * Handles comma-separated string "240,480,900" or array [240, 480, 900].
  * Always appends "auto" to include the original source image.
+ * @param {string | number[] | null} [widths] - Widths as CSV string or array
+ * @returns {number[]} Parsed widths with "auto" appended (eleventy-img accepts "auto" as width)
  */
 export const parseWidths = (widths) => {
   const parsed =
@@ -40,7 +42,7 @@ export const parseWidths = (widths) => {
       ? widths.split(",").filter(Boolean)
       : widths || DEFAULT_WIDTHS;
   const result = parsed.length > 0 ? parsed : DEFAULT_WIDTHS;
-  return [...result, "auto"];
+  return /** @type {number[]} */ ([...result, "auto"]);
 };
 
 /**
@@ -61,7 +63,7 @@ const buildImgAttributes = ({
   classes = null,
 } = {}) => ({
   ...(src && { src }),
-  alt,
+  alt: alt || "",
   sizes: sizes || DEFAULT_SIZE,
   loading: loading || "lazy",
   decoding: "async",
@@ -103,7 +105,7 @@ export const buildImageWrapperStyles = ({
  * Computes aspect ratio from metadata, then delegates to buildImageWrapperStyles.
  * @param {string | null} bgImage - LQIP background image CSS value
  * @param {string | null} aspectRatio - Aspect ratio string
- * @param {object} metadata - Image metadata with width property
+ * @param {{ width: number }} metadata - Image metadata with width property
  * @param {Function} getAspectRatioFn - Function to compute aspect ratio
  * @param {boolean} [skipMaxWidth=false] - Skip max-width constraint
  */
@@ -132,6 +134,8 @@ export const buildWrapperStyles = (
  *       "./src/assets/icons/logo.png" -> "assets-icons-logo"
  *       ".image-cache/photo-crop-abc123.jpeg" -> "photo-crop-abc123"
  *       "/abs/path/.image-cache/photo.jpeg" -> "photo"
+ * @param {string} src - File path
+ * @returns {string} Filename-safe basename
  */
 export const getPathAwareBasename = (src) => {
   const normalized = src
@@ -146,6 +150,11 @@ export const getPathAwareBasename = (src) => {
 /**
  * Generate filename for resized images.
  * Used by eleventy-img for both regular images and LQIP thumbnails.
+ * @param {string} _id - Image ID (unused)
+ * @param {string} src - Source path
+ * @param {number} width - Output width
+ * @param {string} format - Output format
+ * @returns {string} Generated filename
  */
 export const filenameFormat = (_id, src, width, format) => {
   const basename = getPathAwareBasename(src);
