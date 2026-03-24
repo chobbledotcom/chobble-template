@@ -39,6 +39,7 @@
 		"customise-cms": "bun scripts/customise-cms/index.js",
 		"generate-pages-yml": "bun scripts/customise-cms/generate-full.js",
 		"generate-cms-types": "bun scripts/generate-pages-cms-types.js",
+		"generate-blocks-reference": "bun scripts/generate-blocks-reference.js",
 		"screenshot": "bun scripts/screenshot.js",
 		"lighthouse": "bun scripts/lighthouse.js"
 	},

@@ -45,46 +45,23 @@ Blocks can use `data-reveal` attributes on elements. Values: `""` (fade up), `"l
 
 ---
 
+<!-- BEGIN GENERATED BLOCKS -->
+
 ## Block Types
-
-### `hero`
-
-Full-width hero banner with optional badge, title, lead text, and action buttons.
-
-**Template:** `src/_includes/design-system/hero.html`
-**SCSS:** `src/css/design-system/_hero.scss`
-**HTML root:** `<header class="hero">`
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `title` | string | **required** | Main `<h1>` heading. |
-| `badge` | string | — | Small pill label above the title. Renders as `<span class="badge">`. |
-| `lead` | string | — | Subtitle paragraph. `body-lg` size, muted color, max-width `$width-narrow` (680px). |
-| `buttons` | array | — | Action buttons. Each: `{text, href, variant, size}`. |
-| `class` | string | — | Extra CSS classes on the `<header>`. Use `"gradient"` for gradient bg. |
-| `reveal` | string | — | `data-reveal` value. |
-
-**Button variants:** `primary` (filled), `secondary` (outlined), `ghost` (transparent). **Sizes:** `sm`, `lg`, or omit for default.
-
-**Layout:** Flex column, centered, `$space-lg` (32px) gap. Max-width on h1: `$width-default` (900px). Buttons wrap in `.actions` row with `$space-md` gap.
-
----
 
 ### `section-header`
 
-Standalone section header with title and optional subtitle.
+Standalone section header with rich text intro.
 
 **Template:** `src/_includes/design-system/section-header.html`
-**SCSS:** Styled in `src/css/design-system/_base.scss` (`.section-header`)
-**HTML root:** `<hgroup class="section-header stack--sm">`
+**SCSS:** `src/css/design-system/_base.scss`
+**HTML root:** `<div class="section-header prose">`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | **required** | Section heading. |
-| `subtitle` | string | — | Description text. Renders as `<p class="text-muted">`. |
-| `level` | number | `2` | Heading level (1-6). |
+| `intro` | string | **required** | Rich text content rendered as markdown. Use headings and body text together. |
 | `align` | string | `"center"` | Text alignment. `"center"` adds `.text-center`. |
-| `class` | string | — | Extra CSS classes. Use `"gradient"` for gradient text on headings. |
+| `class` | string | — | Extra CSS classes. |
 
 ---
 
@@ -94,32 +71,17 @@ Grid of feature cards with optional icons, titles, and descriptions.
 
 **Template:** `src/_includes/design-system/features.html`
 **SCSS:** `src/css/design-system/_feature.scss`
-**HTML root:** `<ul class="features" role="list">` containing `<li><article class="feature">` items.
+**HTML root:** `<ul class="features" role="list"> containing <li><article class="feature"> items`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Feature objects (see below). |
-| `header_title` | string | — | If set, renders an `<hgroup class="section-header">` above the grid. |
-| `header_subtitle` | string | — | Subtitle for the section header. |
+| `items` | array | **required** | Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji. |
 | `heading_level` | number | `3` | Heading level for item titles. |
 | `grid_class` | string | `"features"` | CSS class on the `<ul>`. Options: `"features"` (auto-fit grid), `"grid"` (1/2/3 col), `"grid--4"` (1/2/4 col). Can combine: `"grid--4 text-center"`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each card. |
-
-**Item properties:**
-| Property | Type | Description |
-|---|---|---|
-| `icon` | string | Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji. |
-| `icon_label` | string | Accessible label for the icon. Omit for decorative. |
-| `title` | string | Feature heading. |
-| `description` | string | Feature body text. |
-| `style` | string | Inline CSS. Use for custom colors, e.g. `"--primary-light: #d1fae5; --primary: #059669;"`. |
-
-**Card layout:** CSS grid with 2 columns (`auto 1fr`), 2 rows. Icon in col 1 row 1, heading in col 2 row 1, description spans full width in row 2. When no icon, heading spans full width. Cards have `@mixin card` (padding, border, bg) and `@mixin card-hover` (translateY lift + border color change on hover).
-
-**Grid layout:**
-- `.features`: `grid-template-columns: repeat(auto-fit, minmax($width-card, 1fr))` with `$space-md` gap.
-- `.grid`: 1 col → 2 col (md) → 3 col (lg).
-- `.grid--4`: 1 col → 2 col (sm) → 4 col (lg).
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 
@@ -128,25 +90,18 @@ Grid of feature cards with optional icons, titles, and descriptions.
 Grid of cards featuring images with titles and optional descriptions.
 
 **Template:** `src/_includes/design-system/image-cards.html`
-**SCSS:** `src/css/design-system/_items.scss` (`.items` class)
+**SCSS:** `src/css/design-system/_items.scss`
 **HTML root:** `<ul class="items" role="list">`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Card objects (see below). |
+| `items` | array | **required** | Card objects. Each: `{image, title, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
 | `heading_level` | number | `3` | Heading level for titles. |
-| `image_aspect_ratio` | string | CSS default | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
-
-**Item properties:**
-| Property | Type | Description |
-|---|---|---|
-| `image` | string | Image path. Processed by `{% image %}` shortcode for responsive srcset + LQIP. |
-| `title` | string | Card title. |
-| `description` | string | Optional description. |
-| `link` | string | Optional URL. Wraps image and title in `<a>` tags. |
-
-**Layout:** Flex-wrap list. Items: `flex: 1 1 $width-card` with max-width 50% (md) or 33.3% (lg). Cards have border, border-radius, card-bg, and card-hover effect. Images are edge-to-edge (no padding). Text content has `--item-padding-inline` (24px).
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 
@@ -163,8 +118,6 @@ Key metrics displayed as large numbers with labels.
 | `items` | array | **required** | Stat objects: `{value, label}` or pipe-delimited strings `"value|label"`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each stat. |
 
-**Layout:** Flex-wrap with `$space-xl` (48px) gap, centered. Each `.stat` is a flex column with min-width 150px. Value `<dd>` is visually reordered above label `<dt>` via `order: 0`/`order: 1`. Value uses `$font-size-4xl` (48px, 64px on md+) in `--color-link` color.
-
 ---
 
 ### `code-block`
@@ -180,9 +133,26 @@ Terminal-style code display with macOS-like toolbar header.
 | `filename` | string | **required** | Displayed in the toolbar header. |
 | `code` | string | **required** | Code content. Rendered in `<pre><code>`. |
 | `language` | string | — | Sets `data-language` attribute (for future syntax highlighting). |
-| `reveal` | string | — | `data-reveal` value. |
+| `reveal` | boolean | `true` | `data-reveal` value. |
 
-**Layout:** Toolbar has dark card-bg background with three colored dots (red/yellow/green) and filename. Code area has dark-bg background, monospace font, pre-wrap white-space. Top corners rounded on toolbar, bottom corners on code.
+---
+
+### `hero`
+
+Full-width hero banner with optional badge, title, lead text, and action buttons.
+
+**Template:** `src/_includes/design-system/hero.html`
+**SCSS:** `src/css/design-system/_hero.scss`
+**HTML root:** `<header class="hero">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | **required** | Main `<h1>` heading. |
+| `badge` | string | — | Small pill label above the title. Renders as `<span class="badge">`. |
+| `lead` | string | — | Subtitle paragraph. `body-lg` size, muted color, max-width `$width-narrow` (680px). |
+| `buttons` | array | — | Action buttons. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default. |
+| `class` | string | — | Extra CSS classes on the `<header>`. Use `"gradient"` for gradient bg. |
+| `reveal` | string | — | `data-reveal` value. |
 
 ---
 
@@ -210,11 +180,11 @@ Two-column layout with text content and a figure (image, video, code block, or H
 | `figure_language` | string | — | Syntax highlighting language (for `figure_type: "code"`). |
 | `figure_html` | string | — | Raw HTML content (for `figure_type: "html"`). |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
-| `reveal_content` | string | `"left"` | `data-reveal` for the text side. |
+| `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
 | `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
 
-**Layout:** Single column on mobile, 2-column CSS grid on md+ with `$space-3xl` (96px) gap. `align-items: start`. Figure has `$radius-xl` border-radius + `$border-light`. `split--reverse` swaps order via CSS `order` property.
+Figure fields are grouped by `figure_type`: **image** uses `figure_src`, `figure_alt`, `figure_caption`; **video** uses `figure_video_id`, `figure_alt`, `figure_caption`; **code** uses `figure_filename`, `figure_code`, `figure_language`; **html** uses `figure_html`.
 
 ---
 
@@ -228,28 +198,18 @@ Full-width two-panel layout with distinct background colors per side.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `variant` | string | — | Color scheme. Options: `"dark-left"`, `"dark-right"`, `"primary-left"`, `"primary-right"`. |
+| `variant` | string | — | Color scheme: `"dark-left"`, `"dark-right"`, `"primary-left"`, `"primary-right"`. |
+| `title_level` | number | `2` | Heading level for both sides. |
 | `left_title` | string | — | Left panel heading. |
 | `left_content` | string | — | Left panel content (rendered as markdown via `.prose`). |
 | `left_button` | object | — | `{text, href, variant}`. |
 | `right_title` | string | — | Right panel heading. |
 | `right_content` | string | — | Right panel content (rendered as markdown via `.prose`). |
 | `right_button` | object | — | `{text, href, variant}`. |
-| `title_level` | number | `2` | Heading level for both sides. |
 | `reveal_left` | string | — | `data-reveal` for left panel. |
 | `reveal_right` | string | — | `data-reveal` for right panel. |
 
-**Layout:** Column on mobile, row on md+. Each panel: `flex: 1`, self-padded with `--section-padding-y` vertically and `$space-md`/`$space-lg` horizontally. Inner content max-width: `$width-wide / 2` (600px). Left panel right-aligned (`justify-content: flex-end`), right panel left-aligned.
-
-**Variants:**
-- `dark-left`: Left panel gets dark bg (`$color-dark-bg`) + light text. Right panel transparent.
-- `dark-right`: Inverse of dark-left.
-- `primary-left`: Left panel gets `--color-link` bg + contrast text. Right panel transparent.
-- `primary-right`: Inverse of primary-left.
-
-Button colors automatically invert in dark/primary panels.
-
-**Note:** The parent `<section>` has zero padding when containing `.split-full` — the panels handle their own padding.
+Variants: `"dark-left"` / `"dark-right"` (dark bg + light text), `"primary-left"` / `"primary-right"` (`--color-link` bg + contrast text). Button colors automatically invert in dark/primary panels. The parent `<section>` has zero padding — panels handle their own padding.
 
 ---
 
@@ -267,8 +227,6 @@ Call-to-action banner with gradient background.
 | `description` | string | — | Supporting text. `body-lg`, 0.9 opacity, max-width `$width-narrow`. |
 | `button` | object | — | `{text, href, variant, size}`. Default variant: `"secondary"`, default size: `"lg"`. |
 | `reveal` | string | — | `data-reveal` value. |
-
-**Layout:** Flex column, centered, `$space-lg` gap. Uses `@mixin card` with `$space-3xl` padding and `$radius-2xl`. Background: diagonal gradient from `--color-link` to `--color-secondary`. Text color: `--color-contrast-text`. Secondary button inverts to contrast text colors.
 
 ---
 
@@ -288,9 +246,7 @@ Auto-playing video background with overlaid text content.
 | `aspect_ratio` | string | `"16/9"` | CSS aspect-ratio on container. |
 | `class` | string | — | Extra CSS classes. |
 
-**Layout:** Relative positioned container with aspect-ratio. Iframe absolutely positioned, centered via translate, scaled to cover without letterboxing. `pointer-events: none` disables video interaction. Content overlay absolutely positioned, centered, with contrast text colors. Section padding is zeroed.
-
-**Video iframe:** Uses `video-iframe.html` sub-component. YouTube IDs get `youtube-nocookie.com` embed URLs with `autoplay=1&mute=1&loop=1&controls=0`. Custom URLs (starting with `http`) are used directly.
+YouTube IDs get `youtube-nocookie.com` embed URLs with `autoplay=1&mute=1&loop=1&controls=0`. Custom URLs (starting with `http`) are used directly.
 
 ---
 
@@ -304,45 +260,52 @@ Full-width image background with overlaid text and optional parallax.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | string | **required** | Image path. Processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 16/9. |
+| `image` | string | **required** | Image path. |
 | `image_alt` | string | `"Background image"` | Alt text. |
 | `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `class` | string | — | Extra CSS classes. |
 | `parallax` | boolean | `false` | Enables CSS `animation-timeline: scroll()` parallax effect. |
 
-**Layout:** Relative container, aspect-ratio 16/9, dark-bg fallback. Image div absolutely positioned covering inset 0, object-fit cover. Content overlay centered with contrast text + text-shadow. Section padding zeroed.
-
-**Parallax:** When enabled, image container extends to `inset: -15%` and uses `@keyframes parallax-scroll` with `animation-timeline: scroll(nearest block)` for native CSS scroll-driven translation (-10% to +10%).
+Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 16/9. Parallax uses `animation-timeline: scroll()` for native CSS scroll-driven translation.
 
 ---
 
-### `markdown`
+### `items`
 
-Renders markdown content as rich text.
+Displays an Eleventy collection as a card grid or horizontal slider.
 
-**Template:** Inline in `render-block.html` (no separate file).
-**SCSS:** `src/css/design-system/_prose.scss`
-**HTML root:** `<div class="prose">`
+**Template:** `src/_includes/design-system/items-block.html`
+**SCSS:** `src/css/design-system/_items.scss`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `content` | string | **required** | Markdown content. Passed through `renderContent: "md"` filter. |
-
-**Layout:** `.prose` is a flex column with `$space-md` (24px) gap. Unclassed list items get themed bullet markers via `--list-marker-content` and `--list-marker-color` custom properties.
+| `collection` | string | **required** | Name of an Eleventy collection (e.g. `"featuredProducts"`, `"events"`, `"news"`). |
+| `intro` | string | — | Markdown content rendered above items in `.prose`. |
+| `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 
-### `html`
+### `items_array`
 
-Outputs raw HTML without processing.
+Renders items from an explicit list of paths (e.g. from Pages CMS content references).
 
-**Template:** Inline in `render-block.html` (no separate file).
+**Template:** `src/_includes/design-system/items-array-block.html`
+**SCSS:** `src/css/design-system/_items.scss`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `content` | string | **required** | Raw HTML. Output directly with `{{ block.content }}`. |
-
-No wrapping element. No markdown processing. Useful for custom embeds, iframes, or one-off HTML that doesn't fit other block types.
+| `collection` | string | **required** | Collection to resolve paths against. |
+| `items` | array | **required** | Array of file paths (e.g. from Pages CMS references). |
+| `intro` | string | — | Markdown content rendered above items in `.prose`. |
+| `horizontal` | boolean | `false` | If true, renders as a horizontal slider. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. Same as `items` block. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 
@@ -357,42 +320,36 @@ Two-column layout with prose content and a contact form.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `content` | string | — | Left-side content. Rendered as markdown in `.prose`. Centered text. |
-
-**Layout:** Single column on mobile, 2-column CSS grid on md+ with `$space-3xl` gap. Left: prose content (centered text). Right: contact form (included from `contact-form.html`). Form inputs get consistent styling: border, border-radius, focus ring, placeholder colors.
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 
-### `items`
+### `markdown`
 
-Displays an Eleventy collection as a card grid or horizontal slider.
+Renders markdown content as rich text.
 
-**Template:** `src/_includes/design-system/items-block.html`
-**SCSS:** `src/css/design-system/_items.scss`
-**HTML root:** Varies (delegates to `items.html`)
+**SCSS:** `src/css/design-system/_prose.scss`
+**HTML root:** `<div class="prose">`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `collection` | string | **required** | Name of an Eleventy collection (e.g. `"featuredProducts"`, `"events"`, `"news"`). |
-| `intro` | string | — | Markdown content rendered above items in `.prose`. |
-| `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
+| `content` | string | **required** | Markdown content. Passed through `renderContent: "md"` filter. |
 
-**Card layout:** `<ul class="items">` with `<li>` cards. Cards have border, border-radius, card-bg, card-hover. Images are edge-to-edge. Text content uses `--item-padding-inline`. Cards show title, optional price, optional description, optional specs, optional cart controls.
-
-**Grid mode:** Flex-wrap, items `flex: 1 1 $width-card`, max-width 50% (md) / 33.3% (lg).
-**Slider mode:** `flex-wrap: nowrap`, `overflow-x: auto`, `scroll-snap-type: x mandatory`. Items fixed width `$width-card` / `$width-card-lg` (md+). Thin scrollbar. Includes slider nav buttons.
+Inline in `render-block.html` (no separate template file).
 
 ---
 
-### `properties`
+### `html`
 
-Displays property listings (holiday lets) with filter controls.
+Outputs raw HTML without processing.
 
-**Template:** `src/_includes/design-system/properties-block.html`
-**SCSS:** `src/css/design-system/_property.scss`, `src/css/design-system/_items.scss`
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `content` | string | **required** | Raw HTML. Output directly with `{{ block.content }}`. |
 
-No block-level parameters. Uses the global `collections.properties` and optional `filterPage` data for URL-based filtering.
-
-**Sub-components:** `properties-filter.html` (filter UI), `filtered-items-section.html` (filtered results), `items.html` (card rendering).
+Inline in `render-block.html` (no separate template file). No wrapping element. Useful for custom embeds, iframes, or one-off HTML.
 
 ---
 
@@ -403,6 +360,39 @@ Outputs the page's `content` property (from markdown body below frontmatter).
 **Template:** `src/_includes/design-system/content-block.html`
 
 No parameters. Renders `{{ content }}` if non-empty. Used for pages that combine blocks with traditional markdown content.
+
+---
+
+### `include`
+
+Includes an arbitrary template file.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | string | **required** | Path to the template file to include. |
+
+Inline in `render-block.html` — uses `{% include block.file %}`. Escape hatch for custom content that doesn't fit the block system.
+
+---
+
+### `properties`
+
+Displays property listings (holiday lets) with filter controls.
+
+**Template:** `src/_includes/design-system/properties-block.html`
+**SCSS:** `src/css/design-system/_property.scss`
+
+No block-level parameters. Uses the global `collections.properties` and optional `filterPage` data for URL-based filtering.
+
+---
+
+### `guide-categories`
+
+Displays guide categories collection.
+
+**Template:** `src/_includes/design-system/guide-categories-block.html`
+
+No block-level parameters. Uses the global `collections.guide-categories`.
 
 ---
 
@@ -418,27 +408,44 @@ Standalone centered button linking to an anchor or URL.
 |---|---|---|---|
 | `text` | string | **required** | Button label. |
 | `href` | string | **required** | Link URL or anchor (e.g. `"#contact"`, `"/about"`). |
-| `variant` | string | `"primary"` | Button variant: `"primary"`, `"secondary"`, or `"ghost"`. |
-| `size` | string | — | Button size: `"sm"`, `"lg"`, or omit for default. |
+| `variant` | string | `"primary"` | `"primary"`, `"secondary"`, or `"ghost"`. |
+| `size` | string | — | `"sm"`, `"lg"`, or omit for default. |
 | `reveal` | string | — | `data-reveal` value. |
-
-**Layout:** Flex container with `justify-content: center`. Renders a single `<a>` with `.btn` classes.
 
 ---
 
-### `include`
+### `reviews`
 
-Includes an arbitrary template file.
+Renders reviews collection with optional filtering to the current item.
 
-**Template:** Inline in `render-block.html` — uses `{% include block.file %}`.
+**Template:** `src/_includes/design-system/reviews-block.html`
+**SCSS:** `src/css/design-system/_reviews.scss`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file` | string | **required** | Path to the template file to include. |
+| `current_item` | boolean | — | If true, filters reviews to the current item by slug and tags. |
 
-Escape hatch for custom content that doesn't fit the block system.
+Uses `getReviewsFor` filter to match reviews by slug and tags when `current_item` is true.
 
 ---
+
+### `gallery`
+
+Image grid with optional aspect ratio cropping and captions.
+
+**Template:** `src/_includes/design-system/gallery.html`
+**SCSS:** `src/css/design-system/_items.scss`
+**HTML root:** `<ul class="items" role="list">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `items` | array | **required** | Image objects. Each: `{image, caption}`. Images processed by `{% image %}` shortcode. |
+| `aspect_ratio` | string | — | Aspect ratio for images (e.g. `"16/9"`, `"1/1"`, `"4/3"`). Default: no cropping. |
+
+---
+
+
+<!-- END GENERATED BLOCKS -->
 
 ## Supporting Components
 
