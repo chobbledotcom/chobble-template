@@ -171,6 +171,19 @@ const ITEMS_GRID_META = {
   htmlRoot: '<ul class="items" role="list">',
 };
 
+/** Shared collection param for items and items_array blocks. */
+const COLLECTION_PARAM = (description) => ({
+  type: "string",
+  required: true,
+  description,
+});
+
+/** Required items array param (image-cards, gallery). */
+const ITEMS_ARRAY_PARAM = {
+  type: "array",
+  required: true,
+};
+
 const BLOCK_DOCS = {
   hero: {
     summary:
@@ -266,8 +279,7 @@ const BLOCK_DOCS = {
     ...ITEMS_GRID_META,
     params: {
       items: {
-        type: "array",
-        required: true,
+        ...ITEMS_ARRAY_PARAM,
         description:
           "Card objects. Each: `{image, title, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP.",
       },
@@ -609,12 +621,9 @@ const BLOCK_DOCS = {
     template: "src/_includes/design-system/items-block.html",
     scss: ITEMS_GRID_META.scss,
     params: {
-      collection: {
-        type: "string",
-        required: true,
-        description:
-          'Name of an Eleventy collection (e.g. `"featuredProducts"`, `"events"`, `"news"`).',
-      },
+      collection: COLLECTION_PARAM(
+        'Name of an Eleventy collection (e.g. `"featuredProducts"`, `"events"`, `"news"`).',
+      ),
       ...ITEMS_SHARED_PARAM_DOCS,
       ...HEADER_PARAM_DOCS,
     },
@@ -626,11 +635,7 @@ const BLOCK_DOCS = {
     template: "src/_includes/design-system/items-array-block.html",
     scss: ITEMS_GRID_META.scss,
     params: {
-      collection: {
-        type: "string",
-        required: true,
-        description: "Collection to resolve paths against.",
-      },
+      collection: COLLECTION_PARAM("Collection to resolve paths against."),
       items: {
         type: "array",
         required: true,
@@ -731,8 +736,7 @@ const BLOCK_DOCS = {
     ...ITEMS_GRID_META,
     params: {
       items: {
-        type: "array",
-        required: true,
+        ...ITEMS_ARRAY_PARAM,
         description:
           "Image objects. Each: `{image, caption}`. Images processed by `{% image %}` shortcode.",
       },
