@@ -27,32 +27,26 @@ describe("BLOCK_DOCS completeness", () => {
   });
 
   test("every BLOCK_DOCS param key exists in BLOCK_SCHEMAS", () => {
-    const mismatches = [];
-    for (const [type, doc] of Object.entries(BLOCK_DOCS)) {
+    const mismatches = Object.entries(BLOCK_DOCS).flatMap(([type, doc]) => {
       const schemaKeys = new Set(BLOCK_SCHEMAS[type]);
-      for (const paramKey of Object.keys(doc.params)) {
-        if (!schemaKeys.has(paramKey)) {
-          mismatches.push(
-            `${type}: "${paramKey}" in BLOCK_DOCS but not in BLOCK_SCHEMAS`,
-          );
-        }
-      }
-    }
+      return Object.keys(doc.params)
+        .filter((key) => !schemaKeys.has(key))
+        .map(
+          (key) => `${type}: "${key}" in BLOCK_DOCS but not in BLOCK_SCHEMAS`,
+        );
+    });
     expect(mismatches).toEqual([]);
   });
 
   test("every BLOCK_SCHEMAS key has a BLOCK_DOCS param entry", () => {
-    const mismatches = [];
-    for (const [type, keys] of Object.entries(BLOCK_SCHEMAS)) {
+    const mismatches = Object.entries(BLOCK_SCHEMAS).flatMap(([type, keys]) => {
       const docKeys = new Set(Object.keys(BLOCK_DOCS[type].params));
-      for (const key of keys) {
-        if (!docKeys.has(key)) {
-          mismatches.push(
-            `${type}: "${key}" in BLOCK_SCHEMAS but not in BLOCK_DOCS`,
-          );
-        }
-      }
-    }
+      return keys
+        .filter((key) => !docKeys.has(key))
+        .map(
+          (key) => `${type}: "${key}" in BLOCK_SCHEMAS but not in BLOCK_DOCS`,
+        );
+    });
     expect(mismatches).toEqual([]);
   });
 
@@ -64,14 +58,12 @@ describe("BLOCK_DOCS completeness", () => {
   });
 
   test("every BLOCK_DOCS param has type and description", () => {
-    const violations = [];
-    for (const [type, doc] of Object.entries(BLOCK_DOCS)) {
-      for (const [key, param] of Object.entries(doc.params)) {
-        if (!param.type) violations.push(`${type}.${key} missing type`);
-        if (!param.description)
-          violations.push(`${type}.${key} missing description`);
-      }
-    }
+    const violations = Object.entries(BLOCK_DOCS).flatMap(([type, doc]) =>
+      Object.entries(doc.params).flatMap(([key, param]) => [
+        ...(!param.type ? [`${type}.${key} missing type`] : []),
+        ...(!param.description ? [`${type}.${key} missing description`] : []),
+      ]),
+    );
     expect(violations).toEqual([]);
   });
 });

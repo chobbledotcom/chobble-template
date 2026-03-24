@@ -21,7 +21,7 @@ import { parseHtml } from "#utils/dom-builder.js";
  * @param {Function} imageFn - eleventy-img processing function
  * @param {string} path - Image path or URL
  * @param {Object} baseOptions - Base options (outputDir, filenameFormat, etc.)
- * @param {number[]} webpWidths - Widths for webp format (may include LQIP width)
+ * @param {(number | string)[]} webpWidths - Widths for webp format (includes "auto" for original)
  * @returns {Promise<Object>} Combined webp + jpeg image metadata
  */
 export const processFormats = async (

@@ -34,7 +34,6 @@ export const normalizeImagePath = (imageName) => {
  * Handles comma-separated string "240,480,900" or array [240, 480, 900].
  * Always appends "auto" to include the original source image.
  * @param {string | number[] | null} [widths] - Widths as CSV string or array
- * @returns {number[]} Parsed widths with "auto" appended (eleventy-img accepts "auto" as width)
  */
 export const parseWidths = (widths) => {
   const parsed =
@@ -42,14 +41,14 @@ export const parseWidths = (widths) => {
       ? widths.split(",").filter(Boolean)
       : widths || DEFAULT_WIDTHS;
   const result = parsed.length > 0 ? parsed : DEFAULT_WIDTHS;
-  return /** @type {number[]} */ ([...result, "auto"]);
+  return [...result, "auto"];
 };
 
 /**
  * Build standard image attributes object.
  * @param {Object} options - Attribute options
  * @param {string | null} [options.src] - Image source (for external images)
- * @param {string | null} [options.alt] - Alt text
+ * @param {string} [options.alt] - Alt text
  * @param {string | null} [options.sizes] - Sizes attribute
  * @param {string | null} [options.loading] - Loading attribute
  * @param {string | null} [options.classes] - CSS classes
@@ -63,7 +62,7 @@ const buildImgAttributes = ({
   classes = null,
 } = {}) => ({
   ...(src && { src }),
-  alt: alt || "",
+  alt,
   sizes: sizes || DEFAULT_SIZE,
   loading: loading || "lazy",
   decoding: "async",
