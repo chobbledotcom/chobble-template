@@ -301,8 +301,8 @@ Renders items from an explicit list of paths (e.g. from Pages CMS content refere
 | `collection` | string | **required** | Collection to resolve paths against. |
 | `items` | array | **required** | Array of file paths (e.g. from Pages CMS references). |
 | `intro` | string | — | Markdown content rendered above items in `.prose`. |
-| `horizontal` | boolean | `false` | If true, renders as a horizontal slider. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. Same as `items` block. |
+| `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
 | `header_class` | string | — | Extra CSS classes on the section header. |

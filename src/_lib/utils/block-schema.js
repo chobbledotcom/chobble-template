@@ -125,6 +125,46 @@ const HEADER_PARAM_DOCS = {
   },
 };
 
+/** Reveal param doc for blocks that accept a string reveal value. */
+const REVEAL_PARAM = { type: "string", description: "`data-reveal` value." };
+
+/** Reveal param doc for blocks where reveal is boolean (default true). */
+const REVEAL_BOOLEAN_PARAM = {
+  type: "boolean",
+  default: "true",
+  description: "Adds `data-reveal` to each card.",
+};
+
+/** Extra CSS classes param doc. */
+const CLASS_PARAM = { type: "string", description: "Extra CSS classes." };
+
+/** Shared param docs for items and items_array blocks. */
+const ITEMS_SHARED_PARAM_DOCS = {
+  intro: {
+    type: "string",
+    description: "Markdown content rendered above items in `.prose`.",
+  },
+  horizontal: {
+    type: "boolean",
+    default: "false",
+    description:
+      "If true, renders as a horizontal slider instead of a wrapping grid.",
+  },
+  filter: {
+    type: "object",
+    description:
+      'Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value.',
+  },
+};
+
+/** Overlay content param doc for video-background and image-background. */
+const OVERLAY_CONTENT_PARAM = {
+  type: "string",
+  required: true,
+  description:
+    'Overlay content. Rendered as markdown in `<figcaption class="prose">`.',
+};
+
 const BLOCK_DOCS = {
   hero: {
     summary:
@@ -158,7 +198,7 @@ const BLOCK_DOCS = {
         description:
           'Extra CSS classes on the `<header>`. Use `"gradient"` for gradient bg.',
       },
-      reveal: { type: "string", description: "`data-reveal` value." },
+      reveal: REVEAL_PARAM,
     },
   },
 
@@ -179,7 +219,7 @@ const BLOCK_DOCS = {
         default: '"center"',
         description: 'Text alignment. `"center"` adds `.text-center`.',
       },
-      class: { type: "string", description: "Extra CSS classes." },
+      class: CLASS_PARAM,
     },
   },
 
@@ -208,11 +248,7 @@ const BLOCK_DOCS = {
         description:
           'CSS class on the `<ul>`. Options: `"features"` (auto-fit grid), `"grid"` (1/2/3 col), `"grid--4"` (1/2/4 col). Can combine: `"grid--4 text-center"`.',
       },
-      reveal: {
-        type: "boolean",
-        default: "true",
-        description: "Adds `data-reveal` to each card.",
-      },
+      reveal: REVEAL_BOOLEAN_PARAM,
       ...HEADER_PARAM_DOCS,
     },
   },
@@ -241,8 +277,7 @@ const BLOCK_DOCS = {
           'Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`.',
       },
       reveal: {
-        type: "boolean",
-        default: "true",
+        ...REVEAL_BOOLEAN_PARAM,
         description: "Adds `data-reveal` to each item.",
       },
       ...HEADER_PARAM_DOCS,
@@ -262,8 +297,7 @@ const BLOCK_DOCS = {
           'Stat objects: `{value, label}` or pipe-delimited strings `"value|label"`.',
       },
       reveal: {
-        type: "boolean",
-        default: "true",
+        ...REVEAL_BOOLEAN_PARAM,
         description: "Adds `data-reveal` to each stat.",
       },
     },
@@ -290,11 +324,7 @@ const BLOCK_DOCS = {
         description:
           "Sets `data-language` attribute (for future syntax highlighting).",
       },
-      reveal: {
-        type: "boolean",
-        default: "true",
-        description: "`data-reveal` value.",
-      },
+      reveal: { ...REVEAL_BOOLEAN_PARAM, description: "`data-reveal` value." },
     },
   },
 
@@ -462,7 +492,7 @@ const BLOCK_DOCS = {
         description:
           '`{text, href, variant, size}`. Default variant: `"secondary"`, default size: `"lg"`.',
       },
-      reveal: { type: "string", description: "`data-reveal` value." },
+      reveal: REVEAL_PARAM,
     },
   },
 
@@ -485,18 +515,13 @@ const BLOCK_DOCS = {
         default: '"Background video"',
         description: "Accessible `title` on the iframe.",
       },
-      content: {
-        type: "string",
-        required: true,
-        description:
-          'Overlay content. Rendered as markdown in `<figcaption class="prose">`.',
-      },
+      content: OVERLAY_CONTENT_PARAM,
       aspect_ratio: {
         type: "string",
         default: '"16/9"',
         description: "CSS aspect-ratio on container.",
       },
-      class: { type: "string", description: "Extra CSS classes." },
+      class: CLASS_PARAM,
     },
   },
 
@@ -519,13 +544,8 @@ const BLOCK_DOCS = {
         default: '"Background image"',
         description: "Alt text.",
       },
-      content: {
-        type: "string",
-        required: true,
-        description:
-          'Overlay content. Rendered as markdown in `<figcaption class="prose">`.',
-      },
-      class: { type: "string", description: "Extra CSS classes." },
+      content: OVERLAY_CONTENT_PARAM,
+      class: CLASS_PARAM,
       parallax: {
         type: "boolean",
         default: "false",
@@ -590,21 +610,7 @@ const BLOCK_DOCS = {
         description:
           'Name of an Eleventy collection (e.g. `"featuredProducts"`, `"events"`, `"news"`).',
       },
-      intro: {
-        type: "string",
-        description: "Markdown content rendered above items in `.prose`.",
-      },
-      horizontal: {
-        type: "boolean",
-        default: "false",
-        description:
-          "If true, renders as a horizontal slider instead of a wrapping grid.",
-      },
-      filter: {
-        type: "object",
-        description:
-          'Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value.',
-      },
+      ...ITEMS_SHARED_PARAM_DOCS,
       ...HEADER_PARAM_DOCS,
     },
   },
@@ -625,20 +631,7 @@ const BLOCK_DOCS = {
         required: true,
         description: "Array of file paths (e.g. from Pages CMS references).",
       },
-      intro: {
-        type: "string",
-        description: "Markdown content rendered above items in `.prose`.",
-      },
-      horizontal: {
-        type: "boolean",
-        default: "false",
-        description: "If true, renders as a horizontal slider.",
-      },
-      filter: {
-        type: "object",
-        description:
-          "Filter object: `{property, includes, equals}`. Same as `items` block.",
-      },
+      ...ITEMS_SHARED_PARAM_DOCS,
       ...HEADER_PARAM_DOCS,
     },
   },
@@ -707,7 +700,7 @@ const BLOCK_DOCS = {
         type: "string",
         description: '`"sm"`, `"lg"`, or omit for default.',
       },
-      reveal: { type: "string", description: "`data-reveal` value." },
+      reveal: REVEAL_PARAM,
     },
   },
 

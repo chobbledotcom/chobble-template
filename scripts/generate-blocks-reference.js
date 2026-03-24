@@ -9,13 +9,11 @@
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
+import { ROOT_DIR } from "#lib/paths.js";
 import { BLOCK_DOCS, BLOCK_SCHEMAS } from "#utils/block-schema.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR = path.join(__dirname, "..");
-const BLOCKS_LAYOUT_PATH = path.join(ROOT_DIR, "BLOCKS_LAYOUT.md");
+const BLOCKS_LAYOUT_PATH = join(ROOT_DIR, "BLOCKS_LAYOUT.md");
 
 const renderParamTable = (params) => {
   const entries = Object.entries(params);

@@ -11,17 +11,12 @@
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import YAML from "yaml";
+import { ROOT_DIR } from "#lib/paths.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR = path.join(__dirname, "..");
-const PAGES_YML = path.join(ROOT_DIR, ".pages.yml");
-const OUTPUT_FILE = path.join(
-  ROOT_DIR,
-  "src/_lib/types/pages-cms-generated.d.ts",
-);
+const PAGES_YML = join(ROOT_DIR, ".pages.yml");
+const OUTPUT_FILE = join(ROOT_DIR, "src/_lib/types/pages-cms-generated.d.ts");
 
 /**
  * Map PagesCMS field types to TypeScript types
