@@ -8,6 +8,51 @@ settings:
   hide: true
   content:
     merge: true
+components:
+  meta_title:
+    type: string
+    label: Meta Title
+    options:
+      maxlength: 55
+  meta_description:
+    type: string
+    label: Meta Description
+    options:
+      maxlength: 155
+  videos:
+    label: Videos
+    type: object
+    list: true
+    fields:
+      - { name: id, type: string, label: YouTube Video ID, required: true }
+      - { name: title, type: string, label: Title, required: true }
+  faqs:
+    label: FAQs
+    type: object
+    list: true
+    fields:
+      - { name: question, type: string, label: Question, required: true }
+      - { name: answer, type: string, label: Answer, required: true }
+  gallery:
+    type: image
+    label: Gallery
+    options:
+      multiple: true
+  specs:
+    label: Specifications
+    type: object
+    list: true
+    fields:
+      - { name: name, type: string, label: Name, required: true }
+      - { name: value, type: string, label: Value, required: true }
+  tabs:
+    label: Tabs
+    type: object
+    list: true
+    fields:
+      - { name: title, type: string, label: Title, required: true }
+      - { name: image, type: image, label: Image }
+      - { name: body, type: rich-text, label: Body, required: true }
 content:
   - name: pages
     label: Pages
@@ -29,16 +74,8 @@ content:
     fields:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Body }
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - name: eleventyNavigation
         label: Navigation
         type: object
@@ -47,27 +84,11 @@ content:
           - { name: order, type: number }
       - { name: layout, type: string }
       - { name: no_index, type: boolean, label: Hide from listings }
-      - name: videos
-        label: Videos
-        type: object
-        list: true
-        fields:
-          - { name: id, type: string, label: YouTube Video ID, required: true }
-          - { name: title, type: string, label: Title, required: true }
+      - { name: videos, component: videos }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: products
     label: Products
     path: src/products
@@ -122,37 +143,13 @@ content:
           - { name: name, type: string, label: Name, required: true }
           - { name: value, type: string, label: Value, required: true }
       - { name: body, type: rich-text, label: Body }
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
-      - name: specs
-        label: Specifications
-        type: object
-        list: true
-        fields:
-          - { name: name, type: string, label: Name, required: true }
-          - { name: value, type: string, label: Value, required: true }
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
+      - { name: specs, component: specs }
       - name: add_ons
         label: Add-ons
         type: object
@@ -165,14 +162,7 @@ content:
             fields:
               - { name: name, type: string, label: Name, required: true }
               - { name: price, type: number, label: Price, required: true }
-      - name: tabs
-        label: Tabs
-        type: object
-        list: true
-        fields:
-          - { name: title, type: string, label: Title, required: true }
-          - { name: image, type: image, label: Image }
-          - { name: body, type: rich-text, label: Body, required: true }
+      - { name: tabs, component: tabs }
   - name: categories
     label: Categories
     path: src/categories
@@ -211,31 +201,13 @@ content:
         label: Below Products Description
       - { name: featured, type: boolean, label: Featured }
       - { name: keywords, type: string, label: Search Keywords, list: true }
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: news
     label: News
     path: src/news
@@ -255,31 +227,13 @@ content:
           label: "{title}"
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Body }
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - { name: no_index, type: boolean, label: Hide from listings }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: events
     label: Events
     path: src/events
@@ -327,30 +281,12 @@ content:
         label: Map Embed URL
         required: false
       - { name: body, type: rich-text, label: Body }
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: team
     label: Team
     path: src/team
@@ -365,18 +301,8 @@ content:
       - { name: body, type: rich-text, label: Biography }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: reviews
     label: Reviews
     path: src/reviews
@@ -400,13 +326,7 @@ content:
           label: "{title}"
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
+      - { name: faqs, component: faqs }
   - name: locations
     label: Locations
     path: src/locations
@@ -436,30 +356,12 @@ content:
           value: "{path}"
           label: "{title}"
       - { name: body, type: rich-text, label: Body }
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: properties
     label: Properties
     path: src/properties
@@ -497,45 +399,14 @@ content:
       - { name: price_per_night, type: number, label: Price Per Night }
       - { name: features, type: string, label: Features, list: true }
       - { name: body, type: rich-text, label: Body }
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
-      - name: specs
-        label: Specifications
-        type: object
-        list: true
-        fields:
-          - { name: name, type: string, label: Name, required: true }
-          - { name: value, type: string, label: Value, required: true }
-      - name: tabs
-        label: Tabs
-        type: object
-        list: true
-        fields:
-          - { name: title, type: string, label: Title, required: true }
-          - { name: image, type: image, label: Image }
-          - { name: body, type: rich-text, label: Body, required: true }
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
+      - { name: specs, component: specs }
+      - { name: tabs, component: tabs }
   - name: guide-categories
     label: Guide Categories
     path: src/guide-categories
@@ -559,13 +430,7 @@ content:
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
+      - { name: faqs, component: faqs }
   - name: guide-pages
     label: Guide Pages
     path: src/guide-pages
@@ -588,18 +453,8 @@ content:
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: menus
     label: Menus
     path: src/menus
@@ -612,30 +467,12 @@ content:
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
       - { name: body, type: rich-text, label: Body }
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: menu-categories
     label: Menu Categories
     path: src/menu-categories
@@ -658,18 +495,8 @@ content:
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: menu-items
     label: Menu Items
     path: src/menu-items
@@ -695,18 +522,8 @@ content:
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - { name: question, type: string, label: Question, required: true }
-          - { name: answer, type: string, label: Answer, required: true }
-      - name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: snippets
     label: Snippets
     path: src/snippets
@@ -721,16 +538,8 @@ content:
     type: file
     path: src/pages/services.md
     fields:
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - name: blocks
         label: Content Blocks
         type: block
@@ -740,8 +549,7 @@ content:
           - name: section-header
             label: Section Header
             fields:
-              - { name: title, type: string, label: Title, required: true }
-              - { name: subtitle, type: string, label: Subtitle }
+              - { name: intro, type: rich-text, label: Section Header Intro }
           - name: features
             label: Features
             fields:
@@ -782,16 +590,8 @@ content:
     type: file
     path: src/pages/chobble-template.md
     fields:
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - name: blocks
         label: Content Blocks
         type: block
@@ -1000,16 +800,8 @@ content:
     type: file
     path: src/pages/about.md
     fields:
-      - name: meta_title
-        type: string
-        label: Meta Title
-        options:
-          maxlength: 55
-      - name: meta_description
-        type: string
-        label: Meta Description
-        options:
-          maxlength: 155
+      - { name: meta_title, component: meta_title }
+      - { name: meta_description, component: meta_description }
       - name: blocks
         label: Content Blocks
         type: block
@@ -1019,8 +811,7 @@ content:
           - name: section-header
             label: Section Header
             fields:
-              - { name: title, type: string, label: Title, required: true }
-              - { name: subtitle, type: string, label: Subtitle }
+              - { name: intro, type: rich-text, label: Section Header Intro }
           - name: features
             label: Features
             fields:

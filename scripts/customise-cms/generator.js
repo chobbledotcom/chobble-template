@@ -1050,6 +1050,75 @@ const generatePageLayoutConfig = (
 });
 
 /**
+ * Extract a component definition from a field, stripping internal markers
+ * @param {CmsField} field - Field with _componentName
+ * @returns {object} Component definition (field without name and _componentName)
+ */
+const fieldToComponentDef = (field) => {
+  const { name: _name, _componentName: _cn, ...def } = field;
+  return def;
+};
+
+/**
+ * Recursively scan fields and register component definitions
+ * @param {CmsField[]} fields - Fields to scan
+ * @param {Record<string, object>} components - Accumulator for component definitions
+ */
+const scanFieldsForComponents = (fields, components) => {
+  if (!fields) return;
+  for (const field of fields) {
+    if (field._componentName && !components[field._componentName]) {
+      components[field._componentName] = fieldToComponentDef(field);
+    }
+    scanFieldsForComponents(field.fields, components);
+  }
+};
+
+/**
+ * Collect all unique component definitions from content arrays
+ * @param {CollectionConfig[]} contentArray - All content configurations
+ * @returns {Record<string, object>} Map of component name to definition
+ */
+const collectComponents = (contentArray) => {
+  const components = {};
+  for (const item of contentArray) {
+    scanFieldsForComponents(item.fields, components);
+  }
+  return components;
+};
+
+/**
+ * Replace component fields with component references in a fields array
+ * @param {CmsField[]} fields - Array of field configurations
+ * @returns {CmsField[]} Fields with component references replacing full definitions
+ */
+const replaceWithComponentRefs = (fields) => {
+  if (!fields) return fields;
+
+  return fields.map((field) => {
+    if (field._componentName) {
+      return { name: field.name, component: field._componentName };
+    }
+    if (field.fields) {
+      return { ...field, fields: replaceWithComponentRefs(field.fields) };
+    }
+    return field;
+  });
+};
+
+/**
+ * Apply component references to all content items
+ * @param {CollectionConfig[]} contentArray - All content configurations
+ * @returns {CollectionConfig[]} Content with component references
+ */
+const applyComponentRefs = (contentArray) =>
+  contentArray.map((item) =>
+    item.fields
+      ? { ...item, fields: replaceWithComponentRefs(item.fields) }
+      : item,
+  );
+
+/**
  * Generate complete .pages.yml configuration
  * @param {CmsConfig} config - CMS configuration
  * @returns {string} YAML string for .pages.yml
@@ -1085,6 +1154,10 @@ export const generatePagesYaml = (config) => {
     getAltTagsConfig(dataPath),
   ];
 
+  // Extract components from fields and replace with references
+  const components = collectComponents(contentArray);
+  const contentWithRefs = applyComponentRefs(contentArray);
+
   const pagesConfig = {
     media: {
       input: imagesPath,
@@ -1098,7 +1171,8 @@ export const generatePagesYaml = (config) => {
         merge: true,
       },
     },
-    content: contentArray,
+    ...(Object.keys(components).length > 0 && { components }),
+    content: contentWithRefs,
   };
 
   return YAML.stringify(pagesConfig, {
