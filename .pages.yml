@@ -85,7 +85,7 @@ content:
         options:
           collection: categories
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
           label: "{primary}"
       - name: events
@@ -94,7 +94,7 @@ content:
         options:
           collection: events
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
           label: "{primary}"
       - name: options
@@ -188,7 +188,7 @@ content:
         options:
           collection: categories
           multiple: false
-          search: title
+          search: primary
           value: "{path}"
           label: "{primary}"
       - name: products
@@ -202,7 +202,7 @@ content:
             options:
               collection: products
               multiple: false
-              search: title
+              search: primary
               value: "{path}"
               label: "{primary}"
       - { name: body, type: rich-text, label: Body }
@@ -250,7 +250,7 @@ content:
         options:
           collection: team
           multiple: false
-          search: title
+          search: primary
           value: "{path}"
           label: "{primary}"
       - { name: subtitle, type: string, label: Subtitle }
@@ -319,7 +319,7 @@ content:
             options:
               collection: products
               multiple: false
-              search: title
+              search: primary
               value: "{path}"
               label: "{primary}"
       - name: map_embed_src
@@ -395,7 +395,7 @@ content:
         options:
           collection: products
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
           label: "{primary}"
       - { name: permalink, type: string, label: Permalink }
@@ -432,7 +432,7 @@ content:
         options:
           collection: categories
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
           label: "{primary}"
       - { name: body, type: rich-text, label: Body }
@@ -488,7 +488,7 @@ content:
         options:
           collection: locations
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
           label: "{primary}"
       - { name: bedrooms, type: number, label: Bedrooms }
@@ -553,7 +553,7 @@ content:
         options:
           collection: properties
           multiple: false
-          search: title
+          search: primary
           value: "{path}"
           label: "{primary}"
       - { name: body, type: rich-text, label: Body }
@@ -581,7 +581,7 @@ content:
         options:
           collection: guide-categories
           multiple: false
-          search: title
+          search: primary
           value: "{path}"
           label: "{primary}"
       - { name: order, type: number, label: Order }
@@ -652,7 +652,7 @@ content:
         options:
           collection: menus
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
           label: "{primary}"
       - { name: body, type: rich-text, label: Body }
@@ -688,7 +688,7 @@ content:
         options:
           collection: menu-categories
           multiple: true
-          search: name
+          search: primary
           value: "{path}"
           label: "{name}"
       - { name: description, type: string, label: Description }
@@ -958,7 +958,7 @@ content:
                 options:
                   collection: pages
                   multiple: true
-                  search: title
+                  search: primary
                   value: "{path}"
                   label: "{primary}"
               - name: intro
