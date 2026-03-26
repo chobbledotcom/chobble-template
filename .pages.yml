@@ -53,6 +53,20 @@ components:
       - { name: title, type: string, label: Title, required: true }
       - { name: image, type: image, label: Image }
       - { name: body, type: rich-text, label: Body, required: true }
+  products_list:
+    label: Products
+    type: object
+    list: true
+    fields:
+      - name: product
+        label: Product
+        type: reference
+        options:
+          collection: products
+          multiple: false
+          search: title
+          value: "{path}"
+          label: "{title}"
 content:
   - name: pages
     label: Pages
@@ -181,20 +195,7 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - name: products
-        label: Products
-        type: object
-        list: true
-        fields:
-          - name: product
-            label: Product
-            type: reference
-            options:
-              collection: products
-              multiple: false
-              search: title
-              value: "{path}"
-              label: "{title}"
+      - { name: products, component: products_list }
       - { name: body, type: rich-text, label: Body }
       - name: below_products
         type: rich-text
@@ -262,20 +263,7 @@ content:
         label: Recurring Date (e.g. "Every Friday at 2 PM")
         required: false
       - { name: event_location, type: string, label: Event Location }
-      - name: products
-        label: Products
-        type: object
-        list: true
-        fields:
-          - name: product
-            label: Product
-            type: reference
-            options:
-              collection: products
-              multiple: false
-              search: title
-              value: "{path}"
-              label: "{title}"
+      - { name: products, component: products_list }
       - name: map_embed_src
         type: string
         label: Map Embed URL

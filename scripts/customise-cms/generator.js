@@ -288,10 +288,12 @@ const categoriesRef = (enabled) =>
  * @returns {false | CmsField} Products object list field or false
  */
 const productsRefList = (enabled) =>
-  enabled("products") &&
-  createObjectListField("products", "Products", [
-    createReferenceField("product", "Product", "products", "title", false),
-  ]);
+  enabled("products") && {
+    ...createObjectListField("products", "Products", [
+      createReferenceField("product", "Product", "products", "title", false),
+    ]),
+    _componentName: "products_list",
+  };
 
 /**
  * Build fields for the products collection
