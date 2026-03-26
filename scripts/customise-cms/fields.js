@@ -220,7 +220,7 @@ export const createReferenceField = (
     multiple,
     search: searchField,
     value: "{path}",
-    label: `{${searchField}}`,
+    label: "{primary}",
   },
 });
 
