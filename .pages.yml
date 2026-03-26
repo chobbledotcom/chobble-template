@@ -64,9 +64,9 @@ components:
         options:
           collection: products
           multiple: false
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
 content:
   - name: pages
     label: Pages
@@ -120,18 +120,18 @@ content:
         options:
           collection: categories
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
       - name: events
         label: Events
         type: reference
         options:
           collection: events
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
       - name: options
         label: Product Options
         type: object
@@ -192,9 +192,9 @@ content:
         options:
           collection: categories
           multiple: false
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
       - { name: products, component: products_list }
       - { name: body, type: rich-text, label: Body }
       - name: below_products
@@ -223,9 +223,9 @@ content:
         options:
           collection: team
           multiple: false
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Body }
       - { name: meta_title, component: meta_title }
@@ -309,9 +309,9 @@ content:
         options:
           collection: products
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
@@ -340,9 +340,9 @@ content:
         options:
           collection: categories
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
       - { name: body, type: rich-text, label: Body }
       - { name: meta_title, component: meta_title }
       - { name: meta_description, component: meta_description }
@@ -378,9 +378,9 @@ content:
         options:
           collection: locations
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
       - { name: bedrooms, type: number, label: Bedrooms }
       - { name: bathrooms, type: number, label: Bathrooms }
       - { name: sleeps, type: number, label: Sleeps }
@@ -412,9 +412,9 @@ content:
         options:
           collection: properties
           multiple: false
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
@@ -434,9 +434,9 @@ content:
         options:
           collection: guide-categories
           multiple: false
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
       - { name: order, type: number, label: Order }
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
@@ -477,9 +477,9 @@ content:
         options:
           collection: menus
           multiple: true
-          search: title
+          search: primary
           value: "{path}"
-          label: "{title}"
+          label: "{primary}"
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
@@ -503,9 +503,9 @@ content:
         options:
           collection: menu-categories
           multiple: true
-          search: name
+          search: primary
           value: "{path}"
-          label: "{name}"
+          label: "{primary}"
       - { name: description, type: string, label: Description }
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
@@ -746,9 +746,9 @@ content:
                 options:
                   collection: pages
                   multiple: true
-                  search: title
+                  search: primary
                   value: "{path}"
-                  label: "{title}"
+                  label: "{primary}"
               - name: intro
                 type: rich-text
                 label: Intro Content (Markdown)

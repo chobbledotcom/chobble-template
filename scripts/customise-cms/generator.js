@@ -201,13 +201,7 @@ const getCollectionFieldBuilders = (config, fields) => ({
       COMMON_FIELDS.title,
       COMMON_FIELDS.thumbnail,
       config.features.parent_categories &&
-        createReferenceField(
-          "parent",
-          "Parent Category",
-          "categories",
-          "title",
-          false,
-        ),
+        createReferenceField("parent", "Parent Category", "categories", false),
       productsRefList(enabled),
       fields.body,
       config.features.below_products &&
@@ -241,13 +235,7 @@ const getCollectionFieldBuilders = (config, fields) => ({
       COMMON_FIELDS.order,
       { name: "icon", type: "image", label: "Icon" },
       memberOf(config.collections)("properties") &&
-        createReferenceField(
-          "property",
-          "Property",
-          "properties",
-          "title",
-          false,
-        ),
+        createReferenceField("property", "Property", "properties", false),
       fields.body,
     ]),
 
@@ -267,8 +255,7 @@ const buildNewsFields = (config, fields) =>
     COMMON_FIELDS.title,
     config.features.header_images && COMMON_FIELDS.header_image,
     { name: "date", label: "Date", type: "date" },
-    enabled("team") &&
-      createReferenceField("author", "Author", "team", "title", false),
+    enabled("team") && createReferenceField("author", "Author", "team", false),
     ...getContentFields(config, fields),
     config.features.no_index && COMMON_FIELDS.no_index,
   ])(config);
@@ -290,7 +277,7 @@ const categoriesRef = (enabled) =>
 const productsRefList = (enabled) =>
   enabled("products") && {
     ...createObjectListField("products", "Products", [
-      createReferenceField("product", "Product", "products", "title", false),
+      createReferenceField("product", "Product", "products", false),
     ]),
     _componentName: "products_list",
   };
@@ -428,7 +415,6 @@ const buildMenuItemsFields = (config, fields) =>
         "menu_categories",
         "Menu Categories",
         "menu-categories",
-        "name",
       ),
     { name: "description", type: "string", label: "Description" },
     fields.body,
@@ -449,7 +435,6 @@ const buildGuidePagesFields = (config, fields) =>
         "guide-category",
         "Guide Category",
         "guide-categories",
-        "title",
         false,
       ),
     COMMON_FIELDS.order,
@@ -943,7 +928,6 @@ const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
       name,
       fieldSchema.label || name,
       fieldSchema.collection,
-      fieldSchema.search || "title",
       fieldSchema.multiple !== false,
     );
   }
