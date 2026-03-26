@@ -378,12 +378,7 @@ describe("customise-cms fields", () => {
   });
 
   test("createReferenceField supports single reference", () => {
-    const field = createReferenceField(
-      "author",
-      "Author",
-      "team",
-      false,
-    );
+    const field = createReferenceField("author", "Author", "team", false);
 
     expect(field.options.multiple).toBe(false);
   });
