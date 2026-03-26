@@ -48,12 +48,14 @@ export const COMMON_FIELDS = {
     name: "meta_title",
     type: "string",
     label: "Meta Title",
+    _componentName: "meta_title",
     options: { maxlength: 55 },
   },
   meta_description: {
     name: "meta_description",
     type: "string",
     label: "Meta Description",
+    _componentName: "meta_description",
     options: { maxlength: 155 },
   },
   permalink: { name: "permalink", type: "string", label: "Permalink" },
@@ -102,6 +104,7 @@ export const FAQS_FIELD = {
   label: "FAQs",
   type: "object",
   list: true,
+  _componentName: "faqs",
   fields: [
     { name: "question", type: "string", label: "Question", required: true },
     { name: "answer", type: "string", label: "Answer", required: true },
@@ -116,6 +119,7 @@ export const GALLERY_FIELD = {
   name: "gallery",
   type: "image",
   label: "Gallery",
+  _componentName: "gallery",
   options: { multiple: true },
 };
 
@@ -128,6 +132,7 @@ export const VIDEOS_FIELD = {
   label: "Videos",
   type: "object",
   list: true,
+  _componentName: "videos",
   fields: [
     { name: "id", type: "string", label: "YouTube Video ID", required: true },
     { name: "title", type: "string", label: "Title", required: true },
@@ -172,7 +177,10 @@ const createNameValueListField = (name, label) =>
  * Specs field configuration
  * @type {CmsField}
  */
-export const SPECS_FIELD = createNameValueListField("specs", "Specifications");
+export const SPECS_FIELD = {
+  ...createNameValueListField("specs", "Specifications"),
+  _componentName: "specs",
+};
 
 /**
  * Features list field configuration
@@ -315,6 +323,7 @@ export const createTabsField = (useVisualEditor) => ({
   label: "Tabs",
   type: "object",
   list: true,
+  _componentName: "tabs",
   fields: [
     { name: "title", type: "string", label: "Title", required: true },
     { name: "image", type: "image", label: "Image" },

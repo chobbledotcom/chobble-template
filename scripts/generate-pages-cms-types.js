@@ -176,18 +176,59 @@ const processFieldType = (field, types, typeMapping) => {
 };
 
 /**
+ * Resolve component references in a field using the components map
+ * @param {object} field - A field that may have a component reference
+ * @param {Record<string, object>} components - Component definitions
+ * @returns {object} Resolved field with component properties merged in
+ */
+const resolveComponentRef = (field, components) => {
+  if (!field.component || !components) return field;
+  const componentDef = components[field.component];
+  if (!componentDef) return field;
+  const { component: _c, ...fieldProps } = field;
+  return { ...componentDef, ...fieldProps };
+};
+
+/**
+ * Resolve all component references in a fields array
+ * @param {object[]} fields - Array of field configurations
+ * @param {Record<string, object>} components - Component definitions
+ * @returns {object[]} Fields with component references resolved
+ */
+const resolveFields = (fields, components) => {
+  if (!fields || !components) return fields;
+  return fields.map((field) => {
+    const resolved = resolveComponentRef(field, components);
+    if (resolved.fields) {
+      return {
+        ...resolved,
+        fields: resolveFields(resolved.fields, components),
+      };
+    }
+    return resolved;
+  });
+};
+
+/**
+ * Get resolved fields for a content item, expanding component references
+ * @param {object} item - Content item with fields
+ * @param {Record<string, object>} components - Component definitions
+ * @returns {object[]} Resolved fields
+ */
+const getResolvedItemFields = (item, components) =>
+  item.fields ? resolveFields(item.fields, components) : [];
+
+/**
  * Extract all types from config items
  */
 const extractAllTypes = (config) => {
   const types = [];
   const typeMapping = {};
+  const components = config.components || {};
 
-  const allItems = config.content || [];
-  for (const item of allItems) {
-    if (item.fields) {
-      for (const field of item.fields) {
-        processFieldType(field, types, typeMapping);
-      }
+  for (const item of config.content || []) {
+    for (const field of getResolvedItemFields(item, components)) {
+      processFieldType(field, types, typeMapping);
     }
   }
 

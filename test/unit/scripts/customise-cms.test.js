@@ -1164,13 +1164,16 @@ describe("customise-cms generator with visual editor", () => {
     });
     const yaml = generatePagesYaml(config);
 
-    // Products support tabs, so the tabs field should use rich-text for body
-    expect(yaml).toContain("name: tabs");
-    // The tabs body field should be rich-text
-    const tabsSection = yaml.substring(
-      yaml.indexOf("name: tabs"),
-      yaml.indexOf("name: tabs") + 500,
+    // Products support tabs, so tabs should appear as a component reference
+    expect(yaml).toContain("component: tabs");
+    // The tabs component definition should use rich-text for body
+    const componentsSection = yaml.substring(
+      yaml.indexOf("components:"),
+      yaml.indexOf("\ncontent:"),
     );
+    expect(componentsSection).toContain("tabs:");
+    const tabsStart = componentsSection.indexOf("  tabs:");
+    const tabsSection = componentsSection.substring(tabsStart, tabsStart + 500);
     expect(tabsSection).toContain("type: rich-text");
   });
 
