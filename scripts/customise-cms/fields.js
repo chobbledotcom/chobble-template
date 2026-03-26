@@ -201,7 +201,6 @@ export const KEYWORDS_FIELD = {
  * @param {string} name - Field name
  * @param {string} label - Display label
  * @param {string} collection - Referenced collection name
- * @param {string} [searchField="title"] - Field to search by
  * @param {boolean} [multiple=true] - Allow multiple references
  * @returns {CmsField} Reference field configuration
  */
@@ -209,7 +208,6 @@ export const createReferenceField = (
   name,
   label,
   collection,
-  searchField = "title",
   multiple = true,
 ) => ({
   name,
@@ -218,9 +216,9 @@ export const createReferenceField = (
   options: {
     collection,
     multiple,
-    search: searchField,
+    search: "primary",
     value: "{path}",
-    label: `{${searchField}}`,
+    label: "{primary}",
   },
 });
 

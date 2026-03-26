@@ -373,29 +373,12 @@ describe("customise-cms fields", () => {
     expect(field.options.collection).toBe("categories");
     expect(field.options.multiple).toBe(true);
     expect(field.options.value).toBe("{path}");
-    expect(field.options.label).toBe("{title}");
-  });
-
-  test("createReferenceField supports custom search field", () => {
-    const field = createReferenceField(
-      "menu_categories",
-      "Menu Categories",
-      "menu-categories",
-      "name",
-    );
-
-    expect(field.options.search).toBe("name");
-    expect(field.options.label).toBe("{name}");
+    expect(field.options.search).toBe("primary");
+    expect(field.options.label).toBe("{primary}");
   });
 
   test("createReferenceField supports single reference", () => {
-    const field = createReferenceField(
-      "author",
-      "Author",
-      "team",
-      "title",
-      false,
-    );
+    const field = createReferenceField("author", "Author", "team", false);
 
     expect(field.options.multiple).toBe(false);
   });

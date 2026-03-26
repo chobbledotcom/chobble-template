@@ -33,7 +33,7 @@ const validateBuyItems = (cart, products) => {
   const classified = cart.map((item) => {
     if (item.product_mode !== "buy") return { valid: item };
     const product = productBySku[item.sku];
-    if (!product || !product.in_stock) return { removed: item.item_name };
+    if (!product?.in_stock) return { removed: item.item_name };
     return { valid: { ...item, unit_price: product.unit_price / 100 } };
   });
 
