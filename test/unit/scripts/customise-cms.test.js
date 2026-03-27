@@ -371,7 +371,7 @@ describe("customise-cms fields", () => {
     expect(field.label).toBe("Categories");
     expect(field.type).toBe("reference");
     expect(field.options.collection).toBe("categories");
-    expect(field.options.multiple).toBe(true);
+    expect(field.list).toBe(true);
     expect(field.options.value).toBe("{path}");
     expect(field.options.search).toBe("primary");
     expect(field.options.label).toBe("{primary}");
@@ -380,7 +380,8 @@ describe("customise-cms fields", () => {
   test("createReferenceField supports single reference", () => {
     const field = createReferenceField("author", "Author", "team", false);
 
-    expect(field.options.multiple).toBe(false);
+    expect(field.list).toBeUndefined();
+    expect(field.options.multiple).toBeUndefined();
   });
 });
 
@@ -501,7 +502,8 @@ describe("customise-cms generator", () => {
 
     expect(section).toContain("name: property");
     expect(section).toContain("collection: properties");
-    expect(section).toContain("multiple: false");
+    expect(section).not.toContain("multiple");
+    expect(section).not.toContain("list: true");
   });
 
   test("generatePagesYaml excludes property reference on guide-categories when properties not enabled", () => {

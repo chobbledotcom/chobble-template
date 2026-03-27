@@ -63,7 +63,6 @@ components:
         type: reference
         options:
           collection: products
-          multiple: false
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -117,18 +116,18 @@ content:
       - name: categories
         label: Categories
         type: reference
+        list: true
         options:
           collection: categories
-          multiple: true
           search: primary
           value: "{path}"
           label: "{primary}"
       - name: events
         label: Events
         type: reference
+        list: true
         options:
           collection: events
-          multiple: true
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -191,7 +190,6 @@ content:
         type: reference
         options:
           collection: categories
-          multiple: false
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -222,7 +220,6 @@ content:
         type: reference
         options:
           collection: team
-          multiple: false
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -307,9 +304,9 @@ content:
       - name: products
         label: Products
         type: reference
+        list: true
         options:
           collection: products
-          multiple: true
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -338,9 +335,9 @@ content:
       - name: categories
         label: Categories
         type: reference
+        list: true
         options:
           collection: categories
-          multiple: true
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -376,9 +373,9 @@ content:
       - name: locations
         label: Locations
         type: reference
+        list: true
         options:
           collection: locations
-          multiple: true
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -412,7 +409,6 @@ content:
         type: reference
         options:
           collection: properties
-          multiple: false
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -434,7 +430,6 @@ content:
         type: reference
         options:
           collection: guide-categories
-          multiple: false
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -475,9 +470,9 @@ content:
       - name: menus
         label: Menus
         type: reference
+        list: true
         options:
           collection: menus
-          multiple: true
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -501,9 +496,9 @@ content:
       - name: menu_categories
         label: Menu Categories
         type: reference
+        list: true
         options:
           collection: menu-categories
-          multiple: true
           search: primary
           value: "{path}"
           label: "{primary}"
@@ -744,9 +739,9 @@ content:
               - name: items
                 label: Items
                 type: reference
+                list: true
                 options:
                   collection: pages
-                  multiple: true
                   search: primary
                   value: "{path}"
                   label: "{primary}"
