@@ -12,8 +12,10 @@ import { sortItems } from "#utils/sorting.js";
  * @param {import('11ty.ts').EleventyConfig} eleventyConfig
  */
 const configureTeam = (eleventyConfig) => {
-  eleventyConfig.addCollection("team", (collectionApi) =>
-    collectionApi.getFilteredByTag("team").sort(sortItems),
+  eleventyConfig.addCollection(
+    "team",
+    /** @param {*} collectionApi */
+    (collectionApi) => collectionApi.getFilteredByTag("team").sort(sortItems),
   );
 };
 
