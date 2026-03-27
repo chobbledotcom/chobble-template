@@ -1,5 +1,6 @@
 ---
 title: Jane Doe
+order: 2
 snippet: This is another team member page in the template
 ---
 
