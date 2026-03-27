@@ -22,10 +22,7 @@ import { orderThenString } from "#toolkit/fp/sorting.js";
  * @property {Date} [date] - Item date
  */
 
-/**
- * Comparator for sorting collection items by order then by title.
- * @type {(a: CollectionItem, b: CollectionItem) => number}
- */
+/** Comparator for sorting collection items by order then by title. */
 const sortItems = orderThenString(
   (item) => item.data.order,
   (item) => item.data.title,
