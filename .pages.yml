@@ -284,6 +284,7 @@ content:
     fields:
       - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
+      - { name: order, type: number, label: Order }
       - { name: snippet, type: string, label: Role }
       - { name: image, type: image, label: Profile Image }
       - { name: body, type: rich-text, label: Biography }
