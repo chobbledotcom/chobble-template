@@ -196,11 +196,11 @@ describe("buildProductMeta", () => {
     expect(result.reviews[0].date).toBe("2024-06-15");
   });
 
-  test("defaults review rating to 5 when not specified", () => {
+  test("uses rating from data (set by eleventyComputed default)", () => {
     const result = productMeta({
       reviews: [
         {
-          data: { name: "Reviewer", products: ["test"] },
+          data: { name: "Reviewer", rating: 5, products: ["test"] },
           date: new Date("2024-01-15"),
         },
       ],

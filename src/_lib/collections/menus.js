@@ -16,33 +16,23 @@ import { sortItems } from "#utils/sorting.js";
 /** @typedef {import("#lib/types").MenuCategoryCollectionItem} MenuCategoryCollectionItem */
 /** @typedef {import("#lib/types").MenuItemCollectionItem} MenuItemCollectionItem */
 
-/**
- * Build a map of menu slugs to their categories.
- *
- * @param {MenuCategoryCollectionItem[]} categories
- * @returns {Map<string, MenuCategoryCollectionItem[]>}
- */
-const indexCategoriesByMenu = (categories) =>
-  buildReverseIndex(categories, (category) =>
-    category.data.menus.map(normaliseSlug),
-  );
+/** Memoized index of menu slugs → categories, cached per array ref via WeakMap. */
+const buildMenuCategoryMap = memoizeByRef(
+  /** @param {MenuCategoryCollectionItem[]} categories */
+  (categories) =>
+    buildReverseIndex(categories, (category) =>
+      category.data.menus.map(normaliseSlug),
+    ),
+);
 
-/** Memoized version — cache persists across calls via WeakMap. */
-const buildMenuCategoryMap = memoizeByRef(indexCategoriesByMenu);
-
-/**
- * Build a map of category slugs to their menu items.
- *
- * @param {MenuItemCollectionItem[]} items
- * @returns {Map<string, MenuItemCollectionItem[]>}
- */
-const indexItemsByCategory = (items) =>
-  buildReverseIndex(items, (item) =>
-    item.data.menu_categories.map(normaliseSlug),
-  );
-
-/** Memoized version — cache persists across calls via WeakMap. */
-const buildCategoryItemMap = memoizeByRef(indexItemsByCategory);
+/** Memoized index of category slugs → menu items, cached per array ref via WeakMap. */
+const buildCategoryItemMap = memoizeByRef(
+  /** @param {MenuItemCollectionItem[]} items */
+  (items) =>
+    buildReverseIndex(items, (item) =>
+      item.data.menu_categories.map(normaliseSlug),
+    ),
+);
 
 /**
  * Get categories belonging to a specific menu.
@@ -70,12 +60,10 @@ const getItemsByCategory = (items, categorySlug) => {
   return buildCategoryItemMap(items).get(categorySlug) ?? [];
 };
 
-/** Pre-sorted menus collection. */
-const createMenusCollection = (collectionApi) =>
-  collectionApi.getFilteredByTag("menus").sort(sortItems);
-
 const configureMenus = (eleventyConfig) => {
-  eleventyConfig.addCollection("menus", createMenusCollection);
+  eleventyConfig.addCollection("menus", (collectionApi) =>
+    collectionApi.getFilteredByTag("menus").sort(sortItems),
+  );
   eleventyConfig.addFilter("getCategoriesByMenu", getCategoriesByMenu);
   eleventyConfig.addFilter("getItemsByCategory", getItemsByCategory);
 };
