@@ -135,12 +135,14 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/collections/locations.js", // Thumbnail resolution from child locations
   "src/_lib/collections/navigation.js", // Search box builder kept separate for function length
   "src/_lib/collections/products.js",
+  "src/_lib/collections/reviews.js", // isReviewableTag type guard for TypeScript
   "src/_lib/public/ui/nav-dropdown.js", // DOM helpers extracted for complexity management
   "src/_lib/media/image-external.js", // External wrapper styles helper
   "src/_lib/media/image-utils.js", // buildImgAttributes, buildPictureAttributes - helper functions for prepareImageAttributes
   "src/_lib/eleventy/style-bundle.js", // Options parsing helpers for type safety
   "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
+  "src/_lib/transforms/external-links.js", // attrTuple for TypeScript tuple inference
   "src/_lib/filters/category-product-filters.js", // Helpers split for function length and readability
   "src/_lib/filters/filter-ui.js", // UI builders split from buildUIWithLookup for function length
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
