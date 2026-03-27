@@ -176,6 +176,18 @@ describe("eleventyComputed", () => {
     });
   });
 
+  describe("rating", () => {
+    test("Returns rating when set", () => {
+      const data = { rating: 3 };
+      expect(eleventyComputed.rating(data)).toBe(3);
+    });
+
+    test("Returns 5 when rating not set", () => {
+      const data = {};
+      expect(eleventyComputed.rating(data)).toBe(5);
+    });
+  });
+
   describe("order", () => {
     test("Returns order when set", () => {
       const data = { order: 5 };
