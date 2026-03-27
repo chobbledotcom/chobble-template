@@ -135,6 +135,12 @@ export default {
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {number} Rating (defaults to 5 for reviews without explicit rating)
+   */
+  rating: (data) => data.rating ?? 5,
+
+  /**
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {number} Sort order (9999 if not defined, sorts last)
    */
   order: (data) => data.order ?? 9999,
