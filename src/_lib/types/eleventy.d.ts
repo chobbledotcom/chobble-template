@@ -173,6 +173,8 @@ export type LocationItemData = BaseItemData & {
  * Team member data fields
  */
 export type TeamItemData = BaseItemData & {
+  /** Sort order (guaranteed by eleventyComputed, defaults to 9999) */
+  order: number;
   /** Job title/role */
   role?: string;
   /** Biography */

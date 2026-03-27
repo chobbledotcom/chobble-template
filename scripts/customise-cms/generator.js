@@ -222,6 +222,7 @@ const getCollectionFieldBuilders = (config, fields) => ({
     compact([
       COMMON_FIELDS.title,
       COMMON_FIELDS.thumbnail,
+      COMMON_FIELDS.order,
       { name: "snippet", type: "string", label: "Role" },
       { name: "image", type: "image", label: "Profile Image" },
       config.features.header_images && COMMON_FIELDS.header_image,
