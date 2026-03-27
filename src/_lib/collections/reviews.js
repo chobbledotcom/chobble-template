@@ -25,13 +25,6 @@ import { sortByDateDescending } from "#utils/sorting.js";
  */
 const REVIEWABLE_TAGS = frozenSet(["products", "categories", "properties"]);
 
-/**
- * Type guard: check if tag supports reviews.
- * @param {string} tag
- * @returns {tag is ReviewIndexField}
- */
-const isReviewableTag = (tag) => REVIEWABLE_TAGS.has(tag);
-
 // Load SVG templates once at module initialization using Bun.file().text()
 const [AVATAR_SVG_TEMPLATE, STAR_SVG] = await Promise.all([
   Bun.file(join(SRC_DIR, "assets", "icons", "reviewer-avatar.svg")).text(),
@@ -95,7 +88,7 @@ const getReviewsByField = (reviews, slug, field) => {
  */
 const getReviewsFor = (reviews, slug, tags) => {
   if (!Array.isArray(tags)) return [];
-  const field = tags.find(isReviewableTag);
+  const field = tags.find((tag) => REVIEWABLE_TAGS.has(tag));
   if (!field) return [];
   return getReviewsByField(reviews, slug, field);
 };

@@ -133,20 +133,16 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/collections/categories.js", // Helpers for category property map building
   "src/_lib/collections/events.js", // Thumbnail resolution from products
   "src/_lib/collections/locations.js", // Thumbnail resolution from child locations
-  "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js", // Search box builder kept separate for function length
   "src/_lib/collections/products.js",
-  "src/_lib/collections/reviews.js", // isReviewableTag type guard for TypeScript
   "src/_lib/public/ui/nav-dropdown.js", // DOM helpers extracted for complexity management
   "src/_lib/media/image-external.js", // External wrapper styles helper
   "src/_lib/media/image-utils.js", // buildImgAttributes, buildPictureAttributes - helper functions for prepareImageAttributes
-  "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
   "src/_lib/eleventy/style-bundle.js", // Options parsing helpers for type safety
   "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
   "src/_lib/filters/category-product-filters.js", // Helpers split for function length and readability
   "src/_lib/filters/filter-ui.js", // UI builders split from buildUIWithLookup for function length
-  "src/_lib/transforms/external-links.js", // attrTuple for TypeScript tuple inference
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
@@ -242,8 +238,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/collections/events.js:23",
   "src/_lib/eleventy/ical.js:42",
-  "src/_lib/utils/schema-helper.js:143",
-  "src/_lib/utils/schema-helper.js:148",
 ]);
 
 // ============================================

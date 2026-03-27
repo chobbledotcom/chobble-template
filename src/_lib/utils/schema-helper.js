@@ -140,12 +140,15 @@ const buildProductMeta = (data) => {
 
   const buildReview = (review) => ({
     author: review.data.name,
-    rating: review.data.rating || 5,
+    ...(review.data.rating && { rating: review.data.rating }),
     ...(review.date && { date: toDateString(review.date) }),
   });
 
   const buildRating = (reviews) => {
-    const ratings = reviews.map((r) => r.data.rating || 5);
+    const ratings = reviews
+      .map((r) => r.data.rating)
+      .filter((r) => typeof r === "number" && r > 0);
+    if (ratings.length === 0) return {};
     const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
     return {
       ratingValue: avg.toFixed(1),

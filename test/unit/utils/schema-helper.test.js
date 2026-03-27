@@ -196,7 +196,7 @@ describe("buildProductMeta", () => {
     expect(result.reviews[0].date).toBe("2024-06-15");
   });
 
-  test("defaults review rating to 5 when not specified", () => {
+  test("omits review rating when not specified", () => {
     const result = productMeta({
       reviews: [
         {
@@ -206,7 +206,8 @@ describe("buildProductMeta", () => {
       ],
       tags: ["products"],
     });
-    expect(result.reviews[0].rating).toBe(5);
+    expect(result.reviews[0].rating).toBeUndefined();
+    expect(result.rating).toEqual({});
   });
 
   test("does not include reviews and rating when no matching reviews", () => {
