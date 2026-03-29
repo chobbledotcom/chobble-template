@@ -49,6 +49,7 @@ describe("config", () => {
       "default_image_widths",
       "default_max_quantity",
       "search_collections",
+      "linkify_urls",
     ];
     expect(Object.keys(DEFAULTS).sort()).toEqual(expectedKeys.sort());
   });
