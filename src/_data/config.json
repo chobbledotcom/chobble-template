@@ -37,5 +37,6 @@
   "use_visual_editor": true,
   "default_max_quantity": null,
   "search_collections": null,
-  "ntfy_channel": null
+  "ntfy_channel": null,
+  "linkify_urls": null
 }

@@ -54,6 +54,7 @@ const DEFAULTS = frozenObject({
     "properties",
     "news",
   ],
+  linkify_urls: true,
 });
 
 const DEFAULT_PRODUCT_DATA = frozenObject({
