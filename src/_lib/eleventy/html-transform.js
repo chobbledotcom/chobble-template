@@ -73,14 +73,15 @@ const applyDomTransforms = async (html, config, processAndWrapImage) => {
  * @returns {string}
  */
 const applyStringTransforms = (content, config) => {
-  const processed = FAST_INACCURATE_BUILDS
-    ? content
-    : linkifyHtmlLib(content, {
-        ignoreTags: [...SKIP_TAGS],
-        target: config.externalLinksTargetBlank ? "_blank" : null,
-        rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
-        format: { url: formatUrlDisplay },
-      });
+  const processed =
+    FAST_INACCURATE_BUILDS || !config.linkify_urls
+      ? content
+      : linkifyHtmlLib(content, {
+          ignoreTags: [...SKIP_TAGS],
+          target: config.externalLinksTargetBlank ? "_blank" : null,
+          rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
+          format: { url: formatUrlDisplay },
+        });
   return addExternalLinkAttrs(processed, config);
 };
 
