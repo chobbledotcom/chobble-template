@@ -27,6 +27,7 @@ describe("BLOCK_SCHEMAS", () => {
       "link-button",
       "reviews",
       "gallery",
+      "icon_links",
     ];
     expect(Object.keys(BLOCK_SCHEMAS).sort()).toEqual(expectedTypes.sort());
   });

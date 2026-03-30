@@ -34,6 +34,7 @@ const BLOCK_DEFAULTS = {
   "section-header": { align: "center" },
   "image-cards": { reveal: true, heading_level: 3 },
   "code-block": { reveal: true },
+  icon_links: { reveal: true },
   "video-background": { aspect_ratio: "16/9" },
 };
 

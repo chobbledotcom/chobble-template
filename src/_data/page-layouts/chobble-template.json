@@ -236,6 +236,22 @@
       }
     },
     {
+      "type": "icon_links",
+      "fields": {
+        "intro": { "type": "markdown", "label": "Intro Content (Markdown)" },
+        "items": {
+          "type": "object",
+          "list": true,
+          "label": "Links",
+          "fields": {
+            "icon": { "type": "string", "label": "Icon (Iconify ID or HTML entity)", "required": true },
+            "text": { "type": "string", "label": "Link Text", "required": true },
+            "url": { "type": "string", "label": "URL", "required": true }
+          }
+        }
+      }
+    },
+    {
       "type": "contact_form",
       "fields": {
         "content": { "type": "markdown", "label": "Content" }

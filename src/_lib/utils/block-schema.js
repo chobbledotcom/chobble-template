@@ -92,6 +92,7 @@ const BLOCK_SCHEMAS = {
   "link-button": ["text", "href", "variant", "size", "reveal"],
   reviews: ["current_item"],
   gallery: ["items", "aspect_ratio"],
+  icon_links: ["intro", "items", "reveal"],
 };
 
 /**
@@ -726,6 +727,31 @@ const BLOCK_DOCS = {
         type: "boolean",
         description:
           "If true, filters reviews to the current item by slug and tags.",
+      },
+    },
+  },
+
+  icon_links: {
+    summary:
+      "Vertical list of links with icons, rendered as a flex column stack.",
+    template: "src/_includes/design-system/icon-links.html",
+    scss: "src/css/design-system/_icon-links.scss",
+    htmlRoot: '<ul class="icon-links" role="list">',
+    params: {
+      intro: {
+        type: "string",
+        description:
+          "Markdown content rendered above the links list in `.prose`.",
+      },
+      items: {
+        type: "array",
+        required: true,
+        description:
+          'Link objects. Each: `{icon, text, url}`. Icon can be an Iconify ID (`"prefix:name"`), image path, or raw HTML/emoji.',
+      },
+      reveal: {
+        ...REVEAL_BOOLEAN_PARAM,
+        description: "Adds `data-reveal` to each link item.",
       },
     },
   },
