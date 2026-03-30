@@ -9,7 +9,7 @@ Parameters (via block object):
         - Raw content: emoji or HTML entity (e.g., "&#128640;")
     - icon_label: Accessible label for icon (optional, defaults to decorative)
     - title: Feature title
-    - description: Feature description
+    - description: Feature description (supports markdown)
     - style: Optional inline styles (e.g., for custom colors)
   - block.reveal: If true, adds data-reveal animation (default: true)
   - block.heading_level: Heading level for titles, defaults to 3 (h3)
@@ -50,7 +50,7 @@ Usage:
         {%- include "design-system/icon-badge.html", icon: item.icon, label: item.icon_label -%}
       {%- endif -%}
       <h{{ heading_level }}>{{ item.title }}</h{{ heading_level }}>
-      <p>{{ item.description }}</p>
+      <div class="prose">{{ item.description | renderContent: "md" }}</div>
     </article>
   </li>
   {%- endfor -%}
