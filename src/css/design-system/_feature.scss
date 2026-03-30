@@ -65,7 +65,7 @@
       align-self: center;
     }
 
-    p {
+    .prose {
       @include body-base;
       color: var(--color-text-muted);
       grid-row: 2;
