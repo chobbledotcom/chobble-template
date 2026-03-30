@@ -8,6 +8,11 @@
 
 .design-system {
   .reviews-grid {
+    // Cap at 2 columns even on wide screens
+    @include breakpoint.up("lg") {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
     // Compact variant: auto-fit with 330px minimum (use on item pages)
     &--compact {
       grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
