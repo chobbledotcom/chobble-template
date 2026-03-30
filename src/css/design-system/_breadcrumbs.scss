@@ -8,7 +8,7 @@
 
 .design-system {
   ol.breadcrumbs {
-    @include container($width-default);
+    @include container($width-wide);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
