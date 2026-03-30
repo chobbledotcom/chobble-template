@@ -6,7 +6,7 @@ Parameters (via block object):
   - block.items: Array of link objects with properties:
     - icon: Iconify ID (e.g., "hugeicons:github"), image path, or raw HTML/emoji
     - text: Link text
-    - url: Link URL
+    - url: Link URL (optional - renders as plain text if omitted)
   - block.reveal: If true, adds data-reveal animation (default: true)
 
 Usage:
@@ -21,11 +21,16 @@ Usage:
 
 <ul class="icon-links" role="list">
   {%- for item in block.items -%}
-  <li{% if reveal %} data-reveal{% endif %}>
-    <a href="{{ item.url }}" class="icon-links__link">
+  {%- capture link_content -%}
       <span class="icon-links__icon" aria-hidden="true">{%- include "design-system/icon.html", icon: item.icon -%}</span>
       <span class="icon-links__text">{{ item.text }}</span>
-    </a>
+  {%- endcapture -%}
+  <li{% if reveal %} data-reveal{% endif %}>
+    {%- if item.url -%}
+    <a href="{{ item.url }}" class="icon-links__link">{{ link_content }}</a>
+    {%- else -%}
+    <span class="icon-links__link">{{ link_content }}</span>
+    {%- endif -%}
   </li>
   {%- endfor -%}
 </ul>

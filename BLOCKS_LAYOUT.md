@@ -455,7 +455,7 @@ Vertical list of links with icons, rendered as a flex column stack.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `intro` | string | — | Markdown content rendered above the links list in `.prose`. |
-| `items` | array | **required** | Link objects. Each: `{icon, text, url}`. Icon can be an Iconify ID (`"prefix:name"`), image path, or raw HTML/emoji. |
+| `items` | array | **required** | Link objects. Each: `{icon, text, url}`. `url` is optional — items without it render as plain text. Icon can be an Iconify ID (`"prefix:name"`), image path, or raw HTML/emoji. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each link item. |
 
 ---

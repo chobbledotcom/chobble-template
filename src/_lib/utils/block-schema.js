@@ -747,7 +747,7 @@ const BLOCK_DOCS = {
         type: "array",
         required: true,
         description:
-          'Link objects. Each: `{icon, text, url}`. Icon can be an Iconify ID (`"prefix:name"`), image path, or raw HTML/emoji.',
+          'Link objects. Each: `{icon, text, url}`. `url` is optional — items without it render as plain text. Icon can be an Iconify ID (`"prefix:name"`), image path, or raw HTML/emoji.',
       },
       reveal: {
         ...REVEAL_BOOLEAN_PARAM,
