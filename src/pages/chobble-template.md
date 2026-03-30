@@ -289,6 +289,21 @@ blocks:
 
       All my work is open source. I donate 10% of earnings to the [Against Malaria Foundation](https://www.againstmalaria.com/).
 
+  # Icon Links
+  - type: icon_links
+    intro: |
+      ## Quick Links
+    items:
+      - icon: "hugeicons:github"
+        text: View the source code on GitHub
+        url: https://github.com/chobbledotcom/chobble-template
+      - icon: "hugeicons:global"
+        text: Visit chobble.com
+        url: https://chobble.com
+      - icon: "hugeicons:mail-01"
+        text: Get in touch
+        url: "#contact"
+
   # Contact Form
   - type: contact_form
     content: |

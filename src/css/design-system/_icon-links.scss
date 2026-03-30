@@ -1,0 +1,49 @@
+@use "../variables" as *;
+
+// Icon Links
+// A vertical list of links with icons, rendered as a flex column stack.
+
+.design-system {
+  .icon-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-sm;
+    max-width: $width-narrow;
+  }
+
+  .icon-links__link {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    padding: $space-sm $space-md;
+    border-radius: $radius-md;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  .icon-links__icon {
+    flex-shrink: 0;
+    width: 1.5em;
+    height: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .icon-links__text {
+    text-align: left;
+  }
+}

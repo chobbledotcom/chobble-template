@@ -73,4 +73,7 @@ Renders a single block by type. Used by blocks.html.
   {%- when "gallery" -%}
     {%- include "design-system/gallery.html", block: block -%}
 
+  {%- when "icon_links" -%}
+    {%- include "design-system/icon-links.html", block: block -%}
+
 {%- endcase -%}
