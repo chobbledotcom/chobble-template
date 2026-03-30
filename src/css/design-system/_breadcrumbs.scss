@@ -1,4 +1,5 @@
 @use "../variables" as *;
+@use "../mixins" as *;
 
 // =============================================================================
 // BREADCRUMBS
@@ -7,12 +8,13 @@
 
 .design-system {
   ol.breadcrumbs {
+    @include container($width-default);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     list-style: none;
-    padding: $space-sm $space-md;
+    padding-block: $space-sm;
     gap: $space-xs;
     font-size: $font-size-sm;
 
