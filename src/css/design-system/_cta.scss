@@ -9,7 +9,7 @@
   .cta {
     @include flex-col($space-lg, center, center);
     text-align: center;
-    @include card($space-3xl, $radius-2xl);
+    @include card(clamp($space-lg, 6vw, $space-3xl), $radius-2xl);
     @include brand-gradient;
     border: none;
     @include contrast-text-vars;
