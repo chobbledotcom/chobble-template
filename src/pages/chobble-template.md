@@ -28,7 +28,7 @@ blocks:
   - type: bunny-video-background
     full_width: true
     video_url: https://iframe.mediadelivery.net/embed/417100/64491289-f8e4-44a0-9d78-746cdf8f78fc?autoplay=true&loop=true&muted=true&preload=true&responsive=true
-    thumbnail_url: src/images/city-traffic-night.jpg
+    thumbnail_url: https://vz-d0e60604-beb.b-cdn.net/64491289-f8e4-44a0-9d78-746cdf8f78fc/thumbnail.jpg
     video_title: Chobble Template Demo
     aspect_ratio: "21/9"
     content: |
