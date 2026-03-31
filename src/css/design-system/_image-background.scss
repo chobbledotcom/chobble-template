@@ -47,7 +47,9 @@
       inset: -15%;
 
       @supports (animation-timeline: view()) {
-        animation: parallax-scroll linear;
+        animation-name: parallax-scroll;
+        animation-timing-function: linear;
+        animation-duration: auto;
         animation-timeline: view(block);
         animation-range: entry 0% exit 100%;
       }
