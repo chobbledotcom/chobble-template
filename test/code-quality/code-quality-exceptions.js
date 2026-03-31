@@ -97,6 +97,9 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/eleventy/cached-block.test.js",
   "test/unit/toolkit/set.test.js",
   "test/unit/utils/block-docs.test.js",
+
+  // Frontend - Set used to track visible parallax elements for scroll updates
+  "src/_lib/public/design-system.js:30",
 ]);
 
 // ============================================

@@ -7,6 +7,45 @@ import { initSliders } from "#public/utils/slider-core.js";
 
 const SCOPE = ".design-system";
 
+const trackVisibility = (activeSet) => (entries) => {
+  for (const { isIntersecting, target } of entries) {
+    activeSet[isIntersecting ? "add" : "delete"](target);
+  }
+};
+
+const applyParallaxOffset = (el) => {
+  const rect = el.getBoundingClientRect();
+  const progress =
+    (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+  const offset = (progress - 0.5) * 20;
+  el.firstElementChild.style.transform = `translateY(${offset}%)`;
+};
+
+const initParallax = () => {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const parallaxEls = document.querySelectorAll(`${SCOPE} .parallax`);
+  if (parallaxEls.length === 0) return;
+
+  const activeSet = new Set();
+  const observer = new IntersectionObserver(trackVisibility(activeSet), {
+    rootMargin: "50px 0px",
+  });
+
+  for (const el of parallaxEls) {
+    observer.observe(el);
+  }
+
+  const tick = () => {
+    for (const el of activeSet) {
+      applyParallaxOffset(el);
+    }
+    requestAnimationFrame(tick);
+  };
+
+  requestAnimationFrame(tick);
+};
+
 // Video facade - replace thumbnail with iframe from server-rendered <template> on click
 const initVideoFacades = () => {
   for (const button of document.querySelectorAll(`${SCOPE} .video-facade`)) {
@@ -64,6 +103,9 @@ const init = () => {
       }
     });
   }
+
+  // Parallax - translate image based on scroll position
+  initParallax();
 
   // Initialize sliders within design system with default settings
   initSliders(`${SCOPE} .slider-container`, {
