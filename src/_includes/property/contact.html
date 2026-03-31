@@ -1,4 +1,8 @@
-{%- if config.form_target and config.form_target != "" -%}
+{%- if formspark_id and formspark_id != "" -%}
+  {%- assign form_target_override = "https://submit-form.com/" | append: formspark_id -%}
+{%- endif -%}
+{%- assign effective_form_target = form_target_override | default: config.form_target -%}
+{%- if effective_form_target and effective_form_target != "" -%}
 <section class="compact">
   <div class="container">
     <h2>Get in Touch</h2>
@@ -6,3 +10,4 @@
   </div>
 </section>
 {%- endif -%}
+{%- assign form_target_override = nil -%}

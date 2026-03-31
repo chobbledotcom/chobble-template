@@ -1,5 +1,6 @@
 <noscript><p>JavaScript is required to submit this form.</p></noscript>
-{%- if config.form_target and config.form_target != "" -%}
+{%- assign _form_target = form_target_override | default: config.form_target -%}
+{%- if _form_target and _form_target != "" -%}
   {%- include "form-open.html" -%}
     {%- include "form-email-config.html",
         redirect_path: "/thank-you/",
