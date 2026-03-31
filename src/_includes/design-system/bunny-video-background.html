@@ -2,9 +2,9 @@
 Bunny CDN video background block - displays a full-width Bunny Stream video
 background with overlaid text content and a thumbnail placeholder.
 
-Uses player.js to detect when the video starts playing, then fades out the
-thumbnail. The player.js library is loaded from Bunny's CDN only when this
-block is used.
+Uses player.js (bundled in bunny-video.js) to detect when the video starts
+playing, then fades out the thumbnail. The bundle is only loaded on pages
+that use this block.
 
 Parameters (via block object):
   - block.video_url: Bunny Stream embed URL (required)
@@ -40,9 +40,4 @@ Usage:
   </figure>
 </div>
 
-<script
-  src="//assets.mediadelivery.net/playerjs/playerjs-latest.min.js"
-  async
-  data-bunny-playerjs
-  onload="window.dispatchEvent(new Event('playerjs:loaded'))"
-></script>
+<script type="module" src="{{ '/assets/js/bunny-video.js' | cacheBust }}"></script>

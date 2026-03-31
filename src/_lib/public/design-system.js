@@ -23,35 +23,6 @@ const initVideoFacades = () => {
   }
 };
 
-// Bunny video background - use player.js to hide thumbnail when video plays
-const initBunnyVideoBackgrounds = () => {
-  const containers = document.querySelectorAll(`${SCOPE} [data-bunny-video]`);
-  if (containers.length === 0) return;
-
-  const connectPlayer = () => {
-    for (const container of containers) {
-      const iframe = container.querySelector("iframe");
-      const thumbnail = container.querySelector(".video-background__thumbnail");
-      if (!iframe || !thumbnail) continue;
-
-      const player = new window.playerjs.Player(iframe);
-      player.on("ready", () => {
-        player.mute();
-        player.play();
-        player.on("play", () => {
-          thumbnail.classList.add("is-hidden");
-        });
-      });
-    }
-  };
-
-  if (window.playerjs) {
-    connectPlayer();
-  } else {
-    window.addEventListener("playerjs:loaded", connectPlayer, { once: true });
-  }
-};
-
 const init = () => {
   // Scroll reveal - animate elements as they enter viewport
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -101,7 +72,6 @@ const init = () => {
   });
 
   initVideoFacades();
-  initBunnyVideoBackgrounds();
 };
 
 onReady(init);
