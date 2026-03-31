@@ -151,6 +151,8 @@ export type PropertyItemData = BaseItemData & {
   locations: string[];
   /** Gallery image paths */
   gallery: string[];
+  /** Property-specific Formspark ID (overrides global form target) */
+  formspark_id?: string;
 };
 
 /**

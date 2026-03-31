@@ -380,6 +380,7 @@ const buildPropertiesFields = (config, fields) =>
     { name: "bathrooms", type: "number", label: "Bathrooms" },
     { name: "sleeps", type: "number", label: "Sleeps" },
     { name: "price_per_night", type: "number", label: "Price Per Night" },
+    { name: "formspark_id", type: "string", label: "Formspark ID" },
     config.features.features && FEATURES_FIELD,
   ])(config, fields);
 
