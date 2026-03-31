@@ -73,6 +73,7 @@
 		"liquidjs": "^10.24.0",
 		"markdown-it": "^14.1.1",
 		"pagefind": "^1.4.0",
+		"player.js": "^0.1.0",
 		"playwright": "^1.58.2",
 		"sass": "^1.97.3",
 		"sharp": "^0.34.5",

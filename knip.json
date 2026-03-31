@@ -6,6 +6,7 @@
 		"src/**/*.11tydata.js",
 		"src/_lib/public/bundle.js",
 		"src/_lib/public/design-system.js",
+		"src/_lib/public/bunny-video.js",
 		"bin/profile-report.js",
 		"test/**/*.test.js",
 		"test/build-profiling.js",

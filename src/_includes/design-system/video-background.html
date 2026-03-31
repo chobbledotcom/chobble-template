@@ -10,6 +10,7 @@ Parameters (via block object):
   - block.content: HTML/markdown content to overlay on the video (required)
   - block.aspect_ratio: Aspect ratio for the video container (default: "16/9")
   - block.class: Additional classes for the container (optional)
+  - block.thumbnail_url: URL of a thumbnail image to display while the video loads (optional)
 
 Usage:
   {% include "design-system/video-background.html", block: block %}
@@ -19,6 +20,11 @@ Usage:
 {%- assign _video_title = block.video_title | default: "Background video" -%}
 
 <div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};">
+  {%- if block.thumbnail_url -%}
+  <div class="video-background__thumbnail">
+    {% image block.thumbnail_url, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
+  </div>
+  {%- endif -%}
   {%- include "design-system/video-iframe.html", video_id: block.video_id, title: _video_title, background: true -%}
   <figure>
     <figcaption class="prose">

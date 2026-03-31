@@ -7,8 +7,7 @@ import { initSliders } from "#public/utils/slider-core.js";
 
 const SCOPE = ".design-system";
 
-// Video facade - replace thumbnail with iframe on click
-// Clones iframe from server-rendered <template> for consistent attributes
+// Video facade - replace thumbnail with iframe from server-rendered <template> on click
 const initVideoFacades = () => {
   for (const button of document.querySelectorAll(`${SCOPE} .video-facade`)) {
     button.addEventListener("click", () => {
