@@ -41,28 +41,11 @@
 
     @include media-background-content;
 
-    // Parallax: scroll-driven animation moves the image opposite to scroll
+    // Parallax: JS-driven scroll effect moves the image opposite to scroll
     &.parallax > div {
       // Extend the image beyond the container so it has room to translate
-      inset: -15%;
-
-      @supports (animation-timeline: view()) {
-        animation-name: parallax-scroll;
-        animation-timing-function: linear;
-        animation-duration: auto;
-        animation-timeline: view(block);
-        animation-range: entry 0% exit 100%;
-      }
+      inset: -10%;
+      will-change: transform;
     }
-  }
-}
-
-@keyframes parallax-scroll {
-  from {
-    transform: translateY(-10%);
-  }
-
-  to {
-    transform: translateY(10%);
   }
 }
