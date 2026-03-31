@@ -4,6 +4,7 @@ media:
   path: src/images
   categories:
     - image
+  rename: true
 settings:
   hide: true
   content:
@@ -759,6 +760,26 @@ content:
                     label: Property (e.g. url, data.title)
                   - { name: includes, type: string, label: Contains }
                   - { name: equals, type: string, label: Equals }
+          - name: icon_links
+            label: Icon Links
+            fields:
+              - name: intro
+                type: rich-text
+                label: Intro Content (Markdown)
+              - name: items
+                type: object
+                label: Links
+                list: true
+                fields:
+                  - name: icon
+                    type: string
+                    label: Icon (Iconify ID or HTML entity)
+                    required: true
+                  - name: text
+                    type: string
+                    label: Link Text
+                    required: true
+                  - { name: url, type: string, label: URL }
           - name: contact_form
             label: Contact Form
             fields:
