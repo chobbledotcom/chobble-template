@@ -1152,6 +1152,7 @@ export const generatePagesYaml = (config) => {
       output: "/images",
       path: imagesPath,
       categories: ["image"],
+      rename: true,
     },
     settings: {
       hide: true,
