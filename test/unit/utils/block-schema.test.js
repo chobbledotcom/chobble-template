@@ -14,6 +14,7 @@ describe("BLOCK_SCHEMAS", () => {
       "split-full",
       "cta",
       "video-background",
+      "bunny-video-background",
       "image-background",
       "items",
       "items_array",

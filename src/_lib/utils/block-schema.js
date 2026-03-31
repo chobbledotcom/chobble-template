@@ -71,6 +71,15 @@ const BLOCK_SCHEMAS = {
     "content",
     "aspect_ratio",
     "class",
+    "thumbnail_url",
+  ],
+  "bunny-video-background": [
+    "video_url",
+    "thumbnail_url",
+    "video_title",
+    "content",
+    "aspect_ratio",
+    "class",
   ],
   "image-background": ["image", "image_alt", "content", "class", "parallax"],
   items: ["collection", "intro", "horizontal", "filter", ...HEADER_KEYS],
@@ -155,6 +164,20 @@ const ITEMS_SHARED_PARAM_DOCS = {
     type: "object",
     description:
       'Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value.',
+  },
+};
+
+/** Shared param docs for video background blocks (video-background and bunny-video-background). */
+const VIDEO_BG_SHARED_PARAMS = {
+  video_title: {
+    type: "string",
+    default: '"Background video"',
+    description: "Accessible `title` on the iframe.",
+  },
+  aspect_ratio: {
+    type: "string",
+    default: '"16/9"',
+    description: "CSS aspect-ratio on container.",
   },
 };
 
@@ -528,17 +551,39 @@ const BLOCK_DOCS = {
         description:
           "YouTube video ID or full iframe URL (for Bunny, Vimeo, etc).",
       },
-      video_title: {
-        type: "string",
-        default: '"Background video"',
-        description: "Accessible `title` on the iframe.",
-      },
+      ...VIDEO_BG_SHARED_PARAMS,
       content: OVERLAY_CONTENT_PARAM,
-      aspect_ratio: {
+      class: CLASS_PARAM,
+      thumbnail_url: {
         type: "string",
-        default: '"16/9"',
-        description: "CSS aspect-ratio on container.",
+        description:
+          "URL of a thumbnail image displayed behind the iframe while the video loads.",
       },
+    },
+  },
+
+  "bunny-video-background": {
+    summary:
+      "Bunny CDN video background with player.js-powered thumbnail that fades when playback starts.",
+    template: "src/_includes/design-system/bunny-video-background.html",
+    scss: "src/css/design-system/_video-background.scss",
+    htmlRoot: '<div class="video-background" data-bunny-video>',
+    notes:
+      "Uses player.js (loaded from Bunny CDN) to detect when the video starts playing, then fades out the thumbnail. The player.js script is only included when this block is used.",
+    params: {
+      video_url: {
+        type: "string",
+        required: true,
+        description: "Bunny Stream embed URL.",
+      },
+      thumbnail_url: {
+        type: "string",
+        required: true,
+        description:
+          "Thumbnail image URL. Displayed as a placeholder until video playback begins.",
+      },
+      ...VIDEO_BG_SHARED_PARAMS,
+      content: OVERLAY_CONTENT_PARAM,
       class: CLASS_PARAM,
     },
   },

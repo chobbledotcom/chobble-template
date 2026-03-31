@@ -242,11 +242,33 @@ Auto-playing video background with overlaid text content.
 |---|---|---|---|
 | `video_id` | string | **required** | YouTube video ID or full iframe URL (for Bunny, Vimeo, etc). |
 | `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `aspect_ratio` | string | `"16/9"` | CSS aspect-ratio on container. |
+| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `class` | string | — | Extra CSS classes. |
+| `thumbnail_url` | string | — | URL of a thumbnail image displayed behind the iframe while the video loads. |
 
 YouTube IDs get `youtube-nocookie.com` embed URLs with `autoplay=1&mute=1&loop=1&controls=0`. Custom URLs (starting with `http`) are used directly.
+
+---
+
+### `bunny-video-background`
+
+Bunny CDN video background with player.js-powered thumbnail that fades when playback starts.
+
+**Template:** `src/_includes/design-system/bunny-video-background.html`
+**SCSS:** `src/css/design-system/_video-background.scss`
+**HTML root:** `<div class="video-background" data-bunny-video>`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `video_url` | string | **required** | Bunny Stream embed URL. |
+| `thumbnail_url` | string | **required** | Thumbnail image URL. Displayed as a placeholder until video playback begins. |
+| `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
+| `aspect_ratio` | string | `"16/9"` | CSS aspect-ratio on container. |
+| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
+| `class` | string | — | Extra CSS classes. |
+
+Uses player.js (loaded from Bunny CDN) to detect when the video starts playing, then fades out the thumbnail. The player.js script is only included when this block is used.
 
 ---
 
