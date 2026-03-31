@@ -25,9 +25,10 @@ blocks:
         size: lg
 
   # Video Background Demo
-  - type: video-background
+  - type: bunny-video-background
     full_width: true
-    video_id: https://iframe.mediadelivery.net/embed/417100/64491289-f8e4-44a0-9d78-746cdf8f78fc?autoplay=true&loop=true&muted=true&preload=true&responsive=true
+    video_url: https://iframe.mediadelivery.net/embed/417100/64491289-f8e4-44a0-9d78-746cdf8f78fc?autoplay=true&loop=true&muted=true&preload=true&responsive=true
+    thumbnail_url: src/images/city-traffic-night.jpg
     video_title: Chobble Template Demo
     aspect_ratio: "21/9"
     content: |
