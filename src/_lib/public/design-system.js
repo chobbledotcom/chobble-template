@@ -7,10 +7,18 @@ import { initSliders } from "#public/utils/slider-core.js";
 
 const SCOPE = ".design-system";
 
-const trackVisibility = (activeSet) => (entries) => {
-  for (const { isIntersecting, target } of entries) {
-    activeSet[isIntersecting ? "add" : "delete"](target);
+const observeIntersections = (selector, callback, options) => {
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      callback(entry.isIntersecting, entry.target, observer);
+    }
+  }, options);
+
+  for (const el of document.querySelectorAll(selector)) {
+    observer.observe(el);
   }
+
+  return observer;
 };
 
 const applyParallaxOffset = (el) => {
@@ -24,17 +32,14 @@ const applyParallaxOffset = (el) => {
 const initParallax = () => {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const parallaxEls = document.querySelectorAll(`${SCOPE} .parallax`);
-  if (parallaxEls.length === 0) return;
-
   const activeSet = new Set();
-  const observer = new IntersectionObserver(trackVisibility(activeSet), {
-    rootMargin: "50px 0px",
-  });
-
-  for (const el of parallaxEls) {
-    observer.observe(el);
-  }
+  observeIntersections(
+    `${SCOPE} .parallax`,
+    (entered, target) => {
+      activeSet[entered ? "add" : "delete"](target);
+    },
+    { rootMargin: "50px 0px" },
+  );
 
   const tick = () => {
     for (const el of activeSet) {
@@ -69,24 +74,16 @@ const init = () => {
       el.classList.add("is-visible");
     }
   } else {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
+    observeIntersections(
+      `${SCOPE} [data-reveal]`,
+      (visible, target, observer) => {
+        if (visible) {
+          target.classList.add("is-visible");
+          observer.unobserve(target);
         }
       },
-      {
-        rootMargin: "0px 0px -50px 0px",
-        threshold: 0.1,
-      },
+      { rootMargin: "0px 0px -50px 0px", threshold: 0.1 },
     );
-
-    for (const el of document.querySelectorAll(`${SCOPE} [data-reveal]`)) {
-      observer.observe(el);
-    }
   }
 
   // Smooth scroll for anchor links within design system
