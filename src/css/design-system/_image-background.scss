@@ -44,7 +44,7 @@
     // Parallax: JS-driven scroll effect moves the image opposite to scroll
     &.parallax > div {
       // Extend the image beyond the container so it has room to translate
-      inset: -15%;
+      inset: -10%;
       will-change: transform;
     }
   }
