@@ -110,7 +110,7 @@
         "figure_type": { "type": "string", "label": "Figure Type (image, video, code, html)" },
         "figure_src": { "type": "image", "label": "Figure Image" },
         "figure_alt": { "type": "string", "label": "Figure Alt Text" },
-        "figure_caption": { "type": "string", "label": "Figure Caption" },
+        "figure_caption": { "type": "markdown", "label": "Figure Caption" },
         "figure_video_id": { "type": "string", "label": "Figure Video ID or URL" },
         "figure_filename": { "type": "string", "label": "Figure Code Filename" },
         "figure_code": { "type": "string", "label": "Figure Code Content" },

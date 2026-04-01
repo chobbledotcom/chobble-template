@@ -173,7 +173,7 @@ Two-column layout with text content and a figure (image, video, code block, or H
 | `figure_type` | string | — | `"image"`, `"video"`, `"code"`, or `"html"`. |
 | `figure_src` | string | — | Image path (for `figure_type: "image"`). |
 | `figure_alt` | string | — | Alt text for image, or accessible title for video iframe. |
-| `figure_caption` | string | — | Visible caption below image or video. |
+| `figure_caption` | string | — | Visible caption below image or video. Supports markdown. |
 | `figure_video_id` | string | — | YouTube video ID or custom iframe URL (for `figure_type: "video"`). |
 | `figure_filename` | string | — | Displayed filename in code block header (for `figure_type: "code"`). |
 | `figure_code` | string | — | Code content (for `figure_type: "code"`). |
