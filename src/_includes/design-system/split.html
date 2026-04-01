@@ -55,12 +55,12 @@ Usage:
       {%- when "image" -%}
         {% image block.figure_src, block.figure_alt %}
         {%- if block.figure_caption -%}
-          <figcaption>{{ block.figure_caption | renderContent: "md" }}</figcaption>
+          <figcaption>{{ block.figure_caption }}</figcaption>
         {%- endif -%}
       {%- when "video" -%}
         {%- include "design-system/video-iframe.html", video_id: block.figure_video_id, title: block.figure_alt -%}
         {%- if block.figure_caption -%}
-          <figcaption>{{ block.figure_caption | renderContent: "md" }}</figcaption>
+          <figcaption>{{ block.figure_caption }}</figcaption>
         {%- endif -%}
       {%- when "code" -%}
         {%- include "design-system/code-block.html", filename: block.figure_filename, code: block.figure_code, language: block.figure_language -%}

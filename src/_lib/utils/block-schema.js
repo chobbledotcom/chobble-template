@@ -408,7 +408,7 @@ const BLOCK_DOCS = {
       },
       figure_caption: {
         type: "string",
-        description: "Visible caption below image or video. Supports markdown.",
+        description: "Visible caption below image or video.",
       },
       figure_video_id: {
         type: "string",

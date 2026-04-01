@@ -697,7 +697,7 @@ content:
                 label: Figure Type (image, video, code, html)
               - { name: figure_src, type: image, label: Figure Image }
               - { name: figure_alt, type: string, label: Figure Alt Text }
-              - { name: figure_caption, type: rich-text, label: Figure Caption }
+              - { name: figure_caption, type: string, label: Figure Caption }
               - name: figure_video_id
                 type: string
                 label: Figure Video ID or URL
