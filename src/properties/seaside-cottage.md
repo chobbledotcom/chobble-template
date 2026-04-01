@@ -4,6 +4,7 @@ subtitle: Charming 2-bedroom retreat with ocean views
 locations:
   - springfield
 featured: true
+formspark_id: example-seaside-cottage
 filter_attributes:
   - name: Bedrooms
     value: "2"

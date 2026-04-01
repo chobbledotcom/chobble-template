@@ -52,6 +52,15 @@ const configureProperties = (eleventyConfig) => {
     "propertyReviewsRedirects",
     propertyReviewsRedirects,
   );
+  eleventyConfig.addCollection(
+    "propertiesWithContactPage",
+    (collectionApi) =>
+      collectionApi
+        .getFilteredByTag("properties")
+        .filter(
+          (item) => item.data.formspark_id && item.data.formspark_id !== "",
+        ),
+  );
   eleventyConfig.addFilter("getPropertiesByLocation", getPropertiesByLocation);
 };
 
