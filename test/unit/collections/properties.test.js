@@ -19,8 +19,12 @@ const withLocOrder = property("title", "locations", "order");
 // Extract filters/collections once - pure functions, safe to reuse
 const { filters, collections } = withConfiguredMock(configureProperties)();
 const { getPropertiesByLocation } = filters;
-const { properties, propertiesWithReviewsPage, propertyReviewsRedirects } =
-  collections;
+const {
+  properties,
+  propertiesWithReviewsPage,
+  propertyReviewsRedirects,
+  propertiesWithContactPage,
+} = collections;
 
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 
@@ -156,6 +160,34 @@ describe("properties", () => {
     expect(result.length).toBe(1);
     expect(result[0].fileSlug).toBe("property-a");
     expect(result[0].item.fileSlug).toBe("property-a");
+  });
+
+  test("propertiesWithContactPage includes properties with formspark_id", () => {
+    const propertyItems = items([
+      ["With Form", { formspark_id: "abc123" }],
+      ["Without Form", {}],
+      ["Also With Form", { formspark_id: "def456" }],
+    ]);
+    const result = propertiesWithContactPage(collectionApi(propertyItems));
+    expectResultTitles(result, ["With Form", "Also With Form"]);
+  });
+
+  test("propertiesWithContactPage excludes empty formspark_id", () => {
+    const propertyItems = items([
+      ["Empty String", { formspark_id: "" }],
+      ["Valid", { formspark_id: "xyz" }],
+      ["Undefined", {}],
+    ]);
+    const result = propertiesWithContactPage(collectionApi(propertyItems));
+    expectResultTitles(result, ["Valid"]);
+  });
+
+  test("Registers propertiesWithContactPage collection", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureProperties(mockConfig);
+    expect(typeof mockConfig.collections.propertiesWithContactPage).toBe(
+      "function",
+    );
   });
 
   test("Filter functions should be pure and not modify inputs", () => {
