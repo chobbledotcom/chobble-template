@@ -175,6 +175,35 @@ describe("function-length", () => {
     ]);
   });
 
+  test("extractFunctions ignores expression-bodied arrow function properties", () => {
+    const source = testSource([
+      "const obj = memoize(fn, {",
+      "  cacheKey: (args) =>",
+      '    JSON.stringify(args[0], ["a", "b"]),',
+      "});",
+      "",
+      "const next = (x) => {",
+      "  return x + 1;",
+      "};",
+    ]);
+    const functions = extractFunctions(source);
+    expect(functions.map((f) => f.name)).toEqual(["next"]);
+  });
+
+  test("extractFunctions finds object property arrow functions with block body", () => {
+    const source = testSource([
+      "const obj = {",
+      "  handler: (x) => {",
+      "    return x * 2;",
+      "  },",
+      "};",
+    ]);
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].name).toBe("handler");
+    expect(functions[0].lineCount).toBe(3);
+  });
+
   test("extractFunctions reports accurate startLine and endLine", () => {
     const source = testSource(["const foo = () => {", '  return "bar";', "};"]);
     const functions = extractFunctions(source);

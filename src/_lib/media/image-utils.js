@@ -176,10 +176,10 @@ export const DEFAULT_IMAGE_OPTIONS = {
 /**
  * Prepare attributes for image and picture elements.
  * @param {Object} options - Attribute options
- * @param {string | null} options.alt - Alt text
- * @param {string | null} options.sizes - Sizes attribute
- * @param {string | null} options.loading - Loading attribute
- * @param {string | null} options.classes - CSS classes
+ * @param {string | null} [options.alt] - Alt text
+ * @param {string | null} [options.sizes] - Sizes attribute
+ * @param {string | null} [options.loading] - Loading attribute
+ * @param {string | null} [options.classes] - CSS classes
  * @returns {{ imgAttributes: Record<string, string>, pictureAttributes: Record<string, string> }}
  */
 export const prepareImageAttributes = ({ alt, sizes, loading, classes }) => ({

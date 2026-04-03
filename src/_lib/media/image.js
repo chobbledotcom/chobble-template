@@ -40,7 +40,7 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
-import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
 
 const DEFAULT_OPTIONS = frozenObject({
@@ -51,57 +51,29 @@ const DEFAULT_OPTIONS = frozenObject({
 });
 
 /**
- * Called from processAndWrapImage for local (non-external) images.
- * Receives imageName from two paths:
- * 1. From image-transform.js via extractImageOptions: getAttribute("src") = string | null
- * 2. From imageShortcode: template string = string
+ * Memoized image processing — the expensive part.
  *
- * Optimization: LQIP and responsive images are generated in a single eleventy-img call.
- * The 32px thumbnail for LQIP is included in the widths array, then extracted from
- * the resulting metadata and filtered out before generating HTML.
- *
- * Memoized to avoid reprocessing the same image with same options.
- * While eleventy-img disk-caches processed images, memoization avoids:
- * - Repeated disk I/O for LQIP base64 encoding
- * - Repeated eleventy-img cache checks
- * - Repeated HTML generation
- * Cache is bounded by maxCacheSize (default 2000) to prevent unbounded memory growth.
+ * Runs eleventy-img, LQIP generation, and cropping, then returns
+ * intermediate data that can be combined with presentation attributes.
+ * Cache key only includes image-processing fields (imageName, widths,
+ * aspectRatio, noLqip, skipMaxWidth) so the same image with different
+ * alt/classes/sizes/loading values shares cached results across pages.
  *
  * @param {ComputeImageProps} props - Image processing properties
- * @returns {Promise<string>} Wrapped image HTML
+ * @returns {Promise<{htmlMetadata: Object, style: string}>}
  */
-const computeWrappedImageHtml = memoize(
+const processImageData = memoize(
   async ({
     imageName,
-    alt,
-    classes,
-    sizes,
     widths,
     aspectRatio,
-    loading,
     noLqip = false,
     skipMaxWidth = false,
   }) => {
-    if (PLACEHOLDER_MODE) {
-      return generatePlaceholderHtml({
-        alt,
-        classes,
-        sizes,
-        loading,
-        aspectRatio,
-      });
-    }
-
     const imagePath = normalizeImagePath(imageName);
     const metadata = await getMetadata(imagePath);
     const finalPath = await cropImage(aspectRatio, imagePath, metadata);
 
-    const { imgAttributes, pictureAttributes } = prepareImageAttributes({
-      alt,
-      sizes,
-      loading,
-      classes,
-    });
     const { default: Image } = await getEleventyImg();
 
     // Check if LQIP should be generated (skip for SVGs, small files, or if noLqip is set)
@@ -125,24 +97,84 @@ const computeWrappedImageHtml = memoize(
       generateLqip,
     );
 
-    return await wrapProcessedImage(
-      htmlMetadata,
-      imgAttributes,
-      pictureAttributes,
-      {
-        classes,
-        style: buildWrapperStyles(
-          bgImage,
-          aspectRatio,
-          metadata,
-          getAspectRatio,
-          skipMaxWidth,
-        ),
-      },
+    const style = buildWrapperStyles(
+      bgImage,
+      aspectRatio,
+      metadata,
+      getAspectRatio,
+      skipMaxWidth,
     );
+
+    return { htmlMetadata, style };
   },
-  { cacheKey: jsonKey },
+  {
+    cacheKey: (args) =>
+      JSON.stringify(args[0], [
+        "imageName",
+        "widths",
+        "aspectRatio",
+        "noLqip",
+        "skipMaxWidth",
+      ]),
+  },
 );
+
+/**
+ * Generate wrapped image HTML from processing data + presentation attributes.
+ *
+ * Delegates expensive work to memoized processImageData, then applies
+ * cheap presentation attributes (alt, classes, sizes, loading) to produce
+ * the final HTML.
+ *
+ * @param {ComputeImageProps} props - Image processing properties
+ * @returns {Promise<string>} Wrapped image HTML
+ */
+const computeWrappedImageHtml = async ({
+  imageName,
+  alt,
+  classes,
+  sizes,
+  widths,
+  aspectRatio,
+  loading,
+  noLqip = false,
+  skipMaxWidth = false,
+}) => {
+  if (PLACEHOLDER_MODE) {
+    return generatePlaceholderHtml({
+      alt,
+      classes,
+      sizes,
+      loading,
+      aspectRatio,
+    });
+  }
+
+  const { htmlMetadata, style } = await processImageData({
+    imageName,
+    widths,
+    aspectRatio,
+    noLqip,
+    skipMaxWidth,
+  });
+
+  const { imgAttributes, pictureAttributes } = prepareImageAttributes({
+    alt,
+    sizes,
+    loading,
+    classes,
+  });
+
+  return await wrapProcessedImage(
+    htmlMetadata,
+    imgAttributes,
+    pictureAttributes,
+    {
+      classes,
+      style,
+    },
+  );
+};
 
 /**
  * Called from two paths with different imageName types:
