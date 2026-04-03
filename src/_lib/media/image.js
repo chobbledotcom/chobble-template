@@ -59,6 +59,7 @@ const DEFAULT_OPTIONS = frozenObject({
  * aspectRatio, noLqip, skipMaxWidth) so the same image with different
  * alt/classes/sizes/loading values shares cached results across pages.
  *
+ * @param {ComputeImageProps} props - Image processing properties
  * @returns {Promise<{htmlMetadata: Object, style: string}>}
  */
 const processImageData = memoize(
