@@ -28,7 +28,6 @@ const IGNORED_FUNCTIONS = frozenSet([
   "buildFilterUIData", // Complex filter UI data structure builder
   "registerTransforms", // Eleventy config registration with multiple transforms
   "acceptNode", // Inline callback in tree walker (false positive)
-  "cacheKey", // Object property arrow function (false positive - actual body is 1 line)
 ]);
 
 // Test helper to join source code lines
@@ -174,6 +173,35 @@ describe("function-length", () => {
       "second",
       "third",
     ]);
+  });
+
+  test("extractFunctions ignores expression-bodied arrow function properties", () => {
+    const source = testSource([
+      "const obj = memoize(fn, {",
+      "  cacheKey: (args) =>",
+      '    JSON.stringify(args[0], ["a", "b"]),',
+      "});",
+      "",
+      "const next = (x) => {",
+      "  return x + 1;",
+      "};",
+    ]);
+    const functions = extractFunctions(source);
+    expect(functions.map((f) => f.name)).toEqual(["next"]);
+  });
+
+  test("extractFunctions finds object property arrow functions with block body", () => {
+    const source = testSource([
+      "const obj = {",
+      "  handler: (x) => {",
+      "    return x * 2;",
+      "  },",
+      "};",
+    ]);
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].name).toBe("handler");
+    expect(functions[0].lineCount).toBe(3);
   });
 
   test("extractFunctions reports accurate startLine and endLine", () => {
