@@ -28,6 +28,7 @@ const IGNORED_FUNCTIONS = frozenSet([
   "buildFilterUIData", // Complex filter UI data structure builder
   "registerTransforms", // Eleventy config registration with multiple transforms
   "acceptNode", // Inline callback in tree walker (false positive)
+  "cacheKey", // Object property arrow function (false positive - actual body is 1 line)
 ]);
 
 // Test helper to join source code lines

@@ -107,16 +107,14 @@ const processImageData = memoize(
     return { htmlMetadata, style };
   },
   {
-    cacheKey: (args) => {
-      const props = args[0];
-      return JSON.stringify({
-        imageName: props.imageName,
-        widths: props.widths,
-        aspectRatio: props.aspectRatio,
-        noLqip: props.noLqip,
-        skipMaxWidth: props.skipMaxWidth,
-      });
-    },
+    cacheKey: (args) =>
+      JSON.stringify(args[0], [
+        "imageName",
+        "widths",
+        "aspectRatio",
+        "noLqip",
+        "skipMaxWidth",
+      ]),
   },
 );
 
