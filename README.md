@@ -14,6 +14,7 @@
 - [playsafeplayinspection.co.uk](https://www.playsafeplayinspection.co.uk)
 - [garsdalecottages.co.uk](https://www.garsdalecottages.co.uk)
 - [medwaymascots.co.uk](https://www.medwaymascots.co.uk)
+- [funprouk.co.uk](https://www.funprouk.co.uk)
 
 **Want me to make you a website based on this template?** Hit me up at [chobble.com](https://chobble.com).
 
