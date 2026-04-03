@@ -564,12 +564,12 @@ const BLOCK_DOCS = {
 
   "bunny-video-background": {
     summary:
-      "Bunny CDN video background with thumbnail that fades when playback starts.",
+      "Bunny CDN video background with player.js-powered thumbnail that fades when playback starts.",
     template: "src/_includes/design-system/bunny-video-background.html",
     scss: "src/css/design-system/_video-background.scss",
     htmlRoot: '<div class="video-background" data-bunny-video>',
     notes:
-      "Listens for Bunny Stream postMessage events to detect when the video starts playing, then fades out the thumbnail. The bunny-video script is only included when this block is used.",
+      "Uses player.js (loaded from Bunny CDN) to detect when the video starts playing, then fades out the thumbnail. The player.js script is only included when this block is used.",
     params: {
       video_url: {
         type: "string",
