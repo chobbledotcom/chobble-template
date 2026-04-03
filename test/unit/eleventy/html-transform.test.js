@@ -59,7 +59,7 @@ describe("html-transform", () => {
       const result = await transform(html, "index.html");
 
       expect(result).not.toContain("mailto:hello@example.com");
-      expect(result).toContain("data-decrypt-email");
+      expect(result).toContain("data-decrypt-link");
     });
 
     test("linkifies phone numbers with default config", async () => {
@@ -112,7 +112,7 @@ describe("html-transform", () => {
       expect(result).toContain('href="https://example.com"');
       // Emails linkified and encrypted
       expect(result).not.toContain("mailto:test@example.com");
-      expect(result).toContain("data-decrypt-email");
+      expect(result).toContain("data-decrypt-link");
       // Tables wrapped
       expect(result).toContain('class="scrollable-table"');
       // Images processed

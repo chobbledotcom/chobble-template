@@ -30,12 +30,12 @@ describe("encrypt-emails", () => {
       expect(result).not.toContain(">test@example.com<");
     });
 
-    test("adds data-decrypt-email attribute", async () => {
+    test("adds data-decrypt-link attribute", async () => {
       const html = wrapHtml(
         '<a href="mailto:test@example.com">test@example.com</a>',
       );
       const result = await transformHtml(html);
-      expect(result).toContain("data-decrypt-email");
+      expect(result).toContain("data-decrypt-link");
     });
 
     test("does not modify non-mailto links", async () => {
@@ -43,7 +43,7 @@ describe("encrypt-emails", () => {
       const result = await transformHtml(html);
       expect(result).toContain('href="https://example.com"');
       expect(result).toContain(">Example<");
-      expect(result).not.toContain("data-decrypt-email");
+      expect(result).not.toContain("data-decrypt-link");
     });
 
     test("encrypts multiple mailto links", async () => {
@@ -52,7 +52,7 @@ describe("encrypt-emails", () => {
       );
       const result = await transformHtml(html);
       expect(result).not.toContain("mailto:");
-      const matches = result.match(/data-decrypt-email/g);
+      const matches = result.match(/data-decrypt-link/g);
       expect(matches?.length).toBe(2);
     });
 

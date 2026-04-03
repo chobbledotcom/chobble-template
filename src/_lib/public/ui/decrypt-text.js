@@ -2,7 +2,7 @@
  * Client-side AES-CTR decryption for obfuscated email links.
  *
  * At build time, mailto: links are encrypted and marked with
- * data-decrypt-email. This script decrypts them using the key
+ * data-decrypt-link. This script decrypts them using the key
  * stored in the bundle script tag's data-decrypt-key attribute.
  */
 import { onReady } from "#public/utils/on-ready.js";
@@ -54,7 +54,7 @@ onReady(async () => {
 
   if (!("subtle" in window.crypto)) return;
 
-  const links = document.querySelectorAll("a[data-decrypt-email]");
+  const links = document.querySelectorAll("a[data-decrypt-link]");
   if (links.length === 0) return;
 
   const key = await importKey(keyText);

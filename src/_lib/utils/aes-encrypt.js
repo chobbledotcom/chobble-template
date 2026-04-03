@@ -22,7 +22,7 @@ const generateKeyText = () => encodeBase64(randomBytes(KEY_BYTES));
  * Encrypt plaintext using AES-256-CTR with a random nonce.
  * Output format: base64(nonce + ciphertext)
  * @param {string} plainText
- * @param {Buffer} keyBytes
+ * @param {Uint8Array} keyBytes
  * @returns {string}
  */
 const encrypt = (plainText, keyBytes) => {
@@ -30,7 +30,7 @@ const encrypt = (plainText, keyBytes) => {
   const iv = Buffer.alloc(BLOCK_BYTES);
   nonce.copy(iv);
 
-  const cipher = createCipheriv("aes-256-ctr", keyBytes, iv);
+  const cipher = createCipheriv("aes-256-ctr", Buffer.from(keyBytes), iv);
   const codeBytes = Buffer.concat([
     cipher.update(plainText, "utf8"),
     cipher.final(),
