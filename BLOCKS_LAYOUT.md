@@ -253,7 +253,7 @@ YouTube IDs get `youtube-nocookie.com` embed URLs with `autoplay=1&mute=1&loop=1
 
 ### `bunny-video-background`
 
-Bunny CDN video background with player.js-powered thumbnail that fades when playback starts.
+Bunny CDN video background with thumbnail that fades when playback starts.
 
 **Template:** `src/_includes/design-system/bunny-video-background.html`
 **SCSS:** `src/css/design-system/_video-background.scss`
@@ -268,7 +268,7 @@ Bunny CDN video background with player.js-powered thumbnail that fades when play
 | `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `class` | string | — | Extra CSS classes. |
 
-Uses player.js (loaded from Bunny CDN) to detect when the video starts playing, then fades out the thumbnail. The player.js script is only included when this block is used.
+Listens for Bunny Stream postMessage events to detect when the video starts playing, then fades out the thumbnail. The bunny-video script is only included when this block is used.
 
 ---
 
