@@ -18,11 +18,11 @@ const init = () => {
 
     const player = new playerjs.Player(iframe);
     player.on("ready", () => {
-      player.mute();
-      player.play();
       player.on("play", () => {
         thumbnail.classList.add("is-hidden");
       });
+      player.mute();
+      player.play();
     });
   }
 };
