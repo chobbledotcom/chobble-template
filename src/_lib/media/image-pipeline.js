@@ -85,8 +85,8 @@ export const generatePictureHtml = async (
  * @param {Object} imgAttributes - Image element attributes
  * @param {Object} pictureAttributes - Picture element attributes
  * @param {Object} wrapperOptions
- * @param {string | null} wrapperOptions.classes - CSS classes
- * @param {string} wrapperOptions.style - CSS style string
+ * @param {string | null} [wrapperOptions.classes] - CSS classes
+ * @param {string | null} [wrapperOptions.style] - CSS style string
  * @returns {Promise<string>} Wrapped picture HTML
  */
 export const wrapProcessedImage = async (
@@ -108,7 +108,7 @@ export const wrapProcessedImage = async (
  * @param {string} html - HTML string
  * @param {boolean} returnElement - Whether to return Element
  * @param {Document|null} document - Document for element creation
- * @returns {Promise<string|Element>}
+ * @returns {Promise<string|Element|null>}
  */
 export const resolveOutput = async (html, returnElement, document) =>
   returnElement ? await parseHtml(html, document) : html;

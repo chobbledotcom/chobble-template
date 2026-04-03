@@ -20,7 +20,7 @@ const PLACEHOLDER_SIZE_THRESHOLD = 5 * 1024;
  * Check if LQIP should be generated for an image.
  * Uses Bun.file().size for faster file size check.
  * @param {string} imagePath - Path to the image file
- * @param {Object} metadata - Image metadata from sharp
+ * @param {{ format: string }} metadata - Image metadata from sharp
  * @returns {boolean} Whether to generate LQIP
  */
 const shouldGenerateLqip = (imagePath, metadata) =>
@@ -31,7 +31,7 @@ const shouldGenerateLqip = (imagePath, metadata) =>
  * Extract LQIP data URL from eleventy-img metadata.
  * Finds the 32px webp image and converts it to a base64 data URL.
  * Uses Bun.file().arrayBuffer() for faster binary file reading.
- * @param {Object} imageMetadata - Metadata returned by eleventy-img
+ * @param {{ webp?: Array<{ width: number, outputPath: string }> }} imageMetadata - Metadata returned by eleventy-img
  * @returns {Promise<string | null>} CSS url() with base64 data, or null if not found
  */
 const extractLqipFromMetadata = async (imageMetadata) => {
@@ -47,8 +47,8 @@ const extractLqipFromMetadata = async (imageMetadata) => {
 
 /**
  * Filter out LQIP width from image metadata for HTML generation.
- * @param {Object} imageMetadata - Metadata returned by eleventy-img
- * @returns {Object} Filtered metadata without LQIP-sized images
+ * @param {Record<string, Array<{ width: number }>>} imageMetadata - Metadata returned by eleventy-img
+ * @returns {Record<string, Array<{ width: number }>>} Filtered metadata without LQIP-sized images
  */
 const removeLqip = mapObject((format, images) => [
   format,
