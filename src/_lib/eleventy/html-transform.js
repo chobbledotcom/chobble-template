@@ -15,6 +15,7 @@ import { FAST_INACCURATE_BUILDS } from "#build/build-mode.js";
 import configModule from "#data/config.js";
 import linksMap from "#data/links.json" with { type: "json" };
 import { memoize } from "#toolkit/fp/memoize.js";
+import { encryptEmails, hasMailtoLinks } from "#transforms/encrypt-emails.js";
 import { addExternalLinkAttrs } from "#transforms/external-links.js";
 import { processImages } from "#transforms/images.js";
 import {
@@ -42,7 +43,8 @@ const needsDomParsing = (content, phoneLen) =>
   content.includes("<table") ||
   content.includes('src="/images/') ||
   hasReadMoreMarker(content) ||
-  hasConfigLinks(content, linksMap);
+  hasConfigLinks(content, linksMap) ||
+  hasMailtoLinks(content);
 
 /**
  * Apply DOM-based transforms (phone links, table wrappers, image processing, read-more)
@@ -62,6 +64,7 @@ const applyDomTransforms = async (html, config, processAndWrapImage) => {
   wrapTables(document, config);
   processReadMore(document);
   await processImages(document, config, processAndWrapImage);
+  encryptEmails(document);
   return dom.serialize();
 };
 

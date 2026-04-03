@@ -53,12 +53,13 @@ describe("html-transform", () => {
       expect(result).toContain(">example.com</a>");
     });
 
-    test("linkifies email addresses", async () => {
+    test("linkifies and encrypts email addresses", async () => {
       const transform = createHtmlTransform(mockImageProcessor);
       const html = "<html><body><p>Contact hello@example.com</p></body></html>";
       const result = await transform(html, "index.html");
 
-      expect(result).toContain('href="mailto:hello@example.com"');
+      expect(result).not.toContain("mailto:hello@example.com");
+      expect(result).toContain("data-decrypt-email");
     });
 
     test("linkifies phone numbers with default config", async () => {
@@ -109,8 +110,9 @@ describe("html-transform", () => {
 
       // URLs linkified
       expect(result).toContain('href="https://example.com"');
-      // Emails linkified
-      expect(result).toContain('href="mailto:test@example.com"');
+      // Emails linkified and encrypted
+      expect(result).not.toContain("mailto:test@example.com");
+      expect(result).toContain("data-decrypt-email");
       // Tables wrapped
       expect(result).toContain('class="scrollable-table"');
       // Images processed
