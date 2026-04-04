@@ -39,6 +39,7 @@ coveragePathIgnorePatterns = [
   "test/ensure-deps.js",
   "src/_lib/config/validated-config.js",
   "src/_lib/public/utils/on-ready.js",
+  "src/_lib/public/ui/decrypt-text.js",
   "src/_lib/public/ui/category-filter.js",
   "src/_lib/public/ui/search.js",
   "scripts/customise-cms/cli-io.js",
