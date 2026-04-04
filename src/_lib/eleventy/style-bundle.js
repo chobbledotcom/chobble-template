@@ -35,14 +35,14 @@ const detectRightContent = () =>
  * @param {boolean} [featured] - Whether the current page is featured
  * @returns {string}
  */
-const getBodyClasses = (layout, siteConfig, extraClasses = [], featured) => {
+const getBodyClasses = (layout, siteConfig, extraClasses, featured) => {
   const classes = [
     layout.replace(".html", ""),
     siteConfig.sticky_mobile_nav ? "sticky-mobile-nav" : null,
     siteConfig.horizontal_nav !== false ? "horizontal-nav" : "left-nav",
     detectRightContent() ? "two-columns" : "one-column",
     featured ? "featured" : null,
-    ...extraClasses,
+    ...(Array.isArray(extraClasses) ? extraClasses : []),
   ];
 
   return classes.filter(Boolean).join(" ");
