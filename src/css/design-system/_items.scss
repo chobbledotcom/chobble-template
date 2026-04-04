@@ -25,9 +25,8 @@
     list-style: none;
     gap: $space-lg;
 
-    // Grid layout for non-slider and masonry fallback
-    &:not(.slider):not(.masonry),
-    &.masonry:not(.masonry-ready) {
+    // Grid layout for non-slider
+    &:not(.slider):not(.masonry) {
       > li {
         flex: 1 1 $width-card;
         max-width: 100%;
@@ -57,15 +56,6 @@
         top: 0;
         left: 0;
         will-change: transform;
-      }
-
-      &:not(.masonry-ready) {
-        display: flex;
-        flex-wrap: wrap;
-
-        > li {
-          position: static;
-        }
       }
     }
 
