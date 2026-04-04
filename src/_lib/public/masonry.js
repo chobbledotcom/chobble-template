@@ -11,6 +11,12 @@ const CARD_INNER_GAP = 16;
 const BUTTON_HEIGHT = 44;
 const PRICE_HEIGHT = 21;
 
+// Review card constants (reviews-grid > li uses card($space-md) + flex-col($space-sm))
+const REVIEW_PADDING = 24;
+const REVIEW_HEADER_HEIGHT = 22;
+const REVIEW_AUTHOR_HEIGHT = 40;
+const REVIEW_PRODUCTS_HEIGHT = 18;
+
 const CONTENT_FONT =
   '14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 const HEADING_FONT =
@@ -19,7 +25,31 @@ const HEADING_FONT =
 export const textHeight = (text, font, lineHeight, width) =>
   layout(prepare(text, font), width, lineHeight).height;
 
+const sumWithGaps = (heights, gap, extraPadding) => {
+  const valid = heights.filter((h) => h !== null);
+  const gaps = valid.length > 1 ? gap * (valid.length - 1) : 0;
+  return CARD_BORDER + valid.reduce((sum, h) => sum + h, 0) + gaps + extraPadding;
+};
+
 export const measureCard = (card, colWidth) => {
+  // Review cards have a different DOM structure
+  if (card.querySelector(".review-header")) {
+    const contentWidth = colWidth - REVIEW_PADDING * 2;
+    const reviewEl = card.querySelector(".review");
+    return sumWithGaps(
+      [
+        REVIEW_HEADER_HEIGHT,
+        reviewEl
+          ? textHeight(reviewEl.textContent || "", CONTENT_FONT, 21, contentWidth)
+          : null,
+        card.querySelector(".products") ? REVIEW_PRODUCTS_HEIGHT : null,
+        card.querySelector(".author-info") ? REVIEW_AUTHOR_HEIGHT : null,
+      ],
+      CARD_INNER_GAP,
+      REVIEW_PADDING * 2,
+    );
+  }
+
   const contentWidth = colWidth - CARD_PADDING_INLINE * 2;
   const img = card.querySelector(".image-link img");
   const heading = card.querySelector("h3");
@@ -27,26 +57,22 @@ export const measureCard = (card, colWidth) => {
     p.textContent?.trim(),
   );
 
-  const heights = [
-    img ? colWidth / (img.width / img.height || 1.5) : null,
-    heading
-      ? textHeight(heading.textContent || "", HEADING_FONT, 22.4, contentWidth)
-      : null,
-    card.querySelector(".price") ? PRICE_HEIGHT : null,
-    ...paragraphs.map((p) =>
-      textHeight(p.textContent || "", CONTENT_FONT, 21, contentWidth),
-    ),
-    card.querySelector(".list-item-cart-controls, .button, .add-to-cart")
-      ? BUTTON_HEIGHT
-      : null,
-  ].filter((h) => h !== null);
-
-  const gaps = heights.length > 1 ? CARD_INNER_GAP * (heights.length - 1) : 0;
-  return (
-    CARD_BORDER +
-    heights.reduce((sum, h) => sum + h, 0) +
-    gaps +
-    CARD_PADDING_INLINE
+  return sumWithGaps(
+    [
+      img ? colWidth / (img.width / img.height || 1.5) : null,
+      heading
+        ? textHeight(heading.textContent || "", HEADING_FONT, 22.4, contentWidth)
+        : null,
+      card.querySelector(".price") ? PRICE_HEIGHT : null,
+      ...paragraphs.map((p) =>
+        textHeight(p.textContent || "", CONTENT_FONT, 21, contentWidth),
+      ),
+      card.querySelector(".list-item-cart-controls, .button, .add-to-cart")
+        ? BUTTON_HEIGHT
+        : null,
+    ],
+    CARD_INNER_GAP,
+    CARD_PADDING_INLINE,
   );
 };
 
