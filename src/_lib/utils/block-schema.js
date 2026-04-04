@@ -82,12 +82,13 @@ const BLOCK_SCHEMAS = {
     "class",
   ],
   "image-background": ["image", "image_alt", "content", "class", "parallax"],
-  items: ["collection", "intro", "horizontal", "filter", ...HEADER_KEYS],
+  items: ["collection", "intro", "horizontal", "masonry", "filter", ...HEADER_KEYS],
   items_array: [
     "collection",
     "items",
     "intro",
     "horizontal",
+    "masonry",
     "filter",
     ...HEADER_KEYS,
   ],
@@ -159,6 +160,12 @@ const ITEMS_SHARED_PARAM_DOCS = {
     default: "false",
     description:
       "If true, renders as a horizontal slider instead of a wrapping grid.",
+  },
+  masonry: {
+    type: "boolean",
+    default: "false",
+    description:
+      "If true, renders as a masonry grid using @chenglou/pretext for zero-reflow height prediction.",
   },
   filter: {
     type: "object",

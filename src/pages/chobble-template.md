@@ -57,6 +57,15 @@ blocks:
 
       Hand-pick specific items from any collection using the items array block.
 
+  # Reviews Masonry
+  - type: items
+    collection: reviews
+    masonry: true
+    intro: |
+      ## Customer Reviews
+
+      Display reviews in a masonry grid — cards flow naturally based on content height.
+
   # Stats
   - type: stats
     section_class: alt
