@@ -60,6 +60,10 @@
       overflow: hidden;
       @include card-hover;
 
+      &.featured {
+        border-color: var(--color-accent);
+      }
+
       // Shared inline padding for text content
       h3,
       .price,
