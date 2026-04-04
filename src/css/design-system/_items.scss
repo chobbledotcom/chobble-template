@@ -26,7 +26,7 @@
     gap: $space-lg;
 
     // Grid layout for non-slider
-    &:not(.slider) {
+    &:not(.slider):not(.masonry) {
       > li {
         flex: 1 1 $width-card;
         max-width: 100%;
@@ -44,6 +44,19 @@
     // Slider variant inherits scroll/snap behavior from .slider (design-system/_slider.scss)
     &.slider {
       flex-wrap: nowrap;
+    }
+
+    // Masonry variant: positioned by JS using @chenglou/pretext height prediction
+    &.masonry {
+      display: block;
+      position: relative;
+
+      > li {
+        position: absolute;
+        top: 0;
+        left: 0;
+        will-change: transform;
+      }
     }
 
     // =========================================================================

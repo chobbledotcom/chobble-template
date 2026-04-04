@@ -7,6 +7,7 @@
 		"src/_lib/public/bundle.js",
 		"src/_lib/public/design-system.js",
 		"src/_lib/public/bunny-video.js",
+		"src/_lib/public/masonry.js",
 		"bin/profile-report.js",
 		"test/**/*.test.js",
 		"test/build-profiling.js",

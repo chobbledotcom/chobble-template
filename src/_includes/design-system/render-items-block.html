@@ -16,4 +16,4 @@ Expects blockItems and block variables to be set by the caller.
 {%- if block.filter -%}
   {%- assign blockItems = blockItems | filterItems: block.filter -%}
 {%- endif -%}
-{%- include "items.html", items: blockItems, horizontal: block.horizontal -%}
+{%- include "items.html", items: blockItems, horizontal: block.horizontal, masonry: block.masonry -%}
