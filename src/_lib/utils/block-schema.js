@@ -82,7 +82,14 @@ const BLOCK_SCHEMAS = {
     "class",
   ],
   "image-background": ["image", "image_alt", "content", "class", "parallax"],
-  items: ["collection", "intro", "horizontal", "masonry", "filter", ...HEADER_KEYS],
+  items: [
+    "collection",
+    "intro",
+    "horizontal",
+    "masonry",
+    "filter",
+    ...HEADER_KEYS,
+  ],
   items_array: [
     "collection",
     "items",
