@@ -8,8 +8,14 @@ import {
   createMockEleventyConfig,
   expectResultTitles,
   item,
+  withMockFetch,
 } from "#test/test-utils.js";
 import { map } from "#toolkit/fp/array.js";
+
+const MOCK_SVG = '<svg xmlns="http://www.w3.org/2000/svg"><path/></svg>';
+
+/** Run an async callback with fetch mocked to return a valid SVG */
+const withIconMock = (callback) => withMockFetch(MOCK_SVG, {}, callback);
 
 // ============================================
 // Functional Test Fixture Builders
@@ -207,81 +213,88 @@ describe("toNavigation", () => {
     );
   });
 
-  test("Renders navigation with active class", async () => {
-    const pages = [navEntry("Home", { url: "/" })];
-    const result = await toNavigation(pages, "Home");
-    expect(result).toContain('class="active"');
-  });
+  test("Renders navigation with active class", () =>
+    withIconMock(async () => {
+      const pages = [navEntry("Home", { url: "/" })];
+      const result = await toNavigation(pages, "Home");
+      expect(result).toContain('class="active"');
+    }));
 
-  test("Renders multiple nav items with hrefs", async () => {
-    const pages = [navEntry("Home", { url: "/" }), navEntry("About")];
-    const result = await toNavigation(pages, "");
-    expect(result).toContain("Home");
-    expect(result).toContain("About");
-    expect(result).toContain('href="/"');
-    expect(result).toContain('href="/about/"');
-  });
+  test("Renders multiple nav items with hrefs", () =>
+    withIconMock(async () => {
+      const pages = [navEntry("Home", { url: "/" }), navEntry("About")];
+      const result = await toNavigation(pages, "");
+      expect(result).toContain("Home");
+      expect(result).toContain("About");
+      expect(result).toContain('href="/"');
+      expect(result).toContain('href="/about/"');
+    }));
 
-  test("Renders nested children", async () => {
-    const pages = [
-      navEntry("Products", {
-        children: [navEntry("Category A"), navEntry("Category B")],
-      }),
-    ];
-    const result = await toNavigation(pages, "");
-    expect(result).toContain("Products");
-    expect(result).toContain("Category A");
-    expect(result.match(/<ul/g).length).toBeGreaterThan(1);
-  });
+  test("Renders nested children", () =>
+    withIconMock(async () => {
+      const pages = [
+        navEntry("Products", {
+          children: [navEntry("Category A"), navEntry("Category B")],
+        }),
+      ];
+      const result = await toNavigation(pages, "");
+      expect(result).toContain("Products");
+      expect(result).toContain("Category A");
+      expect(result.match(/<ul/g).length).toBeGreaterThan(1);
+    }));
 
-  test("Does not render caret button for any items", async () => {
-    const pages = [
-      navEntry("Products", {
-        children: [navEntry("Category A")],
-      }),
-    ];
-    const result = await toNavigation(pages, "");
-    expect(result).not.toContain("nav-caret");
-  });
+  test("Does not render caret button for any items", () =>
+    withIconMock(async () => {
+      const pages = [
+        navEntry("Products", {
+          children: [navEntry("Category A")],
+        }),
+      ];
+      const result = await toNavigation(pages, "");
+      expect(result).not.toContain("nav-caret");
+    }));
 
-  test("Renders entry without href when url is missing", async () => {
-    const pages = [
-      {
-        key: "No Link",
-        title: "No Link",
-        pluginType: "eleventy-navigation",
-        data: {},
-        children: [],
-      },
-    ];
-    const result = await toNavigation(pages, "");
-    expect(result).toContain("No Link");
-    expect(result).not.toContain("href=");
-  });
+  test("Renders entry without href when url is missing", () =>
+    withIconMock(async () => {
+      const pages = [
+        {
+          key: "No Link",
+          title: "No Link",
+          pluginType: "eleventy-navigation",
+          data: {},
+          children: [],
+        },
+      ];
+      const result = await toNavigation(pages, "");
+      expect(result).toContain("No Link");
+      expect(result).not.toContain("href=");
+    }));
 
-  test("Skips thumbnails for root-level navigation items", async () => {
-    const pages = [
-      navEntry("Products", {
-        data: { thumbnail: "images/placeholders/blue.svg" },
-      }),
-    ];
-    const result = await toNavigation(pages, "");
-    expect(result).not.toContain("<picture");
-    expect(result).not.toContain("<img");
-  });
+  test("Skips thumbnails for root-level navigation items", () =>
+    withIconMock(async () => {
+      const pages = [
+        navEntry("Products", {
+          data: { thumbnail: "images/placeholders/blue.svg" },
+        }),
+      ];
+      const result = await toNavigation(pages, "");
+      expect(result).not.toContain("<picture");
+      expect(result).not.toContain("<img");
+    }));
 
-  test("Renders thumbnail for child navigation items", async () => {
-    const pages = [
-      navEntry("Products", {
-        children: [
-          navEntry("Category A", {
-            data: { thumbnail: "images/placeholders/blue.svg" },
-          }),
-        ],
-      }),
-    ];
-    const result = await toNavigation(pages, "");
-    expect(result).toContain("<picture");
-    expect(result).toContain("<img");
-  });
+  test("Renders thumbnail for child navigation items", () =>
+    withIconMock(async () => {
+      const pages = [
+        navEntry("Products", {
+          children: [
+            navEntry("Category A", {
+              data: { thumbnail: "images/placeholders/blue.svg" },
+            }),
+          ],
+        }),
+      ];
+      const result = await toNavigation(pages, "");
+      expect(result).toContain("<picture");
+      expect(result).toContain("<img");
+    }));
 });
