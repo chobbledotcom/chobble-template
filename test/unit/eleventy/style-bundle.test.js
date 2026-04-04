@@ -111,6 +111,16 @@ describe("style-bundle", () => {
       expect(result).toContain("sticky-mobile-nav");
       expect(result).toContain("horizontal-nav");
     });
+
+    test("adds featured class when featured is true", () => {
+      const result = getBodyClasses("item.html", baseConfig, [], true);
+      expect(result).toContain("featured");
+    });
+
+    test("does not add featured class when featured is falsy", () => {
+      const result = getBodyClasses("item.html", baseConfig, [], false);
+      expect(result).not.toContain("featured");
+    });
   });
 
   describe("configureStyleBundle", () => {

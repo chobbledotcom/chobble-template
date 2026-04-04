@@ -24,7 +24,7 @@ const detectRightContent = () =>
  * Generates body CSS classes based on layout and site config.
  *
  * Called from Liquid templates as:
- *   layout | getBodyClasses: config, extraClasses
+ *   layout | getBodyClasses: config, extraClasses, featured
  *
  * hasRightContent is auto-detected from the filesystem.
  * design-system class is handled directly in the template.
@@ -32,14 +32,16 @@ const detectRightContent = () =>
  * @param {string} layout
  * @param {Object} siteConfig - The site config object (snake_case keys)
  * @param {string[]} [extraClasses] - Additional classes from theme body_classes
+ * @param {boolean} [featured] - Whether the current page is featured
  * @returns {string}
  */
-const getBodyClasses = (layout, siteConfig, extraClasses = []) => {
+const getBodyClasses = (layout, siteConfig, extraClasses = [], featured) => {
   const classes = [
     layout.replace(".html", ""),
     siteConfig.sticky_mobile_nav ? "sticky-mobile-nav" : null,
     siteConfig.horizontal_nav !== false ? "horizontal-nav" : "left-nav",
     detectRightContent() ? "two-columns" : "one-column",
+    featured ? "featured" : null,
     ...extraClasses,
   ];
 
