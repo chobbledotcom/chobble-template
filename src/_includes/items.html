@@ -1,4 +1,14 @@
 {%- if items.size > 0 -%}
+{%- assign firstItemTags = items[0].data.tags -%}
+{%- assign isReviewCollection = false -%}
+{%- if firstItemTags contains "reviews" -%}
+  {%- assign isReviewCollection = true -%}
+{%- endif -%}
+{%- if isReviewCollection -%}
+  {%- assign reviews = items -%}
+  {%- assign product_links = true -%}
+  {%- include "reviews-list.html" -%}
+{%- else -%}
 {%- if horizontal -%}
 <div class="slider-container">
   <ul class="items slider">
@@ -19,5 +29,6 @@
 {%- endif -%}
 {%- if masonry -%}
 <script type="module" src="{{ '/assets/js/masonry.js' | cacheBust }}"></script>
+{%- endif -%}
 {%- endif -%}
 {%- endif -%}
