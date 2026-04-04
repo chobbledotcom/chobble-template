@@ -2,6 +2,8 @@
 {%- if horizontal -%}
 <div class="slider-container">
   <ul class="items slider">
+{%- elsif masonry -%}
+<ul class="items masonry">
 {%- else -%}
 <ul class="items">
 {%- endif -%}
@@ -14,5 +16,8 @@
 {%- if horizontal -%}
   {% include "slider-nav.html" %}
 </div>
+{%- endif -%}
+{%- if masonry -%}
+<script type="module" src="{{ '/assets/js/masonry.js' | cacheBust }}"></script>
 {%- endif -%}
 {%- endif -%}
