@@ -19,7 +19,7 @@
 
   {%- include "head-scripts.html" -%}
 </head>
-<body class="design-system {{ layout | getBodyClasses: config }}">
+<body class="design-system {{ layout | getBodyClasses: config, body-classes, featured }}">
   {%- include "body-scripts.html" -%}
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
