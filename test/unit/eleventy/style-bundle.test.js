@@ -2,7 +2,11 @@ import { describe, expect, test } from "bun:test";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
 import {
   createMockEleventyConfig,
+  fs,
+  path,
   withConfiguredMock,
+  withMockedCwdAsync,
+  withTempDirAsync,
 } from "#test/test-utils.js";
 
 // Extract filters once - they're pure functions, safe to reuse
@@ -87,11 +91,25 @@ describe("style-bundle", () => {
       expect(result).not.toContain("horizontal-nav");
     });
 
-    test("auto-detects hasRightContent from filesystem", () => {
-      // The test runs from the project root where src/snippets/right-content.md exists
-      const result = getBodyClasses("base.html", baseConfig);
-      expect(result).toContain("two-columns");
-    });
+    test("adds two-columns when right-content.md exists", () =>
+      withTempDirAsync("style-bundle-right", async (tempDir) => {
+        const snippetDir = path.join(tempDir, "src", "snippets");
+        fs.mkdirSync(snippetDir, { recursive: true });
+        fs.writeFileSync(path.join(snippetDir, "right-content.md"), "content");
+        return withMockedCwdAsync(tempDir, () => {
+          const result = getBodyClasses("base.html", baseConfig);
+          expect(result).toContain("two-columns");
+        });
+      }));
+
+    test("adds one-column when right-content.md does not exist", () =>
+      withTempDirAsync("style-bundle-no-right", async (tempDir) =>
+        withMockedCwdAsync(tempDir, () => {
+          const result = getBodyClasses("base.html", baseConfig);
+          expect(result).toContain("one-column");
+          expect(result).not.toContain("two-columns");
+        }),
+      ));
 
     test("appends extra classes from array", () => {
       const result = getBodyClasses("base.html", baseConfig, [
