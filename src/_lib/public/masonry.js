@@ -69,22 +69,15 @@ const measureReviewCard = (card, colWidth) => {
   };
 
   const dateHeight = measureEl(".date", contentWidth) || 0;
-  const ratingHeight = measureEl(".rating", contentWidth) || 0;
+  const ratingEl = card.querySelector(".rating");
+  const ratingHeight = ratingEl
+    ? textHeight("xxxxx", getFont(ratingEl), getLineHeight(ratingEl), contentWidth)
+    : 0;
   const ratingSectionHeight = Math.max(dateHeight, ratingHeight) || null;
   const reviewHeight = measureEl(".review", contentWidth);
   const productsHeight = measureEl(".products", contentWidth);
   const nameHeight = measureEl(".name", authorWidth);
   const linkHeight = measureEl(".review-link", authorWidth);
-
-  console.log(`
-  dateHeight: ${dateHeight}
-  ratingHeight: ${ratingHeight}
-  ratingSectionHeight: ${ratingSectionHeight}
-  reviewHeight: ${reviewHeight}
-  productsHeight: ${productsHeight}
-  nameHeight: ${nameHeight}
-  linkHeight: ${linkHeight}
-  `)
 
   // Author section: name + optional link (half-gap), min avatar height
   const authorDetails =
