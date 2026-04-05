@@ -56,6 +56,9 @@
         top: 0;
         left: 0;
         will-change: transform;
+        transition:
+          border-color $transition-normal,
+          outline-color $transition-normal;
       }
     }
 
