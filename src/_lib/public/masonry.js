@@ -32,10 +32,26 @@ const sumWithGaps = (heights, gap, extraPadding) => {
   );
 };
 
+const lineHeightOf = (el) =>
+  Number.parseFloat(getComputedStyle(el).lineHeight) || 0;
+
+const measureReviewAuthor = (card, authorWidth, halfGap) => {
+  const nameEl = card.querySelector(".name");
+  const nameHeight = nameEl
+    ? textHeight(nameEl.textContent || "", NAME_FONT, 21, authorWidth)
+    : null;
+  if (nameHeight === null) return null;
+  const linkEl = card.querySelector(".review-link");
+  const linkHeight = linkEl
+    ? textHeight(linkEl.textContent || "", CONTENT_FONT, 21, authorWidth)
+    : null;
+  const details = nameHeight + (linkHeight !== null ? halfGap + linkHeight : 0);
+  return Math.max(AVATAR_SIZE, details);
+};
+
 const measureReviewCard = (card, colWidth) => {
   const styles = getComputedStyle(card);
   const gap = Number.parseFloat(styles.getPropertyValue("--item-gap")) || 16;
-  const halfGap = gap / 2;
   const padY =
     Number.parseFloat(styles.paddingTop) +
     Number.parseFloat(styles.paddingBottom);
@@ -50,22 +66,15 @@ const measureReviewCard = (card, colWidth) => {
     return el ? textHeight(el.textContent || "", font, 21, w) : null;
   };
 
-  const dateHeight = elHeight(".date", CONTENT_FONT, contentWidth);
-  const reviewHeight = elHeight(".review", CONTENT_FONT, contentWidth);
-  const productsHeight = elHeight(".products", CONTENT_FONT, contentWidth);
-  const nameHeight = elHeight(".name", NAME_FONT, authorWidth);
-  const linkHeight = elHeight(".review-link", CONTENT_FONT, authorWidth);
-
-  // Author section: name + optional link (half-gap), min avatar height
-  const authorDetails =
-    nameHeight !== null
-      ? nameHeight + (linkHeight !== null ? halfGap + linkHeight : 0)
-      : null;
-  const authorHeight =
-    authorDetails !== null ? Math.max(AVATAR_SIZE, authorDetails) : null;
-
   return sumWithGaps(
-    [dateHeight, reviewHeight, productsHeight, authorHeight],
+    [
+      lineHeightOf(
+        card.querySelector(".rating") || card.querySelector(".date"),
+      ),
+      elHeight(".review", CONTENT_FONT, contentWidth),
+      elHeight(".products", CONTENT_FONT, contentWidth),
+      measureReviewAuthor(card, authorWidth, gap / 2),
+    ],
     gap,
     padY,
   );
