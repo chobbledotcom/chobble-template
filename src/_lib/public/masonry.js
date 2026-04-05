@@ -11,15 +11,15 @@ const CARD_INNER_GAP = 16;
 const BUTTON_HEIGHT = 44;
 const PRICE_HEIGHT = 21;
 
-// Review card constants (reviews-grid > li uses card($space-md) + flex-col($space-sm))
-const REVIEW_PADDING = 24;
-const REVIEW_HEADER_HEIGHT = 22;
-const REVIEW_AUTHOR_HEIGHT = 40;
+// Review card constants
+const AVATAR_SIZE = 40;
 
 const CONTENT_FONT =
   '14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 const HEADING_FONT =
   '600 16px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+const NAME_FONT =
+  '600 14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
 export const textHeight = (text, font, lineHeight, width) =>
   layout(prepare(text, font), width, lineHeight).height;
@@ -33,26 +33,41 @@ const sumWithGaps = (heights, gap, extraPadding) => {
 };
 
 const measureReviewCard = (card, colWidth) => {
-  const contentWidth = colWidth - REVIEW_PADDING * 2;
-  const reviewEl = card.querySelector(".review");
+  const styles = getComputedStyle(card);
+  const gap = Number.parseFloat(styles.getPropertyValue("--item-gap")) || 16;
+  const halfGap = gap / 2;
+  const padY =
+    Number.parseFloat(styles.paddingTop) +
+    Number.parseFloat(styles.paddingBottom);
+  const contentWidth =
+    colWidth -
+    Number.parseFloat(styles.paddingLeft) -
+    Number.parseFloat(styles.paddingRight);
+  const authorWidth = contentWidth - AVATAR_SIZE - gap;
+
+  const elHeight = (sel, font, w) => {
+    const el = card.querySelector(sel);
+    return el ? textHeight(el.textContent || "", font, 21, w) : null;
+  };
+
+  const dateHeight = elHeight(".date", CONTENT_FONT, contentWidth);
+  const reviewHeight = elHeight(".review", CONTENT_FONT, contentWidth);
+  const productsHeight = elHeight(".products", CONTENT_FONT, contentWidth);
+  const nameHeight = elHeight(".name", NAME_FONT, authorWidth);
+  const linkHeight = elHeight(".review-link", CONTENT_FONT, authorWidth);
+
+  // Author section: name + optional link (half-gap), min avatar height
+  const authorDetails =
+    nameHeight !== null
+      ? nameHeight + (linkHeight !== null ? halfGap + linkHeight : 0)
+      : null;
+  const authorHeight =
+    authorDetails !== null ? Math.max(AVATAR_SIZE, authorDetails) : null;
+
   return sumWithGaps(
-    [
-      REVIEW_HEADER_HEIGHT,
-      reviewEl
-        ? textHeight(reviewEl.textContent || "", CONTENT_FONT, 21, contentWidth)
-        : null,
-      card.querySelector(".products")
-        ? textHeight(
-            card.querySelector(".products").textContent || "",
-            CONTENT_FONT,
-            21,
-            contentWidth,
-          )
-        : null,
-      card.querySelector(".author-info") ? REVIEW_AUTHOR_HEIGHT : null,
-    ],
-    CARD_INNER_GAP,
-    REVIEW_PADDING * 2,
+    [dateHeight, reviewHeight, productsHeight, authorHeight],
+    gap,
+    padY,
   );
 };
 
