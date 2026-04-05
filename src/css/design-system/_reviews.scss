@@ -22,11 +22,6 @@
       @include card($space-md, $radius-lg);
       @include flex-col($space-sm);
 
-      // Override items list last-child padding — reviews use card() padding instead
-      > :last-child {
-        padding-bottom: 0;
-      }
-
       @include breakpoint.down("md") {
         text-align: center;
       }
