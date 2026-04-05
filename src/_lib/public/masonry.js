@@ -13,8 +13,8 @@ const PRICE_HEIGHT = 21;
 
 // Review card constants
 const AVATAR_SIZE = 40;
-const REVIEW_HEADER_HEIGHT = 20; // 1.25rem (with rating)
-const REVIEW_HEADER_HEIGHT_NO_RATING = 16; // 1rem (date only)
+const REVIEW_HEADER_HEIGHT = 30; // 1.25rem (with rating)
+const REVIEW_HEADER_HEIGHT_NO_RATING = 21; // 1rem (date only)
 
 const CONTENT_FONT =
   '14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
