@@ -1,4 +1,4 @@
-{%- if event_date or recurring_date or event_location -%}
+{%- if event_date or recurring_date or event_location != blank -%}
   <ul>
     {%- if event_date -%}
       <li>
@@ -16,7 +16,7 @@
         </em>
       </li>
     {%- endif -%}
-    {%- if event_location -%}
+    {%- if event_location != blank -%}
       <li>
         <em>
           Location:
