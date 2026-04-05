@@ -1,40 +1,54 @@
 // Masonry layout using uWrap for zero-reflow height prediction.
-// Cards are positioned with absolute transforms computed from font metrics alone.
+// Font metrics are read from computed styles so JS always matches CSS.
 import { varPreLine } from "uwrap";
 import { onReady } from "#public/utils/on-ready.js";
 
 const GAP = 32;
 const MOBILE_BREAKPOINT = 768;
 const CARD_BORDER = 2;
-const CARD_PADDING_INLINE = 24;
-const CARD_INNER_GAP = 16;
-const BUTTON_HEIGHT = 44;
-const PRICE_HEIGHT = 21;
-
-// Review card constants
 const AVATAR_SIZE = 40;
 
-const CONTENT_FONT =
-  '14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-const HEADING_FONT =
-  '600 16px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-const NAME_FONT =
-  '600 14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+const counterCache = new Map();
 
-const makeCounter = (font) => {
+const getCounter = (font) => {
+  if (counterCache.has(font)) return counterCache.get(font);
   const ctx = document.createElement("canvas").getContext("2d");
   ctx.font = font;
-  return varPreLine(ctx).count;
+  const counter = varPreLine(ctx).count;
+  counterCache.set(font, counter);
+  return counter;
 };
 
-const counters = {
-  [CONTENT_FONT]: makeCounter(CONTENT_FONT),
-  [HEADING_FONT]: makeCounter(HEADING_FONT),
-  [NAME_FONT]: makeCounter(NAME_FONT),
+const getFont = (el) => {
+  const s = getComputedStyle(el);
+  return `${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;
 };
+
+const getLineHeight = (el) =>
+  Number.parseFloat(getComputedStyle(el).lineHeight);
 
 export const textHeight = (text, font, lineHeight, width) =>
-  counters[font](text, width) * lineHeight;
+  getCounter(font)(text, width) * lineHeight;
+
+const elTextHeight = (el, width) => {
+  const text = el.textContent || "";
+  return textHeight(text, getFont(el), getLineHeight(el), width);
+};
+
+const getCardMetrics = (card, colWidth) => {
+  const s = getComputedStyle(card);
+  const padLeft = Number.parseFloat(s.paddingLeft);
+  const padRight = Number.parseFloat(s.paddingRight);
+  const padTop = Number.parseFloat(s.paddingTop);
+  const padBottom = Number.parseFloat(s.paddingBottom);
+  const gap = Number.parseFloat(s.getPropertyValue("--item-gap")) || 16;
+  return {
+    gap,
+    padX: padLeft + padRight,
+    padY: padTop + padBottom,
+    contentWidth: colWidth - padLeft - padRight,
+  };
+};
 
 const sumWithGaps = (heights, gap, extraPadding) => {
   const valid = heights.filter((h) => h !== null);
@@ -45,28 +59,20 @@ const sumWithGaps = (heights, gap, extraPadding) => {
 };
 
 const measureReviewCard = (card, colWidth) => {
-  const styles = getComputedStyle(card);
-  const gap = Number.parseFloat(styles.getPropertyValue("--item-gap")) || 16;
+  const { gap, padY, contentWidth } = getCardMetrics(card, colWidth);
   const halfGap = gap / 2;
-  const padY =
-    Number.parseFloat(styles.paddingTop) +
-    Number.parseFloat(styles.paddingBottom);
-  const contentWidth =
-    colWidth -
-    Number.parseFloat(styles.paddingLeft) -
-    Number.parseFloat(styles.paddingRight);
   const authorWidth = contentWidth - AVATAR_SIZE - gap;
 
-  const elHeight = (sel, font, w) => {
+  const measureEl = (sel, w) => {
     const el = card.querySelector(sel);
-    return el ? textHeight(el.textContent || "", font, 21, w) : null;
+    return el ? elTextHeight(el, w) : null;
   };
 
-  const dateHeight = elHeight(".date", CONTENT_FONT, contentWidth);
-  const reviewHeight = elHeight(".review", CONTENT_FONT, contentWidth);
-  const productsHeight = elHeight(".products", CONTENT_FONT, contentWidth);
-  const nameHeight = elHeight(".name", NAME_FONT, authorWidth);
-  const linkHeight = elHeight(".review-link", CONTENT_FONT, authorWidth);
+  const dateHeight = measureEl(".date", contentWidth);
+  const reviewHeight = measureEl(".review", contentWidth);
+  const productsHeight = measureEl(".products", contentWidth);
+  const nameHeight = measureEl(".name", authorWidth);
+  const linkHeight = measureEl(".review-link", authorWidth);
 
   // Author section: name + optional link (half-gap), min avatar height
   const authorDetails =
@@ -84,34 +90,27 @@ const measureReviewCard = (card, colWidth) => {
 };
 
 const measureItemCard = (card, colWidth) => {
-  const contentWidth = colWidth - CARD_PADDING_INLINE * 2;
+  const { gap, padX, contentWidth } = getCardMetrics(card, colWidth);
   const img = card.querySelector(".image-link img");
   const heading = card.querySelector("h3");
   const paragraphs = [...card.querySelectorAll("p:not(.price)")].filter((p) =>
     p.textContent?.trim(),
   );
+  const priceEl = card.querySelector(".price");
+  const buttonEl = card.querySelector(
+    ".list-item-cart-controls, .button, .add-to-cart",
+  );
 
   return sumWithGaps(
     [
       img ? colWidth / (img.width / img.height || 1.5) : null,
-      heading
-        ? textHeight(
-            heading.textContent || "",
-            HEADING_FONT,
-            22.4,
-            contentWidth,
-          )
-        : null,
-      card.querySelector(".price") ? PRICE_HEIGHT : null,
-      ...paragraphs.map((p) =>
-        textHeight(p.textContent || "", CONTENT_FONT, 21, contentWidth),
-      ),
-      card.querySelector(".list-item-cart-controls, .button, .add-to-cart")
-        ? BUTTON_HEIGHT
-        : null,
+      heading ? elTextHeight(heading, contentWidth) : null,
+      priceEl ? elTextHeight(priceEl, contentWidth) : null,
+      ...paragraphs.map((p) => elTextHeight(p, contentWidth)),
+      buttonEl ? Number.parseFloat(getComputedStyle(buttonEl).height) : null,
     ],
-    CARD_INNER_GAP,
-    CARD_PADDING_INLINE,
+    gap,
+    padX,
   );
 };
 
