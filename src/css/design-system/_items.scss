@@ -85,10 +85,9 @@
         padding-inline: var(--item-padding-inline);
       }
 
-      // Bottom padding on the last text/content child
-      > :last-child:not(.image-link):not(.video-wrapper):not(.video-facade) {
-        padding-bottom: var(--item-padding-inline);
-      }
+      // Bottom padding on the card itself (images are always first,
+      // so this doesn't interfere with edge-to-edge media)
+      padding-bottom: var(--item-padding-inline);
 
       // =======================================================================
       // MEDIA: edge-to-edge images & video
