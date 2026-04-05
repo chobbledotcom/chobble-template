@@ -53,9 +53,15 @@ const getCardMetrics = (card, colWidth) => {
 const sumWithGaps = (heights, gap, extraPadding) => {
   const valid = heights.filter((h) => h !== null);
   const gaps = valid.length > 1 ? gap * (valid.length - 1) : 0;
-  return (
+  const total = (
     CARD_BORDER + valid.reduce((sum, h) => sum + h, 0) + gaps + extraPadding
   );
+  console.log(`
+    gaps: ${gaps}
+    extraPadding: ${extraPadding}
+    total: ${total}
+  `)
+  return total;
 };
 
 const measureReviewCard = (card, colWidth) => {
@@ -74,8 +80,8 @@ const measureReviewCard = (card, colWidth) => {
     ? textHeight("xxxxx", getFont(ratingEl), getLineHeight(ratingEl), contentWidth)
     : 0;
   const ratingSectionHeight = Math.max(dateHeight, ratingHeight) || null;
-  const reviewHeight = measureEl(".review", contentWidth);
-  const productsHeight = measureEl(".products", contentWidth);
+  const reviewHeight = measureEl(".review p", contentWidth);
+  const productsHeight = measureEl(".products a", contentWidth);
   const nameHeight = measureEl(".name", authorWidth);
   const linkHeight = measureEl(".review-link", authorWidth);
 
@@ -86,6 +92,20 @@ const measureReviewCard = (card, colWidth) => {
       : null;
   const authorHeight =
     authorDetails !== null ? Math.max(AVATAR_SIZE, authorDetails) : null;
+
+  console.log(`
+    gap: ${gap}
+    padY: ${padY}
+    contentWidth: ${contentWidth}
+    ratingHeight: ${ratingHeight}
+    ratingSectionHeight: ${ratingSectionHeight}
+    reviewHeight: ${reviewHeight}
+    productsHeight: ${productsHeight}
+    nameHeight: ${nameHeight}
+    linkHeight: ${linkHeight}
+    authorDetails: ${authorDetails}
+    authorHeight: ${authorHeight}
+  `)
 
   return sumWithGaps(
     [ratingSectionHeight, reviewHeight, productsHeight, authorHeight],
@@ -136,7 +156,7 @@ export const placeCards = (container) => {
   const colHeights = new Float64Array(colCount);
 
   for (const card of cards) {
-    const cardHeight = measureCard(card, colWidth);
+    const cardHeight = measureCard(card, colWidth - CARD_BORDER);
     const col = colHeights.indexOf(Math.min(...colHeights));
     card.style.width = `${colWidth}px`;
     card.style.transform = `translate(${col * (colWidth + GAP)}px, ${colHeights[col]}px)`;

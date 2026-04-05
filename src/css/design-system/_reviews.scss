@@ -42,8 +42,9 @@
     }
 
     .review {
-      @include body-base;
-      line-height: $line-height-relaxed;
+      p {
+        padding-inline: 0 !important;
+      }
     }
 
     .products {
