@@ -15,7 +15,6 @@ const PRICE_HEIGHT = 21;
 const REVIEW_PADDING = 24;
 const REVIEW_HEADER_HEIGHT = 22;
 const REVIEW_AUTHOR_HEIGHT = 40;
-const REVIEW_PRODUCTS_HEIGHT = 18;
 
 const CONTENT_FONT =
   '14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
@@ -42,7 +41,14 @@ const measureReviewCard = (card, colWidth) => {
       reviewEl
         ? textHeight(reviewEl.textContent || "", CONTENT_FONT, 21, contentWidth)
         : null,
-      card.querySelector(".products") ? REVIEW_PRODUCTS_HEIGHT : null,
+      card.querySelector(".products")
+        ? textHeight(
+            card.querySelector(".products").textContent || "",
+            CONTENT_FONT,
+            21,
+            contentWidth,
+          )
+        : null,
       card.querySelector(".author-info") ? REVIEW_AUTHOR_HEIGHT : null,
     ],
     CARD_INNER_GAP,
