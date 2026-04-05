@@ -1,6 +1,6 @@
-// Masonry layout using @chenglou/pretext for zero-reflow height prediction.
+// Masonry layout using uWrap for zero-reflow height prediction.
 // Cards are positioned with absolute transforms computed from font metrics alone.
-import { layout, prepare } from "@chenglou/pretext";
+import { varPreLine } from "uwrap";
 import { onReady } from "#public/utils/on-ready.js";
 
 const GAP = 32;
@@ -21,8 +21,20 @@ const HEADING_FONT =
 const NAME_FONT =
   '600 14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
+const makeCounter = (font) => {
+  const ctx = document.createElement("canvas").getContext("2d");
+  ctx.font = font;
+  return varPreLine(ctx).count;
+};
+
+const counters = {
+  [CONTENT_FONT]: makeCounter(CONTENT_FONT),
+  [HEADING_FONT]: makeCounter(HEADING_FONT),
+  [NAME_FONT]: makeCounter(NAME_FONT),
+};
+
 export const textHeight = (text, font, lineHeight, width) =>
-  layout(prepare(text, font), width, lineHeight).height;
+  counters[font](text, width) * lineHeight;
 
 const sumWithGaps = (heights, gap, extraPadding) => {
   const valid = heights.filter((h) => h !== null);

@@ -46,7 +46,7 @@
       flex-wrap: nowrap;
     }
 
-    // Masonry variant: positioned by JS using @chenglou/pretext height prediction
+    // Masonry variant: positioned by JS using uWrap height prediction
     &.masonry {
       display: block;
       position: relative;
