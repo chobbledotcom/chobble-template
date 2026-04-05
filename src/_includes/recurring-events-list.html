@@ -9,7 +9,7 @@
     <strong><a href="{{ event.url }}{{ config.internal_link_suffix }}">{{ event_data.title }}</a></strong
     ><br />
     {{ event_data.recurring_date }}
-    {%- if event_data.event_location -%}
+    {%- if event_data.event_location != blank -%}
     <br />{{ event_data.event_location }}
     {%- endif -%}
   </li>
