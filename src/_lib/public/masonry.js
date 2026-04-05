@@ -28,28 +28,29 @@ export const textHeight = (text, font, lineHeight, width) =>
 const sumWithGaps = (heights, gap, extraPadding) => {
   const valid = heights.filter((h) => h !== null);
   const gaps = valid.length > 1 ? gap * (valid.length - 1) : 0;
-  return CARD_BORDER + valid.reduce((sum, h) => sum + h, 0) + gaps + extraPadding;
+  return (
+    CARD_BORDER + valid.reduce((sum, h) => sum + h, 0) + gaps + extraPadding
+  );
 };
 
-export const measureCard = (card, colWidth) => {
-  // Review cards have a different DOM structure
-  if (card.querySelector(".review-header")) {
-    const contentWidth = colWidth - REVIEW_PADDING * 2;
-    const reviewEl = card.querySelector(".review");
-    return sumWithGaps(
-      [
-        REVIEW_HEADER_HEIGHT,
-        reviewEl
-          ? textHeight(reviewEl.textContent || "", CONTENT_FONT, 21, contentWidth)
-          : null,
-        card.querySelector(".products") ? REVIEW_PRODUCTS_HEIGHT : null,
-        card.querySelector(".author-info") ? REVIEW_AUTHOR_HEIGHT : null,
-      ],
-      CARD_INNER_GAP,
-      REVIEW_PADDING * 2,
-    );
-  }
+const measureReviewCard = (card, colWidth) => {
+  const contentWidth = colWidth - REVIEW_PADDING * 2;
+  const reviewEl = card.querySelector(".review");
+  return sumWithGaps(
+    [
+      REVIEW_HEADER_HEIGHT,
+      reviewEl
+        ? textHeight(reviewEl.textContent || "", CONTENT_FONT, 21, contentWidth)
+        : null,
+      card.querySelector(".products") ? REVIEW_PRODUCTS_HEIGHT : null,
+      card.querySelector(".author-info") ? REVIEW_AUTHOR_HEIGHT : null,
+    ],
+    CARD_INNER_GAP,
+    REVIEW_PADDING * 2,
+  );
+};
 
+const measureItemCard = (card, colWidth) => {
   const contentWidth = colWidth - CARD_PADDING_INLINE * 2;
   const img = card.querySelector(".image-link img");
   const heading = card.querySelector("h3");
@@ -61,7 +62,12 @@ export const measureCard = (card, colWidth) => {
     [
       img ? colWidth / (img.width / img.height || 1.5) : null,
       heading
-        ? textHeight(heading.textContent || "", HEADING_FONT, 22.4, contentWidth)
+        ? textHeight(
+            heading.textContent || "",
+            HEADING_FONT,
+            22.4,
+            contentWidth,
+          )
         : null,
       card.querySelector(".price") ? PRICE_HEIGHT : null,
       ...paragraphs.map((p) =>
@@ -75,6 +81,11 @@ export const measureCard = (card, colWidth) => {
     CARD_PADDING_INLINE,
   );
 };
+
+export const measureCard = (card, colWidth) =>
+  card.querySelector(".review-header")
+    ? measureReviewCard(card, colWidth)
+    : measureItemCard(card, colWidth);
 
 export const placeCards = (container) => {
   const cards = [...container.querySelectorAll(":scope > li")];
