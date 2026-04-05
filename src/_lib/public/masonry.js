@@ -13,6 +13,8 @@ const PRICE_HEIGHT = 21;
 
 // Review card constants
 const AVATAR_SIZE = 40;
+const REVIEW_HEADER_HEIGHT = 20; // 1.25rem (with rating)
+const REVIEW_HEADER_HEIGHT_NO_RATING = 16; // 1rem (date only)
 
 const CONTENT_FONT =
   '14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
@@ -30,21 +32,6 @@ const sumWithGaps = (heights, gap, extraPadding) => {
   return (
     CARD_BORDER + valid.reduce((sum, h) => sum + h, 0) + gaps + extraPadding
   );
-};
-
-const maxOfPresent = (a, b) => {
-  if (a !== null && b !== null) return Math.max(a, b);
-  return a ?? b;
-};
-
-const measureReviewHeader = (card, contentWidth) => {
-  const dateEl = card.querySelector(".date");
-  const dateHeight = dateEl
-    ? textHeight(dateEl.textContent || "", CONTENT_FONT, 21, contentWidth)
-    : null;
-  const ratingEl = card.querySelector(".rating");
-  const ratingHeight = ratingEl ? ratingEl.offsetHeight : null;
-  return maxOfPresent(dateHeight, ratingHeight);
 };
 
 const measureReviewAuthor = (card, authorWidth, halfGap) => {
@@ -80,7 +67,9 @@ const measureReviewCard = (card, colWidth) => {
 
   return sumWithGaps(
     [
-      measureReviewHeader(card, contentWidth),
+      card.querySelector(".rating")
+        ? REVIEW_HEADER_HEIGHT
+        : REVIEW_HEADER_HEIGHT_NO_RATING,
       elHeight(".review", CONTENT_FONT, contentWidth),
       elHeight(".products", CONTENT_FONT, contentWidth),
       measureReviewAuthor(card, authorWidth, gap / 2),
