@@ -1,17 +1,30 @@
 {%- if items.size > 0 -%}
+{%- assign firstItemTags = items[0].data.tags -%}
+{%- assign isReviewCollection = firstItemTags contains "reviews" -%}
 {%- if horizontal -%}
 <div class="slider-container">
-  <ul class="items slider">
+  <ul class="items slider{% if isReviewCollection %} reviews-grid{% endif %}">
 {%- elsif masonry -%}
-<ul class="items masonry">
+<ul class="items masonry{% if isReviewCollection %} reviews-grid{% endif %}">
+{%- elsif isReviewCollection -%}
+<ul class="grid reviews-grid">
 {%- else -%}
 <ul class="items">
 {%- endif -%}
+{%- if isReviewCollection -%}
+  {%- assign product_links = true -%}
+  {%- for review in items -%}
+    {%- if review.content != "" -%}
+      {%- include "reviews-list-item.html", review: review, product_links: product_links -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
   {%- assign cacheKeySuffix = listItemFields | join: "," -%}
   {%- for item in items -%}
     {%- assign cacheKey = item.url | append: "|" | append: cacheKeySuffix -%}
     {%- cachedBlock cacheKey -%}{%- include "list-item.html" -%}{%- endcachedBlock -%}
   {%- endfor -%}
+{%- endif -%}
 </ul>
 {%- if horizontal -%}
   {% include "slider-nav.html" %}
