@@ -105,9 +105,24 @@ const measureReviewCard = (card, metrics) => {
   );
 };
 
+const parseAspectRatio = (el) => {
+  const match = (el.getAttribute("style") || "").match(
+    /aspect-ratio:\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/,
+  );
+  if (!match) return null;
+  const h = Number.parseFloat(match[2]);
+  return h > 0 ? Number.parseFloat(match[1]) / h : null;
+};
+
+const measureImageHeight = (card, colWidth) => {
+  const imageWrapper = card.querySelector(".image-wrapper");
+  if (!imageWrapper) return null;
+  const ratio = parseAspectRatio(imageWrapper);
+  return ratio ? colWidth / ratio : null;
+};
+
 const measureItemCard = (card, colWidth) => {
   const { gap, padX, contentWidth } = getCardMetrics(card, colWidth);
-  const img = card.querySelector(".image-link img");
   const heading = card.querySelector("h3");
   const paragraphs = [...card.querySelectorAll("p:not(.price)")].filter((p) =>
     p.textContent?.trim(),
@@ -119,7 +134,7 @@ const measureItemCard = (card, colWidth) => {
 
   return sumWithGaps(
     [
-      img ? colWidth / (img.width / img.height || 1.5) : null,
+      measureImageHeight(card, colWidth),
       heading ? elTextHeight(heading, contentWidth) : null,
       priceEl ? elTextHeight(priceEl, contentWidth) : null,
       ...paragraphs.map((p) => elTextHeight(p, contentWidth)),
