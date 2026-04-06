@@ -66,15 +66,12 @@ const renderSearchItem = async () => {
 };
 
 /** Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }} */
-const toNavigation = async (
-  pages,
-  activeKey = "",
-  showThumbnails = config().nav_thumbnails,
-) => {
+const toNavigation = async (pages, activeKey = "") => {
   if (!pages?.length) return "";
   if (pages[0]?.pluginType !== "eleventy-navigation") {
     throw new Error("toNavigation requires eleventyNavigation filter first");
   }
+  const showThumbnails = config().nav_thumbnails;
   const renderChildren = async (children) => {
     const items = await mapAsync((child) =>
       renderNavEntry(child, activeKey, renderChildren, false, showThumbnails),
