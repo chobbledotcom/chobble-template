@@ -31,7 +31,7 @@ export const textHeight = (text, font, lineHeight, width) =>
   getCounter(font)(text, width) * lineHeight;
 
 const elTextHeight = (el, width) => {
-  const text = el.textContent || "";
+  const text = (el.textContent || "").trim();
   return textHeight(text, getFont(el), getLineHeight(el), width);
 };
 
@@ -53,59 +53,51 @@ const getCardMetrics = (card, colWidth) => {
 const sumWithGaps = (heights, gap, extraPadding) => {
   const valid = heights.filter((h) => h !== null);
   const gaps = valid.length > 1 ? gap * (valid.length - 1) : 0;
-  const total = (
-    CARD_BORDER + valid.reduce((sum, h) => sum + h, 0) + gaps + extraPadding
-  );
-  console.log(`
-    gaps: ${gaps}
-    extraPadding: ${extraPadding}
-    total: ${total}
-  `)
+  const total =
+    CARD_BORDER + valid.reduce((sum, h) => sum + h, 0) + gaps + extraPadding;
+
   return total;
 };
 
-const measureReviewCard = (card, colWidth) => {
-  const { gap, padY, contentWidth } = getCardMetrics(card, colWidth);
+const measureReviewCard = (card, metrics) => {
+  const { gap, padY, contentWidth } = metrics;
   const halfGap = gap / 2;
   const authorWidth = contentWidth - AVATAR_SIZE - gap;
 
   const measureEl = (sel, w) => {
     const el = card.querySelector(sel);
-    return el ? elTextHeight(el, w) : null;
+    if (!el) return null;
+    const h = elTextHeight(el, w);
+    el.dataset.height = h.toFixed(1);
+    return h;
   };
 
   const dateHeight = measureEl(".date", contentWidth) || 0;
   const ratingEl = card.querySelector(".rating");
   const ratingHeight = ratingEl
-    ? textHeight("xxxxx", getFont(ratingEl), getLineHeight(ratingEl), contentWidth)
+    ? textHeight(
+        "xxxxx",
+        getFont(ratingEl),
+        getLineHeight(ratingEl),
+        contentWidth,
+      )
     : 0;
-  const ratingSectionHeight = Math.max(dateHeight, ratingHeight) || null;
-  const reviewHeight = measureEl(".review p", contentWidth);
-  const productsHeight = measureEl(".products a", contentWidth);
-  const nameHeight = measureEl(".name", authorWidth);
-  const linkHeight = measureEl(".review-link", authorWidth);
 
-  // Author section: name + optional link (half-gap), min avatar height
+  const ratingSectionHeight = Math.max(dateHeight, ratingHeight) || null;
+
+  const reviewHeight = measureEl(".review p", contentWidth);
+  const productsHeight = measureEl(".products", contentWidth);
+  const nameHeight = measureEl(".name", authorWidth);
+  const reviewLinkHeight = measureEl(".review-link", authorWidth);
+
   const authorDetails =
     nameHeight !== null
-      ? nameHeight + (linkHeight !== null ? halfGap + linkHeight : 0)
+      ? nameHeight +
+        (reviewLinkHeight !== null ? halfGap + reviewLinkHeight : 0)
       : null;
+
   const authorHeight =
     authorDetails !== null ? Math.max(AVATAR_SIZE, authorDetails) : null;
-
-  console.log(`
-    gap: ${gap}
-    padY: ${padY}
-    contentWidth: ${contentWidth}
-    ratingHeight: ${ratingHeight}
-    ratingSectionHeight: ${ratingSectionHeight}
-    reviewHeight: ${reviewHeight}
-    productsHeight: ${productsHeight}
-    nameHeight: ${nameHeight}
-    linkHeight: ${linkHeight}
-    authorDetails: ${authorDetails}
-    authorHeight: ${authorHeight}
-  `)
 
   return sumWithGaps(
     [ratingSectionHeight, reviewHeight, productsHeight, authorHeight],
@@ -139,11 +131,6 @@ const measureItemCard = (card, colWidth) => {
   );
 };
 
-export const measureCard = (card, colWidth) =>
-  card.querySelector(".review-header")
-    ? measureReviewCard(card, colWidth)
-    : measureItemCard(card, colWidth);
-
 export const placeCards = (container) => {
   const cards = [...container.querySelectorAll(":scope > li")];
   if (cards.length === 0) return;
@@ -153,11 +140,19 @@ export const placeCards = (container) => {
       ? 1
       : Math.max(2, Math.floor((container.offsetWidth + GAP) / (280 + GAP)));
   const colWidth = (container.offsetWidth - GAP * (colCount - 1)) / colCount;
+  const innerWidth = colWidth - CARD_BORDER;
+  const firstReviewCard = cards.find((c) => c.querySelector(".review-header"));
+  const reviewMetrics = firstReviewCard
+    ? getCardMetrics(firstReviewCard, innerWidth)
+    : null;
   const colHeights = new Float64Array(colCount);
 
   for (const card of cards) {
-    const cardHeight = measureCard(card, colWidth - CARD_BORDER);
+    const cardHeight = firstReviewCard
+      ? measureReviewCard(card, reviewMetrics)
+      : measureItemCard(card, innerWidth);
     const col = colHeights.indexOf(Math.min(...colHeights));
+    card.dataset.height = cardHeight.toFixed(1);
     card.style.width = `${colWidth}px`;
     card.style.transform = `translate(${col * (colWidth + GAP)}px, ${colHeights[col]}px)`;
     colHeights[col] += cardHeight + GAP;
