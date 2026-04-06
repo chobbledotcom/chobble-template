@@ -60,9 +60,8 @@ const sumWithGaps = (heights, gap, extraPadding) => {
 };
 
 const measureReviewCard = (card, metrics) => {
-  const { gap, padY, contentWidth } = metrics;
-  const halfGap = gap / 2;
-  const authorWidth = contentWidth - AVATAR_SIZE - gap;
+  const halfGap = metrics.gap / 2;
+  const authorWidth = metrics.contentWidth - AVATAR_SIZE - metrics.gap;
 
   const measureEl = (sel, w) => {
     const el = card.querySelector(sel);
@@ -72,21 +71,21 @@ const measureReviewCard = (card, metrics) => {
     return h;
   };
 
-  const dateHeight = measureEl(".date", contentWidth) || 0;
+  const dateHeight = measureEl(".date", metrics.contentWidth) || 0;
   const ratingEl = card.querySelector(".rating");
   const ratingHeight = ratingEl
     ? textHeight(
         "xxxxx",
         getFont(ratingEl),
         getLineHeight(ratingEl),
-        contentWidth,
+        metrics.contentWidth,
       )
     : 0;
 
   const ratingSectionHeight = Math.max(dateHeight, ratingHeight) || null;
 
-  const reviewHeight = measureEl(".review p", contentWidth);
-  const productsHeight = measureEl(".products", contentWidth);
+  const reviewHeight = measureEl(".review p", metrics.contentWidth);
+  const productsHeight = measureEl(".products", metrics.contentWidth);
   const nameHeight = measureEl(".name", authorWidth);
   const reviewLinkHeight = measureEl(".review-link", authorWidth);
 
@@ -101,8 +100,8 @@ const measureReviewCard = (card, metrics) => {
 
   return sumWithGaps(
     [ratingSectionHeight, reviewHeight, productsHeight, authorHeight],
-    gap,
-    padY,
+    metrics.gap,
+    metrics.padY,
   );
 };
 
