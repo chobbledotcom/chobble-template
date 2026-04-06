@@ -1,4 +1,16 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
+import { DEFAULT_PRODUCT_DATA, DEFAULTS } from "#config/helpers.js";
+
+mock.module("#data/config.js", () => ({
+  default: () => ({
+    ...DEFAULTS,
+    products: DEFAULT_PRODUCT_DATA,
+    nav_thumbnails: true,
+    internal_link_suffix: "",
+    form_target: null,
+  }),
+}));
+
 import {
   configureNavigation,
   findPageUrl,
@@ -270,6 +282,16 @@ describe("toNavigation", () => {
       expect(result).not.toContain("href=");
     }));
 
+  const childWithThumbnail = () => [
+    navEntry("Products", {
+      children: [
+        navEntry("Category A", {
+          data: { thumbnail: "images/placeholders/blue.svg" },
+        }),
+      ],
+    }),
+  ];
+
   test("Skips thumbnails for root-level navigation items", () =>
     withIconMock(async () => {
       const pages = [
@@ -282,18 +304,9 @@ describe("toNavigation", () => {
       expect(result).not.toContain("<img");
     }));
 
-  test("Renders thumbnail for child navigation items", () =>
+  test("Renders thumbnail for child navigation items when nav_thumbnails is enabled", () =>
     withIconMock(async () => {
-      const pages = [
-        navEntry("Products", {
-          children: [
-            navEntry("Category A", {
-              data: { thumbnail: "images/placeholders/blue.svg" },
-            }),
-          ],
-        }),
-      ];
-      const result = await toNavigation(pages, "");
+      const result = await toNavigation(childWithThumbnail(), "");
       expect(result).toContain("<picture");
       expect(result).toContain("<img");
     }));
