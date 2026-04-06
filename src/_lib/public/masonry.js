@@ -1,121 +1,134 @@
-// Masonry layout using @chenglou/pretext for zero-reflow height prediction.
-// Cards are positioned with absolute transforms computed from font metrics alone.
-import { layout, prepare } from "@chenglou/pretext";
+// Masonry layout using uWrap for zero-reflow height prediction.
+// Font metrics are read from computed styles so JS always matches CSS.
+import { varPreLine } from "uwrap";
 import { onReady } from "#public/utils/on-ready.js";
 
 const GAP = 32;
 const MOBILE_BREAKPOINT = 768;
 const CARD_BORDER = 2;
-const CARD_PADDING_INLINE = 24;
-const CARD_INNER_GAP = 16;
-const BUTTON_HEIGHT = 44;
-const PRICE_HEIGHT = 21;
-
-// Review card constants
 const AVATAR_SIZE = 40;
 
-const CONTENT_FONT =
-  '14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-const HEADING_FONT =
-  '600 16px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-const NAME_FONT =
-  '600 14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+const counterCache = new Map();
+
+const getCounter = (font) => {
+  if (counterCache.has(font)) return counterCache.get(font);
+  const ctx = document.createElement("canvas").getContext("2d");
+  ctx.font = font;
+  const counter = varPreLine(ctx).count;
+  counterCache.set(font, counter);
+  return counter;
+};
+
+const getFont = (el) => {
+  const s = getComputedStyle(el);
+  return `${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;
+};
+
+const getLineHeight = (el) =>
+  Number.parseFloat(getComputedStyle(el).lineHeight);
 
 export const textHeight = (text, font, lineHeight, width) =>
-  layout(prepare(text, font), width, lineHeight).height;
+  getCounter(font)(text, width) * lineHeight;
+
+const elTextHeight = (el, width) => {
+  const text = (el.textContent || "").trim();
+  return textHeight(text, getFont(el), getLineHeight(el), width);
+};
+
+const getCardMetrics = (card, colWidth) => {
+  const s = getComputedStyle(card);
+  const padLeft = Number.parseFloat(s.paddingLeft);
+  const padRight = Number.parseFloat(s.paddingRight);
+  const padTop = Number.parseFloat(s.paddingTop);
+  const padBottom = Number.parseFloat(s.paddingBottom);
+  const gap = Number.parseFloat(s.getPropertyValue("--item-gap")) || 16;
+  return {
+    gap,
+    padX: padLeft + padRight,
+    padY: padTop + padBottom,
+    contentWidth: colWidth - padLeft - padRight,
+  };
+};
 
 const sumWithGaps = (heights, gap, extraPadding) => {
   const valid = heights.filter((h) => h !== null);
   const gaps = valid.length > 1 ? gap * (valid.length - 1) : 0;
-  return (
-    CARD_BORDER + valid.reduce((sum, h) => sum + h, 0) + gaps + extraPadding
-  );
+  const total =
+    CARD_BORDER + valid.reduce((sum, h) => sum + h, 0) + gaps + extraPadding;
+
+  return total;
 };
 
-const lineHeightOf = (el) =>
-  Number.parseFloat(getComputedStyle(el).lineHeight) || 0;
+const measureReviewCard = (card, metrics) => {
+  const halfGap = metrics.gap / 2;
+  const authorWidth = metrics.contentWidth - AVATAR_SIZE - metrics.gap;
 
-const measureReviewAuthor = (card, authorWidth, halfGap) => {
-  const nameEl = card.querySelector(".name");
-  const nameHeight = nameEl
-    ? textHeight(nameEl.textContent || "", NAME_FONT, 21, authorWidth)
-    : null;
-  if (nameHeight === null) return null;
-  const linkEl = card.querySelector(".review-link");
-  const linkHeight = linkEl
-    ? textHeight(linkEl.textContent || "", CONTENT_FONT, 21, authorWidth)
-    : null;
-  const details = nameHeight + (linkHeight !== null ? halfGap + linkHeight : 0);
-  return Math.max(AVATAR_SIZE, details);
-};
-
-const measureReviewCard = (card, colWidth) => {
-  const styles = getComputedStyle(card);
-  const gap = Number.parseFloat(styles.getPropertyValue("--item-gap")) || 16;
-  const padY =
-    Number.parseFloat(styles.paddingTop) +
-    Number.parseFloat(styles.paddingBottom);
-  const contentWidth =
-    colWidth -
-    Number.parseFloat(styles.paddingLeft) -
-    Number.parseFloat(styles.paddingRight);
-  const authorWidth = contentWidth - AVATAR_SIZE - gap;
-
-  const elHeight = (sel, font, w) => {
+  const measureEl = (sel, w) => {
     const el = card.querySelector(sel);
-    return el ? textHeight(el.textContent || "", font, 21, w) : null;
+    if (!el) return null;
+    const h = elTextHeight(el, w);
+    el.dataset.height = h.toFixed(1);
+    return h;
   };
 
+  const dateHeight = measureEl(".date", metrics.contentWidth) || 0;
+  const ratingEl = card.querySelector(".rating");
+  const ratingHeight = ratingEl
+    ? textHeight(
+        "xxxxx",
+        getFont(ratingEl),
+        getLineHeight(ratingEl),
+        metrics.contentWidth,
+      )
+    : 0;
+
+  const ratingSectionHeight = Math.max(dateHeight, ratingHeight) || null;
+
+  const reviewHeight = measureEl(".review p", metrics.contentWidth);
+  const productsHeight = measureEl(".products", metrics.contentWidth);
+  const nameHeight = measureEl(".name", authorWidth);
+  const reviewLinkHeight = measureEl(".review-link", authorWidth);
+
+  const authorDetails =
+    nameHeight !== null
+      ? nameHeight +
+        (reviewLinkHeight !== null ? halfGap + reviewLinkHeight : 0)
+      : null;
+
+  const authorHeight =
+    authorDetails !== null ? Math.max(AVATAR_SIZE, authorDetails) : null;
+
   return sumWithGaps(
-    [
-      lineHeightOf(
-        card.querySelector(".rating") || card.querySelector(".date"),
-      ),
-      elHeight(".review", CONTENT_FONT, contentWidth),
-      elHeight(".products", CONTENT_FONT, contentWidth),
-      measureReviewAuthor(card, authorWidth, gap / 2),
-    ],
-    gap,
-    padY,
+    [ratingSectionHeight, reviewHeight, productsHeight, authorHeight],
+    metrics.gap,
+    metrics.padY,
   );
 };
 
 const measureItemCard = (card, colWidth) => {
-  const contentWidth = colWidth - CARD_PADDING_INLINE * 2;
+  const { gap, padX, contentWidth } = getCardMetrics(card, colWidth);
   const img = card.querySelector(".image-link img");
   const heading = card.querySelector("h3");
   const paragraphs = [...card.querySelectorAll("p:not(.price)")].filter((p) =>
     p.textContent?.trim(),
   );
+  const priceEl = card.querySelector(".price");
+  const buttonEl = card.querySelector(
+    ".list-item-cart-controls, .button, .add-to-cart",
+  );
 
   return sumWithGaps(
     [
       img ? colWidth / (img.width / img.height || 1.5) : null,
-      heading
-        ? textHeight(
-            heading.textContent || "",
-            HEADING_FONT,
-            22.4,
-            contentWidth,
-          )
-        : null,
-      card.querySelector(".price") ? PRICE_HEIGHT : null,
-      ...paragraphs.map((p) =>
-        textHeight(p.textContent || "", CONTENT_FONT, 21, contentWidth),
-      ),
-      card.querySelector(".list-item-cart-controls, .button, .add-to-cart")
-        ? BUTTON_HEIGHT
-        : null,
+      heading ? elTextHeight(heading, contentWidth) : null,
+      priceEl ? elTextHeight(priceEl, contentWidth) : null,
+      ...paragraphs.map((p) => elTextHeight(p, contentWidth)),
+      buttonEl ? Number.parseFloat(getComputedStyle(buttonEl).height) : null,
     ],
-    CARD_INNER_GAP,
-    CARD_PADDING_INLINE,
+    gap,
+    padX,
   );
 };
-
-export const measureCard = (card, colWidth) =>
-  card.querySelector(".review-header")
-    ? measureReviewCard(card, colWidth)
-    : measureItemCard(card, colWidth);
 
 export const placeCards = (container) => {
   const cards = [...container.querySelectorAll(":scope > li")];
@@ -126,11 +139,19 @@ export const placeCards = (container) => {
       ? 1
       : Math.max(2, Math.floor((container.offsetWidth + GAP) / (280 + GAP)));
   const colWidth = (container.offsetWidth - GAP * (colCount - 1)) / colCount;
+  const innerWidth = colWidth - CARD_BORDER;
+  const firstReviewCard = cards.find((c) => c.querySelector(".review-header"));
+  const reviewMetrics = firstReviewCard
+    ? getCardMetrics(firstReviewCard, innerWidth)
+    : null;
   const colHeights = new Float64Array(colCount);
 
   for (const card of cards) {
-    const cardHeight = measureCard(card, colWidth);
+    const cardHeight = firstReviewCard
+      ? measureReviewCard(card, reviewMetrics)
+      : measureItemCard(card, innerWidth);
     const col = colHeights.indexOf(Math.min(...colHeights));
+    card.dataset.height = cardHeight.toFixed(1);
     card.style.width = `${colWidth}px`;
     card.style.transform = `translate(${col * (colWidth + GAP)}px, ${colHeights[col]}px)`;
     colHeights[col] += cardHeight + GAP;

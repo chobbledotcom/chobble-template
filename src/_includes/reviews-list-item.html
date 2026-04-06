@@ -1,6 +1,6 @@
 <li>
   <div class="review-header">
-    {%- if review.data.rating -%}
+    {%- if review.data.rating and review.data.rating != "" -%}
       <span class="rating" aria-label="{{ review.data.rating }} out of 5 stars">{{ review.data.rating | ratingToStars }}</span>
     {%- endif -%}
     <span class="date">{{ review.page.date | date: "%b '%y" }}</span>

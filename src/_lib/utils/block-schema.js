@@ -172,7 +172,7 @@ const ITEMS_SHARED_PARAM_DOCS = {
     type: "boolean",
     default: "false",
     description:
-      "If true, renders as a masonry grid using @chenglou/pretext for zero-reflow height prediction.",
+      "If true, renders as a masonry grid using uWrap for zero-reflow height prediction.",
   },
   filter: {
     type: "object",
