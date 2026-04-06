@@ -277,23 +277,31 @@ describe("toNavigation", () => {
           data: { thumbnail: "images/placeholders/blue.svg" },
         }),
       ];
-      const result = await toNavigation(pages, "");
+      const result = await toNavigation(pages, "", true);
+      expect(result).not.toContain("<picture");
+      expect(result).not.toContain("<img");
+    }));
+
+  const childWithThumbnail = () => [
+    navEntry("Products", {
+      children: [
+        navEntry("Category A", {
+          data: { thumbnail: "images/placeholders/blue.svg" },
+        }),
+      ],
+    }),
+  ];
+
+  test("Skips thumbnails when nav_thumbnails is disabled", () =>
+    withIconMock(async () => {
+      const result = await toNavigation(childWithThumbnail(), "", false);
       expect(result).not.toContain("<picture");
       expect(result).not.toContain("<img");
     }));
 
   test("Renders thumbnail for child navigation items", () =>
     withIconMock(async () => {
-      const pages = [
-        navEntry("Products", {
-          children: [
-            navEntry("Category A", {
-              data: { thumbnail: "images/placeholders/blue.svg" },
-            }),
-          ],
-        }),
-      ];
-      const result = await toNavigation(pages, "");
+      const result = await toNavigation(childWithThumbnail(), "", true);
       expect(result).toContain("<picture");
       expect(result).toContain("<img");
     }));

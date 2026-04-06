@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { join } from "node:path";
+import config from "#data/config.js";
 import { getBySlug } from "#eleventy/collection-lookup.js";
 import { PAGES_DIR } from "#lib/paths.js";
 import { getIcon } from "#media/iconify.js";
@@ -19,9 +20,10 @@ const renderNavEntry = async (
   activeKey,
   renderChildren,
   isRootLevel,
+  showThumbnails,
 ) => {
   const [thumbnailHtml, childrenHtml] = await Promise.all([
-    isRootLevel || !entry.data?.thumbnail
+    !showThumbnails || isRootLevel || !entry.data.thumbnail
       ? Promise.resolve("")
       : imageShortcode(
           entry.data.thumbnail,
@@ -64,19 +66,23 @@ const renderSearchItem = async () => {
 };
 
 /** Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }} */
-const toNavigation = async (pages, activeKey = "") => {
+const toNavigation = async (
+  pages,
+  activeKey = "",
+  showThumbnails = config().nav_thumbnails,
+) => {
   if (!pages?.length) return "";
   if (pages[0]?.pluginType !== "eleventy-navigation") {
     throw new Error("toNavigation requires eleventyNavigation filter first");
   }
   const renderChildren = async (children) => {
     const items = await mapAsync((child) =>
-      renderNavEntry(child, activeKey, renderChildren, false),
+      renderNavEntry(child, activeKey, renderChildren, false, showThumbnails),
     )(children);
     return createHtml("ul", {}, items.join("\n"));
   };
   const navItems = await mapAsync((entry) =>
-    renderNavEntry(entry, activeKey, renderChildren, true),
+    renderNavEntry(entry, activeKey, renderChildren, true, showThumbnails),
   )(pages);
   const searchItem = fs.existsSync(SEARCH_PAGE_PATH)
     ? [await renderSearchItem()]
