@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from "bun:test";
-import { DEFAULTS, DEFAULT_PRODUCT_DATA } from "#config/helpers.js";
+import { DEFAULT_PRODUCT_DATA, DEFAULTS } from "#config/helpers.js";
 
 mock.module("#data/config.js", () => ({
   default: () => ({
