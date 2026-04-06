@@ -6,6 +6,8 @@ mock.module("#data/config.js", () => ({
     ...DEFAULTS,
     products: DEFAULT_PRODUCT_DATA,
     nav_thumbnails: true,
+    internal_link_suffix: "",
+    form_target: null,
   }),
 }));
 
