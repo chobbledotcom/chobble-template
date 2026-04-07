@@ -860,7 +860,7 @@ const validateBlock = (block, ctx) => {
     `Unknown block type "${block.type}"${ctx}. Valid types: ${Object.keys(BLOCK_SCHEMAS).join(", ")}`,
   );
 
-  const allAllowed = [...(allowedKeys || []), ...COMMON_BLOCK_KEYS];
+  const allAllowed = [...allowedKeys, ...COMMON_BLOCK_KEYS];
   const unknown = Object.keys(block).filter(
     (k) => k !== "type" && !allAllowed.includes(k),
   );
