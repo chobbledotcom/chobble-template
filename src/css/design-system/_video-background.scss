@@ -10,7 +10,8 @@
 .design-system {
   // Remove section padding when containing a video-background
   section:has(> .video-background),
-  section:has(> .container > .video-background) {
+  section:has(> .container-wide > .video-background),
+  section:has(> .container-narrow > .video-background) {
     padding: 0;
   }
 

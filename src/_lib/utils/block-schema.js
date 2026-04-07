@@ -12,7 +12,10 @@
  * Common wrapper keys allowed on all block types.
  * These are used by blocks.html to wrap blocks in sections/containers.
  */
-const COMMON_BLOCK_KEYS = ["section_class", "full_width"];
+const COMMON_BLOCK_KEYS = ["section_class", "container_width"];
+
+/** Valid values for the common `container_width` block property. */
+const CONTAINER_WIDTHS = ["full", "wide", "narrow"];
 
 /** Keys for optional section-header rendering within a block. */
 const HEADER_KEYS = ["header_intro", "header_align", "header_class"];
@@ -842,36 +845,53 @@ const BLOCK_DOCS = {
  * @param {string} context - Context for error messages (e.g., file path)
  * @throws {Error} If any block contains unknown keys or invalid type
  */
+const quoteJoin = (arr) => arr.map((k) => `"${k}"`).join(", ");
+
+const assertHasType = (block, ctx) => {
+  if (!block.type) {
+    throw new Error(`Block is missing required "type" field${ctx}`);
+  }
+};
+
+const assertKnownType = (block, ctx) => {
+  if (BLOCK_SCHEMAS[block.type]) return;
+  throw new Error(
+    `Unknown block type "${block.type}"${ctx}. Valid types: ${Object.keys(BLOCK_SCHEMAS).join(", ")}`,
+  );
+};
+
+const assertNoUnknownKeys = (block, ctx) => {
+  const allAllowed = [...BLOCK_SCHEMAS[block.type], ...COMMON_BLOCK_KEYS];
+  const unknown = Object.keys(block).filter(
+    (k) => k !== "type" && !allAllowed.includes(k),
+  );
+  if (unknown.length === 0) return;
+  throw new Error(
+    `Block type "${block.type}" has unknown keys: ${quoteJoin(unknown)}${ctx}. ` +
+      `Allowed keys: ${quoteJoin(allAllowed)}`,
+  );
+};
+
+const assertValidContainerWidth = (block, ctx) => {
+  const cw = block.container_width;
+  if (cw === undefined || CONTAINER_WIDTHS.includes(cw)) return;
+  throw new Error(
+    `Block type "${block.type}" has invalid container_width "${cw}"${ctx}. ` +
+      `Valid values: ${CONTAINER_WIDTHS.join(", ")}`,
+  );
+};
+
+const BLOCK_CHECKS = [
+  assertHasType,
+  assertKnownType,
+  assertNoUnknownKeys,
+  assertValidContainerWidth,
+];
+
 const validateBlocks = (blocks, context = "") => {
   for (const [index, block] of blocks.entries()) {
-    const blockContext = ` (block ${index + 1}${context})`;
-
-    if (!block.type) {
-      throw new Error(`Block is missing required "type" field${blockContext}`);
-    }
-
-    const allowedKeys = BLOCK_SCHEMAS[block.type];
-
-    if (!allowedKeys) {
-      const validTypes = Object.keys(BLOCK_SCHEMAS).join(", ");
-      throw new Error(
-        `Unknown block type "${block.type}"${blockContext}. Valid types: ${validTypes}`,
-      );
-    }
-
-    const blockKeys = Object.keys(block).filter((key) => key !== "type");
-    const allAllowedKeys = [...allowedKeys, ...COMMON_BLOCK_KEYS];
-    const unknownKeys = blockKeys.filter(
-      (key) => !allAllowedKeys.includes(key),
-    );
-
-    if (unknownKeys.length > 0) {
-      const quoteJoin = (arr) => arr.map((k) => `"${k}"`).join(", ");
-      throw new Error(
-        `Block type "${block.type}" has unknown keys: ${quoteJoin(unknownKeys)}${blockContext}. ` +
-          `Allowed keys: ${quoteJoin(allAllowedKeys)}`,
-      );
-    }
+    const ctx = ` (block ${index + 1}${context})`;
+    for (const check of BLOCK_CHECKS) check(block, ctx);
   }
 };
 
