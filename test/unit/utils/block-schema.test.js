@@ -15,7 +15,6 @@ describe("BLOCK_SCHEMAS", () => {
       "cta",
       "video-background",
       "bunny-video-background",
-      "youtube-video-background",
       "image-background",
       "items",
       "items_array",

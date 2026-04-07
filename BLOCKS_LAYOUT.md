@@ -272,27 +272,6 @@ Uses player.js (loaded from Bunny CDN) to detect when the video starts playing, 
 
 ---
 
-### `youtube-video-background`
-
-YouTube video background with IFrame API-powered thumbnail that fades when playback starts.
-
-**Template:** `src/_includes/design-system/youtube-video-background.html`
-**SCSS:** `src/css/design-system/_video-background.scss`
-**HTML root:** `<div class="video-background" data-youtube-video>`
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `video_id` | string | **required** | YouTube video ID (e.g. `dQw4w9WgXcQ`). |
-| `thumbnail_url` | string | — | Thumbnail image URL. Defaults to YouTube's `hqdefault.jpg` for the given `video_id`. |
-| `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
-| `aspect_ratio` | string | `"16/9"` | CSS aspect-ratio on container. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
-| `class` | string | — | Extra CSS classes. |
-
-Embeds via `youtube-nocookie.com` with `autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1`. Uses the YouTube IFrame Player API to detect when the video starts playing, then fades out the thumbnail. The API script is only loaded when this block is used.
-
----
-
 ### `image-background`
 
 Full-width image background with overlaid text and optional parallax.
