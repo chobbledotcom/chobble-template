@@ -4,6 +4,9 @@ title: Chobble Template - Free Eleventy Starter for Small Business Websites
 meta_title: Chobble Template - Free Eleventy Starter for Small Business Websites
 meta_description: A free, open-source Eleventy template with e-commerce, 10 themes, and 14 content types. AGPLv3 licensed. No monthly fees.
 permalink: /
+eleventyNavigation:
+  key: Home
+  order: 1
 blocks:
   # Hero
   - type: hero
@@ -48,6 +51,7 @@ blocks:
   # Items Array - explicit product selection
   - type: items_array
     collection: products
+    masonry: true
     items:
       - src/products/mini-gizmo.md
       - src/products/ultrawidget-pro.md
@@ -341,5 +345,4 @@ blocks:
       ## Image Blocks
 
       [Thanks to Yam Daisy on Pexels for this photo](https://www.pexels.com/photo/long-exposure-of-the-traffic-in-a-city-at-night-25208706/)
-
 ---

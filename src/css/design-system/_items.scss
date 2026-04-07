@@ -139,7 +139,9 @@
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          transition: transform $transition-fast, opacity $transition-fast;
+          transition:
+            transform $transition-fast,
+            opacity $transition-fast;
 
           svg {
             display: block;
@@ -233,12 +235,12 @@
         gap: $space-sm;
         margin-block-start: auto; // Push to bottom of flex container
         list-style: none;
+        @include body-sm;
 
         li {
           display: flex;
           align-items: center;
           gap: $space-xs;
-          @include body-sm;
           color: var(--color-text-muted);
 
           svg {
