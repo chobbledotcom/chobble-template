@@ -51,6 +51,13 @@ describe("feed", () => {
           frontmatter: { title: "Tom and Jerry's Adventure" },
           content: "Special chars test",
         },
+        {
+          path: "news/ampersand.md",
+          frontmatter: {
+            title: "Marquee Weddings & Photo Booths",
+          },
+          content: "Ampersand test",
+        },
       ],
     });
 
@@ -123,6 +130,15 @@ describe("feed", () => {
       expect(feed.includes("Jerry's") || feed.includes("Jerry&#39;s")).toBe(
         true,
       );
+    });
+
+    test("Feed escapes ampersands in entry titles", () => {
+      const feed = getFeed();
+      // The raw `&` would produce invalid XML; it must be escaped to `&amp;`
+      expect(
+        feed.includes("<title>Marquee Weddings &amp; Photo Booths</title>"),
+      ).toBe(true);
+      expect(feed.includes("Weddings & Photo")).toBe(false);
     });
   });
 

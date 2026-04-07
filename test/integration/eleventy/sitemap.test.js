@@ -54,6 +54,29 @@ describe("sitemap", () => {
     );
   });
 
+  test("sitemap escapes ampersands in URLs", async () => {
+    await withTestSite(
+      {
+        files: [
+          {
+            path: "pages/q.md",
+            frontmatter: {
+              title: "Query",
+              permalink: "/search/?q=cats&p=1",
+            },
+            content: "Query page",
+          },
+        ],
+      },
+      (site) => {
+        const sitemap = site.getOutput("sitemap.xml");
+        // Raw `&` would make the sitemap invalid XML; it must be escaped.
+        expect(sitemap.includes("?q=cats&amp;p=1")).toBe(true);
+        expect(sitemap.includes("?q=cats&p=1")).toBe(false);
+      },
+    );
+  });
+
   test("no_index page is still rendered as a standalone page", async () => {
     await withTestSite(
       {
