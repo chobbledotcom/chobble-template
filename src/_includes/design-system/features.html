@@ -50,7 +50,9 @@ Usage:
         {%- include "design-system/icon-badge.html", icon: item.icon, label: item.icon_label -%}
       {%- endif -%}
       <h{{ heading_level }}>{{ item.title }}</h{{ heading_level }}>
-      <div class="prose">{{ item.description | renderContent: "md" }}</div>
+      {%- if item.description -%}
+        <div class="prose">{{ item.description | renderContent: "md" }}</div>
+      {%- endif -%}
     </article>
   </li>
   {%- endfor -%}
