@@ -39,6 +39,18 @@ blocks:
 
       Add auto-playing video backgrounds with overlay text to any section.
 
+  # YouTube Video Background Demo
+  - type: youtube-video-background
+    container_width: full
+    video_id: dQw4w9WgXcQ
+    video_title: YouTube Video Background Demo
+    aspect_ratio: "21/9"
+    content: |
+      ## YouTube Video Background
+
+      Embed a YouTube video as an auto-playing background. The thumbnail fades
+      out once playback starts via the YouTube IFrame API.
+
   # Product Sliders
   - type: items
     collection: featuredProducts

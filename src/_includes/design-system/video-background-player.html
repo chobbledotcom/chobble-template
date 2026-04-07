@@ -1,0 +1,37 @@
+{%- comment -%}
+Shared partial for bunny-video-background and youtube-video-background.
+Renders a full-width video background with a thumbnail placeholder, iframe,
+and overlay caption. The companion player script drives thumbnail fade-out
+once the video starts playing.
+
+Parameters (passed via include):
+  - embed_src: iframe `src` URL (required)
+  - thumbnail_url: placeholder image path or URL (required)
+  - data_attr: data attribute name for the JS hook (e.g. "bunny-video")
+  - script_src: path to the companion player script
+  - video_title: accessible iframe title
+  - aspect_ratio: CSS aspect-ratio for the container
+  - block_class: extra CSS classes on the container
+  - content: markdown overlay content
+{%- endcomment -%}
+
+<div class="video-background{% if block_class %} {{ block_class }}{% endif %}" style="aspect-ratio: {{ aspect_ratio }};" data-{{ data_attr }}>
+  <div class="video-background__thumbnail">
+    {% image thumbnail_url, video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
+  </div>
+  <iframe
+    src="{{ embed_src }}"
+    title="{{ video_title }}"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+    referrerpolicy="origin"
+  ></iframe>
+  <figure>
+    <figcaption class="prose">
+      {{ content | renderContent: "md" }}
+    </figcaption>
+  </figure>
+</div>
+
+<script type="module" src="{{ script_src | cacheBust }}"></script>

@@ -21,23 +21,13 @@ Usage:
 {%- assign _aspect_ratio = block.aspect_ratio | default: "16/9" -%}
 {%- assign _video_title = block.video_title | default: "Background video" -%}
 
-<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};" data-bunny-video>
-  <div class="video-background__thumbnail">
-    {% image block.thumbnail_url, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
-  </div>
-  <iframe
-    src="{{ block.video_url }}"
-    title="{{ _video_title }}"
-    frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen
-    referrerpolicy="origin"
-  ></iframe>
-  <figure>
-    <figcaption class="prose">
-      {{ block.content | renderContent: "md" }}
-    </figcaption>
-  </figure>
-</div>
-
-<script type="module" src="{{ '/assets/js/bunny-video.js' | cacheBust }}"></script>
+{%- include "design-system/video-background-player.html",
+  embed_src: block.video_url,
+  thumbnail_url: block.thumbnail_url,
+  data_attr: "bunny-video",
+  script_src: "/assets/js/bunny-video.js",
+  video_title: _video_title,
+  aspect_ratio: _aspect_ratio,
+  block_class: block.class,
+  content: block.content
+-%}

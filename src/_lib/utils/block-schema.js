@@ -84,6 +84,14 @@ const BLOCK_SCHEMAS = {
     "aspect_ratio",
     "class",
   ],
+  "youtube-video-background": [
+    "video_id",
+    "thumbnail_url",
+    "video_title",
+    "content",
+    "aspect_ratio",
+    "class",
+  ],
   "image-background": ["image", "image_alt", "content", "class", "parallax"],
   items: [
     "collection",
@@ -204,6 +212,13 @@ const OVERLAY_CONTENT_PARAM = {
   required: true,
   description:
     'Overlay content. Rendered as markdown in `<figcaption class="prose">`.',
+};
+
+/** Shared params for video-background variants (title, aspect, content, class). */
+const VIDEO_BG_TRAILING_PARAMS = {
+  ...VIDEO_BG_SHARED_PARAMS,
+  content: OVERLAY_CONTENT_PARAM,
+  class: CLASS_PARAM,
 };
 
 /** Shared SCSS and htmlRoot for card-grid blocks (image-cards, gallery). */
@@ -599,9 +614,30 @@ const BLOCK_DOCS = {
         description:
           "Thumbnail image URL. Displayed as a placeholder until video playback begins.",
       },
-      ...VIDEO_BG_SHARED_PARAMS,
-      content: OVERLAY_CONTENT_PARAM,
-      class: CLASS_PARAM,
+      ...VIDEO_BG_TRAILING_PARAMS,
+    },
+  },
+
+  "youtube-video-background": {
+    summary:
+      "YouTube video background with IFrame API-powered thumbnail that fades when playback starts.",
+    template: "src/_includes/design-system/youtube-video-background.html",
+    scss: "src/css/design-system/_video-background.scss",
+    htmlRoot: '<div class="video-background" data-youtube-video>',
+    notes:
+      "Embeds via `youtube-nocookie.com` with `autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1`. Uses the YouTube IFrame Player API to detect when the video starts playing, then fades out the thumbnail. The API script is only loaded when this block is used.",
+    params: {
+      video_id: {
+        type: "string",
+        required: true,
+        description: "YouTube video ID (e.g. `dQw4w9WgXcQ`).",
+      },
+      thumbnail_url: {
+        type: "string",
+        description:
+          "Thumbnail image URL. Defaults to YouTube's `hqdefault.jpg` for the given `video_id`.",
+      },
+      ...VIDEO_BG_TRAILING_PARAMS,
     },
   },
 

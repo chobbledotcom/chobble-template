@@ -20,6 +20,7 @@ export const configureJsBundler = (eleventyConfig) => {
       }),
       buildBundle("design-system", isDevelopment),
       buildBundle("bunny-video", isDevelopment),
+      buildBundle("youtube-video", isDevelopment),
       buildBundle("masonry", isDevelopment),
     ]);
 

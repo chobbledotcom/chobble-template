@@ -4,18 +4,10 @@
 
 import playerjs from "player.js";
 import { onReady } from "#public/utils/on-ready.js";
-
-const SCOPE = ".design-system";
+import { getVideoContainerPairs } from "#public/utils/video-containers.js";
 
 const init = () => {
-  const containers = document.querySelectorAll(`${SCOPE} [data-bunny-video]`);
-  if (containers.length === 0) return;
-
-  for (const container of containers) {
-    const iframe = container.querySelector("iframe");
-    const thumbnail = container.querySelector(".video-background__thumbnail");
-    if (!iframe || !thumbnail) continue;
-
+  for (const { iframe, thumbnail } of getVideoContainerPairs("bunny-video")) {
     const player = new playerjs.Player(iframe);
     player.on("ready", () => {
       player.on("play", () => {
