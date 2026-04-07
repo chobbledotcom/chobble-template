@@ -12,7 +12,7 @@ frontmatter blocks[] → design-system-base.html → blocks.html → render-bloc
 
 **Layout:** `src/_layouts/design-system-base.html` applies `class="design-system"` to `<body>`, loads the design system CSS bundle, and iterates blocks via `blocks.html`.
 
-**Block loop** (`src/_includes/design-system/blocks.html`): Each block becomes a `<section>`. If `block.section_class` is set, it's applied to the section. Unless `block.full_width` is true, content is wrapped in `<div class="container">` (max-width: 1200px, centered, responsive inline padding).
+**Block loop** (`src/_includes/design-system/blocks.html`): Each block becomes a `<section>`. If `block.section_class` is set, it's applied to the section. Content is wrapped in a container based on `block.container_width`: `"wide"` (default, 1200px, `.container-wide`), `"narrow"` (680px, `.container-narrow`), or `"full"` (no wrapper). The `icon_links` block defaults to `"narrow"`.
 
 **Block router** (`src/_includes/design-system/render-block.html`): A Liquid `case` statement dispatching `block.type` to the appropriate include template.
 
@@ -24,7 +24,7 @@ Every block object supports these properties (handled by blocks.html, not the in
 |---|---|---|
 | `type` | string | **Required.** Selects which template to render. |
 | `section_class` | string | CSS class(es) on the wrapping `<section>`. Built-in: `alt` (alternate bg), `dark` (dark bg + inverted colors), `gradient` (gradient bg), `compact` (reduced padding). |
-| `full_width` | boolean | If true, omits the `.container` wrapper. Block content spans the full viewport width. |
+| `container_width` | string | `"full"`, `"wide"` (default), or `"narrow"`. Controls the inner container max-width. `"full"` omits the container wrapper entirely so content spans the full viewport width. |
 
 ### Section Behavior
 
@@ -524,9 +524,9 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 
 | Class | Max-width | Usage |
 |---|---|---|
-| `.container` | 900px (`$width-default`) | Default block container. Flex-col with `$space-lg` gap. |
-| `.container--wide` | 1200px (`$width-wide`) | Wide content (galleries, grids). |
-| `.container--narrow` | 680px (`$width-narrow`) | Prose-width content. |
+| `.container` | 900px (`$width-default`) | Default container for non-block contexts (property, guide includes). Flex-col with `$space-lg` gap. |
+| `.container-wide` | 1200px (`$width-wide`) | Wide content. Default for block wrappers. |
+| `.container-narrow` | 680px (`$width-narrow`) | Prose-width content. Default for `icon_links` blocks. |
 
 ### Grid Classes
 
