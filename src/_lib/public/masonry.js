@@ -31,22 +31,38 @@ export const textHeight = (text, font, lineHeight, width) =>
   getCounter(font)(text, width) * lineHeight;
 
 const elTextHeight = (el, width) => {
-  const text = (el.textContent || "").trim();
-  return textHeight(text, getFont(el), getLineHeight(el), width);
+  const text = (el.textContent || "").trim().replace("\n", " ");
+  const h = textHeight(text, getFont(el), getLineHeight(el), width);
+  el.dataset.height = h;
+  return h;
 };
 
-const getCardMetrics = (card, colWidth) => {
+const getReviewMetrics = (card, colWidth) => {
   const s = getComputedStyle(card);
   const padLeft = Number.parseFloat(s.paddingLeft);
   const padRight = Number.parseFloat(s.paddingRight);
   const padTop = Number.parseFloat(s.paddingTop);
   const padBottom = Number.parseFloat(s.paddingBottom);
-  const gap = Number.parseFloat(s.getPropertyValue("--item-gap")) || 16;
+  const gap = Number.parseFloat(s.getPropertyValue("--item-gap"));
   return {
     gap,
     padX: padLeft + padRight,
     padY: padTop + padBottom,
     contentWidth: colWidth - padLeft - padRight,
+  };
+};
+
+const getCardMetrics = (card, colWidth) => {
+  const s = getComputedStyle(card);
+  const gap = Number.parseFloat(s.getPropertyValue("--item-gap"));
+  const padding = Number.parseFloat(
+    s.getPropertyValue("--item-padding-inline"),
+  );
+  return {
+    gap,
+    padX: padding * 2,
+    padY: padding * 2,
+    contentWidth: colWidth - padding * 2,
   };
 };
 
@@ -104,29 +120,48 @@ const measureReviewCard = (card, metrics) => {
     metrics.padY,
   );
 };
-
-const measureItemCard = (card, colWidth) => {
-  const { gap, padX, contentWidth } = getCardMetrics(card, colWidth);
-  const img = card.querySelector(".image-link img");
-  const heading = card.querySelector("h3");
-  const paragraphs = [...card.querySelectorAll("p:not(.price)")].filter((p) =>
-    p.textContent?.trim(),
+const parseAspectRatio = (el) => {
+  const match = (el.getAttribute("style") || "").match(
+    /aspect-ratio:\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/,
   );
-  const priceEl = card.querySelector(".price");
+  if (!match) return null;
+  const h = Number.parseFloat(match[2]);
+  return h > 0 ? Number.parseFloat(match[1]) / h : null;
+};
+
+const measureImageHeight = (card, colWidth) => {
+  const imageWrapper = card.querySelector(".image-wrapper");
+  if (!imageWrapper) return null;
+  const ratio = parseAspectRatio(imageWrapper);
+  const h = ratio ? colWidth / ratio : null;
+  imageWrapper.dataset.height = h;
+  return h;
+};
+
+const measureItemCard = (card, metrics, colWidth) => {
+  const imgHeight = measureImageHeight(card, colWidth);
+
   const buttonEl = card.querySelector(
     ".list-item-cart-controls, .button, .add-to-cart",
   );
 
-  return sumWithGaps(
-    [
-      img ? colWidth / (img.width / img.height || 1.5) : null,
-      heading ? elTextHeight(heading, contentWidth) : null,
-      priceEl ? elTextHeight(priceEl, contentWidth) : null,
-      ...paragraphs.map((p) => elTextHeight(p, contentWidth)),
-      buttonEl ? Number.parseFloat(getComputedStyle(buttonEl).height) : null,
-    ],
-    gap,
-    padX,
+  const childHeights = [];
+  for (const el of card.children) {
+    if (!el.classList.contains("image-link") && el !== buttonEl)
+      childHeights.push(elTextHeight(el, metrics.contentWidth));
+  }
+  card.dataset.heights = JSON.stringify(childHeights);
+
+  return (
+    (imgHeight ? imgHeight - CARD_BORDER : 0) +
+    sumWithGaps(
+      [
+        ...childHeights,
+        buttonEl ? Number.parseFloat(getComputedStyle(buttonEl).height) : null,
+      ],
+      metrics.gap,
+      imgHeight ? metrics.padY / 2 + metrics.gap : metrics.padY,
+    )
   );
 };
 
@@ -134,24 +169,25 @@ export const placeCards = (container) => {
   const cards = [...container.querySelectorAll(":scope > li")];
   if (cards.length === 0) return;
 
+  const isReviews = container.classList.contains("reviews-grid");
   const colCount =
     container.offsetWidth < MOBILE_BREAKPOINT
       ? 1
       : Math.max(2, Math.floor((container.offsetWidth + GAP) / (280 + GAP)));
   const colWidth = (container.offsetWidth - GAP * (colCount - 1)) / colCount;
   const innerWidth = colWidth - CARD_BORDER;
-  const firstReviewCard = cards.find((c) => c.querySelector(".review-header"));
-  const reviewMetrics = firstReviewCard
-    ? getCardMetrics(firstReviewCard, innerWidth)
-    : null;
+  const metrics = isReviews
+    ? getReviewMetrics(cards[0], innerWidth)
+    : getCardMetrics(cards[0], innerWidth);
   const colHeights = new Float64Array(colCount);
 
   for (const card of cards) {
-    const cardHeight = firstReviewCard
-      ? measureReviewCard(card, reviewMetrics)
-      : measureItemCard(card, innerWidth);
+    const cardHeight = isReviews
+      ? measureReviewCard(card, metrics)
+      : measureItemCard(card, metrics, colWidth);
     const col = colHeights.indexOf(Math.min(...colHeights));
     card.dataset.height = cardHeight.toFixed(1);
+    card.dataset.metrics = JSON.stringify(metrics);
     card.style.width = `${colWidth}px`;
     card.style.transform = `translate(${col * (colWidth + GAP)}px, ${colHeights[col]}px)`;
     colHeights[col] += cardHeight + GAP;
