@@ -75,19 +75,19 @@ const sumWithGaps = (heights, gap, extraPadding) => {
   return total;
 };
 
+const measureOrNull = (card, selector, width) => {
+  const el = card.querySelector(selector);
+  return el ? elTextHeight(el, width) : null;
+};
+
+const addIfPresent = (base, extra, gap) =>
+  extra !== null ? base + gap + extra : base;
+
 const measureReviewCard = (card, metrics) => {
   const halfGap = metrics.gap / 2;
   const authorWidth = metrics.contentWidth - AVATAR_SIZE - metrics.gap;
 
-  const measureEl = (sel, w) => {
-    const el = card.querySelector(sel);
-    if (!el) return null;
-    const h = elTextHeight(el, w);
-    el.dataset.height = h.toFixed(1);
-    return h;
-  };
-
-  const dateHeight = measureEl(".date", metrics.contentWidth) || 0;
+  const dateHeight = measureOrNull(card, ".date", metrics.contentWidth) || 0;
   const ratingEl = card.querySelector(".rating");
   const ratingHeight = ratingEl
     ? textHeight(
@@ -99,18 +99,15 @@ const measureReviewCard = (card, metrics) => {
     : 0;
 
   const ratingSectionHeight = Math.max(dateHeight, ratingHeight) || null;
-
-  const reviewHeight = measureEl(".review p", metrics.contentWidth);
-  const productsHeight = measureEl(".products", metrics.contentWidth);
-  const nameHeight = measureEl(".name", authorWidth);
-  const reviewLinkHeight = measureEl(".review-link", authorWidth);
+  const reviewHeight = measureOrNull(card, ".review p", metrics.contentWidth);
+  const productsHeight = measureOrNull(card, ".products", metrics.contentWidth);
+  const nameHeight = measureOrNull(card, ".name", authorWidth);
+  const reviewLinkHeight = measureOrNull(card, ".review-link", authorWidth);
 
   const authorDetails =
     nameHeight !== null
-      ? nameHeight +
-        (reviewLinkHeight !== null ? halfGap + reviewLinkHeight : 0)
+      ? addIfPresent(nameHeight, reviewLinkHeight, halfGap)
       : null;
-
   const authorHeight =
     authorDetails !== null ? Math.max(AVATAR_SIZE, authorDetails) : null;
 
@@ -120,6 +117,7 @@ const measureReviewCard = (card, metrics) => {
     metrics.padY,
   );
 };
+
 const parseAspectRatio = (el) => {
   const match = (el.getAttribute("style") || "").match(
     /aspect-ratio:\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/,
@@ -138,30 +136,30 @@ const measureImageHeight = (card, colWidth) => {
   return h;
 };
 
+const BUTTON_SELECTOR = ".list-item-cart-controls, .button, .add-to-cart";
+
+const isContentChild = (buttonEl) => (el) =>
+  !el.classList.contains("image-link") && el !== buttonEl;
+
 const measureItemCard = (card, metrics, colWidth) => {
   const imgHeight = measureImageHeight(card, colWidth);
+  const buttonEl = card.querySelector(BUTTON_SELECTOR);
 
-  const buttonEl = card.querySelector(
-    ".list-item-cart-controls, .button, .add-to-cart",
-  );
-
-  const childHeights = [];
-  for (const el of card.children) {
-    if (!el.classList.contains("image-link") && el !== buttonEl)
-      childHeights.push(elTextHeight(el, metrics.contentWidth));
-  }
+  const childHeights = [...card.children]
+    .filter(isContentChild(buttonEl))
+    .map((el) => elTextHeight(el, metrics.contentWidth));
   card.dataset.heights = JSON.stringify(childHeights);
+
+  const buttonHeight = buttonEl
+    ? Number.parseFloat(getComputedStyle(buttonEl).height)
+    : null;
+  const extraPadding = imgHeight
+    ? metrics.padY / 2 + metrics.gap
+    : metrics.padY;
 
   return (
     (imgHeight ? imgHeight - CARD_BORDER : 0) +
-    sumWithGaps(
-      [
-        ...childHeights,
-        buttonEl ? Number.parseFloat(getComputedStyle(buttonEl).height) : null,
-      ],
-      metrics.gap,
-      imgHeight ? metrics.padY / 2 + metrics.gap : metrics.padY,
-    )
+    sumWithGaps([...childHeights, buttonHeight], metrics.gap, extraPadding)
   );
 };
 
@@ -198,6 +196,14 @@ export const placeCards = (container) => {
   container.classList.add("masonry-ready");
 };
 
+const debounce = (fn, delay) => {
+  let timer = null;
+  return () => {
+    clearTimeout(timer);
+    timer = setTimeout(fn, delay);
+  };
+};
+
 onReady(() => {
   const containers = document.querySelectorAll(
     ".design-system ul.items.masonry",
@@ -205,16 +211,9 @@ onReady(() => {
   if (containers.length === 0) return;
 
   const layoutAll = () => {
-    for (const container of containers) {
-      placeCards(container);
-    }
+    for (const container of containers) placeCards(container);
   };
 
   layoutAll();
-
-  const state = { timer: 0 };
-  window.addEventListener("resize", () => {
-    clearTimeout(state.timer);
-    state.timer = setTimeout(layoutAll, 100);
-  });
+  window.addEventListener("resize", debounce(layoutAll, 100));
 });
