@@ -11,7 +11,10 @@ import { SRC_DIR } from "#lib/paths.js";
 import { hashString } from "#media/thumbnail-placeholder.js";
 import { filter, filterMap, map, pipe } from "#toolkit/fp/array.js";
 import { frozenSet } from "#toolkit/fp/set.js";
-import { createArrayFieldIndexer } from "#utils/collection-utils.js";
+import {
+  createArrayFieldIndexer,
+  createTagCollection,
+} from "#utils/collection-utils.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
 /** @typedef {import("#lib/types").ReviewCollectionItem} ReviewCollectionItem */
@@ -59,16 +62,15 @@ const fieldIndexers = {
 
 /**
  * Creates the main reviews collection.
- * Fetches all items tagged with "review", filters out hidden ones, and sorts by date.
+ * Fetches all items tagged with "reviews", filters out hidden ones, and sorts by date.
  *
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @returns {ReviewCollectionItem[]}
+ * @type {(collectionApi: import("@11ty/eleventy").CollectionApi) => ReviewCollectionItem[]}
  */
-const createReviewsCollection = (collectionApi) =>
-  collectionApi
-    .getFilteredByTag("reviews")
-    .filter((review) => review.data.hidden !== true)
-    .sort(sortByDateDescending);
+const createReviewsCollection = createTagCollection(
+  "reviews",
+  "hidden",
+  sortByDateDescending,
+);
 
 /**
  * Get reviews for a specific item by field (internal).

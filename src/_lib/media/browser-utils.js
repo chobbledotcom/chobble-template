@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
 import { log, error as logError } from "#utils/console.js";
+import { isExternalUrl } from "#utils/url-utils.js";
 
 export { frozenObject } from "#toolkit/fp/object.js";
 export { log };
@@ -27,7 +28,7 @@ export const prepareOutputDir = (outputPath) => {
 };
 
 export const buildUrl = (pagePath, baseUrl) =>
-  pagePath.startsWith("http")
+  isExternalUrl(pagePath)
     ? pagePath
     : `${baseUrl}${pagePath.startsWith("/") ? "" : "/"}${pagePath}`;
 

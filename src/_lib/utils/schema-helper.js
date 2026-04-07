@@ -1,5 +1,6 @@
 import { getReviewsFor } from "#collections/reviews.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
+import { isExternalUrl } from "#utils/url-utils.js";
 
 /**
  * @typedef {Object} SiteInfo
@@ -89,7 +90,7 @@ const toDateString = (date) => date.toISOString().split("T")[0];
  * @returns {string} Full image URL
  */
 function buildImageUrl(imageInput, { url }) {
-  if (imageInput.startsWith("http://") || imageInput.startsWith("https://")) {
+  if (isExternalUrl(imageInput)) {
     return imageInput;
   }
 
