@@ -36,6 +36,7 @@ describe("config", () => {
       "reviews_truncate_limit",
       "rating_stars_uses_svg",
       "list_item_fields",
+      "nav_thumbnails",
       "navigation_content_anchor",
       "category_order",
       "property_order",

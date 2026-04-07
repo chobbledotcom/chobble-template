@@ -32,6 +32,7 @@
   "guide_page_order": null,
   "guide_category_order": null,
   "navigation_content_anchor": null,
+  "nav_thumbnails": false,
   "screenshots": null,
   "phoneNumberLength": null,
   "use_visual_editor": true,
