@@ -10,7 +10,8 @@
 .design-system {
   // Remove section padding when containing an image-background
   section:has(> .image-background),
-  section:has(> .container > .image-background) {
+  section:has(> .container-wide > .image-background),
+  section:has(> .container-narrow > .image-background) {
     padding: 0;
   }
 

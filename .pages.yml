@@ -587,7 +587,7 @@ content:
           - name: hero
             label: Hero
             fields:
-              - { name: full_width, type: boolean, label: Full Width }
+              - { name: container_width, type: string, label: "Container Width (full, wide, narrow)" }
               - { name: class, type: string, label: CSS Class }
               - { name: badge, type: string, label: Badge Text }
               - { name: title, type: string, label: Title, required: true }
@@ -607,7 +607,7 @@ content:
           - name: video-background
             label: Video Background
             fields:
-              - { name: full_width, type: boolean, label: Full Width }
+              - { name: container_width, type: string, label: "Container Width (full, wide, narrow)" }
               - name: video_id
                 type: string
                 label: Video Embed URL
@@ -651,7 +651,7 @@ content:
           - name: split-full
             label: Split Full
             fields:
-              - { name: full_width, type: boolean, label: Full Width }
+              - { name: container_width, type: string, label: "Container Width (full, wide, narrow)" }
               - { name: variant, type: string, label: Variant }
               - name: reveal_left
                 type: string
