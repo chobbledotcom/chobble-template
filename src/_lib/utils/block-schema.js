@@ -837,14 +837,6 @@ const BLOCK_DOCS = {
   },
 };
 
-/**
- * Validates an array of blocks against their schemas.
- * Throws an error if any block contains unknown keys or unknown type.
- *
- * @param {object[]} blocks - Array of blocks to validate
- * @param {string} context - Context for error messages (e.g., file path)
- * @throws {Error} If any block contains unknown keys or invalid type
- */
 const quoteJoin = (arr) => arr.map((k) => `"${k}"`).join(", ");
 
 const assertHasType = (block, ctx) => {
@@ -888,6 +880,14 @@ const BLOCK_CHECKS = [
   assertValidContainerWidth,
 ];
 
+/**
+ * Validates an array of blocks against their schemas.
+ * Throws an error if any block contains unknown keys or unknown type.
+ *
+ * @param {object[]} blocks - Array of blocks to validate
+ * @param {string} context - Context for error messages (e.g., file path)
+ * @throws {Error} If any block contains unknown keys or invalid type
+ */
 const validateBlocks = (blocks, context = "") => {
   for (const [index, block] of blocks.entries()) {
     const ctx = ` (block ${index + 1}${context})`;
