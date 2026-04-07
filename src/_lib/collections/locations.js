@@ -8,8 +8,7 @@ import { createChildThumbnailResolver } from "#collections/thumbnail-resolvers.j
 import { filter, pipe } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
 import {
-  createFieldIndexer,
-  getByParent,
+  createParentChildFilter,
   getLocationsFromApi,
 } from "#utils/collection-utils.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
@@ -77,10 +76,8 @@ const createLocationsCollection = (collectionApi) => {
   });
 };
 
-const indexByParent = createFieldIndexer("parentLocation");
+const getChildLocations = createParentChildFilter("parentLocation");
 
-const getChildLocations = (locations, parentSlug) =>
-  getByParent(indexByParent, locations, parentSlug);
 const configureLocations = (eleventyConfig) => {
   eleventyConfig.addCollection("locations", createLocationsCollection);
   eleventyConfig.addCollection("rootLocations", (api) =>

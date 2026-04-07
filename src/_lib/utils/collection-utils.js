@@ -69,14 +69,29 @@ export const createFieldIndexer = (field) =>
   });
 
 /**
- * Get children from a field indexer, returning empty array when missing.
- * @param {(items: any[]) => Record<string, any[]>} indexer
- * @param {any[]} items
- * @param {string} parentSlug
- * @returns {any[]}
+ * Create a parent→children filter for items referencing a parent by slug.
+ * Composes createFieldIndexer with a lookup that returns [] when missing.
+ * @param {string} field - Field name holding the parent slug (e.g., "parent")
+ * @returns {(items: any[], parentSlug: string) => any[]}
  */
-export const getByParent = (indexer, items, parentSlug) =>
-  indexer(items)[parentSlug] ?? [];
+export const createParentChildFilter = (field) => {
+  const indexer = createFieldIndexer(field);
+  return (items, parentSlug) => indexer(items)[parentSlug] ?? [];
+};
+
+/**
+ * Create a collection builder that filters by tag, excludes items where a
+ * boolean field is true, and sorts. Used by news, reviews, etc.
+ * @param {string} tag - Eleventy tag to filter by
+ * @param {string} hideField - Boolean data field; items where it is true are excluded
+ * @param {(a: any, b: any) => number} sortFn - Sort comparator
+ * @returns {(collectionApi: import("@11ty/eleventy").CollectionApi) => any[]}
+ */
+export const createTagCollection = (tag, hideField, sortFn) => (api) =>
+  api
+    .getFilteredByTag(tag)
+    .filter((item) => item.data[hideField] !== true)
+    .sort(sortFn);
 
 /**
  * Create an indexer that groups items by a field that contains an array of slugs.

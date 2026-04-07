@@ -8,9 +8,8 @@ import { createChildThumbnailResolver } from "#collections/thumbnail-resolvers.j
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
 import {
-  createFieldIndexer,
+  createParentChildFilter,
   featuredCollection,
-  getByParent,
   getCategoriesFromApi,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
@@ -180,10 +179,8 @@ const createCategoriesCollection = (collectionApi) => {
   });
 };
 
-const indexByParent = createFieldIndexer("parent");
+const getSubcategories = createParentChildFilter("parent");
 
-const getSubcategories = (categories, parentSlug) =>
-  getByParent(indexByParent, categories, parentSlug);
 const configureCategories = (eleventyConfig) => {
   eleventyConfig.addCollection("categories", createCategoriesCollection);
   eleventyConfig.addCollection(
