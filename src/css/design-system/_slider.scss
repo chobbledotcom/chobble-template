@@ -74,6 +74,7 @@
   .slider-next {
     @include button-base;
     @include focus-ring;
+    text-decoration: none;
     width: 44px;
     height: 44px;
     padding: 0;
