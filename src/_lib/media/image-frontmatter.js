@@ -51,7 +51,8 @@ export const toAbsoluteImageUrl = (imagePath) => {
   if (imagePath.trim() === "") return imagePath;
   if (imagePath.indexOf("http") === 0) return imagePath;
   if (imagePath.startsWith("/")) return imagePath;
-  if (imagePath.startsWith("src/")) return `/${imagePath.replace(/^src\//, "")}`;
+  if (imagePath.startsWith("src/"))
+    return `/${imagePath.replace(/^src\//, "")}`;
   if (imagePath.startsWith("images/")) return `/${imagePath}`;
   return `/images/${imagePath}`;
 };
