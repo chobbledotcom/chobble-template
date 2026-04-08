@@ -1,6 +1,11 @@
-{%- if config.form_target and config.form_target != "" -%}
+{%- if formspark_id and formspark_id != "" -%}
+  {%- assign form_target_override = "https://submit-form.com/" | append: formspark_id -%}
+{%- endif -%}
+{%- assign _effective_form_target = form_target_override | default: config.form_target -%}
+{%- if _effective_form_target and _effective_form_target != "" -%}
   <div class="contact">
     <h2>Get in Touch</h2>
-    {% include "contact-form.html" %}
+    {%- include "contact-form.html" -%}
   </div>
 {%- endif -%}
+{%- assign form_target_override = nil -%}

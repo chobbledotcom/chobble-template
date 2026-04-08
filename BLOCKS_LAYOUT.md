@@ -350,6 +350,26 @@ Two-column layout with prose content and a contact form.
 
 ---
 
+### `custom_contact_form`
+
+Contact form block with a custom, block-level field list instead of the site-wide `contactForm.fields`.
+
+**Template:** `src/_includes/design-system/custom-contact-form-block.html`
+**SCSS:** `src/css/design-system/_contact-form-block.scss`
+**HTML root:** `<div class="contact-form-block">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `content` | string | — | Left-side content. Rendered as markdown in `.prose`. Centered text. |
+| `fields` | array | **required** | Array of field definitions for this form. Replaces `contactForm.fields` for this block only. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
+
+Identical layout and styling to `contact_form`, but accepts its own `fields` array. Each field object follows the same shape as entries in `src/_data/contact-form.json` — e.g. `{name, label, type, placeholder, required, rows, options, note, fieldClass, showOn, defaultFromPageTitle}`. Supported `type` values: `"text"` (default), `"email"`, `"tel"`, `"textarea"`, `"select"`, `"radio"`, `"heading"`.
+
+---
+
 ### `markdown`
 
 Renders markdown content as rich text.

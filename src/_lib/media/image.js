@@ -191,6 +191,16 @@ const processAndWrapImage = async ({
   ...imageProps
 }) => {
   if (isExternalUrl(imageProps.imageName)) {
+    if (PLACEHOLDER_MODE) {
+      const html = await generatePlaceholderHtml({
+        alt: imageProps.alt,
+        classes: imageProps.classes,
+        sizes: imageProps.sizes,
+        loading: imageProps.loading,
+        aspectRatio: imageProps.aspectRatio,
+      });
+      return resolveOutput(html, returnElement, document);
+    }
     return await processExternalImage({
       src: imageProps.imageName,
       alt: imageProps.alt,

@@ -62,6 +62,25 @@ const testSnippet = async (testName, snippetName, content, callback) => {
   }
 };
 
+/**
+ * Run a snippet_data filter test.
+ * Handles temp dir creation, optional snippet file creation, and cleanup.
+ */
+const testSnippetData = (testName, snippetName, content, callback) => {
+  const { tempDir, snippetsDir } = createTempSnippetsDir(testName);
+  try {
+    if (content !== null) {
+      fs.writeFileSync(`${snippetsDir}/${snippetName}.md`, content);
+    }
+    const mockConfig = createConfiguredMock();
+    withMockedCwd(tempDir, () => {
+      callback(mockConfig.filters.snippet_data(snippetName));
+    });
+  } finally {
+    cleanupTempDir(tempDir);
+  }
+};
+
 describe("file-utils", () => {
   describe("configureFileUtils", () => {
     test("Registers all expected filters and shortcodes", () => {
@@ -70,6 +89,7 @@ describe("file-utils", () => {
 
       expect(typeof mockConfig.filters.file_exists).toBe("function");
       expect(typeof mockConfig.filters.file_missing).toBe("function");
+      expect(typeof mockConfig.filters.snippet_data).toBe("function");
       expect(typeof mockConfig.filters.escape_html).toBe("function");
       expect(typeof mockConfig.asyncShortcodes.render_snippet).toBe("function");
       expect(typeof mockConfig.shortcodes.read_file).toBe("function");
@@ -139,6 +159,42 @@ describe("file-utils", () => {
       testWithEmptyDir("read_file-missing", (mockConfig) => {
         expect(mockConfig.shortcodes.read_file("nonexistent.txt")).toBe("");
       });
+    });
+  });
+
+  describe("snippet_data filter", () => {
+    test("Returns frontmatter data from snippet file", () => {
+      const content = `---
+title: Footer
+blocks:
+  - type: markdown
+    content: Hello world
+---
+body content`;
+      testSnippetData("snippet_data-basic", "footer", content, (data) => {
+        expect(data.title).toBe("Footer");
+        expect(Array.isArray(data.blocks)).toBe(true);
+        expect(data.blocks.length).toBe(1);
+        expect(data.blocks[0].type).toBe("markdown");
+        expect(data.blocks[0].content).toBe("Hello world");
+      });
+    });
+
+    test("Returns empty object for missing snippet", () => {
+      testSnippetData("snippet_data-missing", "nonexistent", null, (data) => {
+        expect(data).toEqual({});
+      });
+    });
+
+    test("Returns empty object for snippet with no frontmatter", () => {
+      testSnippetData(
+        "snippet_data-no-frontmatter",
+        "plain",
+        "just some body text",
+        (data) => {
+          expect(data).toEqual({});
+        },
+      );
     });
   });
 
