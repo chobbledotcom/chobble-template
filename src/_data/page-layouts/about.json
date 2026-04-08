@@ -1,46 +1,4 @@
 {
   "label": "About Page",
-  "blocks": [
-    {
-      "type": "section-header",
-      "fields": {
-        "intro": { "type": "markdown", "label": "Section Header Intro" }
-      }
-    },
-    {
-      "type": "features",
-      "fields": {
-        "items": {
-          "type": "object",
-          "list": true,
-          "label": "Features",
-          "fields": {
-            "icon": { "type": "string", "label": "Icon (Iconify ID or HTML entity)" },
-            "title": { "type": "string", "label": "Title", "required": true },
-            "description": { "type": "string", "label": "Description", "required": true }
-          }
-        }
-      }
-    },
-    {
-      "type": "section-header",
-      "fields": {
-        "intro": { "type": "markdown", "label": "Section Header Intro" }
-      }
-    },
-    {
-      "type": "stats",
-      "fields": {
-        "items": {
-          "type": "object",
-          "list": true,
-          "label": "Statistics",
-          "fields": {
-            "value": { "type": "string", "label": "Value", "required": true },
-            "label": { "type": "string", "label": "Label", "required": true }
-          }
-        }
-      }
-    }
-  ]
+  "blocks": ["section-header", "features", "stats"]
 }

@@ -66,7 +66,7 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = frozenSet([
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:154", // createExtractor accumulates results in a Set
+  "test/test-utils.js:158", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
@@ -226,8 +226,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/public/ui/nav-dropdown.js:initNavDropdown",
 
   // Utility functions - tested for shared logic
-  "src/_lib/utils/block-schema.js:BLOCK_DOCS", // Documentation exported for test verification and script generation
-  "src/_lib/utils/block-schema.js:BLOCK_SCHEMAS", // Schema definitions exported for test verification
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
 

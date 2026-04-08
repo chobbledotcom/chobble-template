@@ -116,6 +116,288 @@ const BLOCK_SCHEMAS = {
 };
 
 /**
+ * CMS field definitions for block types exposed in Pages CMS.
+ *
+ * This is the single source of truth for the shape of CMS components generated
+ * for each block type. Not every block type in BLOCK_SCHEMAS is exposed in the
+ * CMS (e.g. `markdown`, `html`, `content`, `include`, `properties`,
+ * `guide-categories`, `image-background`, `link-button`, `reviews`, `gallery`,
+ * `bunny-video-background`, `image-cards` are rendered by the template engine
+ * but aren't editable through the CMS).
+ *
+ * Every top-level key must be listed in BLOCK_SCHEMAS for the same block type
+ * (or in COMMON_BLOCK_KEYS). This invariant is enforced by
+ * test/unit/utils/block-schema.test.js.
+ *
+ * Field shape mirrors the format consumed by scripts/customise-cms/generator.js
+ * (schemaFieldToCmsField): `type` is one of "string", "number", "boolean",
+ * "image", "object", "markdown", "reference"; `label` is a human-readable UI
+ * string; object fields use a nested `fields` object; `list: true` marks
+ * repeating values.
+ *
+ * @type {Record<string, Record<string, object>>}
+ */
+const BLOCK_CMS_FIELDS = {
+  "section-header": {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    intro: { type: "markdown", label: "Section Header Intro" },
+  },
+  features: {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    grid_class: { type: "string", label: "Grid Class" },
+    heading_level: { type: "number", label: "Heading Level" },
+    header_intro: { type: "markdown", label: "Header Intro" },
+    items: {
+      type: "object",
+      list: true,
+      label: "Features",
+      fields: {
+        icon: { type: "string", label: "Icon (Iconify ID or HTML entity)" },
+        title: { type: "string", label: "Title", required: true },
+        description: { type: "string", label: "Description", required: true },
+        style: { type: "string", label: "Custom Style" },
+      },
+    },
+  },
+  stats: {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    items: {
+      type: "object",
+      list: true,
+      label: "Statistics",
+      fields: {
+        value: { type: "string", label: "Value", required: true },
+        label: { type: "string", label: "Label", required: true },
+      },
+    },
+  },
+  "code-block": {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    filename: { type: "string", label: "Filename", required: true },
+    code: { type: "string", label: "Code", required: true },
+    language: { type: "string", label: "Language" },
+  },
+  hero: {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    class: { type: "string", label: "CSS Class" },
+    badge: { type: "string", label: "Badge Text" },
+    title: { type: "string", label: "Title", required: true },
+    lead: { type: "string", label: "Lead Text" },
+    buttons: {
+      type: "object",
+      list: true,
+      label: "Buttons",
+      fields: {
+        text: { type: "string", label: "Button Text", required: true },
+        href: { type: "string", label: "URL", required: true },
+        variant: { type: "string", label: "Variant" },
+        size: { type: "string", label: "Size" },
+      },
+    },
+  },
+  "video-background": {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    video_id: { type: "string", label: "Video Embed URL", required: true },
+    video_title: { type: "string", label: "Video Title" },
+    aspect_ratio: { type: "string", label: "Aspect Ratio" },
+    thumbnail_url: { type: "string", label: "Thumbnail URL" },
+    class: { type: "string", label: "CSS Class" },
+    content: { type: "markdown", label: "Overlay Content" },
+  },
+  "split-full": {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    variant: { type: "string", label: "Variant" },
+    title_level: { type: "number", label: "Heading Level" },
+    reveal_left: { type: "string", label: "Reveal Left Animation" },
+    reveal_right: { type: "string", label: "Reveal Right Animation" },
+    left_title: { type: "string", label: "Left Title" },
+    left_content: { type: "markdown", label: "Left Content" },
+    left_button: {
+      type: "object",
+      label: "Left Button",
+      fields: {
+        text: { type: "string", label: "Button Text", required: true },
+        href: { type: "string", label: "URL", required: true },
+        variant: { type: "string", label: "Variant" },
+      },
+    },
+    right_title: { type: "string", label: "Right Title" },
+    right_content: { type: "markdown", label: "Right Content" },
+    right_button: {
+      type: "object",
+      label: "Right Button",
+      fields: {
+        text: { type: "string", label: "Button Text", required: true },
+        href: { type: "string", label: "URL", required: true },
+        variant: { type: "string", label: "Variant" },
+      },
+    },
+  },
+  split: {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    title: { type: "string", label: "Title" },
+    title_level: { type: "number", label: "Heading Level" },
+    subtitle: { type: "string", label: "Subtitle" },
+    reverse: { type: "boolean", label: "Reverse Layout" },
+    reveal_content: { type: "string", label: "Reveal Content Animation" },
+    reveal_figure: { type: "string", label: "Reveal Figure Animation" },
+    content: { type: "markdown", label: "Content" },
+    button: {
+      type: "object",
+      label: "Button",
+      fields: {
+        text: { type: "string", label: "Button Text", required: true },
+        href: { type: "string", label: "URL", required: true },
+        variant: { type: "string", label: "Variant" },
+        size: { type: "string", label: "Size" },
+      },
+    },
+    figure_type: {
+      type: "string",
+      label: "Figure Type (image, video, code, html)",
+    },
+    figure_src: { type: "image", label: "Figure Image" },
+    figure_alt: { type: "string", label: "Figure Alt Text" },
+    figure_caption: { type: "string", label: "Figure Caption" },
+    figure_video_id: { type: "string", label: "Figure Video ID or URL" },
+    figure_filename: { type: "string", label: "Figure Code Filename" },
+    figure_code: { type: "string", label: "Figure Code Content" },
+    figure_language: { type: "string", label: "Figure Code Language" },
+    figure_html: { type: "markdown", label: "Figure HTML Content" },
+  },
+  cta: {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    title: { type: "string", label: "Title", required: true },
+    description: { type: "string", label: "Description" },
+    button: {
+      type: "object",
+      label: "Button",
+      fields: {
+        text: { type: "string", label: "Button Text", required: true },
+        href: { type: "string", label: "URL", required: true },
+        variant: { type: "string", label: "Variant" },
+        size: { type: "string", label: "Size" },
+      },
+    },
+  },
+  items: {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    collection: { type: "string", label: "Collection Name", required: true },
+    intro: { type: "markdown", label: "Intro Content (Markdown)" },
+    horizontal: { type: "boolean", label: "Horizontal Slider" },
+    masonry: { type: "boolean", label: "Masonry Grid" },
+    header_intro: { type: "markdown", label: "Header Intro" },
+    filter: {
+      type: "object",
+      label: "Filter",
+      fields: {
+        property: { type: "string", label: "Property (e.g. url, data.title)" },
+        includes: { type: "string", label: "Contains" },
+        equals: { type: "string", label: "Equals" },
+      },
+    },
+  },
+  items_array: {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    collection: { type: "string", label: "Collection Name", required: true },
+    items: {
+      type: "reference",
+      label: "Items",
+      collection: "pages",
+      search: "title",
+      multiple: true,
+    },
+    intro: { type: "markdown", label: "Intro Content (Markdown)" },
+    horizontal: { type: "boolean", label: "Horizontal Slider" },
+    masonry: { type: "boolean", label: "Masonry Grid" },
+    header_intro: { type: "markdown", label: "Header Intro" },
+    filter: {
+      type: "object",
+      label: "Filter",
+      fields: {
+        property: { type: "string", label: "Property (e.g. url, data.title)" },
+        includes: { type: "string", label: "Contains" },
+        equals: { type: "string", label: "Equals" },
+      },
+    },
+  },
+  icon_links: {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    intro: { type: "markdown", label: "Intro Content (Markdown)" },
+    items: {
+      type: "object",
+      list: true,
+      label: "Links",
+      fields: {
+        icon: {
+          type: "string",
+          label: "Icon (Iconify ID or HTML entity)",
+          required: true,
+        },
+        text: { type: "string", label: "Link Text", required: true },
+        url: { type: "string", label: "URL" },
+      },
+    },
+  },
+  contact_form: {
+    container_width: {
+      type: "string",
+      label: "Container Width (full, wide, narrow)",
+    },
+    section_class: { type: "string", label: "Section Class" },
+    content: { type: "markdown", label: "Content" },
+  },
+};
+
+/**
  * Documentation metadata for each block type.
  * Used by scripts/generate-blocks-reference.js to auto-generate BLOCKS_LAYOUT.md.
  *
@@ -890,4 +1172,10 @@ const validateBlocks = (blocks, context = "") => {
   }
 };
 
-export { BLOCK_DOCS, BLOCK_SCHEMAS, validateBlock, validateBlocks };
+export {
+  BLOCK_CMS_FIELDS,
+  BLOCK_DOCS,
+  BLOCK_SCHEMAS,
+  validateBlock,
+  validateBlocks,
+};
