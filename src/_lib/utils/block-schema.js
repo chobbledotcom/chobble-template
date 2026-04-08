@@ -145,8 +145,6 @@ const md = (label) => ({ type: "markdown", label });
 const num = (label) => ({ type: "number", label });
 /** @param {string} label */
 const bool = (label) => ({ type: "boolean", label });
-/** @param {string} label */
-const imageField = (label) => ({ type: "image", label });
 /** @param {string} label @param {Record<string, object>} fields */
 const objectList = (label, fields) => ({
   type: "object",
@@ -263,7 +261,7 @@ const BLOCK_CMS_FIELDS = {
     content: md("Content"),
     button: objectField("Button", BUTTON_FIELDS_WITH_SIZE),
     figure_type: str("Figure Type (image, video, code, html)"),
-    figure_src: imageField("Figure Image"),
+    figure_src: { type: "image", label: "Figure Image" },
     figure_alt: str("Figure Alt Text"),
     figure_caption: str("Figure Caption"),
     figure_video_id: str("Figure Video ID or URL"),
