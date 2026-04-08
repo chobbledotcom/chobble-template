@@ -40,7 +40,11 @@ describe("resolveContactFormFieldsForPage", () => {
         showOnCurrentItemTag: true,
         template: "form-field-textarea.html",
       },
-      { name: "message", label: "Message", template: "form-field-textarea.html" },
+      {
+        name: "message",
+        label: "Message",
+        template: "form-field-textarea.html",
+      },
     ],
   };
 
