@@ -39,15 +39,9 @@ Usage:
   {%- for item in block.items -%}
   <li{% if reveal %} data-reveal{% endif %}>
     {%- if item.image -%}
-      {%- if item.link -%}
-        <a class="image-link" href="{{ item.link }}" aria-hidden="true" tabindex="-1">
-          {%- image item.image, "", "", "", "", block.image_aspect_ratio -%}
-        </a>
-      {%- else -%}
-        <div class="image-link">
-          {%- image item.image, "", "", "", "", block.image_aspect_ratio -%}
-        </div>
-      {%- endif -%}
+      <a class="image-link" href="{{ item.link | default: item.image }}">
+        {%- image item.image, "", "", "", "", block.image_aspect_ratio -%}
+      </a>
     {%- endif -%}
     <h{{ heading_level }}>
       {%- if item.link -%}
