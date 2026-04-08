@@ -30,6 +30,19 @@ export const firstWhitelistMatch = (tagList, whitelist) => {
  * @param {boolean} [skipShowOn]
  * @returns {object[]}
  */
+const resolveFieldForPage = (field, tagList, match, skipShowOn) => {
+  if (field.showOn) {
+    if (skipShowOn || !tagList.includes(field.showOn)) return [];
+    return [field];
+  }
+  if (field.showOnCurrentItemTag) {
+    if (!match) return [];
+    const { showOnCurrentItemTag, ...rest } = field;
+    return [{ ...rest, label: match.label, name: match.name }];
+  }
+  return [field];
+};
+
 export const resolveContactFormFieldsForPage = (
   contactForm,
   tags,
@@ -40,20 +53,9 @@ export const resolveContactFormFieldsForPage = (
     tagList,
     contactForm.currentItemTagLabelWhitelist,
   );
-
-  return contactForm.fields.flatMap((field) => {
-    if (field.showOn) {
-      return skipShowOn || !tagList.includes(field.showOn) ? [] : [field];
-    }
-    if (field.showOnCurrentItemTag) {
-      if (!match) {
-        return [];
-      }
-      const { showOnCurrentItemTag, ...rest } = field;
-      return [{ ...rest, label: match.label, name: match.name }];
-    }
-    return [field];
-  });
+  return contactForm.fields.flatMap((field) =>
+    resolveFieldForPage(field, tagList, match, skipShowOn),
+  );
 };
 
 const FIELD_TYPE_TEMPLATES = frozenObject({
