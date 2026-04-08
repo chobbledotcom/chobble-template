@@ -14,14 +14,14 @@ const fieldNameFromLabel = (label) => label.toLowerCase().replace(/\s+/g, "_");
  * @param {Record<string, string>} whitelist
  * @returns {{ tag: string; label: string; name: string } | null}
  */
-export const firstWhitelistMatch = (tagList, whitelist) => {
+export function firstWhitelistMatch(tagList, whitelist) {
   for (const [tag, label] of Object.entries(whitelist)) {
     if (tagList.includes(tag)) {
       return { tag, label, name: fieldNameFromLabel(label) };
     }
   }
   return null;
-};
+}
 
 /**
  * Resolves visibility and dynamic labels for contact form fields from page tags.
@@ -43,11 +43,11 @@ const resolveFieldForPage = (field, tagList, match, skipShowOn) => {
   return [field];
 };
 
-export const resolveContactFormFieldsForPage = (
+export function resolveContactFormFieldsForPage(
   contactForm,
   tags,
   skipShowOn = false,
-) => {
+) {
   const tagList = Array.isArray(tags) ? tags : [];
   const match = firstWhitelistMatch(
     tagList,
@@ -56,7 +56,7 @@ export const resolveContactFormFieldsForPage = (
   return contactForm.fields.flatMap((field) =>
     resolveFieldForPage(field, tagList, match, skipShowOn),
   );
-};
+}
 
 const FIELD_TYPE_TEMPLATES = frozenObject({
   textarea: "form-field-textarea.html",
