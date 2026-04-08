@@ -7,7 +7,7 @@
         email_from_suffix: "contact form",
         email_subject: "New message from {site_name} website contact form"
     -%}
-    {%- include "form-fields.html" -%}
+    {%- include "form-fields.html", fields: fields_override -%}
     <button type="submit">{{ contactForm.submitButtonText }}</button>
   </form>
 {%- else -%}
