@@ -306,7 +306,24 @@ const findHtmlInJs = (source) =>
 const htmlInJsAnalysis = withAllowlist({
   find: findHtmlInJs,
   allowlist: new Set([
-    "src/_lib/utils/block-schema.js", // htmlRoot documentation strings describe template markup
+    // htmlRoot documentation strings in block schema modules describe template markup
+    "src/_lib/utils/block-schema/shared.js",
+    "src/_lib/utils/block-schema/bunny-video-background.js",
+    "src/_lib/utils/block-schema/code-block.js",
+    "src/_lib/utils/block-schema/contact-form.js",
+    "src/_lib/utils/block-schema/cta.js",
+    "src/_lib/utils/block-schema/custom-contact-form.js",
+    "src/_lib/utils/block-schema/features.js",
+    "src/_lib/utils/block-schema/hero.js",
+    "src/_lib/utils/block-schema/icon-links.js",
+    "src/_lib/utils/block-schema/image-background.js",
+    "src/_lib/utils/block-schema/link-button.js",
+    "src/_lib/utils/block-schema/markdown.js",
+    "src/_lib/utils/block-schema/section-header.js",
+    "src/_lib/utils/block-schema/split.js",
+    "src/_lib/utils/block-schema/split-full.js",
+    "src/_lib/utils/block-schema/stats.js",
+    "src/_lib/utils/block-schema/video-background.js",
   ]),
   files: () => SRC_JS_FILES(),
 });
