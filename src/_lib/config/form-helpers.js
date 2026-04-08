@@ -23,13 +23,6 @@ export function firstWhitelistMatch(tagList, whitelist) {
   return null;
 }
 
-/**
- * Resolves visibility and dynamic labels for contact form fields from page tags.
- * @param {ContactFormData} contactForm
- * @param {readonly string[] | undefined} tags Page tags from Eleventy (may be absent on non-item pages).
- * @param {boolean} [skipShowOn]
- * @returns {object[]}
- */
 const resolveFieldForPage = (field, tagList, match, skipShowOn) => {
   if (field.showOn) {
     if (skipShowOn || !tagList.includes(field.showOn)) return [];
@@ -43,6 +36,13 @@ const resolveFieldForPage = (field, tagList, match, skipShowOn) => {
   return [field];
 };
 
+/**
+ * Resolves visibility and dynamic labels for contact form fields from page tags.
+ * @param {ContactFormData} contactForm
+ * @param {readonly string[] | undefined} tags Page tags from Eleventy (may be absent on non-item pages).
+ * @param {boolean} [skipShowOn]
+ * @returns {object[]}
+ */
 export function resolveContactFormFieldsForPage(
   contactForm,
   tags,
