@@ -39,6 +39,18 @@ blocks:
 
       Add auto-playing video backgrounds with overlay text to any section.
 
+  # YouTube Video Background Demo
+  - type: video-background
+    container_width: full
+    video_id: dQw4w9WgXcQ
+    video_title: YouTube Background Demo
+    aspect_ratio: "21/9"
+    content: |
+      ## YouTube Video Backgrounds
+
+      The same block accepts a YouTube video ID and renders a muted,
+      autoplaying, looped background embed via `youtube-nocookie.com`.
+
   # Product Sliders
   - type: items
     collection: featuredProducts
