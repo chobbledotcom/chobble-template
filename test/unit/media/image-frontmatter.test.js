@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { getFirstValidImage, isValidImage } from "#media/image-frontmatter.js";
+import {
+  getFirstValidImage,
+  isValidImage,
+  toAbsoluteImageUrl,
+} from "#media/image-frontmatter.js";
 import { createTempFile, fs, path, withTempDir } from "#test/test-utils.js";
 
 /**
@@ -18,6 +22,30 @@ const withImageTestDir = (name, filenames, callback) =>
   });
 
 describe("image-frontmatter", () => {
+  describe("toAbsoluteImageUrl", () => {
+    test("keeps rooted image paths unchanged", () => {
+      expect(toAbsoluteImageUrl("/images/example.jpg")).toBe(
+        "/images/example.jpg",
+      );
+    });
+
+    test("normalizes images/ path to rooted /images/ path", () => {
+      expect(toAbsoluteImageUrl("images/example.jpg")).toBe(
+        "/images/example.jpg",
+      );
+    });
+
+    test("normalizes bare filename to /images/ path", () => {
+      expect(toAbsoluteImageUrl("example.jpg")).toBe("/images/example.jpg");
+    });
+
+    test("keeps external URLs unchanged", () => {
+      expect(toAbsoluteImageUrl("https://example.com/image.jpg")).toBe(
+        "https://example.com/image.jpg",
+      );
+    });
+  });
+
   describe("isValidImage", () => {
     test("returns false for null", () => {
       expect(isValidImage(null)).toBe(false);
