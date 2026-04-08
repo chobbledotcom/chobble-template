@@ -27,7 +27,6 @@ import { configureItemFilterData } from "#eleventy/item-filter-data.js";
 import { configureCollectionValidation } from "#eleventy/validate-collections.js";
 // Eleventy plugins
 import { configureCacheBuster } from "#eleventy/cache-buster.js";
-import { configureCachedBlock } from "#eleventy/cached-block.js";
 import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
 import { configureCollectionFilter } from "#eleventy/collection-filter.js";
 import { configureCapture } from "#eleventy/capture.js";
@@ -74,9 +73,6 @@ export default async function (eleventyConfig) {
 
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
-
-  // cachedBlock tag for memoizing expensive template fragments
-  configureCachedBlock(eleventyConfig);
 
   // configureLayoutAliases(eleventyConfig);
 
