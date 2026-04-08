@@ -89,9 +89,12 @@ describe("products", () => {
         taggedCollectionApi({ products: testProducts }),
       );
 
-      expect(result[0].data.gallery).toEqual(["img1.jpg"]);
+      expect(result[0].data.gallery).toEqual(["/images/img1.jpg"]);
       expect(result[1].data.gallery).toBe(undefined);
-      expect(result[2].data.gallery).toEqual(["img3.jpg", "img3b.jpg"]);
+      expect(result[2].data.gallery).toEqual([
+        "/images/img3.jpg",
+        "/images/img3b.jpg",
+      ]);
     });
 
     test("converts object galleries to arrays", () => {
@@ -107,9 +110,9 @@ describe("products", () => {
       );
 
       expect(result[0].data.gallery).toEqual([
-        "image1.jpg",
-        "image2.jpg",
-        "image3.jpg",
+        "/images/image1.jpg",
+        "/images/image2.jpg",
+        "/images/image3.jpg",
       ]);
     });
   });
