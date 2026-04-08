@@ -17,6 +17,12 @@
         {%- render_snippet "right-content" -%}
       </article>
     {%- endif -%}
+    {%- assign footer_snippet_data = "footer-content" | snippet_data -%}
+    {%- if footer_snippet_data.blocks -%}
+      <div class="design-system">
+        {%- include "design-system/blocks.html", blocks: footer_snippet_data.blocks -%}
+      </div>
+    {%- endif -%}
   </main>
   {%- include "footer.html" -%}
   {%- include "theme-switcher.html" -%}
