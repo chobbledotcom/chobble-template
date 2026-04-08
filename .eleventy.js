@@ -27,13 +27,13 @@ import { configureItemFilterData } from "#eleventy/item-filter-data.js";
 import { configureCollectionValidation } from "#eleventy/validate-collections.js";
 // Eleventy plugins
 import { configureCacheBuster } from "#eleventy/cache-buster.js";
-import { configureCachedBlock } from "#eleventy/cached-block.js";
 import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
 import { configureCollectionFilter } from "#eleventy/collection-filter.js";
 import { configureCapture } from "#eleventy/capture.js";
 import { configureFeed } from "#eleventy/feed.js";
 import { configureFileUtils } from "#eleventy/file-utils.js";
 import { configureFormatPrice } from "#eleventy/format-price.js";
+import { configureFormHelpers } from "#eleventy/form-helpers.js";
 import { configureHtmlTransform } from "#eleventy/html-transform.js";
 import { configureICal } from "#eleventy/ical.js";
 import { configureJsConfig } from "#eleventy/js-config.js";
@@ -75,9 +75,6 @@ export default async function (eleventyConfig) {
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
 
-  // cachedBlock tag for memoizing expensive template fragments
-  configureCachedBlock(eleventyConfig);
-
   // configureLayoutAliases(eleventyConfig);
 
   configureAreaList(eleventyConfig);
@@ -94,6 +91,7 @@ export default async function (eleventyConfig) {
   await configureFeed(eleventyConfig);
   configureFileUtils(eleventyConfig);
   configureFormatPrice(eleventyConfig);
+  configureFormHelpers(eleventyConfig);
   configureGuides(eleventyConfig);
   configureHtmlTransform(eleventyConfig, processAndWrapImage);
   configureICal(eleventyConfig);

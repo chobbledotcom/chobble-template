@@ -51,15 +51,9 @@ arr. push(3);
   });
 
   test("No .push() usage in source code", () => {
-    // Liquid tag implementations require streaming token accumulation via .push()
-    // This is the standard liquidjs API pattern for paired tags
-    const LIQUID_TAG_PUSH_ALLOWLIST = frozenSet([
-      "src/_lib/eleventy/cached-block.js:49",
-    ]);
-
     const { violations } = analyzeWithAllowlist({
       findFn: findArrayPush,
-      allowlist: LIQUID_TAG_PUSH_ALLOWLIST,
+      allowlist: frozenSet([]),
       files: SRC_JS_FILES,
     });
 
