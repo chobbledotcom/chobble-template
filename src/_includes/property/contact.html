@@ -1,11 +1,1 @@
-{%- assign _effective_form_target = config.form_target -%}
-{%- if formspark_id and formspark_id != "" -%}
-  {%- assign _effective_form_target = "https://submit-form.com/" | append: formspark_id -%}
-{%- endif -%}
-{%- if _effective_form_target and _effective_form_target != "" -%}
-<section class="compact">
-  <div class="container">
-    {%- include "item-contact-section.html" -%}
-  </div>
-</section>
-{%- endif -%}
+{%- include "item-contact-section.html", section_class: "compact" -%}

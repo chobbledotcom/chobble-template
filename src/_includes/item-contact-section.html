@@ -3,9 +3,11 @@
 {%- endif -%}
 {%- assign _effective_form_target = form_target_override | default: config.form_target -%}
 {%- if _effective_form_target and _effective_form_target != "" -%}
+  {%- if section_class -%}<section class="{{ section_class }}"><div class="container">{%- endif -%}
   <div class="contact">
     <h2>Get in Touch</h2>
     {%- include "contact-form.html" -%}
   </div>
+  {%- if section_class -%}</div></section>{%- endif -%}
 {%- endif -%}
 {%- assign form_target_override = nil -%}
