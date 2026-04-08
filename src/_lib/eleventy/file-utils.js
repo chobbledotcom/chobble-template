@@ -32,6 +32,19 @@ const readFileContent = memoize(
   { cacheKey: cacheKeyFromArgs },
 );
 
+const loadSnippet = (name, baseDir = process.cwd()) => {
+  const snippetPath = path.join(baseDir, "src/snippets", `${name}.md`);
+  return fs.existsSync(snippetPath) ? matter.read(snippetPath) : null;
+};
+
+const readSnippetData = memoize(
+  (name, baseDir = process.cwd()) => {
+    const parsed = loadSnippet(name, baseDir);
+    return parsed ? parsed.data : {};
+  },
+  { cacheKey: cacheKeyFromArgs },
+);
+
 const renderSnippet = memoize(
   async (
     name,
@@ -39,11 +52,8 @@ const renderSnippet = memoize(
     baseDir = process.cwd(),
     mdRenderer = new markdownIt({ html: true }),
   ) => {
-    const snippetPath = path.join(baseDir, "src/snippets", `${name}.md`);
-
-    if (!fs.existsSync(snippetPath)) return defaultString;
-
-    const rawContent = matter.read(snippetPath).content;
+    const parsed = loadSnippet(name, baseDir);
+    if (!parsed) return defaultString;
 
     // Preprocess liquid shortcodes using pure functional transformations
     const replaceIfPresent = async (content, pattern, getHtml) =>
@@ -52,7 +62,7 @@ const renderSnippet = memoize(
         : content;
 
     const withOpening = await replaceIfPresent(
-      rawContent,
+      parsed.content,
       "{% opening_times %}",
       getOpeningTimesHtml,
     );
@@ -73,6 +83,8 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addFilter("file_exists", (name) => fileExists(name));
 
   eleventyConfig.addFilter("file_missing", (name) => !fileExists(name));
+
+  eleventyConfig.addFilter("snippet_data", (name) => readSnippetData(name));
 
   eleventyConfig.addFilter("escape_html", (str) =>
     str
