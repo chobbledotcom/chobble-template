@@ -1,5 +1,6 @@
 import { RenderPlugin } from "@11ty/eleventy";
 import schemaPlugin from "@quasibit/eleventy-plugin-schema";
+import config from "#data/config.json" with { type: "json" };
 
 // Build tools
 import { configureJsBundler } from "#build/js-bundler.js";
@@ -61,6 +62,9 @@ import { configureUnusedImages } from "#media/unused-images.js";
 export default async function (eleventyConfig) {
   eleventyConfig.addWatchTarget("./src/**/*");
   eleventyConfig.setLayoutsDirectory("_layouts");
+  if (!config.disable_liquid_cache) {
+    eleventyConfig.setLiquidOptions({ cache: true });
+  }
   eleventyConfig
     .addPassthroughCopy("src/assets")
     .addPassthroughCopy("src/images")
