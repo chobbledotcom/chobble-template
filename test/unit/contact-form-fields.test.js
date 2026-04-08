@@ -50,7 +50,9 @@ describe("resolveContactFormFieldsForPage", () => {
   });
 
   test("applies whitelist label and derived name for showOnCurrentItemTag", () => {
-    const out = resolveContactFormFieldsForPage(baseContactForm, ["categories"]);
+    const out = resolveContactFormFieldsForPage(baseContactForm, [
+      "categories",
+    ]);
     const itemField = out.find((f) => f.name === "category");
     expect(itemField).toEqual(
       expect.objectContaining({
