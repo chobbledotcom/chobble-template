@@ -14,9 +14,9 @@ Parameters (via block object):
       <li>
         {%- assign image = item.image -%}
         {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-        <div class="image-link">
+        <a class="image-link" href="{{ item.image }}">
           {%- image item.image, alt_text, "", "", "", block.aspect_ratio -%}
-        </div>
+        </a>
         {%- if item.caption -%}
           <p>{{ item.caption }}</p>
         {%- endif -%}
