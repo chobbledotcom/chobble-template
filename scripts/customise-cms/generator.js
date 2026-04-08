@@ -6,7 +6,6 @@
  */
 
 import YAML from "yaml";
-import pageLayouts from "#data/pageLayouts.js";
 import { getCollection } from "#scripts/customise-cms/collections.js";
 import {
   COMMON_FIELDS,
@@ -194,6 +193,10 @@ const getCollectionFieldBuilders = (config, fields) => ({
       { name: "layout", type: "string" },
       config.features.no_index && COMMON_FIELDS.no_index,
       config.features.videos && VIDEOS_FIELD,
+      generateBlocksField(
+        Object.keys(BLOCK_CMS_FIELDS),
+        config.features.use_visual_editor,
+      ),
     ]),
 
   categories: () => {
@@ -671,13 +674,6 @@ const generateCollectionConfig = (collectionName, config, fieldContext) => {
     collectionConfig.view = viewConfig;
   }
 
-  if (collectionName === "pages") {
-    const pageLayoutSlugs = Object.keys(pageLayouts);
-    if (pageLayoutSlugs.length > 0) {
-      collectionConfig.exclude = pageLayoutSlugs.map((slug) => `${slug}.md`);
-    }
-  }
-
   collectionConfig.fields = buildCollectionFields(
     collectionName,
     config,
@@ -857,13 +853,6 @@ const getAltTagsConfig = (dataPath) => ({
 });
 
 /**
- * Get page layout schemas from pageLayouts data
- * @returns {Array<{slug: string, schema: object}>} Array of page layout definitions
- */
-const getPageLayoutSchemas = () =>
-  Object.entries(pageLayouts).map(([slug, schema]) => ({ slug, schema }));
-
-/**
  * Convert a non-markdown schema field to a generic CMS field
  * @param {string} name - Field name
  * @param {object} fieldSchema - Field schema from JSON
@@ -1002,33 +991,6 @@ const generateBlocksField = (blockTypes, useVisualEditor) => ({
 });
 
 /**
- * Generate page layout configuration for CMS
- * Edits the markdown file's front matter blocks, using the block list from JSON
- * @param {string} slug - Page slug
- * @param {object} schema - Layout schema with `label` and `blocks` (string[])
- * @param {FieldContext} fieldContext - Precomputed fields
- * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} Collection configuration for this page layout
- */
-const generatePageLayoutConfig = (
-  slug,
-  schema,
-  fieldContext,
-  useVisualEditor,
-) => ({
-  name: `page-${slug}`,
-  label: schema.label,
-  type: "file",
-  path: `src/pages/${slug}.md`,
-  fields: [
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
-    generateBlocksField(schema.blocks, useVisualEditor),
-    fieldContext.body,
-  ],
-});
-
-/**
  * Extract a component definition from a field, stripping internal markers
  * @param {CmsField} field - Field with _componentName
  * @returns {object} Component definition (field without name and _componentName)
@@ -1126,17 +1088,9 @@ export const generatePagesYaml = (config) => {
   const dataPath = getDataPath(hasSrcFolder);
   const imagesPath = hasSrcFolder ? "src/images" : "images";
 
-  // Load page layout schemas and generate their configs
-  const pageLayoutSchemas = getPageLayoutSchemas();
-  const useVisualEditor = config.features.use_visual_editor;
-  const pageLayoutConfigs = pageLayoutSchemas.map(({ slug, schema }) =>
-    generatePageLayoutConfig(slug, schema, fieldContext, useVisualEditor),
-  );
-
   // Build content array, conditionally including homepage
   const contentArray = [
     ...collectionConfigs,
-    ...pageLayoutConfigs,
     ...(customHomePage ? [] : [getHomepageConfig(dataPath)]),
     getSiteConfig(dataPath),
     getMetaConfig(dataPath),

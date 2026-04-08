@@ -26,11 +26,7 @@ const RATCHET_MIN_TOKENS = CURRENT_MIN_TOKENS - 1;
 
 // Paths matching the cpd script in package.json
 const paths = ["src/_lib", "src/_data", "scripts", "packages"];
-const ignorePatterns = [
-  "**/index.js",
-  "**/page-layouts/**",
-  "**/customise-cms/**",
-];
+const ignorePatterns = ["**/index.js", "**/customise-cms/**"];
 
 // Resolve jscpd from node_modules (not in system PATH)
 const jscpdBin = join(ROOT_DIR, "node_modules", ".bin", "jscpd");

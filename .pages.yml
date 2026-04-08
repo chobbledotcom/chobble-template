@@ -27,46 +27,6 @@ components:
     fields:
       - { name: id, type: string, label: YouTube Video ID, required: true }
       - { name: title, type: string, label: Title, required: true }
-  faqs:
-    label: FAQs
-    type: object
-    list: true
-    fields:
-      - { name: question, type: string, label: Question, required: true }
-      - { name: answer, type: string, label: Answer, required: true }
-  gallery:
-    type: image
-    label: Gallery
-    options:
-      multiple: true
-  specs:
-    label: Specifications
-    type: object
-    list: true
-    fields:
-      - { name: name, type: string, label: Name, required: true }
-      - { name: value, type: string, label: Value, required: true }
-  tabs:
-    label: Tabs
-    type: object
-    list: true
-    fields:
-      - { name: title, type: string, label: Title, required: true }
-      - { name: image, type: image, label: Image }
-      - { name: body, type: rich-text, label: Body, required: true }
-  products_list:
-    label: Products
-    type: object
-    list: true
-    fields:
-      - name: product
-        label: Product
-        type: reference
-        options:
-          collection: products
-          search: primary
-          value: "{path}"
-          label: "{primary}"
   block_section_header:
     label: Section Header
     type: object
@@ -101,17 +61,6 @@ components:
             label: Description
             required: true
           - { name: style, type: string, label: Custom Style }
-  block_code_block:
-    label: Code Block
-    type: object
-    fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
-      - { name: filename, type: string, label: Filename, required: true }
-      - { name: code, type: string, label: Code, required: true }
-      - { name: language, type: string, label: Language }
   block_stats:
     label: Stats
     type: object
@@ -127,6 +76,17 @@ components:
         fields:
           - { name: value, type: string, label: Value, required: true }
           - { name: label, type: string, label: Label, required: true }
+  block_code_block:
+    label: Code Block
+    type: object
+    fields:
+      - name: container_width
+        type: string
+        label: Container Width (full, wide, narrow)
+      - { name: section_class, type: string, label: Section Class }
+      - { name: filename, type: string, label: Filename, required: true }
+      - { name: code, type: string, label: Code, required: true }
+      - { name: language, type: string, label: Language }
   block_hero:
     label: Hero
     type: object
@@ -226,6 +186,24 @@ components:
       - { name: figure_code, type: string, label: Figure Code Content }
       - { name: figure_language, type: string, label: Figure Code Language }
       - { name: figure_html, type: rich-text, label: Figure HTML Content }
+  block_cta:
+    label: Cta
+    type: object
+    fields:
+      - name: container_width
+        type: string
+        label: Container Width (full, wide, narrow)
+      - { name: section_class, type: string, label: Section Class }
+      - { name: title, type: string, label: Title, required: true }
+      - { name: description, type: string, label: Description }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
   block_items:
     label: Items
     type: object
@@ -314,24 +292,46 @@ components:
         label: Container Width (full, wide, narrow)
       - { name: section_class, type: string, label: Section Class }
       - { name: content, type: rich-text, label: Content }
-  block_cta:
-    label: Cta
+  faqs:
+    label: FAQs
     type: object
+    list: true
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: question, type: string, label: Question, required: true }
+      - { name: answer, type: string, label: Answer, required: true }
+  gallery:
+    type: image
+    label: Gallery
+    options:
+      multiple: true
+  specs:
+    label: Specifications
+    type: object
+    list: true
+    fields:
+      - { name: name, type: string, label: Name, required: true }
+      - { name: value, type: string, label: Value, required: true }
+  tabs:
+    label: Tabs
+    type: object
+    list: true
+    fields:
       - { name: title, type: string, label: Title, required: true }
-      - { name: description, type: string, label: Description }
-      - name: button
-        type: object
-        label: Button
-        fields:
-          - { name: text, type: string, label: Button Text, required: true }
-          - { name: href, type: string, label: URL, required: true }
-          - { name: variant, type: string, label: Variant }
-          - { name: size, type: string, label: Size }
+      - { name: image, type: image, label: Image }
+      - { name: body, type: rich-text, label: Body, required: true }
+  products_list:
+    label: Products
+    type: object
+    list: true
+    fields:
+      - name: product
+        label: Product
+        type: reference
+        options:
+          collection: products
+          search: primary
+          value: "{path}"
+          label: "{primary}"
 content:
   - name: pages
     label: Pages
@@ -346,10 +346,6 @@ content:
       primary: meta_title
       sort:
         - meta_title
-    exclude:
-      - services.md
-      - chobble-template.md
-      - about.md
     fields:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Body }
@@ -364,6 +360,25 @@ content:
       - { name: layout, type: string }
       - { name: no_index, type: boolean, label: Hide from listings }
       - { name: videos, component: videos }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: video-background, component: block_video_background }
+          - { name: split-full, component: block_split_full }
+          - { name: split, component: block_split }
+          - { name: cta, component: block_cta }
+          - { name: items, component: block_items }
+          - { name: items_array, component: block_items_array }
+          - { name: icon_links, component: block_icon_links }
+          - { name: contact_form, component: block_contact_form }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
@@ -783,66 +798,6 @@ content:
     filename: "{primary}.md"
     fields:
       - { name: name, type: string, label: Name }
-      - { name: body, type: rich-text, label: Body }
-  - name: page-services
-    label: Services Page
-    type: file
-    path: src/pages/services.md
-    fields:
-      - { name: meta_title, component: meta_title }
-      - { name: meta_description, component: meta_description }
-      - name: blocks
-        label: Content Blocks
-        type: block
-        list: true
-        blockKey: type
-        blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: code-block, component: block_code_block }
-          - { name: stats, component: block_stats }
-      - { name: body, type: rich-text, label: Body }
-  - name: page-chobble-template
-    label: Chobble Template Page
-    type: file
-    path: src/pages/chobble-template.md
-    fields:
-      - { name: meta_title, component: meta_title }
-      - { name: meta_description, component: meta_description }
-      - name: blocks
-        label: Content Blocks
-        type: block
-        list: true
-        blockKey: type
-        blocks:
-          - { name: hero, component: block_hero }
-          - { name: video-background, component: block_video_background }
-          - { name: stats, component: block_stats }
-          - { name: features, component: block_features }
-          - { name: split-full, component: block_split_full }
-          - { name: split, component: block_split }
-          - { name: items, component: block_items }
-          - { name: items_array, component: block_items_array }
-          - { name: icon_links, component: block_icon_links }
-          - { name: contact_form, component: block_contact_form }
-          - { name: cta, component: block_cta }
-      - { name: body, type: rich-text, label: Body }
-  - name: page-about
-    label: About Page
-    type: file
-    path: src/pages/about.md
-    fields:
-      - { name: meta_title, component: meta_title }
-      - { name: meta_description, component: meta_description }
-      - name: blocks
-        label: Content Blocks
-        type: block
-        list: true
-        blockKey: type
-        blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: stats, component: block_stats }
       - { name: body, type: rich-text, label: Body }
   - name: homepage
     label: Homepage Settings

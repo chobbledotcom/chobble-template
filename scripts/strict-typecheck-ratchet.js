@@ -41,7 +41,6 @@ const STRICT_CLEAN_FILES = [
   "src/_data/eleventyComputed.js",
   "src/_data/listItemFields.js",
   "src/_data/metaComputed.js",
-  "src/_data/pageLayouts.js",
   "src/_data/production.js",
   "src/_data/propertyOrder.js",
   "src/_data/quote-fields.js",
