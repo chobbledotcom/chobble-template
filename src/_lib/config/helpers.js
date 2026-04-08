@@ -26,6 +26,7 @@ const DEFAULTS = frozenObject({
   reviews_truncate_limit: 10,
   rating_stars_uses_svg: false,
   list_item_fields: ["link", "subtitle", "thumbnail"],
+  nav_thumbnails: false,
   navigation_content_anchor: false,
   category_order: null,
   property_order: null,

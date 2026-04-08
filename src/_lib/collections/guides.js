@@ -1,12 +1,8 @@
 import { addDataFilter } from "#eleventy/add-data-filter.js";
-import { createFieldIndexer, createIndexer } from "#utils/collection-utils.js";
-import { normaliseSlug } from "#utils/slug-utils.js";
+import { createFieldIndexer } from "#utils/collection-utils.js";
 
 /** Index guides by category for O(1) lookups, cached per guides array */
-const indexByGuideCategory = createIndexer((page) => {
-  const raw = page.data["guide-category"];
-  return raw ? [normaliseSlug(raw)] : [];
-});
+const indexByGuideCategory = createFieldIndexer("guide-category");
 
 /** Index guide categories by property for O(1) lookups */
 const indexByProperty = createFieldIndexer("property");

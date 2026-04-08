@@ -4,7 +4,7 @@
     {
       "type": "hero",
       "fields": {
-        "full_width": { "type": "boolean", "label": "Full Width" },
+        "container_width": { "type": "string", "label": "Container Width (full, wide, narrow)" },
         "class": { "type": "string", "label": "CSS Class" },
         "badge": { "type": "string", "label": "Badge Text" },
         "title": { "type": "string", "label": "Title", "required": true },
@@ -25,7 +25,7 @@
     {
       "type": "video-background",
       "fields": {
-        "full_width": { "type": "boolean", "label": "Full Width" },
+        "container_width": { "type": "string", "label": "Container Width (full, wide, narrow)" },
         "video_id": { "type": "string", "label": "Video Embed URL", "required": true },
         "video_title": { "type": "string", "label": "Video Title" },
         "aspect_ratio": { "type": "string", "label": "Aspect Ratio" },
@@ -70,7 +70,7 @@
     {
       "type": "split-full",
       "fields": {
-        "full_width": { "type": "boolean", "label": "Full Width" },
+        "container_width": { "type": "string", "label": "Container Width (full, wide, narrow)" },
         "variant": { "type": "string", "label": "Variant" },
         "reveal_left": { "type": "string", "label": "Reveal Left Animation" },
         "reveal_right": { "type": "string", "label": "Reveal Right Animation" },
@@ -182,7 +182,7 @@
     {
       "type": "split-full",
       "fields": {
-        "full_width": { "type": "boolean", "label": "Full Width" },
+        "container_width": { "type": "string", "label": "Container Width (full, wide, narrow)" },
         "variant": { "type": "string", "label": "Variant" },
         "reveal_left": { "type": "string", "label": "Reveal Left Animation" },
         "reveal_right": { "type": "string", "label": "Reveal Right Animation" },

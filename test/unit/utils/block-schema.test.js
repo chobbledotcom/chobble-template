@@ -266,4 +266,22 @@ describe("validateBlocks", () => {
   test("handles empty array", () => {
     expect(() => validateBlocks([])).not.toThrow();
   });
+
+  test("accepts valid container_width values", () => {
+    for (const width of ["full", "wide", "narrow"]) {
+      const blocks = [
+        { type: "section-header", intro: "x", container_width: width },
+      ];
+      expect(() => validateBlocks(blocks)).not.toThrow();
+    }
+  });
+
+  test("throws for invalid container_width value", () => {
+    const blocks = [
+      { type: "section-header", intro: "x", container_width: "huge" },
+    ];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'invalid container_width "huge"',
+    );
+  });
 });
