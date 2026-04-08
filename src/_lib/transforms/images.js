@@ -27,16 +27,6 @@ const normalizeImageUrl = (url) => {
   return url;
 };
 
-const normalizeLinkedImageUrls = (document) => {
-  for (const link of document.querySelectorAll("a[href]")) {
-    const href = link.getAttribute("href");
-    const normalizedHref = normalizeImageUrl(href);
-    if (normalizedHref !== href) {
-      link.setAttribute("href", normalizedHref);
-    }
-  }
-};
-
 /**
  * Fix invalid HTML where divs are sole children of paragraphs
  * @param {*} document
@@ -109,7 +99,13 @@ const processImageElement = async (img, document, processAndWrapImage) => {
  * @returns {Promise<void>}
  */
 const processImages = async (document, _config, processAndWrapImage) => {
-  normalizeLinkedImageUrls(document);
+  for (const link of document.querySelectorAll("a[href]")) {
+    const href = link.getAttribute("href");
+    const normalizedHref = normalizeImageUrl(href);
+    if (normalizedHref !== href) {
+      link.setAttribute("href", normalizedHref);
+    }
+  }
 
   const allImages = document.querySelectorAll("img[src]");
   const images = Array.from(allImages).filter((img) => {
