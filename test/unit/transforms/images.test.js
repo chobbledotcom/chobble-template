@@ -156,15 +156,6 @@ describe("images transform", () => {
       expect(captured.imageName).toBe("/images/test.jpg");
     });
 
-    test("normalizes and processes images with images/ src", async () => {
-      const { captured, dom } = await processAndCapture(
-        '<html><body><img src="images/test.jpg" alt="Test"></body></html>',
-      );
-      expect(captured).not.toBeNull();
-      expect(captured.imageName).toBe("/images/test.jpg");
-      expect(dom.window.document.querySelector("img")).toBeNull();
-    });
-
     test("skips images with ignore attribute", async () => {
       await expectSkipped(
         `<html><body><img src="/images/test.jpg" ${IGNORE_ATTRIBUTE}></body></html>`,
@@ -197,18 +188,6 @@ describe("images transform", () => {
     test("skips images without /images/ prefix", async () => {
       await expectSkipped(
         '<html><body><img src="/assets/test.jpg" alt="Test"></body></html>',
-      );
-    });
-
-    test("normalizes linked image href values", async () => {
-      const dom = await loadDOM(
-        '<html><body><a href="images/test.jpg">Image</a></body></html>',
-      );
-      await processImages(dom.window.document, {}, async () => {
-        throw new Error("should not process any image elements");
-      });
-      expect(dom.window.document.querySelector("a").getAttribute("href")).toBe(
-        "/images/test.jpg",
       );
     });
 

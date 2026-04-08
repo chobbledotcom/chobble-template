@@ -17,15 +17,6 @@ import { mapAsync } from "#toolkit/fp/array.js";
 const ASPECT_RATIO_ATTRIBUTE = "eleventy:aspectRatio";
 const IGNORE_ATTRIBUTE = "eleventy:ignore";
 const NO_LQIP_ATTRIBUTE = "chobble:no-lqip";
-const ROOTED_IMAGES_PREFIX = "/images/";
-const RELATIVE_IMAGES_PREFIX = "images/";
-
-const normalizeImageUrl = (url) => {
-  if (!url) return url;
-  if (url.startsWith(ROOTED_IMAGES_PREFIX)) return url;
-  if (url.startsWith(RELATIVE_IMAGES_PREFIX)) return `/${url}`;
-  return url;
-};
 
 /**
  * Fix invalid HTML where divs are sole children of paragraphs
@@ -99,23 +90,7 @@ const processImageElement = async (img, document, processAndWrapImage) => {
  * @returns {Promise<void>}
  */
 const processImages = async (document, _config, processAndWrapImage) => {
-  for (const link of document.querySelectorAll("a[href]")) {
-    const href = link.getAttribute("href");
-    const normalizedHref = normalizeImageUrl(href);
-    if (normalizedHref !== href) {
-      link.setAttribute("href", normalizedHref);
-    }
-  }
-
-  const allImages = document.querySelectorAll("img[src]");
-  const images = Array.from(allImages).filter((img) => {
-    const src = img.getAttribute("src");
-    const normalizedSrc = normalizeImageUrl(src);
-    if (normalizedSrc !== src) {
-      img.setAttribute("src", normalizedSrc);
-    }
-    return normalizedSrc?.startsWith(ROOTED_IMAGES_PREFIX);
-  });
+  const images = document.querySelectorAll('img[src^="/images/"]');
 
   if (images.length === 0) return;
 

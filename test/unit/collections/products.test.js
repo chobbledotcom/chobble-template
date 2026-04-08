@@ -567,7 +567,10 @@ describe("products", () => {
       const result = addGallery(testProduct);
 
       expect(result.data.gallery.length).toBe(2);
-      expect(result.data.gallery).toEqual(["product.jpg", "gallery1.jpg"]);
+      expect(result.data.gallery).toEqual([
+        "/images/product.jpg",
+        "/images/gallery1.jpg",
+      ]);
       expect(result.data.title).toBe(testProduct.data.title);
       expect(result).toBe(testProduct);
     });
@@ -579,7 +582,7 @@ describe("products", () => {
       const result = addGallery(productCopy);
 
       expect(result).toBe(productCopy);
-      expect(productCopy.data.gallery).toEqual(["image.jpg"]);
+      expect(productCopy.data.gallery).toEqual(["/images/image.jpg"]);
     });
   });
 
@@ -587,13 +590,13 @@ describe("products", () => {
     test("returns gallery when present", () => {
       const data = { gallery: ["img1.jpg", "img2.jpg"] };
       const result = computeGallery(data);
-      expect(result).toEqual(["img1.jpg", "img2.jpg"]);
+      expect(result).toEqual(["/images/img1.jpg", "/images/img2.jpg"]);
     });
 
     test("wraps header_image in array when no gallery", () => {
       const data = { header_image: "header.jpg" };
       const result = computeGallery(data);
-      expect(result).toEqual(["header.jpg"]);
+      expect(result).toEqual(["/images/header.jpg"]);
     });
 
     test("returns empty array when no gallery or header_image", () => {
