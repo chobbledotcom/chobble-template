@@ -61,9 +61,6 @@ import { configureUnusedImages } from "#media/unused-images.js";
 export default async function (eleventyConfig) {
   eleventyConfig.addWatchTarget("./src/**/*");
   eleventyConfig.setLayoutsDirectory("_layouts");
-  eleventyConfig.setLiquidOptions({
-    cache: true,
-  });
   eleventyConfig
     .addPassthroughCopy("src/assets")
     .addPassthroughCopy("src/images")
