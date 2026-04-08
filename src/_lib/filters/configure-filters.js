@@ -6,6 +6,7 @@
  * in the imported functions is fully unit tested.
  */
 import strings from "#data/strings.js";
+import { resolveContactFormFieldsForPage } from "#config/form-helpers.js";
 import {
   categoryFilterData,
   categoryListingUI,
@@ -33,5 +34,11 @@ export const configureFilters = (eleventyConfig) => {
   eleventyConfig.addCollection(
     "filteredProductPagesListingFilterUI",
     createListingFilterUI("products", `/${strings.product_permalink_dir}`),
+  );
+
+  eleventyConfig.addFilter(
+    "contactFormFieldsForPage",
+    (contactForm, tags, skipShowOn) =>
+      resolveContactFormFieldsForPage(contactForm, tags, Boolean(skipShowOn)),
   );
 };

@@ -2,21 +2,10 @@
 Renders form fields from contactForm.fields
 Parameters:
   - skipShowOn: if true, skip fields with showOn (for quote checkout)
-  - fields: optional override for fields array (defaults to contactForm.fields)
+  - fields: optional override for fields array (defaults to tag-resolved contact form fields)
 {%- endcomment -%}
-{%- assign fieldsToRender = fields | default: contactForm.fields -%}
+{%- assign _resolvedFields = contactForm | contactFormFieldsForPage: tags, skipShowOn -%}
+{%- assign fieldsToRender = fields | default: _resolvedFields -%}
 {%- for field in fieldsToRender -%}
-  {%- assign shouldShow = true -%}
-  {%- if field.showOn -%}
-    {%- if skipShowOn -%}
-      {%- assign shouldShow = false -%}
-    {%- else -%}
-      {%- unless tags contains field.showOn -%}
-        {%- assign shouldShow = false -%}
-      {%- endunless -%}
-    {%- endif -%}
-  {%- endif -%}
-  {%- if shouldShow -%}
-    {%- include field.template, field: field, pageTitle: title -%}
-  {%- endif -%}
+  {%- include field.template, field: field, pageTitle: title -%}
 {%- endfor -%}

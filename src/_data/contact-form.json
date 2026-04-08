@@ -18,21 +18,12 @@
 			"placeholder": "Your phone number"
 		},
 		{
-			"name": "product",
+			"name": "item",
 			"type": "textarea",
-			"label": "Product",
+			"label": "Item",
 			"required": true,
 			"rows": 6,
-			"showOn": "product",
-			"defaultFromPageTitle": true
-		},
-		{
-			"name": "event",
-			"type": "textarea",
-			"label": "Event",
-			"required": true,
-			"rows": 6,
-			"showOn": "event",
+			"showOnCurrentItemTag": true,
 			"defaultFromPageTitle": true
 		},
 		{
@@ -44,5 +35,13 @@
 			"rows": 6
 		}
 	],
+	"currentItemTagLabelWhitelist": {
+		"categories": "Category",
+		"products": "Product",
+		"property": "Property",
+		"properties": "Property",
+		"events": "Event",
+		"locations": "Location"
+	},
 	"submitButtonText": "Send Enquiry"
 }

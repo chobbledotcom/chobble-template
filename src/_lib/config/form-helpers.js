@@ -1,5 +1,61 @@
 import { frozenObject } from "#toolkit/fp/object.js";
 
+const fieldNameFromLabel = (label) => label.toLowerCase().replace(/\s+/g, "_");
+
+/**
+ * @typedef {object} ContactFormData
+ * @property {object[]} fields
+ * @property {Record<string, string>} currentItemTagLabelWhitelist
+ */
+
+/**
+ * First entry in `whitelist` (object key order) whose key appears in `tagList`.
+ * @param {readonly string[]} tagList
+ * @param {Record<string, string>} whitelist
+ * @returns {{ tag: string; label: string; name: string } | null}
+ */
+export const firstWhitelistMatch = (tagList, whitelist) => {
+  for (const [tag, label] of Object.entries(whitelist)) {
+    if (tagList.includes(tag)) {
+      return { tag, label, name: fieldNameFromLabel(label) };
+    }
+  }
+  return null;
+};
+
+/**
+ * Resolves visibility and dynamic labels for contact form fields from page tags.
+ * @param {ContactFormData} contactForm
+ * @param {readonly string[] | undefined} tags Page tags from Eleventy (may be absent on non-item pages).
+ * @param {boolean} [skipShowOn]
+ * @returns {object[]}
+ */
+export const resolveContactFormFieldsForPage = (
+  contactForm,
+  tags,
+  skipShowOn = false,
+) => {
+  const tagList = Array.isArray(tags) ? tags : [];
+  const match = firstWhitelistMatch(
+    tagList,
+    contactForm.currentItemTagLabelWhitelist,
+  );
+
+  return contactForm.fields.flatMap((field) => {
+    if (field.showOn) {
+      return skipShowOn || !tagList.includes(field.showOn) ? [] : [field];
+    }
+    if (field.showOnCurrentItemTag) {
+      if (!match) {
+        return [];
+      }
+      const { showOnCurrentItemTag, ...rest } = field;
+      return [{ ...rest, label: match.label, name: match.name }];
+    }
+    return [field];
+  });
+};
+
 const FIELD_TYPE_TEMPLATES = frozenObject({
   textarea: "form-field-textarea.html",
   select: "form-field-select.html",
