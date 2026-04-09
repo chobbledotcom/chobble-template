@@ -82,19 +82,9 @@ blocks:
 
       Display reviews in a masonry grid — cards flow naturally based on content height.
 
-  # Stats
-  - type: stats
-    section_class: alt
-
-    items:
-      - value: "14"
-        label: Content Types
-      - value: "10"
-        label: Built-in Themes
-      - value: "125+"
-        label: Pre-built Components
-      - value: "$0"
-        label: Monthly Cost
+  # Stats (via reusable snippet)
+  - type: snippet
+    reference: specs
 
   # Features - Everything Your Business Needs
   - type: features

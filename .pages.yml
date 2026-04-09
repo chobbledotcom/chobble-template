@@ -292,6 +292,15 @@ components:
         label: Container Width (full, wide, narrow)
       - { name: section_class, type: string, label: Section Class }
       - { name: content, type: rich-text, label: Content }
+  block_snippet:
+    label: Snippet
+    type: object
+    fields:
+      - name: reference
+        type: reference
+        label: Snippet
+        options:
+          collection: snippets
   faqs:
     label: FAQs
     type: object
@@ -379,6 +388,7 @@ content:
           - { name: items_array, component: block_items_array }
           - { name: icon_links, component: block_icon_links }
           - { name: contact_form, component: block_contact_form }
+          - { name: snippet, component: block_snippet }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
@@ -799,6 +809,25 @@ content:
     fields:
       - { name: name, type: string, label: Name }
       - { name: body, type: rich-text, label: Body }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: video-background, component: block_video_background }
+          - { name: split-full, component: block_split_full }
+          - { name: split, component: block_split }
+          - { name: cta, component: block_cta }
+          - { name: items, component: block_items }
+          - { name: items_array, component: block_items_array }
+          - { name: icon_links, component: block_icon_links }
+          - { name: contact_form, component: block_contact_form }
   - name: homepage
     label: Homepage Settings
     type: file
