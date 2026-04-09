@@ -61,7 +61,7 @@ blocks:
     horizontal: true
 
   # Items Array - explicit product selection
-  - type: items_array
+  - type: items-array
     collection: products
     masonry: true
     items:
@@ -306,7 +306,7 @@ blocks:
       All my work is open source. I donate 10% of earnings to the [Against Malaria Foundation](https://www.againstmalaria.com/).
 
   # Icon Links
-  - type: icon_links
+  - type: icon-links
     intro: |
       ## Quick Links
     items:
@@ -321,7 +321,7 @@ blocks:
         url: "#contact"
 
   # Contact Form
-  - type: contact_form
+  - type: contact-form
     content: |
       ## Contact Chobble
 

@@ -4,7 +4,7 @@ import {
   ITEMS_COMMON_KEYS,
 } from "#utils/block-schema/shared.js";
 
-export const type = "items_array";
+export const type = "items-array";
 
 export const schema = ["collection", "items", ...ITEMS_COMMON_KEYS];
 
