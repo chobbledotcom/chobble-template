@@ -98,7 +98,7 @@ const BLOCK_SCHEMAS = indexByType((m) => m.schema);
  * test/unit/utils/block-schema.test.js.
  */
 const BLOCK_CMS_FIELDS = Object.fromEntries(
-  BLOCK_MODULES.filter((m) => m.cmsFields).map((m) => [
+  BLOCK_MODULES.filter((m) => "cmsFields" in m).map((m) => [
     m.type,
     { ...CONTAINER_FIELDS, ...m.cmsFields },
   ]),
