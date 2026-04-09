@@ -5,7 +5,7 @@
  * that registers already-tested functions with Eleventy. The actual logic
  * in the imported functions is fully unit tested.
  */
-import { resolveContactFormFieldsForPage } from "#config/form-helpers.js";
+import { resolveFormFields } from "#config/form-helpers.js";
 import strings from "#data/strings.js";
 import {
   categoryFilterData,
@@ -39,6 +39,6 @@ export const configureFilters = (eleventyConfig) => {
   eleventyConfig.addFilter(
     "contactFormFieldsForPage",
     (contactForm, tags, skipShowOn) =>
-      resolveContactFormFieldsForPage(contactForm, tags, Boolean(skipShowOn)),
+      resolveFormFields(contactForm, tags, Boolean(skipShowOn)),
   );
 };

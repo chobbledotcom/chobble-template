@@ -1,37 +1,42 @@
-import { frozenObject } from "#toolkit/fp/object.js";
-
-const fieldNameFromLabel = (label) => label.toLowerCase().replace(/\s+/g, "_");
+import { frozenObject, omit } from "#toolkit/fp/object.js";
 
 /**
  * @typedef {object} ContactFormData
  * @property {object[]} fields
- * @property {Record<string, string>} currentItemTagLabelWhitelist
+ * @property {Record<string, string>} itemTagLabels
  */
+
+const FIELD_TYPE_TEMPLATES = frozenObject({
+  textarea: "form-field-textarea.html",
+  select: "form-field-select.html",
+  radio: "form-field-radio.html",
+  heading: "form-field-heading.html",
+});
+
+const DEFAULT_TEMPLATE = "form-field-input.html";
 
 /**
- * First entry in `whitelist` (object key order) whose key appears in `tagList`.
- * @param {readonly string[]} tagList
- * @param {Record<string, string>} whitelist
- * @returns {{ tag: string; label: string; name: string } | null}
+ * Resolve a single contact form field based on page context.
+ * @param {object} field
+ * @param {string[]} tagList
+ * @param {{ tag: string; label: string; name: string } | null} match
+ * @param {boolean} skipShowOn
+ * @returns {object[]}
  */
-export function firstWhitelistMatch(tagList, whitelist) {
-  for (const [tag, label] of Object.entries(whitelist)) {
-    if (tagList.includes(tag)) {
-      return { tag, label, name: fieldNameFromLabel(label) };
-    }
-  }
-  return null;
-}
-
-const resolveFieldForPage = (field, tagList, match, skipShowOn) => {
+export const resolveField = (field, tagList, match, skipShowOn) => {
   if (field.showOn) {
     if (skipShowOn || !tagList.includes(field.showOn)) return [];
     return [field];
   }
-  if (field.showOnCurrentItemTag) {
+  if (field.showForItemTag) {
     if (!match) return [];
-    const { showOnCurrentItemTag, ...rest } = field;
-    return [{ ...rest, label: match.label, name: match.name }];
+    return [
+      {
+        ...omit(["showForItemTag"])(field),
+        label: match.label,
+        name: match.name,
+      },
+    ];
   }
   return [field];
 };
@@ -43,29 +48,22 @@ const resolveFieldForPage = (field, tagList, match, skipShowOn) => {
  * @param {boolean} [skipShowOn]
  * @returns {object[]}
  */
-export function resolveContactFormFieldsForPage(
-  contactForm,
-  tags,
-  skipShowOn = false,
-) {
+export function resolveFormFields(contactForm, tags, skipShowOn = false) {
   const tagList = Array.isArray(tags) ? tags : [];
-  const match = firstWhitelistMatch(
-    tagList,
-    contactForm.currentItemTagLabelWhitelist,
+  const matchEntry = Object.entries(contactForm.itemTagLabels).find(([tag]) =>
+    tagList.includes(tag),
   );
+  const match = matchEntry
+    ? {
+        tag: matchEntry[0],
+        label: matchEntry[1],
+        name: matchEntry[1].toLowerCase().replace(/\s+/g, "_"),
+      }
+    : null;
   return contactForm.fields.flatMap((field) =>
-    resolveFieldForPage(field, tagList, match, skipShowOn),
+    resolveField(field, tagList, match, skipShowOn),
   );
 }
-
-const FIELD_TYPE_TEMPLATES = frozenObject({
-  textarea: "form-field-textarea.html",
-  select: "form-field-select.html",
-  radio: "form-field-radio.html",
-  heading: "form-field-heading.html",
-});
-
-const DEFAULT_TEMPLATE = "form-field-input.html";
 
 export function getFieldTemplate(field) {
   return FIELD_TYPE_TEMPLATES[field.type] || DEFAULT_TEMPLATE;
