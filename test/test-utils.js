@@ -140,6 +140,10 @@ const SRC_JS_FILES = memoizedFiles(
 const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
 const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
 const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
+// Build/dev scripts under scripts/. Not in SRC_JS_FILES because they're not
+// part of the runtime, but they're still production usage of any src/ exports
+// they import — code-quality scans treat them as a usage site.
+const SCRIPT_JS_FILES = memoizedFiles(/^scripts\/.*\.js$/);
 const ALL_JS_FILES = memoizedFiles(/^(src|test)\/.*\.js$/);
 
 /**
@@ -379,6 +383,7 @@ export {
   omit,
   path,
   rootDir,
+  SCRIPT_JS_FILES,
   SRC_HTML_FILES,
   SRC_JS_FILES,
   SRC_SCSS_FILES,

@@ -5,8 +5,9 @@
  * a build error to catch typos like "video_url" instead of "video_id".
  *
  * Block definitions live in `./block-schema/<type>.js` — one file per type.
- * Each module exports `type`, `schema`, and `docs`. This file aggregates them
- * into `BLOCK_SCHEMAS` (for validation) and `BLOCK_DOCS` (for documentation
+ * Each module exports `type`, `schema`, `docs`, and optionally `cmsFields`.
+ * This file aggregates them into `BLOCK_SCHEMAS` (for validation),
+ * `BLOCK_CMS_FIELDS` (for CMS generation), and `BLOCK_DOCS` (for documentation
  * generation by scripts/generate-blocks-reference.js).
  */
 
@@ -32,6 +33,7 @@ import * as markdown from "#utils/block-schema/markdown.js";
 import * as properties from "#utils/block-schema/properties.js";
 import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
+import { CONTAINER_FIELDS } from "#utils/block-schema/shared.js";
 import * as split from "#utils/block-schema/split.js";
 import * as splitFull from "#utils/block-schema/split-full.js";
 import * as stats from "#utils/block-schema/stats.js";
@@ -46,9 +48,11 @@ const COMMON_BLOCK_KEYS = ["section_class", "container_width"];
 /** Valid values for the common `container_width` block property. */
 const CONTAINER_WIDTHS = ["full", "wide", "narrow"];
 
-// Iteration order determines the order that `scripts/generate-blocks-reference.js`
-// emits block types into BLOCKS_LAYOUT.md, so keep it intentional rather than
-// alphabetical.
+/**
+ * Iteration order determines the order that `scripts/generate-blocks-reference.js`
+ * emits block types into BLOCKS_LAYOUT.md, so keep it intentional rather than
+ * alphabetical.
+ */
 const BLOCK_MODULES = [
   sectionHeader,
   features,
@@ -83,6 +87,22 @@ const indexByType = (getValue) =>
 
 /** Allowed keys per block type (excluding common keys and "type"). */
 const BLOCK_SCHEMAS = indexByType((m) => m.schema);
+
+/**
+ * CMS field definitions for block types exposed in Pages CMS.
+ *
+ * Not every block type in BLOCK_SCHEMAS is exposed in the CMS — only modules
+ * that export `cmsFields` are included. CONTAINER_FIELDS (container_width,
+ * section_class) are injected here so per-block modules stay focused on
+ * block-specific fields. This invariant is enforced by
+ * test/unit/utils/block-schema.test.js.
+ */
+const BLOCK_CMS_FIELDS = Object.fromEntries(
+  BLOCK_MODULES.filter((m) => "cmsFields" in m).map((m) => [
+    m.type,
+    { ...CONTAINER_FIELDS, ...m.cmsFields },
+  ]),
+);
 
 /**
  * Documentation metadata for each block type.
@@ -151,4 +171,10 @@ const validateBlocks = (blocks, context = "") => {
   }
 };
 
-export { BLOCK_DOCS, BLOCK_SCHEMAS, validateBlock, validateBlocks };
+export {
+  BLOCK_CMS_FIELDS,
+  BLOCK_DOCS,
+  BLOCK_SCHEMAS,
+  validateBlock,
+  validateBlocks,
+};

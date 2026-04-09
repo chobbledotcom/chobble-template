@@ -6,7 +6,6 @@
  */
 
 import YAML from "yaml";
-import pageLayouts from "#data/pageLayouts.js";
 import { getCollection } from "#scripts/customise-cms/collections.js";
 import {
   COMMON_FIELDS,
@@ -33,6 +32,7 @@ import {
   memberOf,
   pipe,
 } from "#toolkit/fp/array.js";
+import { BLOCK_CMS_FIELDS } from "#utils/block-schema.js";
 
 /**
  * @typedef {import('./config.js').CmsConfig} CmsConfig
@@ -193,6 +193,10 @@ const getCollectionFieldBuilders = (config, fields) => ({
       { name: "layout", type: "string" },
       config.features.no_index && COMMON_FIELDS.no_index,
       config.features.videos && VIDEOS_FIELD,
+      generateBlocksField(
+        Object.keys(BLOCK_CMS_FIELDS),
+        config.features.use_visual_editor,
+      ),
     ]),
 
   categories: () => {
@@ -670,13 +674,6 @@ const generateCollectionConfig = (collectionName, config, fieldContext) => {
     collectionConfig.view = viewConfig;
   }
 
-  if (collectionName === "pages") {
-    const pageLayoutSlugs = Object.keys(pageLayouts);
-    if (pageLayoutSlugs.length > 0) {
-      collectionConfig.exclude = pageLayoutSlugs.map((slug) => `${slug}.md`);
-    }
-  }
-
   collectionConfig.fields = buildCollectionFields(
     collectionName,
     config,
@@ -856,13 +853,6 @@ const getAltTagsConfig = (dataPath) => ({
 });
 
 /**
- * Get page layout schemas from pageLayouts data
- * @returns {Array<{slug: string, schema: object}>} Array of page layout definitions
- */
-const getPageLayoutSchemas = () =>
-  Object.entries(pageLayouts).map(([slug, schema]) => ({ slug, schema }));
-
-/**
  * Convert a non-markdown schema field to a generic CMS field
  * @param {string} name - Field name
  * @param {object} fieldSchema - Field schema from JSON
@@ -949,92 +939,55 @@ const blockTypeToLabel = (type) =>
     .join(" ");
 
 /**
- * Merge new fields into an existing fields object, keeping first occurrence per field name.
- * @param {object} existing - Existing merged fields object (mutated in place)
- * @param {object} newFields - New fields to merge in
+ * Convert a block type slug to a component name (e.g. "section-header" -> "block_section_header")
+ * @param {string} type - Block type slug
+ * @returns {string} Component name
  */
-const mergeBlockFields = (existing, newFields) => {
-  for (const [name, schema] of Object.entries(newFields)) {
-    if (!existing[name]) {
-      existing[name] = schema;
-    }
-  }
-};
+const blockTypeToComponentName = (type) => `block_${type.replace(/-/g, "_")}`;
 
 /**
- * Collect unique block definitions from a schema, merging fields for duplicate types.
- * When a block type appears multiple times, fields are merged (first occurrence wins per field name).
- * @param {object[]} blocks - Array of block definitions from schema
- * @returns {Map<string, object>} Map of block type to merged fields object
- */
-const collectUniqueBlocks = (blocks) => {
-  const blockMap = new Map();
-
-  for (const block of blocks) {
-    if (!blockMap.has(block.type)) {
-      blockMap.set(block.type, { ...block.fields });
-    } else {
-      mergeBlockFields(blockMap.get(block.type), block.fields);
-    }
-  }
-
-  return blockMap;
-};
-
-/**
- * Generate CMS block field for a blocks array based on schema.
- * Uses PagesCMS block field type so each block type has its own distinct fields,
- * rather than flattening all fields into a single object.
- * @param {object} schema - Layout schema with blocks array
+ * Build a CMS block component definition from BLOCK_CMS_FIELDS for one block type.
+ * Each block is tagged with _componentName so it's extracted into the top-level
+ * components map and replaced with a component reference downstream.
+ * @param {string} type - Block type slug (must exist in BLOCK_CMS_FIELDS)
  * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} CMS blocks field configuration using type: block
+ * @returns {object} CMS block configuration
  */
-const generateBlocksField = (schema, useVisualEditor) => {
-  const uniqueBlocks = collectUniqueBlocks(schema.blocks);
-
-  const blocks = [...uniqueBlocks.entries()].map(([type, fields]) => ({
+const buildBlockComponent = (type, useVisualEditor) => {
+  const fieldsSchema = BLOCK_CMS_FIELDS[type];
+  if (!fieldsSchema) {
+    throw new Error(
+      `Block type "${type}" is not defined in BLOCK_CMS_FIELDS. ` +
+        "Add it to src/_lib/utils/block-schema.js or remove it from page-layouts.",
+    );
+  }
+  return {
     name: type,
     label: blockTypeToLabel(type),
-    fields: Object.entries(fields).map(([name, fieldSchema]) =>
+    type: "object",
+    fields: Object.entries(fieldsSchema).map(([name, fieldSchema]) =>
       schemaFieldToCmsField(name, fieldSchema, useVisualEditor),
     ),
-  }));
-
-  return {
-    name: "blocks",
-    label: "Content Blocks",
-    type: "block",
-    list: true,
-    blockKey: "type",
-    blocks,
+    _componentName: blockTypeToComponentName(type),
   };
 };
 
 /**
- * Generate page layout configuration for CMS
- * Edits the markdown file's front matter blocks, using schema from JSON
- * @param {string} slug - Page slug
- * @param {object} schema - Layout schema
- * @param {FieldContext} fieldContext - Precomputed fields
+ * Generate CMS block field for the list of block types this page supports.
+ * Block field definitions come from BLOCK_CMS_FIELDS in block-schema.js — the
+ * single source of truth — so the same block type always resolves to the same
+ * component no matter which page uses it.
+ * @param {string[]} blockTypes - Block type slugs supported on this page
  * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} Collection configuration for this page layout
+ * @returns {object} CMS blocks field configuration using type: block
  */
-const generatePageLayoutConfig = (
-  slug,
-  schema,
-  fieldContext,
-  useVisualEditor,
-) => ({
-  name: `page-${slug}`,
-  label: schema.label,
-  type: "file",
-  path: `src/pages/${slug}.md`,
-  fields: [
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
-    generateBlocksField(schema, useVisualEditor),
-    fieldContext.body,
-  ],
+const generateBlocksField = (blockTypes, useVisualEditor) => ({
+  name: "blocks",
+  label: "Content Blocks",
+  type: "block",
+  list: true,
+  blockKey: "type",
+  blocks: blockTypes.map((type) => buildBlockComponent(type, useVisualEditor)),
 });
 
 /**
@@ -1048,7 +1001,8 @@ const fieldToComponentDef = (field) => {
 };
 
 /**
- * Recursively scan fields and register component definitions
+ * Recursively scan fields and register component definitions.
+ * Descends into nested `fields` arrays and also `blocks` arrays (for block-type fields).
  * @param {CmsField[]} fields - Fields to scan
  * @param {Record<string, object>} components - Accumulator for component definitions
  */
@@ -1059,6 +1013,7 @@ const scanFieldsForComponents = (fields, components) => {
       components[field._componentName] = fieldToComponentDef(field);
     }
     scanFieldsForComponents(field.fields, components);
+    scanFieldsForComponents(field.blocks, components);
   }
 };
 
@@ -1076,22 +1031,30 @@ const collectComponents = (contentArray) => {
 };
 
 /**
- * Replace component fields with component references in a fields array
+ * Replace a single field with a component reference when applicable,
+ * otherwise recursively process its nested `fields` / `blocks` arrays.
+ * @param {CmsField} field - Field configuration
+ * @returns {CmsField} Transformed field
+ */
+const replaceFieldWithComponentRef = (field) => {
+  if (field._componentName) {
+    return { name: field.name, component: field._componentName };
+  }
+  const updates = {};
+  if (field.fields) updates.fields = replaceWithComponentRefs(field.fields);
+  if (field.blocks) updates.blocks = replaceWithComponentRefs(field.blocks);
+  return Object.keys(updates).length > 0 ? { ...field, ...updates } : field;
+};
+
+/**
+ * Replace component fields with component references in a fields array.
+ * Descends into nested `fields` arrays and also `blocks` arrays (for block-type fields).
  * @param {CmsField[]} fields - Array of field configurations
  * @returns {CmsField[]} Fields with component references replacing full definitions
  */
 const replaceWithComponentRefs = (fields) => {
   if (!fields) return fields;
-
-  return fields.map((field) => {
-    if (field._componentName) {
-      return { name: field.name, component: field._componentName };
-    }
-    if (field.fields) {
-      return { ...field, fields: replaceWithComponentRefs(field.fields) };
-    }
-    return field;
-  });
+  return fields.map(replaceFieldWithComponentRef);
 };
 
 /**
@@ -1125,17 +1088,9 @@ export const generatePagesYaml = (config) => {
   const dataPath = getDataPath(hasSrcFolder);
   const imagesPath = hasSrcFolder ? "src/images" : "images";
 
-  // Load page layout schemas and generate their configs
-  const pageLayoutSchemas = getPageLayoutSchemas();
-  const useVisualEditor = config.features.use_visual_editor;
-  const pageLayoutConfigs = pageLayoutSchemas.map(({ slug, schema }) =>
-    generatePageLayoutConfig(slug, schema, fieldContext, useVisualEditor),
-  );
-
   // Build content array, conditionally including homepage
   const contentArray = [
     ...collectionConfigs,
-    ...pageLayoutConfigs,
     ...(customHomePage ? [] : [getHomepageConfig(dataPath)]),
     getSiteConfig(dataPath),
     getMetaConfig(dataPath),

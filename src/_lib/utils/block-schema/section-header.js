@@ -1,4 +1,4 @@
-import { CLASS_PARAM } from "#utils/block-schema/shared.js";
+import { CLASS_PARAM, md } from "#utils/block-schema/shared.js";
 
 export const type = "section-header";
 
@@ -23,4 +23,8 @@ export const docs = {
     },
     class: CLASS_PARAM,
   },
+};
+
+export const cmsFields = {
+  intro: md("Section Header Intro"),
 };

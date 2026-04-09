@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { BLOCK_SCHEMAS, validateBlocks } from "#utils/block-schema.js";
+import {
+  BLOCK_CMS_FIELDS,
+  BLOCK_SCHEMAS,
+  validateBlocks,
+} from "#utils/block-schema.js";
 
 describe("BLOCK_SCHEMAS", () => {
   test("defines schemas for all block types", () => {
@@ -40,6 +44,29 @@ describe("BLOCK_SCHEMAS", () => {
 
   test("video-background schema does not include video_url", () => {
     expect(BLOCK_SCHEMAS["video-background"]).not.toContain("video_url");
+  });
+});
+
+describe("BLOCK_CMS_FIELDS", () => {
+  test("every block type is also in BLOCK_SCHEMAS", () => {
+    for (const blockType of Object.keys(BLOCK_CMS_FIELDS)) {
+      expect(BLOCK_SCHEMAS[blockType]).toBeDefined();
+    }
+  });
+
+  test("every field key passes production validateBlocks", () => {
+    // Build a synthetic block from the CMS field shape and run it through
+    // the same validator that checks real block usage at build time. This
+    // ensures BLOCK_CMS_FIELDS can never expose a CMS field that the
+    // runtime will reject — the two must stay in sync by construction.
+    for (const [blockType, fields] of Object.entries(BLOCK_CMS_FIELDS)) {
+      const block = { type: blockType };
+      for (const fieldKey of Object.keys(fields)) {
+        block[fieldKey] =
+          fieldKey === "container_width" ? "wide" : "test-value";
+      }
+      expect(() => validateBlocks([block])).not.toThrow();
+    }
   });
 });
 

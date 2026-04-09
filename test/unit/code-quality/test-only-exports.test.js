@@ -15,7 +15,7 @@ import {
   extractExports,
   readSource,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES, TEST_FILES } from "#test/test-utils.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES, TEST_FILES } from "#test/test-utils.js";
 
 const THIS_FILE = "test/unit/code-quality/test-only-exports.test.js";
 
@@ -310,7 +310,11 @@ import { orig as alias } from "#utils/test.js";
 
   test("No test-only exports outside allowlist", () => {
     const testFiles = TEST_FILES().filter((f) => f !== THIS_FILE);
-    const productionFiles = [...SRC_JS_FILES(), ".eleventy.js"];
+    const productionFiles = [
+      ...SRC_JS_FILES(),
+      ...SCRIPT_JS_FILES(),
+      ".eleventy.js",
+    ];
 
     const exportsMap = new Map();
     for (const file of SRC_JS_FILES()) {
