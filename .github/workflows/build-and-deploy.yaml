@@ -13,7 +13,8 @@ concurrency:
 jobs:
   build-and-deploy:
     name: Build and Deploy
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest # YOU PROBABLY WANT THIS!
+    runs-on: ubicloud-standard-16
     env:
       NEOCITIES_API_KEY: ${{ secrets.NEOCITIES_API_KEY }}
       BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
