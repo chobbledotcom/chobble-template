@@ -504,6 +504,18 @@ Vertical list of links with icons, rendered as a flex column stack.
 
 ---
 
+### `snippet`
+
+Renders blocks from a named snippet file, enabling reusable block compositions.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `reference` | string | **required** | Filename of the snippet (without `.md` extension) from `src/snippets/`. |
+
+The referenced snippet must exist in `src/snippets/` and have a `blocks` frontmatter array. The snippet block is transparent — it renders no wrapping section element, so each inner block renders its own section directly.
+
+---
+
 
 <!-- END GENERATED BLOCKS -->
 

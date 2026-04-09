@@ -1,0 +1,10 @@
+{%- comment -%}
+Renders blocks from a named snippet file. Used by render-block.html.
+The snippet block is transparent — blocks.html skips the outer <section>
+wrapper for this type, so each inner block renders its own section directly.
+{%- endcomment -%}
+
+{%- assign snippet_data = block.reference | snippet_data -%}
+{%- if snippet_data.blocks -%}
+  {%- include "design-system/blocks.html", blocks: snippet_data.blocks -%}
+{%- endif -%}

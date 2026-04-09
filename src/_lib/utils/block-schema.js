@@ -34,6 +34,7 @@ import * as properties from "#utils/block-schema/properties.js";
 import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
 import { CONTAINER_FIELDS } from "#utils/block-schema/shared.js";
+import * as snippet from "#utils/block-schema/snippet.js";
 import * as split from "#utils/block-schema/split.js";
 import * as splitFull from "#utils/block-schema/split-full.js";
 import * as stats from "#utils/block-schema/stats.js";
@@ -80,6 +81,7 @@ const BLOCK_MODULES = [
   reviews,
   gallery,
   iconLinks,
+  snippet,
 ];
 
 const indexByType = (getValue) =>
