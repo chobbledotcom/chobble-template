@@ -1,3 +1,11 @@
+import {
+  BUTTON_FIELDS_BASE,
+  md,
+  num,
+  objectField,
+  str,
+} from "#utils/block-schema/shared.js";
+
 export const type = "split-full";
 
 export const schema = [
@@ -65,4 +73,17 @@ export const docs = {
       description: "`data-reveal` for right panel.",
     },
   },
+};
+
+export const cmsFields = {
+  variant: str("Variant"),
+  title_level: num("Heading Level"),
+  reveal_left: str("Reveal Left Animation"),
+  reveal_right: str("Reveal Right Animation"),
+  left_title: str("Left Title"),
+  left_content: md("Left Content"),
+  left_button: objectField("Left Button", BUTTON_FIELDS_BASE),
+  right_title: str("Right Title"),
+  right_content: md("Right Content"),
+  right_button: objectField("Right Button", BUTTON_FIELDS_BASE),
 };

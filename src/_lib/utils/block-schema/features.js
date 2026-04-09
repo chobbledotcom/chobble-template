@@ -1,7 +1,12 @@
 import {
   HEADER_KEYS,
   HEADER_PARAM_DOCS,
+  md,
+  num,
+  objectList,
   REVEAL_BOOLEAN_PARAM,
+  str,
+  TITLE_REQUIRED,
 } from "#utils/block-schema/shared.js";
 
 export const type = "features";
@@ -42,4 +47,16 @@ export const docs = {
     reveal: REVEAL_BOOLEAN_PARAM,
     ...HEADER_PARAM_DOCS,
   },
+};
+
+export const cmsFields = {
+  grid_class: str("Grid Class"),
+  heading_level: num("Heading Level"),
+  header_intro: md("Header Intro"),
+  items: objectList("Features", {
+    icon: str("Icon (Iconify ID or HTML entity)"),
+    title: TITLE_REQUIRED,
+    description: str("Description", { required: true }),
+    style: str("Custom Style"),
+  }),
 };

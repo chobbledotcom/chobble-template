@@ -1,4 +1,10 @@
-import { REVEAL_PARAM } from "#utils/block-schema/shared.js";
+import {
+  BUTTON_FIELDS_WITH_SIZE,
+  objectField,
+  REVEAL_PARAM,
+  str,
+  TITLE_REQUIRED,
+} from "#utils/block-schema/shared.js";
 
 export const type = "cta";
 
@@ -27,4 +33,10 @@ export const docs = {
     },
     reveal: REVEAL_PARAM,
   },
+};
+
+export const cmsFields = {
+  title: TITLE_REQUIRED,
+  description: str("Description"),
+  button: objectField("Button", BUTTON_FIELDS_WITH_SIZE),
 };

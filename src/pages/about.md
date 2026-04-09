@@ -19,21 +19,8 @@ blocks:
       - icon: "hugeicons:customer-support"
         title: Expert Support
         description: Our team of specialists is here to help you 24/7.
-  - type: section-header
-    intro: |-
-      ## Our Numbers
-
-      See what we have achieved
-  - type: stats
-    items:
-      - value: "10k+"
-        label: Happy Customers
-      - value: "500+"
-        label: Products
-      - value: "99%"
-        label: Satisfaction
-      - value: "24/7"
-        label: Support
+  - type: snippet
+    reference: specs
   - type: content
 ---
 
