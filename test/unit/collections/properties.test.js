@@ -64,9 +64,9 @@ describe("properties", () => {
       ["Property 3", { gallery: ["img3.jpg"] }],
     ]);
     expectGalleries(properties(collectionApi(propertyItems)), [
-      ["img1.jpg"],
+      ["/images/img1.jpg"],
       undefined,
-      ["img3.jpg"],
+      ["/images/img3.jpg"],
     ]);
   });
 

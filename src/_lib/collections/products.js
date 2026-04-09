@@ -12,6 +12,7 @@
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import config from "#data/config.js";
 import { addDataFilter } from "#eleventy/add-data-filter.js";
+import { toAbsoluteImageUrl } from "#media/image-frontmatter.js";
 import {
   filterMap,
   findDuplicate,
@@ -85,8 +86,8 @@ const mergeWithExplicitProducts = (
  * @returns {string[]} Gallery array (empty if no images)
  */
 const computeGallery = (data) => {
-  if (data.gallery) return data.gallery;
-  if (data.header_image) return [data.header_image];
+  if (data.gallery) return data.gallery.map(toAbsoluteImageUrl);
+  if (data.header_image) return [toAbsoluteImageUrl(data.header_image)];
   return [];
 };
 
@@ -107,6 +108,7 @@ const addGallery = (item) => {
     const maxImages = config().products.max_images;
     item.data.gallery =
       maxImages === null ? gallery : gallery.slice(0, maxImages);
+    item.data.gallery = item.data.gallery.map(toAbsoluteImageUrl);
   }
   return item;
 };

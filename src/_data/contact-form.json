@@ -23,7 +23,7 @@
 			"label": "Product",
 			"required": true,
 			"rows": 6,
-			"showOn": "product",
+			"showOn": "products",
 			"defaultFromPageTitle": true
 		},
 		{
@@ -32,7 +32,16 @@
 			"label": "Event",
 			"required": true,
 			"rows": 6,
-			"showOn": "event",
+			"showOn": "events",
+			"defaultFromPageTitle": true
+		},
+		{
+			"name": "property",
+			"type": "textarea",
+			"label": "Property",
+			"required": true,
+			"rows": 6,
+			"showOn": "properties",
 			"defaultFromPageTitle": true
 		},
 		{

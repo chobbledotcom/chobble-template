@@ -34,6 +34,10 @@
     {%- else -%}
       {{- content -}}
     {%- endif -%}
+    {%- assign footer_snippet_data = "footer-content" | snippet_data -%}
+    {%- if footer_snippet_data.blocks -%}
+      {%- include "design-system/blocks.html", blocks: footer_snippet_data.blocks -%}
+    {%- endif -%}
   </main>
   {%- include "design-system/footer.html" -%}
   {%- include "image-popup.html" -%}

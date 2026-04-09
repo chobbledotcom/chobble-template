@@ -19,10 +19,8 @@
     {%- endif -%}
   {%- endfor -%}
 {%- else -%}
-  {%- assign cacheKeySuffix = listItemFields | join: "," -%}
   {%- for item in items -%}
-    {%- assign cacheKey = item.url | append: "|" | append: cacheKeySuffix -%}
-    {%- cachedBlock cacheKey -%}{%- include "list-item.html" -%}{%- endcachedBlock -%}
+    {%- include "list-item.html" -%}
   {%- endfor -%}
 {%- endif -%}
 </ul>

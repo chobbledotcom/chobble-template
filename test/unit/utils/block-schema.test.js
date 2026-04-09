@@ -23,6 +23,7 @@ describe("BLOCK_SCHEMAS", () => {
       "items",
       "items_array",
       "contact_form",
+      "custom_contact_form",
       "markdown",
       "html",
       "content",
@@ -238,6 +239,43 @@ describe("validateBlocks", () => {
       },
     ];
     expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("allows all valid keys for custom_contact_form", () => {
+    const blocks = [
+      {
+        type: "custom_contact_form",
+        content: "Get in touch",
+        fields: [
+          { name: "name", label: "Your name", required: true },
+          { name: "email", type: "email", label: "Email" },
+          {
+            name: "enquiry",
+            type: "textarea",
+            label: "Enquiry",
+            rows: 8,
+            required: true,
+          },
+        ],
+        header_intro: "## Custom Form",
+        header_align: "center",
+        header_class: "custom",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("rejects unknown key on custom_contact_form", () => {
+    const blocks = [
+      {
+        type: "custom_contact_form",
+        fields: [],
+        submit_label: "Send it",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'unknown keys: "submit_label"',
+    );
   });
 
   test("reports multiple unknown keys", () => {
