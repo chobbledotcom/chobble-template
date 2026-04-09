@@ -46,9 +46,11 @@ const COMMON_BLOCK_KEYS = ["section_class", "container_width"];
 /** Valid values for the common `container_width` block property. */
 const CONTAINER_WIDTHS = ["full", "wide", "narrow"];
 
-// Iteration order determines the order that `scripts/generate-blocks-reference.js`
-// emits block types into BLOCKS_LAYOUT.md, so keep it intentional rather than
-// alphabetical.
+/**
+ * Iteration order determines the order that `scripts/generate-blocks-reference.js`
+ * emits block types into BLOCKS_LAYOUT.md, so keep it intentional rather than
+ * alphabetical.
+ */
 const BLOCK_MODULES = [
   sectionHeader,
   features,
@@ -148,6 +150,8 @@ const FILTER_FIELD = objectField("Filter", {
   equals: str("Equals"),
 });
 
+const TITLE_REQUIRED = str("Title", { required: true });
+
 // Fields shared between items and items_array blocks.
 const ITEMS_SHARED_FIELDS = {
   collection: str("Collection Name", { required: true }),
@@ -171,7 +175,7 @@ const BLOCK_CMS_FIELDS = {
     header_intro: md("Header Intro"),
     items: objectList("Features", {
       icon: str("Icon (Iconify ID or HTML entity)"),
-      title: str("Title", { required: true }),
+      title: TITLE_REQUIRED,
       description: str("Description", { required: true }),
       style: str("Custom Style"),
     }),
@@ -193,7 +197,7 @@ const BLOCK_CMS_FIELDS = {
     ...CONTAINER_FIELDS,
     class: str("CSS Class"),
     badge: str("Badge Text"),
-    title: str("Title", { required: true }),
+    title: TITLE_REQUIRED,
     lead: str("Lead Text"),
     buttons: objectList("Buttons", BUTTON_FIELDS_WITH_SIZE),
   },
@@ -241,7 +245,7 @@ const BLOCK_CMS_FIELDS = {
   },
   cta: {
     ...CONTAINER_FIELDS,
-    title: str("Title", { required: true }),
+    title: TITLE_REQUIRED,
     description: str("Description"),
     button: objectField("Button", BUTTON_FIELDS_WITH_SIZE),
   },
