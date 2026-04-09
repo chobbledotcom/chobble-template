@@ -39,6 +39,10 @@
     list-style: "+ ";
   }
 
+  section.dark .feature {
+    --color-card-bg: #{$color-bg};
+  }
+
   .feature {
     @include card($space-md, $radius-lg);
     @include card-hover;
