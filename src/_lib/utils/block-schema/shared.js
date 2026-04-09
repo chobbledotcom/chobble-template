@@ -136,3 +136,69 @@ export const ITEMS_ARRAY_PARAM = {
   type: "array",
   required: true,
 };
+
+/**
+ * CMS field factory functions.
+ * These create the field-shape objects consumed by scripts/customise-cms/generator.js.
+ */
+
+/** @param {string} label @param {object} [extras] */
+export const str = (label, extras) => ({ type: "string", label, ...extras });
+/** @param {string} label */
+export const md = (label) => ({ type: "markdown", label });
+/** @param {string} label */
+export const num = (label) => ({ type: "number", label });
+/** @param {string} label */
+export const bool = (label) => ({ type: "boolean", label });
+/** @param {string} label @param {Record<string, object>} fields */
+export const objectList = (label, fields) => ({
+  type: "object",
+  list: true,
+  label,
+  fields,
+});
+/** @param {string} label @param {Record<string, object>} fields */
+export const objectField = (label, fields) => ({
+  type: "object",
+  label,
+  fields,
+});
+
+/** Container wrapper fields common to every CMS block. */
+export const CONTAINER_FIELDS = {
+  container_width: str("Container Width (full, wide, narrow)"),
+  section_class: str("Section Class"),
+};
+
+/** Button fields shared between hero, split, and cta blocks. */
+export const BUTTON_FIELDS_BASE = {
+  text: str("Button Text", { required: true }),
+  href: str("URL", { required: true }),
+  variant: str("Variant"),
+};
+
+/** Button fields with an additional size option. */
+export const BUTTON_FIELDS_WITH_SIZE = {
+  ...BUTTON_FIELDS_BASE,
+  size: str("Size"),
+};
+
+/** Pre-built required title field. */
+export const TITLE_REQUIRED = str("Title", { required: true });
+
+/** Filter object field shared between items and items_array. */
+export const FILTER_FIELD = objectField("Filter", {
+  property: str("Property (e.g. url, data.title)"),
+  includes: str("Contains"),
+  equals: str("Equals"),
+});
+
+/** CMS fields shared between items and items_array blocks. */
+export const ITEMS_CMS_SHARED_FIELDS = {
+  collection: str("Collection Name", { required: true }),
+  intro: md("Intro Content (Markdown)"),
+  horizontal: bool("Horizontal Slider"),
+  masonry: bool("Masonry Grid"),
+  header_intro: md("Header Intro"),
+  filter: FILTER_FIELD,
+};

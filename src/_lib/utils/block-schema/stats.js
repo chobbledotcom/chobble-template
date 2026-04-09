@@ -1,4 +1,8 @@
-import { REVEAL_BOOLEAN_PARAM } from "#utils/block-schema/shared.js";
+import {
+  objectList,
+  REVEAL_BOOLEAN_PARAM,
+  str,
+} from "#utils/block-schema/shared.js";
 
 export const type = "stats";
 
@@ -21,4 +25,11 @@ export const docs = {
       description: "Adds `data-reveal` to each stat.",
     },
   },
+};
+
+export const cmsFields = {
+  items: objectList("Statistics", {
+    value: str("Value", { required: true }),
+    label: str("Label", { required: true }),
+  }),
 };

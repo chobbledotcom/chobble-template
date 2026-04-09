@@ -1,3 +1,12 @@
+import {
+  BUTTON_FIELDS_WITH_SIZE,
+  bool,
+  md,
+  num,
+  objectField,
+  str,
+} from "#utils/block-schema/shared.js";
+
 export const type = "split";
 
 export const schema = [
@@ -105,4 +114,24 @@ export const docs = {
         '`{text, href, variant}`. Rendered below content. Default variant: `"secondary"`.',
     },
   },
+};
+
+export const cmsFields = {
+  title: str("Title"),
+  title_level: num("Heading Level"),
+  subtitle: str("Subtitle"),
+  reverse: bool("Reverse Layout"),
+  reveal_content: str("Reveal Content Animation"),
+  reveal_figure: str("Reveal Figure Animation"),
+  content: md("Content"),
+  button: objectField("Button", BUTTON_FIELDS_WITH_SIZE),
+  figure_type: str("Figure Type (image, video, code, html)"),
+  figure_src: { type: "image", label: "Figure Image" },
+  figure_alt: str("Figure Alt Text"),
+  figure_caption: str("Figure Caption"),
+  figure_video_id: str("Figure Video ID or URL"),
+  figure_filename: str("Figure Code Filename"),
+  figure_code: str("Figure Code Content"),
+  figure_language: str("Figure Code Language"),
+  figure_html: md("Figure HTML Content"),
 };

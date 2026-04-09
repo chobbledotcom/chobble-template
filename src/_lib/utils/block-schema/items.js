@@ -1,5 +1,6 @@
 import {
   buildItemsDocs,
+  ITEMS_CMS_SHARED_FIELDS,
   ITEMS_COMMON_KEYS,
 } from "#utils/block-schema/shared.js";
 
@@ -14,3 +15,7 @@ export const docs = buildItemsDocs({
   collectionDescription:
     'Name of an Eleventy collection (e.g. `"featuredProducts"`, `"events"`, `"news"`).',
 });
+
+export const cmsFields = {
+  ...ITEMS_CMS_SHARED_FIELDS,
+};

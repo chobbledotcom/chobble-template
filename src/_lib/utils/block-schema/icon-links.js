@@ -1,4 +1,9 @@
-import { REVEAL_BOOLEAN_PARAM } from "#utils/block-schema/shared.js";
+import {
+  md,
+  objectList,
+  REVEAL_BOOLEAN_PARAM,
+  str,
+} from "#utils/block-schema/shared.js";
 
 export const type = "icon_links";
 
@@ -27,4 +32,13 @@ export const docs = {
       description: "Adds `data-reveal` to each link item.",
     },
   },
+};
+
+export const cmsFields = {
+  intro: md("Intro Content (Markdown)"),
+  items: objectList("Links", {
+    icon: str("Icon (Iconify ID or HTML entity)", { required: true }),
+    text: str("Link Text", { required: true }),
+    url: str("URL"),
+  }),
 };

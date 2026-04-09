@@ -1,4 +1,8 @@
-import { HEADER_KEYS, HEADER_PARAM_DOCS } from "#utils/block-schema/shared.js";
+import {
+  HEADER_KEYS,
+  HEADER_PARAM_DOCS,
+  md,
+} from "#utils/block-schema/shared.js";
 
 export const type = "contact_form";
 
@@ -17,4 +21,8 @@ export const docs = {
     },
     ...HEADER_PARAM_DOCS,
   },
+};
+
+export const cmsFields = {
+  content: md("Content"),
 };

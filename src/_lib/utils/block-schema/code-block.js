@@ -1,4 +1,4 @@
-import { REVEAL_BOOLEAN_PARAM } from "#utils/block-schema/shared.js";
+import { REVEAL_BOOLEAN_PARAM, str } from "#utils/block-schema/shared.js";
 
 export const type = "code-block";
 
@@ -27,4 +27,10 @@ export const docs = {
     },
     reveal: { ...REVEAL_BOOLEAN_PARAM, description: "`data-reveal` value." },
   },
+};
+
+export const cmsFields = {
+  filename: str("Filename", { required: true }),
+  code: str("Code", { required: true }),
+  language: str("Language"),
 };

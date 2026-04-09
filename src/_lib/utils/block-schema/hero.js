@@ -1,4 +1,10 @@
-import { REVEAL_PARAM } from "#utils/block-schema/shared.js";
+import {
+  BUTTON_FIELDS_WITH_SIZE,
+  objectList,
+  REVEAL_PARAM,
+  str,
+  TITLE_REQUIRED,
+} from "#utils/block-schema/shared.js";
 
 export const type = "hero";
 
@@ -38,4 +44,12 @@ export const docs = {
     },
     reveal: REVEAL_PARAM,
   },
+};
+
+export const cmsFields = {
+  class: str("CSS Class"),
+  badge: str("Badge Text"),
+  title: TITLE_REQUIRED,
+  lead: str("Lead Text"),
+  buttons: objectList("Buttons", BUTTON_FIELDS_WITH_SIZE),
 };
