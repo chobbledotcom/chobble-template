@@ -5,7 +5,7 @@ import {
   str,
 } from "#utils/block-schema/shared.js";
 
-export const type = "icon_links";
+export const type = "icon-links";
 
 export const schema = ["intro", "items", "reveal"];
 

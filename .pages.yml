@@ -229,7 +229,7 @@ components:
             label: Property (e.g. url, data.title)
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
-  block_items_array:
+  block_items-array:
     label: Items Array
     type: object
     fields:
@@ -263,7 +263,7 @@ components:
             label: Property (e.g. url, data.title)
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
-  block_icon_links:
+  block_icon-links:
     label: Icon Links
     type: object
     fields:
@@ -283,7 +283,7 @@ components:
             required: true
           - { name: text, type: string, label: Link Text, required: true }
           - { name: url, type: string, label: URL }
-  block_contact_form:
+  block_contact-form:
     label: Contact Form
     type: object
     fields:
@@ -385,9 +385,9 @@ content:
           - { name: split, component: block_split }
           - { name: cta, component: block_cta }
           - { name: items, component: block_items }
-          - { name: items_array, component: block_items_array }
-          - { name: icon_links, component: block_icon_links }
-          - { name: contact_form, component: block_contact_form }
+          - { name: items-array, component: block_items-array }
+          - { name: icon-links, component: block_icon-links }
+          - { name: contact-form, component: block_contact-form }
           - { name: snippet, component: block_snippet }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
@@ -825,9 +825,9 @@ content:
           - { name: split, component: block_split }
           - { name: cta, component: block_cta }
           - { name: items, component: block_items }
-          - { name: items_array, component: block_items_array }
-          - { name: icon_links, component: block_icon_links }
-          - { name: contact_form, component: block_contact_form }
+          - { name: items-array, component: block_items-array }
+          - { name: icon-links, component: block_icon-links }
+          - { name: contact-form, component: block_contact-form }
   - name: homepage
     label: Homepage Settings
     type: file

@@ -12,7 +12,7 @@ frontmatter blocks[] → design-system-base.html → blocks.html → render-bloc
 
 **Layout:** `src/_layouts/design-system-base.html` applies `class="design-system"` to `<body>`, loads the design system CSS bundle, and iterates blocks via `blocks.html`.
 
-**Block loop** (`src/_includes/design-system/blocks.html`): Each block becomes a `<section>`. If `block.section_class` is set, it's applied to the section. Content is wrapped in a container based on `block.container_width`: `"wide"` (default, 1200px, `.container-wide`), `"narrow"` (680px, `.container-narrow`), or `"full"` (no wrapper). The `icon_links` block defaults to `"narrow"`.
+**Block loop** (`src/_includes/design-system/blocks.html`): Each block becomes a `<section>`. If `block.section_class` is set, it's applied to the section. Content is wrapped in a container based on `block.container_width`: `"wide"` (default, 1200px, `.container-wide`), `"narrow"` (680px, `.container-narrow`), or `"full"` (no wrapper). The `icon-links` block defaults to `"narrow"`.
 
 **Block router** (`src/_includes/design-system/render-block.html`): A Liquid `case` statement dispatching `block.type` to the appropriate include template.
 
@@ -312,7 +312,7 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 
 ---
 
-### `items_array`
+### `items-array`
 
 Renders items from an explicit list of paths (e.g. from Pages CMS content references).
 
@@ -333,7 +333,7 @@ Renders items from an explicit list of paths (e.g. from Pages CMS content refere
 
 ---
 
-### `contact_form`
+### `contact-form`
 
 Two-column layout with prose content and a contact form.
 
@@ -350,7 +350,7 @@ Two-column layout with prose content and a contact form.
 
 ---
 
-### `custom_contact_form`
+### `custom-contact-form`
 
 Contact form block with a custom, block-level field list instead of the site-wide `contactForm.fields`.
 
@@ -366,7 +366,7 @@ Contact form block with a custom, block-level field list instead of the site-wid
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
 | `header_class` | string | — | Extra CSS classes on the section header. |
 
-Identical layout and styling to `contact_form`, but accepts its own `fields` array. Each field object follows the same shape as entries in `src/_data/contact-form.json` — e.g. `{name, label, type, placeholder, required, rows, options, note, fieldClass, showOn, defaultFromPageTitle}`. Supported `type` values: `"text"` (default), `"email"`, `"tel"`, `"textarea"`, `"select"`, `"radio"`, `"heading"`.
+Identical layout and styling to `contact-form`, but accepts its own `fields` array. Each field object follows the same shape as entries in `src/_data/contact-form.json` — e.g. `{name, label, type, placeholder, required, rows, options, note, fieldClass, showOn, defaultFromPageTitle}`. Supported `type` values: `"text"` (default), `"email"`, `"tel"`, `"textarea"`, `"select"`, `"radio"`, `"heading"`.
 
 ---
 
@@ -488,7 +488,7 @@ Image grid with optional aspect ratio cropping and captions.
 
 ---
 
-### `icon_links`
+### `icon-links`
 
 Vertical list of links with icons, rendered as a flex column stack.
 
@@ -558,7 +558,7 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 |---|---|---|
 | `.container` | 900px (`$width-default`) | Default container for non-block contexts (property, guide includes). Flex-col with `$space-lg` gap. |
 | `.container-wide` | 1200px (`$width-wide`) | Wide content. Default for block wrappers. |
-| `.container-narrow` | 680px (`$width-narrow`) | Prose-width content. Default for `icon_links` blocks. |
+| `.container-narrow` | 680px (`$width-narrow`) | Prose-width content. Default for `icon-links` blocks. |
 
 ### Grid Classes
 
@@ -660,7 +660,7 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 | `cta.html` | `cta` |
 | `video-background.html` | `video-background` |
 | `image-background.html` | `image-background` |
-| `contact-form-block.html` | `contact_form` |
+| `contact-form-block.html` | `contact-form` |
 | `items-block.html` | `items` |
 | `properties-block.html` | `properties` |
 | `content-block.html` | `content` |
@@ -704,4 +704,4 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 
 ### Example Page
 
-`src/pages/chobble-template.md` uses hero, video-background, items, stats, features (x3), split-full (x2), split (x3), cta, contact_form, and image-background blocks.
+`src/pages/chobble-template.md` uses hero, video-background, items, stats, features (x3), split-full (x2), split (x3), cta, contact-form, and image-background blocks.

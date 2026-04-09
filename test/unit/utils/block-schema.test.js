@@ -21,9 +21,9 @@ describe("BLOCK_SCHEMAS", () => {
       "bunny-video-background",
       "image-background",
       "items",
-      "items_array",
-      "contact_form",
-      "custom_contact_form",
+      "items-array",
+      "contact-form",
+      "custom-contact-form",
       "markdown",
       "html",
       "content",
@@ -33,7 +33,7 @@ describe("BLOCK_SCHEMAS", () => {
       "link-button",
       "reviews",
       "gallery",
-      "icon_links",
+      "icon-links",
       "snippet",
     ];
     expect(Object.keys(BLOCK_SCHEMAS).sort()).toEqual(expectedTypes.sort());
@@ -229,10 +229,10 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
-  test("allows all valid keys for contact_form with headers", () => {
+  test("allows all valid keys for contact-form with headers", () => {
     const blocks = [
       {
-        type: "contact_form",
+        type: "contact-form",
         content: "Get in touch",
         header_intro: "## Contact Us\n\nWe'd love to hear from you",
         header_align: "center",
@@ -242,10 +242,10 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
-  test("allows all valid keys for custom_contact_form", () => {
+  test("allows all valid keys for custom-contact-form", () => {
     const blocks = [
       {
-        type: "custom_contact_form",
+        type: "custom-contact-form",
         content: "Get in touch",
         fields: [
           { name: "name", label: "Your name", required: true },
@@ -266,10 +266,10 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
-  test("rejects unknown key on custom_contact_form", () => {
+  test("rejects unknown key on custom-contact-form", () => {
     const blocks = [
       {
-        type: "custom_contact_form",
+        type: "custom-contact-form",
         fields: [],
         submit_label: "Send it",
       },

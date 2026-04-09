@@ -3,7 +3,7 @@
     {%- include "design-system/render-block.html", block: block -%}
   {%- else -%}
     {%- assign default_width = "wide" -%}
-    {%- if block.type == "icon_links" -%}{%- assign default_width = "narrow" -%}{%- endif -%}
+    {%- if block.type == "icon-links" -%}{%- assign default_width = "narrow" -%}{%- endif -%}
     {%- assign cw = block.container_width | default: default_width -%}
     <section{% if block.section_class != "" %} class="{{ block.section_class }}"{% endif %}>
       {%- unless cw == "full" -%}<div class="container-{{ cw }}">{%- endunless -%}

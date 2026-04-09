@@ -4,7 +4,7 @@ import {
   md,
 } from "#utils/block-schema/shared.js";
 
-export const type = "contact_form";
+export const type = "contact-form";
 
 export const schema = ["content", ...HEADER_KEYS];
 

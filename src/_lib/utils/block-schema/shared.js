@@ -40,7 +40,7 @@ export const CLASS_PARAM = {
   description: "Extra CSS classes.",
 };
 
-/** Shared schema keys for items and items_array blocks. */
+/** Shared schema keys for items and items-array blocks. */
 export const ITEMS_COMMON_KEYS = [
   "intro",
   "horizontal",
@@ -49,7 +49,7 @@ export const ITEMS_COMMON_KEYS = [
   ...HEADER_KEYS,
 ];
 
-/** Shared param docs for items and items_array blocks (includes header params). */
+/** Shared param docs for items and items-array blocks (includes header params). */
 export const ITEMS_COMMON_PARAMS = {
   intro: {
     type: "string",
@@ -103,7 +103,7 @@ export const ITEMS_GRID_META = {
   htmlRoot: '<ul class="items" role="list">',
 };
 
-/** Shared collection param for items and items_array blocks. */
+/** Shared collection param for items and items-array blocks. */
 export const COLLECTION_PARAM = (description) => ({
   type: "string",
   required: true,
@@ -111,7 +111,7 @@ export const COLLECTION_PARAM = (description) => ({
 });
 
 /**
- * Factory for items/items_array block docs.
+ * Factory for items/items-array block docs.
  * Both blocks share an identical docs shape modulo the summary, template,
  * collection description, and any extra params (like the `items` array).
  */
@@ -186,14 +186,14 @@ export const BUTTON_FIELDS_WITH_SIZE = {
 /** Pre-built required title field. */
 export const TITLE_REQUIRED = str("Title", { required: true });
 
-/** Filter object field shared between items and items_array. */
+/** Filter object field shared between items and items-array. */
 export const FILTER_FIELD = objectField("Filter", {
   property: str("Property (e.g. url, data.title)"),
   includes: str("Contains"),
   equals: str("Equals"),
 });
 
-/** CMS fields shared between items and items_array blocks. */
+/** CMS fields shared between items and items-array blocks. */
 export const ITEMS_CMS_SHARED_FIELDS = {
   collection: str("Collection Name", { required: true }),
   intro: md("Intro Content (Markdown)"),
