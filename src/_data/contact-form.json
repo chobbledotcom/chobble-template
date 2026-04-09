@@ -53,7 +53,7 @@
 			"rows": 6
 		}
 	],
-	"currentItemTagLabelWhitelist": {
+	"itemTagLabels": {
 		"categories": "Category",
 		"products": "Product",
 		"property": "Property",
