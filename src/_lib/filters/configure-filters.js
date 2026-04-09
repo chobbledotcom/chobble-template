@@ -5,6 +5,7 @@
  * that registers already-tested functions with Eleventy. The actual logic
  * in the imported functions is fully unit tested.
  */
+import { resolveFormFields } from "#config/form-helpers.js";
 import strings from "#data/strings.js";
 import {
   categoryFilterData,
@@ -33,5 +34,11 @@ export const configureFilters = (eleventyConfig) => {
   eleventyConfig.addCollection(
     "filteredProductPagesListingFilterUI",
     createListingFilterUI("products", `/${strings.product_permalink_dir}`),
+  );
+
+  eleventyConfig.addFilter(
+    "contactFormFieldsForPage",
+    (contactForm, tags, skipShowOn) =>
+      resolveFormFields(contactForm, tags, Boolean(skipShowOn)),
   );
 };

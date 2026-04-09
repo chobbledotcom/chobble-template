@@ -18,9 +18,9 @@
 			"placeholder": "Your phone number"
 		},
 		{
-			"name": "product",
+			"name": "item",
 			"type": "textarea",
-			"label": "Product",
+			"label": "Item",
 			"required": true,
 			"rows": 6,
 			"showOn": "products",
@@ -53,5 +53,13 @@
 			"rows": 6
 		}
 	],
+	"itemTagLabels": {
+		"categories": "Category",
+		"products": "Product",
+		"property": "Property",
+		"properties": "Property",
+		"events": "Event",
+		"locations": "Location"
+	},
 	"submitButtonText": "Send Enquiry"
 }
