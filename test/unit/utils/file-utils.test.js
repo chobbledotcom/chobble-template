@@ -279,6 +279,18 @@ Join us weekly!`;
       });
     });
 
+    test("Renders ++underline++ syntax as <ins> tags", async () => {
+      const content = "This is ++underlined++ text.";
+      await testSnippet(
+        "render_snippet-underline",
+        "underline-test",
+        content,
+        (result) => {
+          expect(result.includes("<ins>underlined</ins>")).toBe(true);
+        },
+      );
+    });
+
     test("Handles special characters in content", async () => {
       const content = `# Special Characters
 

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import markdownIt from "markdown-it";
+import markdownItIns from "markdown-it-ins";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 import { memoize } from "#toolkit/fp/memoize.js";
@@ -101,7 +102,7 @@ const renderSnippet = memoize(
     name,
     defaultString = "",
     baseDir = process.cwd(),
-    mdRenderer = new markdownIt({ html: true }),
+    mdRenderer = new markdownIt({ html: true }).use(markdownItIns),
   ) => {
     const parsed = loadSnippet(name, baseDir);
     if (!parsed) return defaultString;
@@ -164,7 +165,7 @@ const readFileShortcode = (relativePath) => readFileContent(relativePath);
  * @param {{ addFilter: Function, addAsyncFilter: Function, addShortcode: Function, addAsyncShortcode: Function }} eleventyConfig
  */
 const configureFileUtils = (eleventyConfig) => {
-  const mdRenderer = new markdownIt({ html: true });
+  const mdRenderer = new markdownIt({ html: true }).use(markdownItIns);
 
   eleventyConfig.addFilter("file_exists", fileExistsFilter);
   eleventyConfig.addFilter("file_missing", fileMissingFilter);

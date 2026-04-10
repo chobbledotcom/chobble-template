@@ -1,5 +1,6 @@
 import { RenderPlugin } from "@11ty/eleventy";
 import schemaPlugin from "@quasibit/eleventy-plugin-schema";
+import markdownItIns from "markdown-it-ins";
 import config from "#data/config.json" with { type: "json" };
 
 // Build tools
@@ -75,6 +76,8 @@ export default async function (eleventyConfig) {
 
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
+
+  eleventyConfig.amendLibrary("md", (mdLib) => mdLib.use(markdownItIns));
 
   // configureLayoutAliases(eleventyConfig);
 
