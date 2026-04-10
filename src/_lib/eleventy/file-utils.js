@@ -1,13 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { Liquid } from "liquidjs";
 import markdownIt from "markdown-it";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 import { memoize } from "#toolkit/fp/memoize.js";
-
-const snippetLiquid = new Liquid();
+import { processLiquidStrings } from "#utils/liquid-render.js";
 
 const cacheKeyFromArgs = (args) => args.join(",");
 
@@ -47,34 +45,6 @@ const readSnippetData = memoize(
   },
   { cacheKey: cacheKeyFromArgs },
 );
-
-/**
- * Recursively process all string values in a data structure through Liquid,
- * resolving template expressions like {{ title }} against the provided context.
- * Non-string values (numbers, booleans, null) are returned unchanged.
- */
-const processLiquidStrings = async (value, context) => {
-  if (typeof value === "string") {
-    return value.includes("{{") || value.includes("{%")
-      ? snippetLiquid.parseAndRender(value, context)
-      : value;
-  }
-  if (Array.isArray(value)) {
-    return Promise.all(
-      value.map((item) => processLiquidStrings(item, context)),
-    );
-  }
-  if (value !== null && typeof value === "object") {
-    const entries = await Promise.all(
-      Object.entries(value).map(async ([k, v]) => [
-        k,
-        await processLiquidStrings(v, context),
-      ]),
-    );
-    return Object.fromEntries(entries);
-  }
-  return value;
-};
 
 const renderSnippet = memoize(
   async (
@@ -117,14 +87,11 @@ const configureFileUtils = (eleventyConfig) => {
 
   eleventyConfig.addFilter("snippet_data", (name) => readSnippetData(name));
 
-  eleventyConfig.addAsyncFilter(
-    "snippet_blocks_with_context",
-    async function (name) {
-      const data = readSnippetData(name);
-      if (!data?.blocks) return [];
-      return processLiquidStrings(data.blocks, this.context.environments);
-    },
-  );
+  eleventyConfig.addAsyncFilter("snippet_blocks", async function (name) {
+    const data = readSnippetData(name);
+    if (!data?.blocks) return [];
+    return processLiquidStrings(data.blocks, this.context.environments);
+  });
 
   eleventyConfig.addFilter("escape_html", (str) =>
     str

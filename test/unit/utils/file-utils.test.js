@@ -294,7 +294,7 @@ Unicode: café résumé naïve`;
     });
   });
 
-  describe("snippet_blocks_with_context filter", () => {
+  describe("snippet_blocks filter", () => {
     const testSnippetBlocksCtx = (
       testName,
       snippetName,
@@ -303,7 +303,7 @@ Unicode: café résumé naïve`;
       callback,
     ) =>
       withSnippetSetup(testName, snippetName, content, async (mockConfig) => {
-        const filter = mockConfig.asyncFilters.snippet_blocks_with_context;
+        const filter = mockConfig.asyncFilters.snippet_blocks;
         const result = await filter.call(
           { context: { environments: pageContext } },
           snippetName,
@@ -314,9 +314,7 @@ Unicode: café résumé naïve`;
     test("Registers as an async filter", () => {
       const mockConfig = createMockEleventyConfig();
       configureFileUtils(mockConfig);
-      expect(typeof mockConfig.asyncFilters.snippet_blocks_with_context).toBe(
-        "function",
-      );
+      expect(typeof mockConfig.asyncFilters.snippet_blocks).toBe("function");
     });
 
     test("Returns empty array for missing snippet", async () => {

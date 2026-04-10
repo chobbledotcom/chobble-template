@@ -34,4 +34,32 @@ const createTemplateRenderer =
     return liquid.parseAndRender(template, { [dataKey]: data });
   };
 
-export { createTemplateLoader, createTemplateRenderer };
+/**
+ * Recursively process all string values in a data structure through Liquid,
+ * resolving template expressions like {{ title }} against the provided context.
+ * Non-string values (numbers, booleans, null) are returned unchanged.
+ */
+const processLiquidStrings = async (value, context) => {
+  if (typeof value === "string") {
+    return value.includes("{{") || value.includes("{%")
+      ? liquid.parseAndRender(value, context)
+      : value;
+  }
+  if (Array.isArray(value)) {
+    return Promise.all(
+      value.map((item) => processLiquidStrings(item, context)),
+    );
+  }
+  if (value !== null && typeof value === "object") {
+    const entries = await Promise.all(
+      Object.entries(value).map(async ([k, v]) => [
+        k,
+        await processLiquidStrings(v, context),
+      ]),
+    );
+    return Object.fromEntries(entries);
+  }
+  return value;
+};
+
+export { createTemplateLoader, createTemplateRenderer, processLiquidStrings };
