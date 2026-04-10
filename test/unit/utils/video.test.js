@@ -6,6 +6,7 @@ import {
   getVideoEmbedUrl,
   getVideoThumbnailUrl,
   isRickAstleyThumbnail,
+  isYouTubeId,
   RICK_ASTLEY_VIDEO_ID,
 } from "#utils/video.js";
 
@@ -21,7 +22,7 @@ describe("getVideoEmbedUrl", () => {
     test("adds background params when background option is true", () => {
       const result = getVideoEmbedUrl("dQw4w9WgXcQ", { background: true });
       expect(result).toBe(
-        "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&playlist=dQw4w9WgXcQ",
+        "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=dQw4w9WgXcQ",
       );
     });
 
@@ -183,6 +184,29 @@ describe("isRickAstleyThumbnail", () => {
   test("returns false for non-string input", () => {
     expect(isRickAstleyThumbnail(null)).toBe(false);
     expect(isRickAstleyThumbnail(undefined)).toBe(false);
+  });
+});
+
+describe("isYouTubeId", () => {
+  test("returns true for a YouTube video ID", () => {
+    expect(isYouTubeId("dQw4w9WgXcQ")).toBe(true);
+  });
+
+  test("returns false for an https URL", () => {
+    expect(isYouTubeId("https://example.com/embed/video")).toBe(false);
+  });
+
+  test("returns false for an http URL", () => {
+    expect(isYouTubeId("http://example.com/embed/video")).toBe(false);
+  });
+
+  test("returns false for a Vimeo URL", () => {
+    expect(isYouTubeId("https://player.vimeo.com/video/123456")).toBe(false);
+  });
+
+  test("returns false for non-string input", () => {
+    expect(isYouTubeId(null)).toBe(false);
+    expect(isYouTubeId(undefined)).toBe(false);
   });
 });
 

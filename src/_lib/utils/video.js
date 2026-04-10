@@ -118,7 +118,7 @@ const getVideoEmbedUrl = (videoId, options = {}) => {
 
   const background = options.background === true;
   const params = background
-    ? `autoplay=1&mute=1&loop=1&controls=0&playsinline=1&playlist=${videoId}`
+    ? `autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=${videoId}`
     : "autoplay=1";
 
   return `https://www.youtube-nocookie.com/embed/${videoId}?${params}`;
@@ -165,9 +165,20 @@ const getVideoThumbnailUrl = async (videoId) => {
 const isRickAstleyThumbnail = (url) =>
   typeof url === "string" && url.includes(RICK_ASTLEY_VIDEO_ID);
 
+/**
+ * Check if a video identifier is a YouTube video ID (not a URL).
+ * YouTube IDs are short alphanumeric strings that don't start with "http".
+ *
+ * @param {string} videoId - Video identifier
+ * @returns {boolean} True if the identifier is a YouTube video ID
+ */
+const isYouTubeId = (videoId) =>
+  typeof videoId === "string" && !isCustomVideoUrl(videoId);
+
 export {
   getVideoEmbedUrl,
   getVideoThumbnailUrl,
   isRickAstleyThumbnail,
+  isYouTubeId,
   RICK_ASTLEY_VIDEO_ID,
 };
