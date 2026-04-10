@@ -36,6 +36,9 @@ const createTemplateRenderer =
 
 /**
  * Render Liquid expressions in a value, recursing into objects and arrays.
+ * @param {unknown} value
+ * @param {Record<string, unknown>} context
+ * @returns {Promise<unknown>}
  */
 const renderValue = async (value, context) => {
   if (typeof value === "string") {
@@ -61,8 +64,13 @@ const renderValue = async (value, context) => {
 /**
  * Process an array of blocks through Liquid, resolving template expressions
  * like {{ title }} in all string values against the provided context.
+ * @param {Record<string, unknown>[]} blocks
+ * @param {Record<string, unknown>} context
+ * @returns {Promise<Record<string, unknown>[]>}
  */
 const processLiquidStrings = (blocks, context) =>
-  Promise.all(blocks.map((block) => renderValue(block, context)));
+  /** @type {Promise<Record<string, unknown>[]>} */ (
+    Promise.all(blocks.map((block) => renderValue(block, context)))
+  );
 
 export { createTemplateLoader, createTemplateRenderer, processLiquidStrings };
