@@ -8,6 +8,40 @@ import { memoize } from "#toolkit/fp/memoize.js";
 import { processLiquidStrings } from "#utils/liquid-render.js";
 
 /**
+ * @typedef {{ type: string, content: string }} MarkdownToken
+ * @typedef {{ children?: MarkdownToken[] }} MarkdownBlockToken
+ * @typedef {{ tokens: MarkdownBlockToken[] }} MarkdownState
+ */
+
+/** @param {MarkdownBlockToken} token */
+const stripTokenMarkers = (token) => {
+  if (!token.children) return;
+  for (const child of token.children) {
+    if (child.type === "text") {
+      child.content = child.content.replace(/\+\+/g, "");
+    }
+  }
+};
+
+/** @param {MarkdownState} state */
+const stripPlusPlusRule = (state) => {
+  for (const token of state.tokens) {
+    stripTokenMarkers(token);
+  }
+};
+
+/** @param {any} md */
+const stripPlusPlus = (md) => {
+  md.core.ruler.after("inline", "strip_plus_plus", stripPlusPlusRule);
+};
+
+const createMarkdownRenderer = () => {
+  const md = new markdownIt({ html: true });
+  stripPlusPlus(md);
+  return md;
+};
+
+/**
  * @typedef {{ context: { environments: Record<string, unknown> } }} LiquidFilterContext
  * @typedef {() => Promise<string>} AsyncHtmlProvider
  * @typedef {{ blocks?: Record<string, unknown>[] } & Record<string, unknown>} SnippetData
@@ -101,7 +135,7 @@ const renderSnippet = memoize(
     name,
     defaultString = "",
     baseDir = process.cwd(),
-    mdRenderer = new markdownIt({ html: true }),
+    mdRenderer = createMarkdownRenderer(),
   ) => {
     const parsed = loadSnippet(name, baseDir);
     if (!parsed) return defaultString;
@@ -164,7 +198,7 @@ const readFileShortcode = (relativePath) => readFileContent(relativePath);
  * @param {{ addFilter: Function, addAsyncFilter: Function, addShortcode: Function, addAsyncShortcode: Function }} eleventyConfig
  */
 const configureFileUtils = (eleventyConfig) => {
-  const mdRenderer = new markdownIt({ html: true });
+  const mdRenderer = createMarkdownRenderer();
 
   eleventyConfig.addFilter("file_exists", fileExistsFilter);
   eleventyConfig.addFilter("file_missing", fileMissingFilter);
@@ -185,4 +219,4 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addShortcode("read_file", readFileShortcode);
 };
 
-export { configureFileUtils, ensureDir };
+export { configureFileUtils, ensureDir, stripPlusPlus };
