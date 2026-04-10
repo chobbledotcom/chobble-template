@@ -36,6 +36,7 @@
   --color-video-play-bg: #{$color-video-play-bg};
   --color-video-play-hover: #{$color-video-play-hover};
   --body-background: #{$color-bg};
+  --color-dark-bg-alt: #{$color-dark-bg-alt};
   --font-family-body: #{$font-sans};
   --font-family-heading: #{$font-sans};
   --font-family-mono: #{$font-mono};
@@ -352,6 +353,12 @@
   > section:nth-child(even),
   main > section:nth-child(even) {
     background: var(--body-background-alt);
+  }
+
+  // Even dark sections get alternate dark background
+  > section.dark:nth-child(even),
+  main > section.dark:nth-child(even) {
+    background: var(--color-dark-bg-alt);
   }
 }
 

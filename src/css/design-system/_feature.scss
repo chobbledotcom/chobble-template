@@ -40,7 +40,12 @@
   }
 
   section.dark .feature {
-    --color-card-bg: #{$color-bg};
+    --color-card-bg: var(--color-dark-bg-alt);
+  }
+
+  > section.dark:nth-child(even) .feature,
+  main > section.dark:nth-child(even) .feature {
+    --color-card-bg: #{$color-dark-bg};
   }
 
   .feature {
