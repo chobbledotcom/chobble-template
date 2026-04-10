@@ -44,42 +44,34 @@ const testWithEmptyDir = (testName, callback) =>
   withTempDir(testName, (tempDir) => withFileUtils(tempDir, callback));
 
 /**
- * Run an async snippet test with configured file utils.
- * Handles temp dir creation, snippet file creation, and cleanup.
+ * Scaffold a temp snippet dir, optionally write a snippet file,
+ * create a configured mock, and run a callback inside a mocked CWD.
+ * Cleans up the temp dir afterward.
  */
-const testSnippet = async (testName, snippetName, content, callback) => {
+const withSnippetSetup = async (testName, snippetName, content, callback) => {
   const { tempDir, snippetsDir } = createTempSnippetsDir(testName);
   try {
-    fs.writeFileSync(`${snippetsDir}/${snippetName}.md`, content);
-    const mockConfig = createConfiguredMock();
+    if (content !== null) {
+      fs.writeFileSync(`${snippetsDir}/${snippetName}.md`, content);
+    }
     await withMockedCwd(tempDir, async () => {
-      const result =
-        await mockConfig.asyncShortcodes.render_snippet(snippetName);
-      await callback(result);
+      await callback(createConfiguredMock());
     });
   } finally {
     cleanupTempDir(tempDir);
   }
 };
 
-/**
- * Run a snippet_data filter test.
- * Handles temp dir creation, optional snippet file creation, and cleanup.
- */
-const testSnippetData = (testName, snippetName, content, callback) => {
-  const { tempDir, snippetsDir } = createTempSnippetsDir(testName);
-  try {
-    if (content !== null) {
-      fs.writeFileSync(`${snippetsDir}/${snippetName}.md`, content);
-    }
-    const mockConfig = createConfiguredMock();
-    withMockedCwd(tempDir, () => {
-      callback(mockConfig.filters.snippet_data(snippetName));
-    });
-  } finally {
-    cleanupTempDir(tempDir);
-  }
-};
+const testSnippet = (testName, snippetName, content, callback) =>
+  withSnippetSetup(testName, snippetName, content, async (mockConfig) => {
+    const result = await mockConfig.asyncShortcodes.render_snippet(snippetName);
+    await callback(result);
+  });
+
+const testSnippetData = (testName, snippetName, content, callback) =>
+  withSnippetSetup(testName, snippetName, content, (mockConfig) => {
+    callback(mockConfig.filters.snippet_data(snippetName));
+  });
 
 describe("file-utils", () => {
   describe("configureFileUtils", () => {
@@ -297,6 +289,146 @@ Unicode: café résumé naïve`;
         content,
         (result) => {
           expect(result.includes("café")).toBe(true);
+        },
+      );
+    });
+  });
+
+  describe("snippet_blocks_with_context filter", () => {
+    const testSnippetBlocksCtx = (
+      testName,
+      snippetName,
+      content,
+      pageContext,
+      callback,
+    ) =>
+      withSnippetSetup(testName, snippetName, content, async (mockConfig) => {
+        const filter = mockConfig.asyncFilters.snippet_blocks_with_context;
+        const result = await filter.call(
+          { context: { environments: pageContext } },
+          snippetName,
+        );
+        await callback(result);
+      });
+
+    test("Registers as an async filter", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureFileUtils(mockConfig);
+      expect(typeof mockConfig.asyncFilters.snippet_blocks_with_context).toBe(
+        "function",
+      );
+    });
+
+    test("Returns empty array for missing snippet", async () => {
+      await testSnippetBlocksCtx(
+        "ctx-missing",
+        "nonexistent",
+        null,
+        {},
+        (result) => {
+          expect(result).toEqual([]);
+        },
+      );
+    });
+
+    test("Resolves Liquid expressions in block strings with page context", async () => {
+      const content = `---
+name: Test CTA
+blocks:
+  - type: cta
+    title: "Book your {{ title }}"
+    description: Static description
+---`;
+      await testSnippetBlocksCtx(
+        "ctx-liquid",
+        "test-cta",
+        content,
+        { title: "Mini Gizmo" },
+        (result) => {
+          expect(result.length).toBe(1);
+          expect(result[0].title).toBe("Book your Mini Gizmo");
+          expect(result[0].description).toBe("Static description");
+          expect(result[0].type).toBe("cta");
+        },
+      );
+    });
+
+    test("Resolves Liquid in nested block properties", async () => {
+      const content = `---
+name: Nested Test
+blocks:
+  - type: cta
+    title: "{{ title }}"
+    button:
+      text: "Buy {{ title }}"
+      href: /contact/
+---`;
+      await testSnippetBlocksCtx(
+        "ctx-nested",
+        "nested",
+        content,
+        { title: "Widget" },
+        (result) => {
+          expect(result[0].title).toBe("Widget");
+          expect(result[0].button.text).toBe("Buy Widget");
+          expect(result[0].button.href).toBe("/contact/");
+        },
+      );
+    });
+
+    test("Returns empty array for snippet without blocks", async () => {
+      const content = `---
+name: No blocks
+---
+Just body text`;
+      await testSnippetBlocksCtx(
+        "ctx-no-blocks",
+        "no-blocks",
+        content,
+        {},
+        (result) => {
+          expect(result).toEqual([]);
+        },
+      );
+    });
+
+    test("Leaves plain strings unchanged", async () => {
+      const content = `---
+name: Plain
+blocks:
+  - type: cta
+    title: No templates here
+---`;
+      await testSnippetBlocksCtx(
+        "ctx-plain",
+        "plain-cta",
+        content,
+        { title: "Unused" },
+        (result) => {
+          expect(result[0].title).toBe("No templates here");
+        },
+      );
+    });
+
+    test("Preserves non-string values in blocks", async () => {
+      const content = `---
+name: Mixed Types
+blocks:
+  - type: stats
+    columns: 3
+    items:
+      - value: "{{ title }}"
+        label: Name
+---`;
+      await testSnippetBlocksCtx(
+        "ctx-mixed",
+        "mixed",
+        content,
+        { title: "Gizmo" },
+        (result) => {
+          expect(result[0].columns).toBe(3);
+          expect(result[0].items[0].value).toBe("Gizmo");
+          expect(result[0].items[0].label).toBe("Name");
         },
       );
     });

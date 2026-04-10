@@ -27,6 +27,11 @@ layout: base
       {%- include "design-system/reviews-block.html", current_item: true -%}
     </div>
     {%- include "faq.html" -%}
+    {%- if blocks -%}
+      <div class="design-system">
+        {%- include "design-system/blocks.html", blocks: blocks -%}
+      </div>
+    {%- endif -%}
   </div>
   {% include "item-event-products.html" %}
   {% include "item-contact-section.html" %}
