@@ -35,31 +35,34 @@ const createTemplateRenderer =
   };
 
 /**
- * Recursively process all string values in a data structure through Liquid,
- * resolving template expressions like {{ title }} against the provided context.
- * Non-string values (numbers, booleans, null) are returned unchanged.
+ * Render Liquid expressions in a value, recursing into objects and arrays.
  */
-const processLiquidStrings = async (value, context) => {
+const renderValue = async (value, context) => {
   if (typeof value === "string") {
     return value.includes("{{") || value.includes("{%")
       ? liquid.parseAndRender(value, context)
       : value;
   }
   if (Array.isArray(value)) {
-    return Promise.all(
-      value.map((item) => processLiquidStrings(item, context)),
-    );
+    return Promise.all(value.map((v) => renderValue(v, context)));
   }
   if (value !== null && typeof value === "object") {
     const entries = await Promise.all(
       Object.entries(value).map(async ([k, v]) => [
         k,
-        await processLiquidStrings(v, context),
+        await renderValue(v, context),
       ]),
     );
     return Object.fromEntries(entries);
   }
   return value;
 };
+
+/**
+ * Process an array of blocks through Liquid, resolving template expressions
+ * like {{ title }} in all string values against the provided context.
+ */
+const processLiquidStrings = (blocks, context) =>
+  Promise.all(blocks.map((block) => renderValue(block, context)));
 
 export { createTemplateLoader, createTemplateRenderer, processLiquidStrings };
