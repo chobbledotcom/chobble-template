@@ -4,13 +4,18 @@ Video background block - displays a full-width video background with overlaid te
 The video is embedded as an iframe (YouTube) and plays automatically without user interaction.
 A rich text content block is overlaid on top of the video.
 
+For YouTube videos, a thumbnail is automatically generated from the video ID
+(or uses a custom thumbnail_url if provided). The thumbnail is displayed until
+the video starts playing, then fades out via the youtube-video.js script.
+
 Parameters (via block object):
   - block.video_id: YouTube video ID (required)
   - block.video_title: Accessible title for the iframe (default: "Background video")
   - block.content: HTML/markdown content to overlay on the video (required)
   - block.aspect_ratio: Aspect ratio for the video container (default: "16/9")
   - block.class: Additional classes for the container (optional)
-  - block.thumbnail_url: URL of a thumbnail image to display while the video loads (optional)
+  - block.thumbnail_url: URL of a thumbnail image to display while the video loads (optional,
+    auto-generated for YouTube videos)
 
 Usage:
   {% include "design-system/video-background.html", block: block %}
@@ -18,11 +23,18 @@ Usage:
 
 {%- assign _aspect_ratio = block.aspect_ratio | default: "16/9" -%}
 {%- assign _video_title = block.video_title | default: "Background video" -%}
+{%- assign _is_youtube = block.video_id | is_youtube_id -%}
 
-<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};">
-  {%- if block.thumbnail_url -%}
+{%- if block.thumbnail_url -%}
+  {%- assign _thumbnail = block.thumbnail_url -%}
+{%- elsif _is_youtube -%}
+  {%- assign _thumbnail = block.video_id | youtube_thumbnail -%}
+{%- endif -%}
+
+<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};"{% if _is_youtube and _thumbnail %} data-youtube-video{% endif %}>
+  {%- if _thumbnail -%}
   <div class="video-background__thumbnail">
-    {% image block.thumbnail_url, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
+    {% image _thumbnail, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
   </div>
   {%- endif -%}
   {%- include "design-system/video-iframe.html", video_id: block.video_id, title: _video_title, background: true -%}
@@ -32,3 +44,7 @@ Usage:
     </figcaption>
   </figure>
 </div>
+
+{%- if _is_youtube and _thumbnail -%}
+<script type="module" src="{{ '/assets/js/youtube-video.js' | cacheBust }}"></script>
+{%- endif -%}
