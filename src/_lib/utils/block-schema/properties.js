@@ -1,5 +1,6 @@
 export const type = "properties";
 
+/** @type {string[]} */
 export const schema = [];
 
 export const docs = {

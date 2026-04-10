@@ -103,7 +103,8 @@ export const ITEMS_GRID_META = {
   htmlRoot: '<ul class="items" role="list">',
 };
 
-/** Shared collection param for items and items-array blocks. */
+/** Shared collection param for items and items-array blocks.
+ * @param {string} description */
 export const COLLECTION_PARAM = (description) => ({
   type: "string",
   required: true,
@@ -114,6 +115,7 @@ export const COLLECTION_PARAM = (description) => ({
  * Factory for items/items-array block docs.
  * Both blocks share an identical docs shape modulo the summary, template,
  * collection description, and any extra params (like the `items` array).
+ * @param {{summary: string, template: string, collectionDescription: string, extraParams?: Record<string, unknown>}} options
  */
 export const buildItemsDocs = ({
   summary,

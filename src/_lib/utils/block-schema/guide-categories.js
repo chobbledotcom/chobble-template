@@ -1,5 +1,6 @@
 export const type = "guide-categories";
 
+/** @type {string[]} */
 export const schema = [];
 
 export const docs = {

@@ -1,5 +1,6 @@
 export const type = "content";
 
+/** @type {string[]} */
 export const schema = [];
 
 export const docs = {
