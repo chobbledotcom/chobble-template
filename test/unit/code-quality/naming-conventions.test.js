@@ -11,7 +11,6 @@ const IGNORED_IDENTIFIERS = frozenSet([
   "eleventyImageOnRequestDuringServePlugin", // Eleventy
   "getNewestCollectionItemDate", // Eleventy
   "disableJavaScriptFileLoading", // happy-dom settings
-  "onYouTubeIframeAPIReady", // YouTube IFrame Player API callback
 ]);
 
 /**
