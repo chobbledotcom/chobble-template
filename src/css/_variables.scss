@@ -30,6 +30,7 @@ $color-hover-bg: rgba(0, 0, 0, 0.05) !default;
 
 // Dark section colors
 $color-dark-bg: #1f2937 !default;
+$color-dark-bg-alt: color.scale($color-dark-bg, $lightness: -15%) !default;
 $color-dark-text: #f9fafb !default;
 $color-dark-text-muted: #9ca3af !default;
 $color-dark-card-bg: #374151 !default;
