@@ -40,7 +40,7 @@
   }
 
   section.dark .feature {
-    --color-card-bg: #{$color-bg};
+    --color-card-bg: color-mix(in srgb, var(--color-bg), black 15%);
   }
 
   .feature {
