@@ -17,11 +17,16 @@ const configureVideo = (eleventyConfig) => {
   );
 
   /** Returns true if the video identifier is a YouTube ID (not a URL). */
-  eleventyConfig.addFilter("is_youtube_id", (videoId) => isYouTubeId(videoId));
+  eleventyConfig.addFilter(
+    "is_youtube_id",
+    /** @param {string} videoId */
+    (videoId) => isYouTubeId(videoId),
+  );
 
   /** Returns the YouTube thumbnail URL for a video ID. */
   eleventyConfig.addFilter(
     "youtube_thumbnail",
+    /** @param {string} videoId */
     (videoId) => `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
   );
 };
