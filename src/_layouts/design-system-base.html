@@ -31,6 +31,12 @@
     {%- endif -%}
     {%- if blocks -%}
       {%- include "design-system/blocks.html", blocks: blocks -%}
+      {%- assign has_content_block = blocks | where: "type", "content" | size -%}
+      {%- if has_content_block == 0 and content != "" -%}
+        <section><div class="container-wide">
+        {{- content -}}
+        </div></section>
+      {%- endif -%}
     {%- else -%}
       {{- content -}}
     {%- endif -%}
