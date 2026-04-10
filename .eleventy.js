@@ -76,8 +76,8 @@ export default async function (eleventyConfig) {
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
 
-  eleventyConfig.amendLibrary("md", (mdLib) => {
-    mdLib.core.ruler.after("inline", "strip_plus_plus", (state) => {
+  eleventyConfig.amendLibrary("md", (/** @type {unknown} */ mdLib) => {
+    /** @type {any} */ (mdLib).core.ruler.after("inline", "strip_plus_plus", (/** @type {{ tokens: Array<{ children?: Array<{ type: string, content: string }> }> }} */ state) => {
       for (const token of state.tokens) {
         if (token.children) {
           for (const child of token.children) {
