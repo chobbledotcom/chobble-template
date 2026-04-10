@@ -2,11 +2,33 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import markdownIt from "markdown-it";
-import markdownItIns from "markdown-it-ins";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { processLiquidStrings } from "#utils/liquid-render.js";
+
+const stripTokenMarkers = (token) => {
+  if (!token.children) return;
+  for (const child of token.children) {
+    if (child.type === "text") {
+      child.content = child.content.replace(/\+\+/g, "");
+    }
+  }
+};
+
+const stripPlusPlus = (md) => {
+  md.core.ruler.after("inline", "strip_plus_plus", (state) => {
+    for (const token of state.tokens) {
+      stripTokenMarkers(token);
+    }
+  });
+};
+
+const createMarkdownRenderer = () => {
+  const md = new markdownIt({ html: true });
+  stripPlusPlus(md);
+  return md;
+};
 
 /**
  * @typedef {{ context: { environments: Record<string, unknown> } }} LiquidFilterContext
@@ -102,7 +124,7 @@ const renderSnippet = memoize(
     name,
     defaultString = "",
     baseDir = process.cwd(),
-    mdRenderer = new markdownIt({ html: true }).use(markdownItIns),
+    mdRenderer = createMarkdownRenderer(),
   ) => {
     const parsed = loadSnippet(name, baseDir);
     if (!parsed) return defaultString;
@@ -165,7 +187,7 @@ const readFileShortcode = (relativePath) => readFileContent(relativePath);
  * @param {{ addFilter: Function, addAsyncFilter: Function, addShortcode: Function, addAsyncShortcode: Function }} eleventyConfig
  */
 const configureFileUtils = (eleventyConfig) => {
-  const mdRenderer = new markdownIt({ html: true }).use(markdownItIns);
+  const mdRenderer = createMarkdownRenderer();
 
   eleventyConfig.addFilter("file_exists", fileExistsFilter);
   eleventyConfig.addFilter("file_missing", fileMissingFilter);

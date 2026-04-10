@@ -1,6 +1,5 @@
 import { RenderPlugin } from "@11ty/eleventy";
 import schemaPlugin from "@quasibit/eleventy-plugin-schema";
-import markdownItIns from "markdown-it-ins";
 import config from "#data/config.json" with { type: "json" };
 
 // Build tools
@@ -77,7 +76,19 @@ export default async function (eleventyConfig) {
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
 
-  eleventyConfig.amendLibrary("md", (mdLib) => mdLib.use(markdownItIns));
+  eleventyConfig.amendLibrary("md", (mdLib) => {
+    mdLib.core.ruler.after("inline", "strip_plus_plus", (state) => {
+      for (const token of state.tokens) {
+        if (token.children) {
+          for (const child of token.children) {
+            if (child.type === "text") {
+              child.content = child.content.replace(/\+\+/g, "");
+            }
+          }
+        }
+      }
+    });
+  });
 
   // configureLayoutAliases(eleventyConfig);
 

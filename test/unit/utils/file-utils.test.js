@@ -279,14 +279,16 @@ Join us weekly!`;
       });
     });
 
-    test("Renders ++underline++ syntax as <ins> tags", async () => {
+    test("Strips ++ underline markers from content", async () => {
       const content = "This is ++underlined++ text.";
       await testSnippet(
         "render_snippet-underline",
         "underline-test",
         content,
         (result) => {
-          expect(result.includes("<ins>underlined</ins>")).toBe(true);
+          expect(result.includes("underlined")).toBe(true);
+          expect(result.includes("<ins>")).toBe(false);
+          expect(result.includes("++")).toBe(false);
         },
       );
     });

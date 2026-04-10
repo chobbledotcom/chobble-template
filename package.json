@@ -72,7 +72,6 @@
 		"linkifyjs": "^4.3.2",
 		"liquidjs": "^10.24.0",
 		"markdown-it": "^14.1.1",
-		"markdown-it-ins": "^4.0.0",
 		"pagefind": "^1.4.0",
 		"player.js": "^0.1.0",
 		"playwright": "^1.58.2",
