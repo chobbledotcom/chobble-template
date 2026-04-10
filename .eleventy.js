@@ -32,7 +32,7 @@ import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
 import { configureCollectionFilter } from "#eleventy/collection-filter.js";
 import { configureCapture } from "#eleventy/capture.js";
 import { configureFeed } from "#eleventy/feed.js";
-import { configureFileUtils } from "#eleventy/file-utils.js";
+import { configureFileUtils, stripPlusPlus } from "#eleventy/file-utils.js";
 import { configureFormatPrice } from "#eleventy/format-price.js";
 import { configureFormHelpers } from "#eleventy/form-helpers.js";
 import { configureHtmlTransform } from "#eleventy/html-transform.js";
@@ -76,19 +76,7 @@ export default async function (eleventyConfig) {
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
 
-  eleventyConfig.amendLibrary("md", (/** @type {unknown} */ mdLib) => {
-    /** @type {any} */ (mdLib).core.ruler.after("inline", "strip_plus_plus", (/** @type {{ tokens: Array<{ children?: Array<{ type: string, content: string }> }> }} */ state) => {
-      for (const token of state.tokens) {
-        if (token.children) {
-          for (const child of token.children) {
-            if (child.type === "text") {
-              child.content = child.content.replace(/\+\+/g, "");
-            }
-          }
-        }
-      }
-    });
-  });
+  eleventyConfig.amendLibrary("md", stripPlusPlus);
 
   // configureLayoutAliases(eleventyConfig);
 

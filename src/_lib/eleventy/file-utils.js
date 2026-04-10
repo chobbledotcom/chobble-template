@@ -7,7 +7,13 @@ import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { processLiquidStrings } from "#utils/liquid-render.js";
 
-/** @param {{ children?: Array<{ type: string, content: string }> }} token */
+/**
+ * @typedef {{ type: string, content: string }} MarkdownToken
+ * @typedef {{ children?: MarkdownToken[] }} MarkdownBlockToken
+ * @typedef {{ tokens: MarkdownBlockToken[] }} MarkdownState
+ */
+
+/** @param {MarkdownBlockToken} token */
 const stripTokenMarkers = (token) => {
   if (!token.children) return;
   for (const child of token.children) {
@@ -17,19 +23,16 @@ const stripTokenMarkers = (token) => {
   }
 };
 
-/** @param {unknown} md */
+/** @param {MarkdownState} state */
+const stripPlusPlusRule = (state) => {
+  for (const token of state.tokens) {
+    stripTokenMarkers(token);
+  }
+};
+
+/** @param {any} md */
 const stripPlusPlus = (md) => {
-  /** @type {any} */ (md).core.ruler.after(
-    "inline",
-    "strip_plus_plus",
-    (
-      /** @type {{ tokens: Array<{ children?: Array<{ type: string, content: string }> }> }} */ state,
-    ) => {
-      for (const token of state.tokens) {
-        stripTokenMarkers(token);
-      }
-    },
-  );
+  md.core.ruler.after("inline", "strip_plus_plus", stripPlusPlusRule);
 };
 
 const createMarkdownRenderer = () => {
@@ -216,4 +219,4 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addShortcode("read_file", readFileShortcode);
 };
 
-export { configureFileUtils, ensureDir };
+export { configureFileUtils, ensureDir, stripPlusPlus };
