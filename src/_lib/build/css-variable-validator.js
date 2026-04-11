@@ -5,8 +5,17 @@ import { frozenSetFrom, setLacks } from "#toolkit/fp/set.js";
 const DEFINITION_PATTERN = /(--[a-z][a-z0-9-]*):/g;
 const USAGE_PATTERN = /var\(--([a-z][a-z0-9-]*)/g;
 
-/** Validate that all var(--name) references in compiled CSS have definitions */
+/**
+ * Validate that all var(--name) references in compiled CSS have definitions.
+ * @param {string} css
+ * @param {string} inputPath
+ */
 const validateCssVariables = (css, inputPath) => {
+  /**
+   * @param {RegExp} pattern
+   * @param {(match: RegExpMatchArray) => string} mapFn
+   * @returns {ReadonlySet<string>}
+   */
   const toSet = (pattern, mapFn) =>
     frozenSetFrom(Array.from(css.matchAll(pattern), mapFn));
 
@@ -14,6 +23,10 @@ const validateCssVariables = (css, inputPath) => {
   const usages = toSet(USAGE_PATTERN, (m) => `--${m[1]}`);
 
   const isUndefined = setLacks(definitions);
+  /**
+   * @param {string} a
+   * @param {string} b
+   */
   const alphabetical = (a, b) => a.localeCompare(b);
 
   const undefinedVars = pipe(
