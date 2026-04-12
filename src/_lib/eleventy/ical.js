@@ -41,18 +41,19 @@ const eventIcal = (event) => {
 };
 
 /**
+ * @param {EleventyCollectionApi} collectionApi
+ * @returns {EventCollectionItem[]}
+ */
+const getOneOffEvents = (collectionApi) =>
+  collectionApi
+    .getFilteredByTag("events")
+    .filter((event) => event.data.event_date && !event.data.recurring_date);
+
+/**
  * Configure Eleventy iCal filters and collections
  * @param {*} eleventyConfig
  */
 export const configureICal = (eleventyConfig) => {
   eleventyConfig.addFilter("eventIcal", eventIcal);
-  eleventyConfig.addCollection(
-    "oneOffEvents",
-    /** @param {EleventyCollectionApi} collectionApi */
-    (collectionApi) =>
-      collectionApi.getFilteredByTag("events").filter(
-        /** @param {EventCollectionItem} event */
-        (event) => event.data.event_date && !event.data.recurring_date,
-      ),
-  );
+  eleventyConfig.addCollection("oneOffEvents", getOneOffEvents);
 };
