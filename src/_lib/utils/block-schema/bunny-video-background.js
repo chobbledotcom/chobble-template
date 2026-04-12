@@ -22,7 +22,7 @@ export const docs = {
   scss: "src/css/design-system/_video-background.scss",
   htmlRoot: '<div class="video-background" data-bunny-video>',
   notes:
-    "Uses player.js (loaded from Bunny CDN) to detect when the video starts playing, then fades out the thumbnail. The player.js script is only included when this block is used.",
+    "Uses player.js to detect when the video starts playing, then fades out the thumbnail. The player.js library is bundled into bunny-video.js and only loaded when this block is used.",
   params: {
     video_url: {
       type: "string",

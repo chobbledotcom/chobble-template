@@ -141,6 +141,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // isReviewableTag type guard for TypeScript
   "src/_lib/public/masonry.js", // Card type measurers split to stay under complexity limit
+  "src/_lib/public/youtube-video.js", // State extraction split from message handler for complexity
   "src/_lib/public/ui/nav-dropdown.js", // DOM helpers extracted for complexity management
   "src/_lib/media/image-external.js", // External wrapper styles helper
   "src/_lib/media/image-utils.js", // buildImgAttributes, buildPictureAttributes - helper functions for prepareImageAttributes
