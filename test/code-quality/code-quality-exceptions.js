@@ -146,6 +146,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/media/image-external.js", // External wrapper styles helper
   "src/_lib/media/image-utils.js", // buildImgAttributes, buildPictureAttributes - helper functions for prepareImageAttributes
   "src/_lib/eleventy/file-utils.js", // Filter callbacks extracted for strict type safety
+  "src/_lib/eleventy/ical.js", // Collection callback extracted for strict type safety
   "src/_lib/eleventy/style-bundle.js", // Options parsing helpers for type safety
   "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
@@ -242,7 +243,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 
 const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/collections/events.js:23",
-  "src/_lib/eleventy/ical.js:42",
+  "src/_lib/eleventy/ical.js:35",
 ]);
 
 // ============================================
