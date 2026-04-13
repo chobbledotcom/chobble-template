@@ -197,6 +197,25 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
+  test("allows all valid keys for split with icon-links figure", () => {
+    const blocks = [
+      {
+        type: "split",
+        figure_type: "icon-links",
+        figure_items: [
+          {
+            icon: "hugeicons:github",
+            text: "GitHub",
+            url: "https://github.com",
+          },
+          { icon: "hugeicons:mail-01", text: "Email" },
+        ],
+        content: "<p>Content</p>",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
   test("rejects old figure_content key on split", () => {
     const blocks = [
       {

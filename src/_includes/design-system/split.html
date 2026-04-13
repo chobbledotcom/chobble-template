@@ -1,22 +1,23 @@
 {%- comment -%}
-Split layout with text content and figure (image, video, code block, or custom HTML).
+Split layout with text content and figure (image, video, code block, icon-links, or custom HTML).
 
 Parameters (via block object):
   - block.title: Section heading
   - block.title_level: Heading level, defaults to 2
   - block.subtitle: Optional subtitle text (with text-muted styling)
   - block.content: Main content (can include HTML like <ul>, <p>)
-  - block.figure_type: "image", "video", "code", or "html"
+  - block.figure_type: "image", "video", "code", "icon-links", or "html"
   - block.reverse: If true, reverses the layout (content on right)
   - block.reveal_content: Animation for content side (e.g., "left", "right")
   - block.reveal_figure: Animation for figure side (default: "scale")
   - block.button: Optional button object { text, href, variant }
 
   Figure fields per type:
-    image: figure_src, figure_alt, figure_caption
-    video: figure_video_id, figure_alt, figure_caption
-    code:  figure_filename, figure_code, figure_language
-    html:  figure_html
+    image:      figure_src, figure_alt, figure_caption
+    video:      figure_video_id, figure_alt, figure_caption
+    code:       figure_filename, figure_code, figure_language
+    icon-links: figure_items (array of {icon, text, url})
+    html:       figure_html
 
 Usage:
   {% include "design-system/split.html",
@@ -64,6 +65,22 @@ Usage:
         {%- endif -%}
       {%- when "code" -%}
         {%- include "design-system/code-block.html", filename: block.figure_filename, code: block.figure_code, language: block.figure_language -%}
+      {%- when "icon-links" -%}
+        <ul class="icon-links" role="list">
+          {%- for item in block.figure_items -%}
+          {%- capture link_content -%}
+              <span class="icon-links__icon" aria-hidden="true">{%- include "design-system/icon.html", icon: item.icon -%}</span>
+              <span class="icon-links__text">{{ item.text }}</span>
+          {%- endcapture -%}
+          <li>
+            {%- if item.url -%}
+            <a href="{{ item.url }}" class="icon-links__link">{{ link_content }}</a>
+            {%- else -%}
+            <span class="icon-links__link">{{ link_content }}</span>
+            {%- endif -%}
+          </li>
+          {%- endfor -%}
+        </ul>
       {%- when "html" -%}
         {{ block.figure_html }}
     {%- endcase -%}

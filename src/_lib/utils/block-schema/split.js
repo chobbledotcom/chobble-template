@@ -4,6 +4,7 @@ import {
   md,
   num,
   objectField,
+  objectList,
   str,
 } from "#utils/block-schema/shared.js";
 
@@ -23,6 +24,7 @@ export const schema = [
   "figure_code",
   "figure_language",
   "figure_html",
+  "figure_items",
   "reverse",
   "reveal_content",
   "reveal_figure",
@@ -31,12 +33,12 @@ export const schema = [
 
 export const docs = {
   summary:
-    "Two-column layout with text content and a figure (image, video, code block, or HTML).",
+    "Two-column layout with text content and a figure (image, video, code block, icon-links, or HTML).",
   template: "src/_includes/design-system/split.html",
   scss: "src/css/design-system/_split.scss",
   htmlRoot: '<div class="split">',
   notes:
-    "Figure fields are grouped by `figure_type`: **image** uses `figure_src`, `figure_alt`, `figure_caption`; **video** uses `figure_video_id`, `figure_alt`, `figure_caption`; **code** uses `figure_filename`, `figure_code`, `figure_language`; **html** uses `figure_html`.",
+    "Figure fields are grouped by `figure_type`: **image** uses `figure_src`, `figure_alt`, `figure_caption`; **video** uses `figure_video_id`, `figure_alt`, `figure_caption`; **code** uses `figure_filename`, `figure_code`, `figure_language`; **icon-links** uses `figure_items`; **html** uses `figure_html`.",
   params: {
     title: { type: "string", description: "Section heading." },
     title_level: {
@@ -55,7 +57,8 @@ export const docs = {
     },
     figure_type: {
       type: "string",
-      description: '`"image"`, `"video"`, `"code"`, or `"html"`.',
+      description:
+        '`"image"`, `"video"`, `"code"`, `"icon-links"`, or `"html"`.',
     },
     figure_src: {
       type: "string",
@@ -91,6 +94,11 @@ export const docs = {
       type: "string",
       description: 'Raw HTML content (for `figure_type: "html"`).',
     },
+    figure_items: {
+      type: "array",
+      description:
+        'Icon-link objects (for `figure_type: "icon-links"`). Each: `{icon, text, url}`. `url` is optional. Icon can be an Iconify ID (`"prefix:name"`), image path, or raw HTML/emoji.',
+    },
     reverse: {
       type: "boolean",
       default: "false",
@@ -125,7 +133,7 @@ export const cmsFields = {
   reveal_figure: str("Reveal Figure Animation"),
   content: md("Content"),
   button: objectField("Button", BUTTON_FIELDS_WITH_SIZE),
-  figure_type: str("Figure Type (image, video, code, html)"),
+  figure_type: str("Figure Type (image, video, code, icon-links, html)"),
   figure_src: { type: "image", label: "Figure Image" },
   figure_alt: str("Figure Alt Text"),
   figure_caption: str("Figure Caption"),
@@ -134,4 +142,9 @@ export const cmsFields = {
   figure_code: str("Figure Code Content"),
   figure_language: str("Figure Code Language"),
   figure_html: md("Figure HTML Content"),
+  figure_items: objectList("Figure Icon Links", {
+    icon: str("Icon (Iconify ID or HTML entity)", { required: true }),
+    text: str("Link Text", { required: true }),
+    url: str("URL"),
+  }),
 };

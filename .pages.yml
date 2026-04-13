@@ -133,7 +133,7 @@ components:
           - { name: size, type: string, label: Size }
       - name: figure_type
         type: string
-        label: Figure Type (image, video, code, html)
+        label: Figure Type (image, video, code, icon-links, html)
       - { name: figure_src, type: image, label: Figure Image }
       - { name: figure_alt, type: string, label: Figure Alt Text }
       - { name: figure_caption, type: string, label: Figure Caption }
@@ -142,6 +142,14 @@ components:
       - { name: figure_code, type: string, label: Figure Code Content }
       - { name: figure_language, type: string, label: Figure Code Language }
       - { name: figure_html, type: rich-text, label: Figure HTML Content }
+      - name: figure_items
+        type: object
+        label: Figure Icon Links
+        list: true
+        fields:
+          - { name: icon, type: string, label: "Icon (Iconify ID or HTML entity)", required: true }
+          - { name: text, type: string, label: Link Text, required: true }
+          - { name: url, type: string, label: URL }
   block_split_full:
     label: Split Full
     type: object
