@@ -274,7 +274,11 @@
   border-radius: $radius-md;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition:
+    background $transition-fast,
+    color $transition-fast,
+    border-color $transition-fast,
+    transform $transition-fast;
 
   &:disabled {
     opacity: 0.5;
