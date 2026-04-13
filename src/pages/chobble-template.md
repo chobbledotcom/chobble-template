@@ -60,6 +60,7 @@ blocks:
     items:
       - image: /images/placeholders/blue.svg
         alt: Blue Brand
+        link_url: https://example.com/blue
       - image: /images/placeholders/green.svg
         alt: Green Brand
       - image: /images/placeholders/orange.svg
