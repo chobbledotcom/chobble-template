@@ -37,12 +37,15 @@ const DEFAULT_LIST_ITEM_FIELDS = [
   "cart-button",
 ];
 
+/** @param {unknown} configOrder */
 const getCategoryOrder = (configOrder) =>
   resolveConfigList(configOrder, DEFAULT_CATEGORY_ORDER);
 
+/** @param {unknown} configOrder */
 const getPropertyOrder = (configOrder) =>
   resolveConfigList(configOrder, DEFAULT_PROPERTY_ORDER);
 
+/** @param {unknown} configFields */
 const selectListItemFields = (configFields) =>
   resolveConfigList(configFields, DEFAULT_LIST_ITEM_FIELDS);
 
