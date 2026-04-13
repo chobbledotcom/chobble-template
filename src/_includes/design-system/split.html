@@ -1,41 +1,32 @@
 {%- comment -%}
-Split layout with text content and figure (image, video, code block, icon-links, or custom HTML).
+Split layout with text content and a figure. Used by all split-* block types:
+split-image, split-video, split-code, split-icon-links, split-html.
+
+The figure type is derived from the block type (e.g., "split-image" → "image").
 
 Parameters (via block object):
-  - block.title: Section heading
-  - block.title_level: Heading level, defaults to 2
-  - block.subtitle: Optional subtitle text (with text-muted styling)
-  - block.content: Main content (can include HTML like <ul>, <p>)
-  - block.figure_type: "image", "video", "code", "icon-links", or "html"
-  - block.reverse: If true, reverses the layout (content on right)
-  - block.reveal_content: Animation for content side (e.g., "left", "right")
-  - block.reveal_figure: Animation for figure side (default: "scale")
-  - block.button: Optional button object { text, href, variant }
+  Shared:
+    - block.title: Section heading
+    - block.title_level: Heading level, defaults to 2
+    - block.subtitle: Optional subtitle text (with text-muted styling)
+    - block.content: Main content (can include HTML like <ul>, <p>)
+    - block.reverse: If true, reverses the layout (content on right)
+    - block.reveal_content: Animation for content side (e.g., "left", "right")
+    - block.reveal_figure: Animation for figure side (default: "scale")
+    - block.button: Optional button object { text, href, variant }
 
-  Figure fields per type:
-    image:      figure_src, figure_alt, figure_caption
-    video:      figure_video_id, figure_alt, figure_caption
-    code:       figure_filename, figure_code, figure_language
-    icon-links: figure_items (array of {icon, text, url})
-    html:       figure_html
-
-Usage:
-  {% include "design-system/split.html",
-     block: {
-       title: "My Section",
-       content: "<p>Description here</p>",
-       figure_type: "image",
-       figure_src: "/images/photo.jpg",
-       figure_alt: "A photo",
-       figure_caption: "Optional caption",
-       reverse: true
-     }
-  %}
+  Figure fields per block type:
+    split-image:      figure_src, figure_alt, figure_caption
+    split-video:      figure_video_id, figure_alt, figure_caption
+    split-code:       figure_filename, figure_code, figure_language
+    split-icon-links: figure_items (array of {icon, text, url})
+    split-html:       figure_html
 {%- endcomment -%}
 
 {%- assign title_level = block.title_level | default: 2 -%}
 {%- assign reveal_content = block.reveal_content | default: "left" -%}
 {%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
+{%- assign figure_type = block.type | replace: "split-", "" -%}
 
 <div class="split{% if block.reverse %} split--reverse{% endif %}">
   <article class="stack" data-reveal="{{ reveal_content }}">
@@ -52,7 +43,7 @@ Usage:
     {%- endif -%}
   </article>
   <figure data-reveal="{{ reveal_figure }}">
-    {%- case block.figure_type -%}
+    {%- case figure_type -%}
       {%- when "image" -%}
         {% image block.figure_src, block.figure_alt %}
         {%- if block.figure_caption -%}

@@ -14,7 +14,11 @@ describe("BLOCK_SCHEMAS", () => {
       "stats",
       "code-block",
       "hero",
-      "split",
+      "split-image",
+      "split-video",
+      "split-code",
+      "split-icon-links",
+      "split-html",
       "split-full",
       "cta",
       "video-background",
@@ -136,15 +140,14 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
-  test("allows all valid keys for split with image figure", () => {
+  test("allows all valid keys for split-image", () => {
     const blocks = [
       {
-        type: "split",
+        type: "split-image",
         title: "Title",
         title_level: 2,
         subtitle: "Subtitle",
         content: "<p>Content</p>",
-        figure_type: "image",
         figure_src: "/img.jpg",
         figure_alt: "Alt",
         figure_caption: "Caption",
@@ -157,11 +160,10 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
-  test("allows all valid keys for split with video figure", () => {
+  test("allows all valid keys for split-video", () => {
     const blocks = [
       {
-        type: "split",
-        figure_type: "video",
+        type: "split-video",
         figure_video_id: "dQw4w9WgXcQ",
         figure_alt: "Video title",
         figure_caption: "A video",
@@ -171,11 +173,10 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
-  test("allows all valid keys for split with code figure", () => {
+  test("allows all valid keys for split-code", () => {
     const blocks = [
       {
-        type: "split",
-        figure_type: "code",
+        type: "split-code",
         figure_filename: "example.js",
         figure_code: "const x = 1;",
         figure_language: "javascript",
@@ -185,11 +186,10 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
-  test("allows all valid keys for split with html figure", () => {
+  test("allows all valid keys for split-html", () => {
     const blocks = [
       {
-        type: "split",
-        figure_type: "html",
+        type: "split-html",
         figure_html: "<div>Custom HTML</div>",
         content: "<p>Content</p>",
       },
@@ -197,11 +197,10 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
-  test("allows all valid keys for split with icon-links figure", () => {
+  test("allows all valid keys for split-icon-links", () => {
     const blocks = [
       {
-        type: "split",
-        figure_type: "icon-links",
+        type: "split-icon-links",
         figure_items: [
           {
             icon: "hugeicons:github",
@@ -216,18 +215,28 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
-  test("rejects old figure_content key on split", () => {
+  test("rejects figure_type key on split variants", () => {
     const blocks = [
       {
-        type: "split",
+        type: "split-image",
         figure_type: "image",
-        figure_content: { src: "/img.jpg", alt: "Alt" },
+        figure_src: "/img.jpg",
         content: "<p>Content</p>",
       },
     ];
-    expect(() => validateBlocks(blocks)).toThrow(
-      'unknown keys: "figure_content"',
-    );
+    expect(() => validateBlocks(blocks)).toThrow('unknown keys: "figure_type"');
+  });
+
+  test("rejects image-specific keys on split-code", () => {
+    const blocks = [
+      {
+        type: "split-code",
+        figure_code: "const x = 1;",
+        figure_src: "/img.jpg",
+        content: "<p>Content</p>",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).toThrow('unknown keys: "figure_src"');
   });
 
   test("allows all valid keys for split-full", () => {

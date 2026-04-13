@@ -440,11 +440,14 @@ describe("eleventyComputed", () => {
       });
     });
 
-    test("Applies defaults for split block type", () => {
-      const data = { blocks: [{ type: "split", title: "Test" }], page };
+    test("Applies defaults for split-image block type", () => {
+      const data = {
+        blocks: [{ type: "split-image", title: "Test" }],
+        page,
+      };
       const result = eleventyComputed.blocks(data);
       expect(result[0]).toEqual({
-        type: "split",
+        type: "split-image",
         title: "Test",
         title_level: 2,
         reveal_figure: "scale",
@@ -455,7 +458,7 @@ describe("eleventyComputed", () => {
 
     test("Sets reveal_content to right for reversed split block", () => {
       const data = {
-        blocks: [{ type: "split", title: "Test", reverse: true }],
+        blocks: [{ type: "split-html", title: "Test", reverse: true }],
         page,
       };
       const result = eleventyComputed.blocks(data);
@@ -464,7 +467,7 @@ describe("eleventyComputed", () => {
 
     test("Preserves explicit reveal_content on split block", () => {
       const data = {
-        blocks: [{ type: "split", title: "Test", reveal_content: "left" }],
+        blocks: [{ type: "split-code", title: "Test", reveal_content: "left" }],
         page,
       };
       const result = eleventyComputed.blocks(data);
