@@ -38,6 +38,7 @@ const ALL_FEATURES = [
   "parent_categories",
   "videos",
   "below_products",
+  "use_blocks",
 ];
 
 /**
@@ -70,6 +71,11 @@ TEMPLATE STRUCTURE:
   --no-src-folder         Template does not have a 'src' folder
   --custom-home           Template has a custom home.html layout
   --no-custom-home        Template uses default homepage (default)
+
+BLOCKS LAYOUT:
+  --use-blocks            Use blocks layout on all collections
+  --no-use-blocks         Don't use blocks layout on all collections (default)
+  --custom-blocks-collections LIST  Comma-separated custom blocks collections (e.g., clients,services)
 
 OUTPUT CONTROL:
   --save-config           Save config to site.json (default)
@@ -163,6 +169,9 @@ export const hasCliFlags = (values) => {
     "no-src-folder",
     "custom-home",
     "no-custom-home",
+    "use-blocks",
+    "no-use-blocks",
+    "custom-blocks-collections",
     "save-config",
     "no-save-config",
     "dry-run",
@@ -308,6 +317,14 @@ export const buildConfigFromCli = (values) => {
     disabledFeatures,
   );
 
+  // Apply dedicated --use-blocks / --no-use-blocks flags (override --enable/--disable)
+  if (values["no-use-blocks"]) features.use_blocks = false;
+  else if (values["use-blocks"]) features.use_blocks = true;
+
+  const customBlocksCollections = parseCommaSeparated(
+    values["custom-blocks-collections"],
+  );
+
   return {
     collections,
     features,
@@ -323,6 +340,7 @@ export const buildConfigFromCli = (values) => {
       "no-custom-home",
       false,
     ),
+    customBlocksCollections,
   };
 };
 

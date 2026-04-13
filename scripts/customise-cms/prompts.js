@@ -62,6 +62,23 @@ const askYesNo = async (rl, question, defaultValue = false) => {
 };
 
 /**
+ * Ask a free-text question and return the trimmed answer
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string} question - Question to ask
+ * @param {string} [defaultValue=""] - Default answer if user presses enter
+ * @returns {Promise<string>} User's answer
+ */
+const askFreeText = async (rl, question, defaultValue = "") => {
+  const defaultHint = defaultValue ? ` [${defaultValue}]` : "";
+  return new Promise((resolve) => {
+    rl.question(`${question}${defaultHint}: `, (answer) => {
+      const trimmed = answer.trim();
+      resolve(trimmed === "" ? defaultValue : trimmed);
+    });
+  });
+};
+
+/**
  * Parse selection input into array of selected names
  * @param {string} input - User's input (comma-separated numbers, "all", "none", or empty)
  * @param {SelectableOption[]} options - Available options to select from
@@ -371,6 +388,52 @@ const askVideosQuestion = async (rl, collections, defaultFeatures) => {
 };
 
 /**
+ * Ask whether to use blocks layout on all collections
+ * @param {readline.Interface} rl - Readline interface
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<{use_blocks: boolean}>} Use blocks selection
+ */
+const askUseBlocksQuestion = async (rl, defaultFeatures) => ({
+  use_blocks: await askYesNo(
+    rl,
+    "Are you using the blocks layout on all collections (design-system-base.html)?",
+    defaultFeatures.use_blocks ?? false,
+  ),
+});
+
+/**
+ * Parse a comma-separated string into an array of slugified names
+ * @param {string} input - Comma-separated names (e.g., "clients, services")
+ * @returns {string[]} Array of slugified names
+ */
+const parseCustomCollectionNames = (input) => {
+  if (!input) return [];
+  return input
+    .split(",")
+    .map((s) => s.trim().toLowerCase().replace(/\s+/g, "-"))
+    .filter((s) => s.length > 0);
+};
+
+/**
+ * Ask about custom blocks collections
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} defaultCustomCollections - Previously configured custom collections
+ * @returns {Promise<string[]>} Custom collection names
+ */
+const askCustomBlocksCollectionsQuestion = async (
+  rl,
+  defaultCustomCollections,
+) => {
+  const defaultValue = defaultCustomCollections.join(", ");
+  const answer = await askFreeText(
+    rl,
+    "Enter custom blocks collections (comma-separated, e.g., 'clients, services'), or leave empty for none",
+    defaultValue,
+  );
+  return parseCustomCollectionNames(answer);
+};
+
+/**
  * Ask feature questions
  * @param {readline.Interface} rl - Readline interface
  * @param {string[]} collections - Selected collection names
@@ -463,6 +526,7 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     collections,
     defaultFeatures,
   );
+  const blocksFeatures = await askUseBlocksQuestion(rl, defaultFeatures);
 
   return {
     ...baseFeatures,
@@ -475,6 +539,7 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     ...parentCategoriesFeatures,
     ...videosFeatures,
     ...belowProductsFeatures,
+    ...blocksFeatures,
   };
 };
 
@@ -519,6 +584,8 @@ export const askQuestions = async (existingConfig = null) => {
     const defaultFeatures = existingConfig?.features || {};
     const defaultHasSrc = existingConfig?.hasSrcFolder ?? true;
     const defaultCustomHome = existingConfig?.customHomePage ?? false;
+    const defaultCustomBlocksCollections =
+      existingConfig?.customBlocksCollections || [];
 
     console.log("\n--- Template Configuration ---\n");
     const hasSrcFolder = await askSrcFolderQuestion(rl, defaultHasSrc);
@@ -534,7 +601,20 @@ export const askQuestions = async (existingConfig = null) => {
       defaultFeatures,
     );
 
-    return { collections, features, hasSrcFolder, customHomePage };
+    const customBlocksCollections = features.use_blocks
+      ? await askCustomBlocksCollectionsQuestion(
+          rl,
+          defaultCustomBlocksCollections,
+        )
+      : [];
+
+    return {
+      collections,
+      features,
+      hasSrcFolder,
+      customHomePage,
+      customBlocksCollections,
+    };
   } finally {
     rl.close();
   }
