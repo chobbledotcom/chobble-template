@@ -287,6 +287,7 @@ components:
         fields:
           - { name: image, type: string, label: Image Path, required: true }
           - { name: alt, type: string, label: Alt Text }
+          - { name: link_url, type: string, label: Link URL }
       - { name: speed, type: string, label: Scroll Speed (e.g. 30s) }
       - { name: height, type: string, label: Image Height (e.g. 50px) }
   block_icon_links:

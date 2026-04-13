@@ -19,11 +19,21 @@
     min-width: 0;
   }
 
+  .marquee-images--has-header {
+    margin-top: $space-md;
+  }
+
   .marquee-images__track {
     display: flex;
     align-items: center;
     width: max-content;
     animation: marquee-scroll var(--marquee-speed, 30s) linear infinite;
+  }
+
+  .marquee-images__link {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
   }
 
   .marquee-images img,
@@ -34,6 +44,10 @@
     object-fit: contain;
     margin: 0 $space-xl;
     flex-shrink: 0;
+  }
+
+  .marquee-images__link img {
+    margin: 0 $space-xl;
   }
 }
 
