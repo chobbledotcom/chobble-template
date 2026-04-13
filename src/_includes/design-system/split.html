@@ -57,21 +57,7 @@ Parameters (via block object):
       {%- when "code" -%}
         {%- include "design-system/code-block.html", filename: block.figure_filename, code: block.figure_code, language: block.figure_language -%}
       {%- when "icon-links" -%}
-        <ul class="icon-links" role="list">
-          {%- for item in block.figure_items -%}
-          {%- capture link_content -%}
-              <span class="icon-links__icon" aria-hidden="true">{%- include "design-system/icon.html", icon: item.icon -%}</span>
-              <span class="icon-links__text">{{ item.text }}</span>
-          {%- endcapture -%}
-          <li>
-            {%- if item.url -%}
-            <a href="{{ item.url }}" class="icon-links__link">{{ link_content }}</a>
-            {%- else -%}
-            <span class="icon-links__link">{{ link_content }}</span>
-            {%- endif -%}
-          </li>
-          {%- endfor -%}
-        </ul>
+        {%- include "design-system/icon-links.html", items: block.figure_items -%}
       {%- when "html" -%}
         {{ block.figure_html }}
     {%- endcase -%}

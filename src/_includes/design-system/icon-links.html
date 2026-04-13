@@ -1,31 +1,41 @@
 {%- comment -%}
 Icon links block - a list of links with icons, rendered as a flex column.
 
-Parameters (via block object):
-  - block.intro: Optional markdown intro rendered above the list.
-  - block.items: Array of link objects with properties:
+Parameters:
+  Standalone (via block object):
+    - block.intro: Optional markdown intro rendered above the list.
+    - block.items: Array of link objects (see below)
+    - block.reveal: If true, adds data-reveal animation (default: true)
+
+  Embeddable (via items parameter):
+    - items: Array of link objects, skips intro and reveal
+
+  Link objects:
     - icon: Iconify ID (e.g., "hugeicons:github"), image path, or raw HTML/emoji
     - text: Link text
     - url: Link URL (optional - renders as plain text if omitted)
-  - block.reveal: If true, adds data-reveal animation (default: true)
 
 Usage:
   {% include "design-system/icon-links.html", block: block %}
+  {% include "design-system/icon-links.html", items: block.figure_items %}
 {%- endcomment -%}
 
+{%- assign _items = items | default: block.items -%}
 {%- assign reveal = block.reveal | default: true -%}
 
-{%- if block.intro -%}
-  <div class="prose">{{ block.intro | renderContent: "md" }}</div>
-{%- endif -%}
+{%- unless items -%}
+  {%- if block.intro -%}
+    <div class="prose">{{ block.intro | renderContent: "md" }}</div>
+  {%- endif -%}
+{%- endunless -%}
 
 <ul class="icon-links" role="list">
-  {%- for item in block.items -%}
+  {%- for item in _items -%}
   {%- capture link_content -%}
       <span class="icon-links__icon" aria-hidden="true">{%- include "design-system/icon.html", icon: item.icon -%}</span>
       <span class="icon-links__text">{{ item.text }}</span>
   {%- endcapture -%}
-  <li{% if reveal %} data-reveal{% endif %}>
+  <li{% if reveal and items == nil %} data-reveal{% endif %}>
     {%- if item.url -%}
     <a href="{{ item.url }}" class="icon-links__link">{{ link_content }}</a>
     {%- else -%}
