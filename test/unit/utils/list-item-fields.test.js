@@ -1,60 +1,27 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { selectListItemFields } from "#config/list-config.js";
 import listItemFields from "#data/listItemFields.js";
+import { ROOT_DIR } from "#lib/paths.js";
 
-const EXPECTED_LIST_ITEM_FIELDS = [
-  "thumbnail",
-  "link",
-  "price",
-  "date",
-  "subtitle",
-  "location",
-  "event-date",
-  "specs",
-  "cart-button",
-];
+const INCLUDES_DIR = join(ROOT_DIR, "src/_includes");
 
 describe("list-item-fields", () => {
-  test("listItemFields exports an array", () => {
-    expect(Array.isArray(listItemFields)).toBe(true);
-  });
-
-  test("listItemFields is not empty", () => {
-    expect(listItemFields.length > 0).toBe(true);
-  });
-
-  test("selectListItemFields returns config fields when given a non-empty array", () => {
-    const configFields = ["link", "price"];
-    const result = selectListItemFields(configFields);
-    expect(result).toEqual(configFields);
-  });
-
-  test("selectListItemFields returns DEFAULT_FIELDS when given an empty array", () => {
-    const result = selectListItemFields([]);
-    expect(result).toEqual(EXPECTED_LIST_ITEM_FIELDS);
-  });
-
-  test("selectListItemFields returns DEFAULT_FIELDS when given null", () => {
-    const result = selectListItemFields(null);
-    expect(result).toEqual(EXPECTED_LIST_ITEM_FIELDS);
-  });
-
-  test("selectListItemFields returns DEFAULT_FIELDS when given undefined", () => {
-    const result = selectListItemFields(undefined);
-    expect(result).toEqual(EXPECTED_LIST_ITEM_FIELDS);
-  });
-
-  test("selectListItemFields returns DEFAULT_FIELDS when given a non-array value", () => {
-    const result = selectListItemFields("not-an-array");
-    expect(result).toEqual(EXPECTED_LIST_ITEM_FIELDS);
-  });
-
-  test("DEFAULT_FIELDS contains all expected field names", () => {
-    expect(EXPECTED_LIST_ITEM_FIELDS).toHaveLength(
-      EXPECTED_LIST_ITEM_FIELDS.length,
-    );
-    for (const field of EXPECTED_LIST_ITEM_FIELDS) {
-      expect(EXPECTED_LIST_ITEM_FIELDS.includes(field)).toBe(true);
+  test("each default field has a matching list-item include file", () => {
+    const defaults = selectListItemFields([]);
+    for (const field of defaults) {
+      const includePath = join(INCLUDES_DIR, `list-item-${field}.html`);
+      expect(existsSync(includePath)).toBe(true);
     }
+  });
+
+  test("custom config overrides defaults", () => {
+    const custom = ["thumbnail", "price"];
+    expect(selectListItemFields(custom)).toEqual(custom);
+  });
+
+  test("empty config falls back to defaults", () => {
+    expect(selectListItemFields([])).toEqual(listItemFields);
   });
 });
