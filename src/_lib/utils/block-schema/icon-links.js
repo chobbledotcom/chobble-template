@@ -34,11 +34,14 @@ export const docs = {
   },
 };
 
+/** Reusable CMS field for an icon-links item list. */
+export const ICON_LINKS_ITEMS_FIELD = objectList("Links", {
+  icon: str("Icon (Iconify ID or HTML entity)", { required: true }),
+  text: str("Link Text", { required: true }),
+  url: str("URL"),
+});
+
 export const cmsFields = {
   intro: md("Intro Content (Markdown)"),
-  items: objectList("Links", {
-    icon: str("Icon (Iconify ID or HTML entity)", { required: true }),
-    text: str("Link Text", { required: true }),
-    url: str("URL"),
-  }),
+  items: ICON_LINKS_ITEMS_FIELD,
 };

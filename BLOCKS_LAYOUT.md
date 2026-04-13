@@ -156,9 +156,9 @@ Full-width hero banner with optional badge, title, lead text, and action buttons
 
 ---
 
-### `split`
+### `split-image`
 
-Two-column layout with text content and a figure (image, video, code block, or HTML).
+Two-column layout with text content and a responsive image.
 
 **Template:** `src/_includes/design-system/split.html`
 **SCSS:** `src/css/design-system/_split.scss`
@@ -170,21 +170,105 @@ Two-column layout with text content and a figure (image, video, code block, or H
 | `title_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
 | `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
-| `figure_type` | string | — | `"image"`, `"video"`, `"code"`, or `"html"`. |
-| `figure_src` | string | — | Image path (for `figure_type: "image"`). |
-| `figure_alt` | string | — | Alt text for image, or accessible title for video iframe. |
-| `figure_caption` | string | — | Visible caption below image or video. |
-| `figure_video_id` | string | — | YouTube video ID or custom iframe URL (for `figure_type: "video"`). |
-| `figure_filename` | string | — | Displayed filename in code block header (for `figure_type: "code"`). |
-| `figure_code` | string | — | Code content (for `figure_type: "code"`). |
-| `figure_language` | string | — | Syntax highlighting language (for `figure_type: "code"`). |
-| `figure_html` | string | — | Raw HTML content (for `figure_type: "html"`). |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
 | `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
+| `figure_src` | string | **required** | Image path. |
+| `figure_alt` | string | — | Alt text for the image. |
+| `figure_caption` | string | — | Visible caption below the image. |
 
-Figure fields are grouped by `figure_type`: **image** uses `figure_src`, `figure_alt`, `figure_caption`; **video** uses `figure_video_id`, `figure_alt`, `figure_caption`; **code** uses `figure_filename`, `figure_code`, `figure_language`; **html** uses `figure_html`.
+---
+
+### `split-video`
+
+Two-column layout with text content and an embedded video.
+
+**Template:** `src/_includes/design-system/split.html`
+**SCSS:** `src/css/design-system/_split.scss`
+**HTML root:** `<div class="split">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | — | Section heading. |
+| `title_level` | number | `2` | Heading level. |
+| `subtitle` | string | — | Subtitle with `.text-muted` styling. |
+| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
+| `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
+| `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
+| `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
+| `figure_video_id` | string | **required** | YouTube video ID or custom iframe URL. |
+| `figure_alt` | string | — | Accessible title for the video iframe. |
+| `figure_caption` | string | — | Visible caption below the video. |
+
+---
+
+### `split-code`
+
+Two-column layout with text content and a code block.
+
+**Template:** `src/_includes/design-system/split.html`
+**SCSS:** `src/css/design-system/_split.scss`
+**HTML root:** `<div class="split">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | — | Section heading. |
+| `title_level` | number | `2` | Heading level. |
+| `subtitle` | string | — | Subtitle with `.text-muted` styling. |
+| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
+| `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
+| `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
+| `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
+| `figure_filename` | string | — | Displayed filename in the code block header. |
+| `figure_code` | string | **required** | Code content. |
+| `figure_language` | string | — | Syntax highlighting language. |
+
+---
+
+### `split-icon-links`
+
+Two-column layout with text content and an icon-links list.
+
+**Template:** `src/_includes/design-system/split.html`
+**SCSS:** `src/css/design-system/_split.scss`
+**HTML root:** `<div class="split">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | — | Section heading. |
+| `title_level` | number | `2` | Heading level. |
+| `subtitle` | string | — | Subtitle with `.text-muted` styling. |
+| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
+| `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
+| `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
+| `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
+| `figure_items` | array | **required** | Icon-link objects. Each: `{icon, text, url}`. `url` is optional. Icon can be an Iconify ID (`"prefix:name"`), image path, or raw HTML/emoji. |
+
+---
+
+### `split-html`
+
+Two-column layout with text content and custom HTML.
+
+**Template:** `src/_includes/design-system/split.html`
+**SCSS:** `src/css/design-system/_split.scss`
+**HTML root:** `<div class="split">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | — | Section heading. |
+| `title_level` | number | `2` | Heading level. |
+| `subtitle` | string | — | Subtitle with `.text-muted` styling. |
+| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
+| `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
+| `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
+| `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
+| `figure_html` | string | **required** | Raw HTML content for the figure side. |
 
 ---
 

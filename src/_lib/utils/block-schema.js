@@ -36,8 +36,12 @@ import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
 import { CONTAINER_FIELDS } from "#utils/block-schema/shared.js";
 import * as snippet from "#utils/block-schema/snippet.js";
-import * as split from "#utils/block-schema/split.js";
+import * as splitCode from "#utils/block-schema/split-code.js";
 import * as splitFull from "#utils/block-schema/split-full.js";
+import * as splitHtml from "#utils/block-schema/split-html.js";
+import * as splitIconLinks from "#utils/block-schema/split-icon-links.js";
+import * as splitImage from "#utils/block-schema/split-image.js";
+import * as splitVideo from "#utils/block-schema/split-video.js";
 import * as stats from "#utils/block-schema/stats.js";
 import * as videoBackground from "#utils/block-schema/video-background.js";
 
@@ -62,7 +66,11 @@ const BLOCK_MODULES = [
   stats,
   codeBlock,
   hero,
-  split,
+  splitImage,
+  splitVideo,
+  splitCode,
+  splitIconLinks,
+  splitHtml,
   splitFull,
   cta,
   videoBackground,

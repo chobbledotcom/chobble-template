@@ -206,7 +206,7 @@ blocks:
       ```
 
   # Themes Split (reversed)
-  - type: split
+  - type: split-html
     title: 10 Themes.
     reverse: true
     reveal_content: right
@@ -218,7 +218,6 @@ blocks:
       text: Try the Live Theme Editor
       href: https://example.chobble.com/theme-editor/
       variant: secondary
-    figure_type: html
     figure_html: |
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; text-align: center; color: white;">
         <div style="font-size: 4rem; margin-bottom: 1rem;">🎨</div>
@@ -246,7 +245,7 @@ blocks:
         style: "--primary-light: #d1fae5; --primary: #059669;"
 
   # Performance Split
-  - type: split
+  - type: split-code
     section_class: gradient
 
     title: Static HTML, Optimised Images
@@ -258,7 +257,6 @@ blocks:
       - **Responsive Images** - Multiple sizes generated at build time via srcset
       - **Link Prefetch** - Pages preload on hover
       - **Static Output** - No server-side rendering, just HTML files
-    figure_type: code
     figure_filename: Image optimization
     figure_code: |
       srcset="
@@ -288,7 +286,7 @@ blocks:
         description: Product reviews automatically generate aggregate ratings for rich snippets.
 
   # Deployment Split (reversed)
-  - type: split
+  - type: split-html
     title: Hosting and Deployment
     reverse: true
     reveal_content: right
@@ -302,7 +300,6 @@ blocks:
       - Any static host (Netlify, Vercel, etc.)
 
       Bunny Edge Script-based backend.
-    figure_type: html
     figure_html: |
       <div class="code-block">
         <div class="code-block-toolbar">

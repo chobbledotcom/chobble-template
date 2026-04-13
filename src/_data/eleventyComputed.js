@@ -30,7 +30,11 @@ const hasTag = (data, tag) => (data.tags || []).includes(tag);
 const BLOCK_DEFAULTS = {
   features: { reveal: true, heading_level: 3, grid_class: "features" },
   stats: { reveal: true },
-  split: { title_level: 2, reveal_figure: "scale" },
+  "split-image": { title_level: 2, reveal_figure: "scale" },
+  "split-video": { title_level: 2, reveal_figure: "scale" },
+  "split-code": { title_level: 2, reveal_figure: "scale" },
+  "split-icon-links": { title_level: 2, reveal_figure: "scale" },
+  "split-html": { title_level: 2, reveal_figure: "scale" },
   "section-header": { align: "center" },
   "image-cards": { reveal: true, heading_level: 3 },
   "code-block": { reveal: true },
@@ -208,7 +212,7 @@ export default {
         BLOCK_DEFAULTS[blockType],
         block,
       );
-      if (blockType === "split" && !block.reveal_content) {
+      if (blockType.startsWith("split-") && !block.reveal_content) {
         merged.reveal_content = block.reverse ? "right" : "left";
       }
       return merged;
