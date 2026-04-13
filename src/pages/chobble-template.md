@@ -51,6 +51,44 @@ blocks:
       The same block accepts a YouTube video ID and renders a muted,
       autoplaying, looped background embed via `youtube-nocookie.com`.
 
+  # Marquee Images Demo
+  - type: marquee-images
+    header_intro: "## Trusted By These Fictional Brands"
+    header_align: center
+    speed: "25s"
+    height: "60px"
+    items:
+      - image: /images/placeholders/blue.svg
+        alt: Blue Brand
+      - image: /images/placeholders/green.svg
+        alt: Green Brand
+      - image: /images/placeholders/orange.svg
+        alt: Orange Brand
+      - image: /images/placeholders/pink.svg
+        alt: Pink Brand
+      - image: /images/placeholders/purple.svg
+        alt: Purple Brand
+      - image: /images/placeholders/yellow.svg
+        alt: Yellow Brand
+      - image: /images/placeholders/blue.svg
+        alt: Azure Co
+      - image: /images/placeholders/green.svg
+        alt: Emerald Inc
+      - image: /images/placeholders/orange.svg
+        alt: Tangerine Ltd
+      - image: /images/placeholders/pink.svg
+        alt: Coral Corp
+      - image: /images/placeholders/purple.svg
+        alt: Violet Labs
+      - image: /images/placeholders/yellow.svg
+        alt: Saffron Group
+      - image: /images/placeholders/blue.svg
+        alt: Cerulean Ventures
+      - image: /images/placeholders/green.svg
+        alt: Jade Partners
+      - image: /images/placeholders/orange.svg
+        alt: Amber Dynamics
+
   # Product Sliders
   - type: items
     collection: featuredProducts

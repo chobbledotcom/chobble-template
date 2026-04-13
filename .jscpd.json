@@ -8,7 +8,8 @@
 		"**/package-lock.json",
 		"**/.test-sites/**",
 		"**/page-layouts/**",
-		"**/packages/**/index.js"
+		"**/packages/**/index.js",
+		"**/marquee-images.html"
 	],
 	"format": ["javascript", "markup", "css", "scss"],
 	"ignorePattern": ["import.*from"],

@@ -488,6 +488,25 @@ Image grid with optional aspect ratio cropping and captions.
 
 ---
 
+### `marquee-images`
+
+Continuously scrolling marquee of images (e.g. brand logos, partner badges).
+
+**Template:** `src/_includes/design-system/marquee-images.html`
+**SCSS:** `src/css/design-system/_marquee-images.scss`
+**HTML root:** `<div class="marquee-images">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `items` | array | **required** | Image objects. Each: `{image, alt}`. `image` is a path; `alt` is optional alt text. Images are rendered with `eleventy:ignore` and `chobble:no-lqip` to skip processing. |
+| `speed` | string | `"30s"` | CSS animation duration for one full scroll cycle (e.g. `"20s"`, `"45s"`). Slower = longer duration. |
+| `height` | string | `"50px"` | CSS height for the images (e.g. `"60px"`, `"80px"`). Width scales proportionally. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
+
+---
+
 ### `icon-links`
 
 Vertical list of links with icons, rendered as a flex column stack.

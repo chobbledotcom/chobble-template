@@ -1,0 +1,43 @@
+{%- comment -%}
+Marquee images block - continuously scrolling row of images (e.g. brand logos).
+
+Uses pure CSS animation with a duplicated list for seamless infinite scroll.
+The second copy is aria-hidden to avoid duplicate screen-reader announcements.
+
+Parameters (via block object):
+  - block.items: Array of image objects with properties:
+    - image: Image path (required)
+    - alt: Alt text (optional, falls back to alt-tags lookup then empty string)
+  - block.speed: Animation duration for one cycle (default: "30s")
+  - block.height: CSS height for images (default: "50px")
+  - block.header_intro: Optional markdown section header above the marquee
+  - block.header_align: Header text alignment
+  - block.header_class: Extra header CSS classes
+{%- endcomment -%}
+
+{%- if block.header_intro -%}
+  {%- include "design-system/section-header.html",
+    intro: block.header_intro,
+    align: block.header_align,
+    header_class: block.header_class
+  -%}
+{%- endif -%}
+
+{%- if block.items.size > 0 -%}
+  {%- assign speed = block.speed | default: "30s" -%}
+  {%- assign height = block.height | default: "50px" -%}
+  <div class="marquee-images" style="--marquee-speed: {{ speed }}; --marquee-height: {{ height }}">
+    <div class="marquee-images__track">
+      {%- for item in block.items -%}
+        {%- assign image = item.image -%}
+        {%- capture alt_text -%}{%- if item.alt -%}{{ item.alt }}{%- else -%}{%- include "get-alt-text.html" -%}{%- endif -%}{%- endcapture -%}
+        <img src="{{ item.image }}" alt="{{ alt_text }}" eleventy:ignore chobble:no-lqip loading="lazy">
+      {%- endfor -%}
+      {%- for item in block.items -%}
+        {%- assign image = item.image -%}
+        {%- capture alt_text -%}{%- if item.alt -%}{{ item.alt }}{%- else -%}{%- include "get-alt-text.html" -%}{%- endif -%}{%- endcapture -%}
+        <img src="{{ item.image }}" alt="{{ alt_text }}" eleventy:ignore chobble:no-lqip loading="lazy" aria-hidden="true">
+      {%- endfor -%}
+    </div>
+  </div>
+{%- endif -%}
