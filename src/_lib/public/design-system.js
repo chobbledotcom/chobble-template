@@ -51,6 +51,33 @@ const initParallax = () => {
   requestAnimationFrame(tick);
 };
 
+const cloneAsHidden = (el, parent) => {
+  const clone = el.cloneNode(true);
+  clone.setAttribute("aria-hidden", "true");
+  if (clone.tagName === "A") clone.setAttribute("tabindex", "-1");
+  parent.appendChild(clone);
+};
+
+const fillTrack = (track, originals, minWidth) => {
+  while (track.scrollWidth < minWidth) {
+    for (const child of originals) cloneAsHidden(child, track);
+  }
+};
+
+const initMarquees = () => {
+  for (const container of document.querySelectorAll(
+    `${SCOPE} .marquee-images`,
+  )) {
+    const track = container.querySelector(".marquee-images__track");
+    if (!track || track.children.length === 0) continue;
+
+    fillTrack(track, [...track.children], container.offsetWidth);
+    for (const child of [...track.children]) cloneAsHidden(child, track);
+
+    container.classList.add("marquee-images--ready");
+  }
+};
+
 // Video facade - replace thumbnail with iframe from server-rendered <template> on click
 const initVideoFacades = () => {
   for (const button of document.querySelectorAll(`${SCOPE} .video-facade`)) {
@@ -111,6 +138,8 @@ const init = () => {
   });
 
   initVideoFacades();
+
+  initMarquees();
 };
 
 onReady(init);

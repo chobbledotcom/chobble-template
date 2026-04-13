@@ -2,11 +2,10 @@
 
 // Marquee Images
 // Continuously scrolling row of images (e.g. brand logos, partner badges).
-// Pure CSS animation — no JavaScript required.
+// CSS animation + JS cloning for seamless infinite scroll.
 //
-// The track contains two copies of the image list. Translating by -50%
-// moves the first copy exactly off-screen, at which point the animation
-// loops seamlessly back to 0%.
+// JS clones items until the track is wide enough to cover the viewport,
+// then duplicates the group so translateX(-50%) loops seamlessly.
 
 :root {
   --marquee-speed: 30s;
@@ -27,6 +26,9 @@
     display: flex;
     align-items: center;
     width: max-content;
+  }
+
+  .marquee-images--ready .marquee-images__track {
     animation: marquee-scroll var(--marquee-speed, 30s) linear infinite;
   }
 

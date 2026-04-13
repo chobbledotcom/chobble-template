@@ -1,8 +1,9 @@
 {%- comment -%}
 Marquee images block - continuously scrolling row of images (e.g. brand logos).
 
-Uses pure CSS animation with a duplicated list for seamless infinite scroll.
-The second copy is aria-hidden to avoid duplicate screen-reader announcements.
+Uses pure CSS animation with dynamically cloned content for seamless infinite
+scroll. JavaScript measures the container width and clones items until the track
+is wide enough to scroll without gaps, then starts the animation.
 
 Parameters (via block object):
   - block.items: Array of image objects with properties:
@@ -36,15 +37,6 @@ Parameters (via block object):
         <a href="{{ item.link_url }}" class="marquee-images__link"><img src="{{ item.image }}" alt="{{ alt_text }}" eleventy:ignore chobble:no-lqip loading="lazy"></a>
         {%- else -%}
         <img src="{{ item.image }}" alt="{{ alt_text }}" eleventy:ignore chobble:no-lqip loading="lazy">
-        {%- endif -%}
-      {%- endfor -%}
-      {%- for item in block.items -%}
-        {%- assign image = item.image -%}
-        {%- capture alt_text -%}{%- if item.alt -%}{{ item.alt }}{%- else -%}{%- include "get-alt-text.html" -%}{%- endif -%}{%- endcapture -%}
-        {%- if item.link_url -%}
-        <a href="{{ item.link_url }}" class="marquee-images__link" tabindex="-1" aria-hidden="true"><img src="{{ item.image }}" alt="{{ alt_text }}" eleventy:ignore chobble:no-lqip loading="lazy"></a>
-        {%- else -%}
-        <img src="{{ item.image }}" alt="{{ alt_text }}" eleventy:ignore chobble:no-lqip loading="lazy" aria-hidden="true">
         {%- endif -%}
       {%- endfor -%}
     </div>
