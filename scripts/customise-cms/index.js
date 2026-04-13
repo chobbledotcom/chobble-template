@@ -74,6 +74,11 @@ const logConfigSummary = (config, message, quiet) => {
   if (enabledFeatures.length > 0) {
     log(`  Features: ${enabledFeatures.join(", ")}`, quiet);
   }
+
+  const customBlocks = config.customBlocksCollections || [];
+  if (customBlocks.length > 0) {
+    log(`  Custom blocks collections: ${customBlocks.join(", ")}`, quiet);
+  }
 };
 
 /**

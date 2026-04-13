@@ -61,6 +61,7 @@ const DISABLED_FEATURES = {
   event_locations_and_dates: false,
   use_visual_editor: false,
   below_products: false,
+  use_blocks: false,
 };
 
 /**
@@ -77,6 +78,7 @@ const createTestConfig = (overrides = {}) => ({
   features: { ...DISABLED_FEATURES, ...(overrides.features ?? {}) },
   hasSrcFolder: overrides.hasSrcFolder ?? true,
   customHomePage: overrides.customHomePage ?? false,
+  customBlocksCollections: overrides.customBlocksCollections ?? [],
 });
 
 /**
@@ -1733,5 +1735,215 @@ describe("customise-cms CLI", () => {
 
   test("handleListOptions returns true for --list-features", () => {
     expect(handleListOptions({ "list-features": true })).toBe(true);
+  });
+
+  // ============================================
+  // use_blocks feature
+  // ============================================
+  test("buildConfigFromCli handles --use-blocks flag", () => {
+    const config = buildConfigFromCli({
+      collections: "pages",
+      "use-blocks": true,
+    });
+    expect(config.features.use_blocks).toBe(true);
+  });
+
+  test("buildConfigFromCli handles --no-use-blocks flag", () => {
+    const config = buildConfigFromCli({
+      all: true,
+      "no-use-blocks": true,
+    });
+    expect(config.features.use_blocks).toBe(false);
+  });
+
+  test("buildConfigFromCli handles --custom-blocks-collections flag", () => {
+    const config = buildConfigFromCli({
+      collections: "pages",
+      "use-blocks": true,
+      "custom-blocks-collections": "clients,services",
+    });
+    expect(config.customBlocksCollections).toEqual(["clients", "services"]);
+  });
+
+  test("buildConfigFromCli defaults customBlocksCollections to empty array", () => {
+    const config = buildConfigFromCli({
+      collections: "pages",
+    });
+    expect(config.customBlocksCollections).toEqual([]);
+  });
+
+  test("hasCliFlags detects --use-blocks flag", () => {
+    expect(hasCliFlags({ "use-blocks": true })).toBe(true);
+  });
+
+  test("hasCliFlags detects --custom-blocks-collections flag", () => {
+    expect(hasCliFlags({ "custom-blocks-collections": "clients" })).toBe(true);
+  });
+
+  test("ALL_FEATURES includes use_blocks", () => {
+    expect(ALL_FEATURES).toContain("use_blocks");
+  });
+});
+
+describe("customise-cms blocks layout", () => {
+  // ============================================
+  // use_blocks adds blocks to non-pages collections
+  // ============================================
+  test("generatePagesYaml adds blocks field to products when use_blocks is enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "products", "categories"],
+      features: { use_blocks: true },
+    });
+    const yaml = generatePagesYaml(config);
+    const productsSection = getSection("products")(yaml);
+
+    expect(productsSection).toContain("name: blocks");
+    expect(productsSection).toContain("type: block");
+  });
+
+  test("generatePagesYaml does not add blocks to non-pages collections when use_blocks is disabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "products", "categories"],
+      features: { use_blocks: false },
+    });
+    const yaml = generatePagesYaml(config);
+    const productsSection = getSection("products")(yaml);
+
+    expect(productsSection).not.toContain("name: blocks");
+  });
+
+  test("generatePagesYaml does not duplicate blocks on pages when use_blocks is enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages"],
+      features: { use_blocks: true },
+    });
+    const yaml = generatePagesYaml(config);
+    const pagesSection = getSection("pages")(yaml);
+
+    // Count occurrences of "name: blocks" in pages section
+    const matches = pagesSection.match(/name: blocks/g);
+    expect(matches).toHaveLength(1);
+  });
+
+  test("generatePagesYaml adds blocks to news when use_blocks is enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "news"],
+      features: { use_blocks: true },
+    });
+    const yaml = generatePagesYaml(config);
+    const newsSection = getSection("news")(yaml);
+
+    expect(newsSection).toContain("name: blocks");
+  });
+
+  test("generatePagesYaml does not add blocks to snippets even when use_blocks is enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "snippets"],
+      features: { use_blocks: true },
+    });
+    const yaml = generatePagesYaml(config);
+    const snippetsSection = getSection("snippets")(yaml);
+
+    expect(snippetsSection).not.toContain("name: blocks");
+  });
+
+  // ============================================
+  // Custom blocks collections
+  // ============================================
+  test("generatePagesYaml includes custom blocks collections", () => {
+    const config = createTestConfig({
+      customBlocksCollections: ["clients", "services"],
+    });
+    const yaml = generatePagesYaml(config);
+
+    expect(yaml).toContain("name: clients");
+    expect(yaml).toContain("label: Clients");
+    expect(yaml).toContain("path: src/clients");
+
+    expect(yaml).toContain("name: services");
+    expect(yaml).toContain("label: Services");
+    expect(yaml).toContain("path: src/services");
+  });
+
+  test("custom blocks collections include blocks field", () => {
+    const config = createTestConfig({
+      customBlocksCollections: ["clients"],
+    });
+    const yaml = generatePagesYaml(config);
+    const clientsSection = getSection("clients")(yaml);
+
+    expect(clientsSection).toContain("name: blocks");
+    expect(clientsSection).toContain("type: block");
+  });
+
+  test("custom blocks collections include standard page-like fields", () => {
+    const config = createTestConfig({
+      customBlocksCollections: ["clients"],
+    });
+    const yaml = generatePagesYaml(config);
+    const clientsSection = getSection("clients")(yaml);
+
+    expect(clientsSection).toContain("name: title");
+    expect(clientsSection).toContain("name: subtitle");
+    expect(clientsSection).toContain("name: body");
+    expect(clientsSection).toContain("name: meta_title");
+    expect(clientsSection).toContain("name: meta_description");
+  });
+
+  test("custom blocks collections respect hasSrcFolder setting", () => {
+    const config = createTestConfig({
+      hasSrcFolder: false,
+      customBlocksCollections: ["clients"],
+    });
+    const yaml = generatePagesYaml(config);
+
+    expect(yaml).toContain("path: clients");
+    expect(yaml).not.toContain("path: src/clients");
+  });
+
+  test("custom blocks collections respect optional features", () => {
+    const config = createTestConfig({
+      features: { permalinks: true, galleries: true },
+      customBlocksCollections: ["clients"],
+    });
+    const yaml = generatePagesYaml(config);
+    const clientsSection = getSection("clients")(yaml);
+
+    expect(clientsSection).toContain("name: permalink");
+    expect(clientsSection).toContain("name: gallery");
+  });
+
+  test("custom blocks collections omit optional features when disabled", () => {
+    const config = createTestConfig({
+      features: { permalinks: false, galleries: false },
+      customBlocksCollections: ["clients"],
+    });
+    const yaml = generatePagesYaml(config);
+    const clientsSection = getSection("clients")(yaml);
+
+    expect(clientsSection).not.toContain("name: permalink");
+    expect(clientsSection).not.toContain("name: gallery");
+  });
+
+  test("custom blocks collections handle multi-word slugs correctly", () => {
+    const config = createTestConfig({
+      customBlocksCollections: ["case-studies"],
+    });
+    const yaml = generatePagesYaml(config);
+
+    expect(yaml).toContain("name: case-studies");
+    expect(yaml).toContain("label: Case Studies");
+  });
+
+  test("generatePagesYaml handles empty customBlocksCollections", () => {
+    const config = createTestConfig({
+      customBlocksCollections: [],
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Should still produce valid output without custom collections
+    expect(yaml).toContain("media:");
+    expect(yaml).toContain("content:");
+    expect(yaml).toContain("name: pages");
   });
 });

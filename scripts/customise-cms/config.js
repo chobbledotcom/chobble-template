@@ -29,6 +29,7 @@ import { map, unique } from "#toolkit/fp/array.js";
  * @property {boolean} keywords - Enable search keywords on products and categories
  * @property {boolean} videos - Enable YouTube video embeds on pages
  * @property {boolean} below_products - Enable below-products description on categories
+ * @property {boolean} use_blocks - Enable blocks layout on all collections (design-system-base.html)
  */
 
 /**
@@ -37,6 +38,7 @@ import { map, unique } from "#toolkit/fp/array.js";
  * @property {CmsFeatures} features - Feature flags
  * @property {boolean} hasSrcFolder - Whether the template has a src/ folder
  * @property {boolean} customHomePage - Whether template has a custom home.html layout
+ * @property {string[]} [customBlocksCollections] - Custom blocks-only collections (e.g., ["clients", "services"])
  */
 
 /**
@@ -133,7 +135,9 @@ export const createDefaultConfig = () => ({
     parent_categories: true,
     videos: true,
     below_products: true,
+    use_blocks: false,
   },
   hasSrcFolder: true,
   customHomePage: false,
+  customBlocksCollections: [],
 });

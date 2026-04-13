@@ -27,6 +27,9 @@ const CLI_OPTIONS = {
   quiet: { type: "boolean", short: "q" },
   "list-collections": { type: "boolean" },
   "list-features": { type: "boolean" },
+  "use-blocks": { type: "boolean" },
+  "no-use-blocks": { type: "boolean" },
+  "custom-blocks-collections": { type: "string" },
 };
 
 /**
