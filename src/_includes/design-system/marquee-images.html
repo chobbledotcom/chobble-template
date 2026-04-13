@@ -34,9 +34,9 @@ Parameters (via block object):
         {%- assign image = item.image -%}
         {%- capture alt_text -%}{%- if item.alt -%}{{ item.alt }}{%- else -%}{%- include "get-alt-text.html" -%}{%- endif -%}{%- endcapture -%}
         {%- if item.link_url -%}
-        <a href="{{ item.link_url }}" class="marquee-images__link"><img src="{{ item.image }}" alt="{{ alt_text }}" eleventy:ignore chobble:no-lqip loading="lazy"></a>
+        <a href="{{ item.link_url }}" class="marquee-images__link">{%- image item.image, alt_text -%}</a>
         {%- else -%}
-        <img src="{{ item.image }}" alt="{{ alt_text }}" eleventy:ignore chobble:no-lqip loading="lazy">
+        {%- image item.image, alt_text -%}
         {%- endif -%}
       {%- endfor -%}
     </div>

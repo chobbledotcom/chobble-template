@@ -38,18 +38,20 @@
     flex-shrink: 0;
   }
 
-  .marquee-images img,
   .marquee-images .image-wrapper {
     height: var(--marquee-height, 50px);
-    width: auto;
-    border-radius: 0;
-    object-fit: contain;
+    width: auto !important;
+    max-width: none !important;
+    aspect-ratio: auto !important;
     margin: 0 $space-xl;
     flex-shrink: 0;
   }
 
-  .marquee-images__link img {
-    margin: 0 $space-xl;
+  .marquee-images .image-wrapper img {
+    height: 100%;
+    width: auto;
+    border-radius: 0;
+    object-fit: contain;
   }
 }
 
