@@ -8,6 +8,11 @@
 // moves the first copy exactly off-screen, at which point the animation
 // loops seamlessly back to 0%.
 
+:root {
+  --marquee-speed: 30s;
+  --marquee-height: 50px;
+}
+
 .design-system {
   .marquee-images {
     overflow: hidden;
