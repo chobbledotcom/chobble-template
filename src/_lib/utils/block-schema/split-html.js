@@ -1,5 +1,5 @@
-import { md } from "#utils/block-schema/shared.js";
 import {
+  md,
   SPLIT_BASE_CMS_FIELDS,
   SPLIT_BASE_DOCS,
   SPLIT_BASE_PARAMS,

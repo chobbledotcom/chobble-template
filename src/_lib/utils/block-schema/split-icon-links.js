@@ -1,4 +1,4 @@
-import { objectList, str } from "#utils/block-schema/shared.js";
+import { ICON_LINKS_ITEMS_FIELD } from "#utils/block-schema/icon-links.js";
 import {
   SPLIT_BASE_CMS_FIELDS,
   SPLIT_BASE_DOCS,
@@ -26,9 +26,5 @@ export const docs = {
 
 export const cmsFields = {
   ...SPLIT_BASE_CMS_FIELDS,
-  figure_items: objectList("Icon Links", {
-    icon: str("Icon (Iconify ID or HTML entity)", { required: true }),
-    text: str("Link Text", { required: true }),
-    url: str("URL"),
-  }),
+  figure_items: ICON_LINKS_ITEMS_FIELD,
 };

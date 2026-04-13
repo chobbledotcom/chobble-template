@@ -1,9 +1,9 @@
-import { str } from "#utils/block-schema/shared.js";
 import {
   SPLIT_BASE_CMS_FIELDS,
   SPLIT_BASE_DOCS,
   SPLIT_BASE_PARAMS,
   SPLIT_BASE_SCHEMA,
+  str,
 } from "#utils/block-schema/split-shared.js";
 
 export const type = "split-code";

@@ -14,6 +14,9 @@ import {
   str,
 } from "#utils/block-schema/shared.js";
 
+// Re-export so split variants only need one import source.
+export { md, str } from "#utils/block-schema/shared.js";
+
 /** Schema keys shared by all split variants. */
 export const SPLIT_BASE_SCHEMA = [
   "title",
