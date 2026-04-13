@@ -498,7 +498,7 @@ Continuously scrolling marquee of images (e.g. brand logos, partner badges).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Image objects. Each: `{image, alt}`. `image` is a path; `alt` is optional alt text. Images are rendered with `eleventy:ignore` and `chobble:no-lqip` to skip processing. |
+| `items` | array | **required** | Image objects. Each: `{image, alt, link_url}`. `image` is a path; `alt` is optional alt text; `link_url` is an optional URL to wrap the image in a link. Images are processed via the `{% image %}` shortcode for responsive formats and proper URL normalization. |
 | `speed` | string | `"30s"` | CSS animation duration for one full scroll cycle (e.g. `"20s"`, `"45s"`). Slower = longer duration. |
 | `height` | string | `"50px"` | CSS height for the images (e.g. `"60px"`, `"80px"`). Width scales proportionally. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |

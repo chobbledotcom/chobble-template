@@ -20,7 +20,7 @@ export const docs = {
     items: {
       ...ITEMS_ARRAY_PARAM,
       description:
-        "Image objects. Each: `{image, alt}`. `image` is a path; `alt` is optional alt text. Images are rendered with `eleventy:ignore` and `chobble:no-lqip` to skip processing.",
+        "Image objects. Each: `{image, alt, link_url}`. `image` is a path; `alt` is optional alt text; `link_url` is an optional URL to wrap the image in a link. Images are processed via the `{% image %}` shortcode for responsive formats and proper URL normalization.",
     },
     speed: {
       type: "string",
@@ -42,6 +42,7 @@ export const cmsFields = {
   items: objectList("Images", {
     image: str("Image Path", { required: true }),
     alt: str("Alt Text"),
+    link_url: str("Link URL"),
   }),
   speed: str("Scroll Speed (e.g. 30s)"),
   height: str("Image Height (e.g. 50px)"),
