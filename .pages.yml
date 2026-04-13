@@ -108,31 +108,29 @@ components:
           - { name: href, type: string, label: URL, required: true }
           - { name: variant, type: string, label: Variant }
           - { name: size, type: string, label: Size }
-  block_split_shared: &block_split_shared
-    - name: container_width
-      type: string
-      label: Container Width (full, wide, narrow)
-    - { name: section_class, type: string, label: Section Class }
-    - { name: title, type: string, label: Title }
-    - { name: title_level, type: number, label: Heading Level }
-    - { name: subtitle, type: string, label: Subtitle }
-    - { name: reverse, type: boolean, label: Reverse Layout }
-    - { name: reveal_content, type: string, label: Reveal Content Animation }
-    - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-    - { name: content, type: rich-text, label: Content }
-    - name: button
-      type: object
-      label: Button
-      fields:
-        - { name: text, type: string, label: Button Text, required: true }
-        - { name: href, type: string, label: URL, required: true }
-        - { name: variant, type: string, label: Variant }
-        - { name: size, type: string, label: Size }
   block_split_image:
     label: Split Image
     type: object
     fields:
-      - *block_split_shared
+      - name: container_width
+        type: string
+        label: Container Width (full, wide, narrow)
+      - { name: section_class, type: string, label: Section Class }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - { name: content, type: rich-text, label: Content }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
       - { name: figure_src, type: image, label: Figure Image }
       - { name: figure_alt, type: string, label: Figure Alt Text }
       - { name: figure_caption, type: string, label: Figure Caption }
@@ -140,7 +138,25 @@ components:
     label: Split Video
     type: object
     fields:
-      - *block_split_shared
+      - name: container_width
+        type: string
+        label: Container Width (full, wide, narrow)
+      - { name: section_class, type: string, label: Section Class }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - { name: content, type: rich-text, label: Content }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
       - { name: figure_video_id, type: string, label: Video ID or URL }
       - { name: figure_alt, type: string, label: Video Alt Text }
       - { name: figure_caption, type: string, label: Video Caption }
@@ -148,7 +164,25 @@ components:
     label: Split Code
     type: object
     fields:
-      - *block_split_shared
+      - name: container_width
+        type: string
+        label: Container Width (full, wide, narrow)
+      - { name: section_class, type: string, label: Section Class }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - { name: content, type: rich-text, label: Content }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
       - { name: figure_filename, type: string, label: Code Filename }
       - { name: figure_code, type: string, label: Code Content }
       - { name: figure_language, type: string, label: Code Language }
@@ -156,7 +190,25 @@ components:
     label: Split Icon Links
     type: object
     fields:
-      - *block_split_shared
+      - name: container_width
+        type: string
+        label: Container Width (full, wide, narrow)
+      - { name: section_class, type: string, label: Section Class }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - { name: content, type: rich-text, label: Content }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
       - name: figure_items
         type: object
         label: Icon Links
@@ -169,7 +221,25 @@ components:
     label: Split HTML
     type: object
     fields:
-      - *block_split_shared
+      - name: container_width
+        type: string
+        label: Container Width (full, wide, narrow)
+      - { name: section_class, type: string, label: Section Class }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - { name: content, type: rich-text, label: Content }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
       - { name: figure_html, type: rich-text, label: Figure HTML Content }
   block_split_full:
     label: Split Full
