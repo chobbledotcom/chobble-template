@@ -30,6 +30,7 @@ import * as items from "#utils/block-schema/items.js";
 import * as itemsArray from "#utils/block-schema/items-array.js";
 import * as linkButton from "#utils/block-schema/link-button.js";
 import * as markdown from "#utils/block-schema/markdown.js";
+import * as marqueeImages from "#utils/block-schema/marquee-images.js";
 import * as properties from "#utils/block-schema/properties.js";
 import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
@@ -80,6 +81,7 @@ const BLOCK_MODULES = [
   linkButton,
   reviews,
   gallery,
+  marqueeImages,
   iconLinks,
   snippet,
 ];

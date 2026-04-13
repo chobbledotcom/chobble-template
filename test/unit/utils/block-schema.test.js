@@ -33,6 +33,7 @@ describe("BLOCK_SCHEMAS", () => {
       "link-button",
       "reviews",
       "gallery",
+      "marquee-images",
       "icon-links",
       "snippet",
     ];

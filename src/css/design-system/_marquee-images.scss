@@ -1,0 +1,43 @@
+@use "../variables" as *;
+
+// Marquee Images
+// Continuously scrolling row of images (e.g. brand logos, partner badges).
+// Pure CSS animation — no JavaScript required.
+//
+// The track contains two copies of the image list. Translating by -50%
+// moves the first copy exactly off-screen, at which point the animation
+// loops seamlessly back to 0%.
+
+.design-system {
+  .marquee-images {
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .marquee-images__track {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    animation: marquee-scroll var(--marquee-speed, 30s) linear infinite;
+  }
+
+  .marquee-images img,
+  .marquee-images .image-wrapper {
+    height: var(--marquee-height, 50px);
+    width: auto;
+    border-radius: 0;
+    object-fit: contain;
+    margin: 0 $space-xl;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
