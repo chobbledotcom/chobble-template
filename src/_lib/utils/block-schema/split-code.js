@@ -1,3 +1,4 @@
+/* jscpd:ignore-start */
 import {
   SPLIT_BASE_CMS_FIELDS,
   SPLIT_BASE_DOCS,
@@ -5,6 +6,7 @@ import {
   SPLIT_BASE_SCHEMA,
   str,
 } from "#utils/block-schema/split-shared.js";
+/* jscpd:ignore-end */
 
 export const type = "split-code";
 
