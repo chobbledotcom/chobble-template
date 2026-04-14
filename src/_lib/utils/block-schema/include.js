@@ -1,3 +1,5 @@
+import { str } from "#utils/block-schema/shared.js";
+
 export const type = "include";
 
 export const schema = ["file"];
@@ -13,4 +15,8 @@ export const docs = {
       description: "Path to the template file to include.",
     },
   },
+};
+
+export const cmsFields = {
+  file: str("Template File Path", { required: true }),
 };

@@ -58,8 +58,10 @@ const extractKeyValue = (line) => {
   const cleanKey = key.replace(/^-\s*/, "");
   const value = trimmed.substring(colonIndex + 1).trim();
 
-  // Only return simple values (no nested structures)
-  if (!value || value.startsWith("[") || value.startsWith("{")) {
+  // Only return simple values (no nested structures). Also reject values
+  // containing flow-significant characters — commas, braces, brackets — which
+  // would break when emitted inside an inline `{ ... }` mapping without quotes.
+  if (!value || /[,{}[\]]/.test(value)) {
     return null;
   }
 
@@ -80,9 +82,10 @@ const objectToInline = (lines) => {
     if (shouldSkipLine(trimmed)) continue;
 
     const pair = extractKeyValue(line);
-    if (pair) {
-      pairs.push(`${pair.key}: ${pair.value}`);
-    }
+    // If any content line can't be safely represented inline, refuse to
+    // compact the whole object — otherwise we'd silently drop that line.
+    if (!pair) return null;
+    pairs.push(`${pair.key}: ${pair.value}`);
   }
 
   return pairs.length > 0 ? `{ ${pairs.join(", ")} }` : null;
@@ -156,11 +159,7 @@ const tryCompactLine = (objectLines, listIndent) => {
   const fullInlineLine = `${" ".repeat(listIndent)}- ${inlineVersion}`;
 
   // Only use inline version if it stays under 80 chars
-  if (fullInlineLine.length <= 80) {
-    return fullInlineLine;
-  }
-
-  return null; // Line too long
+  return fullInlineLine.length <= 80 ? fullInlineLine : null;
 };
 
 /**

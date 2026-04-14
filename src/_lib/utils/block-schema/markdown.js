@@ -1,3 +1,5 @@
+import { md } from "#utils/block-schema/shared.js";
+
 export const type = "markdown";
 
 export const schema = ["content"];
@@ -15,4 +17,8 @@ export const docs = {
         'Markdown content. Passed through `renderContent: "md"` filter.',
     },
   },
+};
+
+export const cmsFields = {
+  content: md("Markdown"),
 };

@@ -1,3 +1,5 @@
+import { bool } from "#utils/block-schema/shared.js";
+
 export const type = "reviews";
 
 export const schema = ["current_item"];
@@ -16,4 +18,8 @@ export const docs = {
         "If true, filters reviews to the current item by slug and tags.",
     },
   },
+};
+
+export const cmsFields = {
+  current_item: bool("Filter to Current Item"),
 };

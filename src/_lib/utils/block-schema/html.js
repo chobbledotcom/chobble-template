@@ -1,3 +1,5 @@
+import { str } from "#utils/block-schema/shared.js";
+
 export const type = "html";
 
 export const schema = ["content"];
@@ -13,4 +15,8 @@ export const docs = {
       description: "Raw HTML. Output directly with `{{ block.content }}`.",
     },
   },
+};
+
+export const cmsFields = {
+  content: str("Raw HTML", { required: true }),
 };

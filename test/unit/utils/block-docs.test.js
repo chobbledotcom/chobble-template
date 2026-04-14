@@ -2,8 +2,14 @@ import { describe, expect, test } from "bun:test";
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import YAML from "yaml";
 import { rootDir } from "#test/test-utils.js";
-import { BLOCK_DOCS, BLOCK_SCHEMAS } from "#utils/block-schema.js";
+import { collectBlockReferences } from "#test/unit/utils/pages-yml-helpers.js";
+import {
+  BLOCK_CMS_FIELDS,
+  BLOCK_DOCS,
+  BLOCK_SCHEMAS,
+} from "#utils/block-schema.js";
 
 const RENDER_BLOCK_PATH = join(
   rootDir,
@@ -11,6 +17,7 @@ const RENDER_BLOCK_PATH = join(
 );
 const BLOCKS_LAYOUT_PATH = join(rootDir, "BLOCKS_LAYOUT.md");
 const GENERATOR_SCRIPT = join(rootDir, "scripts/generate-blocks-reference.js");
+const PAGES_YML_PATH = join(rootDir, ".pages.yml");
 
 /** Extract block type names from the Liquid case statements in render-block.html */
 const getRenderedBlockTypes = () => {
@@ -96,5 +103,41 @@ describe("BLOCKS_LAYOUT.md freshness", () => {
     execSync(`bun ${GENERATOR_SCRIPT}`, { cwd: rootDir, stdio: "pipe" });
     const regenerated = readFileSync(BLOCKS_LAYOUT_PATH, "utf-8");
     expect(regenerated).toBe(committed);
+  });
+});
+
+describe(".pages.yml ↔ BLOCKS_LAYOUT.md coverage", () => {
+  const parsedPagesYml = YAML.parse(readFileSync(PAGES_YML_PATH, "utf-8"));
+  // Every block type reachable through the CMS UI — each must have
+  // user-facing docs in BLOCKS_LAYOUT.md.
+  const cmsReachableTypes = new Set(
+    collectBlockReferences(parsedPagesYml).map((r) => r.name),
+  );
+
+  test("every CMS-reachable block type has BLOCK_DOCS with a summary", () => {
+    const missing = [...cmsReachableTypes]
+      .filter((type) => !BLOCK_DOCS[type]?.summary)
+      .sort();
+    expect(missing).toEqual([]);
+  });
+
+  test("every CMS-reachable block's CMS field is documented in BLOCK_DOCS.params", () => {
+    // container_width and section_class are injected by the generator for every
+    // block and documented once in the "Common Block Properties" table at the
+    // top of BLOCKS_LAYOUT.md — skip them here.
+    const containerFields = new Set(["container_width", "section_class"]);
+    const violations = [...cmsReachableTypes].flatMap((type) => {
+      const docParams = Object.keys(BLOCK_DOCS[type]?.params || {});
+      const cmsFieldNames = Object.keys(BLOCK_CMS_FIELDS[type] || {});
+      return cmsFieldNames
+        .filter(
+          (name) => !containerFields.has(name) && !docParams.includes(name),
+        )
+        .map(
+          (name) =>
+            `${type}: CMS field "${name}" has no matching BLOCK_DOCS.params entry`,
+        );
+    });
+    expect(violations).toEqual([]);
   });
 });

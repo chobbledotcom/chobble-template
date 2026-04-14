@@ -1,4 +1,8 @@
-import { REVEAL_PARAM } from "#utils/block-schema/shared.js";
+import {
+  BUTTON_FIELDS_WITH_SIZE,
+  REVEAL_PARAM,
+  str,
+} from "#utils/block-schema/shared.js";
 
 export const type = "link-button";
 
@@ -31,4 +35,9 @@ export const docs = {
     },
     reveal: REVEAL_PARAM,
   },
+};
+
+export const cmsFields = {
+  ...BUTTON_FIELDS_WITH_SIZE,
+  reveal: str("Reveal Animation"),
 };

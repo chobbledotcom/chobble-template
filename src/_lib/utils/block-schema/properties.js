@@ -10,3 +10,6 @@ export const docs = {
     "No block-level parameters. Uses the global `collections.properties` and optional `filterPage` data for URL-based filtering.",
   params: {},
 };
+
+/** No block-specific fields — only the auto-injected container wrapper fields. */
+export const cmsFields = {};

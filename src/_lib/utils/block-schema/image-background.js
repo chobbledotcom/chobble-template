@@ -1,6 +1,10 @@
 import {
+  bool,
   CLASS_PARAM,
+  img,
+  md,
   OVERLAY_CONTENT_PARAM,
+  str,
 } from "#utils/block-schema/shared.js";
 
 export const type = "image-background";
@@ -35,4 +39,12 @@ export const docs = {
         "Enables CSS `animation-timeline: scroll()` parallax effect.",
     },
   },
+};
+
+export const cmsFields = {
+  image: img("Background Image", { required: true }),
+  image_alt: str("Image Alt Text"),
+  parallax: bool("Parallax"),
+  class: str("CSS Class"),
+  content: md("Overlay Content"),
 };

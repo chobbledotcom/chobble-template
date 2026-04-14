@@ -1,6 +1,9 @@
 import {
   ITEMS_ARRAY_PARAM,
   ITEMS_GRID_META,
+  img,
+  objectList,
+  str,
 } from "#utils/block-schema/shared.js";
 
 export const type = "gallery";
@@ -23,4 +26,12 @@ export const docs = {
         'Aspect ratio for images (e.g. `"16/9"`, `"1/1"`, `"4/3"`). Default: no cropping.',
     },
   },
+};
+
+export const cmsFields = {
+  aspect_ratio: str("Aspect Ratio"),
+  items: objectList("Gallery Images", {
+    image: img("Image", { required: true }),
+    caption: str("Caption"),
+  }),
 };
