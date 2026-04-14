@@ -70,8 +70,8 @@
     @include flex-row($space-md, center, center);
   }
 
-  .slider-prev,
-  .slider-next {
+  a.slider-prev,
+  a.slider-next {
     @include button-base;
     @include focus-ring;
     text-decoration: none;
@@ -100,8 +100,8 @@
   }
 
   // Dark section variant - hover inherits from base rule above
-  .dark .slider-prev,
-  .dark .slider-next {
+  .dark a.slider-prev,
+  .dark a.slider-next {
     background: var(--color-card-bg);
     border-color: $color-dark-card-bg;
     color: $color-dark-text;
