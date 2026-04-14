@@ -45,9 +45,21 @@ const sortByDateDescending = (a, b) => {
 };
 
 /**
+ * @typedef {Object} NavigationItemData
+ * @property {number} [order]
+ * @property {string} title
+ * @property {{ order?: number, key?: string }} eleventyNavigation
+ */
+
+/**
+ * @typedef {Object} NavigationItem
+ * @property {NavigationItemData} data
+ */
+
+/**
  * Comparator for sorting navigation items by order then by key.
  * Falls back to title when eleventyNavigation.key is not set.
- * @type {(a: CollectionItem, b: CollectionItem) => number}
+ * @type {(a: NavigationItem, b: NavigationItem) => number}
  */
 const sortNavigationItems = orderThenString(
   (item) => item.data.eleventyNavigation.order ?? 999,

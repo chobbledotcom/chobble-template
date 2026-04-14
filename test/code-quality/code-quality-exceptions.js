@@ -286,7 +286,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   // src/_lib/utils - utility functions
   "src/_lib/utils/collection-utils.js:79", // indexer may not contain the lookup slug
   "src/_lib/utils/collection-utils.js:110", // CMS boundary: frontmatter array fields may be null before eleventyComputed
-  "src/_lib/utils/sorting.js:53", // eleventyNavigation.order (separate from item order)
+  "src/_lib/utils/sorting.js:65", // eleventyNavigation.order (separate from item order)
 ]);
 
 export {
