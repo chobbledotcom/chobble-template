@@ -60,6 +60,8 @@ describe("html-transform", () => {
 
       expect(result).not.toContain("mailto:hello@example.com");
       expect(result).toContain("data-decrypt-link");
+      const hrefMatch = result.match(/href="([^"]+)"[^>]*data-decrypt-link/);
+      expect(hrefMatch[1]).toMatch(/^#[0-9a-zA-Z_-]+$/);
     });
 
     test("linkifies phone numbers with default config", async () => {
