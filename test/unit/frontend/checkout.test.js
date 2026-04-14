@@ -6,7 +6,8 @@ import { describe, expect, mock, test } from "bun:test";
 import { Liquid } from "liquidjs";
 import { configureJsConfig } from "#eleventy/js-config.js";
 
-// Mock notify.js to capture notification calls instead of DOM manipulation
+// Mock notify.js to capture notification calls instead of DOM manipulation.
+// Allowlisted in test/unit/code-quality/mock-module-usage.test.js.
 const mockShowNotification = mock();
 mock.module("#public/utils/notify.js", () => ({
   showNotification: (...args) => mockShowNotification(...args),

@@ -1,9 +1,10 @@
 import { describe, expect, mock, test } from "bun:test";
 import { getCart, saveCart } from "#public/utils/cart-utils.js";
 
-// Mock dependencies at module level:
-// - config.js: prevents DOM site-config conflicts with checkout.test.js
-// - notify.js: captures notification calls for assertion
+// Mock dependencies at module level. config.js reads `document` at import
+// time, so every consumer has to stub it — no real module exists to restore
+// to. notify.js is stubbed here to capture notification calls. Allowlisted
+// in test/unit/code-quality/mock-module-usage.test.js.
 const mockShowNotification = mock();
 mock.module("#public/utils/config.js", () => ({
   default: { ecommerce_api_host: "test.example.com" },

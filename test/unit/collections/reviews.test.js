@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   configureReviews,
   getReviewsFor,
+  ratingToStars,
   reviewsRedirects,
   withReviewsPage,
 } from "#collections/reviews.js";
@@ -21,7 +22,7 @@ import { map } from "#toolkit/fp/array.js";
 
 // Extract filters/collections once
 const { filters, collections } = withConfiguredMock(configureReviews)();
-const { getRating, ratingToStars, reviewerAvatar } = filters;
+const { getRating, reviewerAvatar } = filters;
 const { reviews } = collections;
 
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
@@ -216,16 +217,15 @@ describe("reviews", () => {
     expect(getRating(r, "product-a", ["products"])).toBe(null);
   });
 
-  test("Converts rating to stars via filter (SVG when config enabled)", () => {
-    // Demo config has rating_stars_uses_svg: true, so expect SVG output
-    const star1 = ratingToStars(1);
-    const star3 = ratingToStars(3);
-    const star5 = ratingToStars(5);
+  test("Renders stars as SVG when useSvg is true", () => {
+    expect((ratingToStars(1, true).match(/<svg/g) ?? []).length).toBe(1);
+    expect((ratingToStars(3, true).match(/<svg/g) ?? []).length).toBe(3);
+    expect((ratingToStars(5, true).match(/<svg/g) ?? []).length).toBe(5);
+  });
 
-    // Each SVG star contains exactly one <svg> and one <path>
-    expect((star1.match(/<svg/g) ?? []).length).toBe(1);
-    expect((star3.match(/<svg/g) ?? []).length).toBe(3);
-    expect((star5.match(/<svg/g) ?? []).length).toBe(5);
+  test("Renders stars as emoji when useSvg is false", () => {
+    expect(ratingToStars(1, false)).toBe("⭐️");
+    expect(ratingToStars(3, false)).toBe("⭐️⭐️⭐️");
   });
 
   test("Avatar displays initials from names via filter", () => {
@@ -278,8 +278,11 @@ describe("reviews", () => {
     expect(typeof mockConfig.collections.reviews).toBe("function");
     expect(typeof mockConfig.filters.getReviewsFor).toBe("function");
     expect(typeof mockConfig.filters.getRating).toBe("function");
-    expect(typeof mockConfig.filters.ratingToStars).toBe("function");
     expect(typeof mockConfig.filters.reviewerAvatar).toBe("function");
+    // Exercise the registered ratingToStars filter wrapper. Asserting that
+    // it returns a non-empty string avoids depending on config state that
+    // concurrent test files can swap via module mocks.
+    expect(mockConfig.filters.ratingToStars(3).length).toBeGreaterThan(0);
   });
 
   test("Filter functions should be pure and not modify inputs", () => {

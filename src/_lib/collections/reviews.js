@@ -127,12 +127,11 @@ const getRating = (reviews, slug, tags) => {
  * Convert numeric rating to star display.
  *
  * @param {number} rating - The numeric rating (1-5)
- * @returns {string} Stars repeated by the rating count (emoji or SVG based on config)
+ * @param {boolean} useSvg - Whether to render stars as inline SVG (vs emoji)
+ * @returns {string} Stars repeated by the rating count
  */
-const ratingToStars = (rating) =>
-  config().rating_stars_uses_svg
-    ? STAR_SVG.repeat(rating)
-    : "⭐️".repeat(rating);
+const ratingToStars = (rating, useSvg) =>
+  useSvg ? STAR_SVG.repeat(rating) : "⭐️".repeat(rating);
 
 /**
  * Predefined list of slightly dark colors for avatar backgrounds.
@@ -260,8 +259,16 @@ const configureReviews = (eleventyConfig) => {
   eleventyConfig.addCollection("reviews", createReviewsCollection);
   addDataFilter(eleventyConfig, "getReviewsFor", getReviewsFor);
   addDataFilter(eleventyConfig, "getRating", getRating);
-  eleventyConfig.addFilter("ratingToStars", ratingToStars);
+  eleventyConfig.addFilter("ratingToStars", (rating) =>
+    ratingToStars(rating, config().rating_stars_uses_svg),
+  );
   eleventyConfig.addFilter("reviewerAvatar", reviewerAvatar);
 };
 
-export { configureReviews, getReviewsFor, reviewsRedirects, withReviewsPage };
+export {
+  configureReviews,
+  getReviewsFor,
+  ratingToStars,
+  reviewsRedirects,
+  withReviewsPage,
+};

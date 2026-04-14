@@ -1,7 +1,15 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { DEFAULT_PRODUCT_DATA, DEFAULTS } from "#config/helpers.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+  item,
+  mockModule,
+  withMockFetch,
+} from "#test/test-utils.js";
+import { map } from "#toolkit/fp/array.js";
 
-mock.module("#data/config.js", () => ({
+await mockModule("#data/config.js", () => ({
   default: () => ({
     ...DEFAULTS,
     products: DEFAULT_PRODUCT_DATA,
@@ -11,18 +19,9 @@ mock.module("#data/config.js", () => ({
   }),
 }));
 
-import {
-  configureNavigation,
-  findPageUrl,
-  toNavigation,
-} from "#collections/navigation.js";
-import {
-  createMockEleventyConfig,
-  expectResultTitles,
-  item,
-  withMockFetch,
-} from "#test/test-utils.js";
-import { map } from "#toolkit/fp/array.js";
+const { configureNavigation, findPageUrl, toNavigation } = await import(
+  "#collections/navigation.js"
+);
 
 const MOCK_SVG = '<svg xmlns="http://www.w3.org/2000/svg"><path/></svg>';
 
