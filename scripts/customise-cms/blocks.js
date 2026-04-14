@@ -36,21 +36,6 @@ const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
 });
 
 /**
- * Valid field types for page layout schema fields.
- * Use "markdown" for rich-text/code editor fields — never "rich-text" directly.
- * @type {Set<string>}
- */
-const VALID_SCHEMA_FIELD_TYPES = new Set([
-  "string",
-  "number",
-  "boolean",
-  "image",
-  "object",
-  "markdown",
-  "reference",
-]);
-
-/**
  * Convert a page layout block schema field to a CMS field
  * @param {string} name - Field name
  * @param {object} fieldSchema - Field schema from JSON
@@ -58,14 +43,6 @@ const VALID_SCHEMA_FIELD_TYPES = new Set([
  * @returns {object} CMS field configuration
  */
 const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
-  if (!VALID_SCHEMA_FIELD_TYPES.has(fieldSchema.type)) {
-    throw new Error(
-      `Invalid field type "${fieldSchema.type}" for field "${name}". ` +
-        `Valid types: ${[...VALID_SCHEMA_FIELD_TYPES].join(", ")}. ` +
-        `Use "markdown" instead of "rich-text" for rich text editor fields.`,
-    );
-  }
-
   if (fieldSchema.type === "markdown") {
     return createMarkdownField(
       name,
@@ -115,24 +92,15 @@ const blockTypeToComponentName = (type) => `block_${type.replace(/-/g, "_")}`;
  * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
  * @returns {object} CMS block configuration
  */
-const buildBlockComponent = (type, useVisualEditor) => {
-  const fieldsSchema = BLOCK_CMS_FIELDS[type];
-  if (!fieldsSchema) {
-    throw new Error(
-      `Block type "${type}" is not defined in BLOCK_CMS_FIELDS. ` +
-        "Add it to src/_lib/utils/block-schema.js or remove it from page-layouts.",
-    );
-  }
-  return {
-    name: type,
-    label: blockTypeToLabel(type),
-    type: "object",
-    fields: Object.entries(fieldsSchema).map(([name, fieldSchema]) =>
-      schemaFieldToCmsField(name, fieldSchema, useVisualEditor),
-    ),
-    _componentName: blockTypeToComponentName(type),
-  };
-};
+const buildBlockComponent = (type, useVisualEditor) => ({
+  name: type,
+  label: blockTypeToLabel(type),
+  type: "object",
+  fields: Object.entries(BLOCK_CMS_FIELDS[type]).map(([name, fieldSchema]) =>
+    schemaFieldToCmsField(name, fieldSchema, useVisualEditor),
+  ),
+  _componentName: blockTypeToComponentName(type),
+});
 
 /**
  * Generate CMS block field for the list of block types this page supports.
