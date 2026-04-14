@@ -15,7 +15,9 @@ const GENERATOR_SCRIPT = join(rootDir, "scripts/generate-blocks-reference.js");
 /** Extract block type names from the Liquid case statements in render-block.html */
 const getRenderedBlockTypes = () => {
   const content = readFileSync(RENDER_BLOCK_PATH, "utf-8");
-  const whenClauses = [...content.matchAll(/when\s+("[^"]+"(?:\s*,\s*"[^"]+")*)/g)];
+  const whenClauses = [
+    ...content.matchAll(/when\s+("[^"]+"(?:\s*,\s*"[^"]+")*)/g),
+  ];
   return whenClauses
     .flatMap((m) => [...m[1].matchAll(/"([^"]+)"/g)].map((q) => q[1]))
     .sort();
