@@ -227,7 +227,6 @@ blocks:
 
   # E-Commerce Features (with header, grid--4 layout, custom colors)
   - type: features
-    section_class: alt
 
     header_intro: |-
       ## Commerce Options
@@ -269,7 +268,6 @@ blocks:
 
   # SEO Features (with header)
   - type: features
-    section_class: alt
 
     header_intro: |-
       ## Built-in SEO

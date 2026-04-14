@@ -23,7 +23,7 @@ Every block object supports these properties (handled by blocks.html, not the in
 | Property | Type | Effect |
 |---|---|---|
 | `type` | string | **Required.** Selects which template to render. |
-| `section_class` | string | CSS class(es) on the wrapping `<section>`. Built-in: `alt` (alternate bg), `dark` (dark bg + inverted colors), `gradient` (gradient bg), `compact` (reduced padding). |
+| `section_class` | string | CSS class(es) on the wrapping `<section>`. Built-in: `dark` (dark bg + inverted colors), `gradient` (gradient bg), `compact` (reduced padding). Alternating backgrounds are applied automatically via `:nth-child(even)`. |
 | `container_width` | string | `"full"`, `"wide"` (default), or `"narrow"`. Controls the inner container max-width. `"full"` omits the container wrapper entirely so content spans the full viewport width. |
 
 ### Section Behavior

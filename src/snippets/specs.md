@@ -2,7 +2,6 @@
 name: Specs
 blocks:
   - type: stats
-    section_class: alt
     items:
       - value: "14"
         label: Content Types
