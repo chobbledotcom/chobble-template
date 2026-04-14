@@ -3,7 +3,12 @@ import {
   HEADER_PARAM_DOCS,
   ITEMS_ARRAY_PARAM,
   ITEMS_GRID_META,
+  img,
+  md,
+  num,
+  objectList,
   REVEAL_BOOLEAN_PARAM,
+  str,
 } from "#utils/block-schema/shared.js";
 
 export const type = "image-cards";
@@ -42,4 +47,16 @@ export const docs = {
     },
     ...HEADER_PARAM_DOCS,
   },
+};
+
+export const cmsFields = {
+  heading_level: num("Heading Level"),
+  image_aspect_ratio: str("Image Aspect Ratio"),
+  header_intro: md("Header Intro"),
+  items: objectList("Cards", {
+    image: img("Image", { required: true }),
+    title: str("Title", { required: true }),
+    description: str("Description"),
+    link: str("Link URL"),
+  }),
 };

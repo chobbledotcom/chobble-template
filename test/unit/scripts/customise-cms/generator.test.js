@@ -34,14 +34,18 @@ const createTestConfig = (overrides = {}) => ({
 });
 
 /**
- * Extract a named collection section from YAML output.
+ * Extract a named top-level collection section from YAML output.
+ * Anchors on the 2-space collection indent so names that also appear
+ * as block references (e.g. `{ name: guide-categories, component: ... }`)
+ * deeper in the tree don't match.
  * @param {string} collectionName
  * @returns {(yaml: string) => string}
  */
 const getSection = (collectionName) => (yaml) => {
-  const marker = `name: ${collectionName}`;
-  const start = yaml.indexOf(marker);
-  if (start === -1) return "";
+  const marker = `\n  - name: ${collectionName}\n`;
+  const markerIndex = yaml.indexOf(marker);
+  if (markerIndex === -1) return "";
+  const start = markerIndex + 1;
   const remainder = yaml.substring(start + 1);
   const nextCollectionMatch = remainder.match(/\n {2}- name: /);
   return nextCollectionMatch

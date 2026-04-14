@@ -9,3 +9,6 @@ export const docs = {
     "No block-level parameters. Uses the global `collections.guide-categories`.",
   params: {},
 };
+
+/** No block-specific fields — only the auto-injected container wrapper fields. */
+export const cmsFields = {};

@@ -1,9 +1,9 @@
 import {
   CLASS_PARAM,
-  md,
   OVERLAY_CONTENT_PARAM,
   str,
   VIDEO_BG_SHARED_PARAMS,
+  videoBgSharedFields,
 } from "#utils/block-schema/shared.js";
 
 export const type = "video-background";
@@ -44,9 +44,6 @@ export const docs = {
 
 export const cmsFields = {
   video_id: str("Video Embed URL", { required: true }),
-  video_title: str("Video Title"),
-  aspect_ratio: str("Aspect Ratio"),
   thumbnail_url: str("Thumbnail URL"),
-  class: str("CSS Class"),
-  content: md("Overlay Content"),
+  ...videoBgSharedFields(),
 };
