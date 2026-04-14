@@ -65,13 +65,13 @@ describe("encrypt-emails", () => {
       expect(result).toContain("</a>");
     });
 
-    test("encrypted href contains only URL-safe chars", async () => {
+    test("encrypted href starts with # and contains only URL-safe chars", async () => {
       const html = wrapHtml(
         '<a href="mailto:test@example.com">test@example.com</a>',
       );
       const result = await transformHtml(html);
       const hrefMatch = result.match(/href="([^"]+)"/);
-      expect(hrefMatch[1]).toMatch(/^[0-9a-zA-Z_-]+$/);
+      expect(hrefMatch[1]).toMatch(/^#[0-9a-zA-Z_-]+$/);
     });
   });
 });

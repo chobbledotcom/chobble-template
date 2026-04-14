@@ -60,7 +60,7 @@ onReady(async () => {
   const key = await importKey(keyText);
   for (const link of links) {
     const [href, text] = await Promise.all([
-      decrypt(link.getAttribute("href"), key),
+      decrypt(link.getAttribute("href").replace(/^#/, ""), key),
       decrypt(link.textContent, key),
     ]);
     link.setAttribute("href", href);
