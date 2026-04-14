@@ -549,11 +549,11 @@ describe("eleventyComputed", () => {
 
     test("Explicit section_class overrides default empty string", () => {
       const data = {
-        blocks: [{ type: "stats", items: [], section_class: "alt" }],
+        blocks: [{ type: "stats", items: [], section_class: "dark" }],
         page,
       };
       const result = eleventyComputed.blocks(data);
-      expect(result[0].section_class).toBe("alt");
+      expect(result[0].section_class).toBe("dark");
     });
 
     test("Processes multiple blocks with different types", () => {
