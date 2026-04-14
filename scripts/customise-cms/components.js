@@ -75,10 +75,8 @@ const replaceFieldWithComponentRef = (field) => {
  * @param {CmsField[]} fields - Array of field configurations
  * @returns {CmsField[]} Fields with component references replacing full definitions
  */
-const replaceWithComponentRefs = (fields) => {
-  if (!fields) return fields;
-  return fields.map(replaceFieldWithComponentRef);
-};
+const replaceWithComponentRefs = (fields) =>
+  fields.map(replaceFieldWithComponentRef);
 
 /**
  * Apply component references to all content items
@@ -86,8 +84,7 @@ const replaceWithComponentRefs = (fields) => {
  * @returns {CollectionConfig[]} Content with component references
  */
 export const applyComponentRefs = (contentArray) =>
-  contentArray.map((item) =>
-    item.fields
-      ? { ...item, fields: replaceWithComponentRefs(item.fields) }
-      : item,
-  );
+  contentArray.map((item) => ({
+    ...item,
+    fields: replaceWithComponentRefs(item.fields),
+  }));

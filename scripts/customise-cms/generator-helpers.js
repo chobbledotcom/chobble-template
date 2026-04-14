@@ -146,13 +146,11 @@ export const buildItem = (middle) => (config, fields) =>
 /**
  * Helper function to conditionally include header image/text
  * @param {CmsConfig} config - CMS configuration
- * @param {...(CmsField | CmsField[])} fields - Fields to include if header_images enabled
+ * @param {...CmsField} fields - Fields to include if header_images enabled
  * @returns {CmsField[]} Fields if header_images is enabled, empty array otherwise
  */
 export const withHeaderFields = (config, ...fields) =>
-  config.features.header_images
-    ? [...fields.flatMap((f) => (Array.isArray(f) ? f : [f]))]
-    : [];
+  config.features.header_images ? fields : [];
 
 /**
  * Helper to get data path based on whether src folder exists
