@@ -10,11 +10,12 @@ root = "./test"
 # Timeout for individual tests (30 seconds)
 timeout = 30000
 
-# Always enable coverage reporting
-coverage = true
+# Coverage is NOT enabled by default - only the full test suite (bun run test)
+# passes --coverage explicitly. This prevents ad-hoc test runs (bun test:unit,
+# bun test test/some-file) from failing with exit code 1 due to coverage
+# thresholds when all tests actually pass.
 
-# Coverage thresholds - tests fail if coverage drops below these levels
-# Allows manual management of .coverage_exceptions.json while preventing regressions
+# Coverage thresholds - enforced only when --coverage flag is passed
 # Full 100% coverage required for both lines and functions
 coverageThreshold = { lines = 1.0, functions = 1.0 }
 
