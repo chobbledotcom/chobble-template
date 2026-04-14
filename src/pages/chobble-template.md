@@ -206,7 +206,7 @@ blocks:
       ```
 
   # Themes Split (reversed)
-  - type: split-html
+  - type: split-callout
     title: 10 Themes.
     reverse: true
     reveal_content: right
@@ -218,12 +218,10 @@ blocks:
       text: Try the Live Theme Editor
       href: https://example.chobble.com/theme-editor/
       variant: secondary
-    figure_html: |
-      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; text-align: center; color: white;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">🎨</div>
-        <strong style="font-size: 1.5rem;">Theme Switcher</strong>
-        <p style="opacity: 0.8; margin: 0.5rem 0 0;">Let visitors preview themes instantly (in the bottom right)</p>
-      </div>
+    figure_icon: "🎨"
+    figure_title: Theme Switcher
+    figure_subtitle: Let visitors preview themes instantly (in the bottom right)
+    figure_variant: gradient
 
   # E-Commerce Features (with header, grid--4 layout, custom colors)
   - type: features
