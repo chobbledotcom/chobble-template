@@ -1,0 +1,59 @@
+{%- comment -%}
+Split layout with text content and a styled callout box.
+
+Parameters (via block object):
+  Shared:
+    - block.title: Section heading
+    - block.title_level: Heading level, defaults to 2
+    - block.subtitle: Optional subtitle text (with text-muted styling)
+    - block.content: Main content (rendered as markdown)
+    - block.reverse: If true, reverses the layout (content on right)
+    - block.reveal_content: Animation for content side (e.g., "left", "right")
+    - block.reveal_figure: Animation for figure side (default: "scale")
+    - block.button: Optional button object { text, href, variant }
+
+  Callout fields:
+    - block.figure_icon: Iconify ID, emoji, or image path
+    - block.figure_title: Bold heading text in the callout
+    - block.figure_subtitle: Supporting text
+    - block.figure_variant: Color scheme ("primary", "secondary", "gradient",
+      or a custom CSS gradient string)
+
+Usage:
+  {% include "design-system/split-callout.html",
+     block: {
+       title: "Our Coverage",
+       content: "We serve customers across the south of England.",
+       figure_icon: "&#128248;",
+       figure_title: "Covering the whole of the UK",
+       figure_subtitle: "Surrey, London, Kent, Sussex...",
+       figure_variant: "primary"
+     }
+  %}
+{%- endcomment -%}
+
+{%- assign reveal_content = block.reveal_content | default: "left" -%}
+{%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
+{%- assign variant = block.figure_variant | default: "primary" -%}
+{%- case variant -%}
+  {%- when "primary", "secondary", "gradient" -%}
+    {%- assign callout_class = "callout-box callout-box--" | append: variant -%}
+  {%- else -%}
+    {%- assign callout_class = "callout-box" -%}
+    {%- assign callout_style = variant -%}
+{%- endcase -%}
+
+<div class="split-callout{% if block.reverse %} split-callout--reverse{% endif %}">
+  {%- include "design-system/split-article.html", block: block, reveal_content: reveal_content -%}
+  <figure class="{{ callout_class }}"{% if callout_style %} style="background: {{ callout_style }}"{% endif %} data-reveal="{{ reveal_figure }}">
+    {%- if block.figure_icon -%}
+      <div class="callout-box__icon">{%- include "design-system/icon.html", icon: block.figure_icon -%}</div>
+    {%- endif -%}
+    {%- if block.figure_title -%}
+      <strong class="callout-box__title">{{ block.figure_title }}</strong>
+    {%- endif -%}
+    {%- if block.figure_subtitle -%}
+      <p class="callout-box__subtitle">{{ block.figure_subtitle }}</p>
+    {%- endif -%}
+  </figure>
+</div>

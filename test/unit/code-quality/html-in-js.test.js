@@ -321,6 +321,7 @@ const htmlInJsAnalysis = withAllowlist({
     "src/_lib/utils/block-schema/markdown.js",
     "src/_lib/utils/block-schema/marquee-images.js",
     "src/_lib/utils/block-schema/section-header.js",
+    "src/_lib/utils/block-schema/split-callout.js",
     "src/_lib/utils/block-schema/split-shared.js",
     "src/_lib/utils/block-schema/split-full.js",
     "src/_lib/utils/block-schema/stats.js",

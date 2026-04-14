@@ -19,6 +19,7 @@ describe("BLOCK_SCHEMAS", () => {
       "split-code",
       "split-icon-links",
       "split-html",
+      "split-callout",
       "split-full",
       "cta",
       "video-background",
@@ -213,6 +214,39 @@ describe("validateBlocks", () => {
       },
     ];
     expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("allows all valid keys for split-callout", () => {
+    const blocks = [
+      {
+        type: "split-callout",
+        title: "Our Coverage",
+        title_level: 2,
+        subtitle: "Subtitle",
+        content: "<p>We serve the south of England.</p>",
+        figure_icon: "\u{1F4F8}",
+        figure_title: "Covering the whole of the UK",
+        figure_subtitle: "Surrey, London, Kent, Sussex...",
+        figure_variant: "primary",
+        reverse: true,
+        reveal_content: "left",
+        reveal_figure: "scale",
+        button: { text: "Learn More", href: "/coverage" },
+      },
+    ];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("rejects image-specific keys on split-callout", () => {
+    const blocks = [
+      {
+        type: "split-callout",
+        figure_title: "Title",
+        figure_src: "/img.jpg",
+        content: "<p>Content</p>",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).toThrow('unknown keys: "figure_src"');
   });
 
   test("rejects figure_type key on split variants", () => {

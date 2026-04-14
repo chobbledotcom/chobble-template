@@ -56,6 +56,16 @@
   gap: $gap;
 }
 
+// Two-column responsive split: single column on mobile, two columns on md+.
+// Shared by .split, .split-callout, and .contact-form-block layouts.
+@mixin two-column-split {
+  @include grid(1, $space-2xl);
+
+  @include breakpoint.up("md") {
+    @include grid(2, $space-3xl);
+  }
+}
+
 @mixin grid-auto($min-width: 280px, $gap: $space-lg) {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));

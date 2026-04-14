@@ -111,6 +111,23 @@ const findClassReferencesInScss = (content, name) => {
     if (basePattern.test(content) && modifierPattern.test(content)) return true;
   }
 
+  // For BEM-style elements (e.g., "callout-box__icon"), check for SCSS nesting
+  // Pattern: &__element within a .base { } block (can be deeply nested)
+  if (name.includes("__")) {
+    const separatorIndex = name.indexOf("__");
+    const base = name.slice(0, separatorIndex);
+    const element = name.slice(separatorIndex + 2);
+    const baseEscaped = base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const elementEscaped = element.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Check if we have .base somewhere before &__element (allowing any nesting depth)
+    const basePattern = new RegExp(`${prefix}${baseEscaped}\\s*\\{`, "m");
+    const elementPattern = new RegExp(
+      `&__${elementEscaped}(?=[\\s,:{\\[>+~.)#]|$)`,
+      "m",
+    );
+    if (basePattern.test(content) && elementPattern.test(content)) return true;
+  }
+
   return false;
 };
 

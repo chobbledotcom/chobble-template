@@ -272,6 +272,31 @@ Two-column layout with text content and custom HTML.
 
 ---
 
+### `split-callout`
+
+Two-column layout with text content and a styled callout box with icon, title, and subtitle.
+
+**Template:** `src/_includes/design-system/split-callout.html`
+**SCSS:** `src/css/design-system/_split-callout.scss`
+**HTML root:** `<div class="split-callout">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | — | Section heading. |
+| `title_level` | number | `2` | Heading level. |
+| `subtitle` | string | — | Subtitle with `.text-muted` styling. |
+| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
+| `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
+| `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
+| `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
+| `figure_icon` | string | — | Icon content: Iconify ID (`prefix:name`), emoji, or image path. |
+| `figure_title` | string | **required** | Bold heading text in the callout box. |
+| `figure_subtitle` | string | — | Supporting text below the title. |
+| `figure_variant` | string | `"primary"` | Color scheme: `"primary"`, `"secondary"`, `"gradient"`, or a custom CSS gradient string. |
+
+---
+
 ### `split-full`
 
 Full-width two-panel layout with distinct background colors per side.

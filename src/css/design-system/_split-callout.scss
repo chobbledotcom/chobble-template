@@ -1,0 +1,53 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// SPLIT CALLOUT
+// =============================================================================
+// Two-column layout with text on one side and a styled callout box on the
+// other. Shared grid/reverse layout lives in _split.scss — this file only
+// defines the callout-box styling specific to this block.
+
+.design-system {
+  .split-callout {
+    align-items: center;
+  }
+
+  .callout-box {
+    @include flex-col($space-md, center, center);
+    text-align: center;
+    padding: clamp($space-lg, 6vw, $space-3xl);
+    border-radius: $radius-2xl;
+    @include contrast-text-vars;
+
+    &--primary {
+      background: var(--color-link);
+    }
+
+    &--secondary {
+      background: var(--color-secondary);
+    }
+
+    &--gradient {
+      @include brand-gradient;
+    }
+
+    &__icon {
+      font-size: $font-size-4xl;
+
+      .icon {
+        width: 1em;
+        height: 1em;
+      }
+    }
+
+    &__title {
+      @include heading-md;
+    }
+
+    &__subtitle {
+      @include body-lg;
+      opacity: 0.9;
+    }
+  }
+}
