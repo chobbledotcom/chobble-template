@@ -1,0 +1,69 @@
+{%- comment -%}
+Split layout with text content and a styled callout box.
+
+Parameters (via block object):
+  Shared:
+    - block.title: Section heading
+    - block.title_level: Heading level, defaults to 2
+    - block.subtitle: Optional subtitle text (with text-muted styling)
+    - block.content: Main content (rendered as markdown)
+    - block.reverse: If true, reverses the layout (content on right)
+    - block.reveal_content: Animation for content side (e.g., "left", "right")
+    - block.reveal_figure: Animation for figure side (default: "scale")
+    - block.button: Optional button object { text, href, variant }
+
+  Callout fields:
+    - block.figure_icon: Iconify ID, emoji, or image path
+    - block.figure_title: Bold heading text in the callout
+    - block.figure_subtitle: Supporting text
+    - block.figure_variant: Color scheme ("primary", "secondary", "gradient",
+      or a custom CSS gradient string)
+
+Usage:
+  {% include "design-system/split-callout.html",
+     block: {
+       title: "Our Coverage",
+       content: "We serve customers across the south of England.",
+       figure_icon: "&#128248;",
+       figure_title: "Covering the whole of the UK",
+       figure_subtitle: "Surrey, London, Kent, Sussex...",
+       figure_variant: "primary"
+     }
+  %}
+{%- endcomment -%}
+
+{%- assign title_level = block.title_level | default: 2 -%}
+{%- assign reveal_content = block.reveal_content | default: "left" -%}
+{%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
+{%- assign variant = block.figure_variant | default: "primary" -%}
+
+<div class="split-callout{% if block.reverse %} split-callout--reverse{% endif %}">
+  <article class="stack" data-reveal="{{ reveal_content }}">
+    {%- if block.title -%}
+      <h{{ title_level }}>{{ block.title }}</h{{ title_level }}>
+    {%- endif -%}
+    {%- if block.subtitle -%}
+      <p class="text-muted">{{ block.subtitle }}</p>
+    {%- endif -%}
+    <div class="prose">{{ block.content | renderContent: "md" }}</div>
+    {%- if block.button -%}
+      {%- assign btn_variant = block.button.variant | default: "secondary" -%}
+      <a href="{{ block.button.href }}" class="btn btn--{{ btn_variant }}">{{ block.button.text }}</a>
+    {%- endif -%}
+  </article>
+  {%- if variant == "primary" or variant == "secondary" or variant == "gradient" -%}
+  <figure class="callout-box callout-box--{{ variant }}" data-reveal="{{ reveal_figure }}">
+  {%- else -%}
+  <figure class="callout-box" style="background: {{ variant }}" data-reveal="{{ reveal_figure }}">
+  {%- endif -%}
+    {%- if block.figure_icon -%}
+      <div class="callout-box__icon">{%- include "design-system/icon.html", icon: block.figure_icon -%}</div>
+    {%- endif -%}
+    {%- if block.figure_title -%}
+      <strong class="callout-box__title">{{ block.figure_title }}</strong>
+    {%- endif -%}
+    {%- if block.figure_subtitle -%}
+      <p class="callout-box__subtitle">{{ block.figure_subtitle }}</p>
+    {%- endif -%}
+  </figure>
+</div>

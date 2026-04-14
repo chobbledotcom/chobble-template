@@ -1,0 +1,68 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
+
+// =============================================================================
+// SPLIT CALLOUT
+// =============================================================================
+// Two-column layout with text on one side and a styled callout box on the other.
+
+.design-system {
+  .split-callout {
+    @include grid(1, $space-2xl);
+    align-items: center;
+
+    @include breakpoint.up("md") {
+      @include grid(2, $space-3xl);
+    }
+
+    &--reverse {
+      @include breakpoint.up("md") {
+        > :first-child {
+          order: 2;
+        }
+        > :last-child {
+          order: 1;
+        }
+      }
+    }
+  }
+
+  .callout-box {
+    @include flex-col($space-md, center, center);
+    text-align: center;
+    padding: clamp($space-lg, 6vw, $space-3xl);
+    border-radius: $radius-2xl;
+    @include contrast-text-vars;
+
+    &--primary {
+      background: var(--color-link);
+    }
+
+    &--secondary {
+      background: var(--color-secondary);
+    }
+
+    &--gradient {
+      @include brand-gradient;
+    }
+
+    &__icon {
+      font-size: $font-size-4xl;
+
+      .icon {
+        width: 1em;
+        height: 1em;
+      }
+    }
+
+    &__title {
+      @include heading-md;
+    }
+
+    &__subtitle {
+      @include body-lg;
+      opacity: 0.9;
+    }
+  }
+}

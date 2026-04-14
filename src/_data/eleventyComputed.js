@@ -35,6 +35,7 @@ const BLOCK_DEFAULTS = {
   "split-code": { title_level: 2, reveal_figure: "scale" },
   "split-icon-links": { title_level: 2, reveal_figure: "scale" },
   "split-html": { title_level: 2, reveal_figure: "scale" },
+  "split-callout": { title_level: 2, reveal_figure: "scale" },
   "section-header": { align: "center" },
   "image-cards": { reveal: true, heading_level: 3 },
   "code-block": { reveal: true },

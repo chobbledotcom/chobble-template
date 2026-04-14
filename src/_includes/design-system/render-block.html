@@ -37,6 +37,9 @@ Renders a single block by type. Used by blocks.html.
   {%- when "split-html" -%}
     {%- include "design-system/split.html", block: block -%}
 
+  {%- when "split-callout" -%}
+    {%- include "design-system/split-callout.html", block: block -%}
+
   {%- when "split-full" -%}
     {%- include "design-system/split-full.html", block: block -%}
 
