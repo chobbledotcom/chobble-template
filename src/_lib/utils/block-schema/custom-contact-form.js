@@ -1,4 +1,12 @@
-import { HEADER_KEYS, HEADER_PARAM_DOCS } from "#utils/block-schema/shared.js";
+import {
+  bool,
+  HEADER_KEYS,
+  HEADER_PARAM_DOCS,
+  md,
+  num,
+  objectList,
+  str,
+} from "#utils/block-schema/shared.js";
 
 export const type = "custom-contact-form";
 
@@ -26,4 +34,21 @@ export const docs = {
     },
     ...HEADER_PARAM_DOCS,
   },
+};
+
+const FORM_FIELD_DEFINITIONS = objectList("Form Fields", {
+  name: str("Field Name", { required: true }),
+  label: str("Field Label", { required: true }),
+  type: str("Field Type (text, email, tel, textarea, select, radio, heading)"),
+  placeholder: str("Placeholder"),
+  required: bool("Required"),
+  rows: num("Rows (for textarea)"),
+  note: str("Help Note"),
+  fieldClass: str("CSS Class"),
+});
+
+export const cmsFields = {
+  fields: FORM_FIELD_DEFINITIONS,
+  content: md("Intro Content"),
+  header_intro: md("Header Intro"),
 };

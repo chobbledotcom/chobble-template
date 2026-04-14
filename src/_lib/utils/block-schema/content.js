@@ -10,3 +10,6 @@ export const docs = {
     "No parameters. Renders `{{ content }}` if non-empty. Used for pages that combine blocks with traditional markdown content.",
   params: {},
 };
+
+/** No block-specific fields — only the auto-injected container wrapper fields. */
+export const cmsFields = {};

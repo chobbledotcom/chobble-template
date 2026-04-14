@@ -61,6 +61,18 @@ describe("BLOCK_CMS_FIELDS", () => {
     }
   });
 
+  test("every BLOCK_SCHEMAS type also has cmsFields (all blocks CMS-editable)", () => {
+    // Invariant: every block type surfaced to templates via BLOCK_SCHEMAS must
+    // also be editable through the CMS. If you intentionally want a code-only
+    // block, remove it from BLOCK_SCHEMAS. If not, export `cmsFields` from its
+    // block-schema module (use `{}` for blocks with no block-specific fields
+    // — the wrapper `container_width`/`section_class` fields are auto-injected).
+    const missing = Object.keys(BLOCK_SCHEMAS)
+      .filter((type) => !(type in BLOCK_CMS_FIELDS))
+      .sort();
+    expect(missing).toEqual([]);
+  });
+
   test("every field key passes production validateBlocks", () => {
     // Build a synthetic block from the CMS field shape and run it through
     // the same validator that checks real block usage at build time. This

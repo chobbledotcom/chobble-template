@@ -2,7 +2,10 @@ import {
   CLASS_PARAM,
   OVERLAY_CONTENT_PARAM,
   VIDEO_BG_SHARED_PARAMS,
+  videoBgSharedFields,
 } from "#utils/block-schema/shared.js";
+
+const requiredString = (label) => ({ type: "string", label, required: true });
 
 export const type = "bunny-video-background";
 
@@ -39,4 +42,10 @@ export const docs = {
     content: OVERLAY_CONTENT_PARAM,
     class: CLASS_PARAM,
   },
+};
+
+export const cmsFields = {
+  video_url: requiredString("Bunny Stream Embed URL"),
+  thumbnail_url: requiredString("Thumbnail URL"),
+  ...videoBgSharedFields(),
 };

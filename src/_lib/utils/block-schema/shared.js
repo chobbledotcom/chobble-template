@@ -89,6 +89,19 @@ export const VIDEO_BG_SHARED_PARAMS = {
   },
 };
 
+/**
+ * Shared CMS fields for video-background and bunny-video-background.
+ * Gets spread into each block's cmsFields alongside its block-specific fields,
+ * and also keeps the two modules from having identical field lists (which
+ * would be flagged as duplication).
+ */
+export const videoBgSharedFields = () => ({
+  video_title: str("Video Title"),
+  aspect_ratio: str("Aspect Ratio"),
+  class: str("CSS Class"),
+  content: md("Overlay Content"),
+});
+
 /** Overlay content param doc for video-background and image-background. */
 export const OVERLAY_CONTENT_PARAM = {
   type: "string",
@@ -150,6 +163,8 @@ export const md = (label) => ({ type: "markdown", label });
 export const num = (label) => ({ type: "number", label });
 /** @param {string} label */
 export const bool = (label) => ({ type: "boolean", label });
+/** @param {string} label @param {object} [extras] */
+export const img = (label, extras) => ({ type: "image", label, ...extras });
 /** @param {string} label @param {Record<string, object>} fields */
 export const objectList = (label, fields) => ({
   type: "object",
