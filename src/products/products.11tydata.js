@@ -69,6 +69,6 @@ export default linkableContent("product", {
     const defaultMaxQuantity = getDefaultMaxQuantity(data);
     const options = computeOptions(data, mode, defaultMaxQuantity);
     const maxQuantity = options[0]?.max_quantity;
-    return maxQuantity !== undefined && maxQuantity > 1;
+    return maxQuantity != null && maxQuantity > 1;
   },
 });

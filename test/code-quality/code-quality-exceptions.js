@@ -90,7 +90,6 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/collections/missing-folders-lib.test.js",
   "test/unit/collections/properties.test.js",
   "test/unit/eleventy/layout-aliases.test.js",
-  "test/unit/frontend/checkout.test.js",
   "test/unit/frontend/config.test.js",
   "test/unit/utils/object-entries.test.js",
   "test/unit/transforms/images.test.js",

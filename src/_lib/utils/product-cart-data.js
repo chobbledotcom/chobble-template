@@ -109,7 +109,12 @@ export const buildCartAttributes = ({
     specs: specs ? specs.map(pick(["name", "value"])) : null,
     hire_prices:
       mode === "hire"
-        ? toObject(options, (opt) => [opt.days, opt.unit_price])
+        ? toObject(options, (opt) => {
+            if (opt.days == null) {
+              throw new Error(`Hire option "${opt.name}" is missing days`);
+            }
+            return [opt.days, opt.unit_price];
+          })
         : {},
     product_mode: mode,
   }).replace(/"/g, "&quot;");

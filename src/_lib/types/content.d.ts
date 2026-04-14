@@ -58,14 +58,16 @@ export type { PagesCMSFilterAttribute } from './pages-cms-generated.d.ts';
 export type { PagesCMSOpeningTime } from './pages-cms-generated.d.ts';
 
 /**
- * Product option (extended with sku field)
+ * Product option (extended with sku field).
+ * Optional fields may be `null` after normalisation (explicit absence) or
+ * `undefined` when not set on raw frontmatter.
  */
 export type ProductOption = {
   name: string;
   unit_price: number;
-  days?: number;
-  max_quantity?: number;
-  sku?: string;
+  days?: number | null;
+  max_quantity?: number | null;
+  sku?: string | null;
 };
 
 /**
