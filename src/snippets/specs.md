@@ -10,6 +10,6 @@ blocks:
         label: Built-in Themes
       - value: "125+"
         label: Pre-built Components
-      - value: "$0"
-        label: Monthly Cost
+      - value: "From £5/m"
+        label: Hosting
 ---

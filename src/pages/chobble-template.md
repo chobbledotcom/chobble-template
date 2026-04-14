@@ -2,7 +2,7 @@
 layout: design-system-base.html
 title: Chobble Template - Free Eleventy Starter for Small Business Websites
 meta_title: Chobble Template - Free Eleventy Starter for Small Business Websites
-meta_description: A free, open-source Eleventy template with e-commerce, 10 themes, and 14 content types. AGPLv3 licensed. No monthly fees.
+meta_description: A free, open-source Eleventy template with e-commerce, 10 themes, and 14 content types. AGPLv3 licensed. Hosting from £5/month.
 permalink: /
 eleventyNavigation:
   key: Home
@@ -16,7 +16,7 @@ blocks:
     title: A Free Eleventy Template for Small Business Websites
     lead: >-
       With loads of stuff included that your business might need - collections, layouts, themes, and integrations.
-      It builds to static HTML. You host it wherever you like. No monthly fees.
+      It builds to static HTML. You host it wherever you like. Hosting from £10/month, or £5/month for charities — or self-host for free.
     buttons:
       - text: View on GitHub
         href: https://github.com/chobbledotcom/chobble-template
@@ -291,13 +291,15 @@ blocks:
     reverse: true
     reveal_content: right
     content: |
-      Includes a GitHub Actions workflow. Push to main and it deploys to Neocities (free) or Bunny CDN. Since the output is static files, any web host works.
+      Includes a GitHub Actions workflow. Push to main and it deploys to Neocities or Bunny CDN. Since the output is static files, any web host works.
 
       **Included deployment targets:**
 
-      - Neocities (free static hosting)
+      - Neocities (has a free tier)
       - Bunny CDN (global edge network)
       - Any static host (Netlify, Vercel, etc.)
+
+      I can host your site for **£10/month** (or **£5/month** for charities, co-ops, artists, musicians, and sustainable businesses) — hosting and backups included, no support. Or self-host wherever you like.
 
       Bunny Edge Script-based backend.
     figure_html: |
@@ -337,6 +339,7 @@ blocks:
       - **Flat hourly rate** — no hidden fees, no surprises
       - **You own the code** — it's yours to keep, host anywhere, modify freely
       - **No lock-in** — no contracts, no monthly retainers, walk away any time
+      - **Basic hosting** — £10/month (£5/month discounted), hosting and backups, no support
       - **50% discount** for charities, co-ops, artists, musicians, and sustainable businesses
 
       All my work is open source. I donate 10% of earnings to the [Against Malaria Foundation](https://www.againstmalaria.com/).
