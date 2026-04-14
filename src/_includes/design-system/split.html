@@ -23,30 +23,28 @@ Parameters (via block object):
     split-html:       figure_html
 {%- endcomment -%}
 
-{%- assign title_level = block.title_level | default: 2 -%}
 {%- assign reveal_content = block.reveal_content | default: "left" -%}
 {%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
-{%- assign figure_type = block.type | replace: "split-", "" -%}
 
 <div class="split{% if block.reverse %} split--reverse{% endif %}">
   {%- include "design-system/split-article.html", block: block, reveal_content: reveal_content -%}
   <figure data-reveal="{{ reveal_figure }}">
-    {%- case figure_type -%}
-      {%- when "image" -%}
+    {%- case block.type -%}
+      {%- when "split-image" -%}
         {% image block.figure_src, block.figure_alt %}
         {%- if block.figure_caption -%}
           <figcaption>{{ block.figure_caption }}</figcaption>
         {%- endif -%}
-      {%- when "video" -%}
+      {%- when "split-video" -%}
         {%- include "design-system/video-iframe.html", video_id: block.figure_video_id, title: block.figure_alt -%}
         {%- if block.figure_caption -%}
           <figcaption>{{ block.figure_caption }}</figcaption>
         {%- endif -%}
-      {%- when "code" -%}
+      {%- when "split-code" -%}
         {%- include "design-system/code-block.html", filename: block.figure_filename, code: block.figure_code, language: block.figure_language -%}
-      {%- when "icon-links" -%}
+      {%- when "split-icon-links" -%}
         {%- include "design-system/icon-links.html", items: block.figure_items -%}
-      {%- when "html" -%}
+      {%- when "split-html" -%}
         {{ block.figure_html }}
     {%- endcase -%}
   </figure>
