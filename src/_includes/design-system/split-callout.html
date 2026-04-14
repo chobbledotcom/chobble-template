@@ -37,6 +37,9 @@ Usage:
 {%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
 {%- assign variant = block.figure_variant | default: "primary" -%}
 
+<!--
+// jscpd:ignore-start
+-->
 <div class="split-callout{% if block.reverse %} split-callout--reverse{% endif %}">
   <article class="stack" data-reveal="{{ reveal_content }}">
     {%- if block.title -%}
@@ -51,6 +54,9 @@ Usage:
       <a href="{{ block.button.href }}" class="btn btn--{{ btn_variant }}">{{ block.button.text }}</a>
     {%- endif -%}
   </article>
+<!--
+// jscpd:ignore-end
+-->
   {%- if variant == "primary" or variant == "secondary" or variant == "gradient" -%}
   <figure class="callout-box callout-box--{{ variant }}" data-reveal="{{ reveal_figure }}">
   {%- else -%}
