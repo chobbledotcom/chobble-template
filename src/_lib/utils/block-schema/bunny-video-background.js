@@ -5,6 +5,7 @@ import {
   videoBgSharedFields,
 } from "#utils/block-schema/shared.js";
 
+/** @param {string} label */
 const requiredString = (label) => ({ type: "string", label, required: true });
 
 export const type = "bunny-video-background";
