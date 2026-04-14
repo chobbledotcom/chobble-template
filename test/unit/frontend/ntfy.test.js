@@ -1,5 +1,8 @@
 import { describe, expect, mock, test } from "bun:test";
 
+// #public/utils/config.js reads `document` at import time, so every consumer
+// has to stub it — no real module exists to restore to. Allowlisted in
+// test/unit/code-quality/mock-module-usage.test.js.
 mock.module("#public/utils/config.js", () => ({
   default: { ntfy_channel: "test-channel" },
 }));
