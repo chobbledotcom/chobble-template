@@ -22,19 +22,7 @@ Renders a single block by type. Used by blocks.html.
   {%- when "hero" -%}
     {%- include "design-system/hero.html", block: block -%}
 
-  {%- when "split-image" -%}
-    {%- include "design-system/split.html", block: block -%}
-
-  {%- when "split-video" -%}
-    {%- include "design-system/split.html", block: block -%}
-
-  {%- when "split-code" -%}
-    {%- include "design-system/split.html", block: block -%}
-
-  {%- when "split-icon-links" -%}
-    {%- include "design-system/split.html", block: block -%}
-
-  {%- when "split-html" -%}
+  {%- when "split-image", "split-video", "split-code", "split-icon-links", "split-html" -%}
     {%- include "design-system/split.html", block: block -%}
 
   {%- when "split-callout" -%}
