@@ -159,11 +159,7 @@ const tryCompactLine = (objectLines, listIndent) => {
   const fullInlineLine = `${" ".repeat(listIndent)}- ${inlineVersion}`;
 
   // Only use inline version if it stays under 80 chars
-  if (fullInlineLine.length <= 80) {
-    return fullInlineLine;
-  }
-
-  return null; // Line too long
+  return fullInlineLine.length <= 80 ? fullInlineLine : null;
 };
 
 /**

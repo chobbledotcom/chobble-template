@@ -43,4 +43,45 @@ describe("compactYaml", () => {
     const parsed = compactAndParse(input);
     expect(parsed).toEqual([{ name: "x", label: "a [b] c" }]);
   });
+
+  test("leaves single-line list items alone (nothing to compact)", () => {
+    // When a `- key: value` item is immediately followed by another
+    // dedented item (no child lines, no trailing blank), the collected
+    // object has only one line — tryCompactLine must bail rather than
+    // pointlessly rewrapping in `{ ... }`.
+    const input = "- name: solo\n- name: next";
+    expect(compactYaml(input)).toBe(input);
+  });
+
+  test("leaves objects in block form when the inlined line would exceed 80 chars", () => {
+    // The compactor refuses to inline if the resulting `- { ... }` line would
+    // exceed the 80-char width budget. With a long enough label the inline
+    // form blows past 80 chars, so the original block form is preserved.
+    const longLabel = "x".repeat(100);
+    const input = [
+      "- name: foo",
+      "  type: string",
+      `  label: ${longLabel}`,
+    ].join("\n");
+    expect(compactYaml(input)).toBe(input);
+  });
+
+  test("does not compact objects with nested structures", () => {
+    // A line ending with `:` and no value marks a nested block that the
+    // inline `{ ... }` form can't represent — compaction must bail out and
+    // leave the object in its original block form.
+    const input = [
+      "- name: item",
+      "  type: string",
+      "  options:",
+      "    multiple: true",
+      "",
+    ].join("\n");
+    // Output must still parse to the same structure
+    expect(compactAndParse(input)).toEqual([
+      { name: "item", type: "string", options: { multiple: true } },
+    ]);
+    // And must not be inlined (no `{ ... }` wrapper for the outer item)
+    expect(compactYaml(input)).not.toContain("{ name: item");
+  });
 });
