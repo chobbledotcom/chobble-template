@@ -29,19 +29,7 @@ Parameters (via block object):
 {%- assign figure_type = block.type | replace: "split-", "" -%}
 
 <div class="split{% if block.reverse %} split--reverse{% endif %}">
-  <article class="stack" data-reveal="{{ reveal_content }}">
-    {%- if block.title -%}
-      <h{{ title_level }}>{{ block.title }}</h{{ title_level }}>
-    {%- endif -%}
-    {%- if block.subtitle -%}
-      <p class="text-muted">{{ block.subtitle }}</p>
-    {%- endif -%}
-    <div class="prose">{{ block.content | renderContent: "md" }}</div>
-    {%- if block.button -%}
-      {%- assign variant = block.button.variant | default: "secondary" -%}
-      <a href="{{ block.button.href }}" class="btn btn--{{ variant }}">{{ block.button.text }}</a>
-    {%- endif -%}
-  </article>
+  {%- include "design-system/split-article.html", block: block, reveal_content: reveal_content -%}
   <figure data-reveal="{{ reveal_figure }}">
     {%- case figure_type -%}
       {%- when "image" -%}

@@ -1,6 +1,5 @@
 @use "../variables" as *;
 @use "../mixins" as *;
-@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // CONTACT FORM BLOCK (text left, form right)
@@ -8,12 +7,8 @@
 
 .design-system {
   .contact-form-block {
-    @include grid(1, $space-2xl);
+    @include two-column-split;
     align-items: center;
-
-    @include breakpoint.up("md") {
-      @include grid(2, $space-3xl);
-    }
   }
 
   .contact-form-block > .prose {

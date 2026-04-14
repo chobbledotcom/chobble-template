@@ -7,24 +7,25 @@
 // =============================================================================
 
 .design-system {
-  .split {
-    @include grid(1, $space-2xl);
-    align-items: start;
+  .split,
+  .split-callout {
+    @include two-column-split;
+  }
 
+  .split--reverse,
+  .split-callout--reverse {
     @include breakpoint.up("md") {
-      @include grid(2, $space-3xl);
-    }
-
-    &--reverse {
-      @include breakpoint.up("md") {
-        > :first-child {
-          order: 2;
-        }
-        > :last-child {
-          order: 1;
-        }
+      > :first-child {
+        order: 2;
+      }
+      > :last-child {
+        order: 1;
       }
     }
+  }
+
+  .split {
+    align-items: start;
 
     > figure {
       border-radius: $radius-xl;

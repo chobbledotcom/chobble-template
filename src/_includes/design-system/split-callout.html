@@ -32,36 +32,20 @@ Usage:
   %}
 {%- endcomment -%}
 
-{%- assign title_level = block.title_level | default: 2 -%}
 {%- assign reveal_content = block.reveal_content | default: "left" -%}
 {%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
 {%- assign variant = block.figure_variant | default: "primary" -%}
-
-<!--
-// jscpd:ignore-start
--->
-<div class="split-callout{% if block.reverse %} split-callout--reverse{% endif %}">
-  <article class="stack" data-reveal="{{ reveal_content }}">
-    {%- if block.title -%}
-      <h{{ title_level }}>{{ block.title }}</h{{ title_level }}>
-    {%- endif -%}
-    {%- if block.subtitle -%}
-      <p class="text-muted">{{ block.subtitle }}</p>
-    {%- endif -%}
-    <div class="prose">{{ block.content | renderContent: "md" }}</div>
-    {%- if block.button -%}
-      {%- assign btn_variant = block.button.variant | default: "secondary" -%}
-      <a href="{{ block.button.href }}" class="btn btn--{{ btn_variant }}">{{ block.button.text }}</a>
-    {%- endif -%}
-  </article>
-<!--
-// jscpd:ignore-end
--->
-  {%- if variant == "primary" or variant == "secondary" or variant == "gradient" -%}
-  <figure class="callout-box callout-box--{{ variant }}" data-reveal="{{ reveal_figure }}">
+{%- case variant -%}
+  {%- when "primary", "secondary", "gradient" -%}
+    {%- assign callout_class = "callout-box callout-box--" | append: variant -%}
   {%- else -%}
-  <figure class="callout-box" style="background: {{ variant }}" data-reveal="{{ reveal_figure }}">
-  {%- endif -%}
+    {%- assign callout_class = "callout-box" -%}
+    {%- assign callout_style = variant -%}
+{%- endcase -%}
+
+<div class="split-callout{% if block.reverse %} split-callout--reverse{% endif %}">
+  {%- include "design-system/split-article.html", block: block, reveal_content: reveal_content -%}
+  <figure class="{{ callout_class }}"{% if callout_style %} style="background: {{ callout_style }}"{% endif %} data-reveal="{{ reveal_figure }}">
     {%- if block.figure_icon -%}
       <div class="callout-box__icon">{%- include "design-system/icon.html", icon: block.figure_icon -%}</div>
     {%- endif -%}

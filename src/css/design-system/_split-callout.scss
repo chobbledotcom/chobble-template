@@ -1,34 +1,17 @@
 @use "../variables" as *;
 @use "../mixins" as *;
-@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // SPLIT CALLOUT
 // =============================================================================
-// Two-column layout with text on one side and a styled callout box on the other.
+// Two-column layout with text on one side and a styled callout box on the
+// other. Shared grid/reverse layout lives in _split.scss — this file only
+// defines the callout-box styling specific to this block.
 
 .design-system {
-  // jscpd:ignore-start
   .split-callout {
-    @include grid(1, $space-2xl);
     align-items: center;
-
-    @include breakpoint.up("md") {
-      @include grid(2, $space-3xl);
-    }
-
-    &--reverse {
-      @include breakpoint.up("md") {
-        > :first-child {
-          order: 2;
-        }
-        > :last-child {
-          order: 1;
-        }
-      }
-    }
   }
-  // jscpd:ignore-end
 
   .callout-box {
     @include flex-col($space-md, center, center);
