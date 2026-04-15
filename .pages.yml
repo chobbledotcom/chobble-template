@@ -424,15 +424,7 @@ components:
         type: string
         label: Container Width (full, wide, narrow)
       - { name: section_class, type: string, label: Section Class }
-      - name: items
-        label: Items
-        type: reference
-        list: true
-        options:
-          collection: pages
-          search: primary
-          value: "{path}"
-          label: "{primary}"
+      - { name: items, type: string, label: Items, required: true, list: true }
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
