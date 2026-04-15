@@ -1,0 +1,46 @@
+@use "../variables" as *;
+@use "../breakpoints" as breakpoint;
+
+// =============================================================================
+// LINK COLUMNS (for link-columns block)
+// =============================================================================
+// Plain-text unordered list of links flowed into CSS multi-columns so a long
+// list of related pages renders compactly and reads naturally.
+// =============================================================================
+
+.design-system {
+  ul.link-columns {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    column-gap: $space-lg;
+    columns: 1;
+
+    @include breakpoint.up("sm") {
+      columns: 2;
+    }
+
+    @include breakpoint.up("md") {
+      columns: 3;
+    }
+
+    @include breakpoint.up("lg") {
+      columns: 4;
+    }
+
+    > li {
+      break-inside: avoid;
+      padding: $space-xs 0;
+    }
+
+    a {
+      color: var(--color-link);
+      text-decoration: none;
+
+      &:hover,
+      &:focus {
+        text-decoration: underline;
+      }
+    }
+  }
+}

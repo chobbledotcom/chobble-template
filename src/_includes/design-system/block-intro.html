@@ -1,0 +1,18 @@
+{%- comment -%}
+Renders the optional section header and markdown intro for a block.
+Shared by any block that accepts header_intro / header_align / header_class
+and an `intro` markdown field.
+
+Expects:
+  block - the block frontmatter object
+{%- endcomment -%}
+{%- if block.header_intro -%}
+  {%- include "design-system/section-header.html",
+     intro: block.header_intro,
+     align: block.header_align,
+     header_class: block.header_class
+  -%}
+{%- endif -%}
+{%- if block.intro -%}
+  <div class="prose">{{ block.intro | renderContent: "md" }}</div>
+{%- endif -%}

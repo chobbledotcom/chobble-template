@@ -434,6 +434,25 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 
 ---
 
+### `link-columns`
+
+Renders a collection as a plain-text unordered list of links arranged in responsive CSS columns. Optionally strips matching text via a regex so repetitive prefixes/suffixes can be removed.
+
+**Template:** `src/_includes/design-system/link-columns.html`
+**SCSS:** `src/css/design-system/_link-columns.scss`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `collection` | string | **required** | Name of an Eleventy collection (e.g. `"locations"`, `"services"`). |
+| `intro` | string | — | Markdown content rendered above items in `.prose`. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `remove_text` | string | — | Regex pattern (JavaScript syntax, global flag implied). Each match is removed from every link's display text and the result is trimmed. Useful for stripping repetitive prefixes like `"Service in "` so links render tidier. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
+
+---
+
 ### `contact-form`
 
 Two-column layout with prose content and a contact form.

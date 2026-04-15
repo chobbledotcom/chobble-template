@@ -2,16 +2,7 @@
 Shared rendering logic for items blocks.
 Expects blockItems and block variables to be set by the caller.
 {%- endcomment -%}
-{%- if block.header_intro -%}
-  {%- include "design-system/section-header.html",
-     intro: block.header_intro,
-     align: block.header_align,
-     header_class: block.header_class
-  -%}
-{%- endif -%}
-{%- if block.intro -%}
-  <div class="prose">{{ block.intro | renderContent: "md" }}</div>
-{%- endif -%}
+{%- include "design-system/block-intro.html" -%}
 
 {%- if block.filter -%}
   {%- assign blockItems = blockItems | filterItems: block.filter -%}
