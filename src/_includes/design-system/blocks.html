@@ -4,7 +4,7 @@
   {%- else -%}
     {%- assign cw = "wide" -%}
     {%- if block.type == "icon-links" -%}{%- assign cw = "narrow" -%}{%- endif -%}
-    {%- if block.type == "video-background" or block.type == "bunny-video-background" or block.type == "image-background" or block.type == "marquee-images" -%}{%- assign cw = "full" -%}{%- endif -%}
+    {%- if block.type == "video-background" or block.type == "bunny-video-background" or block.type == "image-background" or block.type == "marquee-images" or block.type == "hero" or block.type == "split-full" -%}{%- assign cw = "full" -%}{%- endif -%}
     <section{% if block.dark %} class="dark"{% endif %}>
       {%- unless cw == "full" -%}<div class="container-{{ cw }}">{%- endunless -%}
       {%- include "design-system/render-block.html", block: block -%}

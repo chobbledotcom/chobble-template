@@ -12,7 +12,7 @@ frontmatter blocks[] → design-system-base.html → blocks.html → render-bloc
 
 **Layout:** `src/_layouts/design-system-base.html` applies `class="design-system"` to `<body>`, loads the design system CSS bundle, and iterates blocks via `blocks.html`.
 
-**Block loop** (`src/_includes/design-system/blocks.html`): Each block becomes a `<section>`. If `block.dark` is true, the section gets `class="dark"`. Container width is determined by block type and is not user-configurable: `icon-links` uses `.container-narrow` (680px); `video-background`, `bunny-video-background`, `image-background`, and `marquee-images` are full-bleed (no container wrapper); everything else uses `.container-wide` (1200px).
+**Block loop** (`src/_includes/design-system/blocks.html`): Each block becomes a `<section>`. If `block.dark` is true, the section gets `class="dark"`. Container width is determined by block type and is not user-configurable: `icon-links` uses `.container-narrow` (680px); `hero`, `split-full`, `video-background`, `bunny-video-background`, `image-background`, and `marquee-images` are full-bleed (no container wrapper); everything else uses `.container-wide` (1200px).
 
 **Block router** (`src/_includes/design-system/render-block.html`): A Liquid `case` statement dispatching `block.type` to the appropriate include template.
 
