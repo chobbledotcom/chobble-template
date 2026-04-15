@@ -1,8 +1,11 @@
 {%- comment -%}
 Items array block: renders items from an explicit list of paths using items.html.
 
+The collection is inferred dynamically from each item's path — paths like
+"src/locations/manchester.md" resolve against collections.all regardless of
+which collection the item belongs to.
+
 Parameters (from block):
-  collection  - Name of an Eleventy collection to resolve paths against
   items       - Array of file paths (e.g. from PagesCMS references)
   intro       - Optional markdown content rendered above the items
   horizontal  - If true, renders as a horizontal slider
