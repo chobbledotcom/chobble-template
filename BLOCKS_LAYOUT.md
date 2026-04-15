@@ -434,10 +434,6 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 | `intro` | string | — | Markdown content rendered above items in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 

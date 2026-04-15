@@ -428,16 +428,6 @@ components:
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
-      - { name: header_intro, type: rich-text, label: Header Intro }
-      - name: filter
-        type: object
-        label: Filter
-        fields:
-          - name: property
-            type: string
-            label: Property (e.g. url, data.title)
-          - { name: includes, type: string, label: Contains }
-          - { name: equals, type: string, label: Equals }
   block_contact_form:
     label: Contact Form
     type: object
