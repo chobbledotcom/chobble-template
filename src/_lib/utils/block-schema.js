@@ -50,10 +50,7 @@ import * as videoBackground from "#utils/block-schema/video-background.js";
  * Common wrapper keys allowed on all block types.
  * These are used by blocks.html to wrap blocks in sections/containers.
  */
-const COMMON_BLOCK_KEYS = ["section_class", "container_width"];
-
-/** Valid values for the common `container_width` block property. */
-const CONTAINER_WIDTHS = ["full", "wide", "narrow"];
+const COMMON_BLOCK_KEYS = ["dark"];
 
 /**
  * Iteration order determines the order that `scripts/generate-blocks-reference.js`
@@ -112,12 +109,32 @@ const indexByType = (getValue) =>
 const BLOCK_SCHEMAS = indexByType((m) => m.schema);
 
 /**
+ * Container width per block type. Block modules opt in via an exported
+ * `containerWidth` constant ("full" or "narrow"); blocks that omit it
+ * default to "wide".
+ * @type {Record<string, "full" | "wide" | "narrow">}
+ */
+const BLOCK_CONTAINER_WIDTHS = Object.fromEntries(
+  BLOCK_MODULES.map((m) => [
+    m.type,
+    "containerWidth" in m ? m.containerWidth : "wide",
+  ]),
+);
+
+/**
+ * @param {string} blockType
+ * @returns {"full" | "wide" | "narrow"} Container wrapper width
+ */
+const getBlockContainerWidth = (blockType) =>
+  BLOCK_CONTAINER_WIDTHS[blockType] || "wide";
+
+/**
  * CMS field definitions for block types exposed in Pages CMS.
  *
  * Not every block type in BLOCK_SCHEMAS is exposed in the CMS — only modules
- * that export `cmsFields` are included. CONTAINER_FIELDS (container_width,
- * section_class) are injected here so per-block modules stay focused on
- * block-specific fields. This invariant is enforced by
+ * that export `cmsFields` are included. CONTAINER_FIELDS (`dark`) are
+ * injected here so per-block modules stay focused on block-specific fields.
+ * This invariant is enforced by
  * test/unit/utils/block-schema.test.js.
  */
 const BLOCK_CMS_FIELDS = Object.fromEntries(
@@ -185,13 +202,6 @@ const validateBlock = (block, ctx) => {
     unknown.length === 0,
     `Block type "${block.type}" has unknown keys: ${quoteJoin(unknown)}${ctx}. Allowed keys: ${quoteJoin(allAllowed)}`,
   );
-
-  assert(
-    block.container_width === undefined ||
-      (typeof block.container_width === "string" &&
-        CONTAINER_WIDTHS.includes(block.container_width)),
-    `Block type "${block.type}" has invalid container_width "${String(block.container_width)}"${ctx}. Valid values: ${CONTAINER_WIDTHS.join(", ")}`,
-  );
 };
 
 /**
@@ -212,6 +222,7 @@ export {
   BLOCK_CMS_FIELDS,
   BLOCK_DOCS,
   BLOCK_SCHEMAS,
+  getBlockContainerWidth,
   validateBlock,
   validateBlocks,
 };

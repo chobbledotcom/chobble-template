@@ -31,19 +31,13 @@ components:
     label: Section Header
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: intro, type: rich-text, label: Section Header Intro }
   block_features:
     label: Features
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: grid_class, type: string, label: Grid Class }
       - { name: heading_level, type: number, label: Heading Level }
       - { name: header_intro, type: rich-text, label: Header Intro }
@@ -65,10 +59,7 @@ components:
     label: Image Cards
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: heading_level, type: number, label: Heading Level }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
       - { name: header_intro, type: rich-text, label: Header Intro }
@@ -85,10 +76,7 @@ components:
     label: Stats
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - name: items
         type: object
         label: Statistics
@@ -100,10 +88,7 @@ components:
     label: Code Block
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: filename, type: string, label: Filename, required: true }
       - { name: code, type: string, label: Code, required: true }
       - { name: language, type: string, label: Language }
@@ -111,10 +96,7 @@ components:
     label: Hero
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: class, type: string, label: CSS Class }
       - { name: badge, type: string, label: Badge Text }
       - { name: title, type: string, label: Title, required: true }
@@ -132,10 +114,7 @@ components:
     label: Split Image
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
@@ -158,10 +137,7 @@ components:
     label: Split Video
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
@@ -184,10 +160,7 @@ components:
     label: Split Code
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
@@ -210,10 +183,7 @@ components:
     label: Split Icon Links
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
@@ -244,10 +214,7 @@ components:
     label: Split Html
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
@@ -268,10 +235,7 @@ components:
     label: Split Callout
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
@@ -300,10 +264,7 @@ components:
     label: Split Full
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: variant, type: string, label: Variant }
       - { name: title_level, type: number, label: Heading Level }
       - { name: reveal_left, type: string, label: Reveal Left Animation }
@@ -330,10 +291,7 @@ components:
     label: Cta
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: title, type: string, label: Title, required: true }
       - { name: description, type: string, label: Description }
       - name: button
@@ -348,10 +306,7 @@ components:
     label: Video Background
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: video_id, type: string, label: Video Embed URL, required: true }
       - { name: thumbnail_url, type: string, label: Thumbnail URL }
       - { name: video_title, type: string, label: Video Title }
@@ -362,10 +317,7 @@ components:
     label: Bunny Video Background
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - name: video_url
         type: string
         label: Bunny Stream Embed URL
@@ -382,10 +334,7 @@ components:
     label: Image Background
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: image, type: image, label: Background Image, required: true }
       - { name: image_alt, type: string, label: Image Alt Text }
       - { name: parallax, type: boolean, label: Parallax }
@@ -395,10 +344,7 @@ components:
     label: Items
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - name: collection
         type: string
         label: Collection Name
@@ -420,10 +366,7 @@ components:
     label: Items Array
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: items, type: string, label: Items, required: true, list: true }
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: horizontal, type: boolean, label: Horizontal Slider }
@@ -432,19 +375,13 @@ components:
     label: Contact Form
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: content, type: rich-text, label: Content }
   block_custom_contact_form:
     label: Custom Contact Form
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - name: fields
         type: object
         label: Form Fields
@@ -466,61 +403,40 @@ components:
     label: Markdown
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: content, type: rich-text, label: Markdown }
   block_html:
     label: Html
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: content, type: string, label: Raw HTML, required: true }
   block_content:
     label: Content
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
   block_include:
     label: Include
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: file, type: string, label: Template File Path, required: true }
   block_properties:
     label: Properties
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
   block_guide_categories:
     label: Guide Categories
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
   block_link_button:
     label: Link Button
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: text, type: string, label: Button Text, required: true }
       - { name: href, type: string, label: URL, required: true }
       - { name: variant, type: string, label: Variant }
@@ -530,19 +446,13 @@ components:
     label: Reviews
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: current_item, type: boolean, label: Filter to Current Item }
   block_gallery:
     label: Gallery
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: aspect_ratio, type: string, label: Aspect Ratio }
       - name: items
         type: object
@@ -555,10 +465,7 @@ components:
     label: Marquee Images
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - name: items
         type: object
         label: Images
@@ -573,10 +480,7 @@ components:
     label: Icon Links
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - name: items
         type: object
@@ -593,10 +497,7 @@ components:
     label: Snippet
     type: object
     fields:
-      - name: container_width
-        type: string
-        label: Container Width (full, wide, narrow)
-      - { name: section_class, type: string, label: Section Class }
+      - { name: dark, type: boolean, label: Dark }
       - name: reference
         label: Snippet
         type: reference

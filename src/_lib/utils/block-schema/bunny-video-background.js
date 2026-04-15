@@ -10,6 +10,8 @@ const requiredString = (label) => ({ type: "string", label, required: true });
 
 export const type = "bunny-video-background";
 
+export const containerWidth = "full";
+
 export const schema = [
   "video_url",
   "thumbnail_url",

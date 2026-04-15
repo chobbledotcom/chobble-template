@@ -8,6 +8,8 @@ import {
 
 export const type = "marquee-images";
 
+export const containerWidth = "full";
+
 export const schema = ["items", "speed", "height", ...HEADER_KEYS];
 
 export const docs = {
