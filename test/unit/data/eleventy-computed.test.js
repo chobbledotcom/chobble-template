@@ -396,7 +396,7 @@ describe("eleventyComputed", () => {
       const data = { blocks, page };
       const result = eleventyComputed.blocks(data);
       expect(result).toEqual([
-        { type: "markdown", content: "test", section_class: "" },
+        { type: "markdown", content: "test", dark: false },
       ]);
     });
 
@@ -425,7 +425,7 @@ describe("eleventyComputed", () => {
         reveal: true,
         heading_level: 3,
         grid_class: "features",
-        section_class: "",
+        dark: false,
       });
     });
 
@@ -436,7 +436,7 @@ describe("eleventyComputed", () => {
         type: "stats",
         items: [],
         reveal: true,
-        section_class: "",
+        dark: false,
       });
     });
 
@@ -452,7 +452,7 @@ describe("eleventyComputed", () => {
         title_level: 2,
         reveal_figure: "scale",
         reveal_content: "left",
-        section_class: "",
+        dark: false,
       });
     });
 
@@ -484,7 +484,7 @@ describe("eleventyComputed", () => {
         type: "section-header",
         intro: "## Header",
         align: "center",
-        section_class: "",
+        dark: false,
       });
     });
 
@@ -496,7 +496,7 @@ describe("eleventyComputed", () => {
         items: [],
         reveal: true,
         heading_level: 3,
-        section_class: "",
+        dark: false,
       });
     });
 
@@ -511,7 +511,7 @@ describe("eleventyComputed", () => {
         code: "test",
         filename: "test.js",
         reveal: true,
-        section_class: "",
+        dark: false,
       });
     });
 
@@ -532,7 +532,7 @@ describe("eleventyComputed", () => {
         video_id: "dQw4w9WgXcQ",
         content: "<h2>Test</h2>",
         aspect_ratio: "16/9",
-        section_class: "",
+        dark: false,
       });
     });
 
@@ -547,13 +547,13 @@ describe("eleventyComputed", () => {
       expect(result[0].grid_class).toBe("features"); // default still applied
     });
 
-    test("Explicit section_class overrides default empty string", () => {
+    test("Explicit dark overrides default false", () => {
       const data = {
-        blocks: [{ type: "stats", items: [], section_class: "dark" }],
+        blocks: [{ type: "stats", items: [], dark: true }],
         page,
       };
       const result = eleventyComputed.blocks(data);
-      expect(result[0].section_class).toBe("dark");
+      expect(result[0].dark).toBe(true);
     });
 
     test("Processes multiple blocks with different types", () => {

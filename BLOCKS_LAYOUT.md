@@ -12,7 +12,7 @@ frontmatter blocks[] → design-system-base.html → blocks.html → render-bloc
 
 **Layout:** `src/_layouts/design-system-base.html` applies `class="design-system"` to `<body>`, loads the design system CSS bundle, and iterates blocks via `blocks.html`.
 
-**Block loop** (`src/_includes/design-system/blocks.html`): Each block becomes a `<section>`. If `block.section_class` is set, it's applied to the section. Content is wrapped in a container based on `block.container_width`: `"wide"` (default, 1200px, `.container-wide`), `"narrow"` (680px, `.container-narrow`), or `"full"` (no wrapper). The `icon-links` block defaults to `"narrow"`. The `video-background`, `bunny-video-background`, and `image-background` blocks default to `"full"`.
+**Block loop** (`src/_includes/design-system/blocks.html`): Each block becomes a `<section>`. If `block.dark` is true, the section gets `class="dark"`. Container width is determined by block type and is not user-configurable: `icon-links` uses `.container-narrow` (680px); `video-background`, `bunny-video-background`, `image-background`, and `marquee-images` are full-bleed (no container wrapper); everything else uses `.container-wide` (1200px).
 
 **Block router** (`src/_includes/design-system/render-block.html`): A Liquid `case` statement dispatching `block.type` to the appropriate include template.
 
@@ -23,15 +23,12 @@ Every block object supports these properties (handled by blocks.html, not the in
 | Property | Type | Effect |
 |---|---|---|
 | `type` | string | **Required.** Selects which template to render. |
-| `section_class` | string | CSS class(es) on the wrapping `<section>`. Built-in: `dark` (dark bg + inverted colors), `gradient` (gradient bg), `compact` (reduced padding). Alternating backgrounds are applied automatically via `:nth-child(even)`. |
-| `container_width` | string | `"full"`, `"wide"` (default), or `"narrow"`. Controls the inner container max-width. `"full"` omits the container wrapper entirely so content spans the full viewport width. |
+| `dark` | boolean | If true, adds `class="dark"` to the wrapping `<section>` (dark bg + inverted colors). |
 
 ### Section Behavior
 
 - Sections use `@mixin section` which applies `$space-3xl` (96px) vertical padding (60% on mobile).
-- `section.compact` uses `$space-2xl` (64px) padding.
 - `section.dark` inverts all CSS custom properties to dark palette.
-- `section.gradient` applies a diagonal gradient background.
 - Even-numbered sections automatically get `--body-background-alt` background.
 - Sections containing `.split-full` have zero padding (panels self-pad).
 

@@ -122,10 +122,10 @@ describe(".pages.yml ↔ BLOCKS_LAYOUT.md coverage", () => {
   });
 
   test("every CMS-reachable block's CMS field is documented in BLOCK_DOCS.params", () => {
-    // container_width and section_class are injected by the generator for every
-    // block and documented once in the "Common Block Properties" table at the
-    // top of BLOCKS_LAYOUT.md — skip them here.
-    const containerFields = new Set(["container_width", "section_class"]);
+    // `dark` is injected by the generator for every block and documented once
+    // in the "Common Block Properties" table at the top of BLOCKS_LAYOUT.md —
+    // skip it here.
+    const containerFields = new Set(["dark"]);
     const violations = [...cmsReachableTypes].flatMap((type) => {
       const docParams = Object.keys(BLOCK_DOCS[type]?.params || {});
       const cmsFieldNames = Object.keys(BLOCK_CMS_FIELDS[type] || {});

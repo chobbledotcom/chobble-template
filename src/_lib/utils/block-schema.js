@@ -50,10 +50,7 @@ import * as videoBackground from "#utils/block-schema/video-background.js";
  * Common wrapper keys allowed on all block types.
  * These are used by blocks.html to wrap blocks in sections/containers.
  */
-const COMMON_BLOCK_KEYS = ["section_class", "container_width"];
-
-/** Valid values for the common `container_width` block property. */
-const CONTAINER_WIDTHS = ["full", "wide", "narrow"];
+const COMMON_BLOCK_KEYS = ["dark"];
 
 /**
  * Iteration order determines the order that `scripts/generate-blocks-reference.js`
@@ -106,9 +103,9 @@ const BLOCK_SCHEMAS = indexByType((m) => m.schema);
  * CMS field definitions for block types exposed in Pages CMS.
  *
  * Not every block type in BLOCK_SCHEMAS is exposed in the CMS — only modules
- * that export `cmsFields` are included. CONTAINER_FIELDS (container_width,
- * section_class) are injected here so per-block modules stay focused on
- * block-specific fields. This invariant is enforced by
+ * that export `cmsFields` are included. CONTAINER_FIELDS (`dark`) are
+ * injected here so per-block modules stay focused on block-specific fields.
+ * This invariant is enforced by
  * test/unit/utils/block-schema.test.js.
  */
 const BLOCK_CMS_FIELDS = Object.fromEntries(
@@ -162,12 +159,6 @@ const validateBlock = (block, ctx) => {
   assert(
     unknown.length === 0,
     `Block type "${block.type}" has unknown keys: ${quoteJoin(unknown)}${ctx}. Allowed keys: ${quoteJoin(allAllowed)}`,
-  );
-
-  assert(
-    block.container_width === undefined ||
-      CONTAINER_WIDTHS.includes(block.container_width),
-    `Block type "${block.type}" has invalid container_width "${block.container_width}"${ctx}. Valid values: ${CONTAINER_WIDTHS.join(", ")}`,
   );
 };
 

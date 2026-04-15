@@ -13,7 +13,7 @@ const componentNameToBlockType = (componentName) =>
 
 /** Auto-injected wrapper fields that the generator prepends to every block
  *  component. Mirrors CONTAINER_FIELDS in src/_lib/utils/block-schema/shared.js. */
-const CONTAINER_FIELD_NAMES = ["container_width", "section_class"];
+const CONTAINER_FIELD_NAMES = ["dark"];
 
 const PAGES_YML_PATH = join(rootDir, ".pages.yml");
 const parsedPagesYml = YAML.parse(readFileSync(PAGES_YML_PATH, "utf-8"));
@@ -44,12 +44,14 @@ describe(".pages.yml components ↔ BLOCK_CMS_FIELDS", () => {
     const violations = Object.entries(blockComponents)
       .filter(([, def]) => Array.isArray(def.fields))
       .flatMap(([name, def]) => {
-        const firstNames = def.fields.slice(0, 2).map((f) => f.name);
+        const firstNames = def.fields
+          .slice(0, CONTAINER_FIELD_NAMES.length)
+          .map((f) => f.name);
         return JSON.stringify(firstNames) ===
           JSON.stringify(CONTAINER_FIELD_NAMES)
           ? []
           : [
-              `${name}: expected first two fields to be ${CONTAINER_FIELD_NAMES.join(", ")}, got ${firstNames.join(", ")}`,
+              `${name}: expected first ${CONTAINER_FIELD_NAMES.length} field(s) to be ${CONTAINER_FIELD_NAMES.join(", ")}, got ${firstNames.join(", ")}`,
             ];
       });
     expect(violations).toEqual([]);

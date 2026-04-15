@@ -66,7 +66,7 @@ describe("BLOCK_CMS_FIELDS", () => {
     // also be editable through the CMS. If you intentionally want a code-only
     // block, remove it from BLOCK_SCHEMAS. If not, export `cmsFields` from its
     // block-schema module (use `{}` for blocks with no block-specific fields
-    // — the wrapper `container_width`/`section_class` fields are auto-injected).
+    // — the wrapper `dark` field is auto-injected).
     const missing = Object.keys(BLOCK_SCHEMAS)
       .filter((type) => !(type in BLOCK_CMS_FIELDS))
       .sort();
@@ -81,8 +81,7 @@ describe("BLOCK_CMS_FIELDS", () => {
     for (const [blockType, fields] of Object.entries(BLOCK_CMS_FIELDS)) {
       const block = { type: blockType };
       for (const fieldKey of Object.keys(fields)) {
-        block[fieldKey] =
-          fieldKey === "container_width" ? "wide" : "test-value";
+        block[fieldKey] = fieldKey === "dark" ? true : "test-value";
       }
       expect(() => validateBlocks([block])).not.toThrow();
     }
@@ -408,21 +407,28 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks([])).not.toThrow();
   });
 
-  test("accepts valid container_width values", () => {
-    for (const width of ["full", "wide", "narrow"]) {
-      const blocks = [
-        { type: "section-header", intro: "x", container_width: width },
-      ];
+  test("accepts dark boolean on any block", () => {
+    for (const dark of [true, false]) {
+      const blocks = [{ type: "section-header", intro: "x", dark }];
       expect(() => validateBlocks(blocks)).not.toThrow();
     }
   });
 
-  test("throws for invalid container_width value", () => {
+  test("rejects removed container_width key", () => {
     const blocks = [
-      { type: "section-header", intro: "x", container_width: "huge" },
+      { type: "section-header", intro: "x", container_width: "wide" },
     ];
     expect(() => validateBlocks(blocks)).toThrow(
-      'invalid container_width "huge"',
+      'unknown keys: "container_width"',
+    );
+  });
+
+  test("rejects removed section_class key", () => {
+    const blocks = [
+      { type: "section-header", intro: "x", section_class: "dark" },
+    ];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'unknown keys: "section_class"',
     );
   });
 });

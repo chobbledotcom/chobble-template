@@ -181,8 +181,7 @@ export const objectField = (label, fields) => ({
 
 /** Container wrapper fields common to every CMS block. */
 export const CONTAINER_FIELDS = {
-  container_width: str("Container Width (full, wide, narrow)"),
-  section_class: str("Section Class"),
+  dark: bool("Dark"),
 };
 
 /** Button fields shared between hero, split, and cta blocks. */

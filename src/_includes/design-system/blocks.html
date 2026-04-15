@@ -2,11 +2,10 @@
   {%- if block.type == "snippet" -%}
     {%- include "design-system/render-block.html", block: block -%}
   {%- else -%}
-    {%- assign default_width = "wide" -%}
-    {%- if block.type == "icon-links" -%}{%- assign default_width = "narrow" -%}{%- endif -%}
-    {%- if block.type == "video-background" or block.type == "bunny-video-background" or block.type == "image-background" or block.type == "marquee-images" -%}{%- assign default_width = "full" -%}{%- endif -%}
-    {%- assign cw = block.container_width | default: default_width -%}
-    <section{% if block.section_class != "" %} class="{{ block.section_class }}"{% endif %}>
+    {%- assign cw = "wide" -%}
+    {%- if block.type == "icon-links" -%}{%- assign cw = "narrow" -%}{%- endif -%}
+    {%- if block.type == "video-background" or block.type == "bunny-video-background" or block.type == "image-background" or block.type == "marquee-images" -%}{%- assign cw = "full" -%}{%- endif -%}
+    <section{% if block.dark %} class="dark"{% endif %}>
       {%- unless cw == "full" -%}<div class="container-{{ cw }}">{%- endunless -%}
       {%- include "design-system/render-block.html", block: block -%}
       {%- unless cw == "full" -%}</div>{%- endunless -%}

@@ -209,7 +209,7 @@ export default {
     return data.blocks.map((block) => {
       const blockType = String(block.type);
       const merged = Object.assign(
-        { section_class: "" },
+        { dark: false },
         BLOCK_DEFAULTS[blockType],
         block,
       );

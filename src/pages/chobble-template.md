@@ -10,7 +10,6 @@ eleventyNavigation:
 blocks:
   # Hero
   - type: hero
-    container_width: full
     class: gradient
     badge: Opinionated & Complete
     title: A Free Eleventy Template for Small Business Websites
@@ -29,7 +28,6 @@ blocks:
 
   # Video Background Demo
   - type: bunny-video-background
-    container_width: full
     video_url: https://iframe.mediadelivery.net/embed/417100/64491289-f8e4-44a0-9d78-746cdf8f78fc?autoplay=true&loop=true&muted=true&preload=true&responsive=true
     thumbnail_url: src/images/video-background-placeholder.jpg
     video_title: Chobble Template Demo
@@ -41,7 +39,6 @@ blocks:
 
   # YouTube Video Background Demo
   - type: video-background
-    container_width: full
     video_id: dQw4w9WgXcQ
     video_title: YouTube Background Demo
     aspect_ratio: "21/9"
@@ -164,7 +161,6 @@ blocks:
 
   # Content Types Split Full
   - type: split-full
-    container_width: full
     variant: dark-left
     reveal_left: left
     reveal_right: right
@@ -242,8 +238,6 @@ blocks:
 
   # Performance Split
   - type: split-code
-    section_class: gradient
-
     title: Static HTML, Optimised Images
     reveal_content: left
     content: |
@@ -315,7 +309,6 @@ blocks:
 
   # Get It Built For You
   - type: split-full
-    container_width: full
     variant: primary-left
     reveal_left: left
     reveal_right: right
@@ -373,7 +366,6 @@ blocks:
 
   # Image Background Demo
   - type: image-background
-    container_width: full
     parallax: true
     image: src/images/city-traffic-night.jpg
     image_alt: Long exposure of the traffic in a city at night
