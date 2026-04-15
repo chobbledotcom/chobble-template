@@ -157,8 +157,8 @@ export const ITEMS_ARRAY_PARAM = {
 
 /** @param {string} label @param {object} [extras] */
 export const str = (label, extras) => ({ type: "string", label, ...extras });
-/** @param {string} label */
-export const md = (label) => ({ type: "markdown", label });
+/** @param {string} label @param {object} [extras] */
+export const md = (label, extras) => ({ type: "markdown", label, ...extras });
 /** @param {string} label */
 export const num = (label) => ({ type: "number", label });
 /** @param {string} label */

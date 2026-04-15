@@ -51,7 +51,7 @@ components:
             label: Icon (Iconify ID or HTML entity)
           - { name: title, type: string, label: Title, required: true }
           - name: description
-            type: string
+            type: rich-text
             label: Description
             required: true
           - { name: style, type: string, label: Custom Style }
@@ -293,7 +293,7 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: title, type: string, label: Title, required: true }
-      - { name: description, type: string, label: Description }
+      - { name: description, type: rich-text, label: Description }
       - name: button
         type: object
         label: Button

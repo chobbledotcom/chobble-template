@@ -56,7 +56,7 @@ export const cmsFields = {
   items: objectList("Features", {
     icon: str("Icon (Iconify ID or HTML entity)"),
     title: TITLE_REQUIRED,
-    description: str("Description", { required: true }),
+    description: md("Description", { required: true }),
     style: str("Custom Style"),
   }),
 };
