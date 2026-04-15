@@ -15,7 +15,7 @@ const removePattern = (str, pattern) => {
   return str.replace(new RegExp(pattern, "g"), "").trim();
 };
 
-/** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
+/** @param {*} eleventyConfig */
 const configureRemovePattern = (eleventyConfig) => {
   eleventyConfig.addFilter("removePattern", removePattern);
 };
