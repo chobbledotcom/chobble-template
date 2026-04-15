@@ -1,6 +1,5 @@
 import {
   ITEMS_CMS_SHARED_FIELDS,
-  ITEMS_COMMON_KEYS,
   ITEMS_COMMON_PARAMS,
   ITEMS_GRID_META,
   str,
@@ -8,7 +7,7 @@ import {
 
 export const type = "items-array";
 
-export const schema = ["items", ...ITEMS_COMMON_KEYS];
+export const schema = ["items", "intro", "horizontal", "masonry"];
 
 export const docs = {
   summary:
@@ -21,7 +20,9 @@ export const docs = {
       required: true,
       description: "Array of file paths as strings.",
     },
-    ...ITEMS_COMMON_PARAMS,
+    intro: ITEMS_COMMON_PARAMS.intro,
+    horizontal: ITEMS_COMMON_PARAMS.horizontal,
+    masonry: ITEMS_COMMON_PARAMS.masonry,
   },
 };
 
@@ -30,6 +31,4 @@ export const cmsFields = {
   intro: ITEMS_CMS_SHARED_FIELDS.intro,
   horizontal: ITEMS_CMS_SHARED_FIELDS.horizontal,
   masonry: ITEMS_CMS_SHARED_FIELDS.masonry,
-  header_intro: ITEMS_CMS_SHARED_FIELDS.header_intro,
-  filter: ITEMS_CMS_SHARED_FIELDS.filter,
 };
