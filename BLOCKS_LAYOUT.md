@@ -330,7 +330,7 @@ Call-to-action banner with gradient background.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `title` | string | **required** | CTA heading (`<h2>`). |
-| `description` | string | — | Supporting text. `body-lg`, 0.9 opacity, max-width `$width-narrow`. |
+| `description` | string | — | Supporting markdown text. `body-lg`, 0.9 opacity, max-width `$width-narrow`. |
 | `button` | object | — | `{text, href, variant, size}`. Default variant: `"secondary"`, default size: `"lg"`. |
 | `reveal` | string | — | `data-reveal` value. |
 

@@ -1,8 +1,8 @@
 import {
   BUTTON_FIELDS_WITH_SIZE,
+  md,
   objectField,
   REVEAL_PARAM,
-  str,
   TITLE_REQUIRED,
 } from "#utils/block-schema/shared.js";
 
@@ -24,7 +24,7 @@ export const docs = {
     description: {
       type: "string",
       description:
-        "Supporting text. `body-lg`, 0.9 opacity, max-width `$width-narrow`.",
+        "Supporting markdown text. `body-lg`, 0.9 opacity, max-width `$width-narrow`.",
     },
     button: {
       type: "object",
@@ -37,6 +37,6 @@ export const docs = {
 
 export const cmsFields = {
   title: TITLE_REQUIRED,
-  description: str("Description"),
+  description: md("Description"),
   button: objectField("Button", BUTTON_FIELDS_WITH_SIZE),
 };

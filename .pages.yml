@@ -293,7 +293,7 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: title, type: string, label: Title, required: true }
-      - { name: description, type: string, label: Description }
+      - { name: description, type: rich-text, label: Description }
       - name: button
         type: object
         label: Button
