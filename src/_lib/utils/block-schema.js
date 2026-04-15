@@ -115,7 +115,10 @@ const BLOCK_SCHEMAS = indexByType((m) => m.schema);
  * @type {Record<string, "full" | "wide" | "narrow">}
  */
 const BLOCK_CONTAINER_WIDTHS = Object.fromEntries(
-  BLOCK_MODULES.map((m) => [m.type, m.containerWidth || "wide"]),
+  BLOCK_MODULES.map((m) => [
+    m.type,
+    "containerWidth" in m ? m.containerWidth : "wide",
+  ]),
 );
 
 /**
