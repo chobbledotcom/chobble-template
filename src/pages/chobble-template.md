@@ -101,7 +101,6 @@ blocks:
 
   # Items Array - explicit product selection
   - type: items-array
-    collection: products
     masonry: true
     items:
       - src/products/mini-gizmo.md

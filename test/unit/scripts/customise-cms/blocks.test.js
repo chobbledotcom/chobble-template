@@ -97,8 +97,8 @@ describe("generateBlocksField generic field conversion", () => {
   });
 
   test("propagates required:true from the schema", () => {
-    // items-array.collection is required:true.
-    const field = generateBlocksField(["items-array"], false);
+    // items.collection is required:true.
+    const field = generateBlocksField(["items"], false);
     const collection = field.blocks[0].fields.find(
       (f) => f.name === "collection",
     );

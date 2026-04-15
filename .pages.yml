@@ -424,10 +424,6 @@ components:
         type: string
         label: Container Width (full, wide, narrow)
       - { name: section_class, type: string, label: Section Class }
-      - name: collection
-        type: string
-        label: Collection Name
-        required: true
       - name: items
         label: Items
         type: reference
