@@ -3,10 +3,12 @@ Items array block: renders items from an explicit list of paths using items.html
 
 The collection is inferred dynamically from each item's path — paths like
 "src/locations/manchester.md" resolve against collections.all regardless of
-which collection the item belongs to.
+which collection the item belongs to. Directory paths (ending with "/" or
+without a ".md" extension, e.g. "locations/fulchester" or
+"locations/fulchester/") expand in place to every item in that directory.
 
 Parameters (from block):
-  items       - Array of file paths as strings
+  items       - Array of file or directory paths as strings
   intro       - Optional markdown content rendered above the items
   horizontal  - If true, renders as a horizontal slider
   masonry     - If true, renders as a masonry grid (uses uWrap)

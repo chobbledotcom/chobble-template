@@ -420,21 +420,17 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 
 ### `items-array`
 
-Renders items from an explicit list of paths. The collection is inferred dynamically from each item's path.
+Renders items from an explicit list of paths. The collection is inferred dynamically from each item's path. Directory paths (ending in `/` or with no `.md` extension) expand to every item in that directory.
 
 **Template:** `src/_includes/design-system/items-array-block.html`
 **SCSS:** `src/css/design-system/_items.scss`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Array of file paths as strings. |
+| `items` | array | **required** | Array of path strings. Each entry may be a file path (e.g. `src/products/widget.md`) or a directory path (e.g. `locations/fulchester` or `locations/fulchester/`), in which case every item in that directory is included in place. |
 | `intro` | string | — | Markdown content rendered above items in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 

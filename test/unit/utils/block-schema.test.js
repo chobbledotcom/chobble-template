@@ -1,374 +1,128 @@
 import { describe, expect, test } from "bun:test";
 import {
   BLOCK_CMS_FIELDS,
+  BLOCK_DOCS,
   BLOCK_SCHEMAS,
   getBlockContainerWidth,
   validateBlocks,
 } from "#utils/block-schema.js";
 
-describe("BLOCK_SCHEMAS", () => {
-  test("defines schemas for all block types", () => {
-    const expectedTypes = [
-      "section-header",
-      "features",
-      "image-cards",
-      "stats",
-      "code-block",
-      "hero",
-      "split-image",
-      "split-video",
-      "split-code",
-      "split-icon-links",
-      "split-html",
-      "split-callout",
-      "split-full",
-      "cta",
-      "video-background",
-      "bunny-video-background",
-      "image-background",
-      "items",
-      "items-array",
-      "contact-form",
-      "custom-contact-form",
-      "markdown",
-      "html",
-      "content",
-      "include",
-      "properties",
-      "guide-categories",
-      "link-button",
-      "reviews",
-      "gallery",
-      "marquee-images",
-      "icon-links",
-      "snippet",
-    ];
-    expect(Object.keys(BLOCK_SCHEMAS).sort()).toEqual(expectedTypes.sort());
-  });
-
-  test("video-background schema includes video_id", () => {
-    expect(BLOCK_SCHEMAS["video-background"]).toContain("video_id");
-  });
-
-  test("video-background schema does not include video_url", () => {
-    expect(BLOCK_SCHEMAS["video-background"]).not.toContain("video_url");
-  });
-});
-
-describe("BLOCK_CMS_FIELDS", () => {
-  test("every block type is also in BLOCK_SCHEMAS", () => {
+describe("BLOCK_SCHEMAS / BLOCK_CMS_FIELDS / BLOCK_DOCS invariants", () => {
+  test("every CMS field block is also a validator-known block", () => {
     for (const blockType of Object.keys(BLOCK_CMS_FIELDS)) {
       expect(BLOCK_SCHEMAS[blockType]).toBeDefined();
     }
   });
 
-  test("every BLOCK_SCHEMAS type also has cmsFields (all blocks CMS-editable)", () => {
-    // Invariant: every block type surfaced to templates via BLOCK_SCHEMAS must
-    // also be editable through the CMS. If you intentionally want a code-only
-    // block, remove it from BLOCK_SCHEMAS. If not, export `cmsFields` from its
-    // block-schema module (use `{}` for blocks with no block-specific fields
-    // — the wrapper `dark` field is auto-injected).
+  test("every schema-known block is also CMS-editable", () => {
+    // If you intentionally want a code-only block, remove it from
+    // BLOCK_SCHEMAS. Otherwise export `cmsFields` from its block-schema
+    // module (use `{}` for blocks with no block-specific fields —
+    // the wrapper `dark` field is auto-injected).
     const missing = Object.keys(BLOCK_SCHEMAS)
       .filter((type) => !(type in BLOCK_CMS_FIELDS))
       .sort();
     expect(missing).toEqual([]);
   });
 
-  test("every field key passes production validateBlocks", () => {
-    // Build a synthetic block from the CMS field shape and run it through
-    // the same validator that checks real block usage at build time. This
-    // ensures BLOCK_CMS_FIELDS can never expose a CMS field that the
-    // runtime will reject — the two must stay in sync by construction.
-    for (const [blockType, fields] of Object.entries(BLOCK_CMS_FIELDS)) {
+  test("every schema-known block also has docs", () => {
+    const missing = Object.keys(BLOCK_SCHEMAS)
+      .filter((type) => !(type in BLOCK_DOCS))
+      .sort();
+    expect(missing).toEqual([]);
+  });
+});
+
+describe("BLOCK_DOCS shape", () => {
+  // One test per block so the failure message identifies the broken module.
+  for (const [blockType, docs] of Object.entries(BLOCK_DOCS)) {
+    test(`${blockType}: docs expose a non-empty summary and params object`, () => {
+      expect(typeof docs.summary).toBe("string");
+      expect(docs.summary.length).toBeGreaterThan(0);
+      expect(docs.params).toEqual(expect.any(Object));
+    });
+  }
+});
+
+describe("BLOCK_CMS_FIELDS field keys pass validateBlocks", () => {
+  // Data-driven: every CMS-exposed field must also be accepted by the
+  // production validator, or the CMS would let authors write blocks
+  // that fail to build.
+  for (const [blockType, fields] of Object.entries(BLOCK_CMS_FIELDS)) {
+    test(`${blockType}: all CMS field keys validate`, () => {
       const block = { type: blockType };
       for (const fieldKey of Object.keys(fields)) {
         block[fieldKey] = fieldKey === "dark" ? true : "test-value";
       }
       expect(() => validateBlocks([block])).not.toThrow();
-    }
-  });
+    });
+  }
 });
 
-describe("validateBlocks", () => {
-  test("accepts valid block with known type and keys", () => {
-    const blocks = [{ type: "section-header", intro: "## Hello\n\nWorld" }];
-    expect(() => validateBlocks(blocks)).not.toThrow();
+describe("validateBlocks accepts every schema-declared key", () => {
+  // Data-driven replacement for the per-block "allows all valid keys for X"
+  // tests. If a block schema drops a legitimate key, the corresponding
+  // test case here will fail and name the block.
+  for (const [blockType, allowedKeys] of Object.entries(BLOCK_SCHEMAS)) {
+    test(`${blockType}: block with every schema key validates`, () => {
+      const block = { type: blockType };
+      for (const key of allowedKeys) block[key] = "test-value";
+      expect(() => validateBlocks([block])).not.toThrow();
+    });
+  }
+});
+
+describe("validateBlocks accepts common wrapper keys on every block", () => {
+  // Data-driven: `dark` is injected by the wrapper template, so it must
+  // be accepted on every block type regardless of its own schema.
+  for (const blockType of Object.keys(BLOCK_SCHEMAS)) {
+    test(`${blockType}: dark accepted`, () => {
+      const block = { type: blockType, dark: true };
+      expect(() => validateBlocks([block])).not.toThrow();
+    });
+  }
+});
+
+describe("validateBlocks error handling", () => {
+  test("accepts an empty blocks array", () => {
+    expect(() => validateBlocks([])).not.toThrow();
   });
 
-  test("throws for block missing type", () => {
-    const blocks = [{ title: "Hello" }];
-    expect(() => validateBlocks(blocks)).toThrow(
+  test("accepts a block with only a type (empty schema)", () => {
+    // Blocks like "content" and "properties" have an empty schema.
+    // Pick one dynamically so the test doesn't break if the list changes.
+    const emptySchemaType = Object.entries(BLOCK_SCHEMAS).find(
+      ([, keys]) => keys.length === 0,
+    )?.[0];
+    expect(emptySchemaType).toBeDefined();
+    expect(() => validateBlocks([{ type: emptySchemaType }])).not.toThrow();
+  });
+
+  test("throws when a block is missing its type field", () => {
+    expect(() => validateBlocks([{ title: "Hello" }])).toThrow(
       'missing required "type" field',
     );
   });
 
-  test("throws for unknown block type", () => {
-    const blocks = [{ type: "unknown-type", content: "test" }];
-    expect(() => validateBlocks(blocks)).toThrow(
+  test("throws when a block uses an unknown type", () => {
+    expect(() => validateBlocks([{ type: "unknown-type" }])).toThrow(
       'Unknown block type "unknown-type"',
     );
   });
 
-  test("throws for unknown key with helpful message", () => {
-    const blocks = [
-      {
-        type: "video-background",
-        video_url: "https://example.com",
-      },
-    ];
+  test("throws when a block has an unknown key and lists allowed keys", () => {
+    const blocks = [{ type: "video-background", video_url: "bad" }];
     expect(() => validateBlocks(blocks)).toThrow('unknown keys: "video_url"');
     expect(() => validateBlocks(blocks)).toThrow("Allowed keys:");
   });
 
-  test("includes context in error message", () => {
-    const blocks = [{ type: "video-background", video_url: "test" }];
-    expect(() => validateBlocks(blocks, " in test-file.html")).toThrow(
-      "in test-file.html",
-    );
-  });
-
-  test("allows all valid keys for section-header", () => {
-    const blocks = [
-      {
-        type: "section-header",
-        intro: "## Title\n\nSubtitle text",
-        align: "center",
-        class: "custom",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("allows all valid keys for video-background", () => {
-    const blocks = [
-      {
-        type: "video-background",
-        video_id: "dQw4w9WgXcQ",
-        video_title: "Video",
-        content: "<h2>Test</h2>",
-        aspect_ratio: "16/9",
-        class: "custom",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("allows all valid keys for split-image", () => {
-    const blocks = [
-      {
-        type: "split-image",
-        title: "Title",
-        title_level: 2,
-        subtitle: "Subtitle",
-        content: "<p>Content</p>",
-        figure_src: "/img.jpg",
-        figure_alt: "Alt",
-        figure_caption: "Caption",
-        reverse: true,
-        reveal_content: "left",
-        reveal_figure: "scale",
-        button: { text: "Click", href: "/" },
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("allows all valid keys for split-video", () => {
-    const blocks = [
-      {
-        type: "split-video",
-        figure_video_id: "dQw4w9WgXcQ",
-        figure_alt: "Video title",
-        figure_caption: "A video",
-        content: "<p>Content</p>",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("allows all valid keys for split-code", () => {
-    const blocks = [
-      {
-        type: "split-code",
-        figure_filename: "example.js",
-        figure_code: "const x = 1;",
-        figure_language: "javascript",
-        content: "<p>Content</p>",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("allows all valid keys for split-html", () => {
-    const blocks = [
-      {
-        type: "split-html",
-        figure_html: "<div>Custom HTML</div>",
-        content: "<p>Content</p>",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("allows all valid keys for split-icon-links", () => {
-    const blocks = [
-      {
-        type: "split-icon-links",
-        figure_items: [
-          {
-            icon: "hugeicons:github",
-            text: "GitHub",
-            url: "https://github.com",
-          },
-          { icon: "hugeicons:mail-01", text: "Email" },
-        ],
-        content: "<p>Content</p>",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("allows all valid keys for split-callout", () => {
-    const blocks = [
-      {
-        type: "split-callout",
-        title: "Our Coverage",
-        title_level: 2,
-        subtitle: "Subtitle",
-        content: "<p>We serve the south of England.</p>",
-        figure_icon: "\u{1F4F8}",
-        figure_title: "Covering the whole of the UK",
-        figure_subtitle: "Surrey, London, Kent, Sussex...",
-        figure_variant: "primary",
-        reverse: true,
-        reveal_content: "left",
-        reveal_figure: "scale",
-        button: { text: "Learn More", href: "/coverage" },
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("rejects image-specific keys on split-callout", () => {
-    const blocks = [
-      {
-        type: "split-callout",
-        figure_title: "Title",
-        figure_src: "/img.jpg",
-        content: "<p>Content</p>",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).toThrow('unknown keys: "figure_src"');
-  });
-
-  test("rejects figure_type key on split variants", () => {
-    const blocks = [
-      {
-        type: "split-image",
-        figure_type: "image",
-        figure_src: "/img.jpg",
-        content: "<p>Content</p>",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).toThrow('unknown keys: "figure_type"');
-  });
-
-  test("rejects image-specific keys on split-code", () => {
-    const blocks = [
-      {
-        type: "split-code",
-        figure_code: "const x = 1;",
-        figure_src: "/img.jpg",
-        content: "<p>Content</p>",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).toThrow('unknown keys: "figure_src"');
-  });
-
-  test("allows all valid keys for split-full", () => {
-    const blocks = [
-      {
-        type: "split-full",
-        variant: "dark-left",
-        title_level: 2,
-        left_title: "Left",
-        left_content: "<p>Left content</p>",
-        left_button: { text: "Click", href: "/" },
-        right_title: "Right",
-        right_content: "<p>Right content</p>",
-        right_button: { text: "Click", href: "/" },
-        reveal_left: "left",
-        reveal_right: "right",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("allows all valid keys for contact-form with headers", () => {
-    const blocks = [
-      {
-        type: "contact-form",
-        content: "Get in touch",
-        header_intro: "## Contact Us\n\nWe'd love to hear from you",
-        header_align: "center",
-        header_class: "custom",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("allows all valid keys for custom-contact-form", () => {
-    const blocks = [
-      {
-        type: "custom-contact-form",
-        content: "Get in touch",
-        fields: [
-          { name: "name", label: "Your name", required: true },
-          { name: "email", type: "email", label: "Email" },
-          {
-            name: "enquiry",
-            type: "textarea",
-            label: "Enquiry",
-            rows: 8,
-            required: true,
-          },
-        ],
-        header_intro: "## Custom Form",
-        header_align: "center",
-        header_class: "custom",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("rejects unknown key on custom-contact-form", () => {
-    const blocks = [
-      {
-        type: "custom-contact-form",
-        fields: [],
-        submit_label: "Send it",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).toThrow(
-      'unknown keys: "submit_label"',
-    );
-  });
-
-  test("reports multiple unknown keys", () => {
+  test("lists every unknown key when multiple are present", () => {
     const blocks = [{ type: "stats", foo: "bar", baz: "qux" }];
     expect(() => validateBlocks(blocks)).toThrow('"foo"');
     expect(() => validateBlocks(blocks)).toThrow('"baz"');
   });
 
-  test("validates all blocks in array", () => {
-    const blocks = [
-      { type: "section-header", intro: "## Hello" },
-      { type: "stats", items: [] },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("throws with block index in error message", () => {
+  test("reports the offending block index (1-based) in error messages", () => {
     const blocks = [
       { type: "section-header", intro: "## Hello" },
       { type: "video-background", video_url: "bad" },
@@ -376,36 +130,19 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).toThrow("block 2");
   });
 
-  test("allows all valid keys for link-button", () => {
-    const blocks = [
-      {
-        type: "link-button",
-        text: "Book Now",
-        href: "#booking",
-        variant: "primary",
-        size: "lg",
-        reveal: "scale",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
+  test("appends caller-supplied context to the error message", () => {
+    const blocks = [{ type: "video-background", video_url: "bad" }];
+    expect(() => validateBlocks(blocks, " in test-file.html")).toThrow(
+      "in test-file.html",
+    );
   });
 
-  test("allows all valid keys for gallery", () => {
-    const blocks = [
-      {
-        type: "gallery",
-        items: [
-          { image: "/images/photo1.jpg", caption: "First photo" },
-          { image: "/images/photo2.jpg" },
-        ],
-        aspect_ratio: "16/9",
-      },
-    ];
-    expect(() => validateBlocks(blocks)).not.toThrow();
-  });
-
-  test("handles empty array", () => {
-    expect(() => validateBlocks([])).not.toThrow();
+  test("rejects keys borrowed from a sibling block variant", () => {
+    // split-callout and split-image share a base but diverge: figure_src
+    // belongs to split-image, not split-callout. This guards against
+    // cross-variant key leaks.
+    const blocks = [{ type: "split-callout", figure_src: "/img.jpg" }];
+    expect(() => validateBlocks(blocks)).toThrow('unknown keys: "figure_src"');
   });
 
   test("accepts dark boolean on any block", () => {

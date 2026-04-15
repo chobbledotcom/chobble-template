@@ -187,6 +187,63 @@ describe("collection-lookup", () => {
       expect(getItemsByPath(collection, null)).toEqual([]);
       expect(getItemsByPath(collection, undefined)).toEqual([]);
     });
+
+    const titles = (items) => items.map((i) => i.data.title);
+    const fulchesterPair = () => [
+      pathItem("./src/locations/fulchester/gizmo-cleaning.md", "Gizmo"),
+      pathItem("./src/locations/fulchester/widget-removal.md", "Widget"),
+    ];
+
+    test.each([
+      ["without trailing slash", "locations/fulchester"],
+      ["with trailing slash", "locations/fulchester/"],
+      ["with src/ prefix", "src/locations/fulchester/"],
+    ])("Expands directory path %s", (_label, pathInput) => {
+      const collection = [
+        ...fulchesterPair(),
+        pathItem("./src/locations/springfield/other.md", "Other"),
+      ];
+
+      const result = getItemsByPath(collection, [pathInput]);
+
+      expect(titles(result)).toEqual(["Gizmo", "Widget"]);
+    });
+
+    test("Expands directory in place preserving surrounding order", () => {
+      const collection = [
+        pathItem("./src/products/widget.md", "Widget"),
+        pathItem("./src/products/gadget.md", "Gadget"),
+        pathItem("./src/locations/fulchester/one.md", "One"),
+        pathItem("./src/locations/fulchester/two.md", "Two"),
+      ];
+
+      const result = getItemsByPath(collection, [
+        "src/products/widget.md",
+        "locations/fulchester/",
+        "src/products/gadget.md",
+      ]);
+
+      expect(titles(result)).toEqual(["Widget", "One", "Two", "Gadget"]);
+    });
+
+    test("Skips directory paths that match no items", () => {
+      const collection = [pathItem("./src/products/widget.md", "Widget")];
+
+      const result = getItemsByPath(collection, ["locations/nowhere/"]);
+
+      expect(result).toEqual([]);
+    });
+
+    test("Deduplicates items when directory overlaps with explicit path", () => {
+      const collection = fulchesterPair();
+
+      const result = getItemsByPath(collection, [
+        "src/locations/fulchester/gizmo-cleaning.md",
+        "locations/fulchester/",
+      ]);
+
+      expect(titles(result)).toEqual(["Gizmo", "Widget"]);
+    });
   });
 
   describe("O(1) lookup performance", () => {
