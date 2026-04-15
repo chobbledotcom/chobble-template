@@ -14,7 +14,7 @@
  * {% assign author = collections.team | getBySlug: authorSlug %}
  */
 
-import { uniqueBy } from "#toolkit/fp/array.js";
+import { unique } from "#toolkit/fp/array.js";
 import { indexBy } from "#toolkit/fp/memoize.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
@@ -101,16 +101,19 @@ export const getItemsByPath = (collection, paths) => {
       : trimmed;
     return `./src/${withoutSrc}/`;
   };
+  const entries = Object.entries(index);
   /** @param {string} p */
   const resolvePath = (p) => {
     if (isDirectoryPath(p)) {
       const prefix = directoryPrefix(p);
-      return collection.filter((item) => item.inputPath.startsWith(prefix));
+      return entries
+        .filter(([key]) => key.startsWith(prefix))
+        .map(([, v]) => v);
     }
     const item = index[p] || index[normalize(p)] || index[withSrc(p)];
     return item ? [item] : [];
   };
-  return uniqueBy((item) => item.inputPath)(paths.flatMap(resolvePath));
+  return unique(paths.flatMap(resolvePath));
 };
 
 /**
