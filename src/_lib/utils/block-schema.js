@@ -96,6 +96,15 @@ const BLOCK_MODULES = [
   snippet,
 ];
 
+/**
+ * @typedef {(typeof BLOCK_MODULES)[number]} BlockModule
+ */
+
+/**
+ * @template T
+ * @param {(module: BlockModule) => T} getValue
+ * @returns {Record<string, T>}
+ */
 const indexByType = (getValue) =>
   Object.fromEntries(BLOCK_MODULES.map((m) => [m.type, getValue(m)]));
 
@@ -132,22 +141,35 @@ const BLOCK_CMS_FIELDS = Object.fromEntries(
  */
 const BLOCK_DOCS = indexByType((m) => m.docs);
 
+/** @param {readonly string[]} arr */
 const quoteJoin = (arr) => arr.map((k) => `"${k}"`).join(", ");
 
+/**
+ * @param {unknown} condition
+ * @param {string} message
+ * @returns {asserts condition}
+ */
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
 /**
+ * @typedef {Record<string, unknown>} Block
+ */
+
+/**
  * Validates a single block against its schema.
  * Throws an error if the block contains unknown keys or unknown type.
  *
- * @param {object} block - Block to validate
+ * @param {Block} block - Block to validate
  * @param {string} ctx - Context suffix for error messages
  * @throws {Error} If the block contains unknown keys or invalid type
  */
 const validateBlock = (block, ctx) => {
-  assert(block.type, `Block is missing required "type" field${ctx}`);
+  assert(
+    typeof block.type === "string" && block.type.length > 0,
+    `Block is missing required "type" field${ctx}`,
+  );
 
   const allowedKeys = BLOCK_SCHEMAS[block.type];
   assert(
@@ -166,8 +188,9 @@ const validateBlock = (block, ctx) => {
 
   assert(
     block.container_width === undefined ||
-      CONTAINER_WIDTHS.includes(block.container_width),
-    `Block type "${block.type}" has invalid container_width "${block.container_width}"${ctx}. Valid values: ${CONTAINER_WIDTHS.join(", ")}`,
+      (typeof block.container_width === "string" &&
+        CONTAINER_WIDTHS.includes(block.container_width)),
+    `Block type "${block.type}" has invalid container_width "${String(block.container_width)}"${ctx}. Valid values: ${CONTAINER_WIDTHS.join(", ")}`,
   );
 };
 
@@ -175,7 +198,7 @@ const validateBlock = (block, ctx) => {
  * Validates an array of blocks against their schemas.
  * Throws an error if any block contains unknown keys or unknown type.
  *
- * @param {object[]} blocks - Array of blocks to validate
+ * @param {Block[]} blocks - Array of blocks to validate
  * @param {string} context - Context for error messages (e.g., file path)
  * @throws {Error} If any block contains unknown keys or invalid type
  */
