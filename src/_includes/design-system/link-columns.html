@@ -1,0 +1,33 @@
+{%- comment -%}
+Link-columns block: renders a collection as a plain-text <ul> of links
+arranged in CSS columns. Unlike items-block, there is no card, image or
+metadata — just a tidy list of links.
+
+Parameters (from block):
+  collection  - Name of an Eleventy collection (e.g. "locations")
+  intro       - Optional markdown content rendered above the list
+  filter      - Optional filter object ({property, includes, equals})
+  remove_text - Optional regex pattern; each match is stripped from every
+                link's display text and the result is trimmed. Useful for
+                killing repetitive prefixes like "Service in ".
+  header_intro / header_align / header_class - Optional section header.
+{%- endcomment -%}
+
+{%- include "design-system/block-intro.html" -%}
+
+{%- assign linkItems = collections[block.collection] -%}
+{%- if block.filter -%}
+  {%- assign linkItems = linkItems | filterItems: block.filter -%}
+{%- endif -%}
+
+{%- if linkItems.size > 0 -%}
+<ul class="link-columns" role="list">
+  {%- for item in linkItems -%}
+    {%- assign label = item.data.name | default: item.data.title -%}
+    {%- if block.remove_text -%}
+      {%- assign label = label | removePattern: block.remove_text -%}
+    {%- endif -%}
+    <li><a href="{{- item.url -}}{{ config.internal_link_suffix }}">{{ label }}</a></li>
+  {%- endfor -%}
+</ul>
+{%- endif -%}

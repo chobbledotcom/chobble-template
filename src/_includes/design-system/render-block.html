@@ -70,6 +70,9 @@ Renders a single block by type. Used by blocks.html.
   {%- when "items-array" -%}
     {%- include "design-system/items-array-block.html", block: block -%}
 
+  {%- when "link-columns" -%}
+    {%- include "design-system/link-columns.html", block: block -%}
+
   {%- when "guide-categories" -%}
     {%- include "design-system/guide-categories-block.html" -%}
 

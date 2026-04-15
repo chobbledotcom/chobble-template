@@ -45,6 +45,7 @@ import { configureLinkList } from "#eleventy/link-list.js";
 import { configureOpeningTimes } from "#eleventy/opening-times.js";
 import { configurePdf } from "#eleventy/pdf.js";
 import { configureRecurringEvents } from "#eleventy/recurring-events.js";
+import { configureRemovePattern } from "#eleventy/remove-pattern.js";
 import { configureScreenshots } from "#eleventy/screenshots.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
 import { configureVideo } from "#eleventy/video.js";
@@ -114,6 +115,7 @@ export default async function (eleventyConfig) {
   configureNews(eleventyConfig);
   configureOpeningTimes(eleventyConfig);
   configureRecurringEvents(eleventyConfig);
+  configureRemovePattern(eleventyConfig);
   configureScreenshots(eleventyConfig);
   configureFilters(eleventyConfig);
   configureProducts(eleventyConfig);

@@ -371,6 +371,27 @@ components:
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
+  block_link_columns:
+    label: Link Columns
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: collection
+        type: string
+        label: Collection Name
+        required: true
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: filter
+        type: object
+        label: Filter
+        fields:
+          - name: property
+            type: string
+            label: Property (e.g. url, data.title)
+          - { name: includes, type: string, label: Contains }
+          - { name: equals, type: string, label: Equals }
+      - { name: remove_text, type: string, label: Remove Text (Regex) }
+      - { name: header_intro, type: rich-text, label: Header Intro }
   block_contact_form:
     label: Contact Form
     type: object
@@ -600,6 +621,7 @@ content:
           - { name: image-background, component: block_image_background }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: link-columns, component: block_link_columns }
           - { name: contact-form, component: block_contact_form }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: markdown, component: block_markdown }
