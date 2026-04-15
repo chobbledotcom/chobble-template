@@ -71,14 +71,15 @@ describe("generateBlocksField markdown field conversion", () => {
   });
 });
 
-describe("generateBlocksField reference field conversion", () => {
-  test("passes the target collection through to the CMS reference", () => {
-    // items-array.items declares collection:"pages" and multiple:true.
+describe("generateBlocksField list field conversion", () => {
+  test("emits a list string field for items-array.items paths", () => {
+    // items-array.items declares type:"string" with list:true to accept an
+    // array of file paths.
     const field = generateBlocksField(["items-array"], false);
     const items = field.blocks[0].fields.find((f) => f.name === "items");
 
-    expect(items.type).toBe("reference");
-    expect(items.options.collection).toBe("pages");
+    expect(items.type).toBe("string");
+    expect(items.list).toBe(true);
   });
 });
 

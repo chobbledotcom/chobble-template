@@ -423,14 +423,14 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 
 ### `items-array`
 
-Renders items from an explicit list of paths (e.g. from Pages CMS content references). The collection is inferred dynamically from each item's path.
+Renders items from an explicit list of paths. The collection is inferred dynamically from each item's path.
 
 **Template:** `src/_includes/design-system/items-array-block.html`
 **SCSS:** `src/css/design-system/_items.scss`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Array of file paths (e.g. from Pages CMS references). |
+| `items` | array | **required** | Array of file paths as strings. |
 | `intro` | string | — | Markdown content rendered above items in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
