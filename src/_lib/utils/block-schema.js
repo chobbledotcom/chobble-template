@@ -100,6 +100,23 @@ const indexByType = (getValue) =>
 const BLOCK_SCHEMAS = indexByType((m) => m.schema);
 
 /**
+ * Container width per block type. Block modules opt in via an exported
+ * `containerWidth` constant ("full" or "narrow"); blocks that omit it
+ * default to "wide".
+ * @type {Record<string, "full" | "wide" | "narrow">}
+ */
+const BLOCK_CONTAINER_WIDTHS = Object.fromEntries(
+  BLOCK_MODULES.map((m) => [m.type, m.containerWidth || "wide"]),
+);
+
+/**
+ * @param {string} blockType
+ * @returns {"full" | "wide" | "narrow"} Container wrapper width
+ */
+const getBlockContainerWidth = (blockType) =>
+  BLOCK_CONTAINER_WIDTHS[blockType] || "wide";
+
+/**
  * CMS field definitions for block types exposed in Pages CMS.
  *
  * Not every block type in BLOCK_SCHEMAS is exposed in the CMS — only modules
@@ -180,6 +197,7 @@ export {
   BLOCK_CMS_FIELDS,
   BLOCK_DOCS,
   BLOCK_SCHEMAS,
+  getBlockContainerWidth,
   validateBlock,
   validateBlocks,
 };

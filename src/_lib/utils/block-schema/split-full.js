@@ -8,6 +8,8 @@ import {
 
 export const type = "split-full";
 
+export const containerWidth = "full";
+
 export const schema = [
   "variant",
   "title_level",

@@ -27,6 +27,7 @@ import { configureItemFilterData } from "#eleventy/item-filter-data.js";
 // Validation
 import { configureCollectionValidation } from "#eleventy/validate-collections.js";
 // Eleventy plugins
+import { configureBlocks } from "#eleventy/blocks.js";
 import { configureCacheBuster } from "#eleventy/cache-buster.js";
 import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
 import { configureCollectionFilter } from "#eleventy/collection-filter.js";
@@ -81,6 +82,7 @@ export default async function (eleventyConfig) {
   // configureLayoutAliases(eleventyConfig);
 
   configureAreaList(eleventyConfig);
+  configureBlocks(eleventyConfig);
   configureBreadcrumbs(eleventyConfig);
   configureCacheBuster(eleventyConfig);
   configureCollectionLookup(eleventyConfig);

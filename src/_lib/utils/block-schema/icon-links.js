@@ -7,6 +7,8 @@ import {
 
 export const type = "icon-links";
 
+export const containerWidth = "narrow";
+
 export const schema = ["intro", "items", "reveal"];
 
 export const docs = {

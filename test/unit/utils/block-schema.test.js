@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   BLOCK_CMS_FIELDS,
   BLOCK_SCHEMAS,
+  getBlockContainerWidth,
   validateBlocks,
 } from "#utils/block-schema.js";
 
@@ -430,5 +431,34 @@ describe("validateBlocks", () => {
     expect(() => validateBlocks(blocks)).toThrow(
       'unknown keys: "section_class"',
     );
+  });
+});
+
+describe("getBlockContainerWidth", () => {
+  test("defaults to wide for blocks without an explicit width", () => {
+    expect(getBlockContainerWidth("markdown")).toBe("wide");
+    expect(getBlockContainerWidth("features")).toBe("wide");
+    expect(getBlockContainerWidth("section-header")).toBe("wide");
+  });
+
+  test("returns full for image and video background blocks", () => {
+    for (const type of [
+      "video-background",
+      "bunny-video-background",
+      "image-background",
+      "marquee-images",
+      "hero",
+      "split-full",
+    ]) {
+      expect(getBlockContainerWidth(type)).toBe("full");
+    }
+  });
+
+  test("returns narrow for icon-links", () => {
+    expect(getBlockContainerWidth("icon-links")).toBe("narrow");
+  });
+
+  test("defaults unknown block types to wide", () => {
+    expect(getBlockContainerWidth("not-a-real-block")).toBe("wide");
   });
 });

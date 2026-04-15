@@ -8,6 +8,8 @@ import {
 
 export const type = "hero";
 
+export const containerWidth = "full";
+
 export const schema = ["badge", "title", "lead", "buttons", "class", "reveal"];
 
 export const docs = {

@@ -9,6 +9,8 @@ import {
 
 export const type = "image-background";
 
+export const containerWidth = "full";
+
 export const schema = ["image", "image_alt", "content", "class", "parallax"];
 
 export const docs = {

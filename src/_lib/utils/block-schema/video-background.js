@@ -8,6 +8,8 @@ import {
 
 export const type = "video-background";
 
+export const containerWidth = "full";
+
 export const schema = [
   "video_id",
   "video_title",
