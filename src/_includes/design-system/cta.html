@@ -3,7 +3,7 @@ Call-to-action block with gradient background.
 
 Parameters (via block object):
   - block.title: CTA heading (required)
-  - block.description: Supporting text
+  - block.description: Supporting text (rendered as markdown)
   - block.button: Button object with:
     - text: Button label
     - href: Link URL
@@ -24,7 +24,7 @@ Usage:
 <aside class="cta"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
   <h2>{{ block.title }}</h2>
   {%- if block.description -%}
-    <p>{{ block.description }}</p>
+    <div class="prose">{{ block.description | renderContent: "md" }}</div>
   {%- endif -%}
   {%- if block.button -%}
     {%- assign variant = block.button.variant | default: "secondary" -%}
