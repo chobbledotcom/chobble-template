@@ -12,14 +12,15 @@ export const schema = ["items", ...ITEMS_COMMON_KEYS];
 
 export const docs = {
   summary:
-    "Renders items from an explicit list of paths. The collection is inferred dynamically from each item's path.",
+    "Renders items from an explicit list of paths. The collection is inferred dynamically from each item's path. Directory paths (ending in `/` or with no `.md` extension) expand to every item in that directory.",
   template: "src/_includes/design-system/items-array-block.html",
   scss: ITEMS_GRID_META.scss,
   params: {
     items: {
       type: "array",
       required: true,
-      description: "Array of file paths as strings.",
+      description:
+        "Array of path strings. Each entry may be a file path (e.g. `src/products/widget.md`) or a directory path (e.g. `locations/fulchester` or `locations/fulchester/`), in which case every item in that directory is included in place.",
     },
     ...ITEMS_COMMON_PARAMS,
   },

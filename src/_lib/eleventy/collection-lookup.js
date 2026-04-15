@@ -14,6 +14,7 @@
  * {% assign author = collections.team | getBySlug: authorSlug %}
  */
 
+import { uniqueBy } from "#toolkit/fp/array.js";
 import { indexBy } from "#toolkit/fp/memoize.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
@@ -69,13 +70,18 @@ export const getBySlug = (collection, slug) => {
 };
 
 /**
- * Resolve an array of file paths to collection items.
+ * Resolve an array of file or directory paths to collection items.
  * Skips paths that don't match any item (e.g. deleted content).
- * Preserves the order of the input paths array.
+ * Preserves the order of the input paths array; directory paths are
+ * expanded in place to all items whose inputPath lives in that directory,
+ * and duplicates are removed.
+ *
+ * A path is treated as a directory if it ends with `/` or does not end
+ * with `.md`; otherwise it is resolved as a single file path.
  *
  * @template {EleventyCollectionItem} T
  * @param {T[]} collection - The full collection (typically collections.all)
- * @param {string[]} paths - Array of inputPath values to resolve
+ * @param {string[]} paths - Array of inputPath or directory values to resolve
  * @returns {T[]} Matching items in the order of the input paths
  */
 export const getItemsByPath = (collection, paths) => {
@@ -85,9 +91,26 @@ export const getItemsByPath = (collection, paths) => {
   const normalize = (p) => (p.startsWith("./") ? p : `./${p}`);
   /** @param {string} p */
   const withSrc = (p) => `./src/${p.replace(/^\.?\//, "")}`;
-  return paths
-    .map((p) => index[p] || index[normalize(p)] || index[withSrc(p)])
-    .filter((item) => item !== undefined);
+  /** @param {string} p */
+  const isDirectoryPath = (p) => p.endsWith("/") || !p.endsWith(".md");
+  /** @param {string} p */
+  const directoryPrefix = (p) => {
+    const trimmed = p.replace(/^\.?\//, "").replace(/\/$/, "");
+    const withoutSrc = trimmed.startsWith("src/")
+      ? trimmed.slice("src/".length)
+      : trimmed;
+    return `./src/${withoutSrc}/`;
+  };
+  /** @param {string} p */
+  const resolvePath = (p) => {
+    if (isDirectoryPath(p)) {
+      const prefix = directoryPrefix(p);
+      return collection.filter((item) => item.inputPath.startsWith(prefix));
+    }
+    const item = index[p] || index[normalize(p)] || index[withSrc(p)];
+    return item ? [item] : [];
+  };
+  return uniqueBy((item) => item.inputPath)(paths.flatMap(resolvePath));
 };
 
 /**
