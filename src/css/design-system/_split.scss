@@ -36,6 +36,8 @@
         width: 100%;
         height: auto;
       }
+
+      @include video-media;
     }
   }
 
