@@ -358,6 +358,23 @@ Call-to-action banner with gradient background.
 
 ---
 
+### `callout`
+
+One-column callout/note with icon, title, and short content — for content warnings, advisories, tips, etc.
+
+**Template:** `src/_includes/design-system/callout.html`
+**SCSS:** `src/css/design-system/_callout.scss`
+**HTML root:** `<aside class="callout">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `variant` | string | `"info"` | Color scheme: `"info"`, `"warning"`, `"success"`, or `"danger"`. |
+| `icon` | string | — | Icon content: Iconify ID (`prefix:name`), emoji, or image path. |
+| `title` | string | — | Bold heading text. |
+| `content` | string | **required** | Markdown content rendered via `renderContent: "md"` inside `.prose`. |
+
+---
+
 ### `video-background`
 
 Auto-playing video background with overlaid text content.

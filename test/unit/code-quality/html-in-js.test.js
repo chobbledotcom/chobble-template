@@ -310,6 +310,7 @@ const htmlInJsAnalysis = withAllowlist({
     "src/_lib/utils/block-schema/shared.js",
     "src/_lib/utils/block-schema/bunny-video-background.js",
     "src/_lib/utils/block-schema/buy-options.js",
+    "src/_lib/utils/block-schema/callout.js",
     "src/_lib/utils/block-schema/code-block.js",
     "src/_lib/utils/block-schema/contact-form.js",
     "src/_lib/utils/block-schema/cta.js",

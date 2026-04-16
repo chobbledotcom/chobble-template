@@ -1,0 +1,33 @@
+{%- comment -%}
+One-column callout/note for content warnings, advisories, tips, etc.
+
+Parameters (via block object):
+  - block.variant: Color scheme ("info" | "warning" | "success" | "danger"). Default: "info".
+  - block.icon: Iconify ID, emoji, or image path
+  - block.title: Bold heading text
+  - block.content: Markdown content rendered in `.prose`
+
+Usage:
+  {% include "design-system/callout.html",
+     block: {
+       variant: "warning",
+       icon: "hugeicons:alert-02",
+       title: "Content warning",
+       content: "Witches, ghosts, rats, body parts, death."
+     }
+  %}
+{%- endcomment -%}
+
+{%- assign variant = block.variant | default: "info" -%}
+
+<aside class="callout callout--{{ variant }}">
+  {%- if block.icon -%}
+    <div class="callout__icon" aria-hidden="true">{%- include "design-system/icon.html", icon: block.icon -%}</div>
+  {%- endif -%}
+  <div class="callout__body">
+    {%- if block.title -%}
+      <strong class="callout__title">{{ block.title }}</strong>
+    {%- endif -%}
+    <div class="callout__content prose">{{ block.content | renderContent: "md" }}</div>
+  </div>
+</aside>
