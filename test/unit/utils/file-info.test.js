@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
-import { fileInfo } from "#eleventy/file-info.js";
-import { withTempDir } from "#test/test-utils.js";
+import { configureFileInfo, fileInfo } from "#eleventy/file-info.js";
+import { createMockEleventyConfig, withTempDir } from "#test/test-utils.js";
 
 const writeFixtureFile = (baseDir, urlPath, bytes) => {
   const rel = urlPath.replace(/^\//, "");
@@ -85,6 +85,23 @@ describe("fileInfo metadata", () => {
       expect(() => fileInfo("/files/missing.pdf", tempDir)).toThrow(
         "downloads block: file not found",
       );
+    });
+  });
+});
+
+describe("configureFileInfo", () => {
+  test("registers a fileInfo filter that resolves files", () => {
+    withTempDir("file-info-configure", (tempDir) => {
+      writeFixtureFile(tempDir, "/files/report.pdf", 1024);
+      const mockConfig = createMockEleventyConfig();
+
+      configureFileInfo(mockConfig);
+
+      const registered = mockConfig.filters.fileInfo;
+      expect(typeof registered).toBe("function");
+      const info = registered("/files/report.pdf", tempDir);
+      expect(info.extension).toBe("pdf");
+      expect(info.sizeHuman).toBe("1 KB");
     });
   });
 });
