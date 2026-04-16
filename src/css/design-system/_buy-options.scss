@@ -1,0 +1,23 @@
+@use "../variables" as *;
+
+// =============================================================================
+// BUY OPTIONS
+// =============================================================================
+// Product cards for inline buy-now lists. Builds on `.items` grid styles
+// from _items.scss; this file only adds product-specific tweaks.
+
+.design-system {
+  ul.items.buy-options {
+    > li {
+      .subtitle {
+        font-style: italic;
+      }
+
+      .price {
+        display: flex;
+        align-items: baseline;
+        gap: $space-xs;
+      }
+    }
+  }
+}

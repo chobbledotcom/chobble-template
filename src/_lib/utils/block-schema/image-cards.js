@@ -1,25 +1,19 @@
+/* jscpd:ignore-start */
 import {
-  HEADER_KEYS,
-  HEADER_PARAM_DOCS,
+  IMAGE_CARD_GRID_KEYS,
+  IMAGE_CARD_GRID_PARAMS,
   ITEMS_ARRAY_PARAM,
   ITEMS_GRID_META,
+  imageCardCmsFields,
   img,
-  md,
-  num,
   objectList,
-  REVEAL_BOOLEAN_PARAM,
   str,
 } from "#utils/block-schema/shared.js";
+/* jscpd:ignore-end */
 
 export const type = "image-cards";
 
-export const schema = [
-  "items",
-  "reveal",
-  "heading_level",
-  "image_aspect_ratio",
-  ...HEADER_KEYS,
-];
+export const schema = IMAGE_CARD_GRID_KEYS;
 
 export const docs = {
   summary:
@@ -32,31 +26,15 @@ export const docs = {
       description:
         "Card objects. Each: `{image, title, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP.",
     },
-    heading_level: {
-      type: "number",
-      default: "3",
-      description: "Heading level for titles.",
-    },
-    image_aspect_ratio: {
-      type: "string",
-      description: 'Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`.',
-    },
-    reveal: {
-      ...REVEAL_BOOLEAN_PARAM,
-      description: "Adds `data-reveal` to each item.",
-    },
-    ...HEADER_PARAM_DOCS,
+    ...IMAGE_CARD_GRID_PARAMS,
   },
 };
 
-export const cmsFields = {
-  heading_level: num("Heading Level"),
-  image_aspect_ratio: str("Image Aspect Ratio"),
-  header_intro: md("Header Intro"),
-  items: objectList("Cards", {
+export const cmsFields = imageCardCmsFields(
+  objectList("Cards", {
     image: img("Image", { required: true }),
     title: str("Title", { required: true }),
     description: str("Description"),
     link: str("Link URL"),
   }),
-};
+);

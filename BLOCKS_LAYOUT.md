@@ -102,6 +102,28 @@ Grid of cards featuring images with titles and optional descriptions.
 
 ---
 
+### `buy-options`
+
+Grid of buyable products — image, title, optional subtitle, price, and a buy button. Emits schema.org Product microdata.
+
+**Template:** `src/_includes/design-system/buy-options.html`
+**SCSS:** `src/css/design-system/_items.scss`
+**HTML root:** `<ul class="items" role="list">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `items` | array | **required** | Product objects. Each: `{image, title, subtitle, price, currency, link, button_text}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
+| `heading_level` | number | `3` | Heading level for titles. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+| `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
+
+Each item renders as a `<li>` with `itemscope itemtype="https://schema.org/Product"`. The price is emitted as a nested `Offer` with `priceCurrency` (defaults to `GBP`). Use this block when the buy action is external (Stripe, itch.io, Gumroad); for sitewide shop listings, use the `items` block with a `products` collection.
+
+---
+
 ### `stats`
 
 Key metrics displayed as large numbers with labels.
@@ -514,6 +536,33 @@ Outputs raw HTML without processing.
 | `content` | string | **required** | Raw HTML. Output directly with `{{ block.content }}`. |
 
 Inline in `render-block.html` (no separate template file). No wrapping element. Useful for custom embeds, iframes, or one-off HTML.
+
+---
+
+### `iframe-embed`
+
+Third-party iframe embed (itch.io widgets, Buttondown, Bandcamp, Stripe buttons, etc).
+
+**Template:** `src/_includes/design-system/iframe-embed.html`
+**SCSS:** `src/css/design-system/_iframe-embed.scss`
+**HTML root:** `<div class="iframe-embed">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `src` | string | **required** | Full URL of the iframe to embed. |
+| `title` | string | **required** | Accessible title for the iframe. |
+| `width` | number | — | Fixed pixel width. Omit to fill the container. |
+| `height` | number | — | Fixed pixel height. Required for non-responsive embeds unless `aspect_ratio` is set. |
+| `aspect_ratio` | string | — | CSS `aspect-ratio` for responsive height, e.g. `"16/9"`. Alternative to `height`. |
+| `max_width` | string | — | CSS max-width on the wrapper, e.g. `"560px"`. |
+| `sandbox` | string | — | Space-separated sandbox tokens, e.g. `"allow-scripts allow-same-origin allow-forms"`. |
+| `allow` | string | — | `allow` attribute for iframe permissions policy. |
+| `scrolling` | string | — | Legacy `scrolling` attribute, e.g. `"no"`. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
+
+Provide either `height` for a fixed-height embed or `aspect_ratio` (e.g. `16/9`) for a responsive one. Use `max_width` to cap the embed width within the container.
 
 ---
 

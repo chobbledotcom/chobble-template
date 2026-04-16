@@ -72,6 +72,30 @@ components:
           - { name: title, type: string, label: Title, required: true }
           - { name: description, type: string, label: Description }
           - { name: link, type: string, label: Link URL }
+  block_buy_options:
+    label: Buy Options
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: heading_level, type: number, label: Heading Level }
+      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
+      - { name: header_intro, type: rich-text, label: Header Intro }
+      - name: items
+        type: object
+        label: Products
+        list: true
+        fields:
+          - { name: image, type: image, label: Image, required: true }
+          - { name: title, type: string, label: Title, required: true }
+          - { name: subtitle, type: string, label: Subtitle }
+          - name: price
+            type: string
+            label: Price (display, e.g. £15)
+          - name: currency
+            type: string
+            label: Currency (ISO code, e.g. GBP)
+          - { name: link, type: string, label: Buy Link, required: true }
+          - { name: button_text, type: string, label: Button Text }
   block_stats:
     label: Stats
     type: object
@@ -432,6 +456,23 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: content, type: string, label: Raw HTML, required: true }
+  block_iframe_embed:
+    label: Iframe Embed
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: src, type: string, label: Iframe URL, required: true }
+      - { name: title, type: string, label: Accessible Title, required: true }
+      - { name: width, type: number, label: Width (px) }
+      - { name: height, type: number, label: Height (px) }
+      - { name: aspect_ratio, type: string, label: Aspect Ratio (e.g. 16/9) }
+      - name: max_width
+        type: string
+        label: Max Width (CSS, e.g. 560px)
+      - { name: sandbox, type: string, label: Sandbox }
+      - { name: allow, type: string, label: Allow (permissions policy) }
+      - { name: scrolling, type: string, label: Scrolling }
+      - { name: header_intro, type: rich-text, label: Header Intro }
   block_content:
     label: Content
     type: object
@@ -604,6 +645,7 @@ content:
           - { name: section-header, component: block_section_header }
           - { name: features, component: block_features }
           - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
           - { name: stats, component: block_stats }
           - { name: code-block, component: block_code_block }
           - { name: hero, component: block_hero }
@@ -626,6 +668,7 @@ content:
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: markdown, component: block_markdown }
           - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: content, component: block_content }
           - { name: include, component: block_include }
           - { name: properties, component: block_properties }

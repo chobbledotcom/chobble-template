@@ -1,0 +1,64 @@
+{%- comment -%}
+Buy-options grid — cards for purchasable products with schema.org Product
+microdata. Renders on top of the shared .items grid styles.
+
+Parameters (via block object):
+  - block.items: Array of product objects with properties:
+    - image: Image path (required)
+    - title: Product name (required)
+    - subtitle: Short secondary line, e.g. "Print edition" (optional)
+    - price: Display price string, e.g. "£15" (optional)
+    - currency: ISO currency code for schema.org, defaults to "GBP" (optional)
+    - link: Buy URL (required)
+    - button_text: Button label, defaults to "Buy now" (optional)
+  - block.reveal: If true, adds data-reveal animation (default: true)
+  - block.heading_level: Heading level for titles, defaults to 3 (h3)
+  - block.image_aspect_ratio: Aspect ratio for images (e.g. "1/1", "4/3")
+  - block.header_intro, header_align, header_class: Optional section header
+{%- endcomment -%}
+
+{%- if block.header_intro -%}
+  {%- include "design-system/section-header.html",
+     intro: block.header_intro,
+     align: block.header_align,
+     header_class: block.header_class
+  -%}
+{%- endif -%}
+
+{%- assign heading_level = block.heading_level | default: 3 -%}
+{%- assign reveal = block.reveal | default: true -%}
+
+<ul class="items buy-options" role="list">
+  {%- for item in block.items -%}
+    {%- assign price_value = item.price
+       | replace: "£", ""
+       | replace: "$", ""
+       | replace: "€", ""
+       | replace: ",", ""
+       | strip -%}
+    {%- assign currency = item.currency | default: "GBP" -%}
+    {%- assign button_text = item.button_text | default: "Buy now" -%}
+    <li itemscope itemtype="https://schema.org/Product"{% if reveal %} data-reveal{% endif %}>
+      {%- if item.image -%}
+        <a class="image-link" href="{{ item.link }}">
+          {%- image item.image, item.title, "", "", "", block.image_aspect_ratio -%}
+          <meta itemprop="image" content="{{ item.image }}">
+        </a>
+      {%- endif -%}
+      <h{{ heading_level }} itemprop="name">
+        <a href="{{ item.link }}">{{ item.title }}</a>
+      </h{{ heading_level }}>
+      {%- if item.subtitle -%}
+        <p class="subtitle">{{ item.subtitle }}</p>
+      {%- endif -%}
+      {%- if item.price -%}
+        <p class="price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+          <span itemprop="priceCurrency" content="{{ currency }}"></span>
+          <meta itemprop="price" content="{{ price_value }}">
+          <span>{{ item.price }}</span>
+        </p>
+      {%- endif -%}
+      <a class="button" href="{{ item.link }}" itemprop="url">{{ button_text }}</a>
+    </li>
+  {%- endfor -%}
+</ul>
