@@ -17,7 +17,6 @@ export const docs = {
   params: {
     items: {
       type: "array",
-      required: true,
       description:
         "Array of path strings. Each entry may be a file path (e.g. `src/products/widget.md`) or a directory path (e.g. `locations/fulchester` or `locations/fulchester/`), in which case every item in that directory is included in place.",
     },
@@ -28,7 +27,7 @@ export const docs = {
 };
 
 export const cmsFields = {
-  items: str("Items", { list: true, required: true }),
+  items: str("Items", { list: true }),
   intro: ITEMS_CMS_SHARED_FIELDS.intro,
   horizontal: ITEMS_CMS_SHARED_FIELDS.horizontal,
   masonry: ITEMS_CMS_SHARED_FIELDS.masonry,
