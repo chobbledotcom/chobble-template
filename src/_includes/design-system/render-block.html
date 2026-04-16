@@ -13,6 +13,9 @@ Renders a single block by type. Used by blocks.html.
   {%- when "image-cards" -%}
     {%- include "design-system/image-cards.html", block: block -%}
 
+  {%- when "buy-options" -%}
+    {%- include "design-system/buy-options.html", block: block -%}
+
   {%- when "stats" -%}
     {%- include "design-system/stats.html", block: block -%}
 
@@ -39,6 +42,9 @@ Renders a single block by type. Used by blocks.html.
 
   {%- when "html" -%}
     {{ block.content }}
+
+  {%- when "iframe-embed" -%}
+    {%- include "design-system/iframe-embed.html", block: block -%}
 
   {%- when "video-background" -%}
     {%- include "design-system/video-background.html", block: block -%}

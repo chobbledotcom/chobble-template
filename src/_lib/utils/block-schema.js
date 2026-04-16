@@ -12,6 +12,7 @@
  */
 
 import * as bunnyVideoBackground from "#utils/block-schema/bunny-video-background.js";
+import * as buyOptions from "#utils/block-schema/buy-options.js";
 import * as codeBlock from "#utils/block-schema/code-block.js";
 import * as contactForm from "#utils/block-schema/contact-form.js";
 import * as content from "#utils/block-schema/content.js";
@@ -23,6 +24,7 @@ import * as guideCategories from "#utils/block-schema/guide-categories.js";
 import * as hero from "#utils/block-schema/hero.js";
 import * as html from "#utils/block-schema/html.js";
 import * as iconLinks from "#utils/block-schema/icon-links.js";
+import * as iframeEmbed from "#utils/block-schema/iframe-embed.js";
 import * as imageBackground from "#utils/block-schema/image-background.js";
 import * as imageCards from "#utils/block-schema/image-cards.js";
 import * as include from "#utils/block-schema/include.js";
@@ -62,6 +64,7 @@ const BLOCK_MODULES = [
   sectionHeader,
   features,
   imageCards,
+  buyOptions,
   stats,
   codeBlock,
   hero,
@@ -83,6 +86,7 @@ const BLOCK_MODULES = [
   customContactForm,
   markdown,
   html,
+  iframeEmbed,
   content,
   include,
   properties,

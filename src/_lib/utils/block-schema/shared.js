@@ -151,6 +151,50 @@ export const ITEMS_ARRAY_PARAM = {
 };
 
 /**
+ * Shared schema keys for image-card-style grid blocks (image-cards, buy-options).
+ * These blocks render an items array as a responsive card grid with optional
+ * per-item image aspect ratio and section header.
+ */
+export const IMAGE_CARD_GRID_KEYS = [
+  "items",
+  "reveal",
+  "heading_level",
+  "image_aspect_ratio",
+  ...HEADER_KEYS,
+];
+
+/** Shared docs params for image-card-style grid blocks. */
+export const IMAGE_CARD_GRID_PARAMS = {
+  heading_level: {
+    type: "number",
+    default: "3",
+    description: "Heading level for titles.",
+  },
+  image_aspect_ratio: {
+    type: "string",
+    description: 'Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`.',
+  },
+  reveal: {
+    ...REVEAL_BOOLEAN_PARAM,
+    description: "Adds `data-reveal` to each item.",
+  },
+  ...HEADER_PARAM_DOCS,
+};
+
+/**
+ * Build the full cmsFields object for image-card-style grid blocks.
+ * Provide an objectList item field (e.g. `objectList("Cards", {...})`) and
+ * this helper injects the common heading/aspect/header-intro fields around
+ * it so each block module doesn't restate them.
+ */
+export const imageCardCmsFields = (itemsField) => ({
+  heading_level: num("Heading Level"),
+  image_aspect_ratio: str("Image Aspect Ratio"),
+  header_intro: md("Header Intro"),
+  items: itemsField,
+});
+
+/**
  * CMS field factory functions.
  * These create the field-shape objects consumed by scripts/customise-cms/generator.js.
  */

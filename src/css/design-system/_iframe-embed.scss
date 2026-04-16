@@ -1,0 +1,27 @@
+@use "../variables" as *;
+
+// =============================================================================
+// IFRAME EMBED
+// =============================================================================
+// Wrapper for third-party iframe embeds (itch.io, Buttondown, Stripe, etc).
+// Supports fixed-height, responsive aspect-ratio, and max-width sizing.
+
+.design-system {
+  .iframe-embed {
+    display: block;
+    width: 100%;
+    margin-inline: auto;
+    border-radius: $radius-md;
+    overflow: hidden;
+
+    > iframe {
+      display: block;
+      width: 100%;
+      border: 0;
+    }
+
+    &--responsive > iframe {
+      height: 100%;
+    }
+  }
+}

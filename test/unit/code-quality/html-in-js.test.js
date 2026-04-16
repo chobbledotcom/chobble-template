@@ -309,6 +309,7 @@ const htmlInJsAnalysis = withAllowlist({
     // htmlRoot documentation strings in block schema modules describe template markup
     "src/_lib/utils/block-schema/shared.js",
     "src/_lib/utils/block-schema/bunny-video-background.js",
+    "src/_lib/utils/block-schema/buy-options.js",
     "src/_lib/utils/block-schema/code-block.js",
     "src/_lib/utils/block-schema/contact-form.js",
     "src/_lib/utils/block-schema/cta.js",
@@ -316,6 +317,7 @@ const htmlInJsAnalysis = withAllowlist({
     "src/_lib/utils/block-schema/features.js",
     "src/_lib/utils/block-schema/hero.js",
     "src/_lib/utils/block-schema/icon-links.js",
+    "src/_lib/utils/block-schema/iframe-embed.js",
     "src/_lib/utils/block-schema/image-background.js",
     "src/_lib/utils/block-schema/link-button.js",
     "src/_lib/utils/block-schema/markdown.js",
