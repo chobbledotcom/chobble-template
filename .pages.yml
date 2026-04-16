@@ -367,7 +367,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: items, type: string, label: Items, required: true, list: true }
+      - { name: items, type: string, label: Items, list: true }
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
