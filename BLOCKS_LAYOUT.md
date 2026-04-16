@@ -427,7 +427,7 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Array of path strings. Each entry may be a file path (e.g. `src/products/widget.md`) or a directory path (e.g. `locations/fulchester` or `locations/fulchester/`), in which case every item in that directory is included in place. |
+| `items` | array | — | Array of path strings. Each entry may be a file path (e.g. `src/products/widget.md`) or a directory path (e.g. `locations/fulchester` or `locations/fulchester/`), in which case every item in that directory is included in place. |
 | `intro` | string | — | Markdown content rendered above items in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
