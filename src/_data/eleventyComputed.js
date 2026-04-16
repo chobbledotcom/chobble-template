@@ -92,7 +92,7 @@ export default {
    * .map() preserves holes causing Object.fromEntries to fail, while
    * .filter(Boolean) materializes the proxy into a real empty array.
    * @param {import("#lib/types").ProductItemData & import("#lib/types").EleventyComputedData} data - Page data (products only)
-   * @returns {{ title: string, price: number, filters: Record<string, string> }|undefined}
+   * @returns {{ title: string, price: number|undefined, filters: Record<string, string> }|undefined}
    */
   filter_data: (data) => {
     if (!hasTag(data, "products")) return undefined;
@@ -226,7 +226,7 @@ export default {
    * thumbnail URL, Vimeo videos get one via the oEmbed API, and other custom
    * iframe URLs get null.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Promise<Array<Record<string, unknown>>>|undefined} Videos with thumbnail_url added
+   * @returns {Promise<Array<Record<string, unknown>> | undefined>} Videos with thumbnail_url added
    */
   videos: async (data) => {
     if (!data.videos) return data.videos;
