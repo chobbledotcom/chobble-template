@@ -13,6 +13,7 @@
 
 import * as bunnyVideoBackground from "#utils/block-schema/bunny-video-background.js";
 import * as buyOptions from "#utils/block-schema/buy-options.js";
+import * as callout from "#utils/block-schema/callout.js";
 import * as codeBlock from "#utils/block-schema/code-block.js";
 import * as contactForm from "#utils/block-schema/contact-form.js";
 import * as content from "#utils/block-schema/content.js";
@@ -76,6 +77,7 @@ const BLOCK_MODULES = [
   splitCallout,
   splitFull,
   cta,
+  callout,
   videoBackground,
   bunnyVideoBackground,
   imageBackground,

@@ -326,6 +326,19 @@ components:
           - { name: href, type: string, label: URL, required: true }
           - { name: variant, type: string, label: Variant }
           - { name: size, type: string, label: Size }
+  block_callout:
+    label: Callout
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: variant
+        type: string
+        label: Variant (info | warning | success | danger)
+      - name: icon
+        type: string
+        label: Icon (Iconify ID, emoji, or path)
+      - { name: title, type: string, label: Title }
+      - { name: content, type: rich-text, label: Content, required: true }
   block_video_background:
     label: Video Background
     type: object
@@ -657,6 +670,7 @@ content:
           - { name: split-callout, component: block_split_callout }
           - { name: split-full, component: block_split_full }
           - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
           - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background

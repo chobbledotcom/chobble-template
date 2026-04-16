@@ -1,0 +1,67 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// CALLOUT
+// =============================================================================
+// One-column callout/note for content warnings, advisories, tips, etc.
+// For a two-column variant with a styled figure, see `_split-callout.scss`.
+
+.design-system {
+  .callout {
+    @include flex-row($space-md, flex-start, flex-start);
+    padding: $space-md $space-lg;
+    border-radius: $radius-lg;
+    border-left: 4px solid currentColor;
+    background: var(--callout-bg);
+    color: var(--callout-fg);
+
+    &--info {
+      --callout-bg: var(--color-tint);
+      --callout-fg: var(--color-link);
+    }
+
+    &--warning {
+      --callout-bg: #fef3c7;
+      --callout-fg: #92400e;
+    }
+
+    &--success {
+      --callout-bg: #d1fae5;
+      --callout-fg: #065f46;
+    }
+
+    &--danger {
+      --callout-bg: #fee2e2;
+      --callout-fg: #991b1b;
+    }
+
+    &__icon {
+      flex: 0 0 auto;
+      font-size: $font-size-xl;
+      line-height: 1;
+
+      .icon {
+        width: 1em;
+        height: 1em;
+      }
+    }
+
+    &__body {
+      @include flex-col($space-xs, stretch, flex-start);
+      flex: 1 1 auto;
+      min-width: 0;
+      color: var(--color-text);
+    }
+
+    &__title {
+      @include heading-sm;
+      color: var(--callout-fg);
+    }
+
+    &__content {
+      > :first-child { margin-top: 0; }
+      > :last-child { margin-bottom: 0; }
+    }
+  }
+}
