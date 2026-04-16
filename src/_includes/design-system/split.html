@@ -36,7 +36,13 @@ Parameters (via block object):
           <figcaption>{{ block.figure_caption }}</figcaption>
         {%- endif -%}
       {%- when "split-video" -%}
-        {%- include "design-system/video-iframe.html", video_id: block.figure_video_id, title: block.figure_alt -%}
+        {%- assign _is_youtube = block.figure_video_id | is_youtube_id -%}
+        {%- if _is_youtube -%}
+          {%- assign _thumbnail = block.figure_video_id | youtube_thumbnail -%}
+        {%- else -%}
+          {%- assign _thumbnail = null -%}
+        {%- endif -%}
+        {%- include "design-system/video-facade.html", video_id: block.figure_video_id, title: block.figure_alt, thumbnail_url: _thumbnail -%}
         {%- if block.figure_caption -%}
           <figcaption>{{ block.figure_caption }}</figcaption>
         {%- endif -%}
