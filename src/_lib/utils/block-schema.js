@@ -19,6 +19,7 @@ import * as contactForm from "#utils/block-schema/contact-form.js";
 import * as content from "#utils/block-schema/content.js";
 import * as cta from "#utils/block-schema/cta.js";
 import * as customContactForm from "#utils/block-schema/custom-contact-form.js";
+import * as downloads from "#utils/block-schema/downloads.js";
 import * as features from "#utils/block-schema/features.js";
 import * as gallery from "#utils/block-schema/gallery.js";
 import * as guideCategories from "#utils/block-schema/guide-categories.js";
@@ -98,6 +99,7 @@ const BLOCK_MODULES = [
   gallery,
   marqueeImages,
   iconLinks,
+  downloads,
   snippet,
 ];
 

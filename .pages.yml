@@ -568,6 +568,22 @@ components:
             required: true
           - { name: text, type: string, label: Link Text, required: true }
           - { name: url, type: string, label: URL }
+  block_downloads:
+    label: Downloads
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: items
+        type: object
+        label: Downloads
+        list: true
+        fields:
+          - name: file
+            type: string
+            label: File Path (e.g. /files/guide.pdf)
+            required: true
+          - { name: label, type: string, label: Label, required: true }
   block_snippet:
     label: Snippet
     type: object
@@ -692,6 +708,7 @@ content:
           - { name: gallery, component: block_gallery }
           - { name: marquee-images, component: block_marquee_images }
           - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
           - { name: snippet, component: block_snippet }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }

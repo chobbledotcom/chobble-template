@@ -1,0 +1,82 @@
+@use "../variables" as *;
+
+// =============================================================================
+// DOWNLOADS (for downloads block)
+// =============================================================================
+// List of downloadable files. Each row uses a 3-column grid:
+//   [file-type icon] [label + meta stack] [download affordance]
+// Icon is auto-detected from the file extension by the block template.
+// =============================================================================
+
+.design-system {
+  ul.downloads {
+    max-width: $width-narrow;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $space-sm;
+    list-style: none;
+
+    > li {
+      margin: 0;
+    }
+  }
+
+  a.downloads__link {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-column-gap: $space-md;
+    align-items: center;
+    padding: $space-sm $space-md;
+    border: $border-light;
+    border-radius: $radius-md;
+    color: inherit;
+    text-decoration: none;
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
+
+    &:hover,
+    &:focus-visible {
+      background-color: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .downloads__icon {
+    width: 2.25em;
+    height: 2.25em;
+    line-height: 0;
+
+    > svg,
+    > img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .downloads__body {
+    min-width: 0;
+    display: grid;
+    grid-auto-rows: auto;
+    row-gap: 2px;
+  }
+
+  .downloads__label {
+    font-weight: 600;
+  }
+
+  .downloads__meta {
+    font-size: $font-size-sm;
+    opacity: 0.7;
+  }
+
+  .downloads__affordance {
+    font-size: $font-size-sm;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
