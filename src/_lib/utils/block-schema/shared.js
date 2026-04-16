@@ -186,6 +186,7 @@ export const IMAGE_CARD_GRID_PARAMS = {
  * Provide an objectList item field (e.g. `objectList("Cards", {...})`) and
  * this helper injects the common heading/aspect/header-intro fields around
  * it so each block module doesn't restate them.
+ * @param {object} itemsField - objectList field for the items array
  */
 export const imageCardCmsFields = (itemsField) => ({
   heading_level: num("Heading Level"),
