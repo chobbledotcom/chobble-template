@@ -40,6 +40,7 @@ const BLOCK_DEFAULTS = {
   "image-cards": { reveal: true, heading_level: 3 },
   "code-block": { reveal: true },
   "icon-links": { reveal: true },
+  downloads: { reveal: true },
   "video-background": { aspect_ratio: "16/9" },
 };
 

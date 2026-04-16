@@ -692,6 +692,24 @@ Vertical list of links with icons, rendered as a flex column stack.
 
 ---
 
+### `downloads`
+
+List of downloadable files. Each item auto-detects its icon from the file extension and its size from the filesystem at build time.
+
+**Template:** `src/_includes/design-system/downloads.html`
+**SCSS:** `src/css/design-system/_downloads.scss`
+**HTML root:** `<ul class="downloads" role="list">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `intro` | string | — | Markdown content rendered above the downloads list in `.prose`. |
+| `items` | array | **required** | Download objects. Each: `{file, label}`. `file` is a site-relative URL path; `label` is the visible text. |
+| `reveal` | boolean | `true` | Adds `data-reveal` to each download item. |
+
+The `file` path is resolved against `src/` (e.g. `/files/guide.pdf` reads from `src/files/guide.pdf`). Missing files cause a build error. Ensure the containing directory is configured as a passthrough-copy target so the file is also served to the browser.
+
+---
+
 ### `snippet`
 
 Renders blocks from a named snippet file, enabling reusable block compositions.

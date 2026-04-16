@@ -314,6 +314,7 @@ const htmlInJsAnalysis = withAllowlist({
     "src/_lib/utils/block-schema/contact-form.js",
     "src/_lib/utils/block-schema/cta.js",
     "src/_lib/utils/block-schema/custom-contact-form.js",
+    "src/_lib/utils/block-schema/downloads.js",
     "src/_lib/utils/block-schema/features.js",
     "src/_lib/utils/block-schema/hero.js",
     "src/_lib/utils/block-schema/icon-links.js",

@@ -33,6 +33,7 @@ import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
 import { configureCollectionFilter } from "#eleventy/collection-filter.js";
 import { configureCapture } from "#eleventy/capture.js";
 import { configureFeed } from "#eleventy/feed.js";
+import { configureFileInfo } from "#eleventy/file-info.js";
 import { configureFileUtils, stripPlusPlus } from "#eleventy/file-utils.js";
 import { configureFormatPrice } from "#eleventy/format-price.js";
 import { configureFormHelpers } from "#eleventy/form-helpers.js";
@@ -95,6 +96,7 @@ export default async function (eleventyConfig) {
   configureEvents(eleventyConfig);
   configureLayoutAliases(eleventyConfig);
   await configureFeed(eleventyConfig);
+  configureFileInfo(eleventyConfig);
   configureFileUtils(eleventyConfig);
   configureFormatPrice(eleventyConfig);
   configureFormHelpers(eleventyConfig);
