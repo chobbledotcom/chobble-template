@@ -252,7 +252,6 @@
 
   section {
     @include section;
-    border-top: 1px solid var(--color-accent);
 
     &.compact {
       @include section-compact;
