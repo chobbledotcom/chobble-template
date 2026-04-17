@@ -48,6 +48,8 @@
 }
 
 .design-system {
+  border-top: 1px solid var(--color-accent);
+
   // ===========================================================================
   // Section vertical padding — single source of truth for sections, split-full
   // panels, and any element using @include section. Override locally for
