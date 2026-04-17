@@ -1,6 +1,6 @@
 {%- if item.data.thumbnail -%}
-  {%- if item.data.external_url -%}
-    <a class="image-link" href="{{ item.data.external_url }}" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+  {%- if item.data.url -%}
+    <a class="image-link" href="{{ item.data.url }}" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
   {%- else -%}
     <a class="image-link" href="{{ item.url }}{{ config.internal_link_suffix }}" aria-hidden="true" tabindex="-1">
   {%- endif -%}

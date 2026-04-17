@@ -26,7 +26,7 @@ const createSocialsCollection = () => {
         fs.readFileSync(join(SOCIALS_DIR, filename), "utf8"),
       );
       return {
-        url: raw.external_url,
+        url: raw.url,
         date: new Date(raw.date),
         fileSlug: filename.replace(/\.json$/, ""),
         data: {

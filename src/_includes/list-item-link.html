@@ -1,7 +1,7 @@
 {%- if item.data.title and item.data.title != "" -%}
 <h3>
-  {%- if item.data.external_url -%}
-    <a href="{{ item.data.external_url }}" target="_blank" rel="noopener">{{ item.data.title }}</a>
+  {%- if item.data.url -%}
+    <a href="{{ item.data.url }}" target="_blank" rel="noopener">{{ item.data.title }}</a>
   {%- else -%}
     <a href="{{- item.url -}}{{ config.internal_link_suffix }}">{{ item.data.title }}</a>
   {%- endif -%}
