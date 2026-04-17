@@ -44,23 +44,7 @@
       padding-inline: var(--buy-option-padding);
     }
 
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      @include heading-sm;
-
-      a {
-        @include link-card;
-      }
-    }
-
-    .price {
-      @include body-base;
-      font-weight: 600;
-      color: var(--color-link);
-    }
+    @include product-card-typography("h2, h3, h4, h5, h6");
 
     p.subtitle {
       @include body-sm;

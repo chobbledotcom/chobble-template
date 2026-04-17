@@ -125,19 +125,7 @@
       // TEXT CONTENT
       // =======================================================================
 
-      h3 {
-        @include heading-sm;
-
-        a {
-          @include link-card;
-        }
-      }
-
-      .price {
-        @include body-base;
-        font-weight: 600;
-        color: var(--color-link);
-      }
+      @include product-card-typography;
 
       p:not(.price) {
         @include body-sm;
