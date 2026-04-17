@@ -94,6 +94,7 @@
 @mixin section {
   padding-top: var(--section-padding-y);
   padding-bottom: var(--section-padding-y);
+  border-top: 1px solid var(--color-accent);
 }
 
 // Compact section padding override
@@ -230,6 +231,25 @@
   text-decoration: none;
 
   &:hover {
+    color: var(--color-link);
+  }
+}
+
+// Product card title + price typography. Used by the `.items` grid cards
+// (_items.scss) and the single-card `.buy-option-figure` in the
+// `split-buy-options` block (_buy-options.scss).
+@mixin product-card-typography($heading-selector: "h3") {
+  #{$heading-selector} {
+    @include heading-sm;
+
+    a {
+      @include link-card;
+    }
+  }
+
+  .price {
+    @include body-base;
+    font-weight: 600;
     color: var(--color-link);
   }
 }
@@ -444,6 +464,72 @@
     width: 100%;
     height: 100%;
     border: 0;
+  }
+}
+
+// Shared video-facade + video-wrapper styles.
+// Used anywhere a click-to-play video is rendered (cards, split-video, etc.)
+// so the look is consistent across the site. Scoping is left to the caller.
+@mixin video-media($radius: 0) {
+  .video-wrapper {
+    @include iframe-embed;
+  }
+
+  .video-facade {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    overflow: hidden;
+
+    .image-wrapper {
+      @include image-wrapper($border-radius: $radius);
+      aspect-ratio: 16 / 9;
+
+      img {
+        @include cover-img;
+      }
+    }
+
+    .video-play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition:
+        transform $transition-fast,
+        opacity $transition-fast;
+
+      svg {
+        display: block;
+      }
+
+      .video-play-bg {
+        fill: var(--color-video-play-bg);
+        fill-opacity: 0.8;
+      }
+
+      .video-play-icon {
+        fill: var(--color-contrast-text);
+      }
+    }
+
+    &:hover .video-play-button {
+      transform: translate(-50%, -50%) scale(1.1);
+
+      .video-play-bg {
+        fill: var(--color-video-play-hover);
+        fill-opacity: 1;
+      }
+    }
+
+    &.video-facade--no-thumbnail {
+      background: var(--body-background-alt);
+      aspect-ratio: 16 / 9;
+    }
   }
 }
 

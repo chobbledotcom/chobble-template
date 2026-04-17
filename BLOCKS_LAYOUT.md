@@ -50,6 +50,7 @@ Blocks can use `data-reveal` attributes on elements. Values: `""` (fade up), `"l
 
 Standalone section header with rich text intro.
 
+**Component:** `block_section_header`
 **Template:** `src/_includes/design-system/section-header.html`
 **SCSS:** `src/css/design-system/_base.scss`
 **HTML root:** `<div class="section-header prose">`
@@ -66,6 +67,7 @@ Standalone section header with rich text intro.
 
 Grid of feature cards with optional icons, titles, and descriptions.
 
+**Component:** `block_features`
 **Template:** `src/_includes/design-system/features.html`
 **SCSS:** `src/css/design-system/_feature.scss`
 **HTML root:** `<ul class="features" role="list"> containing <li><article class="feature"> items`
@@ -73,9 +75,9 @@ Grid of feature cards with optional icons, titles, and descriptions.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | array | **required** | Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji. |
+| `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
 | `heading_level` | number | `3` | Heading level for item titles. |
-| `grid_class` | string | `"features"` | CSS class on the `<ul>`. Options: `"features"` (auto-fit grid), `"grid"` (1/2/3 col), `"grid--4"` (1/2/4 col). Can combine: `"grid--4 text-center"`. |
-| `reveal` | boolean | `true` | Adds `data-reveal` to each card. |
+| `center` | boolean | `false` | If true, centers feature text. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
 | `header_class` | string | — | Extra CSS classes on the section header. |
@@ -86,6 +88,7 @@ Grid of feature cards with optional icons, titles, and descriptions.
 
 Grid of cards featuring images with titles and optional descriptions.
 
+**Component:** `block_image_cards`
 **Template:** `src/_includes/design-system/image-cards.html`
 **SCSS:** `src/css/design-system/_items.scss`
 **HTML root:** `<ul class="items" role="list">`
@@ -93,12 +96,35 @@ Grid of cards featuring images with titles and optional descriptions.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | array | **required** | Card objects. Each: `{image, title, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
-| `heading_level` | number | `3` | Heading level for titles. |
-| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
+| `heading_level` | number | `3` | Heading level for item titles. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
 | `header_class` | string | — | Extra CSS classes on the section header. |
+
+---
+
+### `buy-options`
+
+Grid of buyable products — image, title, optional subtitle, price, and a buy button. Emits schema.org Product microdata.
+
+**Component:** `block_buy_options`
+**Template:** `src/_includes/design-system/buy-options.html`
+**SCSS:** `src/css/design-system/_items.scss`
+**HTML root:** `<ul class="items" role="list">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `items` | array | **required** | Product objects. Each: `{image, title, subtitle, price, currency, link, button_text}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
+| `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
+| `heading_level` | number | `3` | Heading level for item titles. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
+
+Each item renders as a `<li>` with `itemscope itemtype="https://schema.org/Product"`. The price is emitted as a nested `Offer` with `priceCurrency` (defaults to `GBP`). Use this block when the buy action is external (Stripe, itch.io, Gumroad); for sitewide shop listings, use the `items` block with a `products` collection.
 
 ---
 
@@ -106,6 +132,7 @@ Grid of cards featuring images with titles and optional descriptions.
 
 Key metrics displayed as large numbers with labels.
 
+**Component:** `block_stats`
 **Template:** `src/_includes/design-system/stats.html`
 **SCSS:** `src/css/design-system/_stats.scss`
 **HTML root:** `<dl class="stats">`
@@ -121,6 +148,7 @@ Key metrics displayed as large numbers with labels.
 
 Terminal-style code display with macOS-like toolbar header.
 
+**Component:** `block_code_block`
 **Template:** `src/_includes/design-system/code-block.html`
 **SCSS:** `src/css/design-system/_code-block.scss`
 **HTML root:** `<div class="code-block">`
@@ -138,14 +166,15 @@ Terminal-style code display with macOS-like toolbar header.
 
 Full-width hero banner with optional badge, title, lead text, and action buttons.
 
+**Component:** `block_hero`
 **Template:** `src/_includes/design-system/hero.html`
 **SCSS:** `src/css/design-system/_hero.scss`
 **HTML root:** `<header class="hero">`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | **required** | Main `<h1>` heading. |
 | `badge` | string | — | Small pill label above the title. Renders as `<span class="badge">`. |
+| `title` | string | **required** | Main `<h1>` heading. |
 | `lead` | string | — | Subtitle paragraph. `body-lg` size, muted color, max-width `$width-narrow` (680px). |
 | `buttons` | array | — | Action buttons. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default. |
 | `class` | string | — | Extra CSS classes on the `<header>`. Use `"gradient"` for gradient bg. |
@@ -157,6 +186,7 @@ Full-width hero banner with optional badge, title, lead text, and action buttons
 
 Two-column layout with text content and a responsive image.
 
+**Component:** `block_split_image`
 **Template:** `src/_includes/design-system/split.html`
 **SCSS:** `src/css/design-system/_split.scss`
 **HTML root:** `<div class="split">`
@@ -181,6 +211,7 @@ Two-column layout with text content and a responsive image.
 
 Two-column layout with text content and an embedded video.
 
+**Component:** `block_split_video`
 **Template:** `src/_includes/design-system/split.html`
 **SCSS:** `src/css/design-system/_split.scss`
 **HTML root:** `<div class="split">`
@@ -205,6 +236,7 @@ Two-column layout with text content and an embedded video.
 
 Two-column layout with text content and a code block.
 
+**Component:** `block_split_code`
 **Template:** `src/_includes/design-system/split.html`
 **SCSS:** `src/css/design-system/_split.scss`
 **HTML root:** `<div class="split">`
@@ -229,6 +261,7 @@ Two-column layout with text content and a code block.
 
 Two-column layout with text content and an icon-links list.
 
+**Component:** `block_split_icon_links`
 **Template:** `src/_includes/design-system/split.html`
 **SCSS:** `src/css/design-system/_split.scss`
 **HTML root:** `<div class="split">`
@@ -251,6 +284,7 @@ Two-column layout with text content and an icon-links list.
 
 Two-column layout with text content and custom HTML.
 
+**Component:** `block_split_html`
 **Template:** `src/_includes/design-system/split.html`
 **SCSS:** `src/css/design-system/_split.scss`
 **HTML root:** `<div class="split">`
@@ -273,6 +307,7 @@ Two-column layout with text content and custom HTML.
 
 Two-column layout with text content and a styled callout box with icon, title, and subtitle.
 
+**Component:** `block_split_callout`
 **Template:** `src/_includes/design-system/split-callout.html`
 **SCSS:** `src/css/design-system/_split-callout.scss`
 **HTML root:** `<div class="split-callout">`
@@ -294,10 +329,44 @@ Two-column layout with text content and a styled callout box with icon, title, a
 
 ---
 
+### `split-buy-options`
+
+Two-column layout with text content and a single buyable product card. Emits schema.org Product microdata.
+
+**Component:** `block_split_buy_options`
+**Template:** `src/_includes/design-system/split.html`
+**SCSS:** `src/css/design-system/_split.scss`
+**HTML root:** `<div class="split">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | — | Section heading. |
+| `title_level` | number | `2` | Heading level. |
+| `subtitle` | string | — | Subtitle with `.text-muted` styling. |
+| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
+| `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
+| `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
+| `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
+| `figure_image` | string | **required** | Product image path. Processed by `{% image %}` shortcode for responsive srcset + LQIP. |
+| `figure_title` | string | **required** | Product name. Schema.org `name`. |
+| `figure_subtitle` | string | — | Optional subtitle, e.g. `Print edition`. Rendered italic. |
+| `figure_price` | string | — | Display price. Currency symbols are stripped for schema.org `price`. |
+| `figure_currency` | string | `"GBP"` | ISO currency code for schema.org `priceCurrency`. |
+| `figure_link` | string | **required** | Buy URL. |
+| `figure_button_text` | string | `"Buy now"` | Button label. |
+| `figure_heading_level` | number | `3` | Heading level for the product title. |
+| `figure_image_aspect_ratio` | string | — | Aspect ratio, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+
+Figure renders as `<figure itemscope itemtype="https://schema.org/Product">` with the same card markup as each item in the `buy-options` block (shared partial `src/_includes/design-system/buy-option-card.html`). Use this when you have a single buy action to promote alongside text; use `buy-options` for a grid of products.
+
+---
+
 ### `split-full`
 
 Full-width two-panel layout with distinct background colors per side.
 
+**Component:** `block_split_full`
 **Template:** `src/_includes/design-system/split-full.html`
 **SCSS:** `src/css/design-system/_split.scss`
 **HTML root:** `<div class="split-full">`
@@ -323,6 +392,7 @@ Variants: `"dark-left"` / `"dark-right"` (dark bg + light text), `"primary-left"
 
 Call-to-action banner with gradient background.
 
+**Component:** `block_cta`
 **Template:** `src/_includes/design-system/cta.html`
 **SCSS:** `src/css/design-system/_cta.scss`
 **HTML root:** `<aside class="cta">`
@@ -336,10 +406,29 @@ Call-to-action banner with gradient background.
 
 ---
 
+### `callout`
+
+One-column callout/note with icon, title, and short content — for content warnings, advisories, tips, etc.
+
+**Component:** `block_callout`
+**Template:** `src/_includes/design-system/callout.html`
+**SCSS:** `src/css/design-system/_callout.scss`
+**HTML root:** `<aside class="callout">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `variant` | string | `"info"` | Color scheme: `"info"`, `"warning"`, `"success"`, or `"danger"`. |
+| `icon` | string | — | Icon content: Iconify ID (`prefix:name`), emoji, or image path. |
+| `title` | string | — | Bold heading text. |
+| `content` | string | **required** | Markdown content rendered via `renderContent: "md"` inside `.prose`. |
+
+---
+
 ### `video-background`
 
 Auto-playing video background with overlaid text content.
 
+**Component:** `block_video_background`
 **Template:** `src/_includes/design-system/video-background.html`
 **SCSS:** `src/css/design-system/_video-background.scss`
 **HTML root:** `<div class="video-background">`
@@ -347,11 +436,11 @@ Auto-playing video background with overlaid text content.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `video_id` | string | **required** | YouTube video ID or full iframe URL (for Bunny, Vimeo, etc). |
+| `thumbnail_url` | string | — | URL of a thumbnail image displayed behind the iframe while the video loads. |
 | `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
 | `aspect_ratio` | string | `"16/9"` | CSS aspect-ratio on container. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `class` | string | — | Extra CSS classes. |
-| `thumbnail_url` | string | — | URL of a thumbnail image displayed behind the iframe while the video loads. |
+| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 
 YouTube IDs get `youtube-nocookie.com` embed URLs with `autoplay=1&mute=1&loop=1&controls=0`. Custom URLs (starting with `http`) are used directly.
 
@@ -361,6 +450,7 @@ YouTube IDs get `youtube-nocookie.com` embed URLs with `autoplay=1&mute=1&loop=1
 
 Bunny CDN video background with player.js-powered thumbnail that fades when playback starts.
 
+**Component:** `block_bunny_video_background`
 **Template:** `src/_includes/design-system/bunny-video-background.html`
 **SCSS:** `src/css/design-system/_video-background.scss`
 **HTML root:** `<div class="video-background" data-bunny-video>`
@@ -371,8 +461,8 @@ Bunny CDN video background with player.js-powered thumbnail that fades when play
 | `thumbnail_url` | string | **required** | Thumbnail image URL. Displayed as a placeholder until video playback begins. |
 | `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
 | `aspect_ratio` | string | `"16/9"` | CSS aspect-ratio on container. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `class` | string | — | Extra CSS classes. |
+| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 
 Uses player.js to detect when the video starts playing, then fades out the thumbnail. The player.js library is bundled into bunny-video.js and only loaded when this block is used.
 
@@ -382,6 +472,7 @@ Uses player.js to detect when the video starts playing, then fades out the thumb
 
 Full-width image background with overlaid text and optional parallax.
 
+**Component:** `block_image_background`
 **Template:** `src/_includes/design-system/image-background.html`
 **SCSS:** `src/css/design-system/_image-background.scss`
 **HTML root:** `<div class="image-background">`
@@ -390,8 +481,8 @@ Full-width image background with overlaid text and optional parallax.
 |---|---|---|---|
 | `image` | string | **required** | Image path. |
 | `image_alt` | string | `"Background image"` | Alt text. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `class` | string | — | Extra CSS classes. |
+| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `parallax` | boolean | `false` | Enables CSS `animation-timeline: scroll()` parallax effect. |
 
 Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 16/9. Parallax uses `animation-timeline: scroll()` for native CSS scroll-driven translation.
@@ -402,6 +493,7 @@ Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 1
 
 Displays an Eleventy collection as a card grid or horizontal slider.
 
+**Component:** `block_items`
 **Template:** `src/_includes/design-system/items-block.html`
 **SCSS:** `src/css/design-system/_items.scss`
 
@@ -422,12 +514,13 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 
 Renders items from an explicit list of paths. The collection is inferred dynamically from each item's path. Directory paths (ending in `/` or with no `.md` extension) expand to every item in that directory.
 
+**Component:** `block_items_array`
 **Template:** `src/_includes/design-system/items-array-block.html`
 **SCSS:** `src/css/design-system/_items.scss`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Array of path strings. Each entry may be a file path (e.g. `src/products/widget.md`) or a directory path (e.g. `locations/fulchester` or `locations/fulchester/`), in which case every item in that directory is included in place. |
+| `items` | array | — | Array of path strings. Each entry may be a file path (e.g. `src/products/widget.md`) or a directory path (e.g. `locations/fulchester` or `locations/fulchester/`), in which case every item in that directory is included in place. |
 | `intro` | string | — | Markdown content rendered above items in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
@@ -438,6 +531,7 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 
 Renders a collection as a plain-text unordered list of links arranged in responsive CSS columns. Optionally strips matching text via a regex so repetitive prefixes/suffixes can be removed.
 
+**Component:** `block_link_columns`
 **Template:** `src/_includes/design-system/link-columns.html`
 **SCSS:** `src/css/design-system/_link-columns.scss`
 
@@ -457,6 +551,7 @@ Renders a collection as a plain-text unordered list of links arranged in respons
 
 Two-column layout with prose content and a contact form.
 
+**Component:** `block_contact_form`
 **Template:** `src/_includes/design-system/contact-form-block.html`
 **SCSS:** `src/css/design-system/_contact-form-block.scss`
 **HTML root:** `<div class="contact-form-block">`
@@ -474,6 +569,7 @@ Two-column layout with prose content and a contact form.
 
 Contact form block with a custom, block-level field list instead of the site-wide `contactForm.fields`.
 
+**Component:** `block_custom_contact_form`
 **Template:** `src/_includes/design-system/custom-contact-form-block.html`
 **SCSS:** `src/css/design-system/_contact-form-block.scss`
 **HTML root:** `<div class="contact-form-block">`
@@ -494,6 +590,7 @@ Identical layout and styling to `contact-form`, but accepts its own `fields` arr
 
 Renders markdown content as rich text.
 
+**Component:** `block_markdown`
 **SCSS:** `src/css/design-system/_prose.scss`
 **HTML root:** `<div class="prose">`
 
@@ -509,6 +606,8 @@ Inline in `render-block.html` (no separate template file).
 
 Outputs raw HTML without processing.
 
+**Component:** `block_html`
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `content` | string | **required** | Raw HTML. Output directly with `{{ block.content }}`. |
@@ -517,10 +616,39 @@ Inline in `render-block.html` (no separate template file). No wrapping element. 
 
 ---
 
+### `iframe-embed`
+
+Third-party iframe embed (itch.io widgets, Buttondown, Bandcamp, Stripe buttons, etc).
+
+**Component:** `block_iframe_embed`
+**Template:** `src/_includes/design-system/iframe-embed.html`
+**SCSS:** `src/css/design-system/_iframe-embed.scss`
+**HTML root:** `<div class="iframe-embed">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `src` | string | **required** | Full URL of the iframe to embed. |
+| `title` | string | **required** | Accessible title for the iframe. |
+| `width` | number | — | Fixed pixel width. Omit to fill the container. |
+| `height` | number | — | Fixed pixel height. Required for non-responsive embeds unless `aspect_ratio` is set. |
+| `aspect_ratio` | string | — | CSS `aspect-ratio` for responsive height, e.g. `"16/9"`. Alternative to `height`. |
+| `max_width` | string | — | CSS max-width on the wrapper, e.g. `"560px"`. |
+| `sandbox` | string | — | Space-separated sandbox tokens, e.g. `"allow-scripts allow-same-origin allow-forms"`. |
+| `allow` | string | — | `allow` attribute for iframe permissions policy. |
+| `scrolling` | string | — | Legacy `scrolling` attribute, e.g. `"no"`. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
+
+Provide either `height` for a fixed-height embed or `aspect_ratio` (e.g. `16/9`) for a responsive one. Use `max_width` to cap the embed width within the container.
+
+---
+
 ### `content`
 
 Outputs the page's `content` property (from markdown body below frontmatter).
 
+**Component:** `block_content`
 **Template:** `src/_includes/design-system/content-block.html`
 
 No parameters. Renders `{{ content }}` if non-empty. Used for pages that combine blocks with traditional markdown content.
@@ -530,6 +658,8 @@ No parameters. Renders `{{ content }}` if non-empty. Used for pages that combine
 ### `include`
 
 Includes an arbitrary template file.
+
+**Component:** `block_include`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -543,6 +673,7 @@ Inline in `render-block.html` — uses `{% include block.file %}`. Escape hatch 
 
 Displays property listings (holiday lets) with filter controls.
 
+**Component:** `block_properties`
 **Template:** `src/_includes/design-system/properties-block.html`
 **SCSS:** `src/css/design-system/_property.scss`
 
@@ -554,6 +685,7 @@ No block-level parameters. Uses the global `collections.properties` and optional
 
 Displays guide categories collection.
 
+**Component:** `block_guide_categories`
 **Template:** `src/_includes/design-system/guide-categories-block.html`
 
 No block-level parameters. Uses the global `collections.guide-categories`.
@@ -564,6 +696,7 @@ No block-level parameters. Uses the global `collections.guide-categories`.
 
 Standalone centered button linking to an anchor or URL.
 
+**Component:** `block_link_button`
 **Template:** `src/_includes/design-system/link-button.html`
 **SCSS:** `src/css/design-system/_link-button.scss`
 **HTML root:** `<div class="link-button">`
@@ -582,6 +715,7 @@ Standalone centered button linking to an anchor or URL.
 
 Renders reviews collection with optional filtering to the current item.
 
+**Component:** `block_reviews`
 **Template:** `src/_includes/design-system/reviews-block.html`
 **SCSS:** `src/css/design-system/_reviews.scss`
 
@@ -597,6 +731,7 @@ Uses `getReviewsFor` filter to match reviews by slug and tags when `current_item
 
 Image grid with optional aspect ratio cropping and captions.
 
+**Component:** `block_gallery`
 **Template:** `src/_includes/design-system/gallery.html`
 **SCSS:** `src/css/design-system/_items.scss`
 **HTML root:** `<ul class="items" role="list">`
@@ -612,6 +747,7 @@ Image grid with optional aspect ratio cropping and captions.
 
 Continuously scrolling marquee of images (e.g. brand logos, partner badges).
 
+**Component:** `block_marquee_images`
 **Template:** `src/_includes/design-system/marquee-images.html`
 **SCSS:** `src/css/design-system/_marquee-images.scss`
 **HTML root:** `<div class="marquee-images">`
@@ -631,6 +767,7 @@ Continuously scrolling marquee of images (e.g. brand logos, partner badges).
 
 Vertical list of links with icons, rendered as a flex column stack.
 
+**Component:** `block_icon_links`
 **Template:** `src/_includes/design-system/icon-links.html`
 **SCSS:** `src/css/design-system/_icon-links.scss`
 **HTML root:** `<ul class="icon-links" role="list">`
@@ -643,9 +780,30 @@ Vertical list of links with icons, rendered as a flex column stack.
 
 ---
 
+### `downloads`
+
+List of downloadable files. Each item auto-detects its icon from the file extension and its size from the filesystem at build time.
+
+**Component:** `block_downloads`
+**Template:** `src/_includes/design-system/downloads.html`
+**SCSS:** `src/css/design-system/_downloads.scss`
+**HTML root:** `<ul class="downloads" role="list">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `intro` | string | — | Markdown content rendered above the downloads list in `.prose`. |
+| `items` | array | **required** | Download objects. Each: `{file, label}`. `file` is a site-relative URL path; `label` is the visible text. |
+| `reveal` | boolean | `true` | Adds `data-reveal` to each download item. |
+
+The `file` path is resolved against `src/` (e.g. `/files/guide.pdf` reads from `src/files/guide.pdf`). Missing files cause a build error. Ensure the containing directory is configured as a passthrough-copy target so the file is also served to the browser.
+
+---
+
 ### `snippet`
 
 Renders blocks from a named snippet file, enabling reusable block compositions.
+
+**Component:** `block_snippet`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

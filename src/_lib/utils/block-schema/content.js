@@ -1,6 +1,6 @@
 export const type = "content";
 
-export const schema = [];
+export const fields = {};
 
 export const docs = {
   summary:
@@ -8,8 +8,4 @@ export const docs = {
   template: "src/_includes/design-system/content-block.html",
   notes:
     "No parameters. Renders `{{ content }}` if non-empty. Used for pages that combine blocks with traditional markdown content.",
-  params: {},
 };
-
-/** No block-specific fields — only the auto-injected container wrapper fields. */
-export const cmsFields = {};

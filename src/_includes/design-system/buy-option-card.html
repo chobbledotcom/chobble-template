@@ -1,0 +1,46 @@
+{%- comment -%}
+Product card contents for a buy-option. Used by buy-options.html (rendered
+inside a `<li itemscope itemtype="https://schema.org/Product">`) and by
+split.html for the `split-buy-options` block (rendered inside a
+`<figure itemscope itemtype="https://schema.org/Product">`).
+
+Parameters (passed directly via include):
+  - image: Image path (optional)
+  - title: Product name (required)
+  - subtitle: Short secondary line, e.g. "Print edition" (optional)
+  - price: Display price string, e.g. "£15" (optional)
+  - currency: ISO currency code for schema.org (default: "GBP")
+  - link: Buy URL (required)
+  - button_text: Button label (default: "Buy now")
+  - heading_level: Heading level for the title (default: 3)
+  - image_aspect_ratio: Aspect ratio for the image (optional)
+{%- endcomment -%}
+{%- assign _price_value = price
+   | replace: "£", ""
+   | replace: "$", ""
+   | replace: "€", ""
+   | replace: ",", ""
+   | strip -%}
+{%- assign _currency = currency | default: "GBP" -%}
+{%- assign _button_text = button_text | default: "Buy now" -%}
+{%- assign _heading_level = heading_level | default: 3 -%}
+{%- if image -%}
+  <a class="image-link" href="{{ link }}">
+    {%- image image, title, "", "", "", image_aspect_ratio -%}
+    <meta itemprop="image" content="{{ image }}">
+  </a>
+{%- endif -%}
+<h{{ _heading_level }} itemprop="name">
+  <a href="{{ link }}">{{ title }}</a>
+</h{{ _heading_level }}>
+{%- if subtitle -%}
+  <p class="subtitle">{{ subtitle }}</p>
+{%- endif -%}
+{%- if price -%}
+  <p class="price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+    <span itemprop="priceCurrency" content="{{ _currency }}"></span>
+    <meta itemprop="price" content="{{ _price_value }}">
+    <span>{{ price }}</span>
+  </p>
+{%- endif -%}
+<a class="button" href="{{ link }}" itemprop="url">{{ _button_text }}</a>

@@ -117,6 +117,15 @@ blocks:
 
       Display reviews in a masonry grid — cards flow naturally based on content height.
 
+  # Socials - externally-linked items collection
+  - type: items
+    collection: socials
+    horizontal: true
+    intro: |
+      ## From our Socials
+
+      Any collection whose `url` is absolute opens in a new tab — perfect for linking out to Instagram, Mastodon, or wherever you post.
+
   # Stats (via reusable snippet)
   - type: snippet
     reference: specs
@@ -218,14 +227,29 @@ blocks:
     figure_subtitle: Let visitors preview themes instantly (in the bottom right)
     figure_variant: gradient
 
-  # E-Commerce Features (with header, grid--4 layout, custom colors)
+  # Single-product promo (split layout + buy card with schema.org Product)
+  - type: split-buy-options
+    title: Featured Product
+    reveal_content: left
+    content: |
+      A single buy-option promoted alongside explanatory copy — same product
+      card as the `buy-options` grid, but framed as a split hero.
+    figure_image: src/images/breakfast.jpg
+    figure_title: Sample Product
+    figure_subtitle: Limited edition
+    figure_price: "£15"
+    figure_currency: GBP
+    figure_link: https://example.chobble.com
+    figure_button_text: Buy now
+
+  # E-Commerce Features (with header, centered, custom colors)
   - type: features
 
     header_intro: |-
       ## Commerce Options
 
       Sell products, take quotes, or both. Card payments and enquiry forms are built in.
-    grid_class: grid--4 text-center
+    center: true
     heading_level: 4
     items:
       - icon: "hugeicons:credit-card"
@@ -264,7 +288,6 @@ blocks:
       ## Built-in SEO
 
       Structured data is generated automatically from your content.
-    grid_class: grid
     heading_level: 4
     items:
       - title: Schema.org Markup

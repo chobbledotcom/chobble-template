@@ -32,18 +32,19 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: intro, type: rich-text, label: Section Header Intro }
+      - name: intro
+        type: rich-text
+        label: Section Header Intro
+        required: true
   block_features:
     label: Features
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: grid_class, type: string, label: Grid Class }
-      - { name: heading_level, type: number, label: Heading Level }
-      - { name: header_intro, type: rich-text, label: Header Intro }
       - name: items
         type: object
         label: Features
+        required: true
         list: true
         fields:
           - name: icon
@@ -55,23 +56,52 @@ components:
             label: Description
             required: true
           - { name: style, type: string, label: Custom Style }
+      - { name: heading_level, type: number, label: Heading Level }
+      - { name: center, type: boolean, label: Centered }
+      - { name: header_intro, type: rich-text, label: Header Intro }
   block_image_cards:
     label: Image Cards
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: heading_level, type: number, label: Heading Level }
-      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
-      - { name: header_intro, type: rich-text, label: Header Intro }
       - name: items
         type: object
         label: Cards
+        required: true
         list: true
         fields:
           - { name: image, type: image, label: Image, required: true }
           - { name: title, type: string, label: Title, required: true }
           - { name: description, type: string, label: Description }
           - { name: link, type: string, label: Link URL }
+      - { name: heading_level, type: number, label: Heading Level }
+      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
+      - { name: header_intro, type: rich-text, label: Header Intro }
+  block_buy_options:
+    label: Buy Options
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: items
+        type: object
+        label: Products
+        required: true
+        list: true
+        fields:
+          - { name: image, type: image, label: Image, required: true }
+          - { name: title, type: string, label: Title, required: true }
+          - { name: subtitle, type: string, label: Subtitle }
+          - name: price
+            type: string
+            label: Price (display, e.g. £15)
+          - name: currency
+            type: string
+            label: Currency (ISO code, e.g. GBP)
+          - { name: link, type: string, label: Buy Link, required: true }
+          - { name: button_text, type: string, label: Button Text }
+      - { name: heading_level, type: number, label: Heading Level }
+      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
+      - { name: header_intro, type: rich-text, label: Header Intro }
   block_stats:
     label: Stats
     type: object
@@ -80,6 +110,7 @@ components:
       - name: items
         type: object
         label: Statistics
+        required: true
         list: true
         fields:
           - { name: value, type: string, label: Value, required: true }
@@ -97,7 +128,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: class, type: string, label: CSS Class }
       - { name: badge, type: string, label: Badge Text }
       - { name: title, type: string, label: Title, required: true }
       - { name: lead, type: string, label: Lead Text }
@@ -110,6 +140,7 @@ components:
           - { name: href, type: string, label: URL, required: true }
           - { name: variant, type: string, label: Variant }
           - { name: size, type: string, label: Size }
+      - { name: class, type: string, label: CSS Class }
   block_split_image:
     label: Split Image
     type: object
@@ -118,10 +149,10 @@ components:
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
       - { name: reveal_content, type: string, label: Reveal Content Animation }
       - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - { name: content, type: rich-text, label: Content }
       - name: button
         type: object
         label: Button
@@ -130,7 +161,7 @@ components:
           - { name: href, type: string, label: URL, required: true }
           - { name: variant, type: string, label: Variant }
           - { name: size, type: string, label: Size }
-      - { name: figure_src, type: image, label: Figure Image }
+      - { name: figure_src, type: image, label: Figure Image, required: true }
       - { name: figure_alt, type: string, label: Figure Alt Text }
       - { name: figure_caption, type: string, label: Figure Caption }
   block_split_video:
@@ -141,10 +172,10 @@ components:
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
       - { name: reveal_content, type: string, label: Reveal Content Animation }
       - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - { name: content, type: rich-text, label: Content }
       - name: button
         type: object
         label: Button
@@ -153,7 +184,10 @@ components:
           - { name: href, type: string, label: URL, required: true }
           - { name: variant, type: string, label: Variant }
           - { name: size, type: string, label: Size }
-      - { name: figure_video_id, type: string, label: Video ID or URL }
+      - name: figure_video_id
+        type: string
+        label: Video ID or URL
+        required: true
       - { name: figure_alt, type: string, label: Video Alt Text }
       - { name: figure_caption, type: string, label: Video Caption }
   block_split_code:
@@ -164,10 +198,10 @@ components:
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
       - { name: reveal_content, type: string, label: Reveal Content Animation }
       - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - { name: content, type: rich-text, label: Content }
       - name: button
         type: object
         label: Button
@@ -177,7 +211,7 @@ components:
           - { name: variant, type: string, label: Variant }
           - { name: size, type: string, label: Size }
       - { name: figure_filename, type: string, label: Code Filename }
-      - { name: figure_code, type: string, label: Code Content }
+      - { name: figure_code, type: string, label: Code Content, required: true }
       - { name: figure_language, type: string, label: Code Language }
   block_split_icon_links:
     label: Split Icon Links
@@ -187,10 +221,10 @@ components:
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
       - { name: reveal_content, type: string, label: Reveal Content Animation }
       - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - { name: content, type: rich-text, label: Content }
       - name: button
         type: object
         label: Button
@@ -202,6 +236,7 @@ components:
       - name: figure_items
         type: object
         label: Links
+        required: true
         list: true
         fields:
           - name: icon
@@ -218,10 +253,10 @@ components:
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
       - { name: reveal_content, type: string, label: Reveal Content Animation }
       - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - { name: content, type: rich-text, label: Content }
       - name: button
         type: object
         label: Button
@@ -230,7 +265,10 @@ components:
           - { name: href, type: string, label: URL, required: true }
           - { name: variant, type: string, label: Variant }
           - { name: size, type: string, label: Size }
-      - { name: figure_html, type: rich-text, label: Figure HTML Content }
+      - name: figure_html
+        type: rich-text
+        label: Figure HTML Content
+        required: true
   block_split_callout:
     label: Split Callout
     type: object
@@ -239,10 +277,10 @@ components:
       - { name: title, type: string, label: Title }
       - { name: title_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
       - { name: reveal_content, type: string, label: Reveal Content Animation }
       - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - { name: content, type: rich-text, label: Content }
       - name: button
         type: object
         label: Button
@@ -260,6 +298,49 @@ components:
         required: true
       - { name: figure_subtitle, type: string, label: Callout Subtitle }
       - { name: figure_variant, type: string, label: Callout Color Variant }
+  block_split_buy_options:
+    label: Split Buy Options
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
+      - name: figure_image
+        type: image
+        label: Product Image
+        required: true
+      - name: figure_title
+        type: string
+        label: Product Title
+        required: true
+      - { name: figure_subtitle, type: string, label: Product Subtitle }
+      - name: figure_price
+        type: string
+        label: Product Price (display, e.g. £15)
+      - name: figure_currency
+        type: string
+        label: Product Currency (ISO code, e.g. GBP)
+      - { name: figure_link, type: string, label: Buy Link, required: true }
+      - { name: figure_button_text, type: string, label: Buy Button Text }
+      - name: figure_heading_level
+        type: number
+        label: Product Heading Level
+      - name: figure_image_aspect_ratio
+        type: string
+        label: Product Image Aspect Ratio
   block_split_full:
     label: Split Full
     type: object
@@ -267,8 +348,6 @@ components:
       - { name: dark, type: boolean, label: Dark }
       - { name: variant, type: string, label: Variant }
       - { name: title_level, type: number, label: Heading Level }
-      - { name: reveal_left, type: string, label: Reveal Left Animation }
-      - { name: reveal_right, type: string, label: Reveal Right Animation }
       - { name: left_title, type: string, label: Left Title }
       - { name: left_content, type: rich-text, label: Left Content }
       - name: left_button
@@ -287,6 +366,8 @@ components:
           - { name: text, type: string, label: Button Text, required: true }
           - { name: href, type: string, label: URL, required: true }
           - { name: variant, type: string, label: Variant }
+      - { name: reveal_left, type: string, label: Reveal Left Animation }
+      - { name: reveal_right, type: string, label: Reveal Right Animation }
   block_cta:
     label: Cta
     type: object
@@ -302,6 +383,19 @@ components:
           - { name: href, type: string, label: URL, required: true }
           - { name: variant, type: string, label: Variant }
           - { name: size, type: string, label: Size }
+  block_callout:
+    label: Callout
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: variant
+        type: string
+        label: Variant (info | warning | success | danger)
+      - name: icon
+        type: string
+        label: Icon (Iconify ID, emoji, or path)
+      - { name: title, type: string, label: Title }
+      - { name: content, type: rich-text, label: Content, required: true }
   block_video_background:
     label: Video Background
     type: object
@@ -312,7 +406,10 @@ components:
       - { name: video_title, type: string, label: Video Title }
       - { name: aspect_ratio, type: string, label: Aspect Ratio }
       - { name: class, type: string, label: CSS Class }
-      - { name: content, type: rich-text, label: Overlay Content }
+      - name: content
+        type: rich-text
+        label: Overlay Content
+        required: true
   block_bunny_video_background:
     label: Bunny Video Background
     type: object
@@ -329,7 +426,10 @@ components:
       - { name: video_title, type: string, label: Video Title }
       - { name: aspect_ratio, type: string, label: Aspect Ratio }
       - { name: class, type: string, label: CSS Class }
-      - { name: content, type: rich-text, label: Overlay Content }
+      - name: content
+        type: rich-text
+        label: Overlay Content
+        required: true
   block_image_background:
     label: Image Background
     type: object
@@ -337,9 +437,12 @@ components:
       - { name: dark, type: boolean, label: Dark }
       - { name: image, type: image, label: Background Image, required: true }
       - { name: image_alt, type: string, label: Image Alt Text }
-      - { name: parallax, type: boolean, label: Parallax }
       - { name: class, type: string, label: CSS Class }
-      - { name: content, type: rich-text, label: Overlay Content }
+      - name: content
+        type: rich-text
+        label: Overlay Content
+        required: true
+      - { name: parallax, type: boolean, label: Parallax }
   block_items:
     label: Items
     type: object
@@ -352,7 +455,6 @@ components:
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
-      - { name: header_intro, type: rich-text, label: Header Intro }
       - name: filter
         type: object
         label: Filter
@@ -362,12 +464,13 @@ components:
             label: Property (e.g. url, data.title)
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
+      - { name: header_intro, type: rich-text, label: Header Intro }
   block_items_array:
     label: Items Array
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: items, type: string, label: Items, required: true, list: true }
+      - { name: items, type: string, label: Items, list: true }
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
@@ -403,9 +506,11 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: content, type: rich-text, label: Intro Content }
       - name: fields
         type: object
         label: Form Fields
+        required: true
         list: true
         fields:
           - { name: name, type: string, label: Field Name, required: true }
@@ -418,20 +523,36 @@ components:
           - { name: rows, type: number, label: Rows (for textarea) }
           - { name: note, type: string, label: Help Note }
           - { name: fieldClass, type: string, label: CSS Class }
-      - { name: content, type: rich-text, label: Intro Content }
       - { name: header_intro, type: rich-text, label: Header Intro }
   block_markdown:
     label: Markdown
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: content, type: rich-text, label: Markdown }
+      - { name: content, type: rich-text, label: Markdown, required: true }
   block_html:
     label: Html
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: content, type: string, label: Raw HTML, required: true }
+  block_iframe_embed:
+    label: Iframe Embed
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: src, type: string, label: Iframe URL, required: true }
+      - { name: title, type: string, label: Accessible Title, required: true }
+      - { name: width, type: number, label: Width (px) }
+      - { name: height, type: number, label: Height (px) }
+      - { name: aspect_ratio, type: string, label: Aspect Ratio (e.g. 16/9) }
+      - name: max_width
+        type: string
+        label: Max Width (CSS, e.g. 560px)
+      - { name: sandbox, type: string, label: Sandbox }
+      - { name: allow, type: string, label: Allow (permissions policy) }
+      - { name: scrolling, type: string, label: Scrolling }
+      - { name: header_intro, type: rich-text, label: Header Intro }
   block_content:
     label: Content
     type: object
@@ -474,14 +595,15 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: aspect_ratio, type: string, label: Aspect Ratio }
       - name: items
         type: object
         label: Gallery Images
+        required: true
         list: true
         fields:
           - { name: image, type: image, label: Image, required: true }
           - { name: caption, type: string, label: Caption }
+      - { name: aspect_ratio, type: string, label: Aspect Ratio }
   block_marquee_images:
     label: Marquee Images
     type: object
@@ -490,6 +612,7 @@ components:
       - name: items
         type: object
         label: Images
+        required: true
         list: true
         fields:
           - { name: image, type: string, label: Image Path, required: true }
@@ -506,6 +629,7 @@ components:
       - name: items
         type: object
         label: Links
+        required: true
         list: true
         fields:
           - name: icon
@@ -514,6 +638,23 @@ components:
             required: true
           - { name: text, type: string, label: Link Text, required: true }
           - { name: url, type: string, label: URL }
+  block_downloads:
+    label: Downloads
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: items
+        type: object
+        label: Downloads
+        required: true
+        list: true
+        fields:
+          - name: file
+            type: string
+            label: File Path (e.g. /files/guide.pdf)
+            required: true
+          - { name: label, type: string, label: Label, required: true }
   block_snippet:
     label: Snippet
     type: object
@@ -604,6 +745,7 @@ content:
           - { name: section-header, component: block_section_header }
           - { name: features, component: block_features }
           - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
           - { name: stats, component: block_stats }
           - { name: code-block, component: block_code_block }
           - { name: hero, component: block_hero }
@@ -613,8 +755,10 @@ content:
           - { name: split-icon-links, component: block_split_icon_links }
           - { name: split-html, component: block_split_html }
           - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
           - { name: split-full, component: block_split_full }
           - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
           - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
@@ -626,6 +770,7 @@ content:
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: markdown, component: block_markdown }
           - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: content, component: block_content }
           - { name: include, component: block_include }
           - { name: properties, component: block_properties }
@@ -635,6 +780,7 @@ content:
           - { name: gallery, component: block_gallery }
           - { name: marquee-images, component: block_marquee_images }
           - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
           - { name: snippet, component: block_snippet }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }

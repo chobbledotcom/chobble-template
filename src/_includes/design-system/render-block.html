@@ -13,6 +13,9 @@ Renders a single block by type. Used by blocks.html.
   {%- when "image-cards" -%}
     {%- include "design-system/image-cards.html", block: block -%}
 
+  {%- when "buy-options" -%}
+    {%- include "design-system/buy-options.html", block: block -%}
+
   {%- when "stats" -%}
     {%- include "design-system/stats.html", block: block -%}
 
@@ -22,7 +25,7 @@ Renders a single block by type. Used by blocks.html.
   {%- when "hero" -%}
     {%- include "design-system/hero.html", block: block -%}
 
-  {%- when "split-image", "split-video", "split-code", "split-icon-links", "split-html" -%}
+  {%- when "split-image", "split-video", "split-code", "split-icon-links", "split-html", "split-buy-options" -%}
     {%- include "design-system/split.html", block: block -%}
 
   {%- when "split-callout" -%}
@@ -34,11 +37,17 @@ Renders a single block by type. Used by blocks.html.
   {%- when "cta" -%}
     {%- include "design-system/cta.html", block: block -%}
 
+  {%- when "callout" -%}
+    {%- include "design-system/callout.html", block: block -%}
+
   {%- when "markdown" -%}
     <div class="prose">{{ block.content | renderContent: "md" }}</div>
 
   {%- when "html" -%}
     {{ block.content }}
+
+  {%- when "iframe-embed" -%}
+    {%- include "design-system/iframe-embed.html", block: block -%}
 
   {%- when "video-background" -%}
     {%- include "design-system/video-background.html", block: block -%}
@@ -90,6 +99,9 @@ Renders a single block by type. Used by blocks.html.
 
   {%- when "icon-links" -%}
     {%- include "design-system/icon-links.html", block: block -%}
+
+  {%- when "downloads" -%}
+    {%- include "design-system/downloads.html", block: block -%}
 
   {%- when "snippet" -%}
     {%- include "design-system/snippet-block.html", block: block -%}

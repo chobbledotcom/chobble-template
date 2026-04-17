@@ -32,6 +32,7 @@
 @forward "stats";
 @forward "specs";
 @forward "cta";
+@forward "callout";
 @forward "split";
 @forward "split-callout";
 @forward "grid";
@@ -49,9 +50,12 @@
 @forward "theme-switcher";
 @forward "cart-icon";
 @forward "freetobook";
+@forward "iframe-embed";
+@forward "buy-options";
 @forward "link-button";
 @forward "link-columns";
 @forward "icon-links";
+@forward "downloads";
 @forward "marquee-images";
 
 // Utilities (last to allow overrides)

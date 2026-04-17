@@ -41,13 +41,13 @@ describe("eleventyComputed.blocks", () => {
     ).toThrow("src/products/example.md");
   });
 
-  test("applies the features defaults (reveal, heading_level, grid_class)", () => {
+  test("applies the features defaults (reveal, heading_level, center)", () => {
     expect(runSingle({ type: "features", items: [] })).toEqual({
       type: "features",
       items: [],
       reveal: true,
       heading_level: 3,
-      grid_class: "features",
+      center: false,
       dark: false,
     });
   });
@@ -145,8 +145,7 @@ describe("eleventyComputed.blocks", () => {
     });
     expect(block.reveal).toBe(false);
     expect(block.heading_level).toBe(2);
-    // grid_class default is still applied because it is not overridden
-    expect(block.grid_class).toBe("features");
+    expect(block.center).toBe(false);
   });
 
   test("allows user to override the dark default to true", () => {

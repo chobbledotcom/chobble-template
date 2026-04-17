@@ -28,7 +28,7 @@ const hasTag = (data, tag) => (data.tags || []).includes(tag);
  * @type {Record<string, Record<string, unknown>>}
  */
 const BLOCK_DEFAULTS = {
-  features: { reveal: true, heading_level: 3, grid_class: "features" },
+  features: { reveal: true, heading_level: 3, center: false },
   stats: { reveal: true },
   "split-image": { title_level: 2, reveal_figure: "scale" },
   "split-video": { title_level: 2, reveal_figure: "scale" },
@@ -40,6 +40,7 @@ const BLOCK_DEFAULTS = {
   "image-cards": { reveal: true, heading_level: 3 },
   "code-block": { reveal: true },
   "icon-links": { reveal: true },
+  downloads: { reveal: true },
   "video-background": { aspect_ratio: "16/9" },
 };
 
@@ -91,7 +92,7 @@ export default {
    * .map() preserves holes causing Object.fromEntries to fail, while
    * .filter(Boolean) materializes the proxy into a real empty array.
    * @param {import("#lib/types").ProductItemData & import("#lib/types").EleventyComputedData} data - Page data (products only)
-   * @returns {{ title: string, price: number, filters: Record<string, string> }|undefined}
+   * @returns {{ title: string, price: number|undefined, filters: Record<string, string> }|undefined}
    */
   filter_data: (data) => {
     if (!hasTag(data, "products")) return undefined;
@@ -225,7 +226,7 @@ export default {
    * thumbnail URL, Vimeo videos get one via the oEmbed API, and other custom
    * iframe URLs get null.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Promise<Array<Record<string, unknown>>>|undefined} Videos with thumbnail_url added
+   * @returns {Promise<Array<Record<string, unknown>> | undefined>} Videos with thumbnail_url added
    */
   videos: async (data) => {
     if (!data.videos) return data.videos;

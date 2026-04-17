@@ -14,7 +14,7 @@ import { spawnSync } from "node:child_process";
 import { ROOT_DIR } from "#lib/paths.js";
 
 // Current baseline - lower this as you fix errors
-const CURRENT_ERROR_COUNT = 404;
+const CURRENT_ERROR_COUNT = 399;
 
 // Files that currently pass strict mode (must not regress)
 const STRICT_CLEAN_FILES = [
@@ -59,6 +59,7 @@ const STRICT_CLEAN_FILES = [
   "src/_lib/eleventy/add-data-filter.js",
   "src/_lib/eleventy/cache-buster.js",
   "src/_lib/eleventy/canonical-url.js",
+  "src/_lib/eleventy/file-info.js",
   "src/_lib/eleventy/format-price.js",
   "src/_lib/eleventy/ical.js",
   "src/_lib/eleventy/js-config.js",

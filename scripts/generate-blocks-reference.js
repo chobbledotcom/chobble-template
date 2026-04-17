@@ -33,12 +33,14 @@ const renderParamTable = (params) => {
   return `${lines.join("\n")}\n`;
 };
 
-const renderMetaLines = (doc) => {
+const renderMetaLines = (doc, type) => {
   const lines = [];
+  const component = `block_${type.replaceAll("-", "_")}`;
+  lines.push(`**Component:** \`${component}\``);
   if (doc.template) lines.push(`**Template:** \`${doc.template}\``);
   if (doc.scss) lines.push(`**SCSS:** \`${doc.scss}\``);
   if (doc.htmlRoot) lines.push(`**HTML root:** \`${doc.htmlRoot}\``);
-  if (lines.length > 0) lines.push("");
+  lines.push("");
   return lines;
 };
 
@@ -49,7 +51,7 @@ const renderBlock = (type) => {
   }
 
   const lines = [`### \`${type}\`\n`, `${doc.summary}\n`];
-  lines.push(...renderMetaLines(doc));
+  lines.push(...renderMetaLines(doc, type));
 
   const table = renderParamTable(doc.params);
   if (table) lines.push(table);

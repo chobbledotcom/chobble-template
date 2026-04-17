@@ -1,0 +1,59 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// BUY OPTIONS
+// =============================================================================
+// Product cards for inline buy-now lists. Builds on `.items` grid styles
+// from _items.scss; this file only adds product-specific tweaks.
+//
+// `.buy-option-figure` is the single-card variant rendered by the
+// `split-buy-options` block inside a `<figure>` on the split layout. It
+// reuses the same per-card styling.
+
+.design-system {
+  @mixin buy-option-card-content {
+    .subtitle {
+      font-style: italic;
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: $space-xs;
+    }
+  }
+
+  ul.items.buy-options {
+    > li {
+      @include buy-option-card-content;
+    }
+  }
+
+  .split > figure.buy-option-figure {
+    --buy-option-padding: #{$space-md};
+
+    display: flex;
+    flex-direction: column;
+    gap: $space-sm;
+    padding-bottom: var(--buy-option-padding);
+
+    @include buy-option-card-content;
+
+    > :not(.image-link) {
+      padding-inline: var(--buy-option-padding);
+    }
+
+    @include product-card-typography("h2, h3, h4, h5, h6");
+
+    p.subtitle {
+      @include body-sm;
+      color: var(--color-text-muted);
+    }
+
+    > .button {
+      @include button-primary;
+      margin-block-start: auto;
+    }
+  }
+}

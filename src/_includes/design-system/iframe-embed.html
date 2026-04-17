@@ -1,0 +1,50 @@
+{%- comment -%}
+Third-party iframe embed block.
+
+Renders an <iframe> inside a .iframe-embed wrapper with optional fixed
+dimensions, responsive aspect ratio, and max-width. Use this block for
+itch.io widgets, Buttondown signup forms, Bandcamp/Spotify players, Stripe
+buy buttons, etc — any time you'd otherwise hand-write an <iframe> in an
+`html` block.
+
+Parameters (via block object):
+  - block.src: Iframe URL (required)
+  - block.title: Accessible title for the iframe (required)
+  - block.width: Fixed pixel width (optional)
+  - block.height: Fixed pixel height (optional)
+  - block.aspect_ratio: CSS aspect-ratio for responsive embeds, e.g. "16/9"
+  - block.max_width: CSS max-width, e.g. "560px"
+  - block.sandbox: Sandbox tokens
+  - block.allow: Permissions policy
+  - block.scrolling: Legacy scrolling attribute
+  - block.header_intro, header_align, header_class: Optional section header
+{%- endcomment -%}
+
+{%- if block.header_intro -%}
+  {%- include "design-system/section-header.html",
+     intro: block.header_intro,
+     align: block.header_align,
+     header_class: block.header_class
+  -%}
+{%- endif -%}
+
+{%- capture _wrap_style -%}
+  {%- if block.aspect_ratio %}aspect-ratio: {{ block.aspect_ratio }};{%- endif -%}
+  {%- if block.max_width %}max-width: {{ block.max_width }};{%- endif -%}
+  {%- if block.width %}width: {{ block.width }}px;{%- endif -%}
+{%- endcapture -%}
+
+<div class="iframe-embed{% if block.aspect_ratio %} iframe-embed--responsive{% endif %}"{% if _wrap_style != "" %} style="{{ _wrap_style | strip }}"{% endif %}>
+  <iframe
+    src="{{ block.src }}"
+    title="{{ block.title }}"
+    {% if block.width %}width="{{ block.width }}"{% endif %}
+    {% if block.height %}height="{{ block.height }}"{% endif %}
+    {% if block.sandbox %}sandbox="{{ block.sandbox }}"{% endif %}
+    {% if block.allow %}allow="{{ block.allow }}"{% endif %}
+    {% if block.scrolling %}scrolling="{{ block.scrolling }}"{% endif %}
+    loading="lazy"
+    frameborder="0"
+    referrerpolicy="origin"
+  ></iframe>
+</div>

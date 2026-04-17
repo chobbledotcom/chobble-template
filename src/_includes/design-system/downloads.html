@@ -1,0 +1,36 @@
+{%- comment -%}
+Downloads block - vertical list of downloadable files.
+
+For each item, the icon is auto-detected from the file extension and the file
+size is read from the filesystem at build time (see
+src/_lib/eleventy/file-info.js).
+
+Parameters:
+  - block.intro: Optional markdown intro rendered above the list.
+  - block.items: Array of {file, label} objects.
+    - file: Site-relative URL path (e.g. "/files/guide.pdf"). Resolved against src/.
+    - label: Visible link text.
+  - block.reveal: If true, adds data-reveal animation (default: true).
+{%- endcomment -%}
+
+{%- assign reveal = block.reveal | default: true -%}
+
+{%- if block.intro -%}
+  <div class="prose">{{ block.intro | renderContent: "md" }}</div>
+{%- endif -%}
+
+<ul class="downloads" role="list">
+  {%- for item in block.items -%}
+    {%- assign info = item.file | fileInfo -%}
+    <li{% if reveal %} data-reveal{% endif %}>
+      <a href="{{ item.file }}" class="downloads__link" download>
+        <span class="downloads__icon" aria-hidden="true">{%- include "design-system/icon.html", icon: info.icon -%}</span>
+        <span class="downloads__body">
+          <span class="downloads__label">{{ item.label }}</span>
+          <span class="downloads__meta">{{ info.extension | upcase }} &middot; {{ info.sizeHuman }}</span>
+        </span>
+        <span class="downloads__affordance" aria-hidden="true">Download</span>
+      </a>
+    </li>
+  {%- endfor -%}
+</ul>
