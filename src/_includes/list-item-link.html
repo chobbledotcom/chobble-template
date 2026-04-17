@@ -1,18 +1,9 @@
 {%- if item.data.title and item.data.title != "" -%}
-  {%- assign isSocial = item.data.tags contains "socials" -%}
-  {%- if isSocial -%}
-    <p class="social-caption">
-      <a href="{{ item.url }}" target="_blank" rel="noopener">
-        {%- include "hashtag-text.html", text: item.data.title -%}
-      </a>
-    </p>
+<h3>
+  {%- if item.url contains "://" -%}
+    <a href="{{ item.url }}" target="_blank" rel="noopener">{%- include "hashtag-text.html", text: item.data.title -%}</a>
   {%- else -%}
-    <h3>
-      {%- if item.url contains "://" -%}
-        <a href="{{ item.url }}" target="_blank" rel="noopener">{%- include "hashtag-text.html", text: item.data.title -%}</a>
-      {%- else -%}
-        <a href="{{- item.url -}}{{ config.internal_link_suffix }}">{%- include "hashtag-text.html", text: item.data.title -%}</a>
-      {%- endif -%}
-    </h3>
+    <a href="{{- item.url -}}{{ config.internal_link_suffix }}">{%- include "hashtag-text.html", text: item.data.title -%}</a>
   {%- endif -%}
+</h3>
 {%- endif -%}
