@@ -329,6 +329,39 @@ Two-column layout with text content and a styled callout box with icon, title, a
 
 ---
 
+### `split-buy-options`
+
+Two-column layout with text content and a single buyable product card. Emits schema.org Product microdata.
+
+**Component:** `block_split_buy_options`
+**Template:** `src/_includes/design-system/split.html`
+**SCSS:** `src/css/design-system/_split.scss`
+**HTML root:** `<div class="split">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | — | Section heading. |
+| `title_level` | number | `2` | Heading level. |
+| `subtitle` | string | — | Subtitle with `.text-muted` styling. |
+| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
+| `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
+| `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
+| `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
+| `figure_image` | string | **required** | Product image path. Processed by `{% image %}` shortcode for responsive srcset + LQIP. |
+| `figure_title` | string | **required** | Product name. Schema.org `name`. |
+| `figure_subtitle` | string | — | Optional subtitle, e.g. `Print edition`. Rendered italic. |
+| `figure_price` | string | — | Display price. Currency symbols are stripped for schema.org `price`. |
+| `figure_currency` | string | `"GBP"` | ISO currency code for schema.org `priceCurrency`. |
+| `figure_link` | string | **required** | Buy URL. |
+| `figure_button_text` | string | `"Buy now"` | Button label. |
+| `figure_heading_level` | number | `3` | Heading level for the product title. |
+| `figure_image_aspect_ratio` | string | — | Aspect ratio, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+
+Figure renders as `<figure itemscope itemtype="https://schema.org/Product">` with the same card markup as each item in the `buy-options` block (shared partial `src/_includes/design-system/buy-option-card.html`). Use this when you have a single buy action to promote alongside text; use `buy-options` for a grid of products.
+
+---
+
 ### `split-full`
 
 Full-width two-panel layout with distinct background colors per side.
