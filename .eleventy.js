@@ -18,6 +18,7 @@ import { configureNavigation } from "#collections/navigation.js";
 import { configureProducts } from "#collections/products.js";
 import { configureProperties } from "#collections/properties.js";
 import { configureReviews } from "#collections/reviews.js";
+import { configureSocials } from "#collections/socials.js";
 import { configureTags } from "#collections/tags.js";
 import { configureTeam } from "#collections/team.js";
 import { configureAreaList } from "#eleventy/area-list.js";
@@ -123,6 +124,7 @@ export default async function (eleventyConfig) {
   configureProducts(eleventyConfig);
   configureProperties(eleventyConfig);
   configureReviews(eleventyConfig);
+  configureSocials(eleventyConfig);
   configureScss(eleventyConfig);
   configureStyleBundle(eleventyConfig);
   configureTags(eleventyConfig);
