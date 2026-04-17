@@ -127,9 +127,22 @@
 
       @include product-card-typography;
 
-      p:not(.price) {
+      p:not(.price):not(.social-caption) {
         @include body-sm;
         color: var(--color-text-muted);
+      }
+
+      p.social-caption {
+        @include body-base;
+
+        a {
+          color: var(--color-text);
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
       }
 
       // =======================================================================
