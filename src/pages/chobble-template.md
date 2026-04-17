@@ -117,6 +117,15 @@ blocks:
 
       Display reviews in a masonry grid — cards flow naturally based on content height.
 
+  # Socials - externally-linked items collection
+  - type: items
+    collection: socials
+    horizontal: true
+    intro: |
+      ## From our Socials
+
+      Any collection whose `url` is absolute opens in a new tab — perfect for linking out to Instagram, Mastodon, or wherever you post.
+
   # Stats (via reusable snippet)
   - type: snippet
     reference: specs
