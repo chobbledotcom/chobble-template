@@ -25,8 +25,16 @@ import { sortItems } from "#utils/sorting.js";
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
 /** @typedef {import("#lib/types").FilterSet} FilterSet */
 
-/** Convert a filter attribute to a [slugified-name, slugified-value] pair */
-/** @returns {[string, string]} */
+/**
+ * Lookup table from buildItemLookup: filter key → filter value → positions.
+ * @typedef {Record<string, Record<string, Set<number>>>} ItemLookup
+ */
+
+/**
+ * Convert a filter attribute to a [slugified-name, slugified-value] pair.
+ * @param {FilterAttribute} attr
+ * @returns {[string, string]}
+ */
 export const slugifyAttr = (attr) => [slugify(attr.name), slugify(attr.value)];
 
 /**
@@ -91,14 +99,22 @@ export const getAllFilterAttributes = memoizeByRef((items) => {
  * @param {EleventyCollectionItem[]} items - Collection items
  * @returns {Record<string, string>} Slug to display text lookup
  */
-export const buildDisplayLookup = memoizeByRef((items) =>
-  buildFirstOccurrenceLookup(items, (item) => {
-    if (!item.data.filter_attributes) return [];
-    return item.data.filter_attributes.flatMap((attr) => [
-      [slugify(attr.name), attr.name],
-      [slugify(attr.value), attr.value],
-    ]);
-  }),
+export const buildDisplayLookup = memoizeByRef(
+  /**
+   * @param {EleventyCollectionItem[]} items
+   * @returns {Record<string, string>}
+   */
+  (items) =>
+    buildFirstOccurrenceLookup(items, (item) => {
+      if (!item.data.filter_attributes) return [];
+      return item.data.filter_attributes.flatMap(
+        /** @param {FilterAttribute} attr */
+        (attr) => [
+          [slugify(attr.name), attr.name],
+          [slugify(attr.value), attr.value],
+        ],
+      );
+    }),
 );
 
 /** Normalize both keys and values of a filter object */
@@ -114,7 +130,7 @@ export const normalizeAttrs = mapBoth(
  * multiple times (once in generateFilterCombinations, again in getItemsByFilters).
  *
  * @param {EleventyCollectionItem[]} items - Items to index
- * @returns {Object} Lookup table for fast filtering
+ * @returns {ItemLookup} Lookup table for fast filtering
  */
 export const buildItemLookup = memoizeByRef((items) =>
   items.reduce((lookup, item, position) => {
@@ -133,7 +149,7 @@ export const buildItemLookup = memoizeByRef((items) =>
 /**
  * Find item positions that match ALL the given filters.
  *
- * @param {Object} lookup - Lookup table from buildItemLookup
+ * @param {ItemLookup} lookup - Lookup table from buildItemLookup
  * @param {FilterSet} filters - Filters to match (already normalized)
  * @returns {number[]} Positions of matching items
  */
@@ -151,7 +167,7 @@ export const findMatchingPositions = (lookup, filters) => {
 /**
  * Count items matching the given filters.
  *
- * @param {Object} lookup - Lookup table from buildItemLookup
+ * @param {ItemLookup} lookup - Lookup table from buildItemLookup
  * @param {FilterSet} filters - Filters to match (already normalized)
  * @param {number} totalItems - Total item count (returned when no filters)
  * @returns {number} Number of matching items
@@ -168,6 +184,11 @@ export const countMatches = (lookup, filters, totalItems) =>
 /** @param {{ data: { title: string } }} item */
 const getName = (item) => item.data.title.toLowerCase();
 
+/**
+ * @param {EleventyCollectionItem} item
+ * @param {number} fallback
+ * @returns {string | number}
+ */
 const priceWithFallback = (item, fallback) =>
   item.data.price === undefined || item.data.price === null
     ? fallback
