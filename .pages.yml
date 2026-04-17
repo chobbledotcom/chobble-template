@@ -57,7 +57,7 @@ components:
             required: true
           - { name: style, type: string, label: Custom Style }
       - { name: heading_level, type: number, label: Heading Level }
-      - { name: grid_class, type: string, label: Grid Class }
+      - { name: center, type: boolean, label: Centered }
       - { name: header_intro, type: rich-text, label: Header Intro }
   block_image_cards:
     label: Image Cards

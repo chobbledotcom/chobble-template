@@ -77,7 +77,7 @@ Grid of feature cards with optional icons, titles, and descriptions.
 | `items` | array | **required** | Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
 | `heading_level` | number | `3` | Heading level for item titles. |
-| `grid_class` | string | `"features"` | CSS class on the `<ul>`. Options: `"features"` (auto-fit grid), `"grid"` (1/2/3 col), `"grid--4"` (1/2/4 col). Can combine: `"grid--4 text-center"`. |
+| `center` | boolean | `false` | If true, centers feature text. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
 | `header_class` | string | — | Extra CSS classes on the section header. |

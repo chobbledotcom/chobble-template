@@ -424,7 +424,7 @@ describe("eleventyComputed", () => {
         items: [],
         reveal: true,
         heading_level: 3,
-        grid_class: "features",
+        center: false,
         dark: false,
       });
     });
@@ -544,7 +544,7 @@ describe("eleventyComputed", () => {
       const result = eleventyComputed.blocks(data);
       expect(result[0].reveal).toBe(false);
       expect(result[0].heading_level).toBe(2);
-      expect(result[0].grid_class).toBe("features"); // default still applied
+      expect(result[0].center).toBe(false); // default still applied
     });
 
     test("Explicit dark overrides default false", () => {
