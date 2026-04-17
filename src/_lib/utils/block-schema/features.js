@@ -1,4 +1,5 @@
 import {
+  bool,
   HEADER_FIELDS,
   HEADING_LEVEL_FIELD,
   md,
@@ -24,11 +25,10 @@ export const fields = {
   },
   reveal: REVEAL_BOOLEAN_FIELD,
   heading_level: HEADING_LEVEL_FIELD,
-  grid_class: {
-    ...str("Grid Class"),
-    default: '"features"',
-    description:
-      'CSS class on the `<ul>`. Options: `"features"` (auto-fit grid), `"grid"` (1/2/3 col), `"grid--4"` (1/2/4 col). Can combine: `"grid--4 text-center"`.',
+  center: {
+    ...bool("Centered"),
+    default: "false",
+    description: "If true, centers feature text.",
   },
   ...HEADER_FIELDS,
 };

@@ -13,8 +13,7 @@ Parameters (via block object):
     - style: Optional inline styles (e.g., for custom colors)
   - block.reveal: If true, adds data-reveal animation (default: true)
   - block.heading_level: Heading level for titles, defaults to 3 (h3)
-  - block.grid_class: CSS class for grid container (default: "features")
-               Use "grid--4" for 4-column layout, "grid" for 3-column, etc.
+  - block.center: If true, centers feature text (default: false)
   - block.header_intro: Optional section header intro (rich text, renders section-header before grid)
   - block.header_align: Text alignment for section header (default: "center")
   - block.header_class: Additional CSS classes for section header
@@ -32,17 +31,10 @@ Usage:
 
 {%- assign reveal = block.reveal | default: true -%}
 {%- assign heading_level = block.heading_level | default: 3 -%}
-{%- assign grid_class = block.grid_class | default: "features" -%}
 
-{%- if block.header_intro -%}
-  {%- include "design-system/section-header.html",
-     intro: block.header_intro,
-     align: block.header_align,
-     header_class: block.header_class
-  -%}
-{%- endif -%}
+{%- include "design-system/block-intro.html" -%}
 
-<ul class="{{ grid_class }}" role="list">
+<ul class="features{% if block.center %} text-center{% endif %}" role="list">
   {%- for item in block.items -%}
   <li>
     <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>

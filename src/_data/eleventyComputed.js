@@ -28,7 +28,7 @@ const hasTag = (data, tag) => (data.tags || []).includes(tag);
  * @type {Record<string, Record<string, unknown>>}
  */
 const BLOCK_DEFAULTS = {
-  features: { reveal: true, heading_level: 3, grid_class: "features" },
+  features: { reveal: true, heading_level: 3, center: false },
   stats: { reveal: true },
   "split-image": { title_level: 2, reveal_figure: "scale" },
   "split-video": { title_level: 2, reveal_figure: "scale" },

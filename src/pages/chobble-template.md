@@ -233,14 +233,14 @@ blocks:
     figure_link: https://example.chobble.com
     figure_button_text: Buy now
 
-  # E-Commerce Features (with header, grid--4 layout, custom colors)
+  # E-Commerce Features (with header, centered, custom colors)
   - type: features
 
     header_intro: |-
       ## Commerce Options
 
       Sell products, take quotes, or both. Card payments and enquiry forms are built in.
-    grid_class: grid--4 text-center
+    center: true
     heading_level: 4
     items:
       - icon: "hugeicons:credit-card"
@@ -279,7 +279,6 @@ blocks:
       ## Built-in SEO
 
       Structured data is generated automatically from your content.
-    grid_class: grid
     heading_level: 4
     items:
       - title: Schema.org Markup
