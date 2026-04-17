@@ -188,6 +188,7 @@ components:
         type: string
         label: Video ID or URL
         required: true
+      - { name: figure_thumbnail_url, type: string, label: Thumbnail URL }
       - { name: figure_alt, type: string, label: Video Alt Text }
       - { name: figure_caption, type: string, label: Video Caption }
   block_split_code:
