@@ -3,28 +3,25 @@ import {
   applyFiltersAndSort,
   itemMatchesFilters,
 } from "#public/ui/category-filter-engine.js";
+import { updateOptionVisibility } from "#public/ui/category-filter-ui.js";
 import {
   buildFilterHash,
   parseFiltersFromHash,
 } from "#public/ui/category-filter-url.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
-// ============================================
-// Test helpers
-// ============================================
+const DEFAULT_SPECS = [
+  { title: "Cherry", price: 30, filters: { colour: "red" } },
+  { title: "Apple", price: 10, filters: { colour: "green" } },
+  { title: "Banana", price: 20, filters: { colour: "yellow" } },
+];
 
-const createDOMItems = async (specs) => {
+const createDOMItems = async (specs = DEFAULT_SPECS) => {
   const { window } = await loadDOM();
   const ul = window.document.createElement("ul");
   window.document.body.appendChild(ul);
 
-  const items = (
-    specs || [
-      { title: "Cherry", price: 30, filters: { colour: "red" } },
-      { title: "Apple", price: 10, filters: { colour: "green" } },
-      { title: "Banana", price: 20, filters: { colour: "yellow" } },
-    ]
-  ).map((spec, index) => {
+  const items = specs.map((spec, index) => {
     const li = window.document.createElement("li");
     li.textContent = spec.title;
     ul.appendChild(li);
@@ -45,6 +42,45 @@ const expectVisibility = (items, visibleIndices) => {
     const expected = visibleIndices.includes(i) ? "" : "none";
     expect(item.element.style.display).toBe(expected);
   }
+};
+
+const makeColourSizeItems = (...specs) =>
+  specs.map(([colour, size]) => ({ data: { filters: { colour, size } } }));
+
+const runVisibility = async (items, activeFilters, groupsDef) => {
+  const { window } = await loadDOM();
+  const container = window.document.createElement("div");
+  const groupsUl = window.document.createElement("ul");
+  groupsUl.className = "filter-groups";
+  container.appendChild(groupsUl);
+  for (const [key, values] of Object.entries(groupsDef)) {
+    const groupLi = window.document.createElement("li");
+    for (const value of values) {
+      const optionLi = window.document.createElement("li");
+      const link = window.document.createElement("a");
+      link.dataset.filterKey = key;
+      link.dataset.filterValue = value;
+      optionLi.appendChild(link);
+      groupLi.appendChild(optionLi);
+    }
+    groupsUl.appendChild(groupLi);
+  }
+  const matchCount = items.filter((item) =>
+    itemMatchesFilters(item, activeFilters),
+  ).length;
+  updateOptionVisibility(container, items, activeFilters, matchCount);
+  return (key, value) => {
+    const link = container.querySelector(
+      `[data-filter-key="${key}"][data-filter-value="${value}"]`,
+    );
+    return link.closest("li").style.display !== "none";
+  };
+};
+
+const COLOUR_SIZE_GROUPS = {
+  colour: ["red", "blue", "green"],
+  size: ["large", "small"],
+  weight: ["heavy"],
 };
 
 // ============================================
@@ -204,65 +240,66 @@ describe("itemMatchesFilters", () => {
 });
 
 // ============================================
-// Feasibility check logic (unit-level)
+// updateOptionVisibility - exercises production DOM walker & feasibility logic
 // ============================================
 
-describe("feasibility check logic", () => {
-  const items = [
-    { data: { filters: { colour: "red", size: "large" } } },
-    { data: { filters: { colour: "red", size: "small" } } },
-    { data: { filters: { colour: "blue", size: "large" } } },
-    { data: { filters: { colour: "blue", size: "small" } } },
-  ];
+describe("updateOptionVisibility", () => {
+  const items = makeColourSizeItems(
+    ["red", "large"],
+    ["red", "small"],
+    ["blue", "large"],
+    ["blue", "small"],
+  );
 
-  /**
-   * Replicates the feasibility logic from category-filter.js:
-   * An option is shown if its hypothetical count > 0 AND
-   * (it's a same-group replacement OR the count differs from current).
-   */
-  const isOptionFeasible = (activeFilters, key, value, currentMatchCount) => {
-    if (activeFilters[key] === value) return true;
-    const hypothetical = { ...activeFilters, [key]: value };
-    const count = items.filter((item) =>
-      itemMatchesFilters(item, hypothetical),
-    ).length;
-    const isReplacement = key in activeFilters;
-    return count > 0 && (isReplacement || count !== currentMatchCount);
-  };
-
-  test("hides option when hypothetical count is 0", () => {
-    // With colour=red active (2 items match), adding weight=heavy would match 0
-    const active = { colour: "red" };
-    const currentCount = items.filter((i) =>
-      itemMatchesFilters(i, active),
-    ).length;
-    expect(isOptionFeasible(active, "weight", "heavy", currentCount)).toBe(
-      false,
+  test("hides option whose hypothetical match count is 0", async () => {
+    const isVisible = await runVisibility(
+      items,
+      { colour: "red" },
+      COLOUR_SIZE_GROUPS,
     );
+    expect(isVisible("weight", "heavy")).toBe(false);
   });
 
-  test("shows cross-group option when it narrows the result set from unfiltered", () => {
-    expect(isOptionFeasible({}, "size", "large", 4)).toBe(true);
+  test("shows cross-group option that narrows the unfiltered set", async () => {
+    const isVisible = await runVisibility(items, {}, COLOUR_SIZE_GROUPS);
+    expect(isVisible("size", "large")).toBe(true);
   });
 
-  test("shows same-group replacement even if count matches", () => {
-    // colour=red active (2 match), replacing with colour=blue also matches 2
-    // Same count but different set. Should show because it's a replacement.
-    const active = { colour: "red" };
-    const currentCount = 2;
-    expect(isOptionFeasible(active, "colour", "blue", currentCount)).toBe(true);
+  test("shows same-group replacement even when hypothetical count matches current", async () => {
+    const isVisible = await runVisibility(
+      items,
+      { colour: "red" },
+      COLOUR_SIZE_GROUPS,
+    );
+    expect(isVisible("colour", "blue")).toBe(true);
   });
 
-  test("shows option when it narrows the result set", () => {
-    // colour=red active (2 match), adding size=large matches 1 (narrows)
-    const active = { colour: "red" };
-    const currentCount = 2;
-    expect(isOptionFeasible(active, "size", "large", currentCount)).toBe(true);
+  test("shows cross-group option that narrows the currently matched set", async () => {
+    const isVisible = await runVisibility(
+      items,
+      { colour: "red" },
+      COLOUR_SIZE_GROUPS,
+    );
+    expect(isVisible("size", "large")).toBe(true);
   });
 
-  test("always shows active option as feasible", () => {
-    const active = { colour: "red" };
-    expect(isOptionFeasible(active, "colour", "red", 2)).toBe(true);
+  test("always shows the currently active option", async () => {
+    const isVisible = await runVisibility(
+      items,
+      { colour: "red" },
+      COLOUR_SIZE_GROUPS,
+    );
+    expect(isVisible("colour", "red")).toBe(true);
+  });
+
+  test("hides cross-group option that does not narrow the unfiltered set", async () => {
+    const uniform = makeColourSizeItems(
+      ["red", "large"],
+      ["blue", "large"],
+      ["green", "large"],
+    );
+    const isVisible = await runVisibility(uniform, {}, COLOUR_SIZE_GROUPS);
+    expect(isVisible("size", "large")).toBe(false);
   });
 });
 
