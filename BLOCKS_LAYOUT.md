@@ -73,7 +73,7 @@ Grid of feature cards with optional icons, titles, and descriptions.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | array | **required** | Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji. |
-| `reveal` | boolean | `true` | Adds `data-reveal` to each card. |
+| `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
 | `heading_level` | number | `3` | Heading level for item titles. |
 | `grid_class` | string | `"features"` | CSS class on the `<ul>`. Options: `"features"` (auto-fit grid), `"grid"` (1/2/3 col), `"grid--4"` (1/2/4 col). Can combine: `"grid--4 text-center"`. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
@@ -94,7 +94,7 @@ Grid of cards featuring images with titles and optional descriptions.
 |---|---|---|---|
 | `items` | array | **required** | Card objects. Each: `{image, title, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
-| `heading_level` | number | `3` | Heading level for titles. |
+| `heading_level` | number | `3` | Heading level for item titles. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
@@ -114,7 +114,7 @@ Grid of buyable products — image, title, optional subtitle, price, and a buy b
 |---|---|---|---|
 | `items` | array | **required** | Product objects. Each: `{image, title, subtitle, price, currency, link, button_text}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
-| `heading_level` | number | `3` | Heading level for titles. |
+| `heading_level` | number | `3` | Heading level for item titles. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
@@ -429,8 +429,8 @@ Full-width image background with overlaid text and optional parallax.
 |---|---|---|---|
 | `image` | string | **required** | Image path. |
 | `image_alt` | string | `"Background image"` | Alt text. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `class` | string | — | Extra CSS classes. |
+| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `parallax` | boolean | `false` | Enables CSS `animation-timeline: scroll()` parallax effect. |
 
 Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 16/9. Parallax uses `animation-timeline: scroll()` for native CSS scroll-driven translation.

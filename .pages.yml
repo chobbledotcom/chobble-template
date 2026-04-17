@@ -394,11 +394,11 @@ components:
       - { name: dark, type: boolean, label: Dark }
       - { name: image, type: image, label: Background Image, required: true }
       - { name: image_alt, type: string, label: Image Alt Text }
+      - { name: class, type: string, label: CSS Class }
       - name: content
         type: rich-text
         label: Overlay Content
         required: true
-      - { name: class, type: string, label: CSS Class }
       - { name: parallax, type: boolean, label: Parallax }
   block_items:
     label: Items

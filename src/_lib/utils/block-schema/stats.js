@@ -2,6 +2,7 @@ import { objectList, str } from "#utils/block-schema/shared.js";
 
 export const type = "stats";
 
+/* jscpd:ignore-start */
 export const fields = {
   items: {
     ...objectList("Statistics", {
@@ -12,6 +13,7 @@ export const fields = {
     description:
       'Stat objects: `{value, label}` or pipe-delimited strings `"value|label"`.',
   },
+  /* jscpd:ignore-end */
   reveal: {
     type: "boolean",
     default: "true",

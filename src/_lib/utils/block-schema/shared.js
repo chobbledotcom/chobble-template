@@ -107,22 +107,39 @@ export const ITEMS_COMMON_FIELDS = {
   ...HEADER_FIELDS,
 };
 
-/**
- * Build unified fields for image-card-style grid blocks (image-cards, buy-options).
- * @param {object} itemsField - Unified field for the items array (with CMS + doc info)
- */
+export const REVEAL_BOOLEAN_FIELD = {
+  type: "boolean",
+  default: "true",
+  description: "Adds `data-reveal` to each item.",
+};
+
+export const HEADING_LEVEL_FIELD = {
+  ...num("Heading Level"),
+  default: "3",
+  description: "Heading level for item titles.",
+};
+
+export const REVEAL_STRING_FIELD = {
+  type: "string",
+  description: "`data-reveal` value.",
+};
+
+export const collectionField = (description) => ({
+  ...str("Collection Name"),
+  required: true,
+  description,
+});
+
+export const HEADER_FIELDS_DOC_ONLY_INTRO = {
+  ...HEADER_FIELDS,
+  header_intro: docOnly(HEADER_FIELDS.header_intro),
+};
+
+/** @param {object} itemsField */
 export const imageCardGridFields = (itemsField) => ({
   items: itemsField,
-  reveal: {
-    type: "boolean",
-    default: "true",
-    description: "Adds `data-reveal` to each item.",
-  },
-  heading_level: {
-    ...num("Heading Level"),
-    default: "3",
-    description: "Heading level for titles.",
-  },
+  reveal: REVEAL_BOOLEAN_FIELD,
+  heading_level: HEADING_LEVEL_FIELD,
   image_aspect_ratio: {
     ...str("Image Aspect Ratio"),
     description: 'Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`.',
@@ -130,7 +147,17 @@ export const imageCardGridFields = (itemsField) => ({
   ...HEADER_FIELDS,
 });
 
-/** Unified fields shared between video-background and bunny-video-background. */
+/** Overlay content + class fields shared between background blocks. */
+export const OVERLAY_CONTENT_FIELDS = {
+  class: { ...str("CSS Class"), description: "Extra CSS classes." },
+  content: {
+    ...md("Overlay Content"),
+    required: true,
+    description:
+      'Overlay content. Rendered as markdown in `<figcaption class="prose">`.',
+  },
+};
+
 export const VIDEO_BG_SHARED_FIELDS = {
   video_title: {
     ...str("Video Title"),
@@ -142,14 +169,5 @@ export const VIDEO_BG_SHARED_FIELDS = {
     default: '"16/9"',
     description: "CSS aspect-ratio on container.",
   },
-  class: {
-    ...str("CSS Class"),
-    description: "Extra CSS classes.",
-  },
-  content: {
-    ...md("Overlay Content"),
-    required: true,
-    description:
-      'Overlay content. Rendered as markdown in `<figcaption class="prose">`.',
-  },
+  ...OVERLAY_CONTENT_FIELDS,
 };

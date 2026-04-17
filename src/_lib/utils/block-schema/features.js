@@ -1,8 +1,9 @@
 import {
   HEADER_FIELDS,
+  HEADING_LEVEL_FIELD,
   md,
-  num,
   objectList,
+  REVEAL_BOOLEAN_FIELD,
   str,
   TITLE_REQUIRED,
 } from "#utils/block-schema/shared.js";
@@ -21,16 +22,8 @@ export const fields = {
     description:
       'Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji.',
   },
-  reveal: {
-    type: "boolean",
-    default: "true",
-    description: "Adds `data-reveal` to each card.",
-  },
-  heading_level: {
-    ...num("Heading Level"),
-    default: "3",
-    description: "Heading level for item titles.",
-  },
+  reveal: REVEAL_BOOLEAN_FIELD,
+  heading_level: HEADING_LEVEL_FIELD,
   grid_class: {
     ...str("Grid Class"),
     default: '"features"',

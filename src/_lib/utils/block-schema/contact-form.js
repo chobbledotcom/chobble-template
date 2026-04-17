@@ -1,4 +1,7 @@
-import { docOnly, HEADER_FIELDS, md } from "#utils/block-schema/shared.js";
+import {
+  HEADER_FIELDS_DOC_ONLY_INTRO,
+  md,
+} from "#utils/block-schema/shared.js";
 
 export const type = "contact-form";
 
@@ -8,8 +11,7 @@ export const fields = {
     description:
       "Left-side content. Rendered as markdown in `.prose`. Centered text.",
   },
-  ...HEADER_FIELDS,
-  header_intro: docOnly(HEADER_FIELDS.header_intro),
+  ...HEADER_FIELDS_DOC_ONLY_INTRO,
 };
 
 export const docs = {

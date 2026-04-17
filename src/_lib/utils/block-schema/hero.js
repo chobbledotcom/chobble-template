@@ -1,6 +1,7 @@
 import {
   BUTTON_FIELDS_WITH_SIZE,
   objectList,
+  REVEAL_STRING_FIELD,
   str,
   TITLE_REQUIRED,
 } from "#utils/block-schema/shared.js";
@@ -34,7 +35,7 @@ export const fields = {
     description:
       'Extra CSS classes on the `<header>`. Use `"gradient"` for gradient bg.',
   },
-  reveal: { type: "string", description: "`data-reveal` value." },
+  reveal: REVEAL_STRING_FIELD,
 };
 
 export const docs = {

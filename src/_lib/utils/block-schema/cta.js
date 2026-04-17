@@ -2,6 +2,7 @@ import {
   BUTTON_FIELDS_WITH_SIZE,
   md,
   objectField,
+  REVEAL_STRING_FIELD,
   TITLE_REQUIRED,
 } from "#utils/block-schema/shared.js";
 
@@ -19,7 +20,7 @@ export const fields = {
     description:
       '`{text, href, variant, size}`. Default variant: `"secondary"`, default size: `"lg"`.',
   },
-  reveal: { type: "string", description: "`data-reveal` value." },
+  reveal: REVEAL_STRING_FIELD,
 };
 
 export const docs = {

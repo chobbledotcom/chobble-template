@@ -1,4 +1,9 @@
-import { bool, img, md, str } from "#utils/block-schema/shared.js";
+import {
+  bool,
+  img,
+  OVERLAY_CONTENT_FIELDS,
+  str,
+} from "#utils/block-schema/shared.js";
 
 export const type = "image-background";
 
@@ -15,13 +20,7 @@ export const fields = {
     default: '"Background image"',
     description: "Alt text.",
   },
-  content: {
-    ...md("Overlay Content"),
-    required: true,
-    description:
-      'Overlay content. Rendered as markdown in `<figcaption class="prose">`.',
-  },
-  class: { ...str("CSS Class"), description: "Extra CSS classes." },
+  ...OVERLAY_CONTENT_FIELDS,
   parallax: {
     ...bool("Parallax"),
     default: "false",

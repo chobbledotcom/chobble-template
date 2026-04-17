@@ -1,14 +1,14 @@
-import { ITEMS_COMMON_FIELDS, str } from "#utils/block-schema/shared.js";
+import {
+  collectionField,
+  ITEMS_COMMON_FIELDS,
+} from "#utils/block-schema/shared.js";
 
 export const type = "items";
 
 export const fields = {
-  collection: {
-    ...str("Collection Name"),
-    required: true,
-    description:
-      'Name of an Eleventy collection (e.g. `"featuredProducts"`, `"events"`, `"news"`).',
-  },
+  collection: collectionField(
+    'Name of an Eleventy collection (e.g. `"featuredProducts"`, `"events"`, `"news"`).',
+  ),
   ...ITEMS_COMMON_FIELDS,
 };
 

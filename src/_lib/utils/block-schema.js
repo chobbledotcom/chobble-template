@@ -117,99 +117,48 @@ const BLOCK_MODULES = [
 const indexByType = (getValue) =>
   Object.fromEntries(BLOCK_MODULES.map((m) => [m.type, getValue(m)]));
 
-// ---------------------------------------------------------------------------
-// Derivation helpers — turn unified `fields` into the three exported maps
-// ---------------------------------------------------------------------------
-
-/** CMS type → doc-friendly type. */
 const DOC_TYPE_MAP = {
   markdown: "string",
   image: "string",
   reference: "string",
 };
 
-/** Derive the documentation-facing type string from a unified field. */
-const toDocType = (field) => {
-  if (field.list) return "array";
-  return DOC_TYPE_MAP[field.type] ?? field.type;
-};
+const BLOCK_SCHEMAS = indexByType((m) => Object.keys(m.fields));
 
-/** Derive documentation params from unified fields. */
-const toDocParams = (fields) =>
-  Object.fromEntries(
-    Object.entries(fields).map(([key, field]) => [
+/** @type {Record<string, "full" | "wide" | "narrow">} */
+const BLOCK_CONTAINER_WIDTHS = indexByType((m) =>
+  "containerWidth" in m ? m.containerWidth : "wide",
+);
+
+/** @param {string} blockType */
+const getBlockContainerWidth = (blockType) =>
+  BLOCK_CONTAINER_WIDTHS[blockType] || "wide";
+
+const BLOCK_CMS_FIELDS = indexByType((m) => ({
+  ...CONTAINER_FIELDS,
+  ...Object.fromEntries(
+    Object.entries(m.fields)
+      .filter(([, f]) => "label" in f)
+      .map(([key, { description, default: _default, ...cmsProps }]) => [
+        key,
+        cmsProps,
+      ]),
+  ),
+}));
+
+const BLOCK_DOCS = indexByType((m) => ({
+  ...m.docs,
+  params: Object.fromEntries(
+    Object.entries(m.fields).map(([key, field]) => [
       key,
       {
-        type: toDocType(field),
+        type: field.list ? "array" : DOC_TYPE_MAP[field.type] || field.type,
         ...(field.required && { required: true }),
         ...(field.default !== undefined && { default: field.default }),
         description: field.description,
       },
     ]),
-  );
-
-/** Extract a CMS-ready field (strip doc-only properties). */
-const extractCmsField = ({ description, default: _default, ...cmsProps }) =>
-  cmsProps;
-
-/** Extract CMS-exposed fields (those with a `label` property). */
-const extractCmsFields = (fields) =>
-  Object.fromEntries(
-    Object.entries(fields)
-      .filter(([, f]) => "label" in f)
-      .map(([key, field]) => [key, extractCmsField(field)]),
-  );
-
-// ---------------------------------------------------------------------------
-// Exported maps
-// ---------------------------------------------------------------------------
-
-/** Allowed keys per block type (excluding common keys and "type"). */
-const BLOCK_SCHEMAS = indexByType((m) => Object.keys(m.fields));
-
-/**
- * Container width per block type. Block modules opt in via an exported
- * `containerWidth` constant ("full" or "narrow"); blocks that omit it
- * default to "wide".
- * @type {Record<string, "full" | "wide" | "narrow">}
- */
-const BLOCK_CONTAINER_WIDTHS = Object.fromEntries(
-  BLOCK_MODULES.map((m) => [
-    m.type,
-    "containerWidth" in m ? m.containerWidth : "wide",
-  ]),
-);
-
-/**
- * @param {string} blockType
- * @returns {"full" | "wide" | "narrow"} Container wrapper width
- */
-const getBlockContainerWidth = (blockType) =>
-  BLOCK_CONTAINER_WIDTHS[blockType] || "wide";
-
-/**
- * CMS field definitions for block types exposed in Pages CMS.
- *
- * Derived from each module's `fields` export: only fields with a `label`
- * property are included. CONTAINER_FIELDS (`dark`) are injected here so
- * per-block modules stay focused on block-specific fields.
- */
-const BLOCK_CMS_FIELDS = Object.fromEntries(
-  BLOCK_MODULES.map((m) => [
-    m.type,
-    { ...CONTAINER_FIELDS, ...extractCmsFields(m.fields) },
-  ]),
-);
-
-/**
- * Documentation metadata for each block type.
- * Used by scripts/generate-blocks-reference.js to auto-generate BLOCKS_LAYOUT.md.
- *
- * The `params` object is derived from each module's unified `fields` export.
- */
-const BLOCK_DOCS = indexByType((m) => ({
-  ...m.docs,
-  params: toDocParams(m.fields),
+  ),
 }));
 
 /** @param {readonly string[]} arr */

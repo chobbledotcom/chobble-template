@@ -1,4 +1,5 @@
 import {
+  collectionField,
   FILTER_FIELD,
   HEADER_FIELDS,
   ITEMS_COMMON_FIELDS,
@@ -8,12 +9,9 @@ import {
 export const type = "link-columns";
 
 export const fields = {
-  collection: {
-    ...str("Collection Name"),
-    required: true,
-    description:
-      'Name of an Eleventy collection (e.g. `"locations"`, `"services"`).',
-  },
+  collection: collectionField(
+    'Name of an Eleventy collection (e.g. `"locations"`, `"services"`).',
+  ),
   intro: ITEMS_COMMON_FIELDS.intro,
   filter: {
     ...FILTER_FIELD,
