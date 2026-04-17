@@ -1,3 +1,12 @@
 {%- if item.data.subtitle -%}
-  <p>{{ item.data.subtitle }}</p>
+  <p>
+    {%- assign subtitleSegments = item.data.subtitle | splitHashtags -%}
+    {%- if subtitleSegments.size > 0 -%}
+      {%- for segment in subtitleSegments -%}
+        {%- if segment.isTag -%}<span class="text-muted">{{ segment.text }}</span>{%- else -%}{{ segment.text }}{%- endif -%}
+      {%- endfor -%}
+    {%- else -%}
+      {{ item.data.subtitle }}
+    {%- endif -%}
+  </p>
 {%- endif -%}
