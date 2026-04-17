@@ -218,6 +218,21 @@ blocks:
     figure_subtitle: Let visitors preview themes instantly (in the bottom right)
     figure_variant: gradient
 
+  # Single-product promo (split layout + buy card with schema.org Product)
+  - type: split-buy-options
+    title: Featured Product
+    reveal_content: left
+    content: |
+      A single buy-option promoted alongside explanatory copy — same product
+      card as the `buy-options` grid, but framed as a split hero.
+    figure_image: src/images/breakfast.jpg
+    figure_title: Sample Product
+    figure_subtitle: Limited edition
+    figure_price: "£15"
+    figure_currency: GBP
+    figure_link: https://example.chobble.com
+    figure_button_text: Buy now
+
   # E-Commerce Features (with header, grid--4 layout, custom colors)
   - type: features
 

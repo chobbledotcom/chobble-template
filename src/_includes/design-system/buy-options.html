@@ -2,6 +2,9 @@
 Buy-options grid — cards for purchasable products with schema.org Product
 microdata. Renders on top of the shared .items grid styles.
 
+Per-item card markup comes from buy-option-card.html, which is also used by
+the split-buy-options block.
+
 Parameters (via block object):
   - block.items: Array of product objects with properties:
     - image: Image path (required)
@@ -30,35 +33,17 @@ Parameters (via block object):
 
 <ul class="items buy-options" role="list">
   {%- for item in block.items -%}
-    {%- assign price_value = item.price
-       | replace: "£", ""
-       | replace: "$", ""
-       | replace: "€", ""
-       | replace: ",", ""
-       | strip -%}
-    {%- assign currency = item.currency | default: "GBP" -%}
-    {%- assign button_text = item.button_text | default: "Buy now" -%}
     <li itemscope itemtype="https://schema.org/Product"{% if reveal %} data-reveal{% endif %}>
-      {%- if item.image -%}
-        <a class="image-link" href="{{ item.link }}">
-          {%- image item.image, item.title, "", "", "", block.image_aspect_ratio -%}
-          <meta itemprop="image" content="{{ item.image }}">
-        </a>
-      {%- endif -%}
-      <h{{ heading_level }} itemprop="name">
-        <a href="{{ item.link }}">{{ item.title }}</a>
-      </h{{ heading_level }}>
-      {%- if item.subtitle -%}
-        <p class="subtitle">{{ item.subtitle }}</p>
-      {%- endif -%}
-      {%- if item.price -%}
-        <p class="price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-          <span itemprop="priceCurrency" content="{{ currency }}"></span>
-          <meta itemprop="price" content="{{ price_value }}">
-          <span>{{ item.price }}</span>
-        </p>
-      {%- endif -%}
-      <a class="button" href="{{ item.link }}" itemprop="url">{{ button_text }}</a>
+      {%- include "design-system/buy-option-card.html",
+         image: item.image,
+         title: item.title,
+         subtitle: item.subtitle,
+         price: item.price,
+         currency: item.currency,
+         link: item.link,
+         button_text: item.button_text,
+         heading_level: heading_level,
+         image_aspect_ratio: block.image_aspect_ratio -%}
     </li>
   {%- endfor -%}
 </ul>

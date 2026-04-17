@@ -298,6 +298,49 @@ components:
         required: true
       - { name: figure_subtitle, type: string, label: Callout Subtitle }
       - { name: figure_variant, type: string, label: Callout Color Variant }
+  block_split_buy_options:
+    label: Split Buy Options
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
+      - name: figure_image
+        type: image
+        label: Product Image
+        required: true
+      - name: figure_title
+        type: string
+        label: Product Title
+        required: true
+      - { name: figure_subtitle, type: string, label: Product Subtitle }
+      - name: figure_price
+        type: string
+        label: Product Price (display, e.g. £15)
+      - name: figure_currency
+        type: string
+        label: Product Currency (ISO code, e.g. GBP)
+      - { name: figure_link, type: string, label: Buy Link, required: true }
+      - { name: figure_button_text, type: string, label: Buy Button Text }
+      - name: figure_heading_level
+        type: number
+        label: Product Heading Level
+      - name: figure_image_aspect_ratio
+        type: string
+        label: Product Image Aspect Ratio
   block_split_full:
     label: Split Full
     type: object
@@ -712,6 +755,7 @@ content:
           - { name: split-icon-links, component: block_split_icon_links }
           - { name: split-html, component: block_split_html }
           - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
           - { name: split-full, component: block_split_full }
           - { name: cta, component: block_cta }
           - { name: callout, component: block_callout }

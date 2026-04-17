@@ -235,6 +235,25 @@
   }
 }
 
+// Product card title + price typography. Used by the `.items` grid cards
+// (_items.scss) and the single-card `.buy-option-figure` in the
+// `split-buy-options` block (_buy-options.scss).
+@mixin product-card-typography($heading-selector: "h3") {
+  #{$heading-selector} {
+    @include heading-sm;
+
+    a {
+      @include link-card;
+    }
+  }
+
+  .price {
+    @include body-base;
+    font-weight: 600;
+    color: var(--color-link);
+  }
+}
+
 // FAQ definition list: question/answer pairs
 @mixin faqs-list {
   @include flex-col($space-md);
