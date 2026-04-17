@@ -1,7 +1,6 @@
 import {
   bool,
-  HEADER_KEYS,
-  HEADER_PARAM_DOCS,
+  HEADER_FIELDS,
   md,
   num,
   objectList,
@@ -9,32 +8,6 @@ import {
 } from "#utils/block-schema/shared.js";
 
 export const type = "custom-contact-form";
-
-export const schema = ["content", "fields", ...HEADER_KEYS];
-
-export const docs = {
-  summary:
-    "Contact form block with a custom, block-level field list instead of the site-wide `contactForm.fields`.",
-  template: "src/_includes/design-system/custom-contact-form-block.html",
-  scss: "src/css/design-system/_contact-form-block.scss",
-  htmlRoot: '<div class="contact-form-block">',
-  notes:
-    'Identical layout and styling to `contact-form`, but accepts its own `fields` array. Each field object follows the same shape as entries in `src/_data/contact-form.json` — e.g. `{name, label, type, placeholder, required, rows, options, note, fieldClass, showOn, defaultFromPageTitle}`. Supported `type` values: `"text"` (default), `"email"`, `"tel"`, `"textarea"`, `"select"`, `"radio"`, `"heading"`.',
-  params: {
-    content: {
-      type: "string",
-      description:
-        "Left-side content. Rendered as markdown in `.prose`. Centered text.",
-    },
-    fields: {
-      type: "array",
-      required: true,
-      description:
-        "Array of field definitions for this form. Replaces `contactForm.fields` for this block only.",
-    },
-    ...HEADER_PARAM_DOCS,
-  },
-};
 
 const FORM_FIELD_DEFINITIONS = objectList("Form Fields", {
   name: str("Field Name", { required: true }),
@@ -47,8 +20,27 @@ const FORM_FIELD_DEFINITIONS = objectList("Form Fields", {
   fieldClass: str("CSS Class"),
 });
 
-export const cmsFields = {
-  fields: FORM_FIELD_DEFINITIONS,
-  content: md("Intro Content"),
-  header_intro: md("Header Intro"),
+export const fields = {
+  content: {
+    ...md("Intro Content"),
+    description:
+      "Left-side content. Rendered as markdown in `.prose`. Centered text.",
+  },
+  fields: {
+    ...FORM_FIELD_DEFINITIONS,
+    required: true,
+    description:
+      "Array of field definitions for this form. Replaces `contactForm.fields` for this block only.",
+  },
+  ...HEADER_FIELDS,
+};
+
+export const docs = {
+  summary:
+    "Contact form block with a custom, block-level field list instead of the site-wide `contactForm.fields`.",
+  template: "src/_includes/design-system/custom-contact-form-block.html",
+  scss: "src/css/design-system/_contact-form-block.scss",
+  htmlRoot: '<div class="contact-form-block">',
+  notes:
+    'Identical layout and styling to `contact-form`, but accepts its own `fields` array. Each field object follows the same shape as entries in `src/_data/contact-form.json` — e.g. `{name, label, type, placeholder, required, rows, options, note, fieldClass, showOn, defaultFromPageTitle}`. Supported `type` values: `"text"` (default), `"email"`, `"tel"`, `"textarea"`, `"select"`, `"radio"`, `"heading"`.',
 };

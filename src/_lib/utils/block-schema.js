@@ -1,14 +1,16 @@
 /**
  * Block schema definitions for design system blocks.
  *
- * Each block type has a set of allowed keys. Unknown keys will cause
- * a build error to catch typos like "video_url" instead of "video_id".
+ * Each block module in `./block-schema/<type>.js` exports:
+ *   - `type`   — block type slug
+ *   - `fields` — unified field definitions (CMS + doc info per key)
+ *   - `docs`   — metadata (summary, template, scss, htmlRoot, notes)
+ *   - optionally `containerWidth` ("full" | "narrow"; defaults to "wide")
  *
- * Block definitions live in `./block-schema/<type>.js` — one file per type.
- * Each module exports `type`, `schema`, `docs`, and optionally `cmsFields`.
- * This file aggregates them into `BLOCK_SCHEMAS` (for validation),
- * `BLOCK_CMS_FIELDS` (for CMS generation), and `BLOCK_DOCS` (for documentation
- * generation by scripts/generate-blocks-reference.js).
+ * This file aggregates them into:
+ *   - `BLOCK_SCHEMAS`    — allowed keys per type (for validation)
+ *   - `BLOCK_CMS_FIELDS` — CMS field definitions (for .pages.yml generation)
+ *   - `BLOCK_DOCS`       — documentation (for BLOCKS_LAYOUT.md generation)
  */
 
 import * as bunnyVideoBackground from "#utils/block-schema/bunny-video-background.js";
@@ -115,8 +117,55 @@ const BLOCK_MODULES = [
 const indexByType = (getValue) =>
   Object.fromEntries(BLOCK_MODULES.map((m) => [m.type, getValue(m)]));
 
+// ---------------------------------------------------------------------------
+// Derivation helpers — turn unified `fields` into the three exported maps
+// ---------------------------------------------------------------------------
+
+/** CMS type → doc-friendly type. */
+const DOC_TYPE_MAP = {
+  markdown: "string",
+  image: "string",
+  reference: "string",
+};
+
+/** Derive the documentation-facing type string from a unified field. */
+const toDocType = (field) => {
+  if (field.list) return "array";
+  return DOC_TYPE_MAP[field.type] ?? field.type;
+};
+
+/** Derive documentation params from unified fields. */
+const toDocParams = (fields) =>
+  Object.fromEntries(
+    Object.entries(fields).map(([key, field]) => [
+      key,
+      {
+        type: toDocType(field),
+        ...(field.required && { required: true }),
+        ...(field.default !== undefined && { default: field.default }),
+        description: field.description,
+      },
+    ]),
+  );
+
+/** Extract a CMS-ready field (strip doc-only properties). */
+const extractCmsField = ({ description, default: _default, ...cmsProps }) =>
+  cmsProps;
+
+/** Extract CMS-exposed fields (those with a `label` property). */
+const extractCmsFields = (fields) =>
+  Object.fromEntries(
+    Object.entries(fields)
+      .filter(([, f]) => "label" in f)
+      .map(([key, field]) => [key, extractCmsField(field)]),
+  );
+
+// ---------------------------------------------------------------------------
+// Exported maps
+// ---------------------------------------------------------------------------
+
 /** Allowed keys per block type (excluding common keys and "type"). */
-const BLOCK_SCHEMAS = indexByType((m) => m.schema);
+const BLOCK_SCHEMAS = indexByType((m) => Object.keys(m.fields));
 
 /**
  * Container width per block type. Block modules opt in via an exported
@@ -141,16 +190,14 @@ const getBlockContainerWidth = (blockType) =>
 /**
  * CMS field definitions for block types exposed in Pages CMS.
  *
- * Not every block type in BLOCK_SCHEMAS is exposed in the CMS — only modules
- * that export `cmsFields` are included. CONTAINER_FIELDS (`dark`) are
- * injected here so per-block modules stay focused on block-specific fields.
- * This invariant is enforced by
- * test/unit/utils/block-schema.test.js.
+ * Derived from each module's `fields` export: only fields with a `label`
+ * property are included. CONTAINER_FIELDS (`dark`) are injected here so
+ * per-block modules stay focused on block-specific fields.
  */
 const BLOCK_CMS_FIELDS = Object.fromEntries(
-  BLOCK_MODULES.filter((m) => "cmsFields" in m).map((m) => [
+  BLOCK_MODULES.map((m) => [
     m.type,
-    { ...CONTAINER_FIELDS, ...m.cmsFields },
+    { ...CONTAINER_FIELDS, ...extractCmsFields(m.fields) },
   ]),
 );
 
@@ -158,15 +205,12 @@ const BLOCK_CMS_FIELDS = Object.fromEntries(
  * Documentation metadata for each block type.
  * Used by scripts/generate-blocks-reference.js to auto-generate BLOCKS_LAYOUT.md.
  *
- * Each block has:
- *   summary  - One-line description
- *   template - Path to the include template (omit for inline blocks)
- *   scss     - Path to the SCSS file (omit if none)
- *   htmlRoot - Root HTML element/class
- *   notes    - Optional extra notes rendered after the parameter table
- *   params   - Object of parameter docs: { key: { type, required?, default?, description } }
+ * The `params` object is derived from each module's unified `fields` export.
  */
-const BLOCK_DOCS = indexByType((m) => m.docs);
+const BLOCK_DOCS = indexByType((m) => ({
+  ...m.docs,
+  params: toDocParams(m.fields),
+}));
 
 /** @param {readonly string[]} arr */
 const quoteJoin = (arr) => arr.map((k) => `"${k}"`).join(", ");
