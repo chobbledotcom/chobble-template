@@ -3,18 +3,15 @@
   {%- if isSocial -%}
     <p class="social-caption">
       <a href="{{ item.url }}" target="_blank" rel="noopener">
-        {%- assign titleSegments = item.data.title | splitHashtags -%}
-        {%- for segment in titleSegments -%}
-          {%- if segment.isTag -%}<span class="text-muted">{{ segment.text }}</span>{%- else -%}{{ segment.text }}{%- endif -%}
-        {%- endfor -%}
+        {%- include "hashtag-text.html", text: item.data.title -%}
       </a>
     </p>
   {%- else -%}
     <h3>
       {%- if item.url contains "://" -%}
-        <a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.data.title }}</a>
+        <a href="{{ item.url }}" target="_blank" rel="noopener">{%- include "hashtag-text.html", text: item.data.title -%}</a>
       {%- else -%}
-        <a href="{{- item.url -}}{{ config.internal_link_suffix }}">{{ item.data.title }}</a>
+        <a href="{{- item.url -}}{{ config.internal_link_suffix }}">{%- include "hashtag-text.html", text: item.data.title -%}</a>
       {%- endif -%}
     </h3>
   {%- endif -%}
