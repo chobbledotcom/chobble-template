@@ -2,7 +2,13 @@ import { bool } from "#utils/block-schema/shared.js";
 
 export const type = "reviews";
 
-export const schema = ["current_item"];
+export const fields = {
+  current_item: {
+    ...bool("Filter to Current Item"),
+    description:
+      "If true, filters reviews to the current item by slug and tags.",
+  },
+};
 
 export const docs = {
   summary:
@@ -11,15 +17,4 @@ export const docs = {
   scss: "src/css/design-system/_reviews.scss",
   notes:
     "Uses `getReviewsFor` filter to match reviews by slug and tags when `current_item` is true.",
-  params: {
-    current_item: {
-      type: "boolean",
-      description:
-        "If true, filters reviews to the current item by slug and tags.",
-    },
-  },
-};
-
-export const cmsFields = {
-  current_item: bool("Filter to Current Item"),
 };

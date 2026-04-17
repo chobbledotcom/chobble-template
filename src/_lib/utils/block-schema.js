@@ -1,14 +1,16 @@
 /**
  * Block schema definitions for design system blocks.
  *
- * Each block type has a set of allowed keys. Unknown keys will cause
- * a build error to catch typos like "video_url" instead of "video_id".
+ * Each block module in `./block-schema/<type>.js` exports:
+ *   - `type`   — block type slug
+ *   - `fields` — unified field definitions (CMS + doc info per key)
+ *   - `docs`   — metadata (summary, template, scss, htmlRoot, notes)
+ *   - optionally `containerWidth` ("full" | "narrow"; defaults to "wide")
  *
- * Block definitions live in `./block-schema/<type>.js` — one file per type.
- * Each module exports `type`, `schema`, `docs`, and optionally `cmsFields`.
- * This file aggregates them into `BLOCK_SCHEMAS` (for validation),
- * `BLOCK_CMS_FIELDS` (for CMS generation), and `BLOCK_DOCS` (for documentation
- * generation by scripts/generate-blocks-reference.js).
+ * This file aggregates them into:
+ *   - `BLOCK_SCHEMAS`    — allowed keys per type (for validation)
+ *   - `BLOCK_CMS_FIELDS` — CMS field definitions (for .pages.yml generation)
+ *   - `BLOCK_DOCS`       — documentation (for BLOCKS_LAYOUT.md generation)
  */
 
 import * as bunnyVideoBackground from "#utils/block-schema/bunny-video-background.js";
@@ -115,58 +117,49 @@ const BLOCK_MODULES = [
 const indexByType = (getValue) =>
   Object.fromEntries(BLOCK_MODULES.map((m) => [m.type, getValue(m)]));
 
-/** Allowed keys per block type (excluding common keys and "type"). */
-const BLOCK_SCHEMAS = indexByType((m) => m.schema);
+const DOC_TYPE_MAP = {
+  markdown: "string",
+  image: "string",
+  reference: "string",
+};
 
-/**
- * Container width per block type. Block modules opt in via an exported
- * `containerWidth` constant ("full" or "narrow"); blocks that omit it
- * default to "wide".
- * @type {Record<string, "full" | "wide" | "narrow">}
- */
-const BLOCK_CONTAINER_WIDTHS = Object.fromEntries(
-  BLOCK_MODULES.map((m) => [
-    m.type,
-    "containerWidth" in m ? m.containerWidth : "wide",
-  ]),
+const BLOCK_SCHEMAS = indexByType((m) => Object.keys(m.fields));
+
+/** @type {Record<string, "full" | "wide" | "narrow">} */
+const BLOCK_CONTAINER_WIDTHS = indexByType((m) =>
+  "containerWidth" in m ? m.containerWidth : "wide",
 );
 
-/**
- * @param {string} blockType
- * @returns {"full" | "wide" | "narrow"} Container wrapper width
- */
+/** @param {string} blockType */
 const getBlockContainerWidth = (blockType) =>
   BLOCK_CONTAINER_WIDTHS[blockType] || "wide";
 
-/**
- * CMS field definitions for block types exposed in Pages CMS.
- *
- * Not every block type in BLOCK_SCHEMAS is exposed in the CMS — only modules
- * that export `cmsFields` are included. CONTAINER_FIELDS (`dark`) are
- * injected here so per-block modules stay focused on block-specific fields.
- * This invariant is enforced by
- * test/unit/utils/block-schema.test.js.
- */
-const BLOCK_CMS_FIELDS = Object.fromEntries(
-  BLOCK_MODULES.filter((m) => "cmsFields" in m).map((m) => [
-    m.type,
-    { ...CONTAINER_FIELDS, ...m.cmsFields },
-  ]),
-);
+const BLOCK_CMS_FIELDS = indexByType((m) => ({
+  ...CONTAINER_FIELDS,
+  ...Object.fromEntries(
+    Object.entries(m.fields)
+      .filter(([, f]) => "label" in f)
+      .map(([key, { description, default: _default, ...cmsProps }]) => [
+        key,
+        cmsProps,
+      ]),
+  ),
+}));
 
-/**
- * Documentation metadata for each block type.
- * Used by scripts/generate-blocks-reference.js to auto-generate BLOCKS_LAYOUT.md.
- *
- * Each block has:
- *   summary  - One-line description
- *   template - Path to the include template (omit for inline blocks)
- *   scss     - Path to the SCSS file (omit if none)
- *   htmlRoot - Root HTML element/class
- *   notes    - Optional extra notes rendered after the parameter table
- *   params   - Object of parameter docs: { key: { type, required?, default?, description } }
- */
-const BLOCK_DOCS = indexByType((m) => m.docs);
+const BLOCK_DOCS = indexByType((m) => ({
+  ...m.docs,
+  params: Object.fromEntries(
+    Object.entries(m.fields).map(([key, field]) => [
+      key,
+      {
+        type: field.list ? "array" : DOC_TYPE_MAP[field.type] || field.type,
+        ...(field.required && { required: true }),
+        ...(field.default !== undefined && { default: field.default }),
+        description: field.description,
+      },
+    ]),
+  ),
+}));
 
 /** @param {readonly string[]} arr */
 const quoteJoin = (arr) => arr.map((k) => `"${k}"`).join(", ");

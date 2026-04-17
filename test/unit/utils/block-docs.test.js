@@ -5,11 +5,7 @@ import { join } from "node:path";
 import YAML from "yaml";
 import { rootDir } from "#test/test-utils.js";
 import { collectBlockReferences } from "#test/unit/utils/pages-yml-helpers.js";
-import {
-  BLOCK_CMS_FIELDS,
-  BLOCK_DOCS,
-  BLOCK_SCHEMAS,
-} from "#utils/block-schema.js";
+import { BLOCK_DOCS, BLOCK_SCHEMAS } from "#utils/block-schema.js";
 
 const RENDER_BLOCK_PATH = join(
   rootDir,
@@ -30,37 +26,7 @@ const getRenderedBlockTypes = () => {
     .sort();
 };
 
-describe("BLOCK_DOCS completeness", () => {
-  test("every BLOCK_SCHEMAS type has a BLOCK_DOCS entry", () => {
-    const schemaTypes = Object.keys(BLOCK_SCHEMAS).sort();
-    const docTypes = Object.keys(BLOCK_DOCS).sort();
-    expect(docTypes).toEqual(schemaTypes);
-  });
-
-  test("every BLOCK_DOCS param key exists in BLOCK_SCHEMAS", () => {
-    const mismatches = Object.entries(BLOCK_DOCS).flatMap(([type, doc]) => {
-      const schemaKeys = new Set(BLOCK_SCHEMAS[type]);
-      return Object.keys(doc.params)
-        .filter((key) => !schemaKeys.has(key))
-        .map(
-          (key) => `${type}: "${key}" in BLOCK_DOCS but not in BLOCK_SCHEMAS`,
-        );
-    });
-    expect(mismatches).toEqual([]);
-  });
-
-  test("every BLOCK_SCHEMAS key has a BLOCK_DOCS param entry", () => {
-    const mismatches = Object.entries(BLOCK_SCHEMAS).flatMap(([type, keys]) => {
-      const docKeys = new Set(Object.keys(BLOCK_DOCS[type].params));
-      return keys
-        .filter((key) => !docKeys.has(key))
-        .map(
-          (key) => `${type}: "${key}" in BLOCK_SCHEMAS but not in BLOCK_DOCS`,
-        );
-    });
-    expect(mismatches).toEqual([]);
-  });
-
+describe("BLOCK_DOCS quality", () => {
   test("every BLOCK_DOCS entry has a summary", () => {
     const missing = Object.entries(BLOCK_DOCS)
       .filter(([, doc]) => !doc.summary)
@@ -108,8 +74,6 @@ describe("BLOCKS_LAYOUT.md freshness", () => {
 
 describe(".pages.yml ↔ BLOCKS_LAYOUT.md coverage", () => {
   const parsedPagesYml = YAML.parse(readFileSync(PAGES_YML_PATH, "utf-8"));
-  // Every block type reachable through the CMS UI — each must have
-  // user-facing docs in BLOCKS_LAYOUT.md.
   const cmsReachableTypes = new Set(
     collectBlockReferences(parsedPagesYml).map((r) => r.name),
   );
@@ -119,25 +83,5 @@ describe(".pages.yml ↔ BLOCKS_LAYOUT.md coverage", () => {
       .filter((type) => !BLOCK_DOCS[type]?.summary)
       .sort();
     expect(missing).toEqual([]);
-  });
-
-  test("every CMS-reachable block's CMS field is documented in BLOCK_DOCS.params", () => {
-    // `dark` is injected by the generator for every block and documented once
-    // in the "Common Block Properties" table at the top of BLOCKS_LAYOUT.md —
-    // skip it here.
-    const containerFields = new Set(["dark"]);
-    const violations = [...cmsReachableTypes].flatMap((type) => {
-      const docParams = Object.keys(BLOCK_DOCS[type]?.params || {});
-      const cmsFieldNames = Object.keys(BLOCK_CMS_FIELDS[type] || {});
-      return cmsFieldNames
-        .filter(
-          (name) => !containerFields.has(name) && !docParams.includes(name),
-        )
-        .map(
-          (name) =>
-            `${type}: CMS field "${name}" has no matching BLOCK_DOCS.params entry`,
-        );
-    });
-    expect(violations).toEqual([]);
   });
 });

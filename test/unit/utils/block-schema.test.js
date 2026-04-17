@@ -1,37 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
-  BLOCK_CMS_FIELDS,
   BLOCK_DOCS,
   BLOCK_SCHEMAS,
   getBlockContainerWidth,
   validateBlocks,
 } from "#utils/block-schema.js";
-
-describe("BLOCK_SCHEMAS / BLOCK_CMS_FIELDS / BLOCK_DOCS invariants", () => {
-  test("every CMS field block is also a validator-known block", () => {
-    for (const blockType of Object.keys(BLOCK_CMS_FIELDS)) {
-      expect(BLOCK_SCHEMAS[blockType]).toBeDefined();
-    }
-  });
-
-  test("every schema-known block is also CMS-editable", () => {
-    // If you intentionally want a code-only block, remove it from
-    // BLOCK_SCHEMAS. Otherwise export `cmsFields` from its block-schema
-    // module (use `{}` for blocks with no block-specific fields —
-    // the wrapper `dark` field is auto-injected).
-    const missing = Object.keys(BLOCK_SCHEMAS)
-      .filter((type) => !(type in BLOCK_CMS_FIELDS))
-      .sort();
-    expect(missing).toEqual([]);
-  });
-
-  test("every schema-known block also has docs", () => {
-    const missing = Object.keys(BLOCK_SCHEMAS)
-      .filter((type) => !(type in BLOCK_DOCS))
-      .sort();
-    expect(missing).toEqual([]);
-  });
-});
 
 describe("BLOCK_DOCS shape", () => {
   // One test per block so the failure message identifies the broken module.
@@ -40,21 +13,6 @@ describe("BLOCK_DOCS shape", () => {
       expect(typeof docs.summary).toBe("string");
       expect(docs.summary.length).toBeGreaterThan(0);
       expect(docs.params).toEqual(expect.any(Object));
-    });
-  }
-});
-
-describe("BLOCK_CMS_FIELDS field keys pass validateBlocks", () => {
-  // Data-driven: every CMS-exposed field must also be accepted by the
-  // production validator, or the CMS would let authors write blocks
-  // that fail to build.
-  for (const [blockType, fields] of Object.entries(BLOCK_CMS_FIELDS)) {
-    test(`${blockType}: all CMS field keys validate`, () => {
-      const block = { type: blockType };
-      for (const fieldKey of Object.keys(fields)) {
-        block[fieldKey] = fieldKey === "dark" ? true : "test-value";
-      }
-      expect(() => validateBlocks([block])).not.toThrow();
     });
   }
 });

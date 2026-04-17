@@ -75,9 +75,9 @@ Grid of feature cards with optional icons, titles, and descriptions.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | array | **required** | Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji. |
+| `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
 | `heading_level` | number | `3` | Heading level for item titles. |
 | `grid_class` | string | `"features"` | CSS class on the `<ul>`. Options: `"features"` (auto-fit grid), `"grid"` (1/2/3 col), `"grid--4"` (1/2/4 col). Can combine: `"grid--4 text-center"`. |
-| `reveal` | boolean | `true` | Adds `data-reveal` to each card. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
 | `header_class` | string | — | Extra CSS classes on the section header. |
@@ -96,9 +96,9 @@ Grid of cards featuring images with titles and optional descriptions.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | array | **required** | Card objects. Each: `{image, title, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
-| `heading_level` | number | `3` | Heading level for titles. |
-| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
+| `heading_level` | number | `3` | Heading level for item titles. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
 | `header_class` | string | — | Extra CSS classes on the section header. |
@@ -117,9 +117,9 @@ Grid of buyable products — image, title, optional subtitle, price, and a buy b
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | array | **required** | Product objects. Each: `{image, title, subtitle, price, currency, link, button_text}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
-| `heading_level` | number | `3` | Heading level for titles. |
-| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
+| `heading_level` | number | `3` | Heading level for item titles. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
 | `header_class` | string | — | Extra CSS classes on the section header. |
@@ -173,8 +173,8 @@ Full-width hero banner with optional badge, title, lead text, and action buttons
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | **required** | Main `<h1>` heading. |
 | `badge` | string | — | Small pill label above the title. Renders as `<span class="badge">`. |
+| `title` | string | **required** | Main `<h1>` heading. |
 | `lead` | string | — | Subtitle paragraph. `body-lg` size, muted color, max-width `$width-narrow` (680px). |
 | `buttons` | array | — | Action buttons. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default. |
 | `class` | string | — | Extra CSS classes on the `<header>`. Use `"gradient"` for gradient bg. |
@@ -403,11 +403,11 @@ Auto-playing video background with overlaid text content.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `video_id` | string | **required** | YouTube video ID or full iframe URL (for Bunny, Vimeo, etc). |
+| `thumbnail_url` | string | — | URL of a thumbnail image displayed behind the iframe while the video loads. |
 | `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
 | `aspect_ratio` | string | `"16/9"` | CSS aspect-ratio on container. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `class` | string | — | Extra CSS classes. |
-| `thumbnail_url` | string | — | URL of a thumbnail image displayed behind the iframe while the video loads. |
+| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 
 YouTube IDs get `youtube-nocookie.com` embed URLs with `autoplay=1&mute=1&loop=1&controls=0`. Custom URLs (starting with `http`) are used directly.
 
@@ -428,8 +428,8 @@ Bunny CDN video background with player.js-powered thumbnail that fades when play
 | `thumbnail_url` | string | **required** | Thumbnail image URL. Displayed as a placeholder until video playback begins. |
 | `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
 | `aspect_ratio` | string | `"16/9"` | CSS aspect-ratio on container. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `class` | string | — | Extra CSS classes. |
+| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 
 Uses player.js to detect when the video starts playing, then fades out the thumbnail. The player.js library is bundled into bunny-video.js and only loaded when this block is used.
 
@@ -448,8 +448,8 @@ Full-width image background with overlaid text and optional parallax.
 |---|---|---|---|
 | `image` | string | **required** | Image path. |
 | `image_alt` | string | `"Background image"` | Alt text. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `class` | string | — | Extra CSS classes. |
+| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `parallax` | boolean | `false` | Enables CSS `animation-timeline: scroll()` parallax effect. |
 
 Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 16/9. Parallax uses `animation-timeline: scroll()` for native CSS scroll-driven translation.
