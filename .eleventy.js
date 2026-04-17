@@ -51,6 +51,7 @@ import { configureRemovePattern } from "#eleventy/remove-pattern.js";
 import { configureScreenshots } from "#eleventy/screenshots.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
 import { configureVideo } from "#eleventy/video.js";
+import { configureWrapHashtags } from "#eleventy/wrap-hashtags.js";
 
 // Filters
 import { configureFilters } from "#filters/configure-filters.js";
@@ -132,6 +133,7 @@ export default async function (eleventyConfig) {
   configureThumbnailPlaceholder(eleventyConfig);
   configureUnusedImages(eleventyConfig);
   configureVideo(eleventyConfig);
+  configureWrapHashtags(eleventyConfig);
   configureJsBundler(eleventyConfig);
 
   return {
