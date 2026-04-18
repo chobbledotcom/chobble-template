@@ -475,6 +475,25 @@ components:
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
+  block_socials:
+    label: Socials
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: directory, type: string, label: Directory, required: true }
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
+      - { name: masonry, type: boolean, label: Masonry Grid }
+      - name: filter
+        type: object
+        label: Filter
+        fields:
+          - name: property
+            type: string
+            label: Property (e.g. url, data.title)
+          - { name: includes, type: string, label: Contains }
+          - { name: equals, type: string, label: Equals }
+      - { name: header_intro, type: rich-text, label: Header Intro }
   block_link_columns:
     label: Link Columns
     type: object
@@ -766,6 +785,7 @@ content:
           - { name: image-background, component: block_image_background }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
           - { name: link-columns, component: block_link_columns }
           - { name: contact-form, component: block_contact_form }
           - { name: custom-contact-form, component: block_custom_contact_form }

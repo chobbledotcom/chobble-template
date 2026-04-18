@@ -1,0 +1,16 @@
+{%- comment -%}
+Socials block: renders social-media posts loaded from a directory of JSON files.
+
+Parameters (from block):
+  directory   - Directory under `src/` containing `*.json` post files (e.g. "instagram-posts")
+  intro       - Optional markdown content rendered above the items
+  horizontal  - If true, renders as a horizontal slider
+  masonry     - If true, renders as a masonry grid
+  filter      - Optional object to filter the posts:
+                  property: dot-notation path (e.g. "url", "data.title")
+                  includes: string the property must contain
+                  equals:   exact value the property must match
+{%- endcomment -%}
+
+{%- assign blockItems = block.directory | loadSocials -%}
+{%- include "design-system/render-items-block.html" -%}
