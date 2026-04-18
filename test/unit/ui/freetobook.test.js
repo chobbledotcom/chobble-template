@@ -13,13 +13,18 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 
-const setup = (extraHtml = "") => {
+const setupFreetobook = (extraHtml = "") => {
   document.body.innerHTML = SECTION_HTML + extraHtml;
   initFreetobook();
 };
 
 const details = () => document.querySelector("#freetobook details");
 const summary = () => document.querySelector("#freetobook summary");
+
+const assertSummaryIsClosed = () => {
+  expect(summary().classList.contains("btn--primary")).toBe(true);
+  expect(summary().classList.contains("btn--secondary")).toBe(false);
+};
 
 describe("initFreetobook", () => {
   test("does nothing when #freetobook section is absent", () => {
@@ -28,19 +33,18 @@ describe("initFreetobook", () => {
   });
 
   test("details starts closed", () => {
-    setup();
+    setupFreetobook();
     expect(details().open).toBe(false);
   });
 
   test("summary starts with primary button style", () => {
-    setup();
-    expect(summary().classList.contains("btn--primary")).toBe(true);
-    expect(summary().classList.contains("btn--secondary")).toBe(false);
+    setupFreetobook();
+    assertSummaryIsClosed();
     expect(summary().classList.contains("btn--sm")).toBe(false);
   });
 
   test("summary switches to secondary small style when details opens", () => {
-    setup();
+    setupFreetobook();
     details().open = true;
     details().dispatchEvent(new Event("toggle"));
     expect(summary().classList.contains("btn--secondary")).toBe(true);
@@ -50,24 +54,23 @@ describe("initFreetobook", () => {
   });
 
   test("summary reverts to primary style when details closes", () => {
-    setup();
+    setupFreetobook();
     details().open = true;
     details().dispatchEvent(new Event("toggle"));
     details().open = false;
     details().dispatchEvent(new Event("toggle"));
-    expect(summary().classList.contains("btn--primary")).toBe(true);
-    expect(summary().classList.contains("btn--secondary")).toBe(false);
+    assertSummaryIsClosed();
     expect(summary().textContent).toBe("Check Availability / Book Online");
   });
 
   test("clicking a #freetobook anchor opens the details", () => {
-    setup('<a href="#freetobook">Book</a>');
+    setupFreetobook('<a href="#freetobook">Book</a>');
     document.querySelector('a[href="#freetobook"]').click();
     expect(details().open).toBe(true);
   });
 
   test("clicking a #freetobook anchor when already open does not close it", () => {
-    setup('<a href="#freetobook">Book</a>');
+    setupFreetobook('<a href="#freetobook">Book</a>');
     details().open = true;
     details().dispatchEvent(new Event("toggle"));
     document.querySelector('a[href="#freetobook"]').click();

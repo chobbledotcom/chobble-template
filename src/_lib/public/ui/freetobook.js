@@ -1,20 +1,5 @@
 import { onReady } from "#public/utils/on-ready.js";
 
-const OPEN_TEXT = "Check Availability / Book Online";
-const CLOSED_TEXT = "Hide Booking Form";
-
-const updateSummary = (summary, isOpen) => {
-  if (isOpen) {
-    summary.classList.remove("btn--primary");
-    summary.classList.add("btn--secondary", "btn--sm");
-    summary.textContent = CLOSED_TEXT;
-  } else {
-    summary.classList.remove("btn--secondary", "btn--sm");
-    summary.classList.add("btn--primary");
-    summary.textContent = OPEN_TEXT;
-  }
-};
-
 export const initFreetobook = () => {
   const section = document.getElementById("freetobook");
   if (!section) return;
@@ -25,8 +10,20 @@ export const initFreetobook = () => {
   const summary = details.querySelector("summary");
   if (!summary) return;
 
+  const updateSummary = (isOpen) => {
+    if (isOpen) {
+      summary.classList.remove("btn--primary");
+      summary.classList.add("btn--secondary", "btn--sm");
+      summary.textContent = "Hide Booking Form";
+    } else {
+      summary.classList.remove("btn--secondary", "btn--sm");
+      summary.classList.add("btn--primary");
+      summary.textContent = "Check Availability / Book Online";
+    }
+  };
+
   details.addEventListener("toggle", () => {
-    updateSummary(summary, details.open);
+    updateSummary(details.open);
   });
 
   if (window.location.hash === "#freetobook") {
