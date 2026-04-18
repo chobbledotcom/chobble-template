@@ -17,7 +17,7 @@ import { SRC_DIR } from "#lib/paths.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
-const loadSocialsFromDirectory = memoize((directory) => {
+const loadSocialsFromDirectory = memoize((/** @type {string} */ directory) => {
   const dir = isAbsolute(directory) ? directory : join(SRC_DIR, directory);
   if (!fs.existsSync(dir)) return [];
   return fs
