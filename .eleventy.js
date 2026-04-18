@@ -18,6 +18,7 @@ import { configureNavigation } from "#collections/navigation.js";
 import { configureProducts } from "#collections/products.js";
 import { configureProperties } from "#collections/properties.js";
 import { configureReviews } from "#collections/reviews.js";
+import { configureSocials } from "#collections/socials.js";
 import { configureTags } from "#collections/tags.js";
 import { configureTeam } from "#collections/team.js";
 import { configureAreaList } from "#eleventy/area-list.js";
@@ -50,6 +51,7 @@ import { configureRemovePattern } from "#eleventy/remove-pattern.js";
 import { configureScreenshots } from "#eleventy/screenshots.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
 import { configureVideo } from "#eleventy/video.js";
+import { configureWrapHashtags } from "#eleventy/wrap-hashtags.js";
 
 // Filters
 import { configureFilters } from "#filters/configure-filters.js";
@@ -123,6 +125,7 @@ export default async function (eleventyConfig) {
   configureProducts(eleventyConfig);
   configureProperties(eleventyConfig);
   configureReviews(eleventyConfig);
+  configureSocials(eleventyConfig);
   configureScss(eleventyConfig);
   configureStyleBundle(eleventyConfig);
   configureTags(eleventyConfig);
@@ -130,6 +133,7 @@ export default async function (eleventyConfig) {
   configureThumbnailPlaceholder(eleventyConfig);
   configureUnusedImages(eleventyConfig);
   configureVideo(eleventyConfig);
+  configureWrapHashtags(eleventyConfig);
   configureJsBundler(eleventyConfig);
 
   return {

@@ -1,0 +1,4 @@
+{%- assign _hashtagSegments = text | splitHashtags -%}
+{%- for segment in _hashtagSegments -%}
+  {%- if segment.isTag -%}<span class="text-muted">{{ segment.text }}</span>{%- else -%}{{ segment.text }}{%- endif -%}
+{%- endfor -%}

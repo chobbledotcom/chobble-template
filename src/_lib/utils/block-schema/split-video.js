@@ -13,7 +13,13 @@ export const fields = {
   figure_video_id: {
     ...str("Video ID or URL"),
     required: true,
-    description: "YouTube video ID or custom iframe URL.",
+    description:
+      "YouTube video ID or custom iframe URL (e.g. Bunny Stream, Vimeo).",
+  },
+  figure_thumbnail_url: {
+    ...str("Thumbnail URL"),
+    description:
+      "Thumbnail image URL shown in the click-to-play facade. Required for non-YouTube URLs (Bunny Stream, Vimeo, etc.); YouTube thumbnails are fetched automatically when this is omitted.",
   },
   figure_alt: {
     ...str("Video Alt Text"),

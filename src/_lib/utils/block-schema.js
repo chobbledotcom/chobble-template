@@ -43,6 +43,7 @@ import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
 import { CONTAINER_FIELDS } from "#utils/block-schema/shared.js";
 import * as snippet from "#utils/block-schema/snippet.js";
+import * as splitBuyOptions from "#utils/block-schema/split-buy-options.js";
 import * as splitCallout from "#utils/block-schema/split-callout.js";
 import * as splitCode from "#utils/block-schema/split-code.js";
 import * as splitFull from "#utils/block-schema/split-full.js";
@@ -78,6 +79,7 @@ const BLOCK_MODULES = [
   splitIconLinks,
   splitHtml,
   splitCallout,
+  splitBuyOptions,
   splitFull,
   cta,
   callout,

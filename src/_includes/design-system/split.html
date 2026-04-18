@@ -1,6 +1,7 @@
 {%- comment -%}
 Split layout with text content and a figure. Used by all split-* block types:
-split-image, split-video, split-code, split-icon-links, split-html.
+split-image, split-video, split-code, split-icon-links, split-html,
+split-buy-options.
 
 The figure type is derived from the block type (e.g., "split-image" → "image").
 
@@ -16,19 +17,28 @@ Parameters (via block object):
     - block.button: Optional button object { text, href, variant }
 
   Figure fields per block type:
-    split-image:      figure_src, figure_alt, figure_caption
-    split-video:      figure_video_id, figure_alt, figure_caption
-    split-code:       figure_filename, figure_code, figure_language
-    split-icon-links: figure_items (array of {icon, text, url})
-    split-html:       figure_html
+    split-image:        figure_src, figure_alt, figure_caption
+    split-video:        figure_video_id, figure_thumbnail_url, figure_alt,
+                        figure_caption
+    split-code:         figure_filename, figure_code, figure_language
+    split-icon-links:   figure_items (array of {icon, text, url})
+    split-html:         figure_html
+    split-buy-options:  figure_image, figure_title, figure_subtitle,
+                        figure_price, figure_currency, figure_link,
+                        figure_button_text, figure_heading_level,
+                        figure_image_aspect_ratio
 {%- endcomment -%}
 
 {%- assign reveal_content = block.reveal_content | default: "left" -%}
 {%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
+{%- assign is_buy_options = false -%}
+{%- if block.type == "split-buy-options" -%}
+  {%- assign is_buy_options = true -%}
+{%- endif -%}
 
 <div class="split{% if block.reverse %} split--reverse{% endif %}">
   {%- include "design-system/split-article.html", block: block, reveal_content: reveal_content -%}
-  <figure data-reveal="{{ reveal_figure }}">
+  <figure data-reveal="{{ reveal_figure }}"{% if is_buy_options %} class="buy-option-figure" itemscope itemtype="https://schema.org/Product"{% endif %}>
     {%- case block.type -%}
       {%- when "split-image" -%}
         {% image block.figure_src, block.figure_alt %}
@@ -36,8 +46,9 @@ Parameters (via block object):
           <figcaption>{{ block.figure_caption }}</figcaption>
         {%- endif -%}
       {%- when "split-video" -%}
-        {%- assign _is_youtube = block.figure_video_id | is_youtube_id -%}
-        {%- if _is_youtube -%}
+        {%- if block.figure_thumbnail_url -%}
+          {%- assign _thumbnail = block.figure_thumbnail_url -%}
+        {%- elsif block.figure_video_id | is_youtube_id -%}
           {%- assign _thumbnail = block.figure_video_id | youtube_thumbnail -%}
         {%- else -%}
           {%- assign _thumbnail = null -%}
@@ -52,6 +63,17 @@ Parameters (via block object):
         {%- include "design-system/icon-links.html", items: block.figure_items -%}
       {%- when "split-html" -%}
         {{ block.figure_html }}
+      {%- when "split-buy-options" -%}
+        {%- include "design-system/buy-option-card.html",
+           image: block.figure_image,
+           title: block.figure_title,
+           subtitle: block.figure_subtitle,
+           price: block.figure_price,
+           currency: block.figure_currency,
+           link: block.figure_link,
+           button_text: block.figure_button_text,
+           heading_level: block.figure_heading_level,
+           image_aspect_ratio: block.figure_image_aspect_ratio -%}
     {%- endcase -%}
   </figure>
 </div>
