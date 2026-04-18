@@ -42,6 +42,9 @@
     }
 
     .review {
+      max-height: 300px;
+      overflow-y: auto;
+
       p {
         padding-inline: 0 !important;
       }
