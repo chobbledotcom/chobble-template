@@ -528,6 +528,29 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 
 ---
 
+### `socials`
+
+Renders social-media posts loaded from a directory of JSON files as a card grid or horizontal slider.
+
+**Component:** `block_socials`
+**Template:** `src/_includes/design-system/socials-block.html`
+**SCSS:** `src/css/design-system/_items.scss`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `directory` | string | **required** | Directory (relative to `src/`) containing social-post JSON files — e.g. `"instagram-posts"` or `"mastodon-posts"`. Each `*.json` file must have `url`, `date`, `title`, and `thumbnail` keys. |
+| `intro` | string | — | Markdown content rendered above items in `.prose`. |
+| `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
+| `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
+
+Posts are loaded per-block from the given directory, so the same template works for Instagram, Mastodon, or any other source. External `url` values open in a new tab.
+
+---
+
 ### `link-columns`
 
 Renders a collection as a plain-text unordered list of links arranged in responsive CSS columns. Optionally strips matching text via a regex so repetitive prefixes/suffixes can be removed.
