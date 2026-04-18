@@ -5,12 +5,8 @@ import { memoize } from "#toolkit/fp/memoize.js";
 
 /**
  * @typedef {import('happy-dom').Window} HappyDOMWindow
- */
-
-/**
- * @typedef {Object} DOM
- * @property {HappyDOMWindow} window - Happy-DOM window instance
- * @property {() => string} serialize - Serialize to HTML string
+ * @typedef {NonNullable<ConstructorParameters<typeof import('happy-dom').Window>[0]>} WindowOptions
+ * @typedef {import('#lib/types').DOM} DOM
  */
 
 /**
@@ -33,23 +29,23 @@ const SSR_SETTINGS = {
 };
 
 /**
- * Create a DOM instance with optional HTML content and Window options.
- * Memoizes the DOM wrapper class to avoid repeated module loading.
- * @param {string} [html=""] - Initial HTML content
- * @param {Object} [options] - Happy-DOM Window options
- * @returns {Promise<DOM>} DOM instance
+ * Memoized wrapper class factory; avoids reloading happy-dom on each call.
  */
 const getDOMClass = memoize(async () => {
   const { Window } = await import("happy-dom");
   return class {
-    constructor(html = "", options = undefined) {
+    /**
+     * @param {string} [html]
+     * @param {WindowOptions} [options]
+     */
+    constructor(html = "", options = {}) {
       const mergedOptions = {
         ...options,
-        settings: { ...SSR_SETTINGS, ...options?.settings },
+        settings: { ...SSR_SETTINGS, ...options.settings },
       };
       this.window = new Window(mergedOptions);
       this.window.SyntaxError = this.window.SyntaxError || SyntaxError;
-      html && this.window.document.write(html);
+      if (html) this.window.document.write(html);
     }
 
     serialize() {
@@ -60,7 +56,13 @@ const getDOMClass = memoize(async () => {
   };
 });
 
-const loadDOM = async (html = "", options = undefined) => {
+/**
+ * Create a DOM instance with optional HTML content and Window options.
+ * @param {string} [html] - Initial HTML content
+ * @param {WindowOptions} [options] - Happy-DOM Window options
+ * @returns {Promise<DOM>} DOM instance
+ */
+const loadDOM = async (html = "", options = {}) => {
   const DOM = await getDOMClass();
   return new DOM(html, options);
 };

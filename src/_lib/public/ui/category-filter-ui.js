@@ -123,64 +123,6 @@ export const updateOptionActiveStates = (container, activeFilters) => {
 };
 
 /**
- * Check if a single filter option should be visible.
- * Active options are always visible. Others are visible if they would
- * narrow or change the result set.
- * @param {Element} link - The option link element with data-filter-key/value
- * @param {Array} allItems - All filter items
- * @param {Record<string, string>} activeFilters - Current active filters
- * @param {number} currentMatchCount - Count of currently matching items
- * @returns {boolean} Whether the option should be visible
- */
-export const isOptionVisible = (
-  link,
-  allItems,
-  activeFilters,
-  currentMatchCount,
-) => {
-  if (activeFilters[link.dataset.filterKey] === link.dataset.filterValue) {
-    return true;
-  }
-
-  const hypothetical = addFilter(activeFilters, link);
-  const count = allItems.filter((item) =>
-    itemMatchesFilters(item, hypothetical),
-  ).length;
-  return (
-    count > 0 &&
-    (link.dataset.filterKey in activeFilters || count !== currentMatchCount)
-  );
-};
-
-/**
- * Update visibility for all options in a single filter group.
- * @param {Element} group - The filter group element
- * @param {Array} allItems - All filter items
- * @param {Record<string, string>} activeFilters - Current active filters
- * @param {number} currentMatchCount - Count of currently matching items
- * @returns {number} Count of visible options
- */
-export const updateGroupOptions = (
-  group,
-  allItems,
-  activeFilters,
-  currentMatchCount,
-) =>
-  Array.from(group.querySelectorAll("[data-filter-key]")).reduce(
-    (count, link) => {
-      const show = isOptionVisible(
-        link,
-        allItems,
-        activeFilters,
-        currentMatchCount,
-      );
-      link.closest("li").style.display = show ? "" : "none";
-      return show ? count + 1 : count;
-    },
-    0,
-  );
-
-/**
  * Replay the loading spinner and content-fade animations.
  * Resets the CSS animations on .filter-spinner and .filtered-content
  * so the brief loading effect plays again on filter changes.
@@ -213,14 +155,29 @@ export const updateOptionVisibility = (
   activeFilters,
   currentMatchCount,
 ) => {
+  const isOptionVisible = (link) => {
+    if (activeFilters[link.dataset.filterKey] === link.dataset.filterValue) {
+      return true;
+    }
+    const hypothetical = addFilter(activeFilters, link);
+    const count = allItems.filter((item) =>
+      itemMatchesFilters(item, hypothetical),
+    ).length;
+    return (
+      count > 0 &&
+      (link.dataset.filterKey in activeFilters || count !== currentMatchCount)
+    );
+  };
+
   for (const group of container.querySelectorAll(".filter-groups > li")) {
     if (group.querySelector(".sort-select")) continue;
-    const visible = updateGroupOptions(
-      group,
-      allItems,
-      activeFilters,
-      currentMatchCount,
-    );
+    const visible = Array.from(
+      group.querySelectorAll("[data-filter-key]"),
+    ).reduce((count, link) => {
+      const show = isOptionVisible(link);
+      link.closest("li").style.display = show ? "" : "none";
+      return show ? count + 1 : count;
+    }, 0);
     group.style.display = visible > 0 ? "" : "none";
   }
 };
