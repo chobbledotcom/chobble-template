@@ -87,6 +87,7 @@ export type {
   PagesCMSOpeningTime,
   // Extended types
   ProductOption,
+  NormalizedProductOption,
   ProductSpec,
   ProductData,
   CartAttributesParams,
