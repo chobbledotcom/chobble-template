@@ -103,6 +103,19 @@ const getReviewsFor = (reviews, slug, tags) => {
 };
 
 /**
+ * Filter reviews to those at or above a minimum rating.
+ * Reviews without a numeric rating are excluded.
+ *
+ * @param {ReviewCollectionItem[]} reviews - Array of review objects
+ * @param {number} minRating - Minimum rating threshold (inclusive)
+ * @returns {ReviewCollectionItem[]} Reviews with rating >= minRating
+ */
+const filterByMinRating = (reviews, minRating) =>
+  filter(
+    (r) => typeof r.data.rating === "number" && r.data.rating >= minRating,
+  )(reviews);
+
+/**
  * Calculate average rating for reviews matching a specific item.
  * Derives the review field from item tags.
  *
@@ -258,6 +271,7 @@ const reviewsRedirects = (reviewsField, limitOverride) =>
 const configureReviews = (eleventyConfig) => {
   eleventyConfig.addCollection("reviews", createReviewsCollection);
   addDataFilter(eleventyConfig, "getReviewsFor", getReviewsFor);
+  addDataFilter(eleventyConfig, "filterByMinRating", filterByMinRating);
   addDataFilter(eleventyConfig, "getRating", getRating);
   eleventyConfig.addFilter("ratingToStars", (rating) =>
     ratingToStars(rating, config().rating_stars_uses_svg),
@@ -267,6 +281,7 @@ const configureReviews = (eleventyConfig) => {
 
 export {
   configureReviews,
+  filterByMinRating,
   getReviewsFor,
   ratingToStars,
   reviewsRedirects,
