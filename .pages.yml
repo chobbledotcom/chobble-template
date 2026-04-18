@@ -610,6 +610,7 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: current_item, type: boolean, label: Filter to Current Item }
+      - { name: minimum_rating, type: number, label: Minimum Rating }
   block_gallery:
     label: Gallery
     type: object
