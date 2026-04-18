@@ -226,6 +226,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/public/ui/search.js:readQueryParam",
   "src/_lib/public/ui/search.js:handleSubmit",
   "src/_lib/public/ui/nav-dropdown.js:initNavDropdown",
+  "src/_lib/public/ui/freetobook.js:initFreetobook",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",
