@@ -18,7 +18,8 @@ Parameters (via block object):
 
   Figure fields per block type:
     split-image:        figure_src, figure_alt, figure_caption
-    split-video:        figure_video_id, figure_alt, figure_caption
+    split-video:        figure_video_id, figure_thumbnail_url, figure_alt,
+                        figure_caption
     split-code:         figure_filename, figure_code, figure_language
     split-icon-links:   figure_items (array of {icon, text, url})
     split-html:         figure_html
@@ -45,8 +46,9 @@ Parameters (via block object):
           <figcaption>{{ block.figure_caption }}</figcaption>
         {%- endif -%}
       {%- when "split-video" -%}
-        {%- assign _is_youtube = block.figure_video_id | is_youtube_id -%}
-        {%- if _is_youtube -%}
+        {%- if block.figure_thumbnail_url -%}
+          {%- assign _thumbnail = block.figure_thumbnail_url -%}
+        {%- elsif block.figure_video_id | is_youtube_id -%}
           {%- assign _thumbnail = block.figure_video_id | youtube_thumbnail -%}
         {%- else -%}
           {%- assign _thumbnail = null -%}

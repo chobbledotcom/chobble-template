@@ -226,7 +226,8 @@ Two-column layout with text content and an embedded video.
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
 | `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
-| `figure_video_id` | string | **required** | YouTube video ID or custom iframe URL. |
+| `figure_video_id` | string | **required** | YouTube video ID or custom iframe URL (e.g. Bunny Stream, Vimeo). |
+| `figure_thumbnail_url` | string | — | Thumbnail image URL shown in the click-to-play facade. Required for non-YouTube URLs (Bunny Stream, Vimeo, etc.); YouTube thumbnails are fetched automatically when this is omitted. |
 | `figure_alt` | string | — | Accessible title for the video iframe. |
 | `figure_caption` | string | — | Visible caption below the video. |
 
