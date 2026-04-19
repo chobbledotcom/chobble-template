@@ -86,23 +86,33 @@ const loadDOM = async (html = "", options = {}) => {
  * promise on each release makes the waiter re-check after wakeup, which
  * correctly handles N waiters competing for K free slots.
  */
+/** @template T */
 class Semaphore {
+  /** @type {number} */
   #limit;
   #busy = 0;
+  /** @type {Promise<void>} */
   #freed = Promise.resolve();
+  /** @type {(value?: void) => void} */
   #resolveFreed = () => undefined;
 
+  /** @param {number} limit */
   constructor(limit) {
     this.#limit = limit;
     this.#armWait();
   }
 
   #armWait() {
+    /** @type {{ promise: Promise<void>, resolve: (value?: void) => void }} */
     const { promise, resolve } = Promise.withResolvers();
     this.#freed = promise;
     this.#resolveFreed = resolve;
   }
 
+  /**
+   * @param {() => Promise<T>} fn
+   * @returns {Promise<T>}
+   */
   async run(fn) {
     while (this.#busy >= this.#limit) await this.#freed;
     this.#busy += 1;
