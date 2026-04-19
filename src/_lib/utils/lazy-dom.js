@@ -88,25 +88,14 @@ const loadDOM = async (html = "", options = {}) => {
  */
 /** @template T */
 class Semaphore {
-  /** @type {number} */
   #limit;
   #busy = 0;
-  /** @type {Promise<void>} */
-  #freed = Promise.resolve();
-  /** @type {(value?: void) => void} */
-  #resolveFreed = () => undefined;
+  #waiters;
 
   /** @param {number} limit */
   constructor(limit) {
     this.#limit = limit;
-    this.#armWait();
-  }
-
-  #armWait() {
-    /** @type {{ promise: Promise<void>, resolve: (value?: void) => void }} */
-    const { promise, resolve } = Promise.withResolvers();
-    this.#freed = promise;
-    this.#resolveFreed = resolve;
+    this.#waiters = Promise.withResolvers();
   }
 
   /**
@@ -114,15 +103,15 @@ class Semaphore {
    * @returns {Promise<T>}
    */
   async run(fn) {
-    while (this.#busy >= this.#limit) await this.#freed;
+    while (this.#busy >= this.#limit) await this.#waiters.promise;
     this.#busy += 1;
     try {
       return await fn();
     } finally {
       this.#busy -= 1;
-      const wakeWaiters = this.#resolveFreed;
-      this.#armWait();
-      wakeWaiters();
+      const previous = this.#waiters;
+      this.#waiters = Promise.withResolvers();
+      previous.resolve();
     }
   }
 }
