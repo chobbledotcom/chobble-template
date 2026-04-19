@@ -19,7 +19,7 @@ Parameters (from block):
 {%- if block.filter -%}
   {%- assign linkItems = linkItems | filterItems: block.filter -%}
 {%- endif -%}
-{%- assign linkItems = linkItems | sort: "data.title" -%}
+{%- assign linkItems = linkItems | sortItems -%}
 
 {%- if linkItems.size > 0 -%}
 <ul class="link-columns" role="list">
