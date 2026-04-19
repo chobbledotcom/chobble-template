@@ -746,8 +746,9 @@ Renders reviews collection with optional filtering to the current item.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `current_item` | boolean | — | If true, filters reviews to the current item by slug and tags. |
+| `minimum_rating` | number | — | If set, only reviews with a rating >= this value are displayed (1–5). |
 
-Uses `getReviewsFor` filter to match reviews by slug and tags when `current_item` is true.
+Uses `getReviewsFor` filter to match reviews by slug and tags when `current_item` is true. Uses `filterByMinRating` filter when `minimum_rating` is set.
 
 ---
 

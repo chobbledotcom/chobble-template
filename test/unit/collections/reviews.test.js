@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   configureReviews,
+  filterByMinRating,
   getReviewsFor,
   ratingToStars,
   reviewsRedirects,
@@ -269,6 +270,39 @@ describe("reviews", () => {
     const result1 = reviewerAvatar("John Smith");
     const result2 = reviewerAvatar("Jane Doe");
     expect(result1 !== result2).toBe(true);
+  });
+
+  test("filterByMinRating returns reviews at or above the minimum rating", () => {
+    const r = revs([
+      ["Review 1", "2024-01-01", { rating: 5 }],
+      ["Review 2", "2024-01-02", { rating: 3 }],
+      ["Review 3", "2024-01-03", { rating: 4 }],
+      ["Review 4", "2024-01-04", { rating: 2 }],
+    ]);
+    expectResultTitles(filterByMinRating(r, 4), ["Review 1", "Review 3"]);
+  });
+
+  test("filterByMinRating excludes reviews without a numeric rating", () => {
+    const r = revs([
+      ["Review 1", "2024-01-01", { rating: 5 }],
+      ["Review 2", "2024-01-02", {}],
+      ["Review 3", "2024-01-03", { rating: null }],
+    ]);
+    expectResultTitles(filterByMinRating(r, 1), ["Review 1"]);
+  });
+
+  test("filterByMinRating returns empty array when no reviews meet minimum", () => {
+    const r = revs([
+      ["Review 1", "2024-01-01", { rating: 3 }],
+      ["Review 2", "2024-01-02", { rating: 2 }],
+    ]);
+    expect(filterByMinRating(r, 5).length).toBe(0);
+  });
+
+  test("filterByMinRating is registered as a Liquid filter", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureReviews(mockConfig);
+    expect(typeof mockConfig.filters.filterByMinRating).toBe("function");
   });
 
   test("Configures reviews collection and filters", () => {

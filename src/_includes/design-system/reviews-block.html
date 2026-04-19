@@ -2,13 +2,18 @@
 Reviews block: renders reviews collection with optional filtering to current item.
 
 Parameters (from block):
-  current_item  - If true, filters reviews to the current item by slug and tags
+  current_item   - If true, filters reviews to the current item by slug and tags
+  minimum_rating - If set, only shows reviews with rating >= this value
 {%- endcomment -%}
 
 {%- if block.current_item -%}
   {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags %}
 {%- else -%}
   {% assign reviews = collections.reviews %}
+{%- endif -%}
+
+{%- if block.minimum_rating -%}
+  {%- assign reviews = reviews | filterByMinRating: block.minimum_rating -%}
 {%- endif -%}
 
 {%- if reviews.size > 0 -%}
