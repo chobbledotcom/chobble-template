@@ -1,9 +1,0 @@
-{%- if reviews.size > 0 -%}
-<ul class="grid reviews-grid{% if compact %} reviews-grid--compact{% endif %}">
-  {%- for review in reviews -%}
-    {%- if review.content != "" -%}
-      {%- include "reviews-list-item.html", review: review, product_links: product_links -%}
-    {%- endif -%}
-  {%- endfor -%}
-</ul>
-{%- endif -%}

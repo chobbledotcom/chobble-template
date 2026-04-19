@@ -2,8 +2,7 @@
 {%- if reviews.size > 0 -%}
 <section class="compact">
   <div class="container">
-    {%- assign product_links = true -%}
-    {%- include "reviews-list.html" -%}
+    {%- include "items.html", items: reviews -%}
   </div>
 </section>
 {%- endif -%}
