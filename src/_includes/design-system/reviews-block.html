@@ -4,6 +4,8 @@ Reviews block: renders reviews collection with optional filtering to current ite
 Parameters (from block):
   current_item   - If true, filters reviews to the current item by slug and tags
   minimum_rating - If set, only shows reviews with rating >= this value
+  horizontal     - If true, renders as a horizontal slider
+  masonry        - If true, renders as a masonry grid
 {%- endcomment -%}
 
 {%- if block.current_item -%}
@@ -17,6 +19,5 @@ Parameters (from block):
 {%- endif -%}
 
 {%- if reviews.size > 0 -%}
-  {%- assign product_links = true -%}
-  {%- include "reviews-list.html" -%}
+  {%- include "items.html", items: reviews, horizontal: block.horizontal, masonry: block.masonry -%}
 {%- endif -%}
