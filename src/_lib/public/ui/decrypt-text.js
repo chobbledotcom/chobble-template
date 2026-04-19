@@ -45,16 +45,6 @@ const decrypt = async (inputText, key) => {
   return new TextDecoder().decode(plainBytes);
 };
 
-const decryptTextNodes = async (node, key) => {
-  for (const child of node.childNodes) {
-    if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
-      child.textContent = await decrypt(child.textContent, key);
-    } else if (child.nodeType === Node.ELEMENT_NODE) {
-      await decryptTextNodes(child, key);
-    }
-  }
-};
-
 onReady(async () => {
   const scriptTag = document.querySelector("script[data-decrypt-key]");
   if (!scriptTag) return;
@@ -70,11 +60,11 @@ onReady(async () => {
   const key = await importKey(keyText);
 
   for (const link of links) {
-    const href = await decrypt(
-      link.getAttribute("href").replace(/^#/, ""),
-      key,
-    );
+    const [href, html] = await Promise.all([
+      decrypt(link.getAttribute("href").replace(/^#/, ""), key),
+      decrypt(link.textContent, key),
+    ]);
     link.setAttribute("href", href);
-    await decryptTextNodes(link, key);
+    link.innerHTML = html;
   }
 });

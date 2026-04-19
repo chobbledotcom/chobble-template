@@ -74,23 +74,22 @@ describe("encrypt-emails", () => {
       expect(hrefMatch[1]).toMatch(/^#[0-9a-zA-Z_-]+$/);
     });
 
-    test("preserves inner HTML elements when encrypting", async () => {
+    test("encrypts innerHTML including nested elements", async () => {
       const html = wrapHtml(
         '<a href="mailto:test@example.com"><strong>test@example.com</strong></a>',
       );
       const result = await transformHtml(html);
-      expect(result).toContain("<strong>");
-      expect(result).toContain("</strong>");
+      expect(result).not.toContain("<strong>");
       expect(result).not.toContain("test@example.com");
     });
 
-    test("encrypts text nodes in nested elements", async () => {
+    test("hides all inner content including mixed HTML and text", async () => {
       const html = wrapHtml(
         '<a href="mailto:test@example.com"><span>Email</span> test@example.com</a>',
       );
       const result = await transformHtml(html);
-      expect(result).toContain("<span>");
-      expect(result).not.toContain(">Email<");
+      expect(result).not.toContain("<span>");
+      expect(result).not.toContain("Email");
       expect(result).not.toContain("test@example.com");
     });
   });
