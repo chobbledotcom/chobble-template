@@ -56,6 +56,7 @@ components:
             label: Description
             required: true
           - { name: style, type: string, label: Custom Style }
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: heading_level, type: number, label: Heading Level }
       - { name: center, type: boolean, label: Centered }
       - { name: header_intro, type: rich-text, label: Header Intro }
@@ -475,6 +476,16 @@ components:
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
+      - name: filter
+        type: object
+        label: Filter
+        fields:
+          - name: property
+            type: string
+            label: Property (e.g. url, data.title)
+          - { name: includes, type: string, label: Contains }
+          - { name: equals, type: string, label: Equals }
+      - { name: header_intro, type: rich-text, label: Header Intro }
   block_socials:
     label: Socials
     type: object
@@ -611,6 +622,8 @@ components:
       - { name: dark, type: boolean, label: Dark }
       - { name: current_item, type: boolean, label: Filter to Current Item }
       - { name: minimum_rating, type: number, label: Minimum Rating }
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
+      - { name: masonry, type: boolean, label: Masonry Grid }
   block_gallery:
     label: Gallery
     type: object

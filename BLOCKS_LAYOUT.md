@@ -75,6 +75,7 @@ Grid of feature cards with optional icons, titles, and descriptions.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | array | **required** | Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji. |
+| `intro` | string | — | Markdown content rendered above the grid in `.prose`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
 | `heading_level` | number | `3` | Heading level for item titles. |
 | `center` | boolean | `false` | If true, centers feature text. |
@@ -525,6 +526,10 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 | `intro` | string | — | Markdown content rendered above items in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 
@@ -747,6 +752,8 @@ Renders reviews collection with optional filtering to the current item.
 |---|---|---|---|
 | `current_item` | boolean | — | If true, filters reviews to the current item by slug and tags. |
 | `minimum_rating` | number | — | If set, only reviews with a rating >= this value are displayed (1–5). |
+| `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
+| `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
 
 Uses `getReviewsFor` filter to match reviews by slug and tags when `current_item` is true. Uses `filterByMinRating` filter when `minimum_rating` is set.
 

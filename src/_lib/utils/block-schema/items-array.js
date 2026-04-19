@@ -13,9 +13,7 @@ export const fields = {
     description:
       "Array of path strings. Each entry may be a file path (e.g. `src/products/widget.md`) or a directory path (e.g. `locations/fulchester` or `locations/fulchester/`), in which case every item in that directory is included in place.",
   },
-  intro: ITEMS_COMMON_FIELDS.intro,
-  horizontal: ITEMS_COMMON_FIELDS.horizontal,
-  masonry: ITEMS_COMMON_FIELDS.masonry,
+  ...ITEMS_COMMON_FIELDS,
 };
 
 export const docs = {
