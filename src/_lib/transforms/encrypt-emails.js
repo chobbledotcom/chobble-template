@@ -2,7 +2,7 @@
  * DOM transform that encrypts mailto: links at build time.
  *
  * Finds all <a href="mailto:..."> elements, encrypts the href and
- * visible text, and adds a data-decrypt-link attribute so the
+ * innerHTML, and adds a data-decrypt-link attribute so the
  * browser-side decrypt-text.js can restore them.
  */
 import getEncryptKey from "#data/encryptKey.js";
@@ -17,7 +17,7 @@ const keyBytes = decodeBase64(keyText);
  */
 const encryptEmails = (document) => {
   for (const link of document.querySelectorAll('a[href^="mailto:"]')) {
-    link.textContent = encrypt(link.textContent, keyBytes);
+    link.textContent = encrypt(link.innerHTML, keyBytes);
     link.setAttribute(
       "href",
       `#${encrypt(link.getAttribute("href"), keyBytes)}`,

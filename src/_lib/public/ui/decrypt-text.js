@@ -58,12 +58,13 @@ onReady(async () => {
   if (links.length === 0) return;
 
   const key = await importKey(keyText);
+
   for (const link of links) {
-    const [href, text] = await Promise.all([
+    const [href, html] = await Promise.all([
       decrypt(link.getAttribute("href").replace(/^#/, ""), key),
       decrypt(link.textContent, key),
     ]);
     link.setAttribute("href", href);
-    link.textContent = text;
+    link.innerHTML = html;
   }
 });
