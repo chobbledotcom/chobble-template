@@ -81,24 +81,30 @@ export const HEADER_FIELDS = {
   },
 };
 
+/** Horizontal slider toggle shared between items-like blocks. */
+export const HORIZONTAL_FIELD = {
+  ...bool("Horizontal Slider"),
+  default: "false",
+  description:
+    "If true, renders as a horizontal slider instead of a wrapping grid.",
+};
+
+/** Masonry grid toggle shared between items-like blocks. */
+export const MASONRY_FIELD = {
+  ...bool("Masonry Grid"),
+  default: "false",
+  description:
+    "If true, renders as a masonry grid using uWrap for zero-reflow height prediction.",
+};
+
 /** Unified fields shared between items and items-array blocks. */
 export const ITEMS_COMMON_FIELDS = {
   intro: {
     ...md("Intro Content (Markdown)"),
     description: "Markdown content rendered above items in `.prose`.",
   },
-  horizontal: {
-    ...bool("Horizontal Slider"),
-    default: "false",
-    description:
-      "If true, renders as a horizontal slider instead of a wrapping grid.",
-  },
-  masonry: {
-    ...bool("Masonry Grid"),
-    default: "false",
-    description:
-      "If true, renders as a masonry grid using uWrap for zero-reflow height prediction.",
-  },
+  horizontal: HORIZONTAL_FIELD,
+  masonry: MASONRY_FIELD,
   filter: {
     ...FILTER_FIELD,
     description:

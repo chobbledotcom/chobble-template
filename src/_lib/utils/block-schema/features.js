@@ -23,6 +23,10 @@ export const fields = {
     description:
       'Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji.',
   },
+  intro: {
+    ...md("Intro Content (Markdown)"),
+    description: "Markdown content rendered above the grid in `.prose`.",
+  },
   reveal: REVEAL_BOOLEAN_FIELD,
   heading_level: HEADING_LEVEL_FIELD,
   center: {
