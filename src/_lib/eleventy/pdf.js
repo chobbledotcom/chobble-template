@@ -18,54 +18,148 @@ import { uniqueDietaryKeys } from "#utils/dietary-utils.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
-const getPdfRenderer = memoize(
+/** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
+/** @typedef {import("#lib/types").EleventyCollectionApi} EleventyCollectionApi */
+/** @typedef {import("#lib/types").MenuItemCollectionItem} MenuItemCollectionItem */
+/** @typedef {import("#lib/types").MenuCategoryCollectionItem} MenuCategoryCollectionItem */
+/** @typedef {import("#lib/types").DietaryKey} DietaryKey */
+
+/**
+ * Menu category collection items also expose Eleventy's rendered
+ * `templateContent`, used as the category description in the PDF.
+ * @typedef {MenuCategoryCollectionItem & { templateContent?: string | null }} MenuCategoryItem
+ */
+
+/**
+ * @typedef {Object} PdfState
+ * @property {EleventyCollectionItem[]} menus
+ * @property {MenuCategoryItem[]} menuCategories
+ * @property {MenuItemCollectionItem[]} menuItems
+ */
+
+/**
+ * @typedef {Object} PdfMenuItem
+ * @property {string | undefined} name
+ * @property {string | number | undefined} price
+ * @property {string | null | undefined} description
+ * @property {string} dietarySymbols
+ */
+
+/**
+ * @typedef {Object} PdfCategory
+ * @property {string | undefined} name
+ * @property {string} description
+ * @property {PdfMenuItem[]} items
+ */
+
+/**
+ * @typedef {Object} PdfData
+ * @property {string} businessName
+ * @property {string | undefined} menuTitle
+ * @property {string | null | undefined} subtitle
+ * @property {PdfCategory[]} categories
+ * @property {string} dietaryKeyString
+ * @property {boolean} hasDietaryKeys
+ */
+
+/** @typedef {{ pipe(stream: NodeJS.WritableStream): unknown; end(): void }} PdfDoc */
+
+/** @typedef {(template: object, data: object) => PdfDoc | null} RenderPdfFn */
+
+/**
+ * @template T
+ * @param {EleventyCollectionApi} api
+ * @param {string} tag
+ * @returns {T[]}
+ */
+const getTaggedAs = (api, tag) =>
+  /** @type {T[]} */ (api.getFilteredByTag(tag));
+
+const renderPdfRaw = memoize(
   async () => (await import("json-to-pdf")).renderPdfTemplate,
 );
 
+const getPdfRenderer = /** @type {() => Promise<RenderPdfFn>} */ (
+  /** @type {unknown} */ (renderPdfRaw)
+);
+
+/** @type {PdfState | null} */
+let pdfState = null;
+
+/**
+ * @param {EleventyCollectionItem} menu
+ * @param {Pick<PdfState, "menuCategories" | "menuItems">} state
+ * @returns {PdfData}
+ */
 function buildMenuPdfData(menu, { menuCategories, menuItems }) {
   const items = menuItems;
 
   const categories = pipe(
-    filter((cat) => cat.data.menus?.includes(menu.fileSlug)),
+    filter(
+      /** @param {MenuCategoryItem} cat */
+      (cat) => cat.data.menus?.includes(menu.fileSlug) === true,
+    ),
     sort(sortItems),
   )(menuCategories);
 
+  /**
+   * @param {MenuCategoryItem} category
+   * @returns {(item: MenuItemCollectionItem) => boolean}
+   */
   const inCategory = (category) => (item) =>
-    item.data.menu_categories?.includes(category.fileSlug);
+    item.data.menu_categories?.includes(category.fileSlug) === true;
 
+  /**
+   * @param {MenuCategoryItem} category
+   * @returns {PdfMenuItem[]}
+   */
   const itemsInCategory = (category) =>
     pipe(
       filter(inCategory(category)),
-      map((item) => ({
-        name: item.data.name,
-        price: item.data.price,
-        description: item.data.description,
-        dietarySymbols: pipe(
-          map((k) => k.symbol),
-          join(" "),
-        )(item.data.dietaryKeys),
-      })),
+      map(
+        /**
+         * @param {MenuItemCollectionItem} item
+         * @returns {PdfMenuItem}
+         */
+        (item) => ({
+          name: item.data.name,
+          price: item.data.price,
+          description: item.data.description,
+          dietarySymbols: pipe(
+            map(/** @param {DietaryKey} k */ (k) => k.symbol),
+            join(" "),
+          )(item.data.dietaryKeys),
+        }),
+      ),
     )(items);
 
-  const pdfCategories = map((category) => ({
-    name: category.data.name,
-    description: category.templateContent
-      ? category.templateContent.replace(/<[^>]*>/g, "").trim()
-      : "",
-    items: itemsInCategory(category),
-  }))(categories);
+  const pdfCategories = map(
+    /**
+     * @param {MenuCategoryItem} category
+     * @returns {PdfCategory}
+     */
+    (category) => ({
+      name: category.data.name,
+      description: category.templateContent
+        ? category.templateContent.replace(/<[^>]*>/g, "").trim()
+        : "",
+      items: itemsInCategory(category),
+    }),
+  )(categories);
 
   const allDietaryKeys = pipe(
-    flatMap((category) =>
-      items
-        .filter(inCategory(category))
-        .flatMap((item) => item.data.dietaryKeys),
+    flatMap(
+      /** @param {MenuCategoryItem} category */
+      (category) =>
+        items
+          .filter(inCategory(category))
+          .flatMap((item) => item.data.dietaryKeys),
     ),
     uniqueDietaryKeys,
   )(categories);
 
   const dietaryKeyString = pipe(
-    map((k) => `(${k.symbol}) ${k.label}`),
+    map(/** @param {DietaryKey} k */ (k) => `(${k.symbol}) ${k.label}`),
     join(", "),
   )(allDietaryKeys);
 
@@ -80,6 +174,11 @@ function buildMenuPdfData(menu, { menuCategories, menuItems }) {
 }
 
 function createMenuPdfTemplate() {
+  /**
+   * @param {string} text
+   * @param {string} style
+   * @param {[number, number, number, number]} margin
+   */
   const centeredText = (text, style, margin) => ({
     text,
     style,
@@ -213,6 +312,12 @@ function createMenuPdfTemplate() {
   };
 }
 
+/**
+ * @param {EleventyCollectionItem} menu
+ * @param {PdfState} state
+ * @param {string} outputDir
+ * @returns {Promise<string | null>}
+ */
 async function generateMenuPdf(menu, state, outputDir) {
   const data = buildMenuPdfData(menu, state);
   const template = createMenuPdfTemplate();
@@ -243,25 +348,39 @@ async function generateMenuPdf(menu, state, outputDir) {
   });
 }
 
+/** @param {*} eleventyConfig */
 export const configurePdf = (eleventyConfig) => {
-  let state = null;
+  pdfState = null;
 
-  eleventyConfig.addCollection("_pdfMenuData", (collectionApi) => {
-    state = {
-      menus: collectionApi.getFilteredByTag("menus"),
-      menuCategories: collectionApi.getFilteredByTag("menu-categories"),
-      menuItems: collectionApi.getFilteredByTag("menu-items"),
+  /**
+   * @param {PdfState} state
+   * @param {string} outputDir
+   */
+  const writePdfs = (state, outputDir) => {
+    return mapAsync(
+      /** @param {EleventyCollectionItem} menu */
+      (menu) => generateMenuPdf(menu, state, outputDir),
+    )(state.menus);
+  };
+
+  /** @param {EleventyCollectionApi} api */
+  const captureState = (api) => {
+    pdfState = {
+      menus: api.getFilteredByTag("menus"),
+      menuCategories: getTaggedAs(api, "menu-categories"),
+      menuItems: getTaggedAs(api, "menu-items"),
     };
     return [];
-  });
+  };
 
-  eleventyConfig.on("eleventy.after", async ({ dir }) => {
-    if (!state?.menus || state.menus.length === 0) return;
+  /** @param {{ dir: { output: string } }} event */
+  const onAfter = async ({ dir }) => {
+    if (pdfState === null || pdfState.menus.length === 0) return;
+    await writePdfs(pdfState, dir.output);
+  };
 
-    await mapAsync((menu) => generateMenuPdf(menu, state, dir.output))(
-      state.menus,
-    );
-  });
+  eleventyConfig.addCollection("_pdfMenuData", captureState);
+  eleventyConfig.on("eleventy.after", onAfter);
 };
 
 export { buildMenuPdfData, generateMenuPdf };

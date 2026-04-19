@@ -192,11 +192,25 @@ export type NewsItemData = BaseItemData & {
 };
 
 /**
+ * Dietary indicator displayed on a menu item.
+ */
+export type DietaryKey = {
+  symbol: string;
+  label: string;
+};
+
+/**
  * Menu item data fields (for restaurant menus, etc.)
  */
 export type MenuItemData = BaseItemData & {
   /** Menu categories this item belongs to */
   menu_categories?: string[];
+  /** Display price (e.g., "$8.99" or numeric) */
+  price?: string | number;
+  /** Item description */
+  description?: string | null;
+  /** Dietary indicator keys (guaranteed [] by 11tydata boundary) */
+  dietaryKeys: DietaryKey[];
 };
 
 /**
