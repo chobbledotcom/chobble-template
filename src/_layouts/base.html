@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {% include "head.html" %}
-<body class="{{ layout | getBodyClasses: config, body-classes, featured }}">
+<body class="{{ layout | getBodyClasses: config, body-classes, featured, page.url }}">
   {%- include "body-scripts.html" -%}
   {%- include "header.html" -%}
   <main>

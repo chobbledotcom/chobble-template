@@ -139,6 +139,49 @@ describe("style-bundle", () => {
       const result = getBodyClasses("item.html", baseConfig, [], false);
       expect(result).not.toContain("featured");
     });
+
+    test("adds page--home class for root URL", () => {
+      const result = getBodyClasses("base.html", baseConfig, [], false, "/");
+      expect(result).toContain("page--home");
+    });
+
+    test("adds single-segment page class", () => {
+      const result = getBodyClasses(
+        "base.html",
+        baseConfig,
+        [],
+        false,
+        "/about-us/",
+      );
+      expect(result).toContain("page--about-us");
+    });
+
+    test("joins multi-segment paths with double dashes", () => {
+      const result = getBodyClasses(
+        "item.html",
+        baseConfig,
+        [],
+        false,
+        "/products/example-product/",
+      );
+      expect(result).toContain("page--products--example-product");
+    });
+
+    test("slugifies unusual characters in path segments", () => {
+      const result = getBodyClasses(
+        "base.html",
+        baseConfig,
+        [],
+        false,
+        "/Foo Bar/Baz!/",
+      );
+      expect(result).toContain("page--foo-bar--baz");
+    });
+
+    test("does not add page class when pageUrl is missing", () => {
+      const result = getBodyClasses("base.html", baseConfig);
+      expect(result).not.toContain("page--");
+    });
   });
 
   describe("configureStyleBundle", () => {
