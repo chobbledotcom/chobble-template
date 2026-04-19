@@ -14,13 +14,20 @@ import {
 import { toObject } from "#toolkit/fp/object.js";
 
 /** @typedef {import("#lib/types").ProductOption} ProductOption */
+/** @typedef {import("#lib/types").NormalizedProductOption} NormalizedProductOption */
 /** @typedef {import("#lib/types").ProductSpec} ProductSpec */
 /** @typedef {import("#lib/types").ProductData} ProductData */
 /** @typedef {import("#lib/types").CartAttributesParams} CartAttributesParams */
 
 /**
+ * @typedef {NormalizedProductOption & { days: number }} HireOption
+ * Normalized option in hire mode, where `days` is guaranteed non-null
+ * because computeOptions filters those out before normalization.
+ */
+
+/**
  * Validate hire options for cart use
- * @param {ProductOption[]} options - Hire options to validate
+ * @param {NormalizedProductOption[]} options - Hire options to validate
  * @param {string} title - Product title for error messages
  * @returns {void}
  * @throws {Error} If validation fails
@@ -41,10 +48,11 @@ const validateHireOptions = (options, title) => {
  * Normalize an option: apply default max_quantity, ensure nullable fields are explicit.
  * @param {ProductOption} opt
  * @param {number | null} defaultMaxQuantity
- * @returns {ProductOption}
+ * @returns {NormalizedProductOption}
  */
 const normalizeOption = (opt, defaultMaxQuantity) => ({
-  ...opt,
+  name: opt.name,
+  unit_price: opt.unit_price,
   sku: opt.sku != null ? opt.sku : null,
   days: opt.days != null ? opt.days : null,
   max_quantity:
@@ -60,7 +68,7 @@ const normalizeOption = (opt, defaultMaxQuantity) => ({
  * @param {ProductData} data - Product data
  * @param {string} mode - Product mode ("hire", "buy", etc.)
  * @param {number | null} defaultMaxQuantity - Default max quantity from config
- * @returns {ProductOption[]} Processed options
+ * @returns {NormalizedProductOption[]} Processed options
  */
 export const computeOptions = (data, mode, defaultMaxQuantity = null) => {
   if (!data.options || data.options.length === 0) {
@@ -79,6 +87,13 @@ export const computeOptions = (data, mode, defaultMaxQuantity = null) => {
     sortBy("days"),
   )(data.options);
 };
+
+/**
+ * Type guard: option has a non-null days value (set by hire-mode normalization).
+ * @param {NormalizedProductOption} opt
+ * @returns {opt is HireOption}
+ */
+const hasDays = (opt) => opt.days != null;
 
 /**
  * Build cart attributes JSON for a product.
@@ -109,7 +124,7 @@ export const buildCartAttributes = ({
     specs: specs ? specs.map(pick(["name", "value"])) : null,
     hire_prices:
       mode === "hire"
-        ? toObject(options, (opt) => [opt.days, opt.unit_price])
+        ? toObject(options.filter(hasDays), (opt) => [opt.days, opt.unit_price])
         : {},
     product_mode: mode,
   }).replace(/"/g, "&quot;");

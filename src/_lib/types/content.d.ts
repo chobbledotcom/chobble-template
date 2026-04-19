@@ -69,6 +69,19 @@ export type ProductOption = {
 };
 
 /**
+ * Product option after normalization for cart attributes / collection processing.
+ * Optional input fields are explicit `null` (not `undefined`) so JSON.stringify
+ * preserves them and downstream consumers can rely on their presence.
+ */
+export type NormalizedProductOption = {
+  name: string;
+  unit_price: number;
+  days: number | null;
+  max_quantity: number | null;
+  sku: string | null;
+};
+
+/**
  * Product specification
  */
 export type ProductSpec = {
@@ -90,7 +103,7 @@ export type ProductData = {
 export type CartAttributesParams = {
   title: string;
   subtitle?: string;
-  options: ProductOption[];
+  options: NormalizedProductOption[];
   specs?: ProductSpec[];
   mode: string;
 };
