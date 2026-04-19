@@ -33,7 +33,10 @@ const detectRightContent = () =>
  */
 const getPagePathClass = (pageUrl) => {
   if (typeof pageUrl !== "string") return null;
-  const segments = pageUrl.split("/").filter(Boolean).map(slugify);
+  const segments = pageUrl
+    .split("/")
+    .filter(Boolean)
+    .map((segment) => slugify(segment));
   const suffix = segments.length === 0 ? "home" : segments.join("--");
   return `page--${suffix}`;
 };
