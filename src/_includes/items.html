@@ -3,11 +3,11 @@
 {%- assign isReviewCollection = firstItemTags contains "reviews" -%}
 {%- if horizontal -%}
 <div class="slider-container">
-  <ul class="items slider{% if isReviewCollection %} reviews-grid{% endif %}">
+  <ul class="items slider{% if isReviewCollection %} reviews-grid{% if compact %} reviews-grid--compact{% endif %}{% endif %}">
 {%- elsif masonry -%}
-<ul class="items masonry{% if isReviewCollection %} reviews-grid{% endif %}">
+<ul class="items masonry{% if isReviewCollection %} reviews-grid{% if compact %} reviews-grid--compact{% endif %}{% endif %}">
 {%- elsif isReviewCollection -%}
-<ul class="grid reviews-grid">
+<ul class="grid reviews-grid{% if compact %} reviews-grid--compact{% endif %}">
 {%- else -%}
 <ul class="items">
 {%- endif -%}

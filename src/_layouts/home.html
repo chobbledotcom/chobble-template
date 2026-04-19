@@ -45,5 +45,5 @@ layout: base
 {%- if homepage.show_reviews and latest_reviews.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-reviews-header", "<h3>Recent Reviews</h3>" -%}
-  {%- include "reviews-list.html", reviews: latest_reviews, product_links: true -%}
+  {%- include "items.html", items: latest_reviews -%}
 {%- endif -%}
