@@ -18,11 +18,6 @@
   .property-header {
     @include flex-col($space-sm);
 
-    .check-availability {
-      @include button-primary;
-      align-self: flex-start;
-    }
-
     .property-price {
       @include heading-md;
       color: var(--color-link);

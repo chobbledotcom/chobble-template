@@ -19,6 +19,7 @@ import "#public/ui/sort-dropdown.js";
 import "#public/ui/category-filter.js";
 import "#public/ui/contact-form-submit.js";
 import "#public/ui/decrypt-text.js";
+import "#public/ui/freetobook.js";
 
 // Design system (scoped to .design-system containers)
 import "#public/design-system.js";
