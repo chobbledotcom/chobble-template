@@ -19,7 +19,8 @@
 
 // Block types that must not be placed inside a column layout, either because
 // they need full viewport width or because they already use a two-pane layout.
-const COLUMN_DISALLOWED_TYPES = [
+// Additionally, every `split-*` block type is disallowed (checked dynamically).
+export const COLUMN_DISALLOWED_TYPES = [
   "hero",
   "video-background",
   "bunny-video-background",

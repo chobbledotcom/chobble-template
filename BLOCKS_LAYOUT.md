@@ -846,6 +846,57 @@ The referenced snippet must exist in `src/snippets/` and have a `blocks` frontma
 
 <!-- END GENERATED BLOCKS -->
 
+<!-- BEGIN GENERATED BLOCK COLUMNS -->
+
+## Multi-Column Layouts
+
+Any collection can render the first section of its blocks as responsive columns by adding an entry to `src/_data/blockLayouts.json`, keyed by a tag that appears on the page (e.g. `products`, `properties`).
+
+```json
+{
+  "products": {
+    "columns": [
+      { "types": ["gallery"] },
+      { "types": ["markdown", "buy-options", "features"] }
+    ]
+  }
+}
+```
+
+### Matching semantics
+
+- Each column's `types` list is a **claim queue**, processed in order. Listing the same type twice (e.g. `["markdown", "cta", "markdown"]`) claims two blocks of that type.
+- Columns are processed in order. For each listed type, the first unclaimed block of that type in the page's block array is taken. A type listed across two columns therefore splits the first two matching blocks between them.
+- Blocks **inside a column** render in slot order (the order their types appear in the config), not the page's original block order.
+- Unclaimed blocks — including duplicates beyond the queue length and any types not listed at all — fall through to the regular full-width rendering below the column section, preserving their original order.
+- If no blocks match any column for a page, columns mode is disabled for that page and blocks render as normal. Ship an empty `blockLayouts.json` to keep the feature off by default.
+
+### Disallowed block types
+
+These block types are rejected at build time if listed inside any column (they need full viewport width or already use a two-pane layout):
+
+- `bunny-video-background`
+- `hero`
+- `image-background`
+- `marquee-images`
+- `video-background`
+- `split-buy-options`
+- `split-callout`
+- `split-code`
+- `split-full`
+- `split-html`
+- `split-icon-links`
+- `split-image`
+- `split-video`
+
+### Rendering
+
+Matched blocks render inside `<section class="block-columns-section">` → `<div class="container-wide">` → `<div class="block-columns block-columns-N">` (where `N` is the column count). Each column is a `<div class="block-column">` using flexbox to stack its children with consistent spacing. At mobile widths (below `md`), all columns collapse to a single stack.
+
+<!-- END GENERATED BLOCK COLUMNS -->
+
+---
+
 ## Supporting Components
 
 These are not blocks themselves but are used by multiple blocks.
