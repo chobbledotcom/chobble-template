@@ -17,6 +17,13 @@ import { PAGES_DIR } from "#lib/paths.js";
 const VALID_CART_MODES = ["stripe", "quote"];
 const VALID_PRODUCT_MODES = ["buy", "hire"];
 
+/**
+ * @param {string | null | undefined} value
+ * @param {readonly string[]} validValues
+ * @param {string} field
+ * @param {string} defaultNote
+ * @returns {string[]}
+ */
 const validateEnum = (value, validValues, field, defaultNote) => {
   if (!value || validValues.includes(value)) return [];
   return [
