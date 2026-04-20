@@ -207,8 +207,11 @@ const COMMON_FIELD_TYPES = {
 };
 
 /**
- * Converts a `{type, list?}` field definition to its runtime type-check
- * spec, or `undefined` if the type has no known check.
+ * Converts a `{type, list?}` field definition map to `[key, spec]` pairs
+ * for constructing a per-block lookup table. The returned spec is
+ * `undefined` when the declared type has no known runtime check.
+ *
+ * @param {object} defs
  */
 const specEntries = (defs) =>
   Object.entries(defs).map(([k, d]) => [
