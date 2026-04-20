@@ -31,7 +31,7 @@ Usage:
   {%- assign _thumbnail = block.video_id | youtube_thumbnail -%}
 {%- endif -%}
 
-<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};"{% if _is_youtube and _thumbnail %} data-youtube-video{% endif %}>
+<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="--aspect-ratio: {{ _aspect_ratio }};"{% if _is_youtube and _thumbnail %} data-youtube-video{% endif %}>
   {%- if _thumbnail -%}
   <div class="video-background__thumbnail">
     {% image _thumbnail, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}

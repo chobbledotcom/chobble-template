@@ -21,7 +21,7 @@ Usage:
 {%- assign _aspect_ratio = block.aspect_ratio | default: "16/9" -%}
 {%- assign _video_title = block.video_title | default: "Background video" -%}
 
-<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};" data-bunny-video>
+<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="--aspect-ratio: {{ _aspect_ratio }};" data-bunny-video>
   <div class="video-background__thumbnail">
     {% image block.thumbnail_url, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
   </div>

@@ -1,5 +1,6 @@
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // VIDEO BACKGROUND
@@ -16,10 +17,16 @@
   }
 
   .video-background {
+    --aspect-ratio: 16/9;
     position: relative;
     width: 100%;
     overflow: hidden;
     background: $color-dark-bg;
+    aspect-ratio: var(--aspect-ratio);
+
+    @include breakpoint.down("md") {
+      aspect-ratio: 4/3;
+    }
 
     // Thumbnail image shown while video loads
     &__thumbnail {
