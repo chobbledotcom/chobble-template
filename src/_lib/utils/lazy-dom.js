@@ -55,10 +55,7 @@ const getDOMClass = memoize(async () => {
       const { doctype, documentElement } = this.window.document;
       const doctypeString = doctype ? `<!DOCTYPE ${doctype.name}>` : "";
       const html = doctypeString + documentElement.outerHTML;
-      const happyDOM = this.window?.happyDOM;
-      const closer = happyDOM?.close || happyDOM?.abort;
-      const p = closer?.call(happyDOM);
-      if (p && typeof p.then === "function") p.catch(() => undefined);
+      this.window.happyDOM.close().catch(() => undefined);
       return html;
     }
   };
