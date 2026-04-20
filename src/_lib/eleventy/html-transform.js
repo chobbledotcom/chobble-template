@@ -28,7 +28,7 @@ import {
 } from "#transforms/linkify.js";
 import { hasReadMoreMarker, processReadMore } from "#transforms/read-more.js";
 import { wrapTables } from "#transforms/responsive-tables.js";
-import { loadDOM } from "#utils/lazy-dom.js";
+import { loadDOM, withDOMSlot } from "#utils/lazy-dom.js";
 
 const getConfig = memoize(configModule);
 
@@ -54,19 +54,20 @@ const needsDomParsing = (content, phoneLen) =>
  * @param {import("#lib/types").ProcessImageFn} processAndWrapImage
  * @returns {Promise<string>}
  */
-const applyDomTransforms = async (html, config, processAndWrapImage) => {
-  const dom = await loadDOM(html);
-  const { document } = dom.window;
-  if (!FAST_INACCURATE_BUILDS) {
-    linkifyPhones(document, config);
-    linkifyConfigLinks(document, linksMap);
-  }
-  wrapTables(document, config);
-  processReadMore(document);
-  await processImages(document, config, processAndWrapImage);
-  encryptEmails(document);
-  return dom.serialize();
-};
+const applyDomTransforms = (html, config, processAndWrapImage) =>
+  withDOMSlot(async () => {
+    const dom = await loadDOM(html);
+    const { document } = dom.window;
+    if (!FAST_INACCURATE_BUILDS) {
+      linkifyPhones(document, config);
+      linkifyConfigLinks(document, linksMap);
+    }
+    wrapTables(document, config);
+    processReadMore(document);
+    await processImages(document, config, processAndWrapImage);
+    encryptEmails(document);
+    return dom.serialize();
+  });
 
 /**
  * Apply string-based transforms (URL/email linkification, external link attrs)

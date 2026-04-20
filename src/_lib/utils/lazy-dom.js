@@ -48,10 +48,15 @@ const getDOMClass = memoize(async () => {
       if (html) this.window.document.write(html);
     }
 
+    // Returns the document HTML and triggers happy-dom's synchronous teardown
+    // (mutation observers, document destroy, circular ref breaking). Remaining
+    // async cleanup is fire-and-forget; it no longer retains DOM memory.
     serialize() {
       const { doctype, documentElement } = this.window.document;
       const doctypeString = doctype ? `<!DOCTYPE ${doctype.name}>` : "";
-      return doctypeString + documentElement.outerHTML;
+      const html = doctypeString + documentElement.outerHTML;
+      this.window.happyDOM.close().catch(() => undefined);
+      return html;
     }
   };
 });
@@ -67,4 +72,56 @@ const loadDOM = async (html = "", options = {}) => {
   return new DOM(html, options);
 };
 
-export { loadDOM };
+/**
+ * Cap the number of Happy-DOM Windows alive at once. Each Window spins up a
+ * VM context with its own prototype structures and module loaders (~10-20 MB
+ * native overhead per instance); Eleventy's default transform parallelism
+ * lets them stack linearly. Callers wrap their work with run() to gate it.
+ *
+ * Wakeup model: a single shared "freed" promise resolves whenever any slot
+ * is released. Waiters loop until they see an open slot. Resetting the
+ * promise on each release makes the waiter re-check after wakeup, which
+ * correctly handles N waiters competing for K free slots.
+ */
+/** @template T */
+class Semaphore {
+  #limit;
+  #busy = 0;
+  #waiters;
+
+  /** @param {number} limit */
+  constructor(limit) {
+    this.#limit = limit;
+    this.#waiters = Promise.withResolvers();
+  }
+
+  /**
+   * @param {() => Promise<T>} fn
+   * @returns {Promise<T>}
+   */
+  async run(fn) {
+    while (this.#busy >= this.#limit) await this.#waiters.promise;
+    this.#busy += 1;
+    try {
+      return await fn();
+    } finally {
+      this.#busy -= 1;
+      const previous = this.#waiters;
+      this.#waiters = Promise.withResolvers();
+      previous.resolve();
+    }
+  }
+}
+
+const domSemaphore = new Semaphore(4);
+
+/**
+ * Run an async task while holding one of a limited number of DOM slots.
+ * Reduces peak memory when many pages need DOM transforms in parallel.
+ * @template T
+ * @param {() => Promise<T>} fn
+ * @returns {Promise<T>}
+ */
+const withDOMSlot = (fn) => domSemaphore.run(fn);
+
+export { loadDOM, withDOMSlot };
