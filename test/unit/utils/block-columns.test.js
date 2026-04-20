@@ -110,7 +110,7 @@ describe("block-columns", () => {
       expect(result.rest).toEqual([]);
     });
 
-    test("subsequent blocks of the same type fall through to rest", () => {
+    test("blocks of the same type beyond the queue length fall through to rest", () => {
       const blocks = [
         block("markdown", { id: "m1" }),
         block("markdown", { id: "m2" }),
@@ -122,6 +122,36 @@ describe("block-columns", () => {
 
       expect(result.columns).toEqual([[blocks[0]]]);
       expect(result.rest).toEqual([blocks[1], blocks[2]]);
+    });
+
+    test("listing a type twice in one column claims two blocks", () => {
+      const blocks = [
+        block("markdown", { id: "m1" }),
+        block("cta", { id: "c1" }),
+        block("markdown", { id: "m2" }),
+        block("markdown", { id: "m3" }),
+      ];
+      const layout = {
+        columns: [{ types: ["markdown", "cta", "markdown"] }],
+      };
+
+      const result = splitBlocksForColumns(blocks, layout);
+
+      // Slots consume in order: m1, c1, m2. Within the column, blocks appear
+      // in slot order (not block order).
+      expect(result.columns).toEqual([[blocks[0], blocks[1], blocks[2]]]);
+      expect(result.rest).toEqual([blocks[3]]);
+    });
+
+    test("a type listed across columns claims one block per column in order", () => {
+      const md = (id) => block("markdown", { id });
+      const blocks = [md("m1"), md("m2"), md("m3")];
+      const result = splitBlocksForColumns(blocks, {
+        columns: [{ types: ["markdown"] }, { types: ["markdown"] }],
+      });
+
+      expect(result.columns).toEqual([[blocks[0]], [blocks[1]]]);
+      expect(result.rest).toEqual([blocks[2]]);
     });
 
     test("unmatched types go to rest preserving original order", () => {
@@ -166,15 +196,6 @@ describe("block-columns", () => {
       };
       expect(() => splitBlocksForColumns([block("markdown")], layout)).toThrow(
         /not supported/,
-      );
-    });
-
-    test("throws when two columns share a type", () => {
-      const layout = {
-        columns: [{ types: ["markdown"] }, { types: ["markdown"] }],
-      };
-      expect(() => splitBlocksForColumns([block("markdown")], layout)).toThrow(
-        /multiple columns/,
       );
     });
 

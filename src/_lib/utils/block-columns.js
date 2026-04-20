@@ -6,10 +6,13 @@
  *   { columns: [ { types: ["gallery"] }, { types: ["markdown", ...] } ] }
  *
  * Matching rules:
- *   - Only the FIRST block of each listed type is claimed by its column.
- *   - Any further blocks of the same type fall through to `rest`.
- *   - Blocks whose type is not listed in any column fall through to `rest`.
- *   - `rest` preserves the original block order.
+ *   - Each column's `types` list is a claim queue processed in order.
+ *     Listing the same type twice claims two blocks of that type.
+ *   - Columns are processed in order; for each listed type the first
+ *     unclaimed block of that type (in block order) is taken.
+ *   - Blocks within a column appear in the order their slots were
+ *     listed in the config, not the page's block order.
+ *   - Unclaimed blocks fall through to `rest`, preserving original order.
  *   - If no blocks match any column, columns mode is disabled (returns
  *     columns: null so the template falls back to the default layout).
  */
@@ -60,57 +63,64 @@ export const getLayoutForTags = (tags, allLayouts) => {
 };
 
 /**
+ * Flattens a layout config into an ordered sequence of (type, columnIndex)
+ * slots. Each entry in a column's `types` list becomes one slot.
+ *
  * @param {Array<{ types?: string[] }>} layoutCols
  * @returns {Array<{ type: string, ci: number }>}
  */
-const collectLayoutEntries = (layoutCols) =>
+const collectLayoutSlots = (layoutCols) =>
   layoutCols.flatMap((col, ci) => {
     const types = Array.isArray(col?.types) ? col.types : [];
     return types.map((type) => ({ type, ci }));
   });
 
 /**
- * @param {Array<{ type: string, ci: number }>} entries
+ * @param {Array<{ type: string, ci: number }>} slots
  */
-const validateLayoutEntries = (entries) => {
-  const disallowed = entries.find(({ type }) => !isSafeInColumn(type));
+const validateLayoutSlots = (slots) => {
+  const disallowed = slots.find(({ type }) => !isSafeInColumn(type));
   if (disallowed) {
     throw new Error(
       `Block type "${disallowed.type}" is not supported inside a block-columns layout.`,
-    );
-  }
-  const types = entries.map(({ type }) => type);
-  const duplicate = types.find((t, i) => types.indexOf(t) !== i);
-  if (duplicate) {
-    throw new Error(
-      `Block type "${duplicate}" is listed in multiple columns; each type may appear in only one column.`,
     );
   }
 };
 
 /**
  * @typedef {{ type: string } & Record<string, unknown>} Block
+ * @typedef {{ blockIndex: number, ci: number }} Claim
+ * @typedef {{ used: number[], claims: Claim[] }} MatchState
  */
 
+/** @type {() => MatchState} */
+const emptyMatchState = () => ({ used: [], claims: [] });
+
 /**
- * Returns a parallel array of column indices (-1 = not claimed). Only the
- * FIRST occurrence of each matched type gets a non-negative assignment.
+ * Walks slots in order and records which block each slot claims. A slot
+ * claims the first block whose `type` matches it and whose index has not
+ * already been used by an earlier slot. Slots with no matching block are
+ * skipped silently.
  *
  * @param {Block[]} blocks
- * @param {Record<string, number>} typeToColumn
- * @returns {number[]}
+ * @param {Array<{ type: string, ci: number }>} slots
+ * @returns {MatchState}
  */
-const computeAssignments = (blocks, typeToColumn) =>
-  blocks.map((block, i) => {
-    const ci = typeToColumn[block.type];
-    if (ci === undefined) return -1;
-    const firstIndex = blocks.findIndex((b) => b.type === block.type);
-    return firstIndex === i ? ci : -1;
-  });
+const matchSlotsToBlocks = (blocks, slots) =>
+  slots.reduce((acc, slot) => {
+    const idx = blocks.findIndex(
+      (b, i) => b.type === slot.type && !acc.used.includes(i),
+    );
+    if (idx === -1) return acc;
+    return {
+      used: acc.used.concat(idx),
+      claims: acc.claims.concat({ blockIndex: idx, ci: slot.ci }),
+    };
+  }, emptyMatchState());
 
 /**
  * @param {Block[] | undefined} blocks
- * @param {{ columns: Array<{ types: string[] }> } | null} layout
+ * @param {ColumnLayout | null} layout
  * @returns {{ columns: Block[][] | null, rest: Block[] }}
  */
 export const splitBlocksForColumns = (blocks, layout) => {
@@ -119,18 +129,13 @@ export const splitBlocksForColumns = (blocks, layout) => {
   if (!Array.isArray(layoutCols) || layoutCols.length === 0) {
     return { columns: null, rest: safeBlocks };
   }
-  const entries = collectLayoutEntries(layoutCols);
-  validateLayoutEntries(entries);
-  const typeToColumn = Object.fromEntries(
-    entries.map(({ type, ci }) => [type, ci]),
+  const slots = collectLayoutSlots(layoutCols);
+  validateLayoutSlots(slots);
+  const { claims, used } = matchSlotsToBlocks(safeBlocks, slots);
+  if (claims.length === 0) return { columns: null, rest: safeBlocks };
+  const columns = layoutCols.map((_, ci) =>
+    claims.filter((c) => c.ci === ci).map((c) => safeBlocks[c.blockIndex]),
   );
-  const assignments = computeAssignments(safeBlocks, typeToColumn);
-  if (!assignments.some((a) => a >= 0)) {
-    return { columns: null, rest: safeBlocks };
-  }
-  const columns = layoutCols.map((_, i) =>
-    safeBlocks.filter((_, bi) => assignments[bi] === i),
-  );
-  const rest = safeBlocks.filter((_, i) => assignments[i] === -1);
+  const rest = safeBlocks.filter((_, i) => !used.includes(i));
   return { columns, rest };
 };
