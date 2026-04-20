@@ -170,10 +170,5 @@ export const VIDEO_BG_SHARED_FIELDS = {
     default: '"Background video"',
     description: "Accessible `title` on the iframe.",
   },
-  aspect_ratio: {
-    ...str("Aspect Ratio"),
-    default: '"16/9"',
-    description: "CSS aspect-ratio on container.",
-  },
   ...OVERLAY_CONTENT_FIELDS,
 };

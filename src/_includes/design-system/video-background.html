@@ -12,7 +12,6 @@ Parameters (via block object):
   - block.video_id: YouTube video ID (required)
   - block.video_title: Accessible title for the iframe (default: "Background video")
   - block.content: HTML/markdown content to overlay on the video (required)
-  - block.aspect_ratio: Aspect ratio for the video container (default: "16/9")
   - block.class: Additional classes for the container (optional)
   - block.thumbnail_url: URL of a thumbnail image to display while the video loads (optional,
     auto-generated for YouTube videos)
@@ -21,7 +20,6 @@ Usage:
   {% include "design-system/video-background.html", block: block %}
 {%- endcomment -%}
 
-{%- assign _aspect_ratio = block.aspect_ratio | default: "16/9" -%}
 {%- assign _video_title = block.video_title | default: "Background video" -%}
 {%- assign _is_youtube = block.video_id | is_youtube_id -%}
 
@@ -31,7 +29,7 @@ Usage:
   {%- assign _thumbnail = block.video_id | youtube_thumbnail -%}
 {%- endif -%}
 
-<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="--aspect-ratio: {{ _aspect_ratio }};"{% if _is_youtube and _thumbnail %} data-youtube-video{% endif %}>
+<div class="video-background{% if block.class %} {{ block.class }}{% endif %}"{% if _is_youtube and _thumbnail %} data-youtube-video{% endif %}>
   {%- if _thumbnail -%}
   <div class="video-background__thumbnail">
     {% image _thumbnail, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}

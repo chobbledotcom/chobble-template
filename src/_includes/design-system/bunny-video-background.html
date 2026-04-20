@@ -11,17 +11,15 @@ Parameters (via block object):
   - block.thumbnail_url: Thumbnail image shown while video loads (required)
   - block.video_title: Accessible title for the iframe (default: "Background video")
   - block.content: HTML/markdown content to overlay on the video (required)
-  - block.aspect_ratio: Aspect ratio for the video container (default: "16/9")
   - block.class: Additional classes for the container (optional)
 
 Usage:
   {% include "design-system/bunny-video-background.html", block: block %}
 {%- endcomment -%}
 
-{%- assign _aspect_ratio = block.aspect_ratio | default: "16/9" -%}
 {%- assign _video_title = block.video_title | default: "Background video" -%}
 
-<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="--aspect-ratio: {{ _aspect_ratio }};" data-bunny-video>
+<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" data-bunny-video>
   <div class="video-background__thumbnail">
     {% image block.thumbnail_url, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
   </div>

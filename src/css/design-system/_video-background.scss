@@ -17,12 +17,11 @@
   }
 
   .video-background {
-    --aspect-ratio: 16/9;
     position: relative;
     width: 100%;
     overflow: hidden;
     background: $color-dark-bg;
-    aspect-ratio: var(--aspect-ratio);
+    aspect-ratio: 16/9;
 
     @include breakpoint.down("md") {
       aspect-ratio: 4/3;

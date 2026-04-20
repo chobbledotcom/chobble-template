@@ -406,7 +406,6 @@ components:
       - { name: video_id, type: string, label: Video Embed URL, required: true }
       - { name: thumbnail_url, type: string, label: Thumbnail URL }
       - { name: video_title, type: string, label: Video Title }
-      - { name: aspect_ratio, type: string, label: Aspect Ratio }
       - { name: class, type: string, label: CSS Class }
       - name: content
         type: rich-text
@@ -426,7 +425,6 @@ components:
         label: Thumbnail URL
         required: true
       - { name: video_title, type: string, label: Video Title }
-      - { name: aspect_ratio, type: string, label: Aspect Ratio }
       - { name: class, type: string, label: CSS Class }
       - name: content
         type: rich-text

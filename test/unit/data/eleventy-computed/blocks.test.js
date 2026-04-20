@@ -121,22 +121,6 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
-  test("applies the video-background defaults (aspect_ratio)", () => {
-    expect(
-      runSingle({
-        type: "video-background",
-        video_id: "dQw4w9WgXcQ",
-        content: "<h2>Test</h2>",
-      }),
-    ).toEqual({
-      type: "video-background",
-      video_id: "dQw4w9WgXcQ",
-      content: "<h2>Test</h2>",
-      aspect_ratio: "16/9",
-      dark: false,
-    });
-  });
-
   test("allows user values to override default values", () => {
     const block = runSingle({
       type: "features",
