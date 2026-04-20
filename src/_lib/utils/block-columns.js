@@ -24,8 +24,23 @@ const COLUMN_DISALLOWED_TYPES = [
   "marquee-images",
 ];
 
+/** @param {string} type */
 const isSafeInColumn = (type) =>
   !COLUMN_DISALLOWED_TYPES.includes(type) && !type.startsWith("split-");
+
+/**
+ * @typedef {{ columns: Array<{ types: string[] }> }} ColumnLayout
+ */
+
+/**
+ * @param {unknown} entry
+ * @returns {entry is ColumnLayout}
+ */
+const isColumnLayout = (entry) => {
+  if (!entry || typeof entry !== "object") return false;
+  if (!("columns" in entry)) return false;
+  return Array.isArray(entry.columns);
+};
 
 /**
  * Finds the first layout config that matches one of the page's tags.
@@ -33,15 +48,13 @@ const isSafeInColumn = (type) =>
  *
  * @param {string[] | undefined} tags
  * @param {Record<string, unknown> | undefined} allLayouts
- * @returns {{ columns: Array<{ types: string[] }> } | null}
+ * @returns {ColumnLayout | null}
  */
 export const getLayoutForTags = (tags, allLayouts) => {
   if (!Array.isArray(tags) || !allLayouts) return null;
   for (const tag of tags) {
     const entry = allLayouts[tag];
-    if (entry && typeof entry === "object" && Array.isArray(entry.columns)) {
-      return entry;
-    }
+    if (isColumnLayout(entry)) return entry;
   }
   return null;
 };
