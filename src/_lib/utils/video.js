@@ -78,13 +78,6 @@ const fetchVimeoThumbnail = memoize(async (vimeoId) => {
   return data.thumbnail_url;
 });
 
-const YOUTUBE_PARAMS_BY_MODE = {
-  background: (videoId) =>
-    `autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=${videoId}`,
-  autoplay: () => "autoplay=1&mute=1&playsinline=1",
-  default: () => "autoplay=1",
-};
-
 /**
  * Get the embed URL for a video
  *
@@ -116,29 +109,36 @@ const YOUTUBE_PARAMS_BY_MODE = {
 const getVideoEmbedUrl = (videoId, options = {}) => {
   const autoplay = options.autoplay === true;
   const background = options.background === true;
-  const pickMode = () => {
-    if (background) return "background";
-    if (autoplay) return "autoplay";
-    return "default";
-  };
-  const setMissing = (params, entries) => {
-    for (const [key, value] of entries) {
-      if (!params.has(key)) params.set(key, value);
+  /**
+   * @param {string} vimeoUrl
+   * @param {boolean} muted
+   * @returns {string}
+   */
+  const buildVimeo = (vimeoUrl, muted) => {
+    const parsed = new URL(vimeoUrl);
+    if (!parsed.searchParams.has("autoplay")) {
+      parsed.searchParams.set("autoplay", "1");
     }
-  };
-  if (isVimeoUrl(videoId)) {
-    const parsed = new URL(videoId);
-    const muted = autoplay || background;
-    setMissing(parsed.searchParams, [
-      ["autoplay", "1"],
-      ["loop", "1"],
-      ...(muted ? [["muted", "1"]] : []),
-    ]);
+    if (!parsed.searchParams.has("loop")) parsed.searchParams.set("loop", "1");
+    if (muted && !parsed.searchParams.has("muted")) {
+      parsed.searchParams.set("muted", "1");
+    }
     return parsed.toString();
-  }
+  };
+  /**
+   * @param {string} id
+   * @returns {string}
+   */
+  const youtubeParams = (id) => {
+    if (background) {
+      return `autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=${id}`;
+    }
+    if (autoplay) return "autoplay=1&mute=1&playsinline=1";
+    return "autoplay=1";
+  };
+  if (isVimeoUrl(videoId)) return buildVimeo(videoId, autoplay || background);
   if (isCustomVideoUrl(videoId)) return videoId;
-  const params = YOUTUBE_PARAMS_BY_MODE[pickMode()](videoId);
-  return `https://www.youtube-nocookie.com/embed/${videoId}?${params}`;
+  return `https://www.youtube-nocookie.com/embed/${videoId}?${youtubeParams(videoId)}`;
 };
 
 /**
