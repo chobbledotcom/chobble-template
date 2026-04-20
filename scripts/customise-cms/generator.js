@@ -41,7 +41,7 @@ import {
   getSiteConfig,
 } from "#scripts/customise-cms/static-configs.js";
 import { compact, filterMap } from "#toolkit/fp/array.js";
-import { BLOCK_CMS_FIELDS } from "#utils/block-schema.js";
+import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig
@@ -103,7 +103,9 @@ const generateCustomBlocksCollectionConfig = (name, config, fieldContext) => {
       createEleventyNavigationField(config.features.external_navigation_urls),
       ...getCustomBlocksOptionalFields(config),
       generateBlocksField(
-        Object.keys(BLOCK_CMS_FIELDS),
+        Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
+          isBlockAllowedIn(type, name),
+        ),
         config.features.use_visual_editor,
       ),
     ]),

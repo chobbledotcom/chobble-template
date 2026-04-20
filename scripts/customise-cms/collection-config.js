@@ -32,7 +32,7 @@ import {
   buildReviewsFields,
 } from "#scripts/customise-cms/item-builders.js";
 import { compact, filter, memberOf } from "#toolkit/fp/array.js";
-import { BLOCK_CMS_FIELDS } from "#utils/block-schema.js";
+import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig
@@ -107,6 +107,9 @@ const addOptionalFields = (
 
   const collection = getCollection(collectionName);
   const alreadyHasBlocks = collectionName === "pages";
+  const allowedBlockTypes = Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
+    isBlockAllowedIn(type, collectionName),
+  );
   return compact([
     ...coreFields,
     config.features.permalinks && COMMON_FIELDS.permalink,
@@ -115,10 +118,7 @@ const addOptionalFields = (
     ...getCollectionSpecificFields(collection, config, fieldContext),
     config.features.use_blocks &&
       !alreadyHasBlocks &&
-      generateBlocksField(
-        Object.keys(BLOCK_CMS_FIELDS),
-        config.features.use_visual_editor,
-      ),
+      generateBlocksField(allowedBlockTypes, config.features.use_visual_editor),
   ]);
 };
 

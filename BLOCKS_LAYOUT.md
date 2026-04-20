@@ -129,6 +129,17 @@ Each item renders as a `<li>` with `itemscope itemtype="https://schema.org/Produ
 
 ---
 
+### `add-to-cart`
+
+Renders the current product's add-to-cart button, reusing the same controls shown in the product options area.
+
+**Component:** `block_add_to_cart`
+**Template:** `src/_includes/design-system/add-to-cart-block.html`
+
+Product-only block. Reads `cart_attributes`, `options`, `product_mode`, `has_single_cart_option`, and `show_cart_quantity_selector` from the product's computed data and delegates rendering to `product-options.html`. Renders nothing when `config.cart_mode` is disabled or the page has no cart attributes.
+
+---
+
 ### `stats`
 
 Key metrics displayed as large numbers with labels.

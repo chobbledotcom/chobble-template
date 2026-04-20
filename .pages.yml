@@ -727,6 +727,11 @@ components:
       - { name: title, type: string, label: Title, required: true }
       - { name: image, type: image, label: Image }
       - { name: body, type: rich-text, label: Body, required: true }
+  block_add_to_cart:
+    label: Add To Cart
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
   products_list:
     label: Products
     type: object
@@ -893,6 +898,54 @@ content:
               - { name: name, type: string, label: Name, required: true }
               - { name: price, type: number, label: Price, required: true }
       - { name: tabs, component: tabs }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: add-to-cart, component: block_add_to_cart }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: categories
     label: Categories
     path: src/categories
@@ -924,6 +977,53 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: news
     label: News
     path: src/news
@@ -949,6 +1049,53 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: events
     label: Events
     path: src/events
@@ -989,6 +1136,53 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: team
     label: Team
     path: src/team
@@ -1006,6 +1200,53 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: reviews
     label: Reviews
     path: src/reviews
@@ -1030,6 +1271,53 @@ content:
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: locations
     label: Locations
     path: src/locations
@@ -1065,6 +1353,53 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: properties
     label: Properties
     path: src/properties
@@ -1111,6 +1446,53 @@ content:
       - { name: gallery, component: gallery }
       - { name: specs, component: specs }
       - { name: tabs, component: tabs }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: guide-categories
     label: Guide Categories
     path: src/guide-categories
@@ -1134,6 +1516,53 @@ content:
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: guide-pages
     label: Guide Pages
     path: src/guide-pages
@@ -1157,6 +1586,53 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: menus
     label: Menus
     path: src/menus
@@ -1175,6 +1651,53 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: menu-categories
     label: Menu Categories
     path: src/menu-categories
@@ -1199,6 +1722,53 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: menu-items
     label: Menu Items
     path: src/menu-items
@@ -1226,6 +1796,53 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
+      - name: blocks
+        label: Content Blocks
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - { name: section-header, component: block_section_header }
+          - { name: features, component: block_features }
+          - { name: image-cards, component: block_image_cards }
+          - { name: buy-options, component: block_buy_options }
+          - { name: stats, component: block_stats }
+          - { name: code-block, component: block_code_block }
+          - { name: hero, component: block_hero }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: split-code, component: block_split_code }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-html, component: block_split_html }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-full, component: block_split_full }
+          - { name: cta, component: block_cta }
+          - { name: callout, component: block_callout }
+          - { name: video-background, component: block_video_background }
+          - name: bunny-video-background
+            component: block_bunny_video_background
+          - { name: image-background, component: block_image_background }
+          - { name: items, component: block_items }
+          - { name: items-array, component: block_items_array }
+          - { name: socials, component: block_socials }
+          - { name: link-columns, component: block_link_columns }
+          - { name: contact-form, component: block_contact_form }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: markdown, component: block_markdown }
+          - { name: html, component: block_html }
+          - { name: iframe-embed, component: block_iframe_embed }
+          - { name: content, component: block_content }
+          - { name: include, component: block_include }
+          - { name: properties, component: block_properties }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: link-button, component: block_link_button }
+          - { name: reviews, component: block_reviews }
+          - { name: gallery, component: block_gallery }
+          - { name: marquee-images, component: block_marquee_images }
+          - { name: icon-links, component: block_icon_links }
+          - { name: downloads, component: block_downloads }
+          - { name: snippet, component: block_snippet }
   - name: snippets
     label: Snippets
     path: src/snippets
