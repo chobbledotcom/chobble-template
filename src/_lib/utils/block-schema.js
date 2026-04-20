@@ -13,6 +13,7 @@
  *   - `BLOCK_DOCS`       — documentation (for BLOCKS_LAYOUT.md generation)
  */
 
+import * as addToCart from "#utils/block-schema/add-to-cart.js";
 import * as bunnyVideoBackground from "#utils/block-schema/bunny-video-background.js";
 import * as buyOptions from "#utils/block-schema/buy-options.js";
 import * as callout from "#utils/block-schema/callout.js";
@@ -71,6 +72,7 @@ const BLOCK_MODULES = [
   features,
   imageCards,
   buyOptions,
+  addToCart,
   stats,
   codeBlock,
   hero,
@@ -137,6 +139,26 @@ const BLOCK_CONTAINER_WIDTHS = indexByType((m) =>
 /** @param {string} blockType */
 const getBlockContainerWidth = (blockType) =>
   BLOCK_CONTAINER_WIDTHS[blockType] || "wide";
+
+/**
+ * Collection allowlist per block type. `null` means the block is available on
+ * every collection; an array restricts it to the listed collections.
+ * @type {Record<string, string[] | null>}
+ */
+const BLOCK_ALLOWED_COLLECTIONS = indexByType((m) =>
+  "collections" in m ? m.collections : null,
+);
+
+/**
+ * Returns true when `blockType` is allowed on the given collection.
+ * Unrestricted blocks are allowed on every collection.
+ * @param {string} blockType
+ * @param {string} collectionName
+ */
+const isBlockAllowedIn = (blockType, collectionName) => {
+  const allowed = BLOCK_ALLOWED_COLLECTIONS[blockType];
+  return allowed === null || allowed.includes(collectionName);
+};
 
 const BLOCK_CMS_FIELDS = indexByType((m) => ({
   ...CONTAINER_FIELDS,
@@ -230,6 +252,7 @@ export {
   BLOCK_DOCS,
   BLOCK_SCHEMAS,
   getBlockContainerWidth,
+  isBlockAllowedIn,
   validateBlock,
   validateBlocks,
 };

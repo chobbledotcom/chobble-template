@@ -28,6 +28,7 @@ const main = async () => {
   );
 
   const config = createDefaultConfig();
+  config.features.use_blocks = true;
 
   // Apply use_visual_editor from config.json if set
   if (siteConfig.use_visual_editor != null) {
@@ -39,7 +40,7 @@ const main = async () => {
   console.log(".pages.yml has been generated with:");
   console.log(`  - ${config.collections.length} collections`);
   console.log(
-    "  - All features enabled (permalinks, redirects, faqs, specs, features, galleries)",
+    "  - All features enabled (permalinks, redirects, faqs, specs, features, galleries, blocks)",
   );
   if (config.features.use_visual_editor) {
     console.log("  - Visual rich-text editor enabled");
