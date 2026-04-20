@@ -15,13 +15,13 @@ describe("generateBlocksField envelope", () => {
     });
   });
 
-  test("preserves the input order of requested block types", () => {
+  test("sorts requested block types alphabetically by name", () => {
     const field = generateBlocksField(["section-header", "cta", "hero"], false);
 
     expect(field.blocks.map((b) => b.name)).toEqual([
-      "section-header",
       "cta",
       "hero",
+      "section-header",
     ]);
   });
 });

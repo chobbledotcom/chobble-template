@@ -117,5 +117,7 @@ export const generateBlocksField = (blockTypes, useVisualEditor) => ({
   type: "block",
   list: true,
   blockKey: "type",
-  blocks: blockTypes.map((type) => buildBlockComponent(type, useVisualEditor)),
+  blocks: [...blockTypes]
+    .sort()
+    .map((type) => buildBlockComponent(type, useVisualEditor)),
 });

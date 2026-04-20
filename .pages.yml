@@ -27,57 +27,25 @@ components:
     fields:
       - { name: id, type: string, label: YouTube Video ID, required: true }
       - { name: title, type: string, label: Title, required: true }
-  block_section_header:
-    label: Section Header
+  block_bunny_video_background:
+    label: Bunny Video Background
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - name: intro
+      - name: video_url
+        type: string
+        label: Bunny Stream Embed URL
+        required: true
+      - name: thumbnail_url
+        type: string
+        label: Thumbnail URL
+        required: true
+      - { name: video_title, type: string, label: Video Title }
+      - { name: class, type: string, label: CSS Class }
+      - name: content
         type: rich-text
-        label: Section Header Intro
+        label: Overlay Content
         required: true
-  block_features:
-    label: Features
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - name: items
-        type: object
-        label: Features
-        required: true
-        list: true
-        fields:
-          - name: icon
-            type: string
-            label: Icon (Iconify ID or HTML entity)
-          - { name: title, type: string, label: Title, required: true }
-          - name: description
-            type: rich-text
-            label: Description
-            required: true
-          - { name: style, type: string, label: Custom Style }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
-      - { name: heading_level, type: number, label: Heading Level }
-      - { name: center, type: boolean, label: Centered }
-      - { name: header_intro, type: rich-text, label: Header Intro }
-  block_image_cards:
-    label: Image Cards
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - name: items
-        type: object
-        label: Cards
-        required: true
-        list: true
-        fields:
-          - { name: image, type: image, label: Image, required: true }
-          - { name: title, type: string, label: Title, required: true }
-          - { name: description, type: string, label: Description }
-          - { name: link, type: string, label: Link URL }
-      - { name: heading_level, type: number, label: Heading Level }
-      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
-      - { name: header_intro, type: rich-text, label: Header Intro }
   block_buy_options:
     label: Buy Options
     type: object
@@ -103,19 +71,19 @@ components:
       - { name: heading_level, type: number, label: Heading Level }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
       - { name: header_intro, type: rich-text, label: Header Intro }
-  block_stats:
-    label: Stats
+  block_callout:
+    label: Callout
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - name: items
-        type: object
-        label: Statistics
-        required: true
-        list: true
-        fields:
-          - { name: value, type: string, label: Value, required: true }
-          - { name: label, type: string, label: Label, required: true }
+      - name: variant
+        type: string
+        label: Variant (info | warning | success | danger)
+      - name: icon
+        type: string
+        label: Icon (Iconify ID, emoji, or path)
+      - { name: title, type: string, label: Title }
+      - { name: content, type: rich-text, label: Content, required: true }
   block_code_block:
     label: Code Block
     type: object
@@ -124,6 +92,115 @@ components:
       - { name: filename, type: string, label: Filename, required: true }
       - { name: code, type: string, label: Code, required: true }
       - { name: language, type: string, label: Language }
+  block_contact_form:
+    label: Contact Form
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: content, type: rich-text, label: Content }
+  block_content:
+    label: Content
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_cta:
+    label: Cta
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: title, type: string, label: Title, required: true }
+      - { name: description, type: rich-text, label: Description }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
+  block_custom_contact_form:
+    label: Custom Contact Form
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: content, type: rich-text, label: Intro Content }
+      - name: fields
+        type: object
+        label: Form Fields
+        required: true
+        list: true
+        fields:
+          - { name: name, type: string, label: Field Name, required: true }
+          - { name: label, type: string, label: Field Label, required: true }
+          - name: type
+            type: string
+            label: Field Type (text, email, tel, textarea, select, radio, heading)
+          - { name: placeholder, type: string, label: Placeholder }
+          - { name: required, type: boolean, label: Required }
+          - { name: rows, type: number, label: Rows (for textarea) }
+          - { name: note, type: string, label: Help Note }
+          - { name: fieldClass, type: string, label: CSS Class }
+      - { name: header_intro, type: rich-text, label: Header Intro }
+  block_downloads:
+    label: Downloads
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: items
+        type: object
+        label: Downloads
+        required: true
+        list: true
+        fields:
+          - name: file
+            type: string
+            label: File Path (e.g. /files/guide.pdf)
+            required: true
+          - { name: label, type: string, label: Label, required: true }
+  block_features:
+    label: Features
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: items
+        type: object
+        label: Features
+        required: true
+        list: true
+        fields:
+          - name: icon
+            type: string
+            label: Icon (Iconify ID or HTML entity)
+          - { name: title, type: string, label: Title, required: true }
+          - name: description
+            type: rich-text
+            label: Description
+            required: true
+          - { name: style, type: string, label: Custom Style }
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - { name: heading_level, type: number, label: Heading Level }
+      - { name: center, type: boolean, label: Centered }
+      - { name: header_intro, type: rich-text, label: Header Intro }
+  block_gallery:
+    label: Gallery
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: items
+        type: object
+        label: Gallery Images
+        required: true
+        list: true
+        fields:
+          - { name: image, type: image, label: Image, required: true }
+          - { name: caption, type: string, label: Caption }
+      - { name: aspect_ratio, type: string, label: Aspect Ratio }
+  block_guide_categories:
+    label: Guide Categories
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
   block_hero:
     label: Hero
     type: object
@@ -142,6 +219,411 @@ components:
           - { name: variant, type: string, label: Variant }
           - { name: size, type: string, label: Size }
       - { name: class, type: string, label: CSS Class }
+  block_html:
+    label: Html
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: content, type: string, label: Raw HTML, required: true }
+  block_icon_links:
+    label: Icon Links
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: items
+        type: object
+        label: Links
+        required: true
+        list: true
+        fields:
+          - name: icon
+            type: string
+            label: Icon (Iconify ID or HTML entity)
+            required: true
+          - { name: text, type: string, label: Link Text, required: true }
+          - { name: url, type: string, label: URL }
+  block_iframe_embed:
+    label: Iframe Embed
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: src, type: string, label: Iframe URL, required: true }
+      - { name: title, type: string, label: Accessible Title, required: true }
+      - { name: width, type: number, label: Width (px) }
+      - { name: height, type: number, label: Height (px) }
+      - { name: aspect_ratio, type: string, label: Aspect Ratio (e.g. 16/9) }
+      - name: max_width
+        type: string
+        label: Max Width (CSS, e.g. 560px)
+      - { name: sandbox, type: string, label: Sandbox }
+      - { name: allow, type: string, label: Allow (permissions policy) }
+      - { name: scrolling, type: string, label: Scrolling }
+      - { name: header_intro, type: rich-text, label: Header Intro }
+  block_image_background:
+    label: Image Background
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: image, type: image, label: Background Image, required: true }
+      - { name: image_alt, type: string, label: Image Alt Text }
+      - { name: class, type: string, label: CSS Class }
+      - name: content
+        type: rich-text
+        label: Overlay Content
+        required: true
+      - { name: parallax, type: boolean, label: Parallax }
+  block_image_cards:
+    label: Image Cards
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: items
+        type: object
+        label: Cards
+        required: true
+        list: true
+        fields:
+          - { name: image, type: image, label: Image, required: true }
+          - { name: title, type: string, label: Title, required: true }
+          - { name: description, type: string, label: Description }
+          - { name: link, type: string, label: Link URL }
+      - { name: heading_level, type: number, label: Heading Level }
+      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
+      - { name: header_intro, type: rich-text, label: Header Intro }
+  block_include:
+    label: Include
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: file, type: string, label: Template File Path, required: true }
+  block_items:
+    label: Items
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: collection
+        type: string
+        label: Collection Name
+        required: true
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
+      - { name: masonry, type: boolean, label: Masonry Grid }
+      - name: filter
+        type: object
+        label: Filter
+        fields:
+          - name: property
+            type: string
+            label: Property (e.g. url, data.title)
+          - { name: includes, type: string, label: Contains }
+          - { name: equals, type: string, label: Equals }
+      - { name: header_intro, type: rich-text, label: Header Intro }
+  block_items_array:
+    label: Items Array
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: items, type: string, label: Items, list: true }
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
+      - { name: masonry, type: boolean, label: Masonry Grid }
+      - name: filter
+        type: object
+        label: Filter
+        fields:
+          - name: property
+            type: string
+            label: Property (e.g. url, data.title)
+          - { name: includes, type: string, label: Contains }
+          - { name: equals, type: string, label: Equals }
+      - { name: header_intro, type: rich-text, label: Header Intro }
+  block_link_button:
+    label: Link Button
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: text, type: string, label: Button Text, required: true }
+      - { name: href, type: string, label: URL, required: true }
+      - { name: variant, type: string, label: Variant }
+      - { name: size, type: string, label: Size }
+      - { name: reveal, type: string, label: Reveal Animation }
+  block_link_columns:
+    label: Link Columns
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: collection
+        type: string
+        label: Collection Name
+        required: true
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: filter
+        type: object
+        label: Filter
+        fields:
+          - name: property
+            type: string
+            label: Property (e.g. url, data.title)
+          - { name: includes, type: string, label: Contains }
+          - { name: equals, type: string, label: Equals }
+      - { name: remove_text, type: string, label: Remove Text (Regex) }
+      - { name: header_intro, type: rich-text, label: Header Intro }
+  block_markdown:
+    label: Markdown
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: content, type: rich-text, label: Markdown, required: true }
+  block_marquee_images:
+    label: Marquee Images
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: items
+        type: object
+        label: Images
+        required: true
+        list: true
+        fields:
+          - { name: image, type: string, label: Image Path, required: true }
+          - { name: alt, type: string, label: Alt Text }
+          - { name: link_url, type: string, label: Link URL }
+      - { name: speed, type: string, label: Scroll Speed (e.g. 30s) }
+      - { name: height, type: string, label: Image Height (e.g. 50px) }
+  block_properties:
+    label: Properties
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_reviews:
+    label: Reviews
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: current_item, type: boolean, label: Filter to Current Item }
+      - { name: minimum_rating, type: number, label: Minimum Rating }
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
+      - { name: masonry, type: boolean, label: Masonry Grid }
+  block_section_header:
+    label: Section Header
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: intro
+        type: rich-text
+        label: Section Header Intro
+        required: true
+  block_snippet:
+    label: Snippet
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: reference
+        label: Snippet
+        type: reference
+        list: true
+        options:
+          search: primary
+          value: "{path}"
+          label: "{primary}"
+  block_socials:
+    label: Socials
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: directory, type: string, label: Directory, required: true }
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
+      - { name: masonry, type: boolean, label: Masonry Grid }
+      - name: filter
+        type: object
+        label: Filter
+        fields:
+          - name: property
+            type: string
+            label: Property (e.g. url, data.title)
+          - { name: includes, type: string, label: Contains }
+          - { name: equals, type: string, label: Equals }
+      - { name: header_intro, type: rich-text, label: Header Intro }
+  block_split_buy_options:
+    label: Split Buy Options
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
+      - name: figure_image
+        type: image
+        label: Product Image
+        required: true
+      - name: figure_title
+        type: string
+        label: Product Title
+        required: true
+      - { name: figure_subtitle, type: string, label: Product Subtitle }
+      - name: figure_price
+        type: string
+        label: Product Price (display, e.g. £15)
+      - name: figure_currency
+        type: string
+        label: Product Currency (ISO code, e.g. GBP)
+      - { name: figure_link, type: string, label: Buy Link, required: true }
+      - { name: figure_button_text, type: string, label: Buy Button Text }
+      - name: figure_heading_level
+        type: number
+        label: Product Heading Level
+      - name: figure_image_aspect_ratio
+        type: string
+        label: Product Image Aspect Ratio
+  block_split_callout:
+    label: Split Callout
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
+      - name: figure_icon
+        type: string
+        label: Icon (Iconify ID, emoji, or path)
+      - name: figure_title
+        type: string
+        label: Callout Title
+        required: true
+      - { name: figure_subtitle, type: string, label: Callout Subtitle }
+      - { name: figure_variant, type: string, label: Callout Color Variant }
+  block_split_code:
+    label: Split Code
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
+      - { name: figure_filename, type: string, label: Code Filename }
+      - { name: figure_code, type: string, label: Code Content, required: true }
+      - { name: figure_language, type: string, label: Code Language }
+  block_split_full:
+    label: Split Full
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: variant, type: string, label: Variant }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: left_title, type: string, label: Left Title }
+      - { name: left_content, type: rich-text, label: Left Content }
+      - name: left_button
+        type: object
+        label: Left Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+      - { name: right_title, type: string, label: Right Title }
+      - { name: right_content, type: rich-text, label: Right Content }
+      - name: right_button
+        type: object
+        label: Right Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+      - { name: reveal_left, type: string, label: Reveal Left Animation }
+      - { name: reveal_right, type: string, label: Reveal Right Animation }
+  block_split_html:
+    label: Split Html
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
+      - name: figure_html
+        type: rich-text
+        label: Figure HTML Content
+        required: true
+  block_split_icon_links:
+    label: Split Icon Links
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: title, type: string, label: Title }
+      - { name: title_level, type: number, label: Heading Level }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
+      - name: figure_items
+        type: object
+        label: Links
+        required: true
+        list: true
+        fields:
+          - name: icon
+            type: string
+            label: Icon (Iconify ID or HTML entity)
+            required: true
+          - { name: text, type: string, label: Link Text, required: true }
+          - { name: url, type: string, label: URL }
   block_split_image:
     label: Split Image
     type: object
@@ -192,212 +674,19 @@ components:
       - { name: figure_thumbnail_url, type: string, label: Thumbnail URL }
       - { name: figure_alt, type: string, label: Video Alt Text }
       - { name: figure_caption, type: string, label: Video Caption }
-  block_split_code:
-    label: Split Code
+  block_stats:
+    label: Stats
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
-      - { name: subtitle, type: string, label: Subtitle }
-      - { name: content, type: rich-text, label: Content }
-      - { name: reverse, type: boolean, label: Reverse Layout }
-      - { name: reveal_content, type: string, label: Reveal Content Animation }
-      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - name: button
+      - name: items
         type: object
-        label: Button
-        fields:
-          - { name: text, type: string, label: Button Text, required: true }
-          - { name: href, type: string, label: URL, required: true }
-          - { name: variant, type: string, label: Variant }
-          - { name: size, type: string, label: Size }
-      - { name: figure_filename, type: string, label: Code Filename }
-      - { name: figure_code, type: string, label: Code Content, required: true }
-      - { name: figure_language, type: string, label: Code Language }
-  block_split_icon_links:
-    label: Split Icon Links
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
-      - { name: subtitle, type: string, label: Subtitle }
-      - { name: content, type: rich-text, label: Content }
-      - { name: reverse, type: boolean, label: Reverse Layout }
-      - { name: reveal_content, type: string, label: Reveal Content Animation }
-      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - name: button
-        type: object
-        label: Button
-        fields:
-          - { name: text, type: string, label: Button Text, required: true }
-          - { name: href, type: string, label: URL, required: true }
-          - { name: variant, type: string, label: Variant }
-          - { name: size, type: string, label: Size }
-      - name: figure_items
-        type: object
-        label: Links
+        label: Statistics
         required: true
         list: true
         fields:
-          - name: icon
-            type: string
-            label: Icon (Iconify ID or HTML entity)
-            required: true
-          - { name: text, type: string, label: Link Text, required: true }
-          - { name: url, type: string, label: URL }
-  block_split_html:
-    label: Split Html
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
-      - { name: subtitle, type: string, label: Subtitle }
-      - { name: content, type: rich-text, label: Content }
-      - { name: reverse, type: boolean, label: Reverse Layout }
-      - { name: reveal_content, type: string, label: Reveal Content Animation }
-      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - name: button
-        type: object
-        label: Button
-        fields:
-          - { name: text, type: string, label: Button Text, required: true }
-          - { name: href, type: string, label: URL, required: true }
-          - { name: variant, type: string, label: Variant }
-          - { name: size, type: string, label: Size }
-      - name: figure_html
-        type: rich-text
-        label: Figure HTML Content
-        required: true
-  block_split_callout:
-    label: Split Callout
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
-      - { name: subtitle, type: string, label: Subtitle }
-      - { name: content, type: rich-text, label: Content }
-      - { name: reverse, type: boolean, label: Reverse Layout }
-      - { name: reveal_content, type: string, label: Reveal Content Animation }
-      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - name: button
-        type: object
-        label: Button
-        fields:
-          - { name: text, type: string, label: Button Text, required: true }
-          - { name: href, type: string, label: URL, required: true }
-          - { name: variant, type: string, label: Variant }
-          - { name: size, type: string, label: Size }
-      - name: figure_icon
-        type: string
-        label: Icon (Iconify ID, emoji, or path)
-      - name: figure_title
-        type: string
-        label: Callout Title
-        required: true
-      - { name: figure_subtitle, type: string, label: Callout Subtitle }
-      - { name: figure_variant, type: string, label: Callout Color Variant }
-  block_split_buy_options:
-    label: Split Buy Options
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
-      - { name: subtitle, type: string, label: Subtitle }
-      - { name: content, type: rich-text, label: Content }
-      - { name: reverse, type: boolean, label: Reverse Layout }
-      - { name: reveal_content, type: string, label: Reveal Content Animation }
-      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
-      - name: button
-        type: object
-        label: Button
-        fields:
-          - { name: text, type: string, label: Button Text, required: true }
-          - { name: href, type: string, label: URL, required: true }
-          - { name: variant, type: string, label: Variant }
-          - { name: size, type: string, label: Size }
-      - name: figure_image
-        type: image
-        label: Product Image
-        required: true
-      - name: figure_title
-        type: string
-        label: Product Title
-        required: true
-      - { name: figure_subtitle, type: string, label: Product Subtitle }
-      - name: figure_price
-        type: string
-        label: Product Price (display, e.g. £15)
-      - name: figure_currency
-        type: string
-        label: Product Currency (ISO code, e.g. GBP)
-      - { name: figure_link, type: string, label: Buy Link, required: true }
-      - { name: figure_button_text, type: string, label: Buy Button Text }
-      - name: figure_heading_level
-        type: number
-        label: Product Heading Level
-      - name: figure_image_aspect_ratio
-        type: string
-        label: Product Image Aspect Ratio
-  block_split_full:
-    label: Split Full
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: variant, type: string, label: Variant }
-      - { name: title_level, type: number, label: Heading Level }
-      - { name: left_title, type: string, label: Left Title }
-      - { name: left_content, type: rich-text, label: Left Content }
-      - name: left_button
-        type: object
-        label: Left Button
-        fields:
-          - { name: text, type: string, label: Button Text, required: true }
-          - { name: href, type: string, label: URL, required: true }
-          - { name: variant, type: string, label: Variant }
-      - { name: right_title, type: string, label: Right Title }
-      - { name: right_content, type: rich-text, label: Right Content }
-      - name: right_button
-        type: object
-        label: Right Button
-        fields:
-          - { name: text, type: string, label: Button Text, required: true }
-          - { name: href, type: string, label: URL, required: true }
-          - { name: variant, type: string, label: Variant }
-      - { name: reveal_left, type: string, label: Reveal Left Animation }
-      - { name: reveal_right, type: string, label: Reveal Right Animation }
-  block_cta:
-    label: Cta
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title, required: true }
-      - { name: description, type: rich-text, label: Description }
-      - name: button
-        type: object
-        label: Button
-        fields:
-          - { name: text, type: string, label: Button Text, required: true }
-          - { name: href, type: string, label: URL, required: true }
-          - { name: variant, type: string, label: Variant }
-          - { name: size, type: string, label: Size }
-  block_callout:
-    label: Callout
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - name: variant
-        type: string
-        label: Variant (info | warning | success | danger)
-      - name: icon
-        type: string
-        label: Icon (Iconify ID, emoji, or path)
-      - { name: title, type: string, label: Title }
-      - { name: content, type: rich-text, label: Content, required: true }
+          - { name: value, type: string, label: Value, required: true }
+          - { name: label, type: string, label: Label, required: true }
   block_video_background:
     label: Video Background
     type: object
@@ -411,295 +700,6 @@ components:
         type: rich-text
         label: Overlay Content
         required: true
-  block_bunny_video_background:
-    label: Bunny Video Background
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - name: video_url
-        type: string
-        label: Bunny Stream Embed URL
-        required: true
-      - name: thumbnail_url
-        type: string
-        label: Thumbnail URL
-        required: true
-      - { name: video_title, type: string, label: Video Title }
-      - { name: class, type: string, label: CSS Class }
-      - name: content
-        type: rich-text
-        label: Overlay Content
-        required: true
-  block_image_background:
-    label: Image Background
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: image, type: image, label: Background Image, required: true }
-      - { name: image_alt, type: string, label: Image Alt Text }
-      - { name: class, type: string, label: CSS Class }
-      - name: content
-        type: rich-text
-        label: Overlay Content
-        required: true
-      - { name: parallax, type: boolean, label: Parallax }
-  block_items:
-    label: Items
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - name: collection
-        type: string
-        label: Collection Name
-        required: true
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
-      - { name: horizontal, type: boolean, label: Horizontal Slider }
-      - { name: masonry, type: boolean, label: Masonry Grid }
-      - name: filter
-        type: object
-        label: Filter
-        fields:
-          - name: property
-            type: string
-            label: Property (e.g. url, data.title)
-          - { name: includes, type: string, label: Contains }
-          - { name: equals, type: string, label: Equals }
-      - { name: header_intro, type: rich-text, label: Header Intro }
-  block_items_array:
-    label: Items Array
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: items, type: string, label: Items, list: true }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
-      - { name: horizontal, type: boolean, label: Horizontal Slider }
-      - { name: masonry, type: boolean, label: Masonry Grid }
-      - name: filter
-        type: object
-        label: Filter
-        fields:
-          - name: property
-            type: string
-            label: Property (e.g. url, data.title)
-          - { name: includes, type: string, label: Contains }
-          - { name: equals, type: string, label: Equals }
-      - { name: header_intro, type: rich-text, label: Header Intro }
-  block_socials:
-    label: Socials
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: directory, type: string, label: Directory, required: true }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
-      - { name: horizontal, type: boolean, label: Horizontal Slider }
-      - { name: masonry, type: boolean, label: Masonry Grid }
-      - name: filter
-        type: object
-        label: Filter
-        fields:
-          - name: property
-            type: string
-            label: Property (e.g. url, data.title)
-          - { name: includes, type: string, label: Contains }
-          - { name: equals, type: string, label: Equals }
-      - { name: header_intro, type: rich-text, label: Header Intro }
-  block_link_columns:
-    label: Link Columns
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - name: collection
-        type: string
-        label: Collection Name
-        required: true
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
-      - name: filter
-        type: object
-        label: Filter
-        fields:
-          - name: property
-            type: string
-            label: Property (e.g. url, data.title)
-          - { name: includes, type: string, label: Contains }
-          - { name: equals, type: string, label: Equals }
-      - { name: remove_text, type: string, label: Remove Text (Regex) }
-      - { name: header_intro, type: rich-text, label: Header Intro }
-  block_contact_form:
-    label: Contact Form
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: content, type: rich-text, label: Content }
-  block_custom_contact_form:
-    label: Custom Contact Form
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: content, type: rich-text, label: Intro Content }
-      - name: fields
-        type: object
-        label: Form Fields
-        required: true
-        list: true
-        fields:
-          - { name: name, type: string, label: Field Name, required: true }
-          - { name: label, type: string, label: Field Label, required: true }
-          - name: type
-            type: string
-            label: Field Type (text, email, tel, textarea, select, radio, heading)
-          - { name: placeholder, type: string, label: Placeholder }
-          - { name: required, type: boolean, label: Required }
-          - { name: rows, type: number, label: Rows (for textarea) }
-          - { name: note, type: string, label: Help Note }
-          - { name: fieldClass, type: string, label: CSS Class }
-      - { name: header_intro, type: rich-text, label: Header Intro }
-  block_markdown:
-    label: Markdown
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: content, type: rich-text, label: Markdown, required: true }
-  block_html:
-    label: Html
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: content, type: string, label: Raw HTML, required: true }
-  block_iframe_embed:
-    label: Iframe Embed
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: src, type: string, label: Iframe URL, required: true }
-      - { name: title, type: string, label: Accessible Title, required: true }
-      - { name: width, type: number, label: Width (px) }
-      - { name: height, type: number, label: Height (px) }
-      - { name: aspect_ratio, type: string, label: Aspect Ratio (e.g. 16/9) }
-      - name: max_width
-        type: string
-        label: Max Width (CSS, e.g. 560px)
-      - { name: sandbox, type: string, label: Sandbox }
-      - { name: allow, type: string, label: Allow (permissions policy) }
-      - { name: scrolling, type: string, label: Scrolling }
-      - { name: header_intro, type: rich-text, label: Header Intro }
-  block_content:
-    label: Content
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-  block_include:
-    label: Include
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: file, type: string, label: Template File Path, required: true }
-  block_properties:
-    label: Properties
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-  block_guide_categories:
-    label: Guide Categories
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-  block_link_button:
-    label: Link Button
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: text, type: string, label: Button Text, required: true }
-      - { name: href, type: string, label: URL, required: true }
-      - { name: variant, type: string, label: Variant }
-      - { name: size, type: string, label: Size }
-      - { name: reveal, type: string, label: Reveal Animation }
-  block_reviews:
-    label: Reviews
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: current_item, type: boolean, label: Filter to Current Item }
-      - { name: minimum_rating, type: number, label: Minimum Rating }
-      - { name: horizontal, type: boolean, label: Horizontal Slider }
-      - { name: masonry, type: boolean, label: Masonry Grid }
-  block_gallery:
-    label: Gallery
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - name: items
-        type: object
-        label: Gallery Images
-        required: true
-        list: true
-        fields:
-          - { name: image, type: image, label: Image, required: true }
-          - { name: caption, type: string, label: Caption }
-      - { name: aspect_ratio, type: string, label: Aspect Ratio }
-  block_marquee_images:
-    label: Marquee Images
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - name: items
-        type: object
-        label: Images
-        required: true
-        list: true
-        fields:
-          - { name: image, type: string, label: Image Path, required: true }
-          - { name: alt, type: string, label: Alt Text }
-          - { name: link_url, type: string, label: Link URL }
-      - { name: speed, type: string, label: Scroll Speed (e.g. 30s) }
-      - { name: height, type: string, label: Image Height (e.g. 50px) }
-  block_icon_links:
-    label: Icon Links
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
-      - name: items
-        type: object
-        label: Links
-        required: true
-        list: true
-        fields:
-          - name: icon
-            type: string
-            label: Icon (Iconify ID or HTML entity)
-            required: true
-          - { name: text, type: string, label: Link Text, required: true }
-          - { name: url, type: string, label: URL }
-  block_downloads:
-    label: Downloads
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
-      - name: items
-        type: object
-        label: Downloads
-        required: true
-        list: true
-        fields:
-          - name: file
-            type: string
-            label: File Path (e.g. /files/guide.pdf)
-            required: true
-          - { name: label, type: string, label: Label, required: true }
-  block_snippet:
-    label: Snippet
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - name: reference
-        label: Snippet
-        type: reference
-        list: true
-        options:
-          search: primary
-          value: "{path}"
-          label: "{primary}"
   faqs:
     label: FAQs
     type: object
@@ -779,47 +779,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
@@ -904,48 +904,48 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
           - { name: add-to-cart, component: block_add_to_cart }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: categories
     label: Categories
     path: src/categories
@@ -983,47 +983,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: news
     label: News
     path: src/news
@@ -1055,47 +1055,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: events
     label: Events
     path: src/events
@@ -1142,47 +1142,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: team
     label: Team
     path: src/team
@@ -1206,47 +1206,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: reviews
     label: Reviews
     path: src/reviews
@@ -1277,47 +1277,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: locations
     label: Locations
     path: src/locations
@@ -1359,47 +1359,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: properties
     label: Properties
     path: src/properties
@@ -1452,47 +1452,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: guide-categories
     label: Guide Categories
     path: src/guide-categories
@@ -1522,47 +1522,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: guide-pages
     label: Guide Pages
     path: src/guide-pages
@@ -1592,47 +1592,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: menus
     label: Menus
     path: src/menus
@@ -1657,47 +1657,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: menu-categories
     label: Menu Categories
     path: src/menu-categories
@@ -1728,47 +1728,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: menu-items
     label: Menu Items
     path: src/menu-items
@@ -1802,47 +1802,47 @@ content:
         list: true
         blockKey: type
         blocks:
-          - { name: section-header, component: block_section_header }
-          - { name: features, component: block_features }
-          - { name: image-cards, component: block_image_cards }
-          - { name: buy-options, component: block_buy_options }
-          - { name: stats, component: block_stats }
-          - { name: code-block, component: block_code_block }
-          - { name: hero, component: block_hero }
-          - { name: split-image, component: block_split_image }
-          - { name: split-video, component: block_split_video }
-          - { name: split-code, component: block_split_code }
-          - { name: split-icon-links, component: block_split_icon_links }
-          - { name: split-html, component: block_split_html }
-          - { name: split-callout, component: block_split_callout }
-          - { name: split-buy-options, component: block_split_buy_options }
-          - { name: split-full, component: block_split_full }
-          - { name: cta, component: block_cta }
-          - { name: callout, component: block_callout }
-          - { name: video-background, component: block_video_background }
           - name: bunny-video-background
             component: block_bunny_video_background
+          - { name: buy-options, component: block_buy_options }
+          - { name: callout, component: block_callout }
+          - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
+          - { name: content, component: block_content }
+          - { name: cta, component: block_cta }
+          - { name: custom-contact-form, component: block_custom_contact_form }
+          - { name: downloads, component: block_downloads }
+          - { name: features, component: block_features }
+          - { name: gallery, component: block_gallery }
+          - { name: guide-categories, component: block_guide_categories }
+          - { name: hero, component: block_hero }
+          - { name: html, component: block_html }
+          - { name: icon-links, component: block_icon_links }
+          - { name: iframe-embed, component: block_iframe_embed }
           - { name: image-background, component: block_image_background }
+          - { name: image-cards, component: block_image_cards }
+          - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
-          - { name: socials, component: block_socials }
-          - { name: link-columns, component: block_link_columns }
-          - { name: contact-form, component: block_contact_form }
-          - { name: custom-contact-form, component: block_custom_contact_form }
-          - { name: markdown, component: block_markdown }
-          - { name: html, component: block_html }
-          - { name: iframe-embed, component: block_iframe_embed }
-          - { name: content, component: block_content }
-          - { name: include, component: block_include }
-          - { name: properties, component: block_properties }
-          - { name: guide-categories, component: block_guide_categories }
           - { name: link-button, component: block_link_button }
-          - { name: reviews, component: block_reviews }
-          - { name: gallery, component: block_gallery }
+          - { name: link-columns, component: block_link_columns }
+          - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: icon-links, component: block_icon_links }
-          - { name: downloads, component: block_downloads }
+          - { name: properties, component: block_properties }
+          - { name: reviews, component: block_reviews }
+          - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
+          - { name: socials, component: block_socials }
+          - { name: split-buy-options, component: block_split_buy_options }
+          - { name: split-callout, component: block_split_callout }
+          - { name: split-code, component: block_split_code }
+          - { name: split-full, component: block_split_full }
+          - { name: split-html, component: block_split_html }
+          - { name: split-icon-links, component: block_split_icon_links }
+          - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
+          - { name: stats, component: block_stats }
+          - { name: video-background, component: block_video_background }
   - name: snippets
     label: Snippets
     path: src/snippets
