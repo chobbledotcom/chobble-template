@@ -64,7 +64,7 @@ const groupBlockTypesByTemplate = () =>
   ).map(([template, entries]) => [template, entries.map(([type]) => type)]);
 
 const unionSchemaFields = (blockTypes) =>
-  new Set(blockTypes.flatMap((type) => BLOCK_SCHEMAS[type]));
+  new Set(blockTypes.flatMap((type) => Object.keys(BLOCK_SCHEMAS[type])));
 
 describe("template ↔ block schema sync", () => {
   for (const [templatePath, blockTypes] of groupBlockTypesByTemplate()) {

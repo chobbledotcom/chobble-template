@@ -8,7 +8,9 @@
  *   - optionally `containerWidth` ("full" | "narrow"; defaults to "wide")
  *
  * This file aggregates them into:
- *   - `BLOCK_SCHEMAS`    — allowed keys per type (for validation)
+ *   - `BLOCK_SCHEMAS`    — field definitions per type, used for both
+ *     allowed-key checks and runtime value-shape validation. Indexed by
+ *     block type; each entry maps field name → `{ type, list?, ... }`.
  *   - `BLOCK_CMS_FIELDS` — CMS field definitions (for .pages.yml generation)
  *   - `BLOCK_DOCS`       — documentation (for BLOCKS_LAYOUT.md generation)
  */
@@ -54,12 +56,6 @@ import * as splitImage from "#utils/block-schema/split-image.js";
 import * as splitVideo from "#utils/block-schema/split-video.js";
 import * as stats from "#utils/block-schema/stats.js";
 import * as videoBackground from "#utils/block-schema/video-background.js";
-
-/**
- * Common wrapper keys allowed on all block types.
- * These are used by blocks.html to wrap blocks in sections/containers.
- */
-const COMMON_BLOCK_KEYS = ["dark"];
 
 /**
  * Iteration order determines the order that `scripts/generate-blocks-reference.js`
@@ -127,7 +123,7 @@ const DOC_TYPE_MAP = {
   reference: "string",
 };
 
-const BLOCK_SCHEMAS = indexByType((m) => Object.keys(m.fields));
+const BLOCK_SCHEMAS = indexByType((m) => m.fields);
 
 /** @type {Record<string, "full" | "wide" | "narrow">} */
 const BLOCK_CONTAINER_WIDTHS = indexByType((m) =>
@@ -181,34 +177,100 @@ const assert = (condition, message) => {
  * @typedef {Record<string, unknown>} Block
  */
 
+/** @param {string} t @returns {(v: unknown) => boolean} */
+const isTypeof = (t) => (v) => typeof v === t;
+
+/**
+ * Per-field-type runtime checks. `image` stores a path string;
+ * `reference` stores a collection item slug; `markdown` stores markdown
+ * source text passed to markdown-it — all plain strings at runtime.
+ * @type {Record<string, { label: string, check: (v: unknown) => boolean }>}
+ */
+const FIELD_TYPE_CHECKS = {
+  string: { label: "a string", check: isTypeof("string") },
+  markdown: { label: "a string", check: isTypeof("string") },
+  image: { label: "a string", check: isTypeof("string") },
+  reference: { label: "a string", check: isTypeof("string") },
+  number: { label: "a number", check: isTypeof("number") },
+  boolean: { label: "a boolean", check: isTypeof("boolean") },
+  object: {
+    label: "an object",
+    check: (v) => typeof v === "object" && v !== null && !Array.isArray(v),
+  },
+};
+
+const LIST_CHECK = { label: "an array", check: Array.isArray };
+
+/** Field types for wrapper keys (e.g. `dark`) accepted on every block. */
+const COMMON_FIELD_TYPES = {
+  dark: { type: "boolean" },
+};
+
+/**
+ * Converts a `{type, list?}` field definition map to `[key, spec]` pairs
+ * for constructing a per-block lookup table. The returned spec is
+ * `undefined` when the declared type has no known runtime check.
+ *
+ * @param {object} defs
+ */
+const specEntries = (defs) =>
+  Object.entries(defs).map(([k, d]) => [
+    k,
+    d.list ? LIST_CHECK : FIELD_TYPE_CHECKS[d.type],
+  ]);
+
+const COMMON_SPEC_ENTRIES = specEntries(COMMON_FIELD_TYPES);
+
+/**
+ * Pre-computed per-block lookup of `fieldName -> { label, check }`. Built
+ * once at module load so `validateBlock` can do a straight dictionary
+ * lookup per field instead of branching on `type` + `list` at runtime.
+ *
+ * @type {Record<string, Record<string, { label: string, check: (v: unknown) => boolean }>>}
+ */
+const BLOCK_FIELD_SPECS = Object.fromEntries(
+  Object.entries(BLOCK_SCHEMAS).map(([blockType, fieldDefs]) => [
+    blockType,
+    Object.fromEntries([...specEntries(fieldDefs), ...COMMON_SPEC_ENTRIES]),
+  ]),
+);
+
 /**
  * Validates a single block against its schema.
- * Throws an error if the block contains unknown keys or unknown type.
+ * Throws an error if the block contains unknown keys or unknown type, or
+ * if any field value does not match its declared shape.
  *
  * @param {Block} block - Block to validate
  * @param {string} ctx - Context suffix for error messages
- * @throws {Error} If the block contains unknown keys or invalid type
+ * @throws {Error} If the block fails any validation check
  */
 const validateBlock = (block, ctx) => {
   assert(
-    typeof block.type === "string" && block.type.length > 0,
+    typeof block.type === "string",
     `Block is missing required "type" field${ctx}`,
   );
-
-  const allowedKeys = BLOCK_SCHEMAS[block.type];
+  const specs = BLOCK_FIELD_SPECS[block.type];
   assert(
-    allowedKeys,
-    `Unknown block type "${block.type}"${ctx}. Valid types: ${Object.keys(BLOCK_SCHEMAS).join(", ")}`,
+    specs,
+    `Unknown block type "${block.type}"${ctx}. Valid types: ${Object.keys(BLOCK_FIELD_SPECS).join(", ")}`,
   );
-
-  const allAllowed = [...allowedKeys, ...COMMON_BLOCK_KEYS];
-  const unknown = Object.keys(block).filter(
-    (k) => k !== "type" && !allAllowed.includes(k),
-  );
+  const allowedKeys = [...Object.keys(specs), "type"];
+  const unknown = Object.keys(block).filter((k) => !allowedKeys.includes(k));
   assert(
     unknown.length === 0,
-    `Block type "${block.type}" has unknown keys: ${quoteJoin(unknown)}${ctx}. Allowed keys: ${quoteJoin(allAllowed)}`,
+    `Block type "${block.type}" has unknown keys: ${quoteJoin(unknown)}${ctx}. Allowed keys: ${quoteJoin(Object.keys(specs))}`,
   );
+
+  for (const [key, value] of Object.entries(block)) {
+    const spec = specs[key];
+    const skip =
+      !spec || value === undefined || value === null || spec.check(value);
+    if (skip) continue;
+    const actual = Array.isArray(value) ? "array" : typeof value;
+    throw new Error(
+      `Block "${block.type}" field "${key}" must be ${spec.label} but got ${actual}${ctx}`,
+    );
+  }
 };
 
 /**
