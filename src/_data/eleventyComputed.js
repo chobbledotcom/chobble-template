@@ -41,7 +41,6 @@ const BLOCK_DEFAULTS = {
   "code-block": { reveal: true },
   "icon-links": { reveal: true },
   downloads: { reveal: true },
-  "video-background": { aspect_ratio: "16/9" },
 };
 
 export default {

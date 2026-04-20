@@ -1,5 +1,6 @@
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // IMAGE BACKGROUND
@@ -21,6 +22,10 @@
     overflow: clip;
     aspect-ratio: 8/3;
     background: $color-dark-bg;
+
+    @include breakpoint.down("md") {
+      aspect-ratio: 4/3;
+    }
 
     // The image covers the entire container
     > div {

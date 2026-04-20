@@ -31,7 +31,6 @@ blocks:
     video_url: https://iframe.mediadelivery.net/embed/417100/64491289-f8e4-44a0-9d78-746cdf8f78fc?autoplay=true&loop=true&muted=true&preload=true&responsive=true
     thumbnail_url: src/images/video-background-placeholder.jpg
     video_title: Chobble Template Demo
-    aspect_ratio: "21/9"
     content: |
       ## Video Background Block
 
@@ -41,7 +40,6 @@ blocks:
   - type: video-background
     video_id: dQw4w9WgXcQ
     video_title: YouTube Background Demo
-    aspect_ratio: "21/9"
     content: |
       ## YouTube Video Backgrounds
 
