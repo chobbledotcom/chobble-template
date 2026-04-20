@@ -133,7 +133,7 @@ const matchSlotsToBlocks = (blocks, slots, usedIndices = []) =>
         claims: acc.claims.concat({ blockIndex: idx, ci: slot.ci }),
       };
     },
-    { used: usedIndices, claims: [] },
+    /** @type {MatchState} */ ({ used: usedIndices, claims: [] }),
   );
 
 /**
@@ -146,6 +146,28 @@ const collectBeforeSlots = (beforeTypes) =>
     : [];
 
 /**
+ * @param {Block[]} safeBlocks
+ * @param {Array<{ types: string[] }> | null} layoutCols
+ * @param {number[]} usedBefore
+ * @returns {{ columns: Block[][] | null, used: number[] }}
+ */
+const buildColumns = (safeBlocks, layoutCols, usedBefore) => {
+  /** @type {{ columns: Block[][] | null, used: number[] }} */
+  const fallback = { columns: null, used: usedBefore };
+  if (!layoutCols || layoutCols.length === 0) return fallback;
+  const columnSlots = collectLayoutSlots(layoutCols);
+  validateLayoutSlots(columnSlots);
+  const columnState = matchSlotsToBlocks(safeBlocks, columnSlots, usedBefore);
+  if (columnState.claims.length === 0) return fallback;
+  const columns = layoutCols.map((_, ci) =>
+    columnState.claims
+      .filter((c) => c.ci === ci)
+      .map((c) => safeBlocks[c.blockIndex]),
+  );
+  return { columns, used: columnState.used };
+};
+
+/**
  * @param {Block[] | undefined} blocks
  * @param {ColumnLayout | null} layout
  * @returns {{ before: Block[], columns: Block[][] | null, rest: Block[] }}
@@ -153,30 +175,17 @@ const collectBeforeSlots = (beforeTypes) =>
 export const splitBlocksForColumns = (blocks, layout) => {
   const safeBlocks = Array.isArray(blocks) ? blocks : [];
   const beforeSlots = collectBeforeSlots(layout?.before);
-  const layoutCols = layout?.columns;
-  const hasColumns = Array.isArray(layoutCols) && layoutCols.length > 0;
-  if (beforeSlots.length === 0 && !hasColumns) {
+  const layoutCols = Array.isArray(layout?.columns) ? layout.columns : null;
+  if (beforeSlots.length === 0 && !layoutCols) {
     return { before: [], columns: null, rest: safeBlocks };
   }
-
   const beforeState = matchSlotsToBlocks(safeBlocks, beforeSlots);
   const before = beforeState.claims.map((c) => safeBlocks[c.blockIndex]);
-  const restFrom = (used) => safeBlocks.filter((_, i) => !used.includes(i));
-
-  const columnSlots = hasColumns ? collectLayoutSlots(layoutCols) : [];
-  validateLayoutSlots(columnSlots);
-  const columnState = matchSlotsToBlocks(
+  const { columns, used } = buildColumns(
     safeBlocks,
-    columnSlots,
+    layoutCols,
     beforeState.used,
   );
-  if (columnState.claims.length === 0) {
-    return { before, columns: null, rest: restFrom(beforeState.used) };
-  }
-  const columns = layoutCols.map((_, ci) =>
-    columnState.claims
-      .filter((c) => c.ci === ci)
-      .map((c) => safeBlocks[c.blockIndex]),
-  );
-  return { before, columns, rest: restFrom(columnState.used) };
+  const rest = safeBlocks.filter((_, i) => !used.includes(i));
+  return { before, columns, rest };
 };
