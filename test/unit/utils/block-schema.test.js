@@ -21,10 +21,20 @@ describe("validateBlocks accepts every schema-declared key", () => {
   // Data-driven replacement for the per-block "allows all valid keys for X"
   // tests. If a block schema drops a legitimate key, the corresponding
   // test case here will fail and name the block.
-  for (const [blockType, allowedKeys] of Object.entries(BLOCK_SCHEMAS)) {
+  const sampleValueFor = (fieldDef) => {
+    if (fieldDef.list) return [];
+    if (fieldDef.type === "number") return 1;
+    if (fieldDef.type === "boolean") return true;
+    if (fieldDef.type === "object") return {};
+    return "test-value";
+  };
+
+  for (const [blockType, fieldDefs] of Object.entries(BLOCK_SCHEMAS)) {
     test(`${blockType}: block with every schema key validates`, () => {
       const block = { type: blockType };
-      for (const key of allowedKeys) block[key] = "test-value";
+      for (const [key, fieldDef] of Object.entries(fieldDefs)) {
+        block[key] = sampleValueFor(fieldDef);
+      }
       expect(() => validateBlocks([block])).not.toThrow();
     });
   }
@@ -50,7 +60,7 @@ describe("validateBlocks error handling", () => {
     // Blocks like "content" and "properties" have an empty schema.
     // Pick one dynamically so the test doesn't break if the list changes.
     const emptySchemaType = Object.entries(BLOCK_SCHEMAS).find(
-      ([, keys]) => keys.length === 0,
+      ([, fields]) => Object.keys(fields).length === 0,
     )?.[0];
     expect(emptySchemaType).toBeDefined();
     expect(() => validateBlocks([{ type: emptySchemaType }])).not.toThrow();
@@ -126,6 +136,99 @@ describe("validateBlocks error handling", () => {
     expect(() => validateBlocks(blocks)).toThrow(
       'unknown keys: "section_class"',
     );
+  });
+});
+
+describe("validateBlocks field-type validation", () => {
+  // These tests lock in the fix for a cryptic "Input data should be a
+  // String" markdown-it failure that surfaced when a contact-form block's
+  // `content` was authored as a nested structure instead of a plain
+  // string. The validator now catches the bad shape up front and names
+  // the offending block, field, and file.
+
+  test("rejects a markdown field authored as an array", () => {
+    const blocks = [{ type: "contact-form", content: ["a", "b"] }];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'Block "contact-form" field "content" must be a string but got array',
+    );
+  });
+
+  test("rejects a markdown field authored as an object", () => {
+    const blocks = [{ type: "contact-form", content: { text: "hi" } }];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'Block "contact-form" field "content" must be a string but got object',
+    );
+  });
+
+  test("rejects a string field authored as a number", () => {
+    const blocks = [{ type: "link-button", text: 42, href: "/x" }];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'Block "link-button" field "text" must be a string but got number',
+    );
+  });
+
+  test("rejects a number field authored as a string", () => {
+    const blocks = [
+      {
+        type: "iframe-embed",
+        src: "https://example.com",
+        title: "Demo",
+        width: "560",
+      },
+    ];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'Block "iframe-embed" field "width" must be a number but got string',
+    );
+  });
+
+  test("rejects a boolean field authored as a string", () => {
+    const blocks = [{ type: "reviews", current_item: "yes" }];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'Block "reviews" field "current_item" must be a boolean but got string',
+    );
+  });
+
+  test("rejects a list field authored as a scalar", () => {
+    const blocks = [{ type: "downloads", items: "oops" }];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'Block "downloads" field "items" must be an array but got string',
+    );
+  });
+
+  test("rejects an object field authored as an array", () => {
+    const blocks = [
+      { type: "cta", title: "Hi", button: [{ text: "x", href: "/" }] },
+    ];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'Block "cta" field "button" must be an object but got array',
+    );
+  });
+
+  test("rejects dark field authored as a non-boolean", () => {
+    const blocks = [{ type: "section-header", intro: "x", dark: "true" }];
+    expect(() => validateBlocks(blocks)).toThrow(
+      'Block "section-header" field "dark" must be a boolean but got string',
+    );
+  });
+
+  test("allows null to mean 'omitted'", () => {
+    const blocks = [{ type: "contact-form", content: null }];
+    expect(() => validateBlocks(blocks)).not.toThrow();
+  });
+
+  test("field-type error includes the file context", () => {
+    const blocks = [{ type: "contact-form", content: ["a"] }];
+    expect(() => validateBlocks(blocks, " in src/products/widget.md")).toThrow(
+      "in src/products/widget.md",
+    );
+  });
+
+  test("field-type error reports the block index", () => {
+    const blocks = [
+      { type: "section-header", intro: "x" },
+      { type: "contact-form", content: { bad: true } },
+    ];
+    expect(() => validateBlocks(blocks)).toThrow("block 2");
   });
 });
 
