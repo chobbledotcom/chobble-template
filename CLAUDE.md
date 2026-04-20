@@ -216,7 +216,7 @@ Instead:
 
 **If you genuinely need the full suite output** (e.g. finding which test broke after a wide change):
 1. Run it **once**, redirecting to a file: `bun test > /tmp/test-output.txt 2>&1`
-2. Grep that file repeatedly: `grep -n "FAIL" /tmp/test-output.txt`
+2. Grep that file repeatedly: `grep -n "(fail)" /tmp/test-output.txt` (bun marks failing tests lowercase `(fail)`)
 3. **Never** pipe `bun test | grep ...` and re-run — you pay the full suite cost each time
 
 Only run the full `bun test` once at the end to confirm everything passes before committing.
