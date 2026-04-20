@@ -6,9 +6,11 @@
   -%}
 {%- endif -%}
 <div class="contact-form-block">
+  {%- if block.content -%}
   <div class="prose">
     {{ block.content | renderContent: "md" }}
   </div>
+  {%- endif -%}
   <div class="form">
     {%- include "contact-form.html" -%}
   </div>
