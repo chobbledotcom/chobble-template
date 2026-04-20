@@ -1,4 +1,20 @@
-{%- for block in blocks -%}
+{%- assign split = blocks | splitBlocksForColumns: tags, blockLayouts -%}
+{%- if split.columns -%}
+  <section class="block-columns-section">
+    <div class="container-wide">
+      <div class="block-columns block-columns-{{ split.columns | size }}">
+        {%- for column in split.columns -%}
+          <div class="block-column">
+            {%- for block in column -%}
+              {%- include "design-system/render-block.html", block: block -%}
+            {%- endfor -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+{%- for block in split.rest -%}
   {%- if block.type == "snippet" -%}
     {%- include "design-system/render-block.html", block: block -%}
   {%- else -%}

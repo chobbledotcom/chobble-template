@@ -155,6 +155,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
+  "src/_lib/utils/block-columns.js", // Validation and distribution helpers kept separate for complexity
   "src/_lib/public/design-system.js", // initVideoFacades kept separate to manage complexity
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
