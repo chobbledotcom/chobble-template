@@ -206,5 +206,107 @@ describe("block-columns", () => {
       expect(result.columns).toEqual([[], [blocks[0]]]);
       expect(result.rest).toEqual([]);
     });
+
+    test("defaults before to an empty array when no layout applies", () => {
+      const blocks = [block("markdown")];
+      const result = splitBlocksForColumns(blocks, null);
+      expect(result.before).toEqual([]);
+    });
+  });
+
+  describe("before queue", () => {
+    const withHero = (cols) => ({ before: ["hero"], columns: cols });
+    const galleryMdCols = [{ types: ["gallery"] }, { types: ["markdown"] }];
+
+    test("claims listed types full-width above the columns section", () => {
+      const blocks = [block("hero"), block("gallery"), block("markdown")];
+      const result = splitBlocksForColumns(blocks, withHero(galleryMdCols));
+
+      expect(result.before).toEqual([blocks[0]]);
+      expect(result.columns).toEqual([[blocks[1]], [blocks[2]]]);
+      expect(result.rest).toEqual([]);
+    });
+
+    test("renders before blocks in slot order, not page order", () => {
+      const blocks = [block("markdown"), block("hero"), block("cta")];
+      const result = splitBlocksForColumns(blocks, {
+        before: ["hero", "markdown"],
+      });
+
+      // 'hero' slot claims blocks[1], 'markdown' slot claims blocks[0].
+      expect(result.before).toEqual([blocks[1], blocks[0]]);
+      expect(result.rest).toEqual([blocks[2]]);
+    });
+
+    test("before claims a block before columns get a chance at it", () => {
+      const blocks = [block("markdown"), block("markdown"), block("markdown")];
+      const result = splitBlocksForColumns(blocks, {
+        before: ["markdown"],
+        columns: [{ types: ["markdown"] }],
+      });
+
+      expect(result.before).toEqual([blocks[0]]);
+      expect(result.columns).toEqual([[blocks[1]]]);
+      expect(result.rest).toEqual([blocks[2]]);
+    });
+
+    test("listing a type twice in before claims two blocks of that type", () => {
+      const blocks = [block("markdown"), block("cta"), block("markdown")];
+      const result = splitBlocksForColumns(blocks, {
+        before: ["markdown", "markdown"],
+      });
+
+      expect(result.before).toEqual([blocks[0], blocks[2]]);
+      expect(result.rest).toEqual([blocks[1]]);
+    });
+
+    test("allows full-width types inside before that are banned in columns", () => {
+      const fullWidthTypes = [
+        "hero",
+        "video-background",
+        "bunny-video-background",
+        "image-background",
+        "marquee-images",
+        "split-image",
+      ];
+      for (const type of fullWidthTypes) {
+        expect(() =>
+          splitBlocksForColumns([block(type)], { before: [type] }),
+        ).not.toThrow();
+      }
+    });
+
+    test("unmatched before types leave columns and rest unaffected", () => {
+      const blocks = [block("gallery"), block("markdown")];
+      const result = splitBlocksForColumns(blocks, withHero(galleryMdCols));
+
+      expect(result.before).toEqual([]);
+      expect(result.columns).toEqual([[blocks[0]], [blocks[1]]]);
+      expect(result.rest).toEqual([]);
+    });
+
+    test.each([
+      ["layout has only before", { before: ["hero"] }],
+      ["columns have no matches", withHero([{ types: ["gallery"] }])],
+    ])("before still claims when %s", (_label, layout) => {
+      const blocks = [block("hero"), block("markdown")];
+      const result = splitBlocksForColumns(blocks, layout);
+
+      expect(result.before).toEqual([blocks[0]]);
+      expect(result.columns).toBeNull();
+      expect(result.rest).toEqual([blocks[1]]);
+    });
+  });
+
+  describe("getLayoutForTags with before-only layouts", () => {
+    test("accepts a layout with only a before key", () => {
+      const layouts = { products: { before: ["hero"] } };
+      expect(getLayoutForTags(["products"], layouts)).toBe(layouts.products);
+    });
+
+    test("still rejects objects with neither key", () => {
+      const layouts = { products: { other: "value" } };
+      expect(getLayoutForTags(["products"], layouts)).toBeNull();
+    });
   });
 });

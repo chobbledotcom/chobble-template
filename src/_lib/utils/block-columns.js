@@ -1,20 +1,32 @@
 /**
- * Splits a page's blocks into a multi-column first section plus a
- * full-width "rest" list, based on a per-collection layout config.
+ * Splits a page's blocks into an optional "before" section, a multi-column
+ * middle section, and a full-width "rest" list, based on a per-collection
+ * layout config.
  *
  * The config shape (per collection tag) is:
- *   { columns: [ { types: ["gallery"] }, { types: ["markdown", ...] } ] }
+ *   {
+ *     before: ["hero", "markdown"],
+ *     columns: [ { types: ["gallery"] }, { types: ["markdown", ...] } ]
+ *   }
+ *
+ * Both keys are optional. `before` is a single claim queue; `columns` is an
+ * array of claim queues (one per column).
  *
  * Matching rules:
- *   - Each column's `types` list is a claim queue processed in order.
- *     Listing the same type twice claims two blocks of that type.
- *   - Columns are processed in order; for each listed type the first
- *     unclaimed block of that type (in block order) is taken.
- *   - Blocks within a column appear in the order their slots were
- *     listed in the config, not the page's block order.
+ *   - `before` runs first. Each listed type claims the first unclaimed block
+ *     of that type (in block order). Claimed blocks render full-width above
+ *     the columns section, in the order they were claimed.
+ *   - Columns are processed after `before`. Each column's `types` list is a
+ *     claim queue processed in order; columns themselves are processed in
+ *     order; for each listed type the first unclaimed block of that type
+ *     (in block order) is taken.
+ *   - Blocks within a column appear in the order their slots were listed in
+ *     the config, not the page's block order.
  *   - Unclaimed blocks fall through to `rest`, preserving original order.
  *   - If no blocks match any column, columns mode is disabled (returns
  *     columns: null so the template falls back to the default layout).
+ *   - Full-width types (hero, *-background, marquee-images) and split-* types
+ *     are allowed inside `before` but disallowed inside `columns`.
  */
 
 // Block types that must not be placed inside a column layout, either because
@@ -33,7 +45,10 @@ const isSafeInColumn = (type) =>
   !COLUMN_DISALLOWED_TYPES.includes(type) && !type.startsWith("split-");
 
 /**
- * @typedef {{ columns: Array<{ types: string[] }> }} ColumnLayout
+ * @typedef {{
+ *   before?: string[],
+ *   columns?: Array<{ types: string[] }>
+ * }} ColumnLayout
  */
 
 /**
@@ -42,8 +57,9 @@ const isSafeInColumn = (type) =>
  */
 const isColumnLayout = (entry) => {
   if (!entry || typeof entry !== "object") return false;
-  if (!("columns" in entry)) return false;
-  return Array.isArray(entry.columns);
+  const hasColumns = "columns" in entry && Array.isArray(entry.columns);
+  const hasBefore = "before" in entry && Array.isArray(entry.before);
+  return hasColumns || hasBefore;
 };
 
 /**
@@ -94,49 +110,73 @@ const validateLayoutSlots = (slots) => {
  * @typedef {{ used: number[], claims: Claim[] }} MatchState
  */
 
-/** @type {() => MatchState} */
-const emptyMatchState = () => ({ used: [], claims: [] });
-
 /**
  * Walks slots in order and records which block each slot claims. A slot
  * claims the first block whose `type` matches it and whose index has not
- * already been used by an earlier slot. Slots with no matching block are
- * skipped silently.
+ * already been used by an earlier slot (or a prior matching pass, via
+ * `usedIndices`). Slots with no matching block are skipped silently.
  *
  * @param {Block[]} blocks
  * @param {Array<{ type: string, ci: number }>} slots
+ * @param {number[]} usedIndices
  * @returns {MatchState}
  */
-const matchSlotsToBlocks = (blocks, slots) =>
-  slots.reduce((acc, slot) => {
-    const idx = blocks.findIndex(
-      (b, i) => b.type === slot.type && !acc.used.includes(i),
-    );
-    if (idx === -1) return acc;
-    return {
-      used: acc.used.concat(idx),
-      claims: acc.claims.concat({ blockIndex: idx, ci: slot.ci }),
-    };
-  }, emptyMatchState());
+const matchSlotsToBlocks = (blocks, slots, usedIndices = []) =>
+  slots.reduce(
+    (acc, slot) => {
+      const idx = blocks.findIndex(
+        (b, i) => b.type === slot.type && !acc.used.includes(i),
+      );
+      if (idx === -1) return acc;
+      return {
+        used: acc.used.concat(idx),
+        claims: acc.claims.concat({ blockIndex: idx, ci: slot.ci }),
+      };
+    },
+    { used: usedIndices, claims: [] },
+  );
+
+/**
+ * @param {string[] | undefined} beforeTypes
+ * @returns {Array<{ type: string, ci: number }>}
+ */
+const collectBeforeSlots = (beforeTypes) =>
+  Array.isArray(beforeTypes)
+    ? beforeTypes.map((type) => ({ type, ci: 0 }))
+    : [];
 
 /**
  * @param {Block[] | undefined} blocks
  * @param {ColumnLayout | null} layout
- * @returns {{ columns: Block[][] | null, rest: Block[] }}
+ * @returns {{ before: Block[], columns: Block[][] | null, rest: Block[] }}
  */
 export const splitBlocksForColumns = (blocks, layout) => {
   const safeBlocks = Array.isArray(blocks) ? blocks : [];
+  const beforeSlots = collectBeforeSlots(layout?.before);
   const layoutCols = layout?.columns;
-  if (!Array.isArray(layoutCols) || layoutCols.length === 0) {
-    return { columns: null, rest: safeBlocks };
+  const hasColumns = Array.isArray(layoutCols) && layoutCols.length > 0;
+  if (beforeSlots.length === 0 && !hasColumns) {
+    return { before: [], columns: null, rest: safeBlocks };
   }
-  const slots = collectLayoutSlots(layoutCols);
-  validateLayoutSlots(slots);
-  const { claims, used } = matchSlotsToBlocks(safeBlocks, slots);
-  if (claims.length === 0) return { columns: null, rest: safeBlocks };
-  const columns = layoutCols.map((_, ci) =>
-    claims.filter((c) => c.ci === ci).map((c) => safeBlocks[c.blockIndex]),
+
+  const beforeState = matchSlotsToBlocks(safeBlocks, beforeSlots);
+  const before = beforeState.claims.map((c) => safeBlocks[c.blockIndex]);
+  const restFrom = (used) => safeBlocks.filter((_, i) => !used.includes(i));
+
+  const columnSlots = hasColumns ? collectLayoutSlots(layoutCols) : [];
+  validateLayoutSlots(columnSlots);
+  const columnState = matchSlotsToBlocks(
+    safeBlocks,
+    columnSlots,
+    beforeState.used,
   );
-  const rest = safeBlocks.filter((_, i) => !used.includes(i));
-  return { columns, rest };
+  if (columnState.claims.length === 0) {
+    return { before, columns: null, rest: restFrom(beforeState.used) };
+  }
+  const columns = layoutCols.map((_, ci) =>
+    columnState.claims
+      .filter((c) => c.ci === ci)
+      .map((c) => safeBlocks[c.blockIndex]),
+  );
+  return { before, columns, rest: restFrom(columnState.used) };
 };
