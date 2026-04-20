@@ -242,6 +242,7 @@ Two-column layout with text content and an embedded video.
 | `figure_thumbnail_url` | string | — | Thumbnail image URL shown in the click-to-play facade. Required for non-YouTube URLs (Bunny Stream, Vimeo, etc.); YouTube thumbnails are fetched automatically when this is omitted. |
 | `figure_alt` | string | — | Accessible title for the video iframe. |
 | `figure_caption` | string | — | Visible caption below the video. |
+| `figure_autoplay` | boolean | `false` | If true, skips the click-to-play facade and renders the iframe directly with autoplay + mute (browsers block unmuted autoplay). Controls stay visible. |
 
 ---
 

@@ -78,16 +78,26 @@ const fetchVimeoThumbnail = memoize(async (vimeoId) => {
   return data.thumbnail_url;
 });
 
+const YOUTUBE_PARAMS_BY_MODE = {
+  background: (videoId) =>
+    `autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=${videoId}`,
+  autoplay: () => "autoplay=1&mute=1&playsinline=1",
+  default: () => "autoplay=1",
+};
+
 /**
  * Get the embed URL for a video
  *
- * For Vimeo URLs, ensures autoplay=1 and loop=1 params are present.
+ * For Vimeo URLs, ensures autoplay=1 and loop=1 params are present; when
+ * `autoplay` is requested a `muted=1` param is also added so browsers allow
+ * playback without user gesture.
  * For other custom URLs (starting with "http"), returns the URL as-is.
  * For YouTube IDs, constructs a privacy-respecting youtube-nocookie.com URL.
  *
  * @param {string} videoId - YouTube video ID or custom URL
  * @param {Object} [options] - Options for YouTube embeds
- * @param {boolean} [options.background=false] - If true, adds mute/loop/controls params for background video
+ * @param {boolean} [options.background=false] - If true, adds mute/loop/controls=0 params for ambient background video
+ * @param {boolean} [options.autoplay=false] - If true, adds mute/playsinline params so the video starts on load with controls still visible
  * @returns {string} The embed URL for use in an iframe src
  *
  * @example
@@ -97,30 +107,37 @@ const fetchVimeoThumbnail = memoize(async (vimeoId) => {
  * getVideoEmbedUrl("dQw4w9WgXcQ", { background: true })
  * // "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&playlist=dQw4w9WgXcQ"
  *
+ * getVideoEmbedUrl("dQw4w9WgXcQ", { autoplay: true })
+ * // "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&playsinline=1"
+ *
  * getVideoEmbedUrl("https://player.vimeo.com/video/123456")
  * // "https://player.vimeo.com/video/123456?autoplay=1&loop=1"
  */
 const getVideoEmbedUrl = (videoId, options = {}) => {
+  const autoplay = options.autoplay === true;
+  const background = options.background === true;
+  const pickMode = () => {
+    if (background) return "background";
+    if (autoplay) return "autoplay";
+    return "default";
+  };
+  const setMissing = (params, entries) => {
+    for (const [key, value] of entries) {
+      if (!params.has(key)) params.set(key, value);
+    }
+  };
   if (isVimeoUrl(videoId)) {
     const parsed = new URL(videoId);
-    if (!parsed.searchParams.has("autoplay")) {
-      parsed.searchParams.set("autoplay", "1");
-    }
-    if (!parsed.searchParams.has("loop")) {
-      parsed.searchParams.set("loop", "1");
-    }
+    const muted = autoplay || background;
+    setMissing(parsed.searchParams, [
+      ["autoplay", "1"],
+      ["loop", "1"],
+      ...(muted ? [["muted", "1"]] : []),
+    ]);
     return parsed.toString();
   }
-
-  if (isCustomVideoUrl(videoId)) {
-    return videoId;
-  }
-
-  const background = options.background === true;
-  const params = background
-    ? `autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=${videoId}`
-    : "autoplay=1";
-
+  if (isCustomVideoUrl(videoId)) return videoId;
+  const params = YOUTUBE_PARAMS_BY_MODE[pickMode()](videoId);
   return `https://www.youtube-nocookie.com/embed/${videoId}?${params}`;
 };
 
