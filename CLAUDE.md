@@ -205,6 +205,22 @@ The project enforces strict code quality via Biome. Key rules:
 - Tests in `/test/unit/` and `/test/integration/`
 - Shared utilities in `/test/test-utils.js`
 
+### Running Tests Efficiently
+
+**Do NOT run `bun test` or `bun run test` to diagnose a specific issue.** The full suite is slow (lint + build + unit tests + coverage). Running it repeatedly while iterating wastes minutes every loop.
+
+Instead:
+1. **Target the specific file** - `bun test test/unit/path/to/file.test.js` runs in seconds
+2. **Target a single test** - `bun test test/unit/foo.test.js -t "describes the failing case"`
+3. **Scope by directory** - `bun test test/unit/collections/` for a subsystem
+
+**If you genuinely need the full suite output** (e.g. finding which test broke after a wide change):
+1. Run it **once**, redirecting to a file: `bun test > /tmp/test-output.txt 2>&1`
+2. Grep that file repeatedly: `grep -n "(fail)" /tmp/test-output.txt` (bun marks failing tests lowercase `(fail)`)
+3. **Never** pipe `bun test | grep ...` and re-run — you pay the full suite cost each time
+
+Only run the full `bun test` once at the end to confirm everything passes before committing.
+
 ### Test Quality Criteria (ALL tests must satisfy)
 
 1. **Tests Production Code, Not Reimplementations**
