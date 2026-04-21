@@ -42,27 +42,27 @@ const { find, analyze } = createCodeChecker({
   },
 });
 
+const expectOneProperty = (source, property) => {
+  const results = find(source);
+  expect(results.length).toBe(1);
+  expect(results[0].property).toBe(property);
+};
+
 describe("data-fallbacks", () => {
   describe("find", () => {
     test("detects || fallback on title", () => {
-      const source = `const title = item.data.title || "Untitled";`;
-      const results = find(source);
-      expect(results.length).toBe(1);
-      expect(results[0].property).toBe("title");
+      expectOneProperty(
+        `const title = item.data.title || "Untitled";`,
+        "title",
+      );
     });
 
     test("detects ?? fallback on any property", () => {
-      const source = `const name = product.data.name ?? "";`;
-      const results = find(source);
-      expect(results.length).toBe(1);
-      expect(results[0].property).toBe("name");
+      expectOneProperty(`const name = product.data.name ?? "";`, "name");
     });
 
     test("detects optional chaining with fallback", () => {
-      const source = "const slug = item.data?.slug || defaultSlug;";
-      const results = find(source);
-      expect(results.length).toBe(1);
-      expect(results[0].property).toBe("slug");
+      expectOneProperty("const slug = item.data?.slug || defaultSlug;", "slug");
     });
 
     test("allows direct property access", () => {

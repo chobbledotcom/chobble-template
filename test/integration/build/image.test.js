@@ -274,8 +274,8 @@ describe("image", () => {
       const html = wrapHtml(img("/images/party.jpg", "Party"));
       const result = await runTransform(html);
 
-      expect(result.includes("image-wrapper")).toBe(true);
-      expect(result.includes("<picture")).toBe(true);
+      expect(result).toContain("image-wrapper");
+      expect(result).toContain("<picture");
       expect(result.includes('alt="Party"')).toBe(true);
     });
 

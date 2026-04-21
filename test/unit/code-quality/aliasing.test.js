@@ -115,24 +115,28 @@ const findAliases = (source) => {
   });
 };
 
+const expectSingleAlias = (source) => {
+  const results = findAliases(source);
+  expect(results.length).toBe(1);
+  return results[0];
+};
+
 describe("aliasing", () => {
   describe("local aliases", () => {
     test("detects aliasing of locally defined functions", () => {
       const source = `const originalFn = (x) => x * 2;
 const aliasedFn = originalFn;`;
-      const results = findAliases(source);
-      expect(results.length).toBe(1);
-      expect(results[0].type).toBe("local");
-      expect(results[0].newName).toBe("aliasedFn");
+      const result = expectSingleAlias(source);
+      expect(result.type).toBe("local");
+      expect(result.newName).toBe("aliasedFn");
     });
   });
 
   describe("import aliases", () => {
     const expectSingleImportAlias = (source) => {
-      const results = findAliases(source);
-      expect(results.length).toBe(1);
-      expect(results[0].type).toBe("import");
-      return results[0];
+      const result = expectSingleAlias(source);
+      expect(result.type).toBe("import");
+      return result;
     };
 
     test("detects aliasing of named imports", () => {
@@ -152,17 +156,15 @@ const aliasedFn = originalFn;`;
   describe("property aliases", () => {
     test("detects property access aliases", () => {
       const source = "const log = console.log;";
-      const results = findAliases(source);
-      expect(results.length).toBe(1);
-      expect(results[0].type).toBe("property");
-      expect(results[0].originalName).toBe("console.log");
+      const result = expectSingleAlias(source);
+      expect(result.type).toBe("property");
+      expect(result.originalName).toBe("console.log");
     });
 
     test("detects nested property access", () => {
       const source = "const options = product.data.options;";
-      const results = findAliases(source);
-      expect(results.length).toBe(1);
-      expect(results[0].originalName).toBe("product.data.options");
+      const result = expectSingleAlias(source);
+      expect(result.originalName).toBe("product.data.options");
     });
   });
 

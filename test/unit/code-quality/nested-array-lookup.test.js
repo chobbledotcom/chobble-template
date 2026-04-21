@@ -88,22 +88,25 @@ const toViolation = (file) => (v) => ({
   reason: `nested .${v.method}() inside iteration — likely O(n*m)`,
 });
 
-const expectSingleFilterViolation = (source) => {
+const expectSingleLookup = (source, method) => {
   const results = findNestedLookups(source);
   expect(results.length).toBe(1);
-  expect(results[0].method).toBe("filter");
+  expect(results[0].method).toBe(method);
 };
+
+const expectSingleFilterViolation = (source) =>
+  expectSingleLookup(source, "filter");
 
 describe("nested-array-lookup", () => {
   describe("findNestedLookups", () => {
     test("detects .find() inside .map() callback", () => {
-      const source = `items.map((item) => {
+      expectSingleLookup(
+        `items.map((item) => {
   const match = others.find((o) => o.id === item.id);
   return { item, match };
-});`;
-      const results = findNestedLookups(source);
-      expect(results.length).toBe(1);
-      expect(results[0].method).toBe("find");
+});`,
+        "find",
+      );
     });
 
     test("detects .filter() inside flatMap() callback", () => {

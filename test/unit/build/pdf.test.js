@@ -49,23 +49,6 @@ const createMockMenuItem = (
   },
 });
 
-// Helper to create dietary key test data - maps dietary keys arrays to full test setup
-const createDietaryKeyTestData = (dietaryKeysList) => ({
-  menu: createMockMenu("lunch", "Lunch"),
-  state: {
-    menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
-    menuItems: dietaryKeysList.map((dietaryKeys, i) =>
-      createMockMenuItem(
-        `Item ${i + 1}`,
-        ["apps"],
-        `$${5 + i}`,
-        null,
-        dietaryKeys,
-      ),
-    ),
-  },
-});
-
 /** Lunch menu with given items (apps category) */
 const lunchState = (...menuItems) => ({
   menu: createMockMenu("lunch", "Lunch"),
@@ -74,6 +57,20 @@ const lunchState = (...menuItems) => ({
     menuItems,
   },
 });
+
+// Helper to create dietary key test data - maps dietary keys arrays to full test setup
+const createDietaryKeyTestData = (dietaryKeysList) =>
+  lunchState(
+    ...dietaryKeysList.map((dietaryKeys, i) =>
+      createMockMenuItem(
+        `Item ${i + 1}`,
+        ["apps"],
+        `$${5 + i}`,
+        null,
+        dietaryKeys,
+      ),
+    ),
+  );
 
 /** Lunch menu with single item for dietary key tests */
 const lunchMenuWithItem = (dietaryKeys) =>

@@ -40,8 +40,7 @@ describe("compactYaml", () => {
 
   test("does not compact values containing brackets", () => {
     const input = ["- name: x", "  label: a [b] c", ""].join("\n");
-    const parsed = compactAndParse(input);
-    expect(parsed).toEqual([{ name: "x", label: "a [b] c" }]);
+    expect(compactAndParse(input)).toEqual([{ name: "x", label: "a [b] c" }]);
   });
 
   test("leaves single-line list items alone (nothing to compact)", () => {

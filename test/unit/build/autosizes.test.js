@@ -283,13 +283,13 @@ describe("autosizes", () => {
 
   describe("FCP restoration", () => {
     test("Restores src and srcset after FCP fires", async () => {
-      const { img } = await setupAndRun(SRC_SRCSET_ATTRS);
-      expect(img.hasAttribute("src")).toBe(false);
+      const fcp = await setupAndRun(SRC_SRCSET_ATTRS);
+      expect(fcp.img.hasAttribute("src")).toBe(false);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      expect(img.getAttribute("src")).toBe("/image.jpg");
-      expect(img.getAttribute("srcset")).toBe("/image-300.jpg 300w");
+      expect(fcp.img.getAttribute("src")).toBe("/image.jpg");
+      expect(fcp.img.getAttribute("srcset")).toBe("/image-300.jpg 300w");
     });
 
     test("Cleans up data-auto-sizes-* attributes after restoration", async () => {

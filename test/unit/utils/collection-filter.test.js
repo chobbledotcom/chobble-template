@@ -68,7 +68,7 @@ describe("filterItems", () => {
       equals: "42",
     });
     expect(result).toHaveLength(1);
-    expect(result[0].url).toBe("/a/");
+    expect(result[0].data.order).toBe(42);
   });
 
   test("throws when property is missing", () => {
