@@ -66,11 +66,6 @@ const withNavigation = async () => {
   return mockConfig;
 };
 
-const getNavLinks = async (entries) => {
-  const mockConfig = await withNavigation();
-  return mockConfig.collections.navigationLinks(navCollectionApi(entries));
-};
-
 /** Create a navigation entry as returned by eleventyNavigation filter */
 const navEntry = (key, options = {}) => ({
   key,
@@ -183,20 +178,28 @@ describe("navigation", () => {
   });
 
   test("navigationLinks collection sorts by order, then by key", async () => {
-    const items = await getNavLinks([
-      ["Zebra", { key: "zebra", order: 2 }],
-      ["Apple", { key: "apple", order: 1 }],
-      ["Banana", { key: "banana", order: 1 }],
-    ]);
+    const mockConfig = await withNavigation();
+
+    const items = mockConfig.collections.navigationLinks(
+      navCollectionApi([
+        ["Zebra", { key: "zebra", order: 2 }],
+        ["Apple", { key: "apple", order: 1 }],
+        ["Banana", { key: "banana", order: 1 }],
+      ]),
+    );
 
     expectResultTitles(items, ["Apple", "Banana", "Zebra"]);
   });
 
   test("navigationLinks collection handles missing order", async () => {
-    const items = await getNavLinks([
-      ["Zebra", { key: "zebra" }],
-      ["Apple", { key: "apple" }],
-    ]);
+    const mockConfig = await withNavigation();
+
+    const items = mockConfig.collections.navigationLinks(
+      navCollectionApi([
+        ["Zebra", { key: "zebra" }],
+        ["Apple", { key: "apple" }],
+      ]),
+    );
 
     expect(items.length).toBe(2);
   });

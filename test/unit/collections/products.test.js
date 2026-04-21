@@ -77,20 +77,17 @@ describe("products", () => {
   });
 
   describe("products collection", () => {
-    const mockConfig = setupProductsConfig();
-    const runProductsCollection = (testProducts) =>
-      mockConfig.collections.products(
-        taggedCollectionApi({ products: testProducts }),
-      );
-
     test("processes gallery data in products", () => {
+      const mockConfig = setupProductsConfig();
       const testProducts = items([
         ["Product 1", { gallery: ["img1.jpg"] }],
         ["Product 2", {}],
         ["Product 3", { gallery: ["img3.jpg", "img3b.jpg"] }],
       ]);
 
-      const result = runProductsCollection(testProducts);
+      const result = mockConfig.collections.products(
+        taggedCollectionApi({ products: testProducts }),
+      );
 
       expect(result[0].data.gallery).toEqual(["/images/img1.jpg"]);
       expect(result[1].data.gallery).toBe(undefined);
@@ -101,13 +98,16 @@ describe("products", () => {
     });
 
     test("converts object galleries to arrays", () => {
+      const mockConfig = setupProductsConfig();
       const testProducts = [
         item("Product", {
           gallery: { 0: "image1.jpg", 1: "image2.jpg", 2: "image3.jpg" },
         }),
       ];
 
-      const result = runProductsCollection(testProducts);
+      const result = mockConfig.collections.products(
+        taggedCollectionApi({ products: testProducts }),
+      );
 
       expect(result[0].data.gallery).toEqual([
         "/images/image1.jpg",
@@ -324,13 +324,6 @@ describe("products", () => {
     const widgetB = (categories = []) =>
       createProduct({ slug: "widget-b", title: "Widget B", categories });
 
-    const widgetsByCategory = (filters, ...extraArgs) =>
-      filters.getProductsByCategory(
-        [widgetA(["widgets"])],
-        "widgets",
-        ...extraArgs,
-      );
-
     test("includes products listed in page frontmatter", () => {
       const { filters } = setupProductsConfig();
       const testProducts = [widgetA(), widgetB()];
@@ -411,12 +404,25 @@ describe("products", () => {
 
     test("falls back to reverse lookup when no explicit products passed", () => {
       const { filters } = setupProductsConfig();
-      expectResultTitles(widgetsByCategory(filters), ["Widget A"]);
+
+      const result = filters.getProductsByCategory(
+        [widgetA(["widgets"])],
+        "widgets",
+      );
+
+      expectResultTitles(result, ["Widget A"]);
     });
 
     test("falls back when explicit products list is empty", () => {
       const { filters } = setupProductsConfig();
-      expectResultTitles(widgetsByCategory(filters, []), ["Widget A"]);
+
+      const result = filters.getProductsByCategory(
+        [widgetA(["widgets"])],
+        "widgets",
+        [],
+      );
+
+      expectResultTitles(result, ["Widget A"]);
     });
 
     test("normalises path-style slugs in explicit products", () => {
@@ -454,7 +460,14 @@ describe("products", () => {
 
     test("falls back to reverse lookup when all explicit refs are empty", () => {
       const { filters } = setupProductsConfig();
-      expectResultTitles(widgetsByCategory(filters, [{}, {}]), ["Widget A"]);
+
+      const result = filters.getProductsByCategory(
+        [widgetA(["widgets"])],
+        "widgets",
+        [{}, {}],
+      );
+
+      expectResultTitles(result, ["Widget A"]);
     });
   });
 
@@ -539,18 +552,14 @@ describe("products", () => {
   });
 
   describe("addGallery helper", () => {
-    const expectSameRef = (result, testProduct) => {
-      expect(result.data.title).toBe(testProduct.data.title);
-      expect(result).toBe(testProduct);
-    };
-
     test("handles items without gallery", () => {
       const testProduct = item("Test Product", { price: 100 });
 
       const result = addGallery(testProduct);
 
       expect(result.data.gallery).toBe(undefined);
-      expectSameRef(result, testProduct);
+      expect(result.data.title).toBe(testProduct.data.title);
+      expect(result).toBe(testProduct);
     });
 
     test("processes gallery in item data", () => {
@@ -565,7 +574,8 @@ describe("products", () => {
         "/images/product.jpg",
         "/images/gallery1.jpg",
       ]);
-      expectSameRef(result, testProduct);
+      expect(result.data.title).toBe(testProduct.data.title);
+      expect(result).toBe(testProduct);
     });
 
     test("preserves object reference while processing gallery", () => {
