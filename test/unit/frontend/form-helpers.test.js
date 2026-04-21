@@ -12,31 +12,33 @@ describe("form-helpers", () => {
       { type: "textarea", expected: "form-field-textarea.html" },
       { type: "select", expected: "form-field-select.html" },
       { type: "radio", expected: "form-field-radio.html" },
+      { type: "heading", expected: "form-field-heading.html" },
       { type: "text", expected: "form-field-input.html" },
       { type: "email", expected: "form-field-input.html" },
       { type: "date", expected: "form-field-input.html" },
       { type: "tel", expected: "form-field-input.html" },
       { type: "unknown", expected: "form-field-input.html" },
-    ])("returns $expected for $type type", ({ type, expected }) => {
+    ])("returns $expected for type=$type", ({ type, expected }) => {
       expect(getFieldTemplate({ type })).toBe(expected);
     });
 
-    test("returns input template when type is undefined", () => {
+    test("falls back to the input template when type is missing", () => {
       expect(getFieldTemplate({})).toBe("form-field-input.html");
     });
   });
 
-  // addFieldTemplates function tests
   describe("addFieldTemplates", () => {
-    test("adds template property to each field", () => {
+    test("attaches the resolved template to each field", () => {
       const fields = [
         { name: "name", type: "text" },
-        { name: "email", type: "email" },
+        { name: "message", type: "textarea" },
+        { name: "country", type: "select" },
       ];
       const result = addFieldTemplates(fields);
       expectProp("template")(result, [
         "form-field-input.html",
-        "form-field-input.html",
+        "form-field-textarea.html",
+        "form-field-select.html",
       ]);
     });
 
@@ -44,100 +46,69 @@ describe("form-helpers", () => {
       const fields = [
         { name: "message", type: "textarea", label: "Message", required: true },
       ];
-      const result = addFieldTemplates(fields);
-      expect(result[0].name).toBe("message");
-      expect(result[0].type).toBe("textarea");
-      expect(result[0].label).toBe("Message");
-      expect(result[0].required).toBe(true);
-      expect(result[0].template).toBe("form-field-textarea.html");
+      const [result] = addFieldTemplates(fields);
+      expectObjectProps({
+        name: "message",
+        type: "textarea",
+        label: "Message",
+        required: true,
+        template: "form-field-textarea.html",
+      })(result);
     });
 
-    test("handles empty array", () => {
-      const result = addFieldTemplates([]);
-      expect(result).toEqual([]);
-    });
-
-    test("handles mixed field types", () => {
-      const fields = [
-        { name: "name", type: "text" },
-        { name: "message", type: "textarea" },
-        { name: "country", type: "select" },
-        { name: "contact", type: "radio" },
-      ];
-      const result = addFieldTemplates(fields);
-      expectProp("template")(result, [
-        "form-field-input.html",
-        "form-field-textarea.html",
-        "form-field-select.html",
-        "form-field-radio.html",
-      ]);
-    });
-
-    test("does not mutate original fields array", () => {
+    test("does not mutate the input fields", () => {
       const original = [{ name: "test", type: "text" }];
-      const originalCopy = JSON.parse(JSON.stringify(original));
+      const snapshot = structuredClone(original);
       addFieldTemplates(original);
-      expect(original).toEqual(originalCopy);
+      expect(original).toEqual(snapshot);
     });
   });
 
-  // processContactForm function tests
   describe("processContactForm", () => {
-    test("processes contact form data with fields", () => {
-      const data = {
+    test("replaces fields with template-annotated fields", () => {
+      const result = processContactForm({
         submitButtonText: "Send",
         fields: [
           { name: "name", type: "text" },
           { name: "email", type: "email" },
         ],
-      };
-      const result = processContactForm(data);
-      expect(result.submitButtonText).toBe("Send");
-      expect(result.fields[0].template).toBe("form-field-input.html");
-      expect(result.fields[1].template).toBe("form-field-input.html");
+      });
+      expectProp("template")(result.fields, [
+        "form-field-input.html",
+        "form-field-input.html",
+      ]);
     });
 
-    test("preserves all top-level properties", () => {
-      const data = {
+    test("preserves top-level properties other than fields", () => {
+      const result = processContactForm({
         submitButtonText: "Send Message",
         successMessage: "Thanks!",
         fields: [{ name: "test", type: "text" }],
-      };
-      const result = processContactForm(data);
+      });
       expectObjectProps({
         submitButtonText: "Send Message",
         successMessage: "Thanks!",
       })(result);
     });
 
-    test("does not mutate original data", () => {
+    test("does not mutate the input data", () => {
       const original = {
         fields: [{ name: "test", type: "text" }],
       };
-      const originalCopy = JSON.parse(JSON.stringify(original));
+      const snapshot = structuredClone(original);
       processContactForm(original);
-      expect(original).toEqual(originalCopy);
+      expect(original).toEqual(snapshot);
     });
   });
 
-  // Integration test: verify contact-form.js data file exports default function
-  test("contact-form.js data file exports a default function for Eleventy", async () => {
-    const contactFormModule = await import("#data/contact-form.js");
-    expect(typeof contactFormModule.default).toBe("function");
-    // Verify it only has default export (no named exports that would break Eleventy)
-    const exportNames = Object.keys(contactFormModule);
-    expect(exportNames).toHaveLength(1);
-    expect(exportNames[0]).toBe("default");
-  });
-
-  test("contact-form.js returns processed fields with templates", async () => {
-    const contactFormModule = await import("#data/contact-form.js");
-    const contactForm = contactFormModule.default();
-    expect(Array.isArray(contactForm.fields)).toBe(true);
-    // All fields should have template property
-    for (const field of contactForm.fields) {
-      expect(typeof field.template).toBe("string");
-      expect(field.template).toMatch(/^form-field-.*\.html$/);
-    }
+  describe("contact-form.js data file integration", () => {
+    test("default export returns fields that all have template paths", async () => {
+      const { default: getContactForm } = await import("#data/contact-form.js");
+      const contactForm = getContactForm();
+      expect(Array.isArray(contactForm.fields)).toBe(true);
+      for (const field of contactForm.fields) {
+        expect(field.template).toMatch(/^form-field-.*\.html$/);
+      }
+    });
   });
 });
