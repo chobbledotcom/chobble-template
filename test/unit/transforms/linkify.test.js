@@ -150,6 +150,7 @@ describe("linkify transforms", () => {
       });
 
       expect(result).toContain('target="_blank"');
+      expect(result).toContain("noopener");
       expect(result).toContain('rel="noopener noreferrer"');
     });
 
@@ -479,22 +480,22 @@ describe("linkify transforms", () => {
   });
 
   describe("buildConfigLinksPattern", () => {
-    test("matches longest text first", () => {
-      const pattern = buildConfigLinksPattern(["Acme", "Acme Corp"]);
-      const text = "Visit Acme Corp today";
-      const matches = [...text.matchAll(pattern)];
-
+    const expectSingleMatch = (terms, text, expected) => {
+      const matches = [...text.matchAll(buildConfigLinksPattern(terms))];
       expect(matches.length).toBe(1);
-      expect(matches[0][0]).toBe("Acme Corp");
+      expect(matches[0][0]).toBe(expected);
+    };
+
+    test("matches longest text first", () => {
+      expectSingleMatch(
+        ["Acme", "Acme Corp"],
+        "Visit Acme Corp today",
+        "Acme Corp",
+      );
     });
 
     test("escapes special regex characters in link text", () => {
-      const pattern = buildConfigLinksPattern(["C++ Guide"]);
-      const text = "Read the C++ Guide now";
-      const matches = [...text.matchAll(pattern)];
-
-      expect(matches.length).toBe(1);
-      expect(matches[0][0]).toBe("C++ Guide");
+      expectSingleMatch(["C++ Guide"], "Read the C++ Guide now", "C++ Guide");
     });
   });
 });

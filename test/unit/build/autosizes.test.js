@@ -150,6 +150,17 @@ const setupAndRun = async (imgAttrs) => {
   return { window, img };
 };
 
+const runAndCheckDeferred = (window, img, expectedSrc) => {
+  runAutosizes(window, img);
+  expect(img.hasAttribute("src")).toBe(false);
+  expect(img.getAttribute("data-auto-sizes-src")).toBe(expectedSrc);
+};
+
+const runAndExpectSrc = (window, img, expected) => {
+  runAutosizes(window, img);
+  expect(img.hasAttribute("src")).toBe(expected);
+};
+
 describe("autosizes", () => {
   describe("Feature detection", () => {
     test("Does not run polyfill when PerformanceObserver is missing", async () => {
@@ -157,8 +168,7 @@ describe("autosizes", () => {
         userAgent: "Mozilla/5.0 Chrome/120",
         hasPerfObserver: false,
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     });
 
     test("Does not run polyfill when paint timing not supported", async () => {
@@ -166,16 +176,14 @@ describe("autosizes", () => {
         userAgent: "Mozilla/5.0 Chrome/120",
         supportsPaint: false,
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     });
 
     test("Does not run polyfill for Chrome 126+", async () => {
       const { window, img } = await createAutosizesTestEnv({
         userAgent: "Mozilla/5.0 Chrome/126",
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     });
 
     test("Runs polyfill for Chrome 125 (older than 126)", async () => {
@@ -191,34 +199,31 @@ describe("autosizes", () => {
       const { window, img } = await createAutosizesTestEnv({
         userAgent: "Mozilla/5.0 Firefox/120",
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(false);
+      runAndExpectSrc(window, img, false);
     });
   });
 
   describe("Image filtering", () => {
+    const createWithImgAttrs = (src, sizes = "auto") =>
+      createAutosizesTestEnv({ imgAttrs: { src, sizes, loading: "lazy" } });
+
     const testRemoteUrlNotProcessed = async (url) => {
-      const { window, img } = await createAutosizesTestEnv({
-        imgAttrs: { src: url, sizes: "auto", loading: "lazy" },
-      });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      const { window, img } = await createWithImgAttrs(url);
+      runAndExpectSrc(window, img, true);
     };
 
     test("Does not process images without sizes=auto", async () => {
       const { window, img } = await createAutosizesTestEnv({
         imgAttrs: { src: "/image.jpg", sizes: "100vw", loading: "lazy" },
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     });
 
     test("Does not process images without loading=lazy", async () => {
       const { window, img } = await createAutosizesTestEnv({
         imgAttrs: { src: "/image.jpg", sizes: "auto", loading: "eager" },
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     });
 
     test("Does not process remote images with http:// URLs", async () => {
@@ -233,26 +238,22 @@ describe("autosizes", () => {
       const { window, img } = await createAutosizesTestEnv({
         imgAttrs: { src: "/images/photo.jpg", sizes: "auto", loading: "lazy" },
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(false);
-      expect(img.getAttribute("data-auto-sizes-src")).toBe("/images/photo.jpg");
+      runAndCheckDeferred(window, img, "/images/photo.jpg");
     });
 
     test("Processes images with sizes='auto, 100vw' format", async () => {
-      const { window, img } = await createAutosizesTestEnv({
-        imgAttrs: { src: "/image.jpg", sizes: "auto, 100vw", loading: "lazy" },
-      });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(false);
+      const { window, img } = await createWithImgAttrs(
+        "/image.jpg",
+        "auto, 100vw",
+      );
+      runAndExpectSrc(window, img, false);
     });
   });
 
   describe("Attribute deferral", () => {
     test("Moves src to data-auto-sizes-src before FCP", async () => {
       const { window, img } = await createAutosizesTestEnv();
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(false);
-      expect(img.getAttribute("data-auto-sizes-src")).toBe("/image.jpg");
+      runAndCheckDeferred(window, img, "/image.jpg");
     });
 
     test("Moves srcset to data-auto-sizes-srcset before FCP", async () => {
@@ -282,13 +283,13 @@ describe("autosizes", () => {
 
   describe("FCP restoration", () => {
     test("Restores src and srcset after FCP fires", async () => {
-      const { img } = await setupAndRun(SRC_SRCSET_ATTRS);
-      expect(img.hasAttribute("src")).toBe(false);
+      const fcp = await setupAndRun(SRC_SRCSET_ATTRS);
+      expect(fcp.img.hasAttribute("src")).toBe(false);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      expect(img.getAttribute("src")).toBe("/image.jpg");
-      expect(img.getAttribute("srcset")).toBe("/image-300.jpg 300w");
+      expect(fcp.img.getAttribute("src")).toBe("/image.jpg");
+      expect(fcp.img.getAttribute("srcset")).toBe("/image-300.jpg 300w");
     });
 
     test("Cleans up data-auto-sizes-* attributes after restoration", async () => {
@@ -315,22 +316,22 @@ describe("autosizes", () => {
       return { window, img, source };
     };
 
+    const setupAndRunPicture = async (srcset) => {
+      const { window, img, source } = await setupPictureTest(srcset);
+      runAutosizes(window, img);
+      expect(source.hasAttribute("srcset")).toBe(false);
+      return { source };
+    };
+
     test("Strips srcset from source elements inside picture before FCP", async () => {
       const srcset = "/img-300.webp 300w, /img-600.webp 600w";
-      const { window, img, source } = await setupPictureTest(srcset);
-
-      runAutosizes(window, img);
-
-      expect(source.hasAttribute("srcset")).toBe(false);
+      const { source } = await setupAndRunPicture(srcset);
       expect(source.getAttribute("data-auto-sizes-srcset")).toBe(srcset);
     });
 
     test("Restores source srcset after FCP", async () => {
       const srcset = "/img-300.webp 300w";
-      const { window, img, source } = await setupPictureTest(srcset);
-
-      runAutosizes(window, img);
-      expect(source.hasAttribute("srcset")).toBe(false);
+      const { source } = await setupAndRunPicture(srcset);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 

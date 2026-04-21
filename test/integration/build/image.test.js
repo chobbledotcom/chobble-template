@@ -271,12 +271,11 @@ describe("image", () => {
       `<img src="${src}" alt="${alt}"${attrs ? ` ${attrs}` : ""}>`;
 
     test("Transform converts raw img tags with /images/ src to wrapped picture elements", async () => {
-      const result = await runTransform(
-        wrapHtml(img("/images/party.jpg", "Party")),
-      );
+      const html = wrapHtml(img("/images/party.jpg", "Party"));
+      const result = await runTransform(html);
 
-      expect(result.includes("image-wrapper")).toBe(true);
-      expect(result.includes("<picture")).toBe(true);
+      expect(result).toContain("image-wrapper");
+      expect(result).toContain("<picture");
       expect(result.includes('alt="Party"')).toBe(true);
     });
 
@@ -352,6 +351,8 @@ describe("image", () => {
       expect(result.includes("rounded")).toBe(true);
     });
 
+    const countPictures = (result) => (result.match(/<picture/g) || []).length;
+
     test("Transform processes multiple local images in same document", async () => {
       const result = await runTransform(
         wrapHtml(`
@@ -360,8 +361,7 @@ describe("image", () => {
       `),
       );
 
-      const pictureCount = (result.match(/<picture/g) || []).length;
-      expect(pictureCount).toBe(2);
+      expect(countPictures(result)).toBe(2);
     });
 
     test("Transform processes local images while leaving external URLs unchanged", async () => {
@@ -403,8 +403,7 @@ describe("image", () => {
       `),
       );
 
-      const pictureCount = (result.match(/<picture/g) || []).length;
-      expect(pictureCount).toBe(2);
+      expect(countPictures(result)).toBe(2);
     });
   });
 

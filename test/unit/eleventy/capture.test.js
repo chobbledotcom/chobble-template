@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { configureCapture } from "#eleventy/capture.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
+const makeTestCtx = () => ({ page: { inputPath: "/test.html" } });
+
 // Helper to create fresh config with reset state
 const setupCapture = () => {
   const config = createMockEleventyConfig();
@@ -54,7 +56,7 @@ describe("capture", () => {
 
   test("Push captures content for a named slot", () => {
     const { push, slot } = setupCapture();
-    const ctx = { page: { inputPath: "/test.html" } };
+    const ctx = makeTestCtx();
 
     const pushResult = push.call(ctx, "<div>Test Content</div>", "templates");
     expect(pushResult).toBe("");
@@ -65,7 +67,7 @@ describe("capture", () => {
 
   test("Multiple pushes accumulate content", () => {
     const { push, slot } = setupCapture();
-    const ctx = { page: { inputPath: "/test.html" } };
+    const ctx = makeTestCtx();
 
     push.call(ctx, "<div>First</div>", "templates");
     push.call(ctx, "<div>Second</div>", "templates");
@@ -77,7 +79,7 @@ describe("capture", () => {
 
   test("Slot returns empty string for non-existent slot", () => {
     const { slot } = setupCapture();
-    const ctx = { page: { inputPath: "/test.html" } };
+    const ctx = makeTestCtx();
 
     const result = slot.call(ctx, "nonexistent");
     expect(result).toBe("");
@@ -98,7 +100,7 @@ describe("capture", () => {
 
   test("Different slots on same page are independent", () => {
     const { push, slot } = setupCapture();
-    const ctx = { page: { inputPath: "/test.html" } };
+    const ctx = makeTestCtx();
 
     push.call(ctx, "Header content", "header");
     push.call(ctx, "Footer content", "footer");
@@ -109,7 +111,7 @@ describe("capture", () => {
 
   test("State resets on eleventy.before event", () => {
     const { push, slot, reset } = setupCapture();
-    const ctx = { page: { inputPath: "/test.html" } };
+    const ctx = makeTestCtx();
 
     push.call(ctx, "Original content", "templates");
     expect(slot.call(ctx, "templates")).toBe("Original content");
@@ -121,7 +123,7 @@ describe("capture", () => {
 
   test("Push returns empty string", () => {
     const { push } = setupCapture();
-    const ctx = { page: { inputPath: "/test.html" } };
+    const ctx = makeTestCtx();
 
     const result = push.call(ctx, "<div>Content</div>", "templates");
     expect(result).toBe("");
@@ -129,7 +131,7 @@ describe("capture", () => {
 
   test("Handles empty content", () => {
     const { push, slot } = setupCapture();
-    const ctx = { page: { inputPath: "/test.html" } };
+    const ctx = makeTestCtx();
 
     push.call(ctx, "", "templates");
     const result = slot.call(ctx, "templates");
@@ -138,7 +140,7 @@ describe("capture", () => {
 
   test("Handles whitespace-only content", () => {
     const { push, slot } = setupCapture();
-    const ctx = { page: { inputPath: "/test.html" } };
+    const ctx = makeTestCtx();
 
     push.call(ctx, "   \n  \t  ", "templates");
     const result = slot.call(ctx, "templates");
@@ -147,7 +149,7 @@ describe("capture", () => {
 
   test("Preserves HTML structure in content", () => {
     const { push, slot } = setupCapture();
-    const ctx = { page: { inputPath: "/test.html" } };
+    const ctx = makeTestCtx();
 
     const complexHtml = `
       <template id="test">
@@ -189,7 +191,7 @@ describe("capture", () => {
 
   test("Reset and re-use works correctly", () => {
     const { push, slot, reset } = setupCapture();
-    const ctx = { page: { inputPath: "/test.html" } };
+    const ctx = makeTestCtx();
 
     push.call(ctx, "Build 1", "templates");
     expect(slot.call(ctx, "templates")).toBe("Build 1");

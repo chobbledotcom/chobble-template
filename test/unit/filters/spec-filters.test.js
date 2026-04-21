@@ -69,15 +69,18 @@ describe("spec-filters", () => {
     expect(result[0].icon.startsWith("<svg")).toBe(true);
   });
 
+  const expectSameComputedIcon = (specs) => {
+    const result = computeSpecs(specs);
+    expect(result[0].icon).toBe(result[1].icon);
+  };
+
   test("Finds icons regardless of spec name case", () => {
     const specs = [
       { name: KNOWN_SPEC, value: "lowercase" },
       { name: KNOWN_SPEC.toUpperCase(), value: "uppercase" },
     ];
 
-    const result = computeSpecs(specs);
-
-    expect(result[0].icon).toBe(result[1].icon);
+    expectSameComputedIcon(specs);
   });
 
   // ============================================
@@ -90,9 +93,7 @@ describe("spec-filters", () => {
       { name: `  ${KNOWN_SPEC}  `, value: "padded" },
     ];
 
-    const result = computeSpecs(specs);
-
-    expect(result[0].icon).toBe(result[1].icon);
+    expectSameComputedIcon(specs);
   });
 
   // ============================================
@@ -103,20 +104,31 @@ describe("spec-filters", () => {
     expect(result).toEqual([]);
   });
 
+  const makeSpecs = (highlights) =>
+    highlights.map((highlight, i) => ({
+      name: `spec${i + 1}`,
+      value: `val${i + 1}`,
+      highlight,
+    }));
+
+  const makeListSpecs = (listItems) =>
+    listItems.map((list_items, i) => ({
+      name: `spec${i + 1}`,
+      value: `val${i + 1}`,
+      list_items,
+    }));
+
+  const expectAllSpecsReturned = (specs) => {
+    const result = getHighlightedSpecs(specs);
+    expect(result.length).toBe(specs.length);
+    expect(result).toEqual(specs);
+  };
+
   // ============================================
   // getHighlightedSpecs - Filtering Logic
   // ============================================
   test("Returns all specs when none have highlight true", () => {
-    const specs = [
-      { name: "spec1", value: "val1", highlight: false },
-      { name: "spec2", value: "val2", highlight: false },
-      { name: "spec3", value: "val3", highlight: false },
-    ];
-
-    const result = getHighlightedSpecs(specs);
-
-    expect(result.length).toBe(3);
-    expect(result).toEqual(specs);
+    expectAllSpecsReturned(makeSpecs([false, false, false]));
   });
 
   test("Returns only highlighted specs when some have highlight true", () => {
@@ -134,16 +146,7 @@ describe("spec-filters", () => {
   });
 
   test("Returns all specs when all have highlight true", () => {
-    const specs = [
-      { name: "spec1", value: "val1", highlight: true },
-      { name: "spec2", value: "val2", highlight: true },
-      { name: "spec3", value: "val3", highlight: true },
-    ];
-
-    const result = getHighlightedSpecs(specs);
-
-    expect(result.length).toBe(3);
-    expect(result).toEqual(specs);
+    expectAllSpecsReturned(makeSpecs([true, true, true]));
   });
 
   test("Returns only one spec when only one has highlight true", () => {
@@ -197,11 +200,7 @@ describe("spec-filters", () => {
   // getListItemSpecs - Filtering Logic
   // ============================================
   test("getListItemSpecs returns only specs with list_items true", () => {
-    const specs = [
-      { name: "spec1", value: "val1", list_items: true },
-      { name: "spec2", value: "val2", list_items: false },
-      { name: "spec3", value: "val3", list_items: true },
-    ];
+    const specs = makeListSpecs([true, false, true]);
 
     const result = getListItemSpecs(specs);
     const names = result.map((s) => s.name);
@@ -210,10 +209,7 @@ describe("spec-filters", () => {
   });
 
   test("getListItemSpecs returns empty array when no specs have list_items true", () => {
-    const specs = [
-      { name: "spec1", value: "val1", list_items: false },
-      { name: "spec2", value: "val2", list_items: false },
-    ];
+    const specs = makeListSpecs([false, false]);
 
     const result = getListItemSpecs(specs);
 
@@ -221,12 +217,7 @@ describe("spec-filters", () => {
   });
 
   test("getListItemSpecs limits results to first 2 specs", () => {
-    const specs = [
-      { name: "spec1", value: "val1", list_items: true },
-      { name: "spec2", value: "val2", list_items: true },
-      { name: "spec3", value: "val3", list_items: true },
-      { name: "spec4", value: "val4", list_items: true },
-    ];
+    const specs = makeListSpecs([true, true, true, true]);
 
     const result = getListItemSpecs(specs);
 

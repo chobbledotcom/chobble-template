@@ -4,6 +4,12 @@
  */
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 
+const NO_NAV = {
+  disableMainFrameNavigation: true,
+  disableChildFrameNavigation: true,
+  disableChildPageNavigation: true,
+};
+
 GlobalRegistrator.register({
   settings: {
     disableCSSFileLoading: true,
@@ -11,10 +17,6 @@ GlobalRegistrator.register({
     disableJavaScriptEvaluation: true,
     disableIframePageLoading: true,
     disableComputedStyleRendering: true,
-    navigation: {
-      disableMainFrameNavigation: true,
-      disableChildFrameNavigation: true,
-      disableChildPageNavigation: true,
-    },
+    navigation: NO_NAV,
   },
 });

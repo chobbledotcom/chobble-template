@@ -58,14 +58,18 @@ const EVENT_URL = "/events/summer-expo/index.html";
 // Category product ordering
 // ============================================
 
+const alphabeticProducts = [
+  product("alpha", "Alpha", 1),
+  product("beta", "Beta", 2),
+  product("gamma", "Gamma", 3),
+];
+
 describe("category product ordering", () => {
   test("explicit products array determines display order", async () => {
     await expectProductOrder(
       [
         category("widgets", "Widgets", ["gamma", "alpha", "beta"]),
-        product("alpha", "Alpha", 1),
-        product("beta", "Beta", 2),
-        product("gamma", "Gamma", 3),
+        ...alphabeticProducts,
       ],
       CATEGORY_URL,
       ["Gamma", "Alpha", "Beta"],
@@ -142,9 +146,7 @@ describe("event product ordering", () => {
             "alpha",
             "beta",
           ]),
-          product("alpha", "Alpha", 1),
-          product("beta", "Beta", 2),
-          product("gamma", "Gamma", 3),
+          ...alphabeticProducts,
         ],
         EVENT_URL,
         ["Gamma", "Alpha", "Beta"],

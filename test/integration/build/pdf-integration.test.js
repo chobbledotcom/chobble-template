@@ -46,6 +46,12 @@ const verifyPdfHeader = (pdfPath) => {
 describe("pdf-integration", () => {
   let site;
 
+  const findAllPdfs = () => ({
+    small: findPdfInMenuDir(site, "small"),
+    large: findPdfInMenuDir(site, "large"),
+    empty: findPdfInMenuDir(site, "empty"),
+  });
+
   beforeAll(async () => {
     site = await createTestSite({
       files: [
@@ -147,9 +153,7 @@ describe("pdf-integration", () => {
   });
 
   test("PDFs are generated for all menus with correct naming", () => {
-    const smallPdf = findPdfInMenuDir(site, "small");
-    const largePdf = findPdfInMenuDir(site, "large");
-    const emptyPdf = findPdfInMenuDir(site, "empty");
+    const { small: smallPdf, large: largePdf, empty: emptyPdf } = findAllPdfs();
 
     expect(smallPdf).not.toBeNull();
     expect(largePdf).not.toBeNull();
@@ -160,9 +164,7 @@ describe("pdf-integration", () => {
   });
 
   test("All generated PDFs have valid PDF headers", () => {
-    const smallPdf = findPdfInMenuDir(site, "small");
-    const largePdf = findPdfInMenuDir(site, "large");
-    const emptyPdf = findPdfInMenuDir(site, "empty");
+    const { small: smallPdf, large: largePdf, empty: emptyPdf } = findAllPdfs();
 
     expect(verifyPdfHeader(smallPdf)).toBe(true);
     expect(verifyPdfHeader(largePdf)).toBe(true);
@@ -170,9 +172,7 @@ describe("pdf-integration", () => {
   });
 
   test("PDF file size correlates with menu content", () => {
-    const smallPdf = findPdfInMenuDir(site, "small");
-    const largePdf = findPdfInMenuDir(site, "large");
-    const emptyPdf = findPdfInMenuDir(site, "empty");
+    const { small: smallPdf, large: largePdf, empty: emptyPdf } = findAllPdfs();
 
     const smallSize = fs.statSync(smallPdf).size;
     const largeSize = fs.statSync(largePdf).size;

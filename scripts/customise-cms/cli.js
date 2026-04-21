@@ -115,13 +115,13 @@ EXAMPLES:
  * @param {string | undefined} input - Comma-separated string
  * @returns {string[]} Array of trimmed values
  */
-const parseCommaSeparated = (input) => {
-  if (!input) return [];
-  return input
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
-};
+const parseCommaSeparated = (input) =>
+  input
+    ? input
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
 
 /**
  * Validate collection names

@@ -38,6 +38,9 @@ const cartItem = (overrides = {}) => ({
   ...overrides,
 });
 
+const ITEM_A_20 = () =>
+  cartItem({ item_name: "Item A", hire_prices: { 1: "£20" } });
+
 const buyItem = (overrides = {}) => ({
   item_name: "Buy Item",
   product_mode: "buy",
@@ -53,6 +56,18 @@ const getDetailKey = (detail) =>
   detail.querySelector('[data-field="key"]').textContent;
 const getDetailValue = (detail) =>
   detail.querySelector('[data-field="value"]').textContent;
+
+const expectSingleDetailKey = (expectedKey) => {
+  const details = getDetails();
+  expect(details).toHaveLength(1);
+  expect(getDetailKey(details[0])).toBe(expectedKey);
+};
+
+const expectSingleDetailValue = (expectedValue) => {
+  const details = getDetails();
+  expect(details).toHaveLength(1);
+  expect(getDetailValue(details[0])).toBe(expectedValue);
+};
 
 describe("quote-price-utils", () => {
   // ----------------------------------------
@@ -183,7 +198,7 @@ describe("quote-price-utils", () => {
 
     test("calculates and displays total price", async () => {
       await setupDOM([
-        cartItem({ item_name: "Item A", hire_prices: { 1: "£20" } }),
+        ITEM_A_20(),
         cartItem({ item_name: "Item B", hire_prices: { 1: "£30" } }),
       ]);
       updateQuotePrice(1);
@@ -194,7 +209,7 @@ describe("quote-price-utils", () => {
 
     test("displays TBC for total when any price unavailable", async () => {
       await setupDOM([
-        cartItem({ item_name: "Item A", hire_prices: { 1: "£20" } }),
+        ITEM_A_20(),
         cartItem({ item_name: "Item B", hire_prices: { 2: "£30" } }), // No day 1 price
       ]);
       updateQuotePrice(1);
@@ -285,10 +300,7 @@ describe("quote-price-utils", () => {
          <input id="email" name="email" type="email" value="test@example.com" />`,
       );
       updateQuotePrice(1);
-
-      const details = getDetails();
-      expect(details).toHaveLength(1);
-      expect(getDetailKey(details[0])).toBe("Email");
+      expectSingleDetailKey("Email");
     });
 
     test("renders checked radio button value in details", async () => {
@@ -298,11 +310,8 @@ describe("quote-price-utils", () => {
          <input type="radio" name="contact" value="Phone" />`,
       );
       updateQuotePrice(1);
-
-      const details = getDetails();
-      expect(details).toHaveLength(1);
-      expect(getDetailKey(details[0])).toBe("Preferred Contact");
-      expect(getDetailValue(details[0])).toBe("Email");
+      expectSingleDetailKey("Preferred Contact");
+      expect(getDetailValue(getDetails()[0])).toBe("Email");
     });
 
     test("excludes unchecked radio groups from details", async () => {
@@ -324,10 +333,7 @@ describe("quote-price-utils", () => {
          </select>`,
       );
       updateQuotePrice(1);
-
-      const details = getDetails();
-      expect(details).toHaveLength(1);
-      expect(getDetailValue(details[0])).toBe("Wedding");
+      expectSingleDetailValue("Wedding");
     });
 
     test("renders textarea value in details", async () => {
@@ -336,10 +342,7 @@ describe("quote-price-utils", () => {
         `<textarea id="message" name="message">Hello World</textarea>`,
       );
       updateQuotePrice(1);
-
-      const details = getDetails();
-      expect(details).toHaveLength(1);
-      expect(getDetailValue(details[0])).toBe("Hello World");
+      expectSingleDetailValue("Hello World");
     });
 
     test("excludes empty textarea from details", async () => {
@@ -407,28 +410,36 @@ describe("quote-price-utils", () => {
       expect(getDaysMock).toHaveBeenCalled();
     };
 
-    test("attaches blur handler to form fields", () => {
-      setupBlurTestDOM('<input id="name" type="text" />');
-      const getDays = mock(() => 1);
+    const runBlurScenario = (html, selector, event, days = 1) => {
+      setupBlurTestDOM(html);
+      const getDays = mock(() => days);
       setupDetailsBlurHandlers(getDays);
-      testEventTriggersDays("name", "blur", getDays);
+      testEventTriggersDays(selector, event, getDays);
+    };
+
+    test("attaches blur handler to form fields", () => {
+      runBlurScenario('<input id="name" type="text" />', "name", "blur");
     });
 
     test("attaches change handler for radio buttons", () => {
-      setupBlurTestDOM(`
+      runBlurScenario(
+        `
         <input type="radio" name="pref" value="A" />
         <input type="radio" name="pref" value="B" />
-      `);
-      const getDays = mock(() => 2);
-      setupDetailsBlurHandlers(getDays);
-      testEventTriggersDays('input[type="radio"]', "change", getDays);
+      `,
+        'input[type="radio"]',
+        "change",
+        2,
+      );
     });
 
     test("attaches change handler for select elements", () => {
-      setupBlurTestDOM(`<select id="event"><option>A</option></select>`);
-      const getDays = mock(() => 3);
-      setupDetailsBlurHandlers(getDays);
-      testEventTriggersDays("event", "change", getDays);
+      runBlurScenario(
+        `<select id="event"><option>A</option></select>`,
+        "event",
+        "change",
+        3,
+      );
     });
 
     test("uses quote-steps container if available", () => {

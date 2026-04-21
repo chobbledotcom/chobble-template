@@ -26,29 +26,31 @@ const { find: findBadDomPatterns, analyze: domPatternAnalysis } =
     allowlist: ALLOWED_DOM_CONSTRUCTOR,
   });
 
+const expectTwoBadPatterns = (source, firstReason) => {
+  const results = findBadDomPatterns(source);
+  expect(results.length).toBe(2);
+  expect(results[0].reason).toBe(firstReason);
+};
+
 describe("dom-mocking", () => {
   test("Detects globalThis.document usage", () => {
-    const source = `
+    expectTwoBadPatterns(
+      `
 const originalDoc = globalThis.document;
 globalThis.document = mockDoc;
 document.body.innerHTML = "<div></div>";
-    `;
-    const results = findBadDomPatterns(source);
-    expect(results.length).toBe(2);
-    expect(results[0].reason).toBe(
+    `,
       "Use document directly (happy-dom provides global)",
     );
   });
 
   test("Detects new DOM() usage", () => {
-    const source = `
+    expectTwoBadPatterns(
+      `
 const dom = new DOM("<html></html>");
 const dom2 = new DOM(\`<div></div>\`);
 document.body.innerHTML = "<div></div>";
-    `;
-    const results = findBadDomPatterns(source);
-    expect(results.length).toBe(2);
-    expect(results[0].reason).toBe(
+    `,
       "Use document.body.innerHTML instead of new DOM()",
     );
   });

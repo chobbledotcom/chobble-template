@@ -15,26 +15,26 @@ import {
 describe("quote-steps-progress", () => {
   const steps = QUOTE_STEPS;
 
+  const setupContainer = (currentStep = 0) => {
+    document.body.innerHTML = `
+      ${indicatorTemplate}
+      <div class="quote-steps-progress"></div>
+    `;
+    const container = document.querySelector(".quote-steps-progress");
+    renderStepProgress(container, steps, currentStep);
+    return container;
+  };
+
   describe("renderStepProgress", () => {
     test("renders all steps as list items", () => {
-      document.body.innerHTML = `
-        ${indicatorTemplate}
-        <div class="quote-steps-progress"></div>
-      `;
-      const container = document.querySelector(".quote-steps-progress");
-      renderStepProgress(container, steps, 0);
+      const container = setupContainer(0);
 
       expect(container.querySelector("ul")).not.toBeNull();
       expect(container.querySelectorAll("li").length).toBe(4);
     });
 
     test("renders step names and numbers", () => {
-      document.body.innerHTML = `
-        ${indicatorTemplate}
-        <div class="quote-steps-progress"></div>
-      `;
-      const container = document.querySelector(".quote-steps-progress");
-      renderStepProgress(container, steps, 0);
+      const container = setupContainer(0);
 
       const indicators = [...container.querySelectorAll("li")];
       expect(
@@ -50,12 +50,7 @@ describe("quote-steps-progress", () => {
     });
 
     test("sets data-step attribute on indicators", () => {
-      document.body.innerHTML = `
-        ${indicatorTemplate}
-        <div class="quote-steps-progress"></div>
-      `;
-      const container = document.querySelector(".quote-steps-progress");
-      renderStepProgress(container, steps, 0);
+      const container = setupContainer(0);
 
       const dataSteps = [...container.querySelectorAll("li")].map(
         (el) => el.dataset.step,
@@ -64,12 +59,7 @@ describe("quote-steps-progress", () => {
     });
 
     test("sets aria-current on active step", () => {
-      document.body.innerHTML = `
-        ${indicatorTemplate}
-        <div class="quote-steps-progress"></div>
-      `;
-      const container = document.querySelector(".quote-steps-progress");
-      renderStepProgress(container, steps, 1);
+      setupContainer(1);
 
       testIndicatorStates(1, 1);
     });
@@ -77,24 +67,14 @@ describe("quote-steps-progress", () => {
 
   describe("updateStepProgress", () => {
     test("updates aria-current based on completed steps", () => {
-      document.body.innerHTML = `
-        ${indicatorTemplate}
-        <div class="quote-steps-progress"></div>
-      `;
-      const container = document.querySelector(".quote-steps-progress");
-      renderStepProgress(container, steps, 0);
+      const container = setupContainer(0);
       updateStepProgress(container, 2);
 
       testIndicatorStates(2, 2);
     });
 
     test("clears previous active/completed states", () => {
-      document.body.innerHTML = `
-        ${indicatorTemplate}
-        <div class="quote-steps-progress"></div>
-      `;
-      const container = document.querySelector(".quote-steps-progress");
-      renderStepProgress(container, steps, 2);
+      const container = setupContainer(2);
       updateStepProgress(container, 0);
 
       testIndicatorStates(0, 0);

@@ -1,18 +1,8 @@
 {%- comment -%}
 Split layout with text content and a styled callout box.
 
-Parameters (via block object):
-  Shared:
-    - block.title: Section heading
-    - block.title_level: Heading level, defaults to 2
-    - block.subtitle: Optional subtitle text (with text-muted styling)
-    - block.content: Main content (rendered as markdown)
-    - block.reverse: If true, reverses the layout (content on right)
-    - block.reveal_content: Animation for content side (e.g., "left", "right")
-    - block.reveal_figure: Animation for figure side (default: "scale")
-    - block.button: Optional button object { text, href, variant }
-
-  Callout fields:
+Shares layout params with split.html (title, subtitle, content, reverse,
+reveal_content, reveal_figure, button). Additional callout-specific fields:
     - block.figure_icon: Iconify ID, emoji, or image path
     - block.figure_title: Bold heading text in the callout
     - block.figure_subtitle: Supporting text
@@ -32,8 +22,8 @@ Usage:
   %}
 {%- endcomment -%}
 
-{%- assign reveal_content = block.reveal_content | default: "left" -%}
 {%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
+{%- assign reveal_content = block.reveal_content | default: "left" -%}
 {%- assign variant = block.figure_variant | default: "primary" -%}
 {%- case variant -%}
   {%- when "primary", "secondary", "gradient" -%}

@@ -1,4 +1,10 @@
 import { describe, expect, test } from "bun:test";
+
+const expectEmptyArray = (result) => {
+  expect(Array.isArray(result)).toBe(true);
+  expect(result.length === 0).toBe(true);
+};
+
 import { configureCategories } from "#collections/categories.js";
 import { configureMenus } from "#collections/menus.js";
 import { configureNavigation } from "#collections/navigation.js";
@@ -25,9 +31,7 @@ describe("missing-folders-lib", () => {
       },
     };
 
-    const result = mockConfig.collections.categories(mockCollectionApi);
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length === 0).toBe(true);
+    expectEmptyArray(mockConfig.collections.categories(mockCollectionApi));
   });
 
   test("Menus module handles missing menu data", () => {
@@ -39,19 +43,12 @@ describe("missing-folders-lib", () => {
     const emptyCategories = [];
     const emptyItems = [];
 
-    const categoriesByMenu = mockConfig.filters.getCategoriesByMenu(
-      emptyCategories,
-      "test-menu",
+    expectEmptyArray(
+      mockConfig.filters.getCategoriesByMenu(emptyCategories, "test-menu"),
     );
-    expect(Array.isArray(categoriesByMenu)).toBe(true);
-    expect(categoriesByMenu.length === 0).toBe(true);
-
-    const itemsByCategory = mockConfig.filters.getItemsByCategory(
-      emptyItems,
-      "test-category",
+    expectEmptyArray(
+      mockConfig.filters.getItemsByCategory(emptyItems, "test-category"),
     );
-    expect(Array.isArray(itemsByCategory)).toBe(true);
-    expect(itemsByCategory.length === 0).toBe(true);
   });
 
   test("Products module handles empty collections", () => {
@@ -67,9 +64,7 @@ describe("missing-folders-lib", () => {
       },
     };
 
-    const result = mockConfig.collections.products(mockCollectionApi);
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length === 0).toBe(true);
+    expectEmptyArray(mockConfig.collections.products(mockCollectionApi));
   });
 
   test("Tags module handles empty collections", () => {

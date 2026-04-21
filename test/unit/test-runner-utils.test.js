@@ -46,8 +46,7 @@ const captureSummaryOutput = (steps, results, title) =>
  * Creates three standard steps (lint, test, build)
  */
 const createThreeSteps = () => [
-  { name: "lint", cmd: "bun", args: ["run", "lint"] },
-  { name: "test", cmd: "bun", args: ["test"] },
+  ...createBasicSteps(),
   { name: "build", cmd: "bun", args: ["run", "build"] },
 ];
 
@@ -437,10 +436,10 @@ Failed to compile
     });
 
     test("Handles empty results gracefully", () => {
-      const steps = createBasicSteps();
+      const emptyRunSteps = createBasicSteps();
       const results = {};
 
-      const output = captureConsole(() => printSummary(steps, results));
+      const output = captureConsole(() => printSummary(emptyRunSteps, results));
 
       expect(output).toContain("SUMMARY");
       expect(output).not.toContain("Passed");

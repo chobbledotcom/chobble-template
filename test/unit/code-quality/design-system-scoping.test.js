@@ -18,6 +18,15 @@ const DESIGN_SYSTEM_SCSS_FILES = getFiles(
 // _index.scss only contains @forward statements
 const ALLOWED_UNSCOPED_FILES = ["_index.scss"];
 
+const stripCommentsAndImports = (content) => {
+  const withoutComments = content
+    .replace(/\/\/.*$/gm, "")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+  return withoutComments
+    .replace(/@(?:use|forward|import)\s+[^;]+;/g, "")
+    .trim();
+};
+
 /**
  * Check if a file contains unscoped CSS rules.
  * Unscoped rules are those that appear outside of .design-system { }
@@ -28,15 +37,8 @@ const ALLOWED_UNSCOPED_FILES = ["_index.scss"];
 const findUnscopedSelectors = (content) => {
   const unscopedSelectors = [];
 
-  // Remove comments (both single-line and multi-line)
-  const withoutComments = content
-    .replace(/\/\/.*$/gm, "")
-    .replace(/\/\*[\s\S]*?\*\//g, "");
-
-  // Remove @use, @forward, @import statements
-  const withoutImports = withoutComments
-    .replace(/@(?:use|forward|import)\s+[^;]+;/g, "")
-    .trim();
+  // Remove comments (both single-line and multi-line) and @use/@forward/@import statements
+  const withoutImports = stripCommentsAndImports(content);
 
   // Remove :root blocks (allowed for CSS custom property defaults)
   const withoutRoot = withoutImports
@@ -108,15 +110,8 @@ const findUnscopedSelectors = (content) => {
  * @returns {boolean} - true if properly scoped
  */
 const hasDesignSystemWrapper = (content) => {
-  // Remove comments
-  const withoutComments = content
-    .replace(/\/\/.*$/gm, "")
-    .replace(/\/\*[\s\S]*?\*\//g, "");
-
-  // Remove @use, @forward, @import statements
-  const withoutImports = withoutComments
-    .replace(/@(?:use|forward|import)\s+[^;]+;/g, "")
-    .trim();
+  // Remove comments and @use/@forward/@import statements
+  const withoutImports = stripCommentsAndImports(content);
 
   // Empty file after removing imports is fine
   if (!withoutImports) {

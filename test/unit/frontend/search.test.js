@@ -59,6 +59,12 @@ const getElements = () => ({
   input: document.querySelector("input[type='search']"),
 });
 
+const setSearchParam = (value) => {
+  const url = new URL(window.location.href);
+  url.searchParams.set("q", value);
+  window.history.replaceState(null, "", url);
+};
+
 /** Set up DOM + pagefind mock, create controller, run a search, return controller */
 const searchWith = async (handleCount, query = "test") => {
   document.body.innerHTML = SEARCH_HTML;
@@ -141,9 +147,7 @@ describe("loadPagefind", () => {
 
 describe("readQueryParam", () => {
   test("returns q param from URL", () => {
-    const url = new URL(window.location.href);
-    url.searchParams.set("q", "hello");
-    window.history.replaceState(null, "", url);
+    setSearchParam("hello");
 
     expect(readQueryParam()).toBe("hello");
   });
@@ -301,9 +305,7 @@ describe("initSearch", () => {
     document.body.innerHTML = SEARCH_HTML;
     window.pagefind = createMockPagefind();
 
-    const url = new URL(window.location.href);
-    url.searchParams.set("q", "hello");
-    window.history.replaceState(null, "", url);
+    setSearchParam("hello");
 
     initSearch();
 
