@@ -277,6 +277,15 @@ const createProduct = ({
 // ============================================
 
 /**
+ * Assert that an HTML string contains a valid unordered list structure.
+ */
+const expectHtmlList = (html) => {
+  expect(html.includes("<ul>")).toBe(true);
+  expect(html.includes("</ul>")).toBe(true);
+  expect(html.includes("<li>")).toBe(true);
+};
+
+/**
  * Assert that a result is a valid script tag with correct id and type.
  */
 const expectValidScriptTag = (result) => {
@@ -396,10 +405,11 @@ export {
   expectDataArray,
   expectErrorsInclude,
   expectGalleries,
+  // Assertions
+  expectHtmlList,
   expectObjectProps,
   expectProp,
   expectResultTitles,
-  // Assertions
   expectValidScriptTag,
   extractFunctions,
   fs,

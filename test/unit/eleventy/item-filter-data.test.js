@@ -15,6 +15,12 @@ const unescapeHtml = (str) =>
     .replace(/&gt;/g, ">");
 
 describe("configureItemFilterData", () => {
+  const getFilter = () => {
+    const config = createMockEleventyConfig();
+    configureItemFilterData(config);
+    return config.filters.toFilterJsonAttr;
+  };
+
   test("registers toFilterJsonAttr filter", () => {
     const config = createMockEleventyConfig();
     configureItemFilterData(config);
@@ -39,9 +45,7 @@ describe("configureItemFilterData", () => {
   });
 
   test("escapes HTML entities for safe attribute embedding", () => {
-    const config = createMockEleventyConfig();
-    configureItemFilterData(config);
-    const filter = config.filters.toFilterJsonAttr;
+    const filter = getFilter();
 
     const result = filter({ title: 'salt & pepper "deluxe"' });
 
@@ -51,9 +55,7 @@ describe("configureItemFilterData", () => {
   });
 
   test("escapes angle brackets to prevent XSS", () => {
-    const config = createMockEleventyConfig();
-    configureItemFilterData(config);
-    const filter = config.filters.toFilterJsonAttr;
+    const filter = getFilter();
 
     const result = filter({ title: "<script>alert('xss')</script>" });
 

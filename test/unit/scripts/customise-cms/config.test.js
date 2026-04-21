@@ -61,6 +61,14 @@ describe("createDefaultConfig", () => {
 describe("loadCmsConfig", () => {
   const { withTempDirAsync } = require("#test/test-utils.js");
 
+  const expectCmsConfigNull = (tempDir) =>
+    withMockedCwdAsync(tempDir, async () => {
+      expect(await loadCmsConfig()).toBeNull();
+    });
+
+  const withLoadedConfig = (tempDir, fn) =>
+    withMockedCwdAsync(tempDir, async () => fn(await loadCmsConfig()));
+
   test("reads cms_config from site.json", () =>
     withTempDirAsync("loadCmsConfig", async (tempDir) => {
       await setupSiteJson(tempDir, {
@@ -71,9 +79,7 @@ describe("loadCmsConfig", () => {
         },
       });
 
-      return withMockedCwdAsync(tempDir, async () => {
-        const config = await loadCmsConfig();
-
+      return withLoadedConfig(tempDir, (config) => {
         expect(config.collections).toContain("pages");
         expect(config.collections).toContain("products");
         expect(config.features.permalinks).toBe(true);
@@ -90,8 +96,7 @@ describe("loadCmsConfig", () => {
         },
       });
 
-      return withMockedCwdAsync(tempDir, async () => {
-        const config = await loadCmsConfig();
+      return withLoadedConfig(tempDir, (config) => {
         const requiredNames = getRequiredCollections().map((c) => c.name);
 
         for (const name of requiredNames) {
@@ -103,19 +108,13 @@ describe("loadCmsConfig", () => {
   test("returns null when cms_config is absent", () =>
     withTempDirAsync("loadCmsConfig-no-config", async (tempDir) => {
       await setupSiteJson(tempDir, { name: "Test Site" });
-
-      return withMockedCwdAsync(tempDir, async () => {
-        expect(await loadCmsConfig()).toBeNull();
-      });
+      return expectCmsConfigNull(tempDir);
     }));
 
   test("returns null for empty site.json", () =>
     withTempDirAsync("loadCmsConfig-empty", async (tempDir) => {
       await setupSiteJson(tempDir, {});
-
-      return withMockedCwdAsync(tempDir, async () => {
-        expect(await loadCmsConfig()).toBeNull();
-      });
+      return expectCmsConfigNull(tempDir);
     }));
 
   test("prefers src/_data/site.json over _data/site.json", () =>
@@ -126,9 +125,7 @@ describe("loadCmsConfig", () => {
         { cms_config: { collections: ["products"], features: {} } },
       );
 
-      return withMockedCwdAsync(tempDir, async () => {
-        const config = await loadCmsConfig();
-
+      return withLoadedConfig(tempDir, (config) => {
         expect(config.collections).toContain("products");
       });
     }));
@@ -139,9 +136,7 @@ describe("loadCmsConfig", () => {
         cms_config: { collections: ["events"], features: {} },
       });
 
-      return withMockedCwdAsync(tempDir, async () => {
-        const config = await loadCmsConfig();
-
+      return withLoadedConfig(tempDir, (config) => {
         expect(config.collections).toContain("events");
       });
     }));

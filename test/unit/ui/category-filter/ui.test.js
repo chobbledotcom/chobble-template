@@ -14,6 +14,16 @@ import {
 const makeColourSizeItems = (...specs) =>
   specs.map(([colour, size]) => ({ data: { filters: { colour, size } } }));
 
+const appendFilterOption = (container, key, value, active = false) => {
+  const li = document.createElement("li");
+  const link = document.createElement("a");
+  link.dataset.filterKey = key;
+  link.dataset.filterValue = value;
+  if (active) link.classList.add("active");
+  li.appendChild(link);
+  container.appendChild(li);
+};
+
 const buildGroupsContainer = (groupsDef) => {
   const container = document.createElement("div");
   const groupsUl = document.createElement("ul");
@@ -22,12 +32,7 @@ const buildGroupsContainer = (groupsDef) => {
   for (const [key, values] of Object.entries(groupsDef)) {
     const groupLi = document.createElement("li");
     for (const value of values) {
-      const optionLi = document.createElement("li");
-      const link = document.createElement("a");
-      link.dataset.filterKey = key;
-      link.dataset.filterValue = value;
-      optionLi.appendChild(link);
-      groupLi.appendChild(optionLi);
+      appendFilterOption(groupLi, key, value);
     }
     groupsUl.appendChild(groupLi);
   }
@@ -141,13 +146,7 @@ describe("readInitialFilters", () => {
       container.appendChild(removeLink);
     }
     for (const [key, value, active] of options) {
-      const li = document.createElement("li");
-      const link = document.createElement("a");
-      link.dataset.filterKey = key;
-      link.dataset.filterValue = value;
-      if (active) link.classList.add("active");
-      li.appendChild(link);
-      container.appendChild(li);
+      appendFilterOption(container, key, value, active);
     }
     return container;
   };
@@ -274,12 +273,7 @@ describe("updateOptionActiveStates", () => {
   const buildOptions = (specs) => {
     const container = document.createElement("div");
     for (const [key, value] of specs) {
-      const li = document.createElement("li");
-      const link = document.createElement("a");
-      link.dataset.filterKey = key;
-      link.dataset.filterValue = value;
-      li.appendChild(link);
-      container.appendChild(li);
+      appendFilterOption(container, key, value);
     }
     return container;
   };
@@ -289,14 +283,18 @@ describe("updateOptionActiveStates", () => {
       (li) => li.querySelector("[data-filter-key]").dataset.filterValue,
     );
 
+  const buildOptionsAllActive = (specs) => {
+    const c = buildOptions(specs);
+    for (const li of c.querySelectorAll("li")) li.classList.add("active");
+    return c;
+  };
+
   test("adds 'active' class to matching option <li>s and removes it from the rest", () => {
-    const container = buildOptions([
+    const container = buildOptionsAllActive([
       ["colour", "red"],
       ["colour", "blue"],
       ["size", "large"],
     ]);
-    for (const li of container.querySelectorAll("li"))
-      li.classList.add("active");
 
     updateOptionActiveStates(container, { colour: "red" });
 
@@ -304,12 +302,10 @@ describe("updateOptionActiveStates", () => {
   });
 
   test("removes all active classes when no filters are active", () => {
-    const container = buildOptions([
+    const container = buildOptionsAllActive([
       ["colour", "red"],
       ["size", "large"],
     ]);
-    for (const li of container.querySelectorAll("li"))
-      li.classList.add("active");
 
     updateOptionActiveStates(container, {});
 

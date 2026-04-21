@@ -65,41 +65,32 @@ const { find, analyze } = createCodeChecker({
   },
 });
 
+const expectOneFallback = (source, fallback) => {
+  const results = find(source);
+  expect(results.length).toBe(1);
+  expect(results[0].fallback).toBe(fallback);
+};
+
 describe("or-fallbacks", () => {
   describe("find", () => {
     test("detects || [] fallback", () => {
-      const source = "const items = getItems() || [];";
-      const results = find(source);
-      expect(results.length).toBe(1);
-      expect(results[0].fallback).toBe("[]");
+      expectOneFallback("const items = getItems() || [];", "[]");
     });
 
     test("detects || {} fallback", () => {
-      const source = "const config = options || {};";
-      const results = find(source);
-      expect(results.length).toBe(1);
-      expect(results[0].fallback).toBe("{}");
+      expectOneFallback("const config = options || {};", "{}");
     });
 
     test('detects || "" fallback', () => {
-      const source = `const name = data.name || "";`;
-      const results = find(source);
-      expect(results.length).toBe(1);
-      expect(results[0].fallback).toBe('""');
+      expectOneFallback(`const name = data.name || "";`, '""');
     });
 
     test("detects || null fallback", () => {
-      const source = "const value = getValue() || null;";
-      const results = find(source);
-      expect(results.length).toBe(1);
-      expect(results[0].fallback).toBe("null");
+      expectOneFallback("const value = getValue() || null;", "null");
     });
 
     test("detects || 0 fallback", () => {
-      const source = "const count = getCount() || 0;";
-      const results = find(source);
-      expect(results.length).toBe(1);
-      expect(results[0].fallback).toBe("0");
+      expectOneFallback("const count = getCount() || 0;", "0");
     });
 
     test("ignores comments", () => {

@@ -68,6 +68,12 @@ const widgetFilterAttrs = (sizes = ["small", "large"]) => ({
 const widgetFilteredPages = (paths = ["size/small", "size/large"]) =>
   paths.map((path) => ({ categorySlug: "widgets", path }));
 
+const twoWidgetApi = () =>
+  mockCollectionApi(
+    [categoryFixture("widgets")],
+    [widgetWithSize("small", "Widget A"), widgetWithSize("large", "Widget B")],
+  );
+
 describe("category-product-filters", () => {
   // ============================================
   // categoryFilterData tests
@@ -182,15 +188,7 @@ describe("category-product-filters", () => {
     });
 
     test("Collects attributes from multiple products", () => {
-      const result = createCategoryFilterAttributes(
-        mockCollectionApi(
-          [categoryFixture("widgets")],
-          [
-            widgetWithSize("small", "Widget A"),
-            widgetWithSize("large", "Widget B"),
-          ],
-        ),
-      );
+      const result = createCategoryFilterAttributes(twoWidgetApi());
       expect(result.widgets.attributes.size).toEqual(["large", "small"]);
     });
 
@@ -221,15 +219,7 @@ describe("category-product-filters", () => {
 
     test("Returns filterUI with correct structure for category", () => {
       // Use 2 products with different sizes so filters are shown
-      const result = categoryListingUI(
-        mockCollectionApi(
-          [categoryFixture("widgets")],
-          [
-            widgetWithSize("small", "Widget A"),
-            widgetWithSize("large", "Widget B"),
-          ],
-        ),
-      );
+      const result = categoryListingUI(twoWidgetApi());
       expect(result.widgets).toBeDefined();
       expect(result.widgets.hasFilters).toBe(true);
       expect(result.widgets.hasActiveFilters).toBe(false);

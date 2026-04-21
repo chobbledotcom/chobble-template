@@ -5,6 +5,7 @@ import {
 } from "#utils/block-columns.js";
 
 const block = (type, extra = {}) => ({ type, ...extra });
+const md = (id) => block("markdown", { id });
 
 const withLayout = (types) => ({ columns: [{ types }] });
 
@@ -111,11 +112,7 @@ describe("block-columns", () => {
     });
 
     test("blocks of the same type beyond the queue length fall through to rest", () => {
-      const blocks = [
-        block("markdown", { id: "m1" }),
-        block("markdown", { id: "m2" }),
-        block("markdown", { id: "m3" }),
-      ];
+      const blocks = [md("m1"), md("m2"), md("m3")];
       const layout = { columns: [{ types: ["markdown"] }] };
 
       const result = splitBlocksForColumns(blocks, layout);
@@ -125,12 +122,7 @@ describe("block-columns", () => {
     });
 
     test("listing a type twice in one column claims two blocks", () => {
-      const blocks = [
-        block("markdown", { id: "m1" }),
-        block("cta", { id: "c1" }),
-        block("markdown", { id: "m2" }),
-        block("markdown", { id: "m3" }),
-      ];
+      const blocks = [md("m1"), block("cta", { id: "c1" }), md("m2"), md("m3")];
       const layout = {
         columns: [{ types: ["markdown", "cta", "markdown"] }],
       };
@@ -144,14 +136,13 @@ describe("block-columns", () => {
     });
 
     test("a type listed across columns claims one block per column in order", () => {
-      const md = (id) => block("markdown", { id });
-      const blocks = [md("m1"), md("m2"), md("m3")];
-      const result = splitBlocksForColumns(blocks, {
+      const [first, second, third] = [md("m1"), md("m2"), md("m3")];
+      const result = splitBlocksForColumns([first, second, third], {
         columns: [{ types: ["markdown"] }, { types: ["markdown"] }],
       });
 
-      expect(result.columns).toEqual([[blocks[0]], [blocks[1]]]);
-      expect(result.rest).toEqual([blocks[2]]);
+      expect(result.columns).toEqual([[first], [second]]);
+      expect(result.rest).toEqual([third]);
     });
 
     test("unmatched types go to rest preserving original order", () => {
@@ -217,14 +208,17 @@ describe("block-columns", () => {
   describe("before queue", () => {
     const withHero = (cols) => ({ before: ["hero"], columns: cols });
     const galleryMdCols = [{ types: ["gallery"] }, { types: ["markdown"] }];
+    const expectSplitResult = (result, before, columns, rest) => {
+      expect(result.before).toEqual(before);
+      expect(result.columns).toEqual(columns);
+      expect(result.rest).toEqual(rest);
+    };
 
     test("claims listed types full-width above the columns section", () => {
       const blocks = [block("hero"), block("gallery"), block("markdown")];
       const result = splitBlocksForColumns(blocks, withHero(galleryMdCols));
 
-      expect(result.before).toEqual([blocks[0]]);
-      expect(result.columns).toEqual([[blocks[1]], [blocks[2]]]);
-      expect(result.rest).toEqual([]);
+      expectSplitResult(result, [blocks[0]], [[blocks[1]], [blocks[2]]], []);
     });
 
     test("renders before blocks in slot order, not page order", () => {
@@ -245,9 +239,7 @@ describe("block-columns", () => {
         columns: [{ types: ["markdown"] }],
       });
 
-      expect(result.before).toEqual([blocks[0]]);
-      expect(result.columns).toEqual([[blocks[1]]]);
-      expect(result.rest).toEqual([blocks[2]]);
+      expectSplitResult(result, [blocks[0]], [[blocks[1]]], [blocks[2]]);
     });
 
     test("listing a type twice in before claims two blocks of that type", () => {
@@ -280,9 +272,7 @@ describe("block-columns", () => {
       const blocks = [block("gallery"), block("markdown")];
       const result = splitBlocksForColumns(blocks, withHero(galleryMdCols));
 
-      expect(result.before).toEqual([]);
-      expect(result.columns).toEqual([[blocks[0]], [blocks[1]]]);
-      expect(result.rest).toEqual([]);
+      expectSplitResult(result, [], [[blocks[0]], [blocks[1]]], []);
     });
 
     test.each([

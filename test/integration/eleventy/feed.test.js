@@ -123,13 +123,13 @@ describe("feed", () => {
 
     // --- Special Characters ---
     test("Feed is valid XML with special characters in titles", () => {
-      const feed = getFeed();
-      expect(feed.includes("<entry>")).toBe(true);
-      expect(feed.includes("Tom and Jerry")).toBe(true);
+      const feedXml = getFeed();
+      expect(feedXml.includes("<entry>")).toBe(true);
+      expect(feedXml.includes("Tom and Jerry")).toBe(true);
       // Apostrophe should be handled (either escaped or in CDATA)
-      expect(feed.includes("Jerry's") || feed.includes("Jerry&#39;s")).toBe(
-        true,
-      );
+      expect(
+        feedXml.includes("Jerry's") || feedXml.includes("Jerry&#39;s"),
+      ).toBe(true);
     });
 
     test("Feed escapes ampersands in entry titles", () => {

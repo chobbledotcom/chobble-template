@@ -17,13 +17,21 @@ import {
 // ============================================
 
 /**
+ * Creates a mock config with alias capture wired up.
+ */
+const captureAliases = () => {
+  const config = createMockEleventyConfig();
+  const aliases = [];
+  config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
+  return { config, aliases };
+};
+
+/**
  * Run configureLayoutAliases in a temp directory, returning captured aliases.
  * Handles cleanup automatically.
  */
 const runLayoutAliases = (tempDir) => {
-  const config = createMockEleventyConfig();
-  const aliases = [];
-  config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
+  const { config, aliases } = captureAliases();
 
   try {
     const srcDir = path.join(tempDir, "src");
@@ -135,9 +143,7 @@ describe("layout-aliases", () => {
 
   // --- Integration: Production Directory ---
   test("Successfully reads from actual src/_layouts directory", () => {
-    const config = createMockEleventyConfig();
-    const aliases = [];
-    config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
+    const { config, aliases } = captureAliases();
 
     configureLayoutAliases(config);
 

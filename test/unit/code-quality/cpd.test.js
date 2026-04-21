@@ -15,7 +15,7 @@ describe("cpd", () => {
 
       if (result.status !== 0) {
         console.log("\n  Duplication exceeds threshold:\n");
-        console.log(result.stdout || result.stderr);
+        console.log(result.stderr || result.stdout);
       }
 
       expect(result.status).toBe(0);

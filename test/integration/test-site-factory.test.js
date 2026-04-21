@@ -92,48 +92,33 @@ describe("test-site-factory", () => {
       );
     });
 
-    test("creates test site with images from src/images", async () => {
-      // Create a test image file in src/images for this test
-      const testImagePath = path.join(rootDir, "src/images/test-image.jpg");
+    const withTempTestImage = async (filename, dest, fn) => {
+      const testImagePath = path.join(rootDir, filename);
       fs.writeFileSync(testImagePath, "fake image content");
-
       try {
         await withSetupTestSite(
-          { files: defaultTestFiles, images: ["test-image.jpg"] },
-          (site) => {
-            // Verify image was copied to site
-            const copiedImagePath = path.join(
-              site.srcDir,
-              "images/test-image.jpg",
-            );
-            expect(fs.existsSync(copiedImagePath)).toBe(true);
-          },
+          { files: defaultTestFiles, images: [{ src: testImagePath, dest }] },
+          fn,
         );
       } finally {
         fs.unlinkSync(testImagePath);
       }
+    };
+
+    test("creates test site with images from src/images", async () => {
+      await withTempTestImage("test-image.jpg", "test-image.jpg", (site) => {
+        // Verify image was copied to site
+        const copiedImagePath = path.join(site.srcDir, "images/test-image.jpg");
+        expect(fs.existsSync(copiedImagePath)).toBe(true);
+      });
     });
 
     test("creates test site with images using object spec with absolute path", async () => {
-      // Create a test image file
-      const testImagePath = path.join(rootDir, "test-custom-image.jpg");
-      fs.writeFileSync(testImagePath, "fake image content");
-
-      try {
-        await withSetupTestSite(
-          {
-            files: defaultTestFiles,
-            images: [{ src: testImagePath, dest: "custom.jpg" }],
-          },
-          (site) => {
-            // Verify image was copied with custom dest name
-            const copiedImagePath = path.join(site.srcDir, "images/custom.jpg");
-            expect(fs.existsSync(copiedImagePath)).toBe(true);
-          },
-        );
-      } finally {
-        fs.unlinkSync(testImagePath);
-      }
+      await withTempTestImage("test-custom-image.jpg", "custom.jpg", (site) => {
+        // Verify image was copied with custom dest name
+        const copiedImagePath = path.join(site.srcDir, "images/custom.jpg");
+        expect(fs.existsSync(copiedImagePath)).toBe(true);
+      });
     });
   });
 

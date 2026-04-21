@@ -59,36 +59,39 @@ const findDestructuring = (source) =>
     };
   });
 
+const expectSingleDestructuring = (source) => {
+  const results = findDestructuring(source);
+  expect(results.length).toBe(1);
+  return results[0];
+};
+
 describe("destructuring", () => {
   describe("detection", () => {
     test("detects simple destructuring", () => {
-      const source = "const { foo } = bar;";
-      const results = findDestructuring(source);
-      expect(results.length).toBe(1);
-      expect(results[0].properties).toEqual(["foo"]);
-      expect(results[0].sourceObject).toBe("bar");
+      const result = expectSingleDestructuring("const { foo } = bar;");
+      expect(result.properties).toEqual(["foo"]);
+      expect(result.sourceObject).toBe("bar");
     });
 
     test("detects multiple property destructuring", () => {
-      const source = "const { foo, baz, qux } = obj;";
-      const results = findDestructuring(source);
-      expect(results.length).toBe(1);
-      expect(results[0].properties).toEqual(["foo", "baz", "qux"]);
-      expect(results[0].sourceObject).toBe("obj");
+      const result = expectSingleDestructuring(
+        "const { foo, baz, qux } = obj;",
+      );
+      expect(result.properties).toEqual(["foo", "baz", "qux"]);
+      expect(result.sourceObject).toBe("obj");
     });
 
     test("detects renamed destructuring", () => {
-      const source = "const { foo: renamed } = bar;";
-      const results = findDestructuring(source);
-      expect(results.length).toBe(1);
-      expect(results[0].properties).toEqual(["foo"]);
+      expect(
+        expectSingleDestructuring("const { foo: renamed } = bar;").properties,
+      ).toEqual(["foo"]);
     });
 
     test("detects mixed renamed and regular", () => {
-      const source = "const { foo, bar: aliased, baz } = obj;";
-      const results = findDestructuring(source);
-      expect(results.length).toBe(1);
-      expect(results[0].properties).toEqual(["foo", "bar", "baz"]);
+      expect(
+        expectSingleDestructuring("const { foo, bar: aliased, baz } = obj;")
+          .properties,
+      ).toEqual(["foo", "bar", "baz"]);
     });
   });
 

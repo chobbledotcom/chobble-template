@@ -10,11 +10,7 @@
 
   {%- include "js-config-script.html" -%}
 
-  <script
-    type="module"
-    src="{{ '/assets/js/bundle.js' | cacheBust }}"
-    data-decrypt-key="{{ encryptKey }}"
-  ></script>
+  {%- include "bundle-script.html" -%}
 
   {%- if collections.news.size > 0 -%}
     <link

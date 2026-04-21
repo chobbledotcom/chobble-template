@@ -86,9 +86,11 @@ describe("object-entries utilities", () => {
     });
   });
 
+  const MIXED_VALUES = { a: 1, b: null, c: 0, d: "x", e: "" };
+
   describe("pickTruthy", () => {
     test("keeps only truthy values", () => {
-      expect(pickTruthy({ a: 1, b: null, c: 0, d: "x", e: "" })).toEqual({
+      expect(pickTruthy(MIXED_VALUES)).toEqual({
         a: 1,
         d: "x",
       });
@@ -101,7 +103,7 @@ describe("object-entries utilities", () => {
 
   describe("pickNonNull", () => {
     test("keeps values that are not null", () => {
-      expect(pickNonNull({ a: 1, b: null, c: 0, d: "x", e: "" })).toEqual({
+      expect(pickNonNull(MIXED_VALUES)).toEqual({
         a: 1,
         c: 0,
         d: "x",
