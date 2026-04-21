@@ -137,6 +137,17 @@ describe("validateBlocks error handling", () => {
       'unknown keys: "section_class"',
     );
   });
+
+  test("collects errors from all blocks rather than stopping at the first", () => {
+    const blocks = [
+      { type: "video-background", video_url: "bad" },
+      { type: "stats", bogus_key: "x" },
+    ];
+    expect(() => validateBlocks(blocks)).toThrow("block 1");
+    expect(() => validateBlocks(blocks)).toThrow("block 2");
+    expect(() => validateBlocks(blocks)).toThrow('"video_url"');
+    expect(() => validateBlocks(blocks)).toThrow('"bogus_key"');
+  });
 });
 
 describe("validateBlocks field-type validation", () => {

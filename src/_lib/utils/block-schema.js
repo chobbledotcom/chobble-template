@@ -187,15 +187,6 @@ const BLOCK_DOCS = indexByType((m) => ({
 const quoteJoin = (arr) => arr.map((k) => `"${k}"`).join(", ");
 
 /**
- * @param {unknown} condition
- * @param {string} message
- * @returns {asserts condition}
- */
-const assert = (condition, message) => {
-  if (!condition) throw new Error(message);
-};
-
-/**
  * @typedef {Record<string, unknown>} Block
  */
 
@@ -259,53 +250,61 @@ const BLOCK_FIELD_SPECS = Object.fromEntries(
 
 /**
  * Validates a single block against its schema.
- * Throws an error if the block contains unknown keys or unknown type, or
- * if any field value does not match its declared shape.
  *
  * @param {Block} block - Block to validate
  * @param {string} ctx - Context suffix for error messages
- * @throws {Error} If the block fails any validation check
+ * @returns {string[]} Array of error strings; empty means valid
  */
 const validateBlock = (block, ctx) => {
-  assert(
-    typeof block.type === "string",
-    `Block is missing required "type" field${ctx}`,
-  );
+  if (typeof block.type !== "string") {
+    return [`Block is missing required "type" field${ctx}`];
+  }
+
   const specs = BLOCK_FIELD_SPECS[block.type];
-  assert(
-    specs,
-    `Unknown block type "${block.type}"${ctx}. Valid types: ${Object.keys(BLOCK_FIELD_SPECS).join(", ")}`,
-  );
+  if (!specs) {
+    return [
+      `Unknown block type "${block.type}"${ctx}. Valid types: ${Object.keys(BLOCK_FIELD_SPECS).join(", ")}`,
+    ];
+  }
+
   const allowedKeys = [...Object.keys(specs), "type"];
   const unknown = Object.keys(block).filter((k) => !allowedKeys.includes(k));
-  assert(
-    unknown.length === 0,
-    `Block type "${block.type}" has unknown keys: ${quoteJoin(unknown)}${ctx}. Allowed keys: ${quoteJoin(Object.keys(specs))}`,
-  );
+  const unknownErrors =
+    unknown.length > 0
+      ? [
+          `Block type "${block.type}" has unknown keys: ${quoteJoin(unknown)}${ctx}. Allowed keys: ${quoteJoin(Object.keys(specs))}`,
+        ]
+      : [];
 
-  for (const [key, value] of Object.entries(block)) {
+  const fieldErrors = Object.entries(block).flatMap(([key, value]) => {
     const spec = specs[key];
     const skip =
       !spec || value === undefined || value === null || spec.check(value);
-    if (skip) continue;
+    if (skip) return [];
     const actual = Array.isArray(value) ? "array" : typeof value;
-    throw new Error(
+    return [
       `Block "${block.type}" field "${key}" must be ${spec.label} but got ${actual}${ctx}`,
-    );
-  }
+    ];
+  });
+
+  return [...unknownErrors, ...fieldErrors];
 };
 
 /**
  * Validates an array of blocks against their schemas.
- * Throws an error if any block contains unknown keys or unknown type.
+ * Collects all errors across all blocks before throwing so the user sees
+ * every problem in one build rather than one at a time.
  *
  * @param {Block[]} blocks - Array of blocks to validate
  * @param {string} context - Context for error messages (e.g., file path)
  * @throws {Error} If any block contains unknown keys or invalid type
  */
 const validateBlocks = (blocks, context = "") => {
-  for (const [index, block] of blocks.entries()) {
-    validateBlock(block, ` (block ${index + 1}${context})`);
+  const errors = blocks.flatMap((block, index) =>
+    validateBlock(block, ` (block ${index + 1}${context})`),
+  );
+  if (errors.length > 0) {
+    throw new Error(errors.join("\n"));
   }
 };
 
