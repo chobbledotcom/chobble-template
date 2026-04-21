@@ -161,41 +161,30 @@ describe("categories", () => {
   });
 
   describe("thumbnail fallback chain", () => {
+    const expectThumbnail = (categories, expected, products = []) => {
+      const result = getCollection({ categories, products });
+      expect(result[0].data.thumbnail).toBe(expected);
+    };
+
     test("uses header_image as thumbnail for the current category", () => {
-      const categories = [cat("widgets", "banner.jpg")];
-      const result = getCollection({ categories, products: [] });
-      expect(result[0].data.thumbnail).toBe("banner.jpg");
+      expectThumbnail([cat("widgets", "banner.jpg")], "banner.jpg");
     });
 
     test("uses own thumbnail when no header_image", () => {
-      const categories = [
-        cat("widgets", undefined, { thumbnail: "thumb.jpg" }),
-      ];
-      const result = getCollection({ categories, products: [] });
-      expect(result[0].data.thumbnail).toBe("thumb.jpg");
+      expectThumbnail([cat("widgets", undefined, { thumbnail: "thumb.jpg" })], "thumb.jpg");
     });
 
     test("header_image takes priority over own thumbnail", () => {
-      const categories = [
-        cat("widgets", "banner.jpg", { thumbnail: "thumb.jpg" }),
-      ];
-      const result = getCollection({ categories, products: [] });
-      expect(result[0].data.thumbnail).toBe("banner.jpg");
+      expectThumbnail([cat("widgets", "banner.jpg", { thumbnail: "thumb.jpg" })], "banner.jpg");
     });
 
     test("falls back to subcategory thumbnail before direct products", () => {
       const categories = [
         cat("electronics", undefined),
-        cat("phones", undefined, {
-          parent: "electronics",
-          thumbnail: "phones-thumb.jpg",
-        }),
+        cat("phones", undefined, { parent: "electronics", thumbnail: "phones-thumb.jpg" }),
       ];
-      const products = prods([
-        { cats: ["electronics"], thumbnail: "direct-product.jpg" },
-      ]);
-      const result = getCollection({ categories, products });
-      expect(result[0].data.thumbnail).toBe("phones-thumb.jpg");
+      const products = prods([{ cats: ["electronics"], thumbnail: "direct-product.jpg" }]);
+      expectThumbnail(categories, "phones-thumb.jpg", products);
     });
 
     test("subcategory resolution uses thumbnail, not header_image", () => {
@@ -203,13 +192,10 @@ describe("categories", () => {
         cat("electronics", undefined),
         cat("phones", "phones-banner.jpg", { parent: "electronics" }),
       ];
-      const products = prods([
-        { cats: ["electronics"], thumbnail: "direct-product.jpg" },
-      ]);
-      const result = getCollection({ categories, products });
+      const products = prods([{ cats: ["electronics"], thumbnail: "direct-product.jpg" }]);
       // phones has header_image but no thumbnail; subcategory resolution
       // only checks thumbnail, so falls through to direct product
-      expect(result[0].data.thumbnail).toBe("direct-product.jpg");
+      expectThumbnail(categories, "direct-product.jpg", products);
     });
 
     test("falls back to product in subcategory", () => {

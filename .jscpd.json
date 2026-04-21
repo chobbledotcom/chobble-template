@@ -17,6 +17,6 @@
 	"gitignore": true,
 	"exitCode": 1,
 	"minLines": 1,
-	"minTokens": 40,
+	"minTokens": 38,
 	"path": ["src", "test", "scripts", ".eleventy.js"]
 }

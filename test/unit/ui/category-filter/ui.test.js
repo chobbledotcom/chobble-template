@@ -132,6 +132,16 @@ describe("buildLabelLookup", () => {
 // readInitialFilters
 // ============================================
 
+const appendFilterOption = (container, key, value, active = false) => {
+  const li = document.createElement("li");
+  const link = document.createElement("a");
+  link.dataset.filterKey = key;
+  link.dataset.filterValue = value;
+  if (active) link.classList.add("active");
+  li.appendChild(link);
+  container.appendChild(li);
+};
+
 describe("readInitialFilters", () => {
   const buildPillsAndOptions = (pills, options) => {
     const container = document.createElement("div");
@@ -141,13 +151,7 @@ describe("readInitialFilters", () => {
       container.appendChild(removeLink);
     }
     for (const [key, value, active] of options) {
-      const li = document.createElement("li");
-      const link = document.createElement("a");
-      link.dataset.filterKey = key;
-      link.dataset.filterValue = value;
-      if (active) link.classList.add("active");
-      li.appendChild(link);
-      container.appendChild(li);
+      appendFilterOption(container, key, value, active);
     }
     return container;
   };
@@ -274,12 +278,7 @@ describe("updateOptionActiveStates", () => {
   const buildOptions = (specs) => {
     const container = document.createElement("div");
     for (const [key, value] of specs) {
-      const li = document.createElement("li");
-      const link = document.createElement("a");
-      link.dataset.filterKey = key;
-      link.dataset.filterValue = value;
-      li.appendChild(link);
-      container.appendChild(li);
+      appendFilterOption(container, key, value);
     }
     return container;
   };

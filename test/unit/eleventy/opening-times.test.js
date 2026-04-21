@@ -3,7 +3,7 @@ import {
   configureOpeningTimes,
   renderOpeningTimes,
 } from "#eleventy/opening-times.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import { createMockEleventyConfig, expectHtmlList } from "#test/test-utils.js";
 
 describe("opening-times", () => {
   test("Returns empty string for empty array", async () => {
@@ -47,12 +47,8 @@ describe("opening-times", () => {
   });
 
   test("Generates correct HTML structure", async () => {
-    const input = [{ day: "Friday", hours: "8am - 4pm" }];
-    const result = await renderOpeningTimes(input);
-
-    expect(result.includes("<ul>")).toBe(true);
-    expect(result.includes("</ul>")).toBe(true);
-    expect(result.includes("</li>")).toBe(true);
+    const result = await renderOpeningTimes([{ day: "Friday", hours: "8am - 4pm" }]);
+    expectHtmlList(result);
   });
 
   test("Registers opening_times shortcode", () => {

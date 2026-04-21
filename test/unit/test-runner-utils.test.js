@@ -46,8 +46,7 @@ const captureSummaryOutput = (steps, results, title) =>
  * Creates three standard steps (lint, test, build)
  */
 const createThreeSteps = () => [
-  { name: "lint", cmd: "bun", args: ["run", "lint"] },
-  { name: "test", cmd: "bun", args: ["test"] },
+  ...createBasicSteps(),
   { name: "build", cmd: "bun", args: ["run", "build"] },
 ];
 

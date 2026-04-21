@@ -66,6 +66,15 @@ const createDietaryKeyTestData = (dietaryKeysList) => ({
   },
 });
 
+/** Lunch menu with given items (apps category) */
+const lunchState = (...menuItems) => ({
+  menu: createMockMenu("lunch", "Lunch"),
+  state: {
+    menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
+    menuItems,
+  },
+});
+
 /** Lunch menu with single item for dietary key tests */
 const lunchMenuWithItem = (dietaryKeys) => ({
   menu: createMockMenu("lunch", "Lunch"),
@@ -164,18 +173,9 @@ describe("pdf", () => {
     });
 
     test("Menu items have correct structure in PDF data", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const state = {
-        menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
-        menuItems: [
-          createMockMenuItem(
-            "Spring Rolls",
-            ["apps"],
-            "$8.99",
-            "Crispy and delicious",
-          ),
-        ],
-      };
+      const { menu, state } = lunchState(
+        createMockMenuItem("Spring Rolls", ["apps"], "$8.99", "Crispy and delicious"),
+      );
 
       const result = buildMenuPdfData(menu, state);
 
@@ -187,16 +187,12 @@ describe("pdf", () => {
     });
 
     test("Dietary symbols are joined correctly", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const state = {
-        menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
-        menuItems: [
-          createMockMenuItem("Veggie Roll", ["apps"], "$7", null, [
-            { symbol: "V", label: "Vegetarian" },
-            { symbol: "GF", label: "Gluten Free" },
-          ]),
-        ],
-      };
+      const { menu, state } = lunchState(
+        createMockMenuItem("Veggie Roll", ["apps"], "$7", null, [
+          { symbol: "V", label: "Vegetarian" },
+          { symbol: "GF", label: "Gluten Free" },
+        ]),
+      );
 
       const result = buildMenuPdfData(menu, state);
 
@@ -218,11 +214,7 @@ describe("pdf", () => {
     });
 
     test("Handles items without dietary keys", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const state = {
-        menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
-        menuItems: [createMockMenuItem("Burger", ["apps"], "$12")],
-      };
+      const { menu, state } = lunchState(createMockMenuItem("Burger", ["apps"], "$12"));
 
       const result = buildMenuPdfData(menu, state);
 
@@ -264,11 +256,7 @@ describe("pdf", () => {
     });
 
     test("Handles items without description", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const state = {
-        menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
-        menuItems: [createMockMenuItem("Simple Item", ["apps"], "$5", null)],
-      };
+      const { menu, state } = lunchState(createMockMenuItem("Simple Item", ["apps"], "$5", null));
 
       const result = buildMenuPdfData(menu, state);
 

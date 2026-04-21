@@ -88,6 +88,12 @@ const toViolation = (file) => (v) => ({
   reason: `nested .${v.method}() inside iteration — likely O(n*m)`,
 });
 
+const expectSingleFilterViolation = (source) => {
+  const results = findNestedLookups(source);
+  expect(results.length).toBe(1);
+  expect(results[0].method).toBe("filter");
+};
+
 describe("nested-array-lookup", () => {
   describe("findNestedLookups", () => {
     test("detects .find() inside .map() callback", () => {
@@ -101,12 +107,9 @@ describe("nested-array-lookup", () => {
     });
 
     test("detects .filter() inside flatMap() callback", () => {
-      const source = `categories.flatMap((cat) => {
+      expectSingleFilterViolation(`categories.flatMap((cat) => {
   return items.filter((item) => item.cat === cat.id);
-});`;
-      const results = findNestedLookups(source);
-      expect(results.length).toBe(1);
-      expect(results[0].method).toBe("filter");
+});`);
     });
 
     test("allows .find() inside for...of loop (small iteration)", () => {
@@ -188,13 +191,10 @@ describe("nested-array-lookup", () => {
     });
 
     test("detects .filter() inside .reduce() callback", () => {
-      const source = `items.reduce((acc, item) => {
+      expectSingleFilterViolation(`items.reduce((acc, item) => {
   const related = others.filter((o) => o.tag === item.tag);
   return [...acc, ...related];
-}, []);`;
-      const results = findNestedLookups(source);
-      expect(results.length).toBe(1);
-      expect(results[0].method).toBe("filter");
+}, []);`);
     });
   });
 

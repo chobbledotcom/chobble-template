@@ -4,7 +4,7 @@ import {
   renderRecurringEvents,
 } from "#eleventy/recurring-events.js";
 import { withTestSite } from "#test/test-site-factory.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import { createMockEleventyConfig, expectHtmlList } from "#test/test-utils.js";
 
 // ============================================
 // Functional Test Fixture Builders
@@ -122,9 +122,7 @@ describe("recurring-events", () => {
       event("Test Event", "Daily", { url: "/test/", location: "Here" }),
     ]);
 
-    expect(result.includes("<ul>")).toBe(true);
-    expect(result.includes("</ul>")).toBe(true);
-    expect(result.includes("<li>")).toBe(true);
+    expectHtmlList(result);
     expect(result.includes("<strong>")).toBe(true);
     expect(result.includes("Daily")).toBe(true);
     expect(result.includes("Here")).toBe(true);

@@ -317,6 +317,12 @@ describe("breadcrumbsFilter", () => {
   });
 
   describe("property-linked guide category breadcrumbs", () => {
+    const HOME_CRUMB = { label: "Home", url: "/" };
+    const SUNSET_CRUMB = {
+      label: "Sunset Cottage",
+      url: "/properties/sunset-cottage/",
+    };
+
     const properties = [
       {
         fileSlug: "sunset-cottage",
@@ -353,8 +359,8 @@ describe("breadcrumbsFilter", () => {
       );
 
       expect(crumbs).toEqual([
-        { label: "Home", url: "/" },
-        { label: "Sunset Cottage", url: "/properties/sunset-cottage/" },
+        HOME_CRUMB,
+        SUNSET_CRUMB,
         { label: "Getting Started", url: null },
       ]);
     });
@@ -375,8 +381,8 @@ describe("breadcrumbsFilter", () => {
       );
 
       expect(crumbs).toEqual([
-        { label: "Home", url: "/" },
-        { label: "Sunset Cottage", url: "/properties/sunset-cottage/" },
+        HOME_CRUMB,
+        SUNSET_CRUMB,
         { label: "Getting Started", url: "/guide/getting-started/" },
         { label: "My Page", url: null },
       ]);

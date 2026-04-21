@@ -24,15 +24,13 @@ describe("fetchJson", () => {
 
   test("returns null on non-OK response", async () => {
     await withMockFetch({}, { ok: false, status: 404 }, async () => {
-      const result = await fetchJson("https://api.example.com/missing");
-      expect(result).toBeNull();
+      expect(await fetchJson("https://api.example.com/missing")).toBeNull();
     });
   });
 
   test("returns null on network error", async () => {
     await withRejectedFetch(async () => {
-      const result = await fetchJson("https://api.example.com/down");
-      expect(result).toBeNull();
+      expect(await fetchJson("https://api.example.com/down")).toBeNull();
     });
   });
 });
@@ -69,15 +67,13 @@ describe("postJson", () => {
 
   test("returns null on non-OK response", async () => {
     await withMockFetch({}, { ok: false, status: 500 }, async () => {
-      const result = await postJson("https://api.example.com/checkout", {});
-      expect(result).toBeNull();
+      expect(await postJson("https://api.example.com/checkout", {})).toBeNull();
     });
   });
 
   test("returns null on network error", async () => {
     await withRejectedFetch(async () => {
-      const result = await postJson("https://api.example.com/checkout", {});
-      expect(result).toBeNull();
+      expect(await postJson("https://api.example.com/checkout", {})).toBeNull();
     });
   });
 });

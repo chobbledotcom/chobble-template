@@ -92,6 +92,12 @@ describe("getCachedProducts", () => {
   });
 });
 
+const saveAndValidate = (cart) => {
+  saveCart(cart);
+  expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(true);
+  expect(getCart()).toHaveLength(0);
+};
+
 describe("validateBuyItems", () => {
   test("returns false and leaves cart untouched for non-buy items", () => {
     const cart = [cartHireItem()];
@@ -103,21 +109,15 @@ describe("validateBuyItems", () => {
 
   test("removes item with unmatched SKU and notifies user", () => {
     const cart = [cartBuyItem({ item_name: "Unknown", sku: "DOESNT_EXIST" })];
-    saveCart(cart);
-    expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(true);
-    expect(getCart()).toHaveLength(0);
+    saveAndValidate(cart);
     expect(mockShowNotification).toHaveBeenCalledTimes(1);
     expect(mockShowNotification.mock.calls[0][0]).toContain("Unknown");
-    expect(mockShowNotification.mock.calls[0][0]).toContain(
-      "no longer available",
-    );
+    expect(mockShowNotification.mock.calls[0][0]).toContain("no longer available");
   });
 
   test("removes out-of-stock item and notifies user", () => {
     const cart = [cartBuyItem({ item_name: "Discontinued", sku: "GONE" })];
-    saveCart(cart);
-    expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(true);
-    expect(getCart()).toHaveLength(0);
+    saveAndValidate(cart);
     expect(mockShowNotification.mock.calls[0][0]).toContain("Discontinued");
   });
 

@@ -103,20 +103,24 @@ describe("spec-filters", () => {
     expect(result).toEqual([]);
   });
 
+  const makeSpecs = (highlights) =>
+    highlights.map((highlight, i) => ({
+      name: `spec${i + 1}`,
+      value: `val${i + 1}`,
+      highlight,
+    }));
+
+  const expectAllSpecsReturned = (specs) => {
+    const result = getHighlightedSpecs(specs);
+    expect(result.length).toBe(specs.length);
+    expect(result).toEqual(specs);
+  };
+
   // ============================================
   // getHighlightedSpecs - Filtering Logic
   // ============================================
   test("Returns all specs when none have highlight true", () => {
-    const specs = [
-      { name: "spec1", value: "val1", highlight: false },
-      { name: "spec2", value: "val2", highlight: false },
-      { name: "spec3", value: "val3", highlight: false },
-    ];
-
-    const result = getHighlightedSpecs(specs);
-
-    expect(result.length).toBe(3);
-    expect(result).toEqual(specs);
+    expectAllSpecsReturned(makeSpecs([false, false, false]));
   });
 
   test("Returns only highlighted specs when some have highlight true", () => {
@@ -134,16 +138,7 @@ describe("spec-filters", () => {
   });
 
   test("Returns all specs when all have highlight true", () => {
-    const specs = [
-      { name: "spec1", value: "val1", highlight: true },
-      { name: "spec2", value: "val2", highlight: true },
-      { name: "spec3", value: "val3", highlight: true },
-    ];
-
-    const result = getHighlightedSpecs(specs);
-
-    expect(result.length).toBe(3);
-    expect(result).toEqual(specs);
+    expectAllSpecsReturned(makeSpecs([true, true, true]));
   });
 
   test("Returns only one spec when only one has highlight true", () => {

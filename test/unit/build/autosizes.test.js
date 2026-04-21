@@ -315,22 +315,22 @@ describe("autosizes", () => {
       return { window, img, source };
     };
 
+    const setupAndRunPicture = async (srcset) => {
+      const { window, img, source } = await setupPictureTest(srcset);
+      runAutosizes(window, img);
+      expect(source.hasAttribute("srcset")).toBe(false);
+      return { source };
+    };
+
     test("Strips srcset from source elements inside picture before FCP", async () => {
       const srcset = "/img-300.webp 300w, /img-600.webp 600w";
-      const { window, img, source } = await setupPictureTest(srcset);
-
-      runAutosizes(window, img);
-
-      expect(source.hasAttribute("srcset")).toBe(false);
+      const { source } = await setupAndRunPicture(srcset);
       expect(source.getAttribute("data-auto-sizes-srcset")).toBe(srcset);
     });
 
     test("Restores source srcset after FCP", async () => {
       const srcset = "/img-300.webp 300w";
-      const { window, img, source } = await setupPictureTest(srcset);
-
-      runAutosizes(window, img);
-      expect(source.hasAttribute("srcset")).toBe(false);
+      const { source } = await setupAndRunPicture(srcset);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
