@@ -383,6 +383,9 @@ describe("breadcrumbsFilter", () => {
       ]);
     });
 
+    const HOME_BREADCRUMB = { label: "Home", url: "/" };
+    const GUIDE_BREADCRUMB = { label: "Guide", url: "/guide/" };
+
     test("falls back to normal breadcrumbs when guide category has no property", () => {
       const mockConfig = setupFilter();
       const crumbs = callFilter(
@@ -399,8 +402,8 @@ describe("breadcrumbsFilter", () => {
       );
 
       expect(crumbs).toEqual([
-        { label: "Home", url: "/" },
-        { label: "Guide", url: "/guide/" },
+        HOME_BREADCRUMB,
+        GUIDE_BREADCRUMB,
         { label: "My Page", url: null },
       ]);
     });
@@ -416,8 +419,8 @@ describe("breadcrumbsFilter", () => {
       );
 
       expect(crumbs).toEqual([
-        { label: "Home", url: "/" },
-        { label: "Guide", url: "/guide/" },
+        HOME_BREADCRUMB,
+        GUIDE_BREADCRUMB,
         { label: "Some Category", url: null },
       ]);
     });

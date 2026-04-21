@@ -208,14 +208,17 @@ describe("block-columns", () => {
   describe("before queue", () => {
     const withHero = (cols) => ({ before: ["hero"], columns: cols });
     const galleryMdCols = [{ types: ["gallery"] }, { types: ["markdown"] }];
+    const expectSplitResult = (result, before, columns, rest) => {
+      expect(result.before).toEqual(before);
+      expect(result.columns).toEqual(columns);
+      expect(result.rest).toEqual(rest);
+    };
 
     test("claims listed types full-width above the columns section", () => {
       const blocks = [block("hero"), block("gallery"), block("markdown")];
       const result = splitBlocksForColumns(blocks, withHero(galleryMdCols));
 
-      expect(result.before).toEqual([blocks[0]]);
-      expect(result.columns).toEqual([[blocks[1]], [blocks[2]]]);
-      expect(result.rest).toEqual([]);
+      expectSplitResult(result, [blocks[0]], [[blocks[1]], [blocks[2]]], []);
     });
 
     test("renders before blocks in slot order, not page order", () => {
@@ -236,9 +239,7 @@ describe("block-columns", () => {
         columns: [{ types: ["markdown"] }],
       });
 
-      expect(result.before).toEqual([blocks[0]]);
-      expect(result.columns).toEqual([[blocks[1]]]);
-      expect(result.rest).toEqual([blocks[2]]);
+      expectSplitResult(result, [blocks[0]], [[blocks[1]]], [blocks[2]]);
     });
 
     test("listing a type twice in before claims two blocks of that type", () => {
@@ -271,9 +272,7 @@ describe("block-columns", () => {
       const blocks = [block("gallery"), block("markdown")];
       const result = splitBlocksForColumns(blocks, withHero(galleryMdCols));
 
-      expect(result.before).toEqual([]);
-      expect(result.columns).toEqual([[blocks[0]], [blocks[1]]]);
-      expect(result.rest).toEqual([]);
+      expectSplitResult(result, [], [[blocks[0]], [blocks[1]]], []);
     });
 
     test.each([

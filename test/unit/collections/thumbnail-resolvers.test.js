@@ -51,11 +51,13 @@ describe("createChildThumbnailResolver", () => {
     expect(resolve(node("root"))).toBe("thumb-a");
   });
 
+  const fallbackFn = (n) => `fallback-${n.fileSlug}`;
+
   test("uses a descendant's fallback before bubbling back to the root's fallback", () => {
     const resolve = createChildThumbnailResolver({
       childrenByParent: childrenMap({ root: [node("child")] }),
       getOwnThumbnail,
-      getFallbackThumbnail: (n) => `fallback-${n.fileSlug}`,
+      getFallbackThumbnail: fallbackFn,
     });
     expect(resolve(node("root"))).toBe("fallback-child");
   });
@@ -64,7 +66,7 @@ describe("createChildThumbnailResolver", () => {
     const resolve = createChildThumbnailResolver({
       childrenByParent: new Map(),
       getOwnThumbnail,
-      getFallbackThumbnail: (n) => `fallback-${n.fileSlug}`,
+      getFallbackThumbnail: fallbackFn,
     });
     expect(resolve(node("root"))).toBe("fallback-root");
   });

@@ -61,6 +61,11 @@ describe("createDefaultConfig", () => {
 describe("loadCmsConfig", () => {
   const { withTempDirAsync } = require("#test/test-utils.js");
 
+  const expectCmsConfigNull = (tempDir) =>
+    withMockedCwdAsync(tempDir, async () => {
+      expect(await loadCmsConfig()).toBeNull();
+    });
+
   test("reads cms_config from site.json", () =>
     withTempDirAsync("loadCmsConfig", async (tempDir) => {
       await setupSiteJson(tempDir, {
@@ -103,19 +108,13 @@ describe("loadCmsConfig", () => {
   test("returns null when cms_config is absent", () =>
     withTempDirAsync("loadCmsConfig-no-config", async (tempDir) => {
       await setupSiteJson(tempDir, { name: "Test Site" });
-
-      return withMockedCwdAsync(tempDir, async () => {
-        expect(await loadCmsConfig()).toBeNull();
-      });
+      return expectCmsConfigNull(tempDir);
     }));
 
   test("returns null for empty site.json", () =>
     withTempDirAsync("loadCmsConfig-empty", async (tempDir) => {
       await setupSiteJson(tempDir, {});
-
-      return withMockedCwdAsync(tempDir, async () => {
-        expect(await loadCmsConfig()).toBeNull();
-      });
+      return expectCmsConfigNull(tempDir);
     }));
 
   test("prefers src/_data/site.json over _data/site.json", () =>

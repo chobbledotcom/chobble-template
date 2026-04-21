@@ -111,6 +111,13 @@ describe("spec-filters", () => {
       highlight,
     }));
 
+  const makeListSpecs = (listItems) =>
+    listItems.map((list_items, i) => ({
+      name: `spec${i + 1}`,
+      value: `val${i + 1}`,
+      list_items,
+    }));
+
   const expectAllSpecsReturned = (specs) => {
     const result = getHighlightedSpecs(specs);
     expect(result.length).toBe(specs.length);
@@ -193,11 +200,7 @@ describe("spec-filters", () => {
   // getListItemSpecs - Filtering Logic
   // ============================================
   test("getListItemSpecs returns only specs with list_items true", () => {
-    const specs = [
-      { name: "spec1", value: "val1", list_items: true },
-      { name: "spec2", value: "val2", list_items: false },
-      { name: "spec3", value: "val3", list_items: true },
-    ];
+    const specs = makeListSpecs([true, false, true]);
 
     const result = getListItemSpecs(specs);
     const names = result.map((s) => s.name);
@@ -206,10 +209,7 @@ describe("spec-filters", () => {
   });
 
   test("getListItemSpecs returns empty array when no specs have list_items true", () => {
-    const specs = [
-      { name: "spec1", value: "val1", list_items: false },
-      { name: "spec2", value: "val2", list_items: false },
-    ];
+    const specs = makeListSpecs([false, false]);
 
     const result = getListItemSpecs(specs);
 
@@ -217,12 +217,7 @@ describe("spec-filters", () => {
   });
 
   test("getListItemSpecs limits results to first 2 specs", () => {
-    const specs = [
-      { name: "spec1", value: "val1", list_items: true },
-      { name: "spec2", value: "val2", list_items: true },
-      { name: "spec3", value: "val3", list_items: true },
-      { name: "spec4", value: "val4", list_items: true },
-    ];
+    const specs = makeListSpecs([true, true, true, true]);
 
     const result = getListItemSpecs(specs);
 

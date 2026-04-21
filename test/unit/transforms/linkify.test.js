@@ -150,6 +150,7 @@ describe("linkify transforms", () => {
       });
 
       expect(result).toContain('target="_blank"');
+      expect(result).toContain("noopener");
       expect(result).toContain('rel="noopener noreferrer"');
     });
 

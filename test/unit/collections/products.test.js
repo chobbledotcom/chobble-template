@@ -552,14 +552,18 @@ describe("products", () => {
   });
 
   describe("addGallery helper", () => {
+    const expectSameRef = (result, testProduct) => {
+      expect(result.data.title).toBe(testProduct.data.title);
+      expect(result).toBe(testProduct);
+    };
+
     test("handles items without gallery", () => {
       const testProduct = item("Test Product", { price: 100 });
 
       const result = addGallery(testProduct);
 
       expect(result.data.gallery).toBe(undefined);
-      expect(result.data.title).toBe(testProduct.data.title);
-      expect(result).toBe(testProduct);
+      expectSameRef(result, testProduct);
     });
 
     test("processes gallery in item data", () => {
@@ -574,8 +578,7 @@ describe("products", () => {
         "/images/product.jpg",
         "/images/gallery1.jpg",
       ]);
-      expect(result.data.title).toBe(testProduct.data.title);
-      expect(result).toBe(testProduct);
+      expectSameRef(result, testProduct);
     });
 
     test("preserves object reference while processing gallery", () => {

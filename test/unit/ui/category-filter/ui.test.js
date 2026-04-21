@@ -14,6 +14,16 @@ import {
 const makeColourSizeItems = (...specs) =>
   specs.map(([colour, size]) => ({ data: { filters: { colour, size } } }));
 
+const appendFilterOption = (container, key, value, active = false) => {
+  const li = document.createElement("li");
+  const link = document.createElement("a");
+  link.dataset.filterKey = key;
+  link.dataset.filterValue = value;
+  if (active) link.classList.add("active");
+  li.appendChild(link);
+  container.appendChild(li);
+};
+
 const buildGroupsContainer = (groupsDef) => {
   const container = document.createElement("div");
   const groupsUl = document.createElement("ul");
@@ -22,12 +32,7 @@ const buildGroupsContainer = (groupsDef) => {
   for (const [key, values] of Object.entries(groupsDef)) {
     const groupLi = document.createElement("li");
     for (const value of values) {
-      const optionLi = document.createElement("li");
-      const link = document.createElement("a");
-      link.dataset.filterKey = key;
-      link.dataset.filterValue = value;
-      optionLi.appendChild(link);
-      groupLi.appendChild(optionLi);
+      appendFilterOption(groupLi, key, value);
     }
     groupsUl.appendChild(groupLi);
   }
@@ -131,16 +136,6 @@ describe("buildLabelLookup", () => {
 // ============================================
 // readInitialFilters
 // ============================================
-
-const appendFilterOption = (container, key, value, active = false) => {
-  const li = document.createElement("li");
-  const link = document.createElement("a");
-  link.dataset.filterKey = key;
-  link.dataset.filterValue = value;
-  if (active) link.classList.add("active");
-  li.appendChild(link);
-  container.appendChild(li);
-};
 
 describe("readInitialFilters", () => {
   const buildPillsAndOptions = (pills, options) => {

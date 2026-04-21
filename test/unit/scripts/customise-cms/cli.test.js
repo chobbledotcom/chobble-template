@@ -71,9 +71,11 @@ describe("buildConfigFromCli", () => {
       enable: "faqs,galleries",
     });
 
-    expect(config.features.faqs).toBe(true);
-    expect(config.features.galleries).toBe(true);
-    expect(config.features.use_visual_editor).toBe(false);
+    expect(config.features).toMatchObject({
+      faqs: true,
+      galleries: true,
+      use_visual_editor: false,
+    });
   });
 
   test("--disable selectively disables features from --all", () => {

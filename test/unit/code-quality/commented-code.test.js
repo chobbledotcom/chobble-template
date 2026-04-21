@@ -109,7 +109,7 @@ const a = 1;
 const c = 3;
     `;
     const results = findCommentedCode(source, "test.js");
-    expect(results.length).toBe(1);
+    expect(results).toHaveLength(1);
     expect(results[0].lineNumber).toBe(3);
   });
 

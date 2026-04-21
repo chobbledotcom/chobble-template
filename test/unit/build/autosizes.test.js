@@ -203,10 +203,11 @@ describe("autosizes", () => {
   });
 
   describe("Image filtering", () => {
+    const createWithImgAttrs = (src, sizes = "auto") =>
+      createAutosizesTestEnv({ imgAttrs: { src, sizes, loading: "lazy" } });
+
     const testRemoteUrlNotProcessed = async (url) => {
-      const { window, img } = await createAutosizesTestEnv({
-        imgAttrs: { src: url, sizes: "auto", loading: "lazy" },
-      });
+      const { window, img } = await createWithImgAttrs(url);
       runAutosizes(window, img);
       expect(img.hasAttribute("src")).toBe(true);
     };
@@ -243,9 +244,10 @@ describe("autosizes", () => {
     });
 
     test("Processes images with sizes='auto, 100vw' format", async () => {
-      const { window, img } = await createAutosizesTestEnv({
-        imgAttrs: { src: "/image.jpg", sizes: "auto, 100vw", loading: "lazy" },
-      });
+      const { window, img } = await createWithImgAttrs(
+        "/image.jpg",
+        "auto, 100vw",
+      );
       runAutosizes(window, img);
       expect(img.hasAttribute("src")).toBe(false);
     });

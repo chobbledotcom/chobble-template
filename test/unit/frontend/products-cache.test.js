@@ -99,11 +99,16 @@ const saveAndValidate = (cart) => {
 };
 
 describe("validateBuyItems", () => {
-  test("returns false and leaves cart untouched for non-buy items", () => {
-    const cart = [cartHireItem()];
+  const notificationText = (n) => mockShowNotification.mock.calls[n][0];
+  const saveAndExpectUnchanged = (cart) => {
     saveCart(cart);
     expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(false);
     expect(getCart()).toEqual(cart);
+  };
+
+  test("returns false and leaves cart untouched for non-buy items", () => {
+    const cart = [cartHireItem()];
+    saveAndExpectUnchanged(cart);
     expect(mockShowNotification).not.toHaveBeenCalled();
   });
 
@@ -111,16 +116,14 @@ describe("validateBuyItems", () => {
     const cart = [cartBuyItem({ item_name: "Unknown", sku: "DOESNT_EXIST" })];
     saveAndValidate(cart);
     expect(mockShowNotification).toHaveBeenCalledTimes(1);
-    expect(mockShowNotification.mock.calls[0][0]).toContain("Unknown");
-    expect(mockShowNotification.mock.calls[0][0]).toContain(
-      "no longer available",
-    );
+    expect(notificationText(0)).toContain("Unknown");
+    expect(notificationText(0)).toContain("no longer available");
   });
 
   test("removes out-of-stock item and notifies user", () => {
     const cart = [cartBuyItem({ item_name: "Discontinued", sku: "GONE" })];
     saveAndValidate(cart);
-    expect(mockShowNotification.mock.calls[0][0]).toContain("Discontinued");
+    expect(notificationText(0)).toContain("Discontinued");
   });
 
   test("updates unit_price from API (pence to pounds) and reports change", () => {
@@ -132,9 +135,7 @@ describe("validateBuyItems", () => {
 
   test("reports no change and leaves cart untouched when prices already match", () => {
     const cart = [cartBuyItem({ unit_price: 0.3, quantity: 2 })];
-    saveCart(cart);
-    expect(validateBuyItems(cart, MOCK_PRODUCTS)).toBe(false);
-    expect(getCart()).toEqual(cart);
+    saveAndExpectUnchanged(cart);
   });
 
   test("preserves quantity when updating prices", () => {
@@ -159,7 +160,7 @@ describe("validateBuyItems", () => {
       "Valid",
     ]);
     expect(mockShowNotification).toHaveBeenCalledTimes(1);
-    expect(mockShowNotification.mock.calls[0][0]).toContain("Invalid");
+    expect(notificationText(0)).toContain("Invalid");
   });
 
   test("notifies once per removed item", () => {
@@ -171,8 +172,8 @@ describe("validateBuyItems", () => {
     validateBuyItems(cart, MOCK_PRODUCTS);
 
     expect(mockShowNotification).toHaveBeenCalledTimes(2);
-    expect(mockShowNotification.mock.calls[0][0]).toContain("Gone A");
-    expect(mockShowNotification.mock.calls[1][0]).toContain("Gone B");
+    expect(notificationText(0)).toContain("Gone A");
+    expect(notificationText(1)).toContain("Gone B");
   });
 
   test("returns false when cart and products are both empty", () => {

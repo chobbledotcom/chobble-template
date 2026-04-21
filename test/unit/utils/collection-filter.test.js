@@ -4,6 +4,9 @@ import { filterItems } from "#utils/collection-filter.js";
 const makeItems = (...urls) =>
   urls.map((url) => ({ url, data: { title: `Page ${url}` } }));
 
+const filterByTitle = (items, includes) =>
+  filterItems(items, { property: "data.title", includes });
+
 describe("filterItems", () => {
   test("returns all items when filterConfig is falsy", () => {
     const items = makeItems("/a/", "/b/");
@@ -41,10 +44,7 @@ describe("filterItems", () => {
       { url: "/a/", data: { title: "Hello World" } },
       { url: "/b/", data: { title: "Goodbye" } },
     ];
-    const result = filterItems(items, {
-      property: "data.title",
-      includes: "Hello",
-    });
+    const result = filterByTitle(items, "Hello");
     expect(result).toHaveLength(1);
     expect(result[0].url).toBe("/a/");
   });
@@ -54,10 +54,7 @@ describe("filterItems", () => {
       { url: "/a/", data: { title: "Test" } },
       { url: "/b/", data: {} },
     ];
-    const result = filterItems(items, {
-      property: "data.title",
-      includes: "Test",
-    });
+    const result = filterByTitle(items, "Test");
     expect(result).toHaveLength(1);
   });
 
