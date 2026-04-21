@@ -115,6 +115,25 @@ blocks:
 
       Display reviews in a masonry grid — cards flow naturally based on content height.
 
+  # Gallery Masonry
+  - type: gallery
+    masonry: true
+    intro: |
+      ## Gallery
+
+      Mix images of any aspect ratio, with or without captions. The masonry layout packs them into columns with no ragged gaps.
+    items:
+      - image: /images/party.jpg
+        caption: Opening night — the room was packed from the first hour.
+      - image: /images/breakfast.jpg
+      - image: /images/dinner.jpg
+        caption: A three-course tasting menu featuring seasonal produce from local farms.
+      - image: /images/fireworks.jpg
+        caption: Summer festival finale.
+      - image: /images/lunch.jpg
+      - image: /images/menu.jpg
+        caption: This season's menu.
+
   # Socials - externally-linked posts loaded from a directory
   - type: socials
     directory: instagram-posts

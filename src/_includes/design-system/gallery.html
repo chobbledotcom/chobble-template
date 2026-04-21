@@ -6,10 +6,13 @@ Parameters (via block object):
     - image: Image path (required)
     - caption: Caption text displayed below the image (optional)
   - block.aspect_ratio: Aspect ratio for images (e.g., "16/9", "1/1", "4/3"). Default: no cropping
+  - block.intro: Optional markdown content rendered above the grid in `.prose`
+  - block.masonry: If true, renders as a masonry grid using uWrap for zero-reflow height prediction
 {%- endcomment -%}
 
 {%- if block.items.size > 0 -%}
-  <ul class="items" role="list">
+  {%- include "design-system/block-intro.html" -%}
+  <ul class="items{% if block.masonry %} masonry{% endif %}" role="list">
     {%- for item in block.items -%}
       <li>
         {%- assign image = item.image -%}
@@ -23,4 +26,7 @@ Parameters (via block object):
       </li>
     {%- endfor -%}
   </ul>
+  {%- if block.masonry -%}
+  <script type="module" src="{{ '/assets/js/masonry.js' | cacheBust }}"></script>
+  {%- endif -%}
 {%- endif -%}

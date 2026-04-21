@@ -196,6 +196,9 @@ components:
           - { name: image, type: image, label: Image, required: true }
           - { name: caption, type: string, label: Caption }
       - { name: aspect_ratio, type: string, label: Aspect Ratio }
+      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - { name: masonry, type: boolean, label: Masonry Grid }
+      - { name: header_intro, type: rich-text, label: Header Intro }
   block_guide_categories:
     label: Guide Categories
     type: object
