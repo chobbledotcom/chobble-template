@@ -352,6 +352,8 @@ describe("image", () => {
       expect(result.includes("rounded")).toBe(true);
     });
 
+    const countPictures = (result) => (result.match(/<picture/g) || []).length;
+
     test("Transform processes multiple local images in same document", async () => {
       const result = await runTransform(
         wrapHtml(`
@@ -360,8 +362,7 @@ describe("image", () => {
       `),
       );
 
-      const pictureCount = (result.match(/<picture/g) || []).length;
-      expect(pictureCount).toBe(2);
+      expect(countPictures(result)).toBe(2);
     });
 
     test("Transform processes local images while leaving external URLs unchanged", async () => {
@@ -403,8 +404,7 @@ describe("image", () => {
       `),
       );
 
-      const pictureCount = (result.match(/<picture/g) || []).length;
-      expect(pictureCount).toBe(2);
+      expect(countPictures(result)).toBe(2);
     });
   });
 

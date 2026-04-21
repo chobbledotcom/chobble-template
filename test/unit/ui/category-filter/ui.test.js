@@ -288,14 +288,18 @@ describe("updateOptionActiveStates", () => {
       (li) => li.querySelector("[data-filter-key]").dataset.filterValue,
     );
 
+  const buildOptionsAllActive = (specs) => {
+    const c = buildOptions(specs);
+    for (const li of c.querySelectorAll("li")) li.classList.add("active");
+    return c;
+  };
+
   test("adds 'active' class to matching option <li>s and removes it from the rest", () => {
-    const container = buildOptions([
+    const container = buildOptionsAllActive([
       ["colour", "red"],
       ["colour", "blue"],
       ["size", "large"],
     ]);
-    for (const li of container.querySelectorAll("li"))
-      li.classList.add("active");
 
     updateOptionActiveStates(container, { colour: "red" });
 
@@ -303,12 +307,10 @@ describe("updateOptionActiveStates", () => {
   });
 
   test("removes all active classes when no filters are active", () => {
-    const container = buildOptions([
+    const container = buildOptionsAllActive([
       ["colour", "red"],
       ["size", "large"],
     ]);
-    for (const li of container.querySelectorAll("li"))
-      li.classList.add("active");
 
     updateOptionActiveStates(container, {});
 

@@ -77,17 +77,20 @@ describe("products", () => {
   });
 
   describe("products collection", () => {
+    const mockConfig = setupProductsConfig();
+    const runProductsCollection = (testProducts) =>
+      mockConfig.collections.products(
+        taggedCollectionApi({ products: testProducts }),
+      );
+
     test("processes gallery data in products", () => {
-      const mockConfig = setupProductsConfig();
       const testProducts = items([
         ["Product 1", { gallery: ["img1.jpg"] }],
         ["Product 2", {}],
         ["Product 3", { gallery: ["img3.jpg", "img3b.jpg"] }],
       ]);
 
-      const result = mockConfig.collections.products(
-        taggedCollectionApi({ products: testProducts }),
-      );
+      const result = runProductsCollection(testProducts);
 
       expect(result[0].data.gallery).toEqual(["/images/img1.jpg"]);
       expect(result[1].data.gallery).toBe(undefined);
@@ -98,16 +101,13 @@ describe("products", () => {
     });
 
     test("converts object galleries to arrays", () => {
-      const mockConfig = setupProductsConfig();
       const testProducts = [
         item("Product", {
           gallery: { 0: "image1.jpg", 1: "image2.jpg", 2: "image3.jpg" },
         }),
       ];
 
-      const result = mockConfig.collections.products(
-        taggedCollectionApi({ products: testProducts }),
-      );
+      const result = runProductsCollection(testProducts);
 
       expect(result[0].data.gallery).toEqual([
         "/images/image1.jpg",

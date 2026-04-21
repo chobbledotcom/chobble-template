@@ -128,21 +128,24 @@ const aliasedFn = originalFn;`;
   });
 
   describe("import aliases", () => {
-    test("detects aliasing of named imports", () => {
-      const source = `import { originalFn } from some-module;
-const aliasedFn = originalFn;`;
+    const expectSingleImportAlias = (source) => {
       const results = findAliases(source);
       expect(results.length).toBe(1);
       expect(results[0].type).toBe("import");
-      expect(results[0].newName).toBe("aliasedFn");
+      return results[0];
+    };
+
+    test("detects aliasing of named imports", () => {
+      const source = `import { originalFn } from some-module;
+const aliasedFn = originalFn;`;
+      const result = expectSingleImportAlias(source);
+      expect(result.newName).toBe("aliasedFn");
     });
 
     test("detects aliasing of default imports", () => {
       const source = `import originalFn from some-module;
 const aliasedFn = originalFn;`;
-      const results = findAliases(source);
-      expect(results.length).toBe(1);
-      expect(results[0].type).toBe("import");
+      expectSingleImportAlias(source);
     });
   });
 

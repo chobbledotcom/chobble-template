@@ -12,11 +12,9 @@ Parameters (from block):
   intro       - Optional markdown content rendered above the items
   horizontal  - If true, renders as a horizontal slider
   masonry     - If true, renders as a masonry grid (uses uWrap)
-  filter      - Optional object to filter the resolved items:
-                  property: dot-notation path (e.g. "url", "data.title")
-                  includes: string the property must contain
-                  equals:   exact value the property must match
+  filter      - Optional filter object (same shape as items-block.html)
 {%- endcomment -%}
 
-{%- assign blockItems = collections.all | getItemsByPath: block.items -%}
+{%- assign resolvedPaths = block.items -%}
+{%- assign blockItems = collections.all | getItemsByPath: resolvedPaths -%}
 {%- include "design-system/render-items-block.html" -%}

@@ -150,6 +150,12 @@ const setupAndRun = async (imgAttrs) => {
   return { window, img };
 };
 
+const runAndCheckDeferred = (window, img, expectedSrc) => {
+  runAutosizes(window, img);
+  expect(img.hasAttribute("src")).toBe(false);
+  expect(img.getAttribute("data-auto-sizes-src")).toBe(expectedSrc);
+};
+
 describe("autosizes", () => {
   describe("Feature detection", () => {
     test("Does not run polyfill when PerformanceObserver is missing", async () => {
@@ -233,9 +239,7 @@ describe("autosizes", () => {
       const { window, img } = await createAutosizesTestEnv({
         imgAttrs: { src: "/images/photo.jpg", sizes: "auto", loading: "lazy" },
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(false);
-      expect(img.getAttribute("data-auto-sizes-src")).toBe("/images/photo.jpg");
+      runAndCheckDeferred(window, img, "/images/photo.jpg");
     });
 
     test("Processes images with sizes='auto, 100vw' format", async () => {
@@ -250,9 +254,7 @@ describe("autosizes", () => {
   describe("Attribute deferral", () => {
     test("Moves src to data-auto-sizes-src before FCP", async () => {
       const { window, img } = await createAutosizesTestEnv();
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(false);
-      expect(img.getAttribute("data-auto-sizes-src")).toBe("/image.jpg");
+      runAndCheckDeferred(window, img, "/image.jpg");
     });
 
     test("Moves srcset to data-auto-sizes-srcset before FCP", async () => {

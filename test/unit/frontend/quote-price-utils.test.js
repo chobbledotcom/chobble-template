@@ -38,6 +38,9 @@ const cartItem = (overrides = {}) => ({
   ...overrides,
 });
 
+const ITEM_A_20 = () =>
+  cartItem({ item_name: "Item A", hire_prices: { 1: "£20" } });
+
 const buyItem = (overrides = {}) => ({
   item_name: "Buy Item",
   product_mode: "buy",
@@ -195,7 +198,7 @@ describe("quote-price-utils", () => {
 
     test("calculates and displays total price", async () => {
       await setupDOM([
-        cartItem({ item_name: "Item A", hire_prices: { 1: "£20" } }),
+        ITEM_A_20(),
         cartItem({ item_name: "Item B", hire_prices: { 1: "£30" } }),
       ]);
       updateQuotePrice(1);
@@ -206,7 +209,7 @@ describe("quote-price-utils", () => {
 
     test("displays TBC for total when any price unavailable", async () => {
       await setupDOM([
-        cartItem({ item_name: "Item A", hire_prices: { 1: "£20" } }),
+        ITEM_A_20(),
         cartItem({ item_name: "Item B", hire_prices: { 2: "£30" } }), // No day 1 price
       ]);
       updateQuotePrice(1);

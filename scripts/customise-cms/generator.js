@@ -33,6 +33,7 @@ import {
   createFieldContext,
   getDataPath,
   META_FIELDS,
+  slugToLabel,
 } from "#scripts/customise-cms/generator-helpers.js";
 import {
   getAltTagsConfig,
@@ -49,17 +50,6 @@ import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
  * @typedef {import('./generator-helpers.js').FieldContext} FieldContext
  * @typedef {import('./generator-helpers.js').CollectionConfig} CollectionConfig
  */
-
-/**
- * Convert a slug to a human-readable label (e.g., "guide-pages" -> "Guide Pages")
- * @param {string} slug - The slug to convert
- * @returns {string} Human-readable label
- */
-const slugToLabel = (slug) =>
-  slug
-    .split("-")
-    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
-    .join(" ");
 
 /**
  * Get optional fields for a custom blocks collection based on enabled features

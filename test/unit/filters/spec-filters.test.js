@@ -69,15 +69,18 @@ describe("spec-filters", () => {
     expect(result[0].icon.startsWith("<svg")).toBe(true);
   });
 
+  const expectSameComputedIcon = (specs) => {
+    const result = computeSpecs(specs);
+    expect(result[0].icon).toBe(result[1].icon);
+  };
+
   test("Finds icons regardless of spec name case", () => {
     const specs = [
       { name: KNOWN_SPEC, value: "lowercase" },
       { name: KNOWN_SPEC.toUpperCase(), value: "uppercase" },
     ];
 
-    const result = computeSpecs(specs);
-
-    expect(result[0].icon).toBe(result[1].icon);
+    expectSameComputedIcon(specs);
   });
 
   // ============================================
@@ -90,9 +93,7 @@ describe("spec-filters", () => {
       { name: `  ${KNOWN_SPEC}  `, value: "padded" },
     ];
 
-    const result = computeSpecs(specs);
-
-    expect(result[0].icon).toBe(result[1].icon);
+    expectSameComputedIcon(specs);
   });
 
   // ============================================

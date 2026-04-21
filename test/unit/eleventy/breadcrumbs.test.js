@@ -197,6 +197,7 @@ describe("breadcrumbsFilter", () => {
       data: { title: "Premium Widgets", parent: "widgets" },
     };
     const categories = [widgetCategory, premiumWidgets];
+    const WIDGETS_CRUMB = { label: "Widgets", url: "/categories/widgets/" };
 
     test("shows category in breadcrumbs for product with category", () => {
       const mockConfig = setupFilter();
@@ -212,10 +213,7 @@ describe("breadcrumbsFilter", () => {
       );
 
       expect(crumbs).toHaveLength(4);
-      expect(crumbs[2]).toEqual({
-        label: "Widgets",
-        url: "/categories/widgets/",
-      });
+      expect(crumbs[2]).toEqual(WIDGETS_CRUMB);
       expect(crumbs[3]).toEqual({ label: "My Product", url: null });
     });
 
@@ -233,10 +231,7 @@ describe("breadcrumbsFilter", () => {
       );
 
       expect(crumbs).toHaveLength(5);
-      expect(crumbs[2]).toEqual({
-        label: "Widgets",
-        url: "/categories/widgets/",
-      });
+      expect(crumbs[2]).toEqual(WIDGETS_CRUMB);
       expect(crumbs[3]).toEqual({
         label: "Premium Widgets",
         url: "/categories/premium-widgets/",
