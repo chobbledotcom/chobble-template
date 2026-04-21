@@ -271,9 +271,8 @@ describe("image", () => {
       `<img src="${src}" alt="${alt}"${attrs ? ` ${attrs}` : ""}>`;
 
     test("Transform converts raw img tags with /images/ src to wrapped picture elements", async () => {
-      const result = await runTransform(
-        wrapHtml(img("/images/party.jpg", "Party")),
-      );
+      const html = wrapHtml(img("/images/party.jpg", "Party"));
+      const result = await runTransform(html);
 
       expect(result.includes("image-wrapper")).toBe(true);
       expect(result.includes("<picture")).toBe(true);

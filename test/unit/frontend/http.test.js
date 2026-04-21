@@ -65,13 +65,13 @@ describe("postJson", () => {
     }
   });
 
-  test("returns null on non-OK response", async () => {
+  test("returns null for non-OK POST response", async () => {
     await withMockFetch({}, { ok: false, status: 500 }, async () => {
       expect(await postJson("https://api.example.com/checkout", {})).toBeNull();
     });
   });
 
-  test("returns null on network error", async () => {
+  test("returns null for POST network error", async () => {
     await withRejectedFetch(async () => {
       expect(await postJson("https://api.example.com/checkout", {})).toBeNull();
     });

@@ -212,11 +212,14 @@ describe("validateCartWithCache", () => {
     expect(fetchState.mock).not.toHaveBeenCalled();
   });
 
-  test("notifies when API is unreachable", async () => {
+  const setupFailingFetch = async () => {
     fetchState.mock = installFetchMock(null, false);
     saveCart([cartBuyItem()]);
-
     await validateCartWithCache();
+  };
+
+  test("notifies when API is unreachable", async () => {
+    await setupFailingFetch();
 
     expect(mockShowNotification).toHaveBeenCalledTimes(1);
     expect(mockShowNotification.mock.calls[0][0]).toContain(
@@ -225,10 +228,7 @@ describe("validateCartWithCache", () => {
   });
 
   test("does not write cache when fetch fails", async () => {
-    fetchState.mock = installFetchMock(null, false);
-    saveCart([cartBuyItem()]);
-
-    await validateCartWithCache();
+    await setupFailingFetch();
 
     expect(localStorage.getItem(CACHE_KEY)).toBeNull();
   });

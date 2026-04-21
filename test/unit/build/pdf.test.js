@@ -76,13 +76,8 @@ const lunchState = (...menuItems) => ({
 });
 
 /** Lunch menu with single item for dietary key tests */
-const lunchMenuWithItem = (dietaryKeys) => ({
-  menu: createMockMenu("lunch", "Lunch"),
-  state: {
-    menuCategories: [createMockCategory("apps", "Appetizers", ["lunch"])],
-    menuItems: [createMockMenuItem("Item", ["apps"], "$5", null, dietaryKeys)],
-  },
-});
+const lunchMenuWithItem = (dietaryKeys) =>
+  lunchState(createMockMenuItem("Item", ["apps"], "$5", null, dietaryKeys));
 
 /** Minimal menu setup for PDF generation tests */
 const createMinimalMenu = (slug, title) => ({

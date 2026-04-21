@@ -156,6 +156,11 @@ const runAndCheckDeferred = (window, img, expectedSrc) => {
   expect(img.getAttribute("data-auto-sizes-src")).toBe(expectedSrc);
 };
 
+const runAndExpectSrc = (window, img, expected) => {
+  runAutosizes(window, img);
+  expect(img.hasAttribute("src")).toBe(expected);
+};
+
 describe("autosizes", () => {
   describe("Feature detection", () => {
     test("Does not run polyfill when PerformanceObserver is missing", async () => {
@@ -163,8 +168,7 @@ describe("autosizes", () => {
         userAgent: "Mozilla/5.0 Chrome/120",
         hasPerfObserver: false,
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     });
 
     test("Does not run polyfill when paint timing not supported", async () => {
@@ -172,16 +176,14 @@ describe("autosizes", () => {
         userAgent: "Mozilla/5.0 Chrome/120",
         supportsPaint: false,
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     });
 
     test("Does not run polyfill for Chrome 126+", async () => {
       const { window, img } = await createAutosizesTestEnv({
         userAgent: "Mozilla/5.0 Chrome/126",
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     });
 
     test("Runs polyfill for Chrome 125 (older than 126)", async () => {
@@ -197,8 +199,7 @@ describe("autosizes", () => {
       const { window, img } = await createAutosizesTestEnv({
         userAgent: "Mozilla/5.0 Firefox/120",
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(false);
+      runAndExpectSrc(window, img, false);
     });
   });
 
@@ -208,24 +209,21 @@ describe("autosizes", () => {
 
     const testRemoteUrlNotProcessed = async (url) => {
       const { window, img } = await createWithImgAttrs(url);
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     };
 
     test("Does not process images without sizes=auto", async () => {
       const { window, img } = await createAutosizesTestEnv({
         imgAttrs: { src: "/image.jpg", sizes: "100vw", loading: "lazy" },
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     });
 
     test("Does not process images without loading=lazy", async () => {
       const { window, img } = await createAutosizesTestEnv({
         imgAttrs: { src: "/image.jpg", sizes: "auto", loading: "eager" },
       });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      runAndExpectSrc(window, img, true);
     });
 
     test("Does not process remote images with http:// URLs", async () => {
@@ -248,8 +246,7 @@ describe("autosizes", () => {
         "/image.jpg",
         "auto, 100vw",
       );
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(false);
+      runAndExpectSrc(window, img, false);
     });
   });
 

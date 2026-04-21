@@ -66,6 +66,9 @@ describe("loadCmsConfig", () => {
       expect(await loadCmsConfig()).toBeNull();
     });
 
+  const withLoadedConfig = (tempDir, fn) =>
+    withMockedCwdAsync(tempDir, async () => fn(await loadCmsConfig()));
+
   test("reads cms_config from site.json", () =>
     withTempDirAsync("loadCmsConfig", async (tempDir) => {
       await setupSiteJson(tempDir, {
@@ -76,9 +79,7 @@ describe("loadCmsConfig", () => {
         },
       });
 
-      return withMockedCwdAsync(tempDir, async () => {
-        const config = await loadCmsConfig();
-
+      return withLoadedConfig(tempDir, (config) => {
         expect(config.collections).toContain("pages");
         expect(config.collections).toContain("products");
         expect(config.features.permalinks).toBe(true);
@@ -95,8 +96,7 @@ describe("loadCmsConfig", () => {
         },
       });
 
-      return withMockedCwdAsync(tempDir, async () => {
-        const config = await loadCmsConfig();
+      return withLoadedConfig(tempDir, (config) => {
         const requiredNames = getRequiredCollections().map((c) => c.name);
 
         for (const name of requiredNames) {
@@ -125,9 +125,7 @@ describe("loadCmsConfig", () => {
         { cms_config: { collections: ["products"], features: {} } },
       );
 
-      return withMockedCwdAsync(tempDir, async () => {
-        const config = await loadCmsConfig();
-
+      return withLoadedConfig(tempDir, (config) => {
         expect(config.collections).toContain("products");
       });
     }));
@@ -138,9 +136,7 @@ describe("loadCmsConfig", () => {
         cms_config: { collections: ["events"], features: {} },
       });
 
-      return withMockedCwdAsync(tempDir, async () => {
-        const config = await loadCmsConfig();
-
+      return withLoadedConfig(tempDir, (config) => {
         expect(config.collections).toContain("events");
       });
     }));

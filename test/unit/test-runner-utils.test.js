@@ -436,10 +436,10 @@ Failed to compile
     });
 
     test("Handles empty results gracefully", () => {
-      const steps = createBasicSteps();
+      const emptyRunSteps = createBasicSteps();
       const results = {};
 
-      const output = captureConsole(() => printSummary(steps, results));
+      const output = captureConsole(() => printSummary(emptyRunSteps, results));
 
       expect(output).toContain("SUMMARY");
       expect(output).not.toContain("Passed");

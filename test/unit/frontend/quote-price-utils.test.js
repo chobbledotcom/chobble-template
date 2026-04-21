@@ -410,28 +410,36 @@ describe("quote-price-utils", () => {
       expect(getDaysMock).toHaveBeenCalled();
     };
 
-    test("attaches blur handler to form fields", () => {
-      setupBlurTestDOM('<input id="name" type="text" />');
-      const getDays = mock(() => 1);
+    const runBlurScenario = (html, selector, event, days = 1) => {
+      setupBlurTestDOM(html);
+      const getDays = mock(() => days);
       setupDetailsBlurHandlers(getDays);
-      testEventTriggersDays("name", "blur", getDays);
+      testEventTriggersDays(selector, event, getDays);
+    };
+
+    test("attaches blur handler to form fields", () => {
+      runBlurScenario('<input id="name" type="text" />', "name", "blur");
     });
 
     test("attaches change handler for radio buttons", () => {
-      setupBlurTestDOM(`
+      runBlurScenario(
+        `
         <input type="radio" name="pref" value="A" />
         <input type="radio" name="pref" value="B" />
-      `);
-      const getDays = mock(() => 2);
-      setupDetailsBlurHandlers(getDays);
-      testEventTriggersDays('input[type="radio"]', "change", getDays);
+      `,
+        'input[type="radio"]',
+        "change",
+        2,
+      );
     });
 
     test("attaches change handler for select elements", () => {
-      setupBlurTestDOM(`<select id="event"><option>A</option></select>`);
-      const getDays = mock(() => 3);
-      setupDetailsBlurHandlers(getDays);
-      testEventTriggersDays("event", "change", getDays);
+      runBlurScenario(
+        `<select id="event"><option>A</option></select>`,
+        "event",
+        "change",
+        3,
+      );
     });
 
     test("uses quote-steps container if available", () => {

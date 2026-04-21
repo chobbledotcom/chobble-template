@@ -324,6 +324,13 @@ describe("products", () => {
     const widgetB = (categories = []) =>
       createProduct({ slug: "widget-b", title: "Widget B", categories });
 
+    const widgetsByCategory = (filters, ...extraArgs) =>
+      filters.getProductsByCategory(
+        [widgetA(["widgets"])],
+        "widgets",
+        ...extraArgs,
+      );
+
     test("includes products listed in page frontmatter", () => {
       const { filters } = setupProductsConfig();
       const testProducts = [widgetA(), widgetB()];
@@ -404,25 +411,12 @@ describe("products", () => {
 
     test("falls back to reverse lookup when no explicit products passed", () => {
       const { filters } = setupProductsConfig();
-
-      const result = filters.getProductsByCategory(
-        [widgetA(["widgets"])],
-        "widgets",
-      );
-
-      expectResultTitles(result, ["Widget A"]);
+      expectResultTitles(widgetsByCategory(filters), ["Widget A"]);
     });
 
     test("falls back when explicit products list is empty", () => {
       const { filters } = setupProductsConfig();
-
-      const result = filters.getProductsByCategory(
-        [widgetA(["widgets"])],
-        "widgets",
-        [],
-      );
-
-      expectResultTitles(result, ["Widget A"]);
+      expectResultTitles(widgetsByCategory(filters, []), ["Widget A"]);
     });
 
     test("normalises path-style slugs in explicit products", () => {
@@ -460,14 +454,7 @@ describe("products", () => {
 
     test("falls back to reverse lookup when all explicit refs are empty", () => {
       const { filters } = setupProductsConfig();
-
-      const result = filters.getProductsByCategory(
-        [widgetA(["widgets"])],
-        "widgets",
-        [{}, {}],
-      );
-
-      expectResultTitles(result, ["Widget A"]);
+      expectResultTitles(widgetsByCategory(filters, [{}, {}]), ["Widget A"]);
     });
   });
 

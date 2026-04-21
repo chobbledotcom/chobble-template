@@ -27,8 +27,8 @@ describe("imageShortcode parameter validation", () => {
   });
 
   test("error message suggests using empty string instead of null", async () => {
-    expect(
-      imageShortcode("test.jpg", "alt", "", "", "", "", {}),
-    ).rejects.toThrow('Use "" instead of null');
+    expect(imageShortcode("test.jpg", "alt", "", "", {}, "")).rejects.toThrow(
+      'Use "" instead of null',
+    );
   });
 });
