@@ -171,19 +171,30 @@ describe("categories", () => {
     });
 
     test("uses own thumbnail when no header_image", () => {
-      expectThumbnail([cat("widgets", undefined, { thumbnail: "thumb.jpg" })], "thumb.jpg");
+      expectThumbnail(
+        [cat("widgets", undefined, { thumbnail: "thumb.jpg" })],
+        "thumb.jpg",
+      );
     });
 
     test("header_image takes priority over own thumbnail", () => {
-      expectThumbnail([cat("widgets", "banner.jpg", { thumbnail: "thumb.jpg" })], "banner.jpg");
+      expectThumbnail(
+        [cat("widgets", "banner.jpg", { thumbnail: "thumb.jpg" })],
+        "banner.jpg",
+      );
     });
 
     test("falls back to subcategory thumbnail before direct products", () => {
       const categories = [
         cat("electronics", undefined),
-        cat("phones", undefined, { parent: "electronics", thumbnail: "phones-thumb.jpg" }),
+        cat("phones", undefined, {
+          parent: "electronics",
+          thumbnail: "phones-thumb.jpg",
+        }),
       ];
-      const products = prods([{ cats: ["electronics"], thumbnail: "direct-product.jpg" }]);
+      const products = prods([
+        { cats: ["electronics"], thumbnail: "direct-product.jpg" },
+      ]);
       expectThumbnail(categories, "phones-thumb.jpg", products);
     });
 
@@ -192,7 +203,9 @@ describe("categories", () => {
         cat("electronics", undefined),
         cat("phones", "phones-banner.jpg", { parent: "electronics" }),
       ];
-      const products = prods([{ cats: ["electronics"], thumbnail: "direct-product.jpg" }]);
+      const products = prods([
+        { cats: ["electronics"], thumbnail: "direct-product.jpg" },
+      ]);
       // phones has header_image but no thumbnail; subcategory resolution
       // only checks thumbnail, so falls through to direct product
       expectThumbnail(categories, "direct-product.jpg", products);

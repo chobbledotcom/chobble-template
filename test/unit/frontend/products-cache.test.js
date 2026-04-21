@@ -112,7 +112,9 @@ describe("validateBuyItems", () => {
     saveAndValidate(cart);
     expect(mockShowNotification).toHaveBeenCalledTimes(1);
     expect(mockShowNotification.mock.calls[0][0]).toContain("Unknown");
-    expect(mockShowNotification.mock.calls[0][0]).toContain("no longer available");
+    expect(mockShowNotification.mock.calls[0][0]).toContain(
+      "no longer available",
+    );
   });
 
   test("removes out-of-stock item and notifies user", () => {

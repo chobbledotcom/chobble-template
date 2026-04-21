@@ -74,18 +74,23 @@ describe("destructuring", () => {
     });
 
     test("detects multiple property destructuring", () => {
-      const result = expectSingleDestructuring("const { foo, baz, qux } = obj;");
+      const result = expectSingleDestructuring(
+        "const { foo, baz, qux } = obj;",
+      );
       expect(result.properties).toEqual(["foo", "baz", "qux"]);
       expect(result.sourceObject).toBe("obj");
     });
 
     test("detects renamed destructuring", () => {
-      expect(expectSingleDestructuring("const { foo: renamed } = bar;").properties).toEqual(["foo"]);
+      expect(
+        expectSingleDestructuring("const { foo: renamed } = bar;").properties,
+      ).toEqual(["foo"]);
     });
 
     test("detects mixed renamed and regular", () => {
       expect(
-        expectSingleDestructuring("const { foo, bar: aliased, baz } = obj;").properties,
+        expectSingleDestructuring("const { foo, bar: aliased, baz } = obj;")
+          .properties,
       ).toEqual(["foo", "bar", "baz"]);
     });
   });

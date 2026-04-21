@@ -486,7 +486,11 @@ describe("linkify transforms", () => {
     };
 
     test("matches longest text first", () => {
-      expectSingleMatch(["Acme", "Acme Corp"], "Visit Acme Corp today", "Acme Corp");
+      expectSingleMatch(
+        ["Acme", "Acme Corp"],
+        "Visit Acme Corp today",
+        "Acme Corp",
+      );
     });
 
     test("escapes special regex characters in link text", () => {

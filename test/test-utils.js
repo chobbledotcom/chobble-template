@@ -405,11 +405,11 @@ export {
   expectDataArray,
   expectErrorsInclude,
   expectGalleries,
+  // Assertions
+  expectHtmlList,
   expectObjectProps,
   expectProp,
   expectResultTitles,
-  // Assertions
-  expectHtmlList,
   expectValidScriptTag,
   extractFunctions,
   fs,

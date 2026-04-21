@@ -4,6 +4,7 @@ const expectEmptyArray = (result) => {
   expect(Array.isArray(result)).toBe(true);
   expect(result.length === 0).toBe(true);
 };
+
 import { configureCategories } from "#collections/categories.js";
 import { configureMenus } from "#collections/menus.js";
 import { configureNavigation } from "#collections/navigation.js";
@@ -42,8 +43,12 @@ describe("missing-folders-lib", () => {
     const emptyCategories = [];
     const emptyItems = [];
 
-    expectEmptyArray(mockConfig.filters.getCategoriesByMenu(emptyCategories, "test-menu"));
-    expectEmptyArray(mockConfig.filters.getItemsByCategory(emptyItems, "test-category"));
+    expectEmptyArray(
+      mockConfig.filters.getCategoriesByMenu(emptyCategories, "test-menu"),
+    );
+    expectEmptyArray(
+      mockConfig.filters.getItemsByCategory(emptyItems, "test-category"),
+    );
   });
 
   test("Products module handles empty collections", () => {

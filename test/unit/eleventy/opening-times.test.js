@@ -47,7 +47,9 @@ describe("opening-times", () => {
   });
 
   test("Generates correct HTML structure", async () => {
-    const result = await renderOpeningTimes([{ day: "Friday", hours: "8am - 4pm" }]);
+    const result = await renderOpeningTimes([
+      { day: "Friday", hours: "8am - 4pm" },
+    ]);
     expectHtmlList(result);
   });
 

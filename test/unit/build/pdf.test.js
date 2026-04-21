@@ -174,7 +174,12 @@ describe("pdf", () => {
 
     test("Menu items have correct structure in PDF data", () => {
       const { menu, state } = lunchState(
-        createMockMenuItem("Spring Rolls", ["apps"], "$8.99", "Crispy and delicious"),
+        createMockMenuItem(
+          "Spring Rolls",
+          ["apps"],
+          "$8.99",
+          "Crispy and delicious",
+        ),
       );
 
       const result = buildMenuPdfData(menu, state);
@@ -214,7 +219,9 @@ describe("pdf", () => {
     });
 
     test("Handles items without dietary keys", () => {
-      const { menu, state } = lunchState(createMockMenuItem("Burger", ["apps"], "$12"));
+      const { menu, state } = lunchState(
+        createMockMenuItem("Burger", ["apps"], "$12"),
+      );
 
       const result = buildMenuPdfData(menu, state);
 
@@ -256,7 +263,9 @@ describe("pdf", () => {
     });
 
     test("Handles items without description", () => {
-      const { menu, state } = lunchState(createMockMenuItem("Simple Item", ["apps"], "$5", null));
+      const { menu, state } = lunchState(
+        createMockMenuItem("Simple Item", ["apps"], "$5", null),
+      );
 
       const result = buildMenuPdfData(menu, state);
 

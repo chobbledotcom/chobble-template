@@ -106,7 +106,9 @@ describe("scss", () => {
       "$color: green; .test { color: $color; }",
       "/project/bundle.scss",
     );
-    expect(result.includes("color: green") || result.includes("color:green")).toBe(true);
+    expect(
+      result.includes("color: green") || result.includes("color:green"),
+    ).toBe(true);
   });
 
   test("Uses correct load paths for imports", async () => {
