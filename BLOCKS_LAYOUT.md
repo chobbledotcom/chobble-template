@@ -782,6 +782,11 @@ Image grid with optional aspect ratio cropping and captions.
 |---|---|---|---|
 | `items` | array | **required** | Image objects. Each: `{image, caption}`. Images processed by `{% image %}` shortcode. |
 | `aspect_ratio` | string | — | Aspect ratio for images (e.g. `"16/9"`, `"1/1"`, `"4/3"`). Default: no cropping. |
+| `intro` | string | — | Markdown content rendered above items in `.prose`. |
+| `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
+| `header_intro` | string | — | Section header content rendered as markdown above the block. |
+| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
+| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 

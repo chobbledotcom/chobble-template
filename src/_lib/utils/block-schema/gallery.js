@@ -1,6 +1,9 @@
 import {
+  HEADER_FIELDS,
+  ITEMS_COMMON_FIELDS,
   ITEMS_GRID_META,
   img,
+  MASONRY_FIELD,
   objectList,
   str,
 } from "#utils/block-schema/shared.js";
@@ -22,6 +25,9 @@ export const fields = {
     description:
       'Aspect ratio for images (e.g. `"16/9"`, `"1/1"`, `"4/3"`). Default: no cropping.',
   },
+  intro: ITEMS_COMMON_FIELDS.intro,
+  masonry: MASONRY_FIELD,
+  ...HEADER_FIELDS,
 };
 
 export const docs = {
