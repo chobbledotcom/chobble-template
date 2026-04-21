@@ -6,6 +6,7 @@ import {
   getPathAwareBasename,
   isExternalUrl,
   normalizeImagePath,
+  normalizeImageUrl,
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
@@ -32,6 +33,49 @@ describe("image-utils", () => {
 
     test("prepends ./src/images/ for bare filenames", () => {
       expect(normalizeImagePath("photo.jpg")).toBe("./src/images/photo.jpg");
+    });
+  });
+
+  describe("normalizeImageUrl", () => {
+    test("passes through paths already rooted at /", () => {
+      expect(normalizeImageUrl("/images/photo.jpg")).toBe("/images/photo.jpg");
+    });
+
+    test("strips src/ prefix", () => {
+      expect(normalizeImageUrl("src/images/photo.jpg")).toBe(
+        "/images/photo.jpg",
+      );
+    });
+
+    test("prepends / for paths starting with images/", () => {
+      expect(normalizeImageUrl("images/photo.jpg")).toBe("/images/photo.jpg");
+    });
+
+    test("prepends /images/ for bare filenames", () => {
+      expect(normalizeImageUrl("photo.jpg")).toBe("/images/photo.jpg");
+    });
+
+    test("passes through https:// URLs unchanged", () => {
+      expect(normalizeImageUrl("https://example.com/photo.jpg")).toBe(
+        "https://example.com/photo.jpg",
+      );
+    });
+
+    test("passes through http:// URLs unchanged", () => {
+      expect(normalizeImageUrl("http://example.com/photo.jpg")).toBe(
+        "http://example.com/photo.jpg",
+      );
+    });
+
+    test("passes through protocol-relative URLs unchanged", () => {
+      expect(normalizeImageUrl("//cdn.example.com/photo.jpg")).toBe(
+        "//cdn.example.com/photo.jpg",
+      );
+    });
+
+    test("passes through data: URIs unchanged", () => {
+      const dataUri = "data:image/png;base64,iVBORw0KGgo=";
+      expect(normalizeImageUrl(dataUri)).toBe(dataUri);
     });
   });
 

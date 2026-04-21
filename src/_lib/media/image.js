@@ -37,6 +37,7 @@ import {
   filenameFormat,
   isExternalUrl,
   normalizeImagePath,
+  normalizeImageUrl,
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
@@ -229,6 +230,7 @@ const configureImages = async (eleventyConfig) => {
   eleventyConfig.addPlugin(eleventyImageOnRequestDuringServePlugin);
 
   eleventyConfig.addAsyncShortcode("image", imageShortcode);
+  eleventyConfig.addFilter("normalizeImageUrl", normalizeImageUrl);
   eleventyConfig.addCollection("images", () =>
     imageFiles.map((i) => i.split("/")[2]).reverse(),
   );
