@@ -22,11 +22,16 @@ const baseContactForm = {
   ],
 };
 
-const extraField = (overrides) => ({
-  name: "extra",
-  label: "Extra",
-  template: "form-field-input.html",
-  ...overrides,
+const formWithShowOn = (showOn) => ({
+  ...baseContactForm,
+  fields: [
+    {
+      name: "extra",
+      label: "Extra",
+      template: "form-field-input.html",
+      showOn,
+    },
+  ],
 });
 
 describe("resolveFormFields", () => {
@@ -69,29 +74,17 @@ describe("resolveFormFields", () => {
   });
 
   test("includes showOn field when the tag is present and skipShowOn is false", () => {
-    const form = {
-      ...baseContactForm,
-      fields: [extraField({ showOn: "quote" })],
-    };
-    const out = resolveFormFields(form, ["quote"], false);
+    const out = resolveFormFields(formWithShowOn("quote"), ["quote"], false);
     expect(out.map((f) => f.name)).toContain("extra");
   });
 
   test("drops showOn field when skipShowOn is true even if tag matches", () => {
-    const form = {
-      ...baseContactForm,
-      fields: [extraField({ showOn: "quote" })],
-    };
-    const out = resolveFormFields(form, ["quote"], true);
+    const out = resolveFormFields(formWithShowOn("quote"), ["quote"], true);
     expect(out.map((f) => f.name)).not.toContain("extra");
   });
 
   test("drops showOn field when its tag is not in page tags", () => {
-    const form = {
-      ...baseContactForm,
-      fields: [extraField({ showOn: "quote" })],
-    };
-    const out = resolveFormFields(form, ["products"], false);
+    const out = resolveFormFields(formWithShowOn("quote"), ["products"], false);
     expect(out.map((f) => f.name)).not.toContain("extra");
   });
 
