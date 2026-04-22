@@ -8,26 +8,42 @@ import {
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { onReady } from "#public/utils/on-ready.js";
 import {
+  getPriceForDays,
+  sanitizeItemName,
   setupDetailsBlurHandlers,
   updateQuotePrice,
 } from "#public/utils/quote-price-utils.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
 
-const renderCheckoutItem = (item) => {
+const getDisplayPrice = (item, days) => {
+  const price = getPriceForDays(days)(item);
+  return price === null ? "TBC" : formatPrice(price);
+};
+
+const getUnitDisplayPrice = (item, days) =>
+  getDisplayPrice({ ...item, quantity: 1 }, days);
+
+const renderCheckoutItem = (item, days) => {
   const template = getTemplate(IDS.QUOTE_CHECKOUT_ITEM, document);
 
-  template.querySelector('[data-field="name"]').textContent = item.item_name;
+  template.querySelector('[data-field="name"]').textContent = sanitizeItemName(
+    item,
+  );
   template.querySelector('[data-field="qty"]').textContent =
     `x${item.quantity}`;
-  template.querySelector('[data-field="price"]').textContent = formatPrice(
-    item.unit_price * item.quantity,
+  template.querySelector('[data-field="price"]').textContent = getDisplayPrice(
+    item,
+    days,
   );
 
   return template;
 };
 
-const populateForm = () => {
+const buildCartText = (item, days) =>
+  `${sanitizeItemName(item)} x${item.quantity} @ ${getUnitDisplayPrice(item, days)} = ${getDisplayPrice(item, days)}`;
+
+const populateForm = (days) => {
   const cart = getCart();
   const cartItemsField = document.getElementById("cart-items");
   const summaryEl = document.getElementById("cart-summary");
@@ -42,17 +58,12 @@ const populateForm = () => {
   }
 
   // Build text representation for the hidden field
-  const cartText = cart
-    .map(
-      (item) =>
-        `${item.item_name} x${item.quantity} @ ${formatPrice(item.unit_price)} = ${formatPrice(item.unit_price * item.quantity)}`,
-    )
-    .join("\n");
+  const cartText = cart.map((item) => buildCartText(item, days)).join("\n");
 
   cartItemsField.value = cartText;
 
   // Build visual summary
-  itemsEl.replaceChildren(...cart.map(renderCheckoutItem));
+  itemsEl.replaceChildren(...cart.map((item) => renderCheckoutItem(item, days)));
 };
 
 // Calculate days from date inputs (returns 1 if dates not set)
@@ -63,10 +74,14 @@ const getDays = () => {
 };
 
 const init = () => {
-  populateForm();
-  updateQuotePrice();
-  initHireCalculator(updateQuotePrice);
+  const updateSummary = (days) => {
+    populateForm(days);
+    updateQuotePrice(days);
+  };
+  updateSummary(getDays());
+  initHireCalculator(updateSummary);
   setupDetailsBlurHandlers(getDays);
 };
 
 onReady(init);
+export { buildCartText, getDisplayPrice, renderCheckoutItem };

@@ -23,6 +23,7 @@ const parsePrice = (priceStr) => {
 };
 
 const sum = reduce((acc, n) => acc + n, 0);
+const HIRE_DAY_SUFFIX = /\s-\s\d+\sday(?:s)?$/i;
 
 // Returns null if hire item lacks price for that day count
 const getPriceForDays = (days) => (item) => {
@@ -34,7 +35,14 @@ const getPriceForDays = (days) => (item) => {
 };
 
 const formatItemName = (item) =>
-  item.quantity > 1 ? `${item.item_name} (×${item.quantity})` : item.item_name;
+  item.quantity > 1
+    ? `${sanitizeItemName(item)} (×${item.quantity})`
+    : sanitizeItemName(item);
+
+const sanitizeItemName = (item) =>
+  isHireItem(item)
+    ? item.item_name.replace(HIRE_DAY_SUFFIX, "")
+    : item.item_name;
 
 const formatItemPrice = (price) =>
   price === null ? "TBC" : formatPrice(price);
@@ -186,3 +194,4 @@ const setupDetailsBlurHandlers = (getDays = () => 1) => {
 };
 
 export { setupDetailsBlurHandlers, updateQuotePrice };
+export { getPriceForDays, sanitizeItemName };

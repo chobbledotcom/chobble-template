@@ -122,6 +122,17 @@ describe("quote-price-utils", () => {
       expect(itemName.textContent).toBe("Bouncy Castle");
     });
 
+    test("strips day suffix from hire item names", async () => {
+      await setupDOM([
+        cartItem({ item_name: "Bouncy Castle - 1 day", hire_prices: { 3: "£120" } }),
+      ]);
+      updateQuotePrice(3);
+      const itemName = document.querySelector(
+        '[data-field="items"] > li [data-field="name"]',
+      );
+      expect(itemName.textContent).toBe("Bouncy Castle");
+    });
+
     test("appends quantity to item name when quantity > 1", async () => {
       await setupDOM([
         cartItem({
