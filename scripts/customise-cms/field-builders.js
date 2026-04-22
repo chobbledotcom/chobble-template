@@ -72,6 +72,7 @@ export const getCollectionFieldBuilders = (config, fields) => ({
         COMMON_FIELDS.header_image,
         COMMON_FIELDS.header_text,
       ),
+      COMMON_FIELDS.thumbnail,
       COMMON_FIELDS.subtitle,
       fields.body,
       COMMON_FIELDS.meta_title,
