@@ -9,7 +9,6 @@ import {
   linkifyPhones,
   linkifyUrls,
   parseTextByPattern,
-  SKIP_TAGS,
   URL_PATTERN,
 } from "#transforms/linkify.js";
 import { loadDOM } from "#utils/lazy-dom.js";
@@ -61,11 +60,12 @@ const skipTagTestCases = [
   },
 ];
 
-// URL-only skip tags (style, code, pre are tested separately from shared tests)
+// URL-only skip tags (style, code, pre, title are tested separately from shared tests)
 const urlOnlySkipTags = [
   { tag: "style", html: "<style>/* https://example.com */</style>" },
   { tag: "code", html: "<code>https://example.com</code>" },
   { tag: "pre", html: "<pre>https://example.com</pre>" },
+  { tag: "title", html: "<title>https://example.com</title>" },
 ];
 
 describe("linkify transforms", () => {
@@ -121,14 +121,6 @@ describe("linkify transforms", () => {
         type: "url",
         value: "https://example.com",
       });
-    });
-  });
-
-  describe("SKIP_TAGS constant", () => {
-    test("includes expected tags", () => {
-      for (const tag of ["a", "script", "style", "code", "pre", "title"]) {
-        expect(SKIP_TAGS.has(tag)).toBe(true);
-      }
     });
   });
 
