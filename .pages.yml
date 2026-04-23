@@ -173,10 +173,7 @@ components:
             type: string
             label: Icon (Iconify ID or HTML entity)
           - { name: title, type: string, label: Title, required: true }
-          - name: description
-            type: rich-text
-            label: Description
-            required: true
+          - { name: description, type: rich-text, label: Description }
           - { name: style, type: string, label: Custom Style }
       - { name: intro, type: rich-text, label: Intro Content (Markdown) }
       - { name: heading_level, type: number, label: Heading Level }
