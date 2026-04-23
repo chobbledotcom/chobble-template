@@ -1,9 +1,12 @@
 // Quote price display utilities
 // Renders a price summary for cart items with hire pricing
 
-import { isHireItem } from "#public/cart/hire-calculator.js";
 import { getRadioValue } from "#public/cart/quote-steps.js";
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
+import {
+  getPriceForDays,
+  sanitizeItemName,
+} from "#public/utils/quote-pricing.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
 import {
@@ -15,26 +18,12 @@ import {
   uniqueBy,
 } from "#toolkit/fp/array.js";
 
-const parsePrice = (priceStr) => {
-  if (typeof priceStr === "number") return priceStr;
-  if (!priceStr) return 0;
-  const matches = String(priceStr).match(/[\d.]+/);
-  return matches ? Number.parseFloat(matches[0]) : 0;
-};
-
 const sum = reduce((acc, n) => acc + n, 0);
 
-// Returns null if hire item lacks price for that day count
-const getPriceForDays = (days) => (item) => {
-  if (!isHireItem(item)) {
-    return item.unit_price * item.quantity;
-  }
-  const price = item.hire_prices[days];
-  return price ? parsePrice(price) * item.quantity : null;
-};
-
 const formatItemName = (item) =>
-  item.quantity > 1 ? `${item.item_name} (×${item.quantity})` : item.item_name;
+  item.quantity > 1
+    ? `${sanitizeItemName(item)} (×${item.quantity})`
+    : sanitizeItemName(item);
 
 const formatItemPrice = (price) =>
   price === null ? "TBC" : formatPrice(price);
