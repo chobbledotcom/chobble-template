@@ -22,9 +22,8 @@ import { getTemplate } from "#public/utils/template.js";
 const renderCheckoutItem = (item, days) => {
   const template = getTemplate(IDS.QUOTE_CHECKOUT_ITEM, document);
 
-  template.querySelector('[data-field="name"]').textContent = sanitizeItemName(
-    item,
-  );
+  template.querySelector('[data-field="name"]').textContent =
+    sanitizeItemName(item);
   template.querySelector('[data-field="qty"]').textContent =
     `x${item.quantity}`;
   template.querySelector('[data-field="price"]').textContent = getDisplayPrice(
