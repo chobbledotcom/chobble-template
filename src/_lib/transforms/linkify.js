@@ -17,7 +17,7 @@ const URL_PATTERN = /https?:\/\/[^\s<>]+/g;
 const EMAIL_PATTERN = /[\w.+-]+@[\w.-]+\.[\w-]+/g;
 
 /** Tags to skip when processing text nodes */
-const SKIP_TAGS = frozenSet(["a", "script", "style", "code", "pre"]);
+const SKIP_TAGS = frozenSet(["a", "script", "style", "code", "pre", "title"]);
 
 /** Block-level elements - stop ancestor search when we hit one */
 const BLOCK_TAGS = frozenSet([

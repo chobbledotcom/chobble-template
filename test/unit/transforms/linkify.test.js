@@ -126,7 +126,7 @@ describe("linkify transforms", () => {
 
   describe("SKIP_TAGS constant", () => {
     test("includes expected tags", () => {
-      for (const tag of ["a", "script", "style", "code", "pre"]) {
+      for (const tag of ["a", "script", "style", "code", "pre", "title"]) {
         expect(SKIP_TAGS.has(tag)).toBe(true);
       }
     });
