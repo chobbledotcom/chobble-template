@@ -4,7 +4,7 @@ meta_description:
 meta_title: Not Found
 no_index: true
 
-permalink: /not_found.html
+permalink: /bunnycdn_errors/404.html
 ---
 
 ## Page Not Found
