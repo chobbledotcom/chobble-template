@@ -20,9 +20,7 @@ describe("quote-checkout", () => {
     };
 
     expect(getDisplayPrice(item, 3)).toBe("£240");
-    expect(buildCartText(item, 3)).toBe(
-      "Bouncy Castle x2 @ £120 = £240",
-    );
+    expect(buildCartText(item, 3)).toBe("Bouncy Castle x2 @ £120 = £240");
   });
 
   test("shows TBC when hire price is missing for selected day count", () => {

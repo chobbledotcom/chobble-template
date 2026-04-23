@@ -124,7 +124,10 @@ describe("quote-price-utils", () => {
 
     test("strips day suffix from hire item names", async () => {
       await setupDOM([
-        cartItem({ item_name: "Bouncy Castle - 1 day", hire_prices: { 3: "£120" } }),
+        cartItem({
+          item_name: "Bouncy Castle - 1 day",
+          hire_prices: { 3: "£120" },
+        }),
       ]);
       updateQuotePrice(3);
       const itemName = document.querySelector(

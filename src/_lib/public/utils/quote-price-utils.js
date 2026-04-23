@@ -2,8 +2,11 @@
 // Renders a price summary for cart items with hire pricing
 
 import { getRadioValue } from "#public/cart/quote-steps.js";
-import { getPriceForDays, sanitizeItemName } from "#public/utils/quote-pricing.js";
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
+import {
+  getPriceForDays,
+  sanitizeItemName,
+} from "#public/utils/quote-pricing.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
 import {

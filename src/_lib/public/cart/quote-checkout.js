@@ -8,14 +8,14 @@ import {
 import { getCart } from "#public/utils/cart-utils.js";
 import { onReady } from "#public/utils/on-ready.js";
 import {
-  setupDetailsBlurHandlers,
-  updateQuotePrice,
-} from "#public/utils/quote-price-utils.js";
-import {
   buildCartText,
   getDisplayPrice,
   sanitizeItemName,
 } from "#public/utils/quote-checkout-pricing.js";
+import {
+  setupDetailsBlurHandlers,
+  updateQuotePrice,
+} from "#public/utils/quote-price-utils.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
 
@@ -67,12 +67,12 @@ const getDays = () => {
 };
 
 const init = () => {
-  const updateSummary = (days) => {
+  const updateQuoteSummary = (days) => {
     populateForm(days);
     updateQuotePrice(days);
   };
-  updateSummary(getDays());
-  initHireCalculator(updateSummary);
+  updateQuoteSummary(getDays());
+  initHireCalculator(updateQuoteSummary);
   setupDetailsBlurHandlers(getDays);
 };
 

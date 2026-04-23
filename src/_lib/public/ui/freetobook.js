@@ -10,7 +10,7 @@ export const initFreetobook = () => {
   const summary = details.querySelector("summary");
   if (!summary) return;
 
-  const updateSummary = (isOpen) => {
+  const updateBookingButton = (isOpen) => {
     if (isOpen) {
       summary.classList.remove("btn--primary");
       summary.classList.add("btn--secondary", "btn--sm");
@@ -23,7 +23,7 @@ export const initFreetobook = () => {
   };
 
   details.addEventListener("toggle", () => {
-    updateSummary(details.open);
+    updateBookingButton(details.open);
   });
 
   if (window.location.hash === "#freetobook") {
