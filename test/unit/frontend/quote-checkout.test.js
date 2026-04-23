@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   buildCartText,
   getDisplayPrice,
-} from "#public/cart/quote-checkout.js";
+} from "#public/utils/quote-checkout-pricing.js";
 
 describe("quote-checkout", () => {
   const setupCurrency = () => {

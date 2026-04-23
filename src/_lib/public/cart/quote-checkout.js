@@ -5,24 +5,19 @@ import {
   calculateDays,
   initHireCalculator,
 } from "#public/cart/hire-calculator.js";
-import { formatPrice, getCart } from "#public/utils/cart-utils.js";
+import { getCart } from "#public/utils/cart-utils.js";
 import { onReady } from "#public/utils/on-ready.js";
 import {
-  getPriceForDays,
-  sanitizeItemName,
   setupDetailsBlurHandlers,
   updateQuotePrice,
 } from "#public/utils/quote-price-utils.js";
+import {
+  buildCartText,
+  getDisplayPrice,
+  sanitizeItemName,
+} from "#public/utils/quote-checkout-pricing.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
-
-const getDisplayPrice = (item, days) => {
-  const price = getPriceForDays(days)(item);
-  return price === null ? "TBC" : formatPrice(price);
-};
-
-const getUnitDisplayPrice = (item, days) =>
-  getDisplayPrice({ ...item, quantity: 1 }, days);
 
 const renderCheckoutItem = (item, days) => {
   const template = getTemplate(IDS.QUOTE_CHECKOUT_ITEM, document);
@@ -39,9 +34,6 @@ const renderCheckoutItem = (item, days) => {
 
   return template;
 };
-
-const buildCartText = (item, days) =>
-  `${sanitizeItemName(item)} x${item.quantity} @ ${getUnitDisplayPrice(item, days)} = ${getDisplayPrice(item, days)}`;
 
 const populateForm = (days) => {
   const cart = getCart();
@@ -84,4 +76,3 @@ const init = () => {
 };
 
 onReady(init);
-export { buildCartText, getDisplayPrice, renderCheckoutItem };
