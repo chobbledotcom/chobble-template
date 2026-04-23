@@ -754,20 +754,27 @@ Failed to compile
     });
 
     describe("reportCoverageFailures", () => {
+      const writeCoverageFixture = (tempDir, { lcovLines, bunfigBody }) => {
+        const lcovPath = path.join(tempDir, "lcov.info");
+        const bunfigPath = path.join(tempDir, "bunfig.toml");
+        fs.writeFileSync(lcovPath, [...lcovLines, ""].join("\n"));
+        fs.writeFileSync(bunfigPath, bunfigBody);
+        return { lcovPath, bunfigPath };
+      };
+
       test("prints per-file gaps and returns true when lcov has failures", () =>
         withTempDir("coverage-gaps", (tempDir) => {
-          const lcovPath = path.join(tempDir, "lcov.info");
-          const bunfigPath = path.join(tempDir, "bunfig.toml");
-          fs.writeFileSync(
-            lcovPath,
-            ["SF:src/a.js", "DA:1,0", "LH:0", "LF:1", "end_of_record", ""].join(
-              "\n",
-            ),
-          );
-          fs.writeFileSync(
-            bunfigPath,
-            'coveragePathIgnorePatterns = [\n  "src/ignored.js",\n]\n',
-          );
+          const { lcovPath, bunfigPath } = writeCoverageFixture(tempDir, {
+            lcovLines: [
+              "SF:src/a.js",
+              "DA:1,0",
+              "LH:0",
+              "LF:1",
+              "end_of_record",
+            ],
+            bunfigBody:
+              'coveragePathIgnorePatterns = [\n  "src/ignored.js",\n]\n',
+          });
 
           const logs = captureConsole(() => {
             const returned = reportCoverageFailures(lcovPath, bunfigPath);
@@ -793,13 +800,10 @@ Failed to compile
 
       test("returns false when every record in lcov is fully covered", () =>
         withTempDir("coverage-clean", (tempDir) => {
-          const lcovPath = path.join(tempDir, "lcov.info");
-          const bunfigPath = path.join(tempDir, "bunfig.toml");
-          fs.writeFileSync(
-            lcovPath,
-            ["SF:src/a.js", "LH:1", "LF:1", "end_of_record", ""].join("\n"),
-          );
-          fs.writeFileSync(bunfigPath, "coveragePathIgnorePatterns = [\n]\n");
+          const { lcovPath, bunfigPath } = writeCoverageFixture(tempDir, {
+            lcovLines: ["SF:src/a.js", "LH:1", "LF:1", "end_of_record"],
+            bunfigBody: "coveragePathIgnorePatterns = [\n]\n",
+          });
 
           const returned = reportCoverageFailures(lcovPath, bunfigPath);
 
