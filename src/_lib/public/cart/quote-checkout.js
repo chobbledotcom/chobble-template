@@ -54,7 +54,9 @@ const populateForm = (days) => {
   cartItemsField.value = cartText;
 
   // Build visual summary
-  itemsEl.replaceChildren(...cart.map((item) => renderCheckoutItem(item, days)));
+  itemsEl.replaceChildren(
+    ...cart.map((item) => renderCheckoutItem(item, days)),
+  );
 };
 
 // Calculate days from date inputs (returns 1 if dates not set)
