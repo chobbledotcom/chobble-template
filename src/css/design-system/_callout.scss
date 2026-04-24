@@ -47,13 +47,6 @@
       }
     }
 
-    &__body {
-      @include flex-col($space-xs, stretch, flex-start);
-      flex: 1 1 auto;
-      min-width: 0;
-      color: var(--color-text);
-    }
-
     &__title {
       @include heading-sm;
       color: var(--callout-fg);
