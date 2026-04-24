@@ -47,14 +47,14 @@
       }
     }
 
-    &__title {
-      @include heading-sm;
-      color: var(--callout-fg);
-    }
-
     &__content {
       > :first-child { margin-top: 0; }
       > :last-child { margin-bottom: 0; }
+    }
+
+    &__title {
+      @include heading-sm;
+      color: var(--callout-fg);
     }
   }
 }
