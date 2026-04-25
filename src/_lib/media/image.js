@@ -33,7 +33,6 @@ import {
 } from "#media/image-pipeline.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import {
-  DEFAULT_IMAGE_OPTIONS,
   buildWrapperStyles,
   filenameFormat,
   isExternalUrl,
