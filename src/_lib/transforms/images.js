@@ -19,25 +19,6 @@ const IGNORE_ATTRIBUTE = "eleventy:ignore";
 const NO_LQIP_ATTRIBUTE = "chobble:no-lqip";
 const IMAGE_PROCESSING_PARALLELISM = availableParallelism();
 
-const processImagesWithLimit = async (
-  images,
-  document,
-  processAndWrapImage,
-) => {
-  let nextIndex = 0;
-  const workerCount = Math.min(IMAGE_PROCESSING_PARALLELISM, images.length);
-
-  const runWorker = async () => {
-    while (nextIndex < images.length) {
-      const image = images[nextIndex];
-      nextIndex += 1;
-      await processImageElement(image, document, processAndWrapImage);
-    }
-  };
-
-  await Promise.all(Array.from({ length: workerCount }, runWorker));
-};
-
 /**
  * Fix invalid HTML where divs are sole children of paragraphs
  * @param {*} document
@@ -114,7 +95,17 @@ const processImages = async (document, _config, processAndWrapImage) => {
 
   if (images.length === 0) return;
 
-  await processImagesWithLimit(images, document, processAndWrapImage);
+  const pendingImages = [...images].reverse();
+  const workerCount = Math.min(IMAGE_PROCESSING_PARALLELISM, images.length);
+  const runWorker = async () => {
+    while (pendingImages.length > 0) {
+      const image = pendingImages.pop();
+      if (!image) return;
+      await processImageElement(image, document, processAndWrapImage);
+    }
+  };
+
+  await Promise.all(Array.from({ length: workerCount }, runWorker));
 
   fixDivsInParagraphs(document);
 };
