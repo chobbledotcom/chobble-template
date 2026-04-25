@@ -41,7 +41,7 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { dedupeAsync } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
 
 const DEFAULT_OPTIONS = frozenObject({
@@ -52,18 +52,18 @@ const DEFAULT_OPTIONS = frozenObject({
 });
 
 /**
- * Memoized image processing — the expensive part.
+ * Deduplicated image processing — the expensive part.
  *
  * Runs eleventy-img, LQIP generation, and cropping, then returns
  * intermediate data that can be combined with presentation attributes.
- * Cache key only includes image-processing fields (imageName, widths,
- * aspectRatio, noLqip, skipMaxWidth) so the same image with different
- * alt/classes/sizes/loading values shares cached results across pages.
+ * Only concurrent calls for the same processing tuple share work; settled
+ * results are not retained, which avoids build-long memory growth for sites
+ * with many distinct images.
  *
  * @param {ComputeImageProps} props - Image processing properties
  * @returns {Promise<{htmlMetadata: Object, style: string}>}
  */
-const processImageData = memoize(
+const processImageData = dedupeAsync(
   async ({
     imageName,
     widths,

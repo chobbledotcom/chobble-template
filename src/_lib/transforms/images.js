@@ -9,7 +9,7 @@
  * - Fixing invalid HTML where divs are sole children of paragraphs
  */
 
-import { mapAsync } from "#toolkit/fp/array.js";
+import { availableParallelism } from "node:os";
 
 /** @typedef {import("#lib/types").ImageTransformOptions} ImageTransformOptions */
 /** @typedef {import("#lib/types").ProcessImageFn} ProcessImageFn */
@@ -17,6 +17,22 @@ import { mapAsync } from "#toolkit/fp/array.js";
 const ASPECT_RATIO_ATTRIBUTE = "eleventy:aspectRatio";
 const IGNORE_ATTRIBUTE = "eleventy:ignore";
 const NO_LQIP_ATTRIBUTE = "chobble:no-lqip";
+const IMAGE_PROCESSING_PARALLELISM = availableParallelism();
+
+const processImagesWithLimit = async (images, document, processAndWrapImage) => {
+  let nextIndex = 0;
+  const workerCount = Math.min(IMAGE_PROCESSING_PARALLELISM, images.length);
+
+  const runWorker = async () => {
+    while (nextIndex < images.length) {
+      const image = images[nextIndex];
+      nextIndex += 1;
+      await processImageElement(image, document, processAndWrapImage);
+    }
+  };
+
+  await Promise.all(Array.from({ length: workerCount }, runWorker));
+};
 
 /**
  * Fix invalid HTML where divs are sole children of paragraphs
@@ -90,13 +106,11 @@ const processImageElement = async (img, document, processAndWrapImage) => {
  * @returns {Promise<void>}
  */
 const processImages = async (document, _config, processAndWrapImage) => {
-  const images = document.querySelectorAll('img[src^="/images/"]');
+  const images = Array.from(document.querySelectorAll('img[src^="/images/"]'));
 
   if (images.length === 0) return;
 
-  await mapAsync((img) =>
-    processImageElement(img, document, processAndWrapImage),
-  )(images);
+  await processImagesWithLimit(images, document, processAndWrapImage);
 
   fixDivsInParagraphs(document);
 };
