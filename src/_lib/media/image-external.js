@@ -18,7 +18,7 @@ import {
   prepareImageAttributes,
 } from "#media/image-utils.js";
 import { wrapImageHtml } from "#media/image-wrapper.js";
-import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
+import { dedupeAsync, jsonKey } from "#toolkit/fp/memoize.js";
 import { createHtml } from "#utils/dom-builder.js";
 import { slugify } from "#utils/slug-utils.js";
 import { isRickAstleyThumbnail } from "#utils/video.js";
@@ -32,12 +32,9 @@ const externalFilenameFormat = (_id, _src, width, format, options) =>
 /**
  * Process an external image URL through eleventy-img.
  *
- * Memoized to avoid reprocessing the same URL with same options.
- * While eleventy-img disk-caches downloaded images, memoization avoids:
- * - Repeated disk I/O for LQIP base64 encoding
- * - Repeated eleventy-img cache checks
- * - Repeated HTML generation
- * Cache is bounded by maxCacheSize (default 2000) to prevent unbounded memory growth.
+ * Deduplicated to avoid duplicate concurrent work for the same URL/options tuple.
+ * While eleventy-img disk-caches downloaded images, this still prevents
+ * overlapping fetch/processing work without retaining every settled result in memory.
  *
  * @param {Object} options - Processing options
  * @param {string} options.src - External image URL
@@ -50,7 +47,7 @@ const externalFilenameFormat = (_id, _src, width, format, options) =>
  * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
  * @returns {Promise<string>} Wrapped image HTML
  */
-const computeExternalImageHtml = memoize(
+const computeExternalImageHtml = dedupeAsync(
   async ({
     src,
     alt,
