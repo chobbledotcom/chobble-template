@@ -19,7 +19,11 @@ const IGNORE_ATTRIBUTE = "eleventy:ignore";
 const NO_LQIP_ATTRIBUTE = "chobble:no-lqip";
 const IMAGE_PROCESSING_PARALLELISM = availableParallelism();
 
-const processImagesWithLimit = async (images, document, processAndWrapImage) => {
+const processImagesWithLimit = async (
+  images,
+  document,
+  processAndWrapImage,
+) => {
   let nextIndex = 0;
   const workerCount = Math.min(IMAGE_PROCESSING_PARALLELISM, images.length);
 
