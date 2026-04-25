@@ -9,8 +9,7 @@
       "!coverage",
       "!result",
       "!bin",
-      "!**/.*",
-      "!src/assets"
+      "!**/.*"
     ]
   },
   "overrides": [

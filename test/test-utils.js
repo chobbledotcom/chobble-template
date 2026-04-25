@@ -135,7 +135,7 @@ const memoizedFiles = memoizedFileGetter(rootDir);
 
 // Production JS files: src/ and packages/ (excluding test-utils which are test code)
 const SRC_JS_FILES = memoizedFiles(
-  /^(src\/(?!assets\/)|packages\/js-toolkit\/(?!test-utils\/)).*\.js$/,
+  /^(src\/|packages\/js-toolkit\/(?!test-utils\/)).*\.js$/,
 );
 const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
 const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
@@ -144,7 +144,7 @@ const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
 // part of the runtime, but they're still production usage of any src/ exports
 // they import — code-quality scans treat them as a usage site.
 const SCRIPT_JS_FILES = memoizedFiles(/^scripts\/.*\.js$/);
-const ALL_JS_FILES = memoizedFiles(/^(src\/(?!assets\/)|test\/).*\.js$/);
+const ALL_JS_FILES = memoizedFiles(/^(src\/|test\/).*\.js$/);
 
 /**
  * Create a pattern extractor for files.
