@@ -25,5 +25,5 @@
     "resolveJsonModule": true
   },
   "include": ["src/**/*.js", "src/_lib/types/**/*.d.ts", ".eleventy.js"],
-  "exclude": ["node_modules", "_site", "coverage", "src/_lib/public/**/*.js"]
+  "exclude": ["node_modules", "_site", "coverage", "src/_lib/public/**/*.js", "src/assets/**/*.js"]
 }

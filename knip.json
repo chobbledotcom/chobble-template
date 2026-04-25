@@ -22,6 +22,7 @@
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
 		"_site/**",
+		"src/assets/**",
 		"src/_lib/public/ui/search.js"
 	],
 	"ignoreDependencies": [
