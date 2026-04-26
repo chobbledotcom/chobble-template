@@ -33,6 +33,7 @@ import {
 } from "#media/image-pipeline.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import {
+  DEFAULT_IMAGE_OPTIONS,
   buildWrapperStyles,
   filenameFormat,
   isExternalUrl,
@@ -45,8 +46,7 @@ import { dedupeAsync } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
 
 const DEFAULT_OPTIONS = frozenObject({
-  outputDir: ".image-cache",
-  urlPath: "/img/",
+  ...DEFAULT_IMAGE_OPTIONS,
   svgShortCircuit: true,
   filenameFormat,
 });
@@ -191,26 +191,37 @@ const processAndWrapImage = async ({
   document = null,
   ...imageProps
 }) => {
-  if (isExternalUrl(imageProps.imageName)) {
+  const {
+    imageName,
+    alt,
+    classes,
+    sizes,
+    widths,
+    aspectRatio,
+    loading,
+    skipMaxWidth,
+  } = imageProps;
+
+  if (isExternalUrl(imageName)) {
     if (PLACEHOLDER_MODE) {
       const html = await generatePlaceholderHtml({
-        alt: imageProps.alt,
-        classes: imageProps.classes,
-        sizes: imageProps.sizes,
-        loading: imageProps.loading,
-        aspectRatio: imageProps.aspectRatio,
+        alt,
+        classes,
+        sizes,
+        loading,
+        aspectRatio,
       });
       return resolveOutput(html, returnElement, document);
     }
     return await processExternalImage({
-      src: imageProps.imageName,
-      alt: imageProps.alt,
-      loading: imageProps.loading,
-      classes: imageProps.classes,
-      sizes: imageProps.sizes,
-      widths: imageProps.widths,
-      aspectRatio: imageProps.aspectRatio,
-      skipMaxWidth: imageProps.skipMaxWidth,
+      src: imageName,
+      alt,
+      loading,
+      classes,
+      sizes,
+      widths,
+      aspectRatio,
+      skipMaxWidth,
       returnElement,
       document,
     });
@@ -291,20 +302,31 @@ const imageShortcode = async (
   noLqip = false,
   skipMaxWidth = false,
 ) => {
-  assertStringOrFalsy(loading, "loading", imageName);
-  assertStringOrFalsy(classes, "classes", imageName);
-  assertStringOrFalsy(sizes, "sizes", imageName);
-  assertStringOrFalsy(aspectRatio, "aspectRatio", imageName);
+  for (const [name, value] of [
+    ["loading", loading],
+    ["classes", classes],
+    ["sizes", sizes],
+    ["aspectRatio", aspectRatio],
+  ]) {
+    assertStringOrFalsy(value, name, imageName);
+  }
+
+  const normalized = {
+    classes: toStringOrNull(classes),
+    sizes: toStringOrNull(sizes),
+    aspectRatio: toStringOrNull(aspectRatio),
+    loading: toStringOrNull(loading),
+  };
 
   return processAndWrapImage({
     logName: `imageShortcode: ${imageName}`,
     imageName,
     alt,
-    classes: toStringOrNull(classes),
-    sizes: toStringOrNull(sizes),
+    classes: normalized.classes,
+    sizes: normalized.sizes,
     widths,
-    aspectRatio: toStringOrNull(aspectRatio),
-    loading: toStringOrNull(loading),
+    aspectRatio: normalized.aspectRatio,
+    loading: normalized.loading,
     noLqip,
     skipMaxWidth,
     returnElement: false,
