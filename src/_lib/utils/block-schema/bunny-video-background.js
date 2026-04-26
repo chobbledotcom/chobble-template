@@ -12,7 +12,6 @@ export const fields = {
   },
   thumbnail_url: {
     ...str("Thumbnail URL"),
-    required: true,
     description:
       "Thumbnail image URL. Displayed as a placeholder until video playback begins.",
   },
