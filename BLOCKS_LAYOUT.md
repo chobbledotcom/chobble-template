@@ -471,7 +471,7 @@ Bunny CDN video background with player.js-powered thumbnail that fades when play
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `video_url` | string | **required** | Bunny Stream embed URL. |
-| `thumbnail_url` | string | **required** | Thumbnail image URL. Displayed as a placeholder until video playback begins. |
+| `thumbnail_url` | string | — | Thumbnail image URL. Displayed as a placeholder until video playback begins. |
 | `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
 | `class` | string | — | Extra CSS classes. |
 | `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |

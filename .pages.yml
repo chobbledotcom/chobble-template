@@ -36,10 +36,7 @@ components:
         type: string
         label: Bunny Stream Embed URL
         required: true
-      - name: thumbnail_url
-        type: string
-        label: Thumbnail URL
-        required: true
+      - { name: thumbnail_url, type: string, label: Thumbnail URL }
       - { name: video_title, type: string, label: Video Title }
       - { name: class, type: string, label: CSS Class }
       - name: content
