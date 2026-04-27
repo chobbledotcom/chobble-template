@@ -519,6 +519,7 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
 | `header_class` | string | — | Extra CSS classes on the section header. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 
 ---
 
@@ -540,6 +541,7 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 | `header_intro` | string | — | Section header content rendered as markdown above the block. |
 | `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
 | `header_class` | string | — | Extra CSS classes on the section header. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 
 ---
 

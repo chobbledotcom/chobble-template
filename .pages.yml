@@ -316,6 +316,7 @@ components:
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
       - { name: header_intro, type: rich-text, label: Header Intro }
+      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
   block_items_array:
     label: Items Array
     type: object
@@ -335,6 +336,7 @@ components:
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
       - { name: header_intro, type: rich-text, label: Header Intro }
+      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
   block_link_button:
     label: Link Button
     type: object

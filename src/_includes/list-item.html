@@ -6,7 +6,7 @@
   {%- for field in listItemFields -%}
     {%- case field -%}
       {%- when "thumbnail" -%}
-        {%- include "list-item-thumbnail.html" -%}
+        {%- include "list-item-thumbnail.html", image_aspect_ratio: image_aspect_ratio -%}
       {%- when "link" -%}
         {%- include "list-item-link.html" -%}
       {%- when "price" -%}

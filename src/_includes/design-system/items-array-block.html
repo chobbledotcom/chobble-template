@@ -17,4 +17,4 @@ Parameters (from block):
 
 {%- assign resolvedPaths = block.items -%}
 {%- assign blockItems = collections.all | getItemsByPath: resolvedPaths -%}
-{%- include "design-system/render-items-block.html" -%}
+{%- include "design-system/render-items-block.html", block: block, image_aspect_ratio: block.image_aspect_ratio -%}
