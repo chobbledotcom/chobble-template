@@ -14,12 +14,12 @@ components:
     type: string
     label: Meta Title
     options:
-      maxlength: 55
+      maxlength: 60
   meta_description:
     type: string
     label: Meta Description
     options:
-      maxlength: 155
+      maxlength: 160
   videos:
     label: Videos
     type: object
