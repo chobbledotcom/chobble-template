@@ -97,6 +97,12 @@ export const MASONRY_FIELD = {
     "If true, renders as a masonry grid using uWrap for zero-reflow height prediction.",
 };
 
+/** Per-block aspect-ratio override for thumbnails / card images. */
+export const IMAGE_ASPECT_RATIO_FIELD = {
+  ...str("Image Aspect Ratio"),
+  description: 'Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`.',
+};
+
 /** Unified fields shared between items and items-array blocks. */
 export const ITEMS_COMMON_FIELDS = {
   intro: {
@@ -146,10 +152,7 @@ export const imageCardGridFields = (itemsField) => ({
   items: itemsField,
   reveal: REVEAL_BOOLEAN_FIELD,
   heading_level: HEADING_LEVEL_FIELD,
-  image_aspect_ratio: {
-    ...str("Image Aspect Ratio"),
-    description: 'Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`.',
-  },
+  image_aspect_ratio: IMAGE_ASPECT_RATIO_FIELD,
   ...HEADER_FIELDS,
 });
 

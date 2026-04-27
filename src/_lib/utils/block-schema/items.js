@@ -1,5 +1,6 @@
 import {
   collectionField,
+  IMAGE_ASPECT_RATIO_FIELD,
   ITEMS_COMMON_FIELDS,
 } from "#utils/block-schema/shared.js";
 
@@ -10,6 +11,7 @@ export const fields = {
     'Name of an Eleventy collection (e.g. `"featuredProducts"`, `"events"`, `"news"`).',
   ),
   ...ITEMS_COMMON_FIELDS,
+  image_aspect_ratio: IMAGE_ASPECT_RATIO_FIELD,
 };
 
 export const docs = {
