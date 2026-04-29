@@ -75,13 +75,9 @@ Grid of feature cards with optional icons, titles, and descriptions.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | array | **required** | Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji. |
-| `intro` | string | — | Markdown content rendered above the grid in `.prose`. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
-| `heading_level` | number | `3` | Heading level for item titles. |
 | `center` | boolean | `false` | If true, centers feature text. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 
@@ -98,11 +94,8 @@ Grid of cards featuring images with titles and optional descriptions.
 |---|---|---|---|
 | `items` | array | **required** | Card objects. Each: `{image, title, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
-| `heading_level` | number | `3` | Heading level for item titles. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 
 ---
 
@@ -119,11 +112,8 @@ Grid of buyable products — image, title, optional subtitle, price, and a buy b
 |---|---|---|---|
 | `items` | array | **required** | Product objects. Each: `{image, title, subtitle, price, currency, link, button_text}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
-| `heading_level` | number | `3` | Heading level for item titles. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 
 Each item renders as a `<li>` with `itemscope itemtype="https://schema.org/Product"`. The price is emitted as a nested `Offer` with `priceCurrency` (defaults to `GBP`). Use this block when the buy action is external (Stripe, itch.io, Gumroad); for sitewide shop listings, use the `items` block with a `products` collection.
 
@@ -512,13 +502,10 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `collection` | string | **required** | Name of an Eleventy collection (e.g. `"featuredProducts"`, `"events"`, `"news"`). |
-| `intro` | string | — | Markdown content rendered above items in `.prose`. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
 | `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 
 ---
@@ -534,13 +521,10 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | array | — | Array of path strings. Each entry may be a file path (e.g. `src/products/widget.md`) or a directory path (e.g. `locations/fulchester` or `locations/fulchester/`), in which case every item in that directory is included in place. |
-| `intro` | string | — | Markdown content rendered above items in `.prose`. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
 | `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 
 ---
@@ -556,13 +540,10 @@ Renders social-media posts loaded from a directory of JSON files as a card grid 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `directory` | string | **required** | Directory (relative to `src/`) containing social-post JSON files — e.g. `"instagram-posts"` or `"mastodon-posts"`. Each `*.json` file must have `url`, `date`, `title`, and `thumbnail` keys. |
-| `intro` | string | — | Markdown content rendered above items in `.prose`. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
 | `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
 
 Posts are loaded per-block from the given directory, so the same template works for Instagram, Mastodon, or any other source. External `url` values open in a new tab.
 
@@ -579,12 +560,9 @@ Renders a collection as a plain-text unordered list of links arranged in respons
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `collection` | string | **required** | Name of an Eleventy collection (e.g. `"locations"`, `"services"`). |
-| `intro` | string | — | Markdown content rendered above items in `.prose`. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
 | `remove_text` | string | — | Regex pattern (JavaScript syntax, global flag implied). Each match is removed from every link's display text and the result is trimmed. Useful for stripping repetitive prefixes like `"Service in "` so links render tidier. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 
@@ -600,9 +578,7 @@ Two-column layout with prose content and a contact form.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `content` | string | — | Left-side content. Rendered as markdown in `.prose`. Centered text. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 
 ---
 
@@ -619,9 +595,7 @@ Contact form block with a custom, block-level field list instead of the site-wid
 |---|---|---|---|
 | `content` | string | — | Left-side content. Rendered as markdown in `.prose`. Centered text. |
 | `fields` | array | **required** | Array of field definitions for this form. Replaces `contactForm.fields` for this block only. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 
 Identical layout and styling to `contact-form`, but accepts its own `fields` array. Each field object follows the same shape as entries in `src/_data/contact-form.json` — e.g. `{name, label, type, placeholder, required, rows, options, note, fieldClass, showOn, defaultFromPageTitle}`. Supported `type` values: `"text"` (default), `"email"`, `"tel"`, `"textarea"`, `"select"`, `"radio"`, `"heading"`.
 
@@ -677,9 +651,7 @@ Third-party iframe embed (itch.io widgets, Buttondown, Bandcamp, Stripe buttons,
 | `sandbox` | string | — | Space-separated sandbox tokens, e.g. `"allow-scripts allow-same-origin allow-forms"`. |
 | `allow` | string | — | `allow` attribute for iframe permissions policy. |
 | `scrolling` | string | — | Legacy `scrolling` attribute, e.g. `"no"`. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 
 Provide either `height` for a fixed-height embed or `aspect_ratio` (e.g. `16/9`) for a responsive one. Use `max_width` to cap the embed width within the container.
 
@@ -784,11 +756,8 @@ Image grid with optional aspect ratio cropping and captions.
 |---|---|---|---|
 | `items` | array | **required** | Image objects. Each: `{image, caption}`. Images processed by `{% image %}` shortcode. |
 | `aspect_ratio` | string | — | Aspect ratio for images (e.g. `"16/9"`, `"1/1"`, `"4/3"`). Default: no cropping. |
-| `intro` | string | — | Markdown content rendered above items in `.prose`. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
 
 ---
 
@@ -806,9 +775,7 @@ Continuously scrolling marquee of images (e.g. brand logos, partner badges).
 | `items` | array | **required** | Image objects. Each: `{image, alt, link_url}`. `image` is a path; `alt` is optional alt text; `link_url` is an optional URL to wrap the image in a link. Images are processed via the `{% image %}` shortcode for responsive formats and proper URL normalization. |
 | `speed` | string | `"30s"` | CSS animation duration for one full scroll cycle (e.g. `"20s"`, `"45s"`). Slower = longer duration. |
 | `height` | string | `"50px"` | CSS height for the images (e.g. `"60px"`, `"80px"`). Width scales proportionally. |
-| `header_intro` | string | — | Section header content rendered as markdown above the block. |
-| `header_align` | string | — | Header text alignment. `"center"` adds `.text-center`. |
-| `header_class` | string | — | Extra CSS classes on the section header. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 
 ---
 
@@ -823,7 +790,7 @@ Vertical list of links with icons, rendered as a flex column stack.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `intro` | string | — | Markdown content rendered above the links list in `.prose`. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `items` | array | **required** | Link objects. Each: `{icon, text, url}`. `url` is optional — items without it render as plain text. Icon can be an Iconify ID (`"prefix:name"`), image path, or raw HTML/emoji. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each link item. |
 
@@ -840,7 +807,7 @@ List of downloadable files. Each item auto-detects its icon from the file extens
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `intro` | string | — | Markdown content rendered above the downloads list in `.prose`. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `items` | array | **required** | Download objects. Each: `{file, label}`. `file` is a site-relative URL path; `label` is the visible text. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each download item. |
 

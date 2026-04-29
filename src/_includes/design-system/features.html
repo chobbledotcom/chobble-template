@@ -12,11 +12,8 @@ Parameters (via block object):
     - description: Feature description (supports markdown)
     - style: Optional inline styles (e.g., for custom colors)
   - block.reveal: If true, adds data-reveal animation (default: true)
-  - block.heading_level: Heading level for titles, defaults to 3 (h3)
   - block.center: If true, centers feature text (default: false)
-  - block.header_intro: Optional section header intro (rich text, renders section-header before grid)
-  - block.header_align: Text alignment for section header (default: "center")
-  - block.header_class: Additional CSS classes for section header
+  - block.intro_content: Optional markdown intro rendered above the grid
 
 Usage:
   {% include "design-system/features.html", block: { items: page.features } %}
@@ -30,7 +27,6 @@ Usage:
 {%- endcomment -%}
 
 {%- assign reveal = block.reveal | default: true -%}
-{%- assign heading_level = block.heading_level | default: 3 -%}
 
 {%- include "design-system/block-intro.html" -%}
 
@@ -41,7 +37,7 @@ Usage:
       {%- if item.icon -%}
         {%- include "design-system/icon-badge.html", icon: item.icon, label: item.icon_label -%}
       {%- endif -%}
-      <h{{ heading_level }}>{{ item.title }}</h{{ heading_level }}>
+      <h3>{{ item.title }}</h3>
       {%- if item.description -%}
         <div class="prose">{{ item.description | renderContent: "md" }}</div>
       {%- endif -%}

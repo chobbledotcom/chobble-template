@@ -1,5 +1,9 @@
 /* jscpd:ignore-start */
-import { md, objectList, str } from "#utils/block-schema/shared.js";
+import {
+  INTRO_CONTENT_FIELD,
+  objectList,
+  str,
+} from "#utils/block-schema/shared.js";
 /* jscpd:ignore-end */
 
 export const type = "downloads";
@@ -12,11 +16,7 @@ const FILE_RESOLUTION_NOTE =
   "The `file` path is resolved against `src/` (e.g. `/files/guide.pdf` reads from `src/files/guide.pdf`). Missing files cause a build error. Ensure the containing directory is configured as a passthrough-copy target so the file is also served to the browser.";
 
 export const fields = {
-  intro: {
-    ...md("Intro Content (Markdown)"),
-    description:
-      "Markdown content rendered above the downloads list in `.prose`.",
-  },
+  intro_content: INTRO_CONTENT_FIELD,
   items: {
     ...objectList("Downloads", {
       file: str("File Path (e.g. /files/guide.pdf)", { required: true }),

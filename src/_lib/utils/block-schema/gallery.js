@@ -1,6 +1,5 @@
 import {
-  HEADER_FIELDS,
-  ITEMS_COMMON_FIELDS,
+  INTRO_CONTENT_FIELD,
   ITEMS_GRID_META,
   img,
   MASONRY_FIELD,
@@ -25,9 +24,8 @@ export const fields = {
     description:
       'Aspect ratio for images (e.g. `"16/9"`, `"1/1"`, `"4/3"`). Default: no cropping.',
   },
-  intro: ITEMS_COMMON_FIELDS.intro,
+  intro_content: INTRO_CONTENT_FIELD,
   masonry: MASONRY_FIELD,
-  ...HEADER_FIELDS,
 };
 
 export const docs = {

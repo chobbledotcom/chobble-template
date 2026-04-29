@@ -48,8 +48,7 @@ blocks:
 
   # Marquee Images Demo
   - type: marquee-images
-    header_intro: "## Trusted By These Fictional Brands"
-    header_align: center
+    intro_content: "## Trusted By These Fictional Brands"
     speed: "25s"
     height: "60px"
     items:
@@ -88,7 +87,7 @@ blocks:
   # Product Sliders
   - type: items
     collection: featuredProducts
-    intro: |
+    intro_content: |
       ## Product Sliders
 
       Display any collection in grids or with horizontal sliders.
@@ -101,7 +100,7 @@ blocks:
       - src/products/mini-gizmo.md
       - src/products/ultrawidget-pro.md
       - src/products/heritage-thingy-deluxe.md
-    intro: |
+    intro_content: |
       ## A Selection of Products
 
       Hand-pick specific items from any collection using the items array block.
@@ -110,7 +109,7 @@ blocks:
   - type: items
     collection: reviews
     masonry: true
-    intro: |
+    intro_content: |
       ## Customer Reviews
 
       Display reviews in a masonry grid — cards flow naturally based on content height.
@@ -118,7 +117,7 @@ blocks:
   # Gallery Masonry
   - type: gallery
     masonry: true
-    intro: |
+    intro_content: |
       ## Gallery
 
       Mix images of any aspect ratio, with or without captions. The masonry layout packs them into columns with no ragged gaps.
@@ -138,7 +137,7 @@ blocks:
   - type: socials
     directory: instagram-posts
     horizontal: true
-    intro: |
+    intro_content: |
       ## From our Socials
 
       Point the block at any directory of JSON posts — `instagram-posts`, `mastodon-posts`, whatever you like. Absolute URLs open in a new tab.
@@ -149,7 +148,7 @@ blocks:
 
   # Features - Everything Your Business Needs
   - type: features
-    header_intro: |-
+    intro_content: |-
       ## What's Included
 
       Product catalogs, event calendars, holiday lets, restaurant menus, and more. All from one template.
@@ -262,12 +261,11 @@ blocks:
   # E-Commerce Features (with header, centered, custom colors)
   - type: features
 
-    header_intro: |-
+    intro_content: |-
       ## Commerce Options
 
       Sell products, take quotes, or both. Card payments and enquiry forms are built in.
     center: true
-    heading_level: 4
     items:
       - icon: "hugeicons:credit-card"
         title: Card Checkout
@@ -301,11 +299,10 @@ blocks:
   # SEO Features (with header)
   - type: features
 
-    header_intro: |-
+    intro_content: |-
       ## Built-in SEO
 
       Structured data is generated automatically from your content.
-    heading_level: 4
     items:
       - title: Schema.org Markup
         description: Products, events, FAQs, organizations, and breadcrumbs - all with proper JSON-LD.
@@ -374,7 +371,7 @@ blocks:
 
   # Icon Links
   - type: icon-links
-    intro: |
+    intro_content: |
       ## Quick Links
     items:
       - icon: "hugeicons:github"
