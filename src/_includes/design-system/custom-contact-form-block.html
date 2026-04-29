@@ -1,10 +1,4 @@
-{%- if block.header_intro -%}
-  {%- include "design-system/section-header.html",
-     intro: block.header_intro,
-     align: block.header_align,
-     header_class: block.header_class
-  -%}
-{%- endif -%}
+{%- include "design-system/block-intro.html" -%}
 {%- assign _customFields = block.fields | addFieldTemplates -%}
 <div class="contact-form-block">
   <div class="prose">

@@ -1,6 +1,6 @@
 import {
   bool,
-  HEADER_FIELDS,
+  INTRO_CONTENT_FIELD,
   md,
   num,
   objectList,
@@ -32,7 +32,7 @@ export const fields = {
     description:
       "Array of field definitions for this form. Replaces `contactForm.fields` for this block only.",
   },
-  ...HEADER_FIELDS,
+  intro_content: INTRO_CONTENT_FIELD,
 };
 
 export const docs = {

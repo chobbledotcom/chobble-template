@@ -1,7 +1,7 @@
 import {
   collectionField,
   FILTER_FIELD,
-  HEADER_FIELDS,
+  INTRO_CONTENT_FIELD,
   ITEMS_COMMON_FIELDS,
   str,
 } from "#utils/block-schema/shared.js";
@@ -12,7 +12,7 @@ export const fields = {
   collection: collectionField(
     'Name of an Eleventy collection (e.g. `"locations"`, `"services"`).',
   ),
-  intro: ITEMS_COMMON_FIELDS.intro,
+  intro_content: INTRO_CONTENT_FIELD,
   filter: {
     ...FILTER_FIELD,
     description: ITEMS_COMMON_FIELDS.filter.description,
@@ -22,7 +22,6 @@ export const fields = {
     description:
       'Regex pattern (JavaScript syntax, global flag implied). Each match is removed from every link\'s display text and the result is trimmed. Useful for stripping repetitive prefixes like `"Service in "` so links render tidier.',
   },
-  ...HEADER_FIELDS,
 };
 
 export const docs = {

@@ -65,9 +65,10 @@ components:
             label: Currency (ISO code, e.g. GBP)
           - { name: link, type: string, label: Buy Link, required: true }
           - { name: button_text, type: string, label: Button Text }
-      - { name: heading_level, type: number, label: Heading Level }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
-      - { name: header_intro, type: rich-text, label: Header Intro }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_callout:
     label: Callout
     type: object
@@ -95,6 +96,9 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: content, type: rich-text, label: Content }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_content:
     label: Content
     type: object
@@ -137,13 +141,17 @@ components:
           - { name: rows, type: number, label: Rows (for textarea) }
           - { name: note, type: string, label: Help Note }
           - { name: fieldClass, type: string, label: CSS Class }
-      - { name: header_intro, type: rich-text, label: Header Intro }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_downloads:
     label: Downloads
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
       - name: items
         type: object
         label: Downloads
@@ -172,10 +180,10 @@ components:
           - { name: title, type: string, label: Title, required: true }
           - { name: description, type: rich-text, label: Description }
           - { name: style, type: string, label: Custom Style }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
-      - { name: heading_level, type: number, label: Heading Level }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
       - { name: center, type: boolean, label: Centered }
-      - { name: header_intro, type: rich-text, label: Header Intro }
   block_gallery:
     label: Gallery
     type: object
@@ -190,9 +198,10 @@ components:
           - { name: image, type: image, label: Image, required: true }
           - { name: caption, type: string, label: Caption }
       - { name: aspect_ratio, type: string, label: Aspect Ratio }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
       - { name: masonry, type: boolean, label: Masonry Grid }
-      - { name: header_intro, type: rich-text, label: Header Intro }
   block_guide_categories:
     label: Guide Categories
     type: object
@@ -227,7 +236,9 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
       - name: items
         type: object
         label: Links
@@ -256,7 +267,9 @@ components:
       - { name: sandbox, type: string, label: Sandbox }
       - { name: allow, type: string, label: Allow (permissions policy) }
       - { name: scrolling, type: string, label: Scrolling }
-      - { name: header_intro, type: rich-text, label: Header Intro }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_image_background:
     label: Image Background
     type: object
@@ -285,9 +298,10 @@ components:
           - { name: title, type: string, label: Title, required: true }
           - { name: description, type: string, label: Description }
           - { name: link, type: string, label: Link URL }
-      - { name: heading_level, type: number, label: Heading Level }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
-      - { name: header_intro, type: rich-text, label: Header Intro }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_include:
     label: Include
     type: object
@@ -303,7 +317,9 @@ components:
         type: string
         label: Collection Name
         required: true
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
       - name: filter
@@ -315,7 +331,6 @@ components:
             label: Property (e.g. url, data.title)
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
-      - { name: header_intro, type: rich-text, label: Header Intro }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
   block_items_array:
     label: Items Array
@@ -323,7 +338,9 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: items, type: string, label: Items, list: true }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
       - name: filter
@@ -335,7 +352,6 @@ components:
             label: Property (e.g. url, data.title)
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
-      - { name: header_intro, type: rich-text, label: Header Intro }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
   block_link_button:
     label: Link Button
@@ -356,7 +372,9 @@ components:
         type: string
         label: Collection Name
         required: true
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
       - name: filter
         type: object
         label: Filter
@@ -367,7 +385,6 @@ components:
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
       - { name: remove_text, type: string, label: Remove Text (Regex) }
-      - { name: header_intro, type: rich-text, label: Header Intro }
   block_markdown:
     label: Markdown
     type: object
@@ -390,6 +407,9 @@ components:
           - { name: link_url, type: string, label: Link URL }
       - { name: speed, type: string, label: Scroll Speed (e.g. 30s) }
       - { name: height, type: string, label: Image Height (e.g. 50px) }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_properties:
     label: Properties
     type: object
@@ -432,7 +452,9 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: directory, type: string, label: Directory, required: true }
-      - { name: intro, type: rich-text, label: Intro Content (Markdown) }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
       - name: filter
@@ -444,7 +466,6 @@ components:
             label: Property (e.g. url, data.title)
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
-      - { name: header_intro, type: rich-text, label: Header Intro }
   block_split_buy_options:
     label: Split Buy Options
     type: object

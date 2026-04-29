@@ -8,10 +8,8 @@ Parameters (via block object):
     - description: Card description (optional)
     - link: URL to link to (optional)
   - block.reveal: If true, adds data-reveal animation (default: true)
-  - block.heading_level: Heading level for titles, defaults to 3 (h3)
   - block.image_aspect_ratio: Aspect ratio for images (e.g., "16/9", "1/1", "4/3"). Default: uses CSS default
-  - block.header_intro, header_align, header_class:
-    Optional section header params (same as features.html, renders section-header before grid)
+  - block.intro_content: Optional markdown intro rendered above the grid
 
 Usage:
   {% include "design-system/image-cards.html",
@@ -25,15 +23,8 @@ Usage:
 {%- endcomment -%}
 
 {%- assign reveal = block.reveal | default: true -%}
-{%- assign heading_level = block.heading_level | default: 3 -%}
 
-{%- if block.header_intro -%}
-  {%- include "design-system/section-header.html",
-     intro: block.header_intro,
-     align: block.header_align,
-     header_class: block.header_class
-  -%}
-{%- endif -%}
+{%- include "design-system/block-intro.html" -%}
 
 <ul class="items" role="list">
   {%- for item in block.items -%}
@@ -47,13 +38,13 @@ Usage:
         {%- image item.image, "", "", "", "", block.image_aspect_ratio -%}
       </a>
     {%- endif -%}
-    <h{{ heading_level }}>
+    <h3>
       {%- if item.link -%}
         <a href="{{ item.link }}">{{ item.title }}</a>
       {%- else -%}
         {{ item.title }}
       {%- endif -%}
-    </h{{ heading_level }}>
+    </h3>
     {%- if item.description -%}
       <p>{{ item.description }}</p>
     {%- endif -%}

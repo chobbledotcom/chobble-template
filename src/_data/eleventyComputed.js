@@ -28,7 +28,7 @@ const hasTag = (data, tag) => (data.tags || []).includes(tag);
  * @type {Record<string, Record<string, unknown>>}
  */
 const BLOCK_DEFAULTS = {
-  features: { reveal: true, heading_level: 3, center: false },
+  features: { reveal: true, center: false },
   stats: { reveal: true },
   "split-image": { title_level: 2, reveal_figure: "scale" },
   "split-video": { title_level: 2, reveal_figure: "scale" },
@@ -37,7 +37,7 @@ const BLOCK_DEFAULTS = {
   "split-html": { title_level: 2, reveal_figure: "scale" },
   "split-callout": { title_level: 2, reveal_figure: "scale" },
   "section-header": { align: "center" },
-  "image-cards": { reveal: true, heading_level: 3 },
+  "image-cards": { reveal: true },
   "code-block": { reveal: true },
   "icon-links": { reveal: true },
   downloads: { reveal: true },

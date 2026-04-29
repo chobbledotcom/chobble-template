@@ -12,23 +12,15 @@ Parameters (via block object):
     - link_url: Optional URL to link the image to
   - block.speed: Animation duration for one cycle (default: "30s")
   - block.height: CSS height for images (default: "50px")
-  - block.header_intro: Optional markdown section header above the marquee
-  - block.header_align: Header text alignment
-  - block.header_class: Extra header CSS classes
+  - block.intro_content: Optional markdown intro rendered above the marquee
 {%- endcomment -%}
 
-{%- if block.header_intro -%}
-  {%- include "design-system/section-header.html",
-    intro: block.header_intro,
-    align: block.header_align,
-    header_class: block.header_class
-  -%}
-{%- endif -%}
+{%- include "design-system/block-intro.html" -%}
 
 {%- if block.items.size > 0 -%}
   {%- assign speed = block.speed | default: "30s" -%}
   {%- assign height = block.height | default: "50px" -%}
-  <div class="marquee-images{% if block.header_intro %} marquee-images--has-header{% endif %}" style="--marquee-speed: {{ speed }}; --marquee-height: {{ height }}">
+  <div class="marquee-images{% if block.intro_content %} marquee-images--has-header{% endif %}" style="--marquee-speed: {{ speed }}; --marquee-height: {{ height }}">
     <div class="marquee-images__track">
       {%- for item in block.items -%}
         {%- assign image = item.image -%}
