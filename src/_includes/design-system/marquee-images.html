@@ -15,7 +15,11 @@ Parameters (via block object):
   - block.intro_content: Optional markdown intro rendered above the marquee
 {%- endcomment -%}
 
-{%- include "design-system/block-intro.html" -%}
+{%- if block.intro_content -%}
+  <div class="container-wide">
+    {%- include "design-system/block-intro.html" -%}
+  </div>
+{%- endif -%}
 
 {%- if block.items.size > 0 -%}
   {%- assign speed = block.speed | default: "30s" -%}
