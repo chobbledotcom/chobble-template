@@ -22,7 +22,7 @@
 	"scripts": {
 		"build": "rm -rf _site && bun scripts/eleventy-build.js",
 		"serve": "rm -rf _site && bun scripts/eleventy-build.js --serve --incremental",
-		"test": "bun test/run-tests.js",
+		"test": "bun ./test/run-tests.js",
 		"test:unit": "bun test test/unit",
 		"test:integration": "bun test test/integration",
 		"typecheck": "tsc --noEmit",
@@ -46,15 +46,15 @@
 	"devDependencies": {
 		"11ty.ts": "^0.0.7",
 		"@happy-dom/global-registrator": "^20.9.0",
-		"@types/bun": "^1.3.9",
+		"@types/bun": "^1.3.13",
 		"happy-dom": "^20.9.0",
-		"jscpd": "^4.0.8",
-		"knip": "^5.84.1",
+		"jscpd": "^4.0.9",
+		"knip": "^5.88.1",
 		"typescript": "^5.9.3",
-		"zod": "3"
+		"zod": "^3.25.76"
 	},
 	"dependencies": {
-		"@11ty/eleventy": "^3.1.2",
+		"@11ty/eleventy": "^3.1.5",
 		"@11ty/eleventy-img": "github:jornmineur/eleventy-img#f33b5e25c602fafeca5d374339d1e0ace74bea0b",
 		"@11ty/eleventy-navigation": "^1.0.5",
 		"@11ty/eleventy-plugin-rss": "^2.0.4",
@@ -70,15 +70,15 @@
 		"lighthouse": "^12.8.2",
 		"linkify-html": "^4.3.2",
 		"linkifyjs": "^4.3.2",
-		"liquidjs": "^10.24.0",
+		"liquidjs": "^10.25.7",
 		"markdown-it": "^14.1.1",
-		"pagefind": "^1.4.0",
+		"pagefind": "^1.5.2",
 		"player.js": "^0.1.0",
-		"playwright": "^1.58.2",
-		"sass": "^1.97.3",
+		"playwright": "^1.59.1",
+		"sass": "^1.99.0",
 		"sharp": "^0.34.5",
 		"uwrap": "^0.1.2",
-		"yaml": "^2.8.2"
+		"yaml": "^2.8.3"
 	},
 	"trustedDependencies": [
 		"@parcel/watcher"
