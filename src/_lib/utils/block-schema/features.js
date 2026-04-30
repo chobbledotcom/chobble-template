@@ -1,7 +1,6 @@
 import {
   bool,
-  HEADER_FIELDS,
-  HEADING_LEVEL_FIELD,
+  INTRO_CONTENT_FIELD,
   md,
   objectList,
   REVEAL_BOOLEAN_FIELD,
@@ -23,18 +22,13 @@ export const fields = {
     description:
       'Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji.',
   },
-  intro: {
-    ...md("Intro Content (Markdown)"),
-    description: "Markdown content rendered above the grid in `.prose`.",
-  },
+  intro_content: INTRO_CONTENT_FIELD,
   reveal: REVEAL_BOOLEAN_FIELD,
-  heading_level: HEADING_LEVEL_FIELD,
   center: {
     ...bool("Centered"),
     default: "false",
     description: "If true, centers feature text.",
   },
-  ...HEADER_FIELDS,
 };
 
 export const docs = {

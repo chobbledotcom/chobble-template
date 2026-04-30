@@ -20,6 +20,11 @@
       max-width: $width-narrow;
     }
 
+    a:not(.btn) {
+      color: var(--color-contrast-text);
+      text-decoration: underline;
+    }
+
     .btn--secondary {
       border-color: var(--color-contrast-text);
       color: var(--color-contrast-text);

@@ -9,7 +9,8 @@
 		"**/.test-sites/**",
 		"**/page-layouts/**",
 		"**/packages/**/index.js",
-		"**/marquee-images.html"
+		"**/marquee-images.html",
+		"**/src/assets/**"
 	],
 	"format": ["javascript", "markup", "css", "scss"],
 	"ignorePattern": ["import.*from"],

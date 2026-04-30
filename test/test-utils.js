@@ -144,7 +144,7 @@ const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
 // part of the runtime, but they're still production usage of any src/ exports
 // they import — code-quality scans treat them as a usage site.
 const SCRIPT_JS_FILES = memoizedFiles(/^scripts\/.*\.js$/);
-const ALL_JS_FILES = memoizedFiles(/^(src|test)\/.*\.js$/);
+const ALL_JS_FILES = memoizedFiles(/^(src\/|test\/).*\.js$/);
 
 /**
  * Create a pattern extractor for files.

@@ -13,4 +13,4 @@ Parameters (from block):
 {%- endcomment -%}
 
 {%- assign blockItems = collections[block.collection] -%}
-{%- include "design-system/render-items-block.html" -%}
+{%- include "design-system/render-items-block.html", block: block, image_aspect_ratio: block.image_aspect_ratio -%}
