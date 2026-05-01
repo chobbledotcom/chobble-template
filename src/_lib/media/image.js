@@ -77,8 +77,9 @@ const processImageData = dedupeAsync(
 
     const { default: Image } = await getEleventyImg();
 
-    // Check if LQIP should be generated (skip for SVGs, small files, or if noLqip is set)
-    const generateLqip = !noLqip && shouldGenerateLqip(finalPath, metadata);
+    // Check if LQIP should be generated (skip for SVGs, transparent images, small files, or if noLqip is set)
+    const generateLqip =
+      !noLqip && (await shouldGenerateLqip(finalPath, metadata));
 
     // Include LQIP width in the webp widths for single-pass processing
     const requestedWidths = parseWidths(widths);
