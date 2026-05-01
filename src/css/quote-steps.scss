@@ -1,6 +1,8 @@
 // Quote form multi-step styles
 
 @use "breakpoints";
+@use "variables" as *;
+@use "mixins" as *;
 
 .quote-steps-progress {
   margin-bottom: 2rem;
@@ -97,9 +99,7 @@
 }
 
 .quote-step-fields {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 1rem;
+  @include flex-wrap($space-md);
 
   > * {
     width: 100%;
@@ -107,7 +107,7 @@
 
   > .field-half {
     @include breakpoints.up("sm") {
-      width: calc(50% - 0.5rem);
+      width: calc(50% - #{$space-md} / 2);
     }
   }
 }
