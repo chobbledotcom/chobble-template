@@ -9,14 +9,12 @@ without a ".md" extension, e.g. "locations/fulchester" or
 
 Parameters (from block):
   items       - Array of file or directory paths as strings
-  intro       - Optional markdown content rendered above the items
-  horizontal  - If true, renders as a horizontal slider
-  masonry     - If true, renders as a masonry grid (uses uWrap)
-  filter      - Optional object to filter the resolved items:
-                  property: dot-notation path (e.g. "url", "data.title")
-                  includes: string the property must contain
-                  equals:   exact value the property must match
+  intro       - Markdown content shown above the resolved items
+  horizontal  - Renders items in a horizontal slider when true
+  masonry     - Renders items in a masonry grid when true (uses uWrap)
+  filter      - Optional filter object (same shape as items-block.html)
 {%- endcomment -%}
 
-{%- assign blockItems = collections.all | getItemsByPath: block.items -%}
-{%- include "design-system/render-items-block.html" -%}
+{%- assign resolvedPaths = block.items -%}
+{%- assign blockItems = collections.all | getItemsByPath: resolvedPaths -%}
+{%- include "design-system/render-items-block.html", block: block, image_aspect_ratio: block.image_aspect_ratio -%}

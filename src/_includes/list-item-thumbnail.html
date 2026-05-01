@@ -1,9 +1,10 @@
 {%- if item.data.thumbnail -%}
+  {%- assign aspect_ratio = image_aspect_ratio | default: config.products.item_list_aspect_ratio -%}
   {%- if item.url contains "://" -%}
     <a class="image-link" href="{{ item.url }}" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
   {%- else -%}
     <a class="image-link" href="{{ item.url }}{{ config.internal_link_suffix }}" aria-hidden="true" tabindex="-1">
   {%- endif -%}
-    {%- image item.data.thumbnail, "", "", "", "", config.products.item_list_aspect_ratio -%}
+    {%- image item.data.thumbnail, "", "", "", "", aspect_ratio -%}
   </a>
 {%- endif -%}

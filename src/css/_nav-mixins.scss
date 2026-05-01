@@ -198,10 +198,10 @@
   background: var(--color-bg);
   top: 3rem;
   right: -100%;
-  bottom: 0;
+  height: calc(100vh - 3rem);
   width: 70%;
   max-width: 300px;
-  overflow-x: scroll;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   gap: $gap;

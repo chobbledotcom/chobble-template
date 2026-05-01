@@ -15,13 +15,13 @@ describe("generateBlocksField envelope", () => {
     });
   });
 
-  test("preserves the input order of requested block types", () => {
+  test("sorts requested block types alphabetically by name", () => {
     const field = generateBlocksField(["section-header", "cta", "hero"], false);
 
     expect(field.blocks.map((b) => b.name)).toEqual([
-      "section-header",
       "cta",
       "hero",
+      "section-header",
     ]);
   });
 });
@@ -55,16 +55,19 @@ describe("generateBlocksField block component", () => {
 
 describe("generateBlocksField markdown field conversion", () => {
   // section-header.intro is a markdown-typed schema field.
+  const getIntroField = (blockTypes, visual) => {
+    const field = generateBlocksField(blockTypes, visual);
+    return field.blocks[0].fields.find((f) => f.name === "intro");
+  };
+
   test("emits a rich-text field when visual editor is enabled", () => {
-    const field = generateBlocksField(["section-header"], true);
-    const intro = field.blocks[0].fields.find((f) => f.name === "intro");
+    const intro = getIntroField(["section-header"], true);
 
     expect(intro.type).toBe("rich-text");
   });
 
   test("emits a code/markdown field when visual editor is disabled", () => {
-    const field = generateBlocksField(["section-header"], false);
-    const intro = field.blocks[0].fields.find((f) => f.name === "intro");
+    const intro = getIntroField(["section-header"], false);
 
     expect(intro.type).toBe("code");
     expect(intro.options).toEqual({ language: "markdown" });

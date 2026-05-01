@@ -1,4 +1,5 @@
 /* jscpd:ignore-start */
+import { bool } from "#utils/block-schema/shared.js";
 import {
   SPLIT_BASE_DOCS,
   SPLIT_BASE_FIELDS,
@@ -28,6 +29,12 @@ export const fields = {
   figure_caption: {
     ...str("Video Caption"),
     description: "Visible caption below the video.",
+  },
+  figure_autoplay: {
+    ...bool("Autoplay"),
+    default: "false",
+    description:
+      "If true, skips the click-to-play facade and renders the iframe directly with autoplay + mute (browsers block unmuted autoplay). Controls stay visible.",
   },
 };
 

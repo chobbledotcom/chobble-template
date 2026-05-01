@@ -24,10 +24,10 @@ Usage:
   {%- if block.icon -%}
     <div class="callout__icon" aria-hidden="true">{%- include "design-system/icon.html", icon: block.icon -%}</div>
   {%- endif -%}
-  <div class="callout__body">
+  <div class="callout__content prose">
     {%- if block.title -%}
       <strong class="callout__title">{{ block.title }}</strong>
     {%- endif -%}
-    <div class="callout__content prose">{{ block.content | renderContent: "md" }}</div>
+    {{ block.content | renderContent: "md" }}
   </div>
 </aside>

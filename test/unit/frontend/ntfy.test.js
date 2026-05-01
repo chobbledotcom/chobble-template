@@ -26,7 +26,7 @@ describe("ntfy", () => {
       sendNtfyNotification("Checkout failed");
 
       expect(fetchMock).toHaveBeenCalledTimes(1);
-      const [url, options] = fetchMock.mock.calls[0];
+      const [[url, options]] = fetchMock.mock.calls;
       expect(url).toBe("https://ntfy.sh/test-channel");
       expect(options.method).toBe("POST");
       expect(options.body).toContain("Checkout failed");

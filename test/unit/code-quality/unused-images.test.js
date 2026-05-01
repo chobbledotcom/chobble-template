@@ -64,12 +64,13 @@ describe("unused-images", () => {
     cleanupTempDir(tempDir);
   });
 
+  const expectNoImagesFound = (logs) =>
+    expect(
+      logs.some((log) => log.includes("No images found in /src/images/")),
+    ).toBe(true);
+
   test("Handles empty images directory", async () => {
-    await runUnusedImagesTest("empty", null, (logs) => {
-      expect(
-        logs.some((log) => log.includes("No images found in /src/images/")),
-      ).toBe(true);
-    });
+    await runUnusedImagesTest("empty", null, expectNoImagesFound);
   });
 
   test("Ignores non-image files in images directory", async () => {
@@ -79,11 +80,7 @@ describe("unused-images", () => {
         fs.writeFileSync(path.join(imagesDir, "readme.txt"), "text file");
         fs.writeFileSync(path.join(imagesDir, "data.json"), "{}");
       },
-      (logs) => {
-        expect(
-          logs.some((log) => log.includes("No images found in /src/images/")),
-        ).toBe(true);
-      },
+      expectNoImagesFound,
     );
   });
 

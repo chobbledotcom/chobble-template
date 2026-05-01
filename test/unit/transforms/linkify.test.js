@@ -9,7 +9,6 @@ import {
   linkifyPhones,
   linkifyUrls,
   parseTextByPattern,
-  SKIP_TAGS,
   URL_PATTERN,
 } from "#transforms/linkify.js";
 import { loadDOM } from "#utils/lazy-dom.js";
@@ -61,11 +60,12 @@ const skipTagTestCases = [
   },
 ];
 
-// URL-only skip tags (style, code, pre are tested separately from shared tests)
+// URL-only skip tags (style, code, pre, title are tested separately from shared tests)
 const urlOnlySkipTags = [
   { tag: "style", html: "<style>/* https://example.com */</style>" },
   { tag: "code", html: "<code>https://example.com</code>" },
   { tag: "pre", html: "<pre>https://example.com</pre>" },
+  { tag: "title", html: "<title>https://example.com</title>" },
 ];
 
 describe("linkify transforms", () => {
@@ -124,14 +124,6 @@ describe("linkify transforms", () => {
     });
   });
 
-  describe("SKIP_TAGS constant", () => {
-    test("includes expected tags", () => {
-      for (const tag of ["a", "script", "style", "code", "pre"]) {
-        expect(SKIP_TAGS.has(tag)).toBe(true);
-      }
-    });
-  });
-
   describe("linkifyUrls", () => {
     test("converts plain URLs to anchor tags", async () => {
       const html = wrapHtml("<p>Visit https://example.com for more</p>");
@@ -150,6 +142,7 @@ describe("linkify transforms", () => {
       });
 
       expect(result).toContain('target="_blank"');
+      expect(result).toContain("noopener");
       expect(result).toContain('rel="noopener noreferrer"');
     });
 
@@ -479,22 +472,22 @@ describe("linkify transforms", () => {
   });
 
   describe("buildConfigLinksPattern", () => {
-    test("matches longest text first", () => {
-      const pattern = buildConfigLinksPattern(["Acme", "Acme Corp"]);
-      const text = "Visit Acme Corp today";
-      const matches = [...text.matchAll(pattern)];
-
+    const expectSingleMatch = (terms, text, expected) => {
+      const matches = [...text.matchAll(buildConfigLinksPattern(terms))];
       expect(matches.length).toBe(1);
-      expect(matches[0][0]).toBe("Acme Corp");
+      expect(matches[0][0]).toBe(expected);
+    };
+
+    test("matches longest text first", () => {
+      expectSingleMatch(
+        ["Acme", "Acme Corp"],
+        "Visit Acme Corp today",
+        "Acme Corp",
+      );
     });
 
     test("escapes special regex characters in link text", () => {
-      const pattern = buildConfigLinksPattern(["C++ Guide"]);
-      const text = "Read the C++ Guide now";
-      const matches = [...text.matchAll(pattern)];
-
-      expect(matches.length).toBe(1);
-      expect(matches[0][0]).toBe("C++ Guide");
+      expectSingleMatch(["C++ Guide"], "Read the C++ Guide now", "C++ Guide");
     });
   });
 });

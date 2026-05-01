@@ -1,14 +1,10 @@
-{%- if block.header_intro -%}
-  {%- include "design-system/section-header.html",
-     intro: block.header_intro,
-     align: block.header_align,
-     header_class: block.header_class
-  -%}
-{%- endif -%}
+{%- include "design-system/block-intro.html" -%}
 <div class="contact-form-block">
+  {%- if block.content -%}
   <div class="prose">
     {{ block.content | renderContent: "md" }}
   </div>
+  {%- endif -%}
   <div class="form">
     {%- include "contact-form.html" -%}
   </div>

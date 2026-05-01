@@ -9,7 +9,7 @@ import { findFirst, findFromChildren } from "#utils/thumbnail-finder.js";
 /**
  * Create a recursive thumbnail resolver that walks child items.
  *
- * @template {{fileSlug: string}} T
+ * @template {{fileSlug: string, data?: {order?: number}}} T
  * @param {object} options
  * @param {Map<string, T[]>} options.childrenByParent
  * @param {(item: T) => string | null | undefined} options.getOwnThumbnail
@@ -23,13 +23,14 @@ const createChildThumbnailResolver = ({
   getFallbackThumbnail,
   getKey = (item) => item.fileSlug,
 }) => {
+  /**
+   * @param {T} item
+   * @returns {string | undefined}
+   */
   const resolve = (item) =>
     findFirst(
       () => getOwnThumbnail(item),
-      () =>
-        findFromChildren(childrenByParent.get(getKey(item)), (child) =>
-          resolve(child),
-        ),
+      () => findFromChildren(childrenByParent.get(getKey(item)), resolve),
       () => (getFallbackThumbnail ? getFallbackThumbnail(item) : undefined),
     );
 

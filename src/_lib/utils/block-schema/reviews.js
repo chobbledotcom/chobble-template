@@ -1,4 +1,9 @@
-import { bool, num } from "#utils/block-schema/shared.js";
+import {
+  bool,
+  HORIZONTAL_FIELD,
+  MASONRY_FIELD,
+  num,
+} from "#utils/block-schema/shared.js";
 
 export const type = "reviews";
 
@@ -13,6 +18,8 @@ export const fields = {
     description:
       "If set, only reviews with a rating >= this value are displayed (1–5).",
   },
+  horizontal: HORIZONTAL_FIELD,
+  masonry: MASONRY_FIELD,
 };
 
 export const docs = {

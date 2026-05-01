@@ -144,7 +144,7 @@ const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
 // part of the runtime, but they're still production usage of any src/ exports
 // they import — code-quality scans treat them as a usage site.
 const SCRIPT_JS_FILES = memoizedFiles(/^scripts\/.*\.js$/);
-const ALL_JS_FILES = memoizedFiles(/^(src|test)\/.*\.js$/);
+const ALL_JS_FILES = memoizedFiles(/^(src\/|test\/).*\.js$/);
 
 /**
  * Create a pattern extractor for files.
@@ -277,6 +277,15 @@ const createProduct = ({
 // ============================================
 
 /**
+ * Assert that an HTML string contains a valid unordered list structure.
+ */
+const expectHtmlList = (html) => {
+  expect(html.includes("<ul>")).toBe(true);
+  expect(html.includes("</ul>")).toBe(true);
+  expect(html.includes("<li>")).toBe(true);
+};
+
+/**
  * Assert that a result is a valid script tag with correct id and type.
  */
 const expectValidScriptTag = (result) => {
@@ -396,10 +405,11 @@ export {
   expectDataArray,
   expectErrorsInclude,
   expectGalleries,
+  // Assertions
+  expectHtmlList,
   expectObjectProps,
   expectProp,
   expectResultTitles,
-  // Assertions
   expectValidScriptTag,
   extractFunctions,
   fs,

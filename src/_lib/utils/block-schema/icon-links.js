@@ -1,4 +1,8 @@
-import { md, objectList, str } from "#utils/block-schema/shared.js";
+import {
+  INTRO_CONTENT_FIELD,
+  objectList,
+  str,
+} from "#utils/block-schema/shared.js";
 
 export const type = "icon-links";
 
@@ -12,10 +16,7 @@ export const ICON_LINKS_ITEMS_FIELD = objectList("Links", {
 });
 
 export const fields = {
-  intro: {
-    ...md("Intro Content (Markdown)"),
-    description: "Markdown content rendered above the links list in `.prose`.",
-  },
+  intro_content: INTRO_CONTENT_FIELD,
   items: {
     ...ICON_LINKS_ITEMS_FIELD,
     required: true,

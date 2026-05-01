@@ -332,13 +332,13 @@ describe("code-scanner", () => {
     });
 
     test("skips file-only entries without line numbers", () => {
-      const allowlist = frozenSet([
+      const entries = frozenSet([
         "test/code-scanner.js", // file-only entry, should be skipped
-        "test/code-scanner.js:5", // should be validated
+        "test/code-scanner.js:6", // should be validated
       ]);
       const patterns = /import/;
 
-      const stale = validateExceptions(allowlist, patterns);
+      const stale = validateExceptions(entries, patterns);
       expect(stale).toEqual([]);
     });
 
@@ -361,13 +361,12 @@ describe("code-scanner", () => {
     });
 
     test("detects when line no longer matches pattern", () => {
-      const allowlist = frozenSet(["test/code-scanner.js:1"]); // Line 1 has a comment, not console.log
-      const patterns = /console\.log/;
-
-      const stale = validateExceptions(allowlist, patterns);
-      expect(stale.length).toBe(1);
-      expect(stale[0].entry).toBe("test/code-scanner.js:1");
-      expect(stale[0].reason).toMatch(/Line no longer matches pattern/);
+      testStaleException(
+        frozenSet(["test/code-scanner.js:1"]),
+        /console\.log/,
+        "test/code-scanner.js:1",
+        /Line no longer matches pattern/,
+      );
     });
 
     test("works with multiple patterns", () => {
@@ -379,14 +378,12 @@ describe("code-scanner", () => {
     });
 
     test("detects file-only entry with no matching lines", () => {
-      // test/code-scanner.js exists but won't have this pattern
-      const allowlist = frozenSet(["test/code-scanner.js"]);
-      const patterns = /this-pattern-definitely-wont-match-anything-12345/;
-
-      const stale = validateExceptions(allowlist, patterns);
-      expect(stale.length).toBe(1);
-      expect(stale[0].entry).toBe("test/code-scanner.js");
-      expect(stale[0].reason).toBe("File contains no lines matching pattern");
+      testStaleException(
+        frozenSet(["test/code-scanner.js"]),
+        /this-pattern-definitely-wont-match-anything-12345/,
+        "test/code-scanner.js",
+        /File contains no lines matching pattern/,
+      );
     });
 
     test("detects multiple stale entries", () => {

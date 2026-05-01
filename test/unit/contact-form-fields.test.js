@@ -1,72 +1,96 @@
 import { describe, expect, test } from "bun:test";
 import { resolveFormFields } from "#config/form-helpers.js";
 
-describe("resolveFormFields", () => {
-  const baseContactForm = {
-    itemTagLabels: {
-      products: "Product",
-      categories: "Category",
+const baseContactForm = {
+  itemTagLabels: {
+    products: "Product",
+    categories: "Category",
+  },
+  fields: [
+    { name: "name", label: "Name", template: "form-field-input.html" },
+    {
+      name: "item",
+      label: "Item",
+      showForItemTag: true,
+      template: "form-field-textarea.html",
     },
-    fields: [
-      { name: "name", label: "Name", template: "form-field-input.html" },
-      {
-        name: "item",
-        label: "Item",
-        showForItemTag: true,
-        template: "form-field-textarea.html",
-      },
-      {
-        name: "message",
-        label: "Message",
-        template: "form-field-textarea.html",
-      },
-    ],
-  };
+    {
+      name: "message",
+      label: "Message",
+      template: "form-field-textarea.html",
+    },
+  ],
+};
 
-  test("hides showForItemTag field when no whitelist match", () => {
+const formWithShowOn = (showOn) => ({
+  ...baseContactForm,
+  fields: [
+    {
+      name: "extra",
+      label: "Extra",
+      template: "form-field-input.html",
+      showOn,
+    },
+  ],
+});
+
+describe("resolveFormFields", () => {
+  test("omits showForItemTag field when no whitelist tag matches page tags", () => {
     const out = resolveFormFields(baseContactForm, []);
     expect(out.map((f) => f.name)).toEqual(["name", "message"]);
   });
 
-  test("applies whitelist label and derived name for showForItemTag", () => {
+  test("rewrites showForItemTag field name and label from matching whitelist entry", () => {
     const out = resolveFormFields(baseContactForm, ["categories"]);
-    const itemField = out.find((f) => f.name === "category");
-    expect(itemField).toEqual(
-      expect.objectContaining({
-        name: "category",
-        label: "Category",
-      }),
+    const rewritten = out.find(
+      (f) =>
+        f.template === "form-field-textarea.html" && f.label === "Category",
     );
+    expect(rewritten).toEqual({
+      name: "category",
+      label: "Category",
+      template: "form-field-textarea.html",
+    });
   });
 
-  test("uses first whitelist entry when multiple tags match", () => {
-    const out = resolveFormFields(baseContactForm, ["categories", "products"]);
-    const itemField = out.find((f) => f.showForItemTag === undefined);
-    // whitelist order: products first, so products label wins
-    const tagged = out.filter(
-      (f) => f.name === "product" || f.name === "category",
-    );
-    expect(tagged.length).toBe(1);
-    expect(tagged[0].name).toBe("product");
-  });
-
-  test("respects skipShowOn for showOn fields", () => {
+  test("derives field name by lowercasing and replacing whitespace with underscores", () => {
     const form = {
       ...baseContactForm,
-      fields: [
-        ...baseContactForm.fields,
-        {
-          name: "extra",
-          label: "Extra",
-          showOn: "quote",
-          template: "form-field-input.html",
-        },
-      ],
+      itemTagLabels: { services: "Service Type" },
     };
-    const withTag = resolveFormFields(form, ["quote"], false);
-    expect(withTag.some((f) => f.name === "extra")).toBe(true);
+    const out = resolveFormFields(form, ["services"]);
+    const rewritten = out.find((f) => f.label === "Service Type");
+    expect(rewritten.name).toBe("service_type");
+  });
 
-    const skipped = resolveFormFields(form, ["quote"], true);
-    expect(skipped.some((f) => f.name === "extra")).toBe(false);
+  test("picks the first itemTagLabels entry when multiple page tags match", () => {
+    // itemTagLabels key order wins, not page-tag order
+    const out = resolveFormFields(baseContactForm, ["categories", "products"]);
+    const rewritten = out.filter(
+      (f) => f.name === "product" || f.name === "category",
+    );
+    expect(rewritten).toHaveLength(1);
+    expect(rewritten[0].name).toBe("product");
+  });
+
+  test("includes showOn field when the tag is present and skipShowOn is false", () => {
+    const out = resolveFormFields(formWithShowOn("quote"), ["quote"], false);
+    expect(out.map((f) => f.name)).toContain("extra");
+  });
+
+  test("drops showOn field when skipShowOn is true even if tag matches", () => {
+    const out = resolveFormFields(formWithShowOn("quote"), ["quote"], true);
+    expect(out.map((f) => f.name)).not.toContain("extra");
+  });
+
+  test("drops showOn field when its tag is not in page tags", () => {
+    const out = resolveFormFields(formWithShowOn("quote"), ["products"], false);
+    expect(out.map((f) => f.name)).not.toContain("extra");
+  });
+
+  test("treats missing tags input as an empty tag list", () => {
+    const out = resolveFormFields(baseContactForm, undefined);
+    // showForItemTag field is dropped (no match), plain fields pass through
+    expect(out.map((f) => f.name)).toEqual(["name", "message"]);
   });
 });

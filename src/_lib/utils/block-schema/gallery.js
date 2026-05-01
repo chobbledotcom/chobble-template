@@ -1,6 +1,8 @@
 import {
+  INTRO_CONTENT_FIELD,
   ITEMS_GRID_META,
   img,
+  MASONRY_FIELD,
   objectList,
   str,
 } from "#utils/block-schema/shared.js";
@@ -22,6 +24,8 @@ export const fields = {
     description:
       'Aspect ratio for images (e.g. `"16/9"`, `"1/1"`, `"4/3"`). Default: no cropping.',
   },
+  intro_content: INTRO_CONTENT_FIELD,
+  masonry: MASONRY_FIELD,
 };
 
 export const docs = {

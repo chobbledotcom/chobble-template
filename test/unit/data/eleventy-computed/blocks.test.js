@@ -41,12 +41,11 @@ describe("eleventyComputed.blocks", () => {
     ).toThrow("src/products/example.md");
   });
 
-  test("applies the features defaults (reveal, heading_level, center)", () => {
+  test("applies the features defaults (reveal, center)", () => {
     expect(runSingle({ type: "features", items: [] })).toEqual({
       type: "features",
       items: [],
       reveal: true,
-      heading_level: 3,
       center: false,
       dark: false,
     });
@@ -99,12 +98,11 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
-  test("applies the image-cards defaults (reveal, heading_level)", () => {
+  test("applies the image-cards defaults (reveal)", () => {
     expect(runSingle({ type: "image-cards", items: [] })).toEqual({
       type: "image-cards",
       items: [],
       reveal: true,
-      heading_level: 3,
       dark: false,
     });
   });
@@ -121,31 +119,14 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
-  test("applies the video-background defaults (aspect_ratio)", () => {
-    expect(
-      runSingle({
-        type: "video-background",
-        video_id: "dQw4w9WgXcQ",
-        content: "<h2>Test</h2>",
-      }),
-    ).toEqual({
-      type: "video-background",
-      video_id: "dQw4w9WgXcQ",
-      content: "<h2>Test</h2>",
-      aspect_ratio: "16/9",
-      dark: false,
-    });
-  });
-
   test("allows user values to override default values", () => {
     const block = runSingle({
       type: "features",
       reveal: false,
-      heading_level: 2,
+      center: true,
     });
     expect(block.reveal).toBe(false);
-    expect(block.heading_level).toBe(2);
-    expect(block.center).toBe(false);
+    expect(block.center).toBe(true);
   });
 
   test("allows user to override the dark default to true", () => {

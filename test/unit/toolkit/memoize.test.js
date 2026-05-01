@@ -51,14 +51,15 @@ describe("memoizeByRef", () => {
     const obj1 = { id: "first" };
     const obj2 = { id: "second" };
 
-    expect(expensive(obj1)).toBe("first");
-    expect(expensive(obj2)).toBe("second");
-    expect(counter.count).toBe(2);
+    const assertBothCached = (expectedCount) => {
+      expect(expensive(obj1)).toBe("first");
+      expect(expensive(obj2)).toBe("second");
+      expect(counter.count).toBe(expectedCount);
+    };
 
+    assertBothCached(2);
     // Subsequent calls still use cache
-    expect(expensive(obj1)).toBe("first");
-    expect(expensive(obj2)).toBe("second");
-    expect(counter.count).toBe(2);
+    assertBothCached(2);
   });
 
   test("works with complex return values", () => {
@@ -100,12 +101,17 @@ describe("dedupeAsync", () => {
     expect(counter.count).toBe(1);
   });
 
-  test("different keys run separate operations", async () => {
+  const makeSlowCounter = () => {
     const counter = createCounter();
     const slow = dedupeAsync(async (id) => {
       counter.count++;
       return `result-${id}`;
     });
+    return { counter, slow };
+  };
+
+  test("different keys run separate operations", async () => {
+    const { counter, slow } = makeSlowCounter();
 
     const [r1, r2] = await Promise.all([slow(1), slow(2)]);
 
@@ -115,11 +121,7 @@ describe("dedupeAsync", () => {
   });
 
   test("cache clears after Promise resolves", async () => {
-    const counter = createCounter();
-    const slow = dedupeAsync(async (id) => {
-      counter.count++;
-      return `result-${id}`;
-    });
+    const { counter, slow } = makeSlowCounter();
 
     await slow(1);
     await slow(1);

@@ -23,7 +23,7 @@ const b = 2;
 const c = 3;
     `;
     const results = findBackwardsCompat(source);
-    expect(results.length).toBe(2);
+    expect(results).toHaveLength(2);
     expect(results[0].lineNumber).toBe(3);
     expect(results[1].lineNumber).toBe(5);
   });

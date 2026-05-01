@@ -9,7 +9,8 @@
 		"**/.test-sites/**",
 		"**/page-layouts/**",
 		"**/packages/**/index.js",
-		"**/marquee-images.html"
+		"**/marquee-images.html",
+		"**/src/assets/**"
 	],
 	"format": ["javascript", "markup", "css", "scss"],
 	"ignorePattern": ["import.*from"],
@@ -17,6 +18,6 @@
 	"gitignore": true,
 	"exitCode": 1,
 	"minLines": 1,
-	"minTokens": 40,
+	"minTokens": 32,
 	"path": ["src", "test", "scripts", ".eleventy.js"]
 }

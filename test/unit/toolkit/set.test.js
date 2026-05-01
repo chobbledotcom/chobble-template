@@ -4,12 +4,16 @@
 import { describe, expect, test } from "bun:test";
 import { frozenSet, frozenSetFrom, setHas, setLacks } from "#toolkit/fp/set.js";
 
+const expectHasAB = (set) => {
+  expect(set.has("a")).toBe(true);
+  expect(set.has("b")).toBe(true);
+};
+
 describe("frozenSet", () => {
   test("creates a Set from array values", () => {
     const set = frozenSet(["a", "b", "c"]);
 
-    expect(set.has("a")).toBe(true);
-    expect(set.has("b")).toBe(true);
+    expectHasAB(set);
     expect(set.has("c")).toBe(true);
     expect(set.has("d")).toBe(false);
   });
@@ -89,8 +93,7 @@ describe("frozenSetFrom", () => {
     ]);
     const set = frozenSetFrom(map.keys());
 
-    expect(set.has("a")).toBe(true);
-    expect(set.has("b")).toBe(true);
+    expectHasAB(set);
     expect(set instanceof Set).toBe(true);
   });
 

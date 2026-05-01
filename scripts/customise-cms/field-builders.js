@@ -28,7 +28,7 @@ import {
   withHeaderFields,
 } from "#scripts/customise-cms/generator-helpers.js";
 import { compact, memberOf } from "#toolkit/fp/array.js";
-import { BLOCK_CMS_FIELDS } from "#utils/block-schema.js";
+import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig
@@ -81,7 +81,9 @@ export const getCollectionFieldBuilders = (config, fields) => ({
       config.features.no_index && COMMON_FIELDS.no_index,
       config.features.videos && VIDEOS_FIELD,
       generateBlocksField(
-        Object.keys(BLOCK_CMS_FIELDS),
+        Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
+          isBlockAllowedIn(type, "pages"),
+        ),
         config.features.use_visual_editor,
       ),
     ]),

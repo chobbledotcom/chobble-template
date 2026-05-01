@@ -17,16 +17,10 @@ Parameters (via block object):
   - block.sandbox: Sandbox tokens
   - block.allow: Permissions policy
   - block.scrolling: Legacy scrolling attribute
-  - block.header_intro, header_align, header_class: Optional section header
+  - block.intro_content: Optional markdown intro rendered above the embed
 {%- endcomment -%}
 
-{%- if block.header_intro -%}
-  {%- include "design-system/section-header.html",
-     intro: block.header_intro,
-     align: block.header_align,
-     header_class: block.header_class
-  -%}
-{%- endif -%}
+{%- include "design-system/block-intro.html" -%}
 
 {%- capture _wrap_style -%}
   {%- if block.aspect_ratio %}aspect-ratio: {{ block.aspect_ratio }};{%- endif -%}

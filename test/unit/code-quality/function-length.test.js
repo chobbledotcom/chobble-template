@@ -33,6 +33,13 @@ const IGNORED_FUNCTIONS = frozenSet([
 // Test helper to join source code lines
 const testSource = (lines) => lines.join("\n");
 
+// Asserts exactly one function was extracted and returns it
+const extractSingleFunction = (source) => {
+  const functions = extractFunctions(source);
+  expect(functions.length).toBe(1);
+  return functions[0];
+};
+
 describe("function-length", () => {
   test("extractFunctions finds simple function declarations", () => {
     const source = testSource([
@@ -40,10 +47,9 @@ describe("function-length", () => {
       '  console.log("hi");',
       "}",
     ]);
-    const functions = extractFunctions(source);
-    expect(functions.length).toBe(1);
-    expect(functions[0].name).toBe("hello");
-    expect(functions[0].lineCount).toBe(3);
+    const fn = extractSingleFunction(source);
+    expect(fn.name).toBe("hello");
+    expect(fn.lineCount).toBe(3);
   });
 
   test("extractFunctions finds arrow functions assigned to variables", () => {
@@ -52,9 +58,7 @@ describe("function-length", () => {
       '  return "Hello " + name;',
       "};",
     ]);
-    const functions = extractFunctions(source);
-    expect(functions.length).toBe(1);
-    expect(functions[0].name).toBe("greet");
+    expect(extractSingleFunction(source).name).toBe("greet");
   });
 
   test("extractFunctions finds async functions", () => {
@@ -64,9 +68,7 @@ describe("function-length", () => {
       "  return res.json();",
       "}",
     ]);
-    const functions = extractFunctions(source);
-    expect(functions.length).toBe(1);
-    expect(functions[0].name).toBe("fetchData");
+    expect(extractSingleFunction(source).name).toBe("fetchData");
   });
 
   test("extractFunctions finds exported arrow functions", () => {
@@ -75,9 +77,7 @@ describe("function-length", () => {
       "  return x * 2;",
       "};",
     ]);
-    const functions = extractFunctions(source);
-    expect(functions.length).toBe(1);
-    expect(functions[0].name).toBe("helper");
+    expect(extractSingleFunction(source).name).toBe("helper");
   });
 
   test("extractFunctions ignores braces inside strings", () => {
@@ -88,9 +88,7 @@ describe("function-length", () => {
       "  return true;",
       "}",
     ]);
-    const functions = extractFunctions(source);
-    expect(functions.length).toBe(1);
-    expect(functions[0].lineCount).toBe(5);
+    expect(extractSingleFunction(source).lineCount).toBe(5);
   });
 
   test("extractFunctions ignores braces inside template literals", () => {
@@ -99,10 +97,9 @@ describe("function-length", () => {
       "  return `<div>${ data.value }</div>`;",
       "}",
     ]);
-    const functions = extractFunctions(source);
-    expect(functions.length).toBe(1);
-    expect(functions[0].name).toBe("render");
-    expect(functions[0].lineCount).toBe(3);
+    const fn = extractSingleFunction(source);
+    expect(fn.name).toBe("render");
+    expect(fn.lineCount).toBe(3);
   });
 
   test("extractFunctions ignores braces inside single-line comments", () => {
@@ -112,9 +109,7 @@ describe("function-length", () => {
       "  return 42;",
       "}",
     ]);
-    const functions = extractFunctions(source);
-    expect(functions.length).toBe(1);
-    expect(functions[0].lineCount).toBe(4);
+    expect(extractSingleFunction(source).lineCount).toBe(4);
   });
 
   test("extractFunctions ignores braces inside multi-line comments", () => {
@@ -126,9 +121,7 @@ describe("function-length", () => {
       "  return 1 + 1;",
       "}",
     ]);
-    const functions = extractFunctions(source);
-    expect(functions.length).toBe(1);
-    expect(functions[0].lineCount).toBe(6);
+    expect(extractSingleFunction(source).lineCount).toBe(6);
   });
 
   test("extractFunctions handles nested functions correctly", () => {
@@ -198,19 +191,17 @@ describe("function-length", () => {
       "  },",
       "};",
     ]);
-    const functions = extractFunctions(source);
-    expect(functions.length).toBe(1);
-    expect(functions[0].name).toBe("handler");
-    expect(functions[0].lineCount).toBe(3);
+    const fn = extractSingleFunction(source);
+    expect(fn.name).toBe("handler");
+    expect(fn.lineCount).toBe(3);
   });
 
   test("extractFunctions reports accurate startLine and endLine", () => {
     const source = testSource(["const foo = () => {", '  return "bar";', "};"]);
-    const functions = extractFunctions(source);
-    expect(functions.length).toBe(1);
-    expect(functions[0].startLine).toBe(1);
-    expect(functions[0].endLine).toBe(3);
-    expect(functions[0].lineCount).toBe(3);
+    const fn = extractSingleFunction(source);
+    expect(fn.startLine).toBe(1);
+    expect(fn.endLine).toBe(3);
+    expect(fn.lineCount).toBe(3);
   });
 
   test(`Check functions do not exceed ${MAX_LINES} lines`, () => {

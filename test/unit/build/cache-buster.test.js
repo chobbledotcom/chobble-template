@@ -11,6 +11,13 @@ const getCacheBustFilter = () => {
   return mockConfig.filters.cacheBust;
 };
 
+const withBuildMode = (fn) => {
+  const originalRunMode = process.env.ELEVENTY_RUN_MODE;
+  process.env.ELEVENTY_RUN_MODE = "build";
+  fn();
+  process.env.ELEVENTY_RUN_MODE = originalRunMode;
+};
+
 describe("cache-buster", () => {
   test("Returns URL unchanged in development mode", () => {
     const originalRunMode = process.env.ELEVENTY_RUN_MODE;
@@ -35,27 +42,21 @@ describe("cache-buster", () => {
   });
 
   test("Adds cache busting parameter in production mode", () => {
-    const originalRunMode = process.env.ELEVENTY_RUN_MODE;
-    process.env.ELEVENTY_RUN_MODE = "build";
-
-    const cacheBust = getCacheBustFilter();
-    const result = cacheBust("/styles.css");
-    expect(result.startsWith("/styles.css?cached=")).toBe(true);
-
-    process.env.ELEVENTY_RUN_MODE = originalRunMode;
+    withBuildMode(() => {
+      const cacheBust = getCacheBustFilter();
+      const result = cacheBust("/styles.css");
+      expect(result.startsWith("/styles.css?cached=")).toBe(true);
+    });
   });
 
   test("Cache buster uses numeric timestamp", () => {
-    const originalRunMode = process.env.ELEVENTY_RUN_MODE;
-    process.env.ELEVENTY_RUN_MODE = "build";
-
-    const cacheBust = getCacheBustFilter();
-    const result = cacheBust("/app.js");
-    const match = result.match(/\?cached=(\d+)$/);
-    expect(match !== null).toBe(true);
-    expect(Number.parseInt(match[1], 10) > 0).toBe(true);
-
-    process.env.ELEVENTY_RUN_MODE = originalRunMode;
+    withBuildMode(() => {
+      const cacheBust = getCacheBustFilter();
+      const result = cacheBust("/app.js");
+      const match = result.match(/\?cached=(\d+)$/);
+      expect(match !== null).toBe(true);
+      expect(Number.parseInt(match[1], 10) > 0).toBe(true);
+    });
   });
 
   test("Cache buster uses consistent timestamp across calls", () => {
