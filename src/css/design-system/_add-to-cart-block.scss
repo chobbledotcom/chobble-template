@@ -15,10 +15,10 @@
     @include flex-row($gap: $space-sm, $align: center, $justify: flex-start);
     flex-wrap: wrap;
 
-    // Multi-option wrapper rendered by product-options.html
+    // Multi-option wrapper rendered by product-options.html: flatten so
+    // the select + button participate in the outer flex row.
     > div:not(.list-item-cart-controls) {
-      @include flex-row($gap: $space-sm, $align: center, $justify: flex-start);
-      flex-wrap: wrap;
+      display: contents;
     }
 
     .product-options-select {
