@@ -46,8 +46,10 @@ describe("image-lqip", () => {
         "lqip-svg",
         "image.svg",
         Buffer.alloc(10000),
-        (_dir, filePath) => {
-          expect(shouldGenerateLqip(filePath, { format: "svg" })).toBe(false);
+        async (_dir, filePath) => {
+          expect(await shouldGenerateLqip(filePath, { format: "svg" })).toBe(
+            false,
+          );
         },
       ));
 
@@ -56,20 +58,63 @@ describe("image-lqip", () => {
         "lqip-small",
         "small.webp",
         Buffer.alloc(100),
-        (_dir, filePath) => {
-          expect(shouldGenerateLqip(filePath, { format: "webp" })).toBe(false);
+        async (_dir, filePath) => {
+          expect(await shouldGenerateLqip(filePath, { format: "webp" })).toBe(
+            false,
+          );
         },
       ));
 
-    test("returns true for large non-svg images", () =>
+    test("returns true for large non-svg images without alpha channel", () =>
       withTempFile(
         "lqip-large",
         "large.webp",
         Buffer.alloc(6000),
-        (_dir, filePath) => {
-          expect(shouldGenerateLqip(filePath, { format: "webp" })).toBe(true);
+        async (_dir, filePath) => {
+          expect(await shouldGenerateLqip(filePath, { format: "webp" })).toBe(
+            true,
+          );
         },
       ));
+
+    const writeRandomPng = async (filePath, alpha) => {
+      const sharp = (await import("sharp")).default;
+      const width = 200;
+      const height = 200;
+      const pixels = Buffer.alloc(width * height * 4);
+      for (let i = 0; i < pixels.length; i += 4) {
+        pixels[i] = Math.floor(Math.random() * 256);
+        pixels[i + 1] = Math.floor(Math.random() * 256);
+        pixels[i + 2] = Math.floor(Math.random() * 256);
+        pixels[i + 3] = alpha;
+      }
+      await sharp(pixels, { raw: { width, height, channels: 4 } })
+        .png()
+        .toFile(filePath);
+      return sharp(filePath).metadata();
+    };
+
+    const expectLqipForAlpha = (label, alpha, expected) =>
+      test(label, () =>
+        withTempDirAsync(`lqip-png-alpha-${alpha}`, async (tempDir) => {
+          const filePath = path.join(tempDir, "image.png");
+          const metadata = await writeRandomPng(filePath, alpha);
+          expect(metadata.hasAlpha).toBe(true);
+          expect(Bun.file(filePath).size).toBeGreaterThan(5 * 1024);
+          expect(await shouldGenerateLqip(filePath, metadata)).toBe(expected);
+        }),
+      );
+
+    expectLqipForAlpha(
+      "returns false for png with transparent pixels",
+      128,
+      false,
+    );
+    expectLqipForAlpha(
+      "returns true for png with alpha channel but all opaque pixels",
+      255,
+      true,
+    );
   });
 
   describe("removeLqip", () => {

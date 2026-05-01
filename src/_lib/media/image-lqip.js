@@ -6,8 +6,10 @@
  *
  * Skips placeholder generation for:
  * - SVG images (vector, don't need placeholders)
+ * - Images with any transparent pixels (placeholder would show through)
  * - Small images under 5KB (overhead not worth it)
  */
+import { getSharp } from "#media/image-crop.js";
 import { mapObject } from "#toolkit/fp/object.js";
 
 // Node.js caches dynamic imports, no memoization needed
@@ -18,14 +20,21 @@ const PLACEHOLDER_SIZE_THRESHOLD = 5 * 1024;
 
 /**
  * Check if LQIP should be generated for an image.
- * Uses Bun.file().size for faster file size check.
+ * Skips SVGs, files under the size threshold, and any image with transparent
+ * pixels (placeholder would show through). Sharp's stats() is only invoked
+ * when the metadata reports an alpha channel.
  * @param {string} imagePath - Path to the image file
- * @param {{ format: string }} metadata - Image metadata from sharp
- * @returns {boolean} Whether to generate LQIP
+ * @param {{ format: string, hasAlpha?: boolean }} metadata - Image metadata from sharp
+ * @returns {Promise<boolean>} Whether to generate LQIP
  */
-const shouldGenerateLqip = (imagePath, metadata) =>
-  metadata.format !== "svg" &&
-  Bun.file(imagePath).size >= PLACEHOLDER_SIZE_THRESHOLD;
+const shouldGenerateLqip = async (imagePath, metadata) => {
+  if (metadata.format === "svg") return false;
+  if (Bun.file(imagePath).size < PLACEHOLDER_SIZE_THRESHOLD) return false;
+  if (!metadata.hasAlpha) return true;
+  const sharp = await getSharp();
+  const stats = await sharp(imagePath).stats();
+  return stats.isOpaque;
+};
 
 /**
  * Extract LQIP data URL from eleventy-img metadata.

@@ -66,4 +66,4 @@ const getMetadata = memoize(async (imagePath) => {
   return metadata;
 });
 
-export { cropImage, getAspectRatio, getMetadata };
+export { cropImage, getAspectRatio, getMetadata, getSharp };
