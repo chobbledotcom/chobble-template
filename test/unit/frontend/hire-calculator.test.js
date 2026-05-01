@@ -21,13 +21,17 @@ const withHireMockStorage = (fn) => {
 /** Get today's date in YYYY-MM-DD format */
 const getTodayIso = () => new Date().toISOString().split("T")[0];
 
+/** Set hire item in localStorage */
+const setHireCart = (storage) =>
+  storage.setItem(
+    CART_STORAGE_KEY,
+    JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
+  );
+
 /** Set up test with hire item in cart and hire date inputs */
 const withHireTestSetup = ({ start = "", end = "", days = "" } = {}, fn) =>
   withHireMockStorage((storage) => {
-    storage.setItem(
-      CART_STORAGE_KEY,
-      JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
-    );
+    setHireCart(storage);
     document.body.innerHTML = `
       <input type="date" name="start_date" value="${start}" />
       <input type="date" name="end_date" value="${end}" />
@@ -82,10 +86,7 @@ describe("hire-calculator", () => {
   // ----------------------------------------
   test("initHireCalculator does nothing when start input missing", () => {
     withHireMockStorage((storage) => {
-      storage.setItem(
-        CART_STORAGE_KEY,
-        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
-      );
+      setHireCart(storage);
       document.body.innerHTML = '<input type="date" name="end_date" />';
 
       initHireCalculator(() => {

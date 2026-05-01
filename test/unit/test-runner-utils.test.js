@@ -1,11 +1,25 @@
 import { describe, expect, test } from "bun:test";
+import fs from "node:fs";
+import path from "node:path";
 import {
+  checkMetric,
+  checkRecord,
   extractErrorsFromOutput,
+  extractUncoveredBranchLines,
+  extractUncoveredLines,
+  formatUncovered,
+  parseLcov,
   printSummary,
   printTruncatedList,
+  readCoverageIgnorePatterns,
+  reportCoverageFailures,
   runStep,
 } from "#test/test-runner-utils.js";
-import { captureConsole, withMockedProcessExit } from "#test/test-utils.js";
+import {
+  captureConsole,
+  withMockedProcessExit,
+  withTempDir,
+} from "#test/test-utils.js";
 import { mapObject } from "#toolkit/fp/object.js";
 
 // ============================================
@@ -46,8 +60,7 @@ const captureSummaryOutput = (steps, results, title) =>
  * Creates three standard steps (lint, test, build)
  */
 const createThreeSteps = () => [
-  { name: "lint", cmd: "bun", args: ["run", "lint"] },
-  { name: "test", cmd: "bun", args: ["test"] },
+  ...createBasicSteps(),
   { name: "build", cmd: "bun", args: ["run", "build"] },
 ];
 
@@ -437,10 +450,10 @@ Failed to compile
     });
 
     test("Handles empty results gracefully", () => {
-      const steps = createBasicSteps();
+      const emptyRunSteps = createBasicSteps();
       const results = {};
 
-      const output = captureConsole(() => printSummary(steps, results));
+      const output = captureConsole(() => printSummary(emptyRunSteps, results));
 
       expect(output).toContain("SUMMARY");
       expect(output).not.toContain("Passed");
@@ -521,6 +534,281 @@ Failed to compile
 
       expect(logs.length).toBe(10); // No "more" message
       expect(logs[9]).toBe("  item 10");
+    });
+  });
+
+  // ============================================
+  // lcov parsing Tests
+  // ============================================
+  describe("lcov parsing", () => {
+    describe("extractUncoveredLines", () => {
+      test("collects line numbers from DA:N,0 entries", () => {
+        const record = ["DA:3,0", "DA:4,2", "DA:10,0", "DA:11,1"].join("\n");
+
+        expect(extractUncoveredLines(record)).toEqual([3, 10]);
+      });
+
+      test("ignores DA entries with non-zero hit counts", () => {
+        const record = ["DA:1,5", "DA:2,3", "DA:3,1"].join("\n");
+
+        expect(extractUncoveredLines(record)).toEqual([]);
+      });
+
+      test("returns empty array when record has no DA lines", () => {
+        const record = "SF:src/foo.js\nLH:0\nLF:0";
+
+        expect(extractUncoveredLines(record)).toEqual([]);
+      });
+    });
+
+    describe("extractUncoveredBranchLines", () => {
+      test("collects lines from BRDA entries with zero and dash hits", () => {
+        const record = ["BRDA:5,0,0,0", "BRDA:7,0,0,-", "BRDA:9,0,0,2"].join(
+          "\n",
+        );
+
+        expect(extractUncoveredBranchLines(record)).toEqual([5, 7]);
+      });
+
+      test("dedupes multiple uncovered branches on the same line", () => {
+        const record = ["BRDA:12,0,0,0", "BRDA:12,0,1,0", "BRDA:12,0,2,-"].join(
+          "\n",
+        );
+
+        expect(extractUncoveredBranchLines(record)).toEqual([12]);
+      });
+
+      test("ignores BRDA entries with positive hit counts", () => {
+        const record = ["BRDA:3,0,0,4", "BRDA:3,0,1,1"].join("\n");
+
+        expect(extractUncoveredBranchLines(record)).toEqual([]);
+      });
+    });
+
+    describe("formatUncovered", () => {
+      test("returns empty string for empty list", () => {
+        expect(formatUncovered("lines", [])).toBe("");
+      });
+
+      test("formats non-empty list as indented suffix", () => {
+        expect(formatUncovered("lines", [3, 7, 12])).toBe(
+          "\n      uncovered lines: 3, 7, 12",
+        );
+      });
+    });
+
+    describe("checkMetric", () => {
+      test("returns undefined when hit equals found", () => {
+        const record = "LH:10\nLF:10";
+
+        expect(
+          checkMetric(record, "LH", "LF", "src/foo.js", "lines", ""),
+        ).toBeUndefined();
+      });
+
+      test("returns formatted failure string when hit is less than found", () => {
+        const record = "LH:8\nLF:10";
+        const suffix = "\n      uncovered lines: 3, 7";
+
+        expect(
+          checkMetric(record, "LH", "LF", "src/foo.js", "lines", suffix),
+        ).toBe(`src/foo.js: 8/10 lines covered${suffix}`);
+      });
+
+      test("returns undefined when metric keys are absent from record", () => {
+        const record = "SF:src/foo.js";
+
+        expect(
+          checkMetric(record, "LH", "LF", "src/foo.js", "lines", ""),
+        ).toBeUndefined();
+      });
+    });
+
+    describe("checkRecord", () => {
+      test("pushes line and branch failures for partially covered record", () => {
+        const record = [
+          "SF:src/foo.js",
+          "DA:3,0",
+          "DA:4,1",
+          "BRDA:5,0,0,0",
+          "BRDA:5,0,1,2",
+          "LH:1",
+          "LF:2",
+          "BRH:1",
+          "BRF:2",
+        ].join("\n");
+        const lineFailures = [];
+        const branchFailures = [];
+
+        checkRecord(record, "src/foo.js", lineFailures, branchFailures);
+
+        expect(lineFailures).toEqual([
+          "src/foo.js: 1/2 lines covered\n      uncovered lines: 3",
+        ]);
+        expect(branchFailures).toEqual([
+          "src/foo.js: 1/2 branches covered\n      uncovered branches: 5",
+        ]);
+      });
+
+      test("pushes nothing when record is fully covered", () => {
+        const record = [
+          "SF:src/bar.js",
+          "DA:1,3",
+          "DA:2,1",
+          "LH:2",
+          "LF:2",
+          "BRH:2",
+          "BRF:2",
+        ].join("\n");
+        const lineFailures = [];
+        const branchFailures = [];
+
+        checkRecord(record, "src/bar.js", lineFailures, branchFailures);
+
+        expect(lineFailures).toEqual([]);
+        expect(branchFailures).toEqual([]);
+      });
+    });
+
+    describe("parseLcov", () => {
+      const makeRecord = (file, lh, lf) =>
+        [`SF:${file}`, `LH:${lh}`, `LF:${lf}`, "end_of_record"].join("\n");
+
+      test("parses multiple records and collects per-file failures", () => {
+        const lcov = [
+          makeRecord("src/a.js", 1, 2),
+          makeRecord("src/b.js", 3, 3),
+          makeRecord("src/c.js", 0, 5),
+        ].join("\n");
+
+        const { lineFailures, branchFailures } = parseLcov(lcov, []);
+
+        expect(lineFailures).toEqual([
+          "src/a.js: 1/2 lines covered",
+          "src/c.js: 0/5 lines covered",
+        ]);
+        expect(branchFailures).toEqual([]);
+      });
+
+      test("skips records whose path matches the exclude list", () => {
+        const lcov = [
+          makeRecord("src/keep.js", 1, 2),
+          makeRecord("src/skip.js", 0, 4),
+        ].join("\n");
+
+        const { lineFailures } = parseLcov(lcov, ["src/skip.js"]);
+
+        expect(lineFailures).toEqual(["src/keep.js: 1/2 lines covered"]);
+      });
+
+      test("returns empty arrays when every record is fully covered", () => {
+        const lcov = [
+          makeRecord("src/a.js", 5, 5),
+          makeRecord("src/b.js", 2, 2),
+        ].join("\n");
+
+        const result = parseLcov(lcov, []);
+
+        expect(result.lineFailures).toEqual([]);
+        expect(result.branchFailures).toEqual([]);
+      });
+    });
+
+    describe("readCoverageIgnorePatterns", () => {
+      test("extracts quoted entries from the coveragePathIgnorePatterns array", () =>
+        withTempDir("ignore-patterns", (tempDir) => {
+          const bunfigPath = path.join(tempDir, "bunfig.toml");
+          fs.writeFileSync(
+            bunfigPath,
+            [
+              "[test]",
+              "coveragePathIgnorePatterns = [",
+              '  "src/skip-a.js",',
+              '  "src/skip-b.js",',
+              "]",
+              "",
+            ].join("\n"),
+          );
+
+          expect(readCoverageIgnorePatterns(bunfigPath)).toEqual([
+            "src/skip-a.js",
+            "src/skip-b.js",
+          ]);
+        }));
+
+      test("returns empty array when the file does not exist", () => {
+        expect(
+          readCoverageIgnorePatterns("/nonexistent/missing-bunfig.toml"),
+        ).toEqual([]);
+      });
+
+      test("throws when the array block is missing from an existing file", () =>
+        withTempDir("ignore-patterns-missing", (tempDir) => {
+          const bunfigPath = path.join(tempDir, "bunfig.toml");
+          fs.writeFileSync(bunfigPath, "[test]\ntimeout = 30000\n");
+
+          expect(() => readCoverageIgnorePatterns(bunfigPath)).toThrow(
+            /coveragePathIgnorePatterns/,
+          );
+        }));
+    });
+
+    describe("reportCoverageFailures", () => {
+      const writeCoverageFixture = (tempDir, { lcovLines, bunfigBody }) => {
+        const lcovPath = path.join(tempDir, "lcov.info");
+        const bunfigPath = path.join(tempDir, "bunfig.toml");
+        fs.writeFileSync(lcovPath, [...lcovLines, ""].join("\n"));
+        fs.writeFileSync(bunfigPath, bunfigBody);
+        return { lcovPath, bunfigPath };
+      };
+
+      test("prints per-file gaps and returns true when lcov has failures", () =>
+        withTempDir("coverage-gaps", (tempDir) => {
+          const { lcovPath, bunfigPath } = writeCoverageFixture(tempDir, {
+            lcovLines: [
+              "SF:src/a.js",
+              "DA:1,0",
+              "LH:0",
+              "LF:1",
+              "end_of_record",
+            ],
+            bunfigBody:
+              'coveragePathIgnorePatterns = [\n  "src/ignored.js",\n]\n',
+          });
+
+          const logs = captureConsole(() => {
+            const returned = reportCoverageFailures(lcovPath, bunfigPath);
+            expect(returned).toBe(true);
+          });
+
+          expect(logs.some((l) => l.includes("Per-file coverage gaps"))).toBe(
+            true,
+          );
+          expect(
+            logs.some((l) => l.includes("src/a.js: 0/1 lines covered")),
+          ).toBe(true);
+        }));
+
+      test("returns false when lcov file does not exist", () => {
+        expect(
+          reportCoverageFailures(
+            "/nonexistent/lcov.info",
+            "/nonexistent/bunfig.toml",
+          ),
+        ).toBe(false);
+      });
+
+      test("returns false when every record in lcov is fully covered", () =>
+        withTempDir("coverage-clean", (tempDir) => {
+          const { lcovPath, bunfigPath } = writeCoverageFixture(tempDir, {
+            lcovLines: ["SF:src/a.js", "LH:1", "LF:1", "end_of_record"],
+            bunfigBody: "coveragePathIgnorePatterns = [\n]\n",
+          });
+
+          const returned = reportCoverageFailures(lcovPath, bunfigPath);
+
+          expect(returned).toBe(false);
+        }));
     });
   });
 });

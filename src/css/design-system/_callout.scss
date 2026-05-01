@@ -40,18 +40,6 @@
       flex: 0 0 auto;
       font-size: $font-size-xl;
       line-height: 1;
-
-      .icon {
-        width: 1em;
-        height: 1em;
-      }
-    }
-
-    &__body {
-      @include flex-col($space-xs, stretch, flex-start);
-      flex: 1 1 auto;
-      min-width: 0;
-      color: var(--color-text);
     }
 
     &__title {

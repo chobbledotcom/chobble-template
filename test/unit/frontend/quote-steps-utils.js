@@ -6,11 +6,12 @@
 import { expect } from "bun:test";
 
 // Quote steps fixture data
+const makeStep = (name, number) => ({ name, number });
 const QUOTE_STEPS = [
-  { name: "Items", number: 1 },
-  { name: "Event", number: 2 },
-  { name: "Contact", number: 3 },
-  { name: "Review", number: 4 },
+  makeStep("Items", 1),
+  makeStep("Event", 2),
+  makeStep("Contact", 3),
+  makeStep("Review", 4),
 ];
 
 const QUOTE_STEPS_JSON = JSON.stringify(QUOTE_STEPS);

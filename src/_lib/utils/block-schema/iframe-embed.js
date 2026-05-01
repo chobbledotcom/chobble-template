@@ -1,4 +1,4 @@
-import { HEADER_FIELDS, num, str } from "#utils/block-schema/shared.js";
+import { INTRO_CONTENT_FIELD, num, str } from "#utils/block-schema/shared.js";
 
 export const type = "iframe-embed";
 
@@ -44,7 +44,7 @@ export const fields = {
     ...str("Scrolling"),
     description: 'Legacy `scrolling` attribute, e.g. `"no"`.',
   },
-  ...HEADER_FIELDS,
+  intro_content: INTRO_CONTENT_FIELD,
 };
 
 export const docs = {

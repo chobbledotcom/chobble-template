@@ -1,0 +1,45 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
+
+// =============================================================================
+// BLOCK COLUMNS
+// =============================================================================
+// Multi-column first-section layout driven by src/_data/blockLayouts.json.
+// Mobile stacks columns; md+ switches to a horizontal grid. Each .block-column
+// stacks its child blocks vertically with consistent spacing.
+
+.design-system {
+  .block-columns-section {
+    padding: var(--section-padding-y) 0;
+  }
+
+  .block-columns {
+    display: grid;
+    gap: $space-xl;
+    grid-template-columns: 1fr;
+
+    @include breakpoint.up("md") {
+      gap: $space-2xl;
+
+      &-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      &-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      &-4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  }
+
+  .block-column {
+    display: flex;
+    flex-direction: column;
+    gap: $space-lg;
+    min-width: 0;
+  }
+}

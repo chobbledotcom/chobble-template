@@ -12,6 +12,7 @@ import {
   createMarkdownField,
   createReferenceField,
 } from "#scripts/customise-cms/fields.js";
+import { slugToLabel } from "#scripts/customise-cms/generator-helpers.js";
 import { BLOCK_CMS_FIELDS } from "#utils/block-schema.js";
 
 /**
@@ -67,17 +68,6 @@ const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
 };
 
 /**
- * Convert a block type slug to a human-readable label
- * @param {string} type - Block type slug (e.g., "section-header")
- * @returns {string} Human-readable label (e.g., "Section Header")
- */
-const blockTypeToLabel = (type) =>
-  type
-    .split(/[-_]/)
-    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
-    .join(" ");
-
-/**
  * Convert a block type slug to a component name (e.g. "section-header" -> "block_section_header")
  * @param {string} type - Block type slug
  * @returns {string} Component name
@@ -94,7 +84,7 @@ const blockTypeToComponentName = (type) => `block_${type.replace(/-/g, "_")}`;
  */
 const buildBlockComponent = (type, useVisualEditor) => ({
   name: type,
-  label: blockTypeToLabel(type),
+  label: slugToLabel(type),
   type: "object",
   fields: Object.entries(BLOCK_CMS_FIELDS[type]).map(([name, fieldSchema]) =>
     schemaFieldToCmsField(name, fieldSchema, useVisualEditor),
@@ -117,5 +107,7 @@ export const generateBlocksField = (blockTypes, useVisualEditor) => ({
   type: "block",
   list: true,
   blockKey: "type",
-  blocks: blockTypes.map((type) => buildBlockComponent(type, useVisualEditor)),
+  blocks: [...blockTypes]
+    .sort()
+    .map((type) => buildBlockComponent(type, useVisualEditor)),
 });

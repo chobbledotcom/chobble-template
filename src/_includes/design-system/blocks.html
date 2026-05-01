@@ -1,12 +1,22 @@
-{%- for block in blocks -%}
-  {%- if block.type == "snippet" -%}
-    {%- include "design-system/render-block.html", block: block -%}
-  {%- else -%}
-    {%- assign cw = block.type | blockContainerWidth -%}
-    <section{% if block.dark %} class="dark"{% endif %}>
-      {%- unless cw == "full" -%}<div class="container-{{ cw }}">{%- endunless -%}
-      {%- include "design-system/render-block.html", block: block -%}
-      {%- unless cw == "full" -%}</div>{%- endunless -%}
-    </section>
-  {%- endif -%}
+{%- assign split = blocks | splitBlocksForColumns: tags, blockLayouts -%}
+{%- for block in split.before -%}
+  {%- include "design-system/render-full-width-block.html", block: block -%}
+{%- endfor -%}
+{%- if split.columns -%}
+  <section class="block-columns-section">
+    <div class="container-wide">
+      <div class="block-columns block-columns-{{ split.columns | size }}">
+        {%- for column in split.columns -%}
+          <div class="block-column">
+            {%- for block in column -%}
+              {%- include "design-system/render-block.html", block: block -%}
+            {%- endfor -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+{%- for block in split.rest -%}
+  {%- include "design-system/render-full-width-block.html", block: block -%}
 {%- endfor -%}

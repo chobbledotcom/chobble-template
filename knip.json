@@ -12,8 +12,6 @@
 		"bin/profile-report.js",
 		"test/**/*.test.js",
 		"test/build-profiling.js",
-		"test/ensure-deps.js",
-		"test/setup.js",
 		"test/demo-precommit-errors.js",
 		"packages/js-toolkit/fp/index.js",
 		"packages/js-toolkit/test-utils/index.js",
@@ -21,7 +19,7 @@
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
-		"_site/**",
+		"src/assets/**",
 		"src/_lib/public/ui/search.js"
 	],
 	"ignoreDependencies": [

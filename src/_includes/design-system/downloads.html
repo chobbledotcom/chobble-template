@@ -6,7 +6,7 @@ size is read from the filesystem at build time (see
 src/_lib/eleventy/file-info.js).
 
 Parameters:
-  - block.intro: Optional markdown intro rendered above the list.
+  - block.intro_content: Optional markdown intro rendered above the list.
   - block.items: Array of {file, label} objects.
     - file: Site-relative URL path (e.g. "/files/guide.pdf"). Resolved against src/.
     - label: Visible link text.
@@ -15,9 +15,7 @@ Parameters:
 
 {%- assign reveal = block.reveal | default: true -%}
 
-{%- if block.intro -%}
-  <div class="prose">{{ block.intro | renderContent: "md" }}</div>
-{%- endif -%}
+{%- include "design-system/block-intro.html" -%}
 
 <ul class="downloads" role="list">
   {%- for item in block.items -%}

@@ -134,6 +134,7 @@ describe("pdf", () => {
       ]);
     });
 
+<<<<<<< claude/cool-babbage-OwSbn
     test("places items into the categories listed in menu_categories", () => {
       const result = buildMenuPdfData(
         menu(),
@@ -155,6 +156,17 @@ describe("pdf", () => {
       ]);
       expect(result.categories[1].items.map((i) => i.name)).toEqual(["Burger"]);
     });
+=======
+    test("Menu items have correct structure in PDF data", () => {
+      const { menu, state } = lunchState(
+        createMockMenuItem(
+          "Spring Rolls",
+          ["apps"],
+          "$8.99",
+          "Crispy and delicious",
+        ),
+      );
+>>>>>>> main
 
     test("ignores items whose category is not on this menu", () => {
       const result = buildAppsPdf(
@@ -177,9 +189,24 @@ describe("pdf", () => {
       })(result.categories[0].items[0]);
     });
 
+<<<<<<< claude/cool-babbage-OwSbn
     test("preserves a null item description", () => {
       const result = buildAppsPdf({ description: null });
       expect(result.categories[0].items[0].description).toBeNull();
+=======
+    test("Dietary symbols are joined correctly", () => {
+      const { menu, state } = lunchState(
+        createMockMenuItem("Veggie Roll", ["apps"], "$7", null, [
+          { symbol: "V", label: "Vegetarian" },
+          { symbol: "GF", label: "Gluten Free" },
+        ]),
+      );
+
+      const result = buildMenuPdfData(menu, state);
+
+      const item = result.categories[0].items[0];
+      expect(item.dietarySymbols).toBe("V GF");
+>>>>>>> main
     });
 
     test("joins multiple dietary symbols with a single space", () => {
@@ -198,8 +225,18 @@ describe("pdf", () => {
       expect(result.hasDietaryKeys).toBe(true);
     });
 
+<<<<<<< claude/cool-babbage-OwSbn
     test("hasDietaryKeys is false and string is empty when no keys present", () => {
       const result = buildAppsPdf({});
+=======
+    test("Handles items without dietary keys", () => {
+      const { menu, state } = lunchState(
+        createMockMenuItem("Burger", ["apps"], "$12"),
+      );
+
+      const result = buildMenuPdfData(menu, state);
+
+>>>>>>> main
       expectObjectProps({
         hasDietaryKeys: false,
         dietaryKeyString: "",
@@ -222,7 +259,42 @@ describe("pdf", () => {
           { symbol: "GF" },
           { label: "Missing Symbol" },
         ],
+<<<<<<< claude/cool-babbage-OwSbn
       });
+=======
+        menuItems: [],
+      };
+
+      const result = buildMenuPdfData(menu, state);
+
+      expect(result.categories[0].description).toBe("Our famous starters");
+    });
+
+    test("Handles items without description", () => {
+      const { menu, state } = lunchState(
+        createMockMenuItem("Simple Item", ["apps"], "$5", null),
+      );
+
+      const result = buildMenuPdfData(menu, state);
+
+      expect(result.categories[0].items[0].description).toBeNull();
+    });
+
+    test("Handles empty dietary keys array", () => {
+      const { menu, state } = lunchMenuWithItem([]);
+      const result = buildMenuPdfData(menu, state);
+      expect(result.categories[0].items[0].dietarySymbols).toBe("");
+    });
+
+    test("Filters out dietary keys missing symbol or label", () => {
+      const { menu, state } = lunchMenuWithItem([
+        { symbol: "V", label: "Vegetarian" },
+        { symbol: "", label: "Empty Symbol" },
+        { symbol: "GF" },
+        { label: "Missing Symbol" },
+      ]);
+      const result = buildMenuPdfData(menu, state);
+>>>>>>> main
       expect(result.dietaryKeyString).toBe("(V) Vegetarian");
     });
 

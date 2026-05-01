@@ -3,6 +3,8 @@
  */
 
 import { spawnSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
 
 const rootDir = ROOT_DIR;
@@ -55,6 +57,165 @@ export const printTruncatedList =
       );
     }
   };
+
+/**
+ * Extract uncovered line numbers from DA: entries in an lcov record.
+ * @param {string} record - A single lcov record (between SF: and end_of_record)
+ * @returns {number[]} Line numbers with zero hits
+ */
+export const extractUncoveredLines = (record) => {
+  const matches = record.matchAll(/^DA:(\d+),0$/gm);
+  const lines = [];
+  for (const m of matches) lines.push(Number.parseInt(m[1], 10));
+  return lines;
+};
+
+/**
+ * Extract uncovered branch line numbers from BRDA: entries, deduped by line.
+ * First-seen order is preserved.
+ * @param {string} record - A single lcov record
+ * @returns {number[]} Line numbers with at least one uncovered branch
+ */
+export const extractUncoveredBranchLines = (record) => {
+  const matches = record.matchAll(/^BRDA:(\d+),\d+,\d+,(-|0)$/gm);
+  const seen = new Set();
+  const lines = [];
+  for (const m of matches) {
+    const line = Number.parseInt(m[1], 10);
+    if (!seen.has(line)) {
+      seen.add(line);
+      lines.push(line);
+    }
+  }
+  return lines;
+};
+
+/**
+ * Format uncovered line numbers as an indented suffix, or "" if none.
+ * @param {string} label - Label for the list (e.g. "lines", "branches")
+ * @param {number[]} nums - Uncovered line numbers
+ * @returns {string}
+ */
+export const formatUncovered = (label, nums) => {
+  if (nums.length === 0) return "";
+  return `\n      uncovered ${label}: ${nums.join(", ")}`;
+};
+
+/**
+ * Check a coverage metric (lines or branches) in an lcov record.
+ * @param {string} record - A single lcov record
+ * @param {string} hitKey - Key for hit count (e.g. "LH", "BRH")
+ * @param {string} foundKey - Key for found count (e.g. "LF", "BRF")
+ * @param {string} file - Source file path
+ * @param {string} label - Human label for the metric
+ * @param {string} uncoveredSuffix - Precomputed suffix from formatUncovered
+ * @returns {string|undefined} Failure string or undefined when fully covered
+ */
+export const checkMetric = (
+  record,
+  hitKey,
+  foundKey,
+  file,
+  label,
+  uncoveredSuffix,
+) => {
+  const hitMatch = record.match(new RegExp(`^${hitKey}:(\\d+)$`, "m"));
+  const foundMatch = record.match(new RegExp(`^${foundKey}:(\\d+)$`, "m"));
+  if (!hitMatch || !foundMatch) return undefined;
+  const hit = Number.parseInt(hitMatch[1], 10);
+  const found = Number.parseInt(foundMatch[1], 10);
+  return hit < found
+    ? `${file}: ${hit}/${found} ${label} covered${uncoveredSuffix}`
+    : undefined;
+};
+
+/**
+ * Check line and branch metrics on an lcov record, pushing failures into the
+ * provided arrays.
+ * @param {string} record - A single lcov record
+ * @param {string} file - Source file path (from SF:)
+ * @param {string[]} lineFailures - Mutated with line-coverage failures
+ * @param {string[]} branchFailures - Mutated with branch-coverage failures
+ */
+export const checkRecord = (record, file, lineFailures, branchFailures) => {
+  const lineSuffix = formatUncovered("lines", extractUncoveredLines(record));
+  const branchSuffix = formatUncovered(
+    "branches",
+    extractUncoveredBranchLines(record),
+  );
+  const lineFail = checkMetric(record, "LH", "LF", file, "lines", lineSuffix);
+  if (lineFail) lineFailures.push(lineFail);
+  const branchFail = checkMetric(
+    record,
+    "BRH",
+    "BRF",
+    file,
+    "branches",
+    branchSuffix,
+  );
+  if (branchFail) branchFailures.push(branchFail);
+};
+
+/**
+ * Read coveragePathIgnorePatterns from bunfig.toml.
+ * Returns [] when the file does not exist.
+ * Throws when the file exists but the expected array block is missing.
+ * @param {string} bunfigPath - Absolute path to bunfig.toml
+ * @returns {string[]}
+ */
+export const readCoverageIgnorePatterns = (bunfigPath) => {
+  if (!existsSync(bunfigPath)) return [];
+  const text = readFileSync(bunfigPath, "utf8");
+  const block = text.match(/coveragePathIgnorePatterns\s*=\s*\[([\s\S]*?)\]/);
+  if (!block) {
+    throw new Error(
+      `coveragePathIgnorePatterns not found in ${bunfigPath}. ` +
+        "If the key was renamed, update readCoverageIgnorePatterns.",
+    );
+  }
+  const entries = [];
+  for (const m of block[1].matchAll(/"([^"]+)"/g)) entries.push(m[1]);
+  return entries;
+};
+
+/**
+ * Parse an lcov.info text into per-file failure strings.
+ * @param {string} lcovText - Contents of lcov.info
+ * @param {string[]} excludes - Paths to skip (from coveragePathIgnorePatterns)
+ * @returns {{ lineFailures: string[], branchFailures: string[] }}
+ */
+export const parseLcov = (lcovText, excludes) => {
+  const excludeSet = new Set(excludes);
+  const lineFailures = [];
+  const branchFailures = [];
+  const records = lcovText.split(/^end_of_record$/m);
+  for (const record of records) {
+    const sfMatch = record.match(/^SF:(.+)$/m);
+    if (!sfMatch) continue;
+    const file = sfMatch[1].trim();
+    if (excludeSet.has(file)) continue;
+    checkRecord(record, file, lineFailures, branchFailures);
+  }
+  return { lineFailures, branchFailures };
+};
+
+/**
+ * When a coverage failure occurs, read lcov.info and print per-file gaps.
+ * @param {string} lcovPath - Absolute path to coverage/lcov.info
+ * @param {string} bunfigPath - Absolute path to bunfig.toml
+ * @returns {boolean} True when a report was printed, false otherwise
+ */
+export const reportCoverageFailures = (lcovPath, bunfigPath) => {
+  if (!existsSync(lcovPath)) return false;
+  const lcovText = readFileSync(lcovPath, "utf8");
+  const excludes = readCoverageIgnorePatterns(bunfigPath);
+  const { lineFailures, branchFailures } = parseLcov(lcovText, excludes);
+  const all = [...lineFailures, ...branchFailures];
+  if (all.length === 0) return false;
+  console.log("\n  Per-file coverage gaps:");
+  printTruncatedList({ prefix: "    ", moreLabel: "files" })(all);
+  return true;
+};
 
 /**
  * Common step definitions used by test runners
@@ -276,6 +437,51 @@ export function runSteps({ steps, verbose, title }) {
 }
 
 /**
+ * Print the coverage-failure diagnostic block when the failed step output
+ * matches the "tests passed + coverage table present" heuristic.
+ */
+const printCoverageFailureBlock = () => {
+  const lcovPath = join(rootDir, "coverage/lcov.info");
+  const bunfigPath = join(rootDir, "bunfig.toml");
+  const reported = reportCoverageFailures(lcovPath, bunfigPath);
+  if (!reported) {
+    console.log("  Coverage threshold not met. Check coverage output above.");
+  }
+  console.log("  Thresholds are defined in bunfig.toml (coverageThreshold).");
+};
+
+/**
+ * Print the generic "last 15 lines" fallback for a failed step with no
+ * specific errors extracted.
+ */
+const printGenericFailureBlock = (result, allOutput) => {
+  console.log("  No specific errors extracted. Last 15 lines of output:");
+  const outputLines = allOutput.split("\n");
+  const lastLines = outputLines.slice(-15).filter((l) => l.trim());
+  for (const line of lastLines) {
+    console.log(`  ${line}`);
+  }
+  console.log("\n  Run with --verbose to see full output, or check exit code:");
+  console.log(`  Exit code: ${result.status}`);
+};
+
+/**
+ * Print diagnostics for a single failing step when no errors were extracted.
+ * Branches between the coverage-failure report and the generic fallback.
+ */
+const printStepFailureDiagnostics = (result) => {
+  const allOutput = result.stderr || result.stdout || "";
+  const hasPassingTests = /\d+ pass/.test(allOutput);
+  const hasZeroFail = /0 fail/.test(allOutput);
+  const hasCoverageTable = /% Funcs.*% Lines/.test(allOutput);
+  if (hasPassingTests && hasZeroFail && hasCoverageTable) {
+    printCoverageFailureBlock();
+  } else {
+    printGenericFailureBlock(result, allOutput);
+  }
+};
+
+/**
  * Print a summary of test results
  * @param {Object[]} steps - Array of step configurations
  * @param {Object} results - Map of step names to results
@@ -321,35 +527,7 @@ export function printSummary(steps, results, title = "SUMMARY") {
       if (errors.length > 0) {
         printTruncatedList({ moreLabel: "errors" })(errors);
       } else {
-        // Check if this looks like a coverage threshold failure
-        // (tests passed but exit code 1, with coverage table in output)
-        const allOutput = result.stderr || result.stdout || "";
-        const hasPassingTests = /\d+ pass/.test(allOutput);
-        const hasZeroFail = /0 fail/.test(allOutput);
-        const hasCoverageTable = /% Funcs.*% Lines/.test(allOutput);
-
-        if (hasPassingTests && hasZeroFail && hasCoverageTable) {
-          console.log(
-            "  Coverage threshold not met. Check coverage output above.",
-          );
-          console.log(
-            "  Thresholds are defined in bunfig.toml (coverageThreshold).",
-          );
-        } else {
-          // Show last 15 lines of output when no specific errors extracted
-          console.log(
-            "  No specific errors extracted. Last 15 lines of output:",
-          );
-          const outputLines = allOutput.split("\n");
-          const lastLines = outputLines.slice(-15).filter((l) => l.trim());
-          for (const line of lastLines) {
-            console.log(`  ${line}`);
-          }
-          console.log(
-            "\n  Run with --verbose to see full output, or check exit code:",
-          );
-          console.log(`  Exit code: ${result.status}`);
-        }
+        printStepFailureDiagnostics(result);
       }
     }
   }

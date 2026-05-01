@@ -153,8 +153,11 @@ const measureItemCard = (card, metrics, colWidth) => {
   const buttonHeight = buttonEl
     ? Number.parseFloat(getComputedStyle(buttonEl).height)
     : null;
+  const hasContent = childHeights.length > 0 || buttonHeight !== null;
   const extraPadding = imgHeight
-    ? metrics.padY / 2 + metrics.gap
+    ? hasContent
+      ? metrics.padY / 2 + metrics.gap
+      : 0
     : metrics.padY;
 
   return (

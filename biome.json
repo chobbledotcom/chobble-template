@@ -1,6 +1,17 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
   "extends": ["./packages/js-toolkit/configs/biome.base.json"],
+  "files": {
+    "includes": [
+      "**/*.js",
+      "**/*.mjs",
+      "!_site",
+      "!coverage",
+      "!result",
+      "!bin",
+      "!**/.*"
+    ]
+  },
   "overrides": [
     {
       "includes": ["src/_lib/build/**/*.js", "packages/js-toolkit/**/*.js"],

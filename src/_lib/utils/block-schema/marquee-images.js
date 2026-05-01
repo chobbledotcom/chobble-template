@@ -1,5 +1,5 @@
 import {
-  HEADER_FIELDS_DOC_ONLY_INTRO,
+  INTRO_CONTENT_FIELD,
   objectList,
   str,
 } from "#utils/block-schema/shared.js";
@@ -31,7 +31,7 @@ export const fields = {
     description:
       'CSS height for the images (e.g. `"60px"`, `"80px"`). Width scales proportionally.',
   },
-  ...HEADER_FIELDS_DOC_ONLY_INTRO,
+  intro_content: INTRO_CONTENT_FIELD,
 };
 
 export const docs = {

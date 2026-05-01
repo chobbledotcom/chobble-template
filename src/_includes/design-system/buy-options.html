@@ -15,20 +15,12 @@ Parameters (via block object):
     - link: Buy URL (required)
     - button_text: Button label, defaults to "Buy now" (optional)
   - block.reveal: If true, adds data-reveal animation (default: true)
-  - block.heading_level: Heading level for titles, defaults to 3 (h3)
   - block.image_aspect_ratio: Aspect ratio for images (e.g. "1/1", "4/3")
-  - block.header_intro, header_align, header_class: Optional section header
+  - block.intro_content: Optional markdown intro rendered above the grid
 {%- endcomment -%}
 
-{%- if block.header_intro -%}
-  {%- include "design-system/section-header.html",
-     intro: block.header_intro,
-     align: block.header_align,
-     header_class: block.header_class
-  -%}
-{%- endif -%}
+{%- include "design-system/block-intro.html" -%}
 
-{%- assign heading_level = block.heading_level | default: 3 -%}
 {%- assign reveal = block.reveal | default: true -%}
 
 <ul class="items buy-options" role="list">
@@ -42,7 +34,6 @@ Parameters (via block object):
          currency: item.currency,
          link: item.link,
          button_text: item.button_text,
-         heading_level: heading_level,
          image_aspect_ratio: block.image_aspect_ratio -%}
     </li>
   {%- endfor -%}

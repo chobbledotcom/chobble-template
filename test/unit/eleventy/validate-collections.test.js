@@ -22,6 +22,17 @@ const writeFile = (base, relativePath, content) => {
   fs.writeFileSync(fullPath, content);
 };
 
+/**
+ * Helper: set up a temp dir with app.js and views/page.html, then call fn with the handler.
+ */
+const withPageHandler = (label, html, fn) => {
+  withTempDir(label, (tempDir) => {
+    writeFile(tempDir, "app.js", "");
+    writeFile(tempDir, "views/page.html", html);
+    fn(getHandler(tempDir));
+  });
+};
+
 describe("configureCollectionValidation", () => {
   test("registers an eleventy.before event handler", () => {
     const mockConfig = createMockEleventyConfig();
@@ -73,42 +84,36 @@ describe("configureCollectionValidation", () => {
   });
 
   test("error message includes the unregistered collection name", () => {
-    withTempDir("error-name", (tempDir) => {
-      writeFile(tempDir, "app.js", "");
-      writeFile(tempDir, "views/page.html", "{{ collections.typoName }}");
-      const handler = getHandler(tempDir);
+    withPageHandler("error-name", "{{ collections.typoName }}", (handler) => {
       expect(() => handler()).toThrow(/collections\.typoName/);
     });
   });
 
   test("detects bracket notation references", () => {
-    withTempDir("bracket-notation", (tempDir) => {
-      writeFile(tempDir, "app.js", "");
-      writeFile(tempDir, "views/page.html", '{{ collections["missing"] }}');
-      const handler = getHandler(tempDir);
-      expect(() => handler()).toThrow(/collections\.missing/);
-    });
+    withPageHandler(
+      "bracket-notation",
+      '{{ collections["missing"] }}',
+      (handler) => {
+        expect(() => handler()).toThrow(/collections\.missing/);
+      },
+    );
   });
 
   test("ignores collections.size and collections.length", () => {
-    withTempDir("ignored-props", (tempDir) => {
-      writeFile(tempDir, "app.js", "");
-      writeFile(
-        tempDir,
-        "views/page.html",
-        "{{ collections.size }}\n{{ collections.length }}",
-      );
-      const handler = getHandler(tempDir);
-      expect(() => handler()).not.toThrow();
-    });
+    withPageHandler(
+      "ignored-props",
+      "{{ collections.size }}\n{{ collections.length }}",
+      (handler) => {
+        expect(() => handler()).not.toThrow();
+      },
+    );
   });
 
   test("discovers tag-based collections from JSON directory data", () => {
     withTempDir("tag-collections", (tempDir) => {
       writeFile(tempDir, "team/team.json", '{ "tags": ["team"] }');
       writeFile(tempDir, "views/page.html", "{{ collections.team }}");
-      const handler = getHandler(tempDir);
-      expect(() => handler()).not.toThrow();
+      expect(() => getHandler(tempDir)()).not.toThrow();
     });
   });
 
@@ -116,16 +121,14 @@ describe("configureCollectionValidation", () => {
     withTempDir("string-tag-collections", (tempDir) => {
       writeFile(tempDir, "walks/walks.json", '{ "tags": "walks" }');
       writeFile(tempDir, "views/page.html", "{{ collections.walks }}");
-      const handler = getHandler(tempDir);
-      expect(() => handler()).not.toThrow();
+      expect(() => getHandler(tempDir)()).not.toThrow();
     });
   });
 
   test("always includes the built-in 'all' collection", () => {
     withTempDir("builtin-all", (tempDir) => {
       writeFile(tempDir, "views/page.html", "{{ collections.all }}");
-      const handler = getHandler(tempDir);
-      expect(() => handler()).not.toThrow();
+      expect(() => getHandler(tempDir)()).not.toThrow();
     });
   });
 
@@ -163,8 +166,7 @@ describe("configureCollectionValidation", () => {
         "views/page.html",
         "{{ collections.filteredByColor }}",
       );
-      const handler = getHandler(tempDir);
-      expect(() => handler()).not.toThrow();
+      expect(() => getHandler(tempDir)()).not.toThrow();
     });
   });
 
@@ -180,8 +182,7 @@ describe("configureCollectionValidation", () => {
         "views/page.html",
         "{{ collections.filteredBySizeListingFilterUI }}",
       );
-      const handler = getHandler(tempDir);
-      expect(() => handler()).not.toThrow();
+      expect(() => getHandler(tempDir)()).not.toThrow();
     });
   });
 
@@ -189,8 +190,7 @@ describe("configureCollectionValidation", () => {
     withTempDir("no-filters", (tempDir) => {
       writeFile(tempDir, "lib.js", '.addCollection("items", fn);');
       writeFile(tempDir, "views/page.html", "{{ collections.items }}");
-      const handler = getHandler(tempDir);
-      expect(() => handler()).not.toThrow();
+      expect(() => getHandler(tempDir)()).not.toThrow();
     });
   });
 });

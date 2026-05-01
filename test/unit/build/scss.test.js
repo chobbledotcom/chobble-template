@@ -2,6 +2,13 @@ import { describe, expect, test } from "bun:test";
 import { configureScss, createScssCompiler } from "#build/scss.js";
 import { compileScss, createMockEleventyConfig } from "#test/test-utils.js";
 
+const compileExtension = async (ext, content, inputPath) => {
+  const result = await ext.compile(content, inputPath)({});
+  expect(typeof result).toBe("string");
+  expect(result.includes(".test")).toBe(true);
+  return result;
+};
+
 describe("scss", () => {
   test("Creates SCSS compiler function for given input path", async () => {
     const inputPath = "/test/styles.scss";
@@ -92,15 +99,13 @@ describe("scss", () => {
     configureScss(mockConfig);
 
     const scssExtension = mockConfig.extensions.scss;
-    const inputContent = "$color: green; .test { color: $color; }";
-    const inputPath = "/project/bundle.scss";
+    expect(typeof scssExtension.compile).toBe("function");
 
-    const compileFn = scssExtension.compile(inputContent, inputPath);
-    expect(typeof compileFn).toBe("function");
-
-    const result = await compileFn({});
-    expect(typeof result).toBe("string");
-    expect(result.includes(".test")).toBe(true);
+    const result = await compileExtension(
+      scssExtension,
+      "$color: green; .test { color: $color; }",
+      "/project/bundle.scss",
+    );
     expect(
       result.includes("color: green") || result.includes("color:green"),
     ).toBe(true);
@@ -110,15 +115,11 @@ describe("scss", () => {
     const mockConfig = createMockEleventyConfig();
     configureScss(mockConfig);
 
-    const scssExtension = mockConfig.extensions.scss;
-    const inputPath = "/project/src/css/bundle.scss";
-    const inputContent = ".test { color: blue; }";
-
-    const compileFn = scssExtension.compile(inputContent, inputPath);
-    const result = await compileFn({});
-
-    expect(typeof result).toBe("string");
-    expect(result.includes(".test")).toBe(true);
+    await compileExtension(
+      mockConfig.extensions.scss,
+      ".test { color: blue; }",
+      "/project/src/css/bundle.scss",
+    );
   });
 
   test("Handles SCSS compilation errors gracefully", async () => {

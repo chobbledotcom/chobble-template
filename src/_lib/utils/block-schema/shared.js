@@ -30,9 +30,6 @@ export const objectField = (label, fields) => ({
   fields,
 });
 
-/** Strip the CMS `label` so a field becomes doc-only (schema + docs, not CMS). */
-export const docOnly = ({ label, ...rest }) => rest;
-
 /** Container wrapper fields common to every CMS block. */
 export const CONTAINER_FIELDS = { dark: bool("Dark") };
 
@@ -65,58 +62,50 @@ export const ITEMS_GRID_META = {
   htmlRoot: '<ul class="items" role="list">',
 };
 
-/** Unified header fields. `header_intro` is CMS-exposed; align/class are doc-only. */
-export const HEADER_FIELDS = {
-  header_intro: {
-    ...md("Header Intro"),
-    description: "Section header content rendered as markdown above the block.",
-  },
-  header_align: {
-    type: "string",
-    description: 'Header text alignment. `"center"` adds `.text-center`.',
-  },
-  header_class: {
-    type: "string",
-    description: "Extra CSS classes on the section header.",
-  },
+/** Unified markdown intro field rendered above a block in `.prose`. */
+export const INTRO_CONTENT_FIELD = {
+  ...md("Intro Content (Markdown)"),
+  description: "Markdown content rendered above the block in `.prose`.",
+};
+
+/** Horizontal slider toggle shared between items-like blocks. */
+export const HORIZONTAL_FIELD = {
+  ...bool("Horizontal Slider"),
+  default: "false",
+  description:
+    "If true, renders as a horizontal slider instead of a wrapping grid.",
+};
+
+/** Masonry grid toggle shared between items-like blocks. */
+export const MASONRY_FIELD = {
+  ...bool("Masonry Grid"),
+  default: "false",
+  description:
+    "If true, renders as a masonry grid using uWrap for zero-reflow height prediction.",
+};
+
+/** Per-block aspect-ratio override for thumbnails / card images. */
+export const IMAGE_ASPECT_RATIO_FIELD = {
+  ...str("Image Aspect Ratio"),
+  description: 'Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`.',
 };
 
 /** Unified fields shared between items and items-array blocks. */
 export const ITEMS_COMMON_FIELDS = {
-  intro: {
-    ...md("Intro Content (Markdown)"),
-    description: "Markdown content rendered above items in `.prose`.",
-  },
-  horizontal: {
-    ...bool("Horizontal Slider"),
-    default: "false",
-    description:
-      "If true, renders as a horizontal slider instead of a wrapping grid.",
-  },
-  masonry: {
-    ...bool("Masonry Grid"),
-    default: "false",
-    description:
-      "If true, renders as a masonry grid using uWrap for zero-reflow height prediction.",
-  },
+  intro_content: INTRO_CONTENT_FIELD,
+  horizontal: HORIZONTAL_FIELD,
+  masonry: MASONRY_FIELD,
   filter: {
     ...FILTER_FIELD,
     description:
       'Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value.',
   },
-  ...HEADER_FIELDS,
 };
 
 export const REVEAL_BOOLEAN_FIELD = {
   type: "boolean",
   default: "true",
   description: "Adds `data-reveal` to each item.",
-};
-
-export const HEADING_LEVEL_FIELD = {
-  ...num("Heading Level"),
-  default: "3",
-  description: "Heading level for item titles.",
 };
 
 export const REVEAL_STRING_FIELD = {
@@ -130,21 +119,12 @@ export const collectionField = (description) => ({
   description,
 });
 
-export const HEADER_FIELDS_DOC_ONLY_INTRO = {
-  ...HEADER_FIELDS,
-  header_intro: docOnly(HEADER_FIELDS.header_intro),
-};
-
 /** @param {object} itemsField */
 export const imageCardGridFields = (itemsField) => ({
   items: itemsField,
   reveal: REVEAL_BOOLEAN_FIELD,
-  heading_level: HEADING_LEVEL_FIELD,
-  image_aspect_ratio: {
-    ...str("Image Aspect Ratio"),
-    description: 'Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`.',
-  },
-  ...HEADER_FIELDS,
+  image_aspect_ratio: IMAGE_ASPECT_RATIO_FIELD,
+  intro_content: INTRO_CONTENT_FIELD,
 });
 
 /** Overlay content + class fields shared between background blocks. */
@@ -163,11 +143,6 @@ export const VIDEO_BG_SHARED_FIELDS = {
     ...str("Video Title"),
     default: '"Background video"',
     description: "Accessible `title` on the iframe.",
-  },
-  aspect_ratio: {
-    ...str("Aspect Ratio"),
-    default: '"16/9"',
-    description: "CSS aspect-ratio on container.",
   },
   ...OVERLAY_CONTENT_FIELDS,
 };

@@ -31,7 +31,6 @@ blocks:
     video_url: https://iframe.mediadelivery.net/embed/417100/64491289-f8e4-44a0-9d78-746cdf8f78fc?autoplay=true&loop=true&muted=true&preload=true&responsive=true
     thumbnail_url: src/images/video-background-placeholder.jpg
     video_title: Chobble Template Demo
-    aspect_ratio: "21/9"
     content: |
       ## Video Background Block
 
@@ -41,7 +40,6 @@ blocks:
   - type: video-background
     video_id: dQw4w9WgXcQ
     video_title: YouTube Background Demo
-    aspect_ratio: "21/9"
     content: |
       ## YouTube Video Backgrounds
 
@@ -50,8 +48,7 @@ blocks:
 
   # Marquee Images Demo
   - type: marquee-images
-    header_intro: "## Trusted By These Fictional Brands"
-    header_align: center
+    intro_content: "## Trusted By These Fictional Brands"
     speed: "25s"
     height: "60px"
     items:
@@ -90,7 +87,7 @@ blocks:
   # Product Sliders
   - type: items
     collection: featuredProducts
-    intro: |
+    intro_content: |
       ## Product Sliders
 
       Display any collection in grids or with horizontal sliders.
@@ -103,7 +100,7 @@ blocks:
       - src/products/mini-gizmo.md
       - src/products/ultrawidget-pro.md
       - src/products/heritage-thingy-deluxe.md
-    intro: |
+    intro_content: |
       ## A Selection of Products
 
       Hand-pick specific items from any collection using the items array block.
@@ -112,16 +109,35 @@ blocks:
   - type: items
     collection: reviews
     masonry: true
-    intro: |
+    intro_content: |
       ## Customer Reviews
 
       Display reviews in a masonry grid — cards flow naturally based on content height.
+
+  # Gallery Masonry
+  - type: gallery
+    masonry: true
+    intro_content: |
+      ## Gallery
+
+      Mix images of any aspect ratio, with or without captions. The masonry layout packs them into columns with no ragged gaps.
+    items:
+      - image: /images/party.jpg
+        caption: Opening night — the room was packed from the first hour.
+      - image: /images/breakfast.jpg
+      - image: /images/dinner.jpg
+        caption: A three-course tasting menu featuring seasonal produce from local farms.
+      - image: /images/fireworks.jpg
+        caption: Summer festival finale.
+      - image: /images/lunch.jpg
+      - image: /images/menu.jpg
+        caption: This season's menu.
 
   # Socials - externally-linked posts loaded from a directory
   - type: socials
     directory: instagram-posts
     horizontal: true
-    intro: |
+    intro_content: |
       ## From our Socials
 
       Point the block at any directory of JSON posts — `instagram-posts`, `mastodon-posts`, whatever you like. Absolute URLs open in a new tab.
@@ -132,7 +148,7 @@ blocks:
 
   # Features - Everything Your Business Needs
   - type: features
-    header_intro: |-
+    intro_content: |-
       ## What's Included
 
       Product catalogs, event calendars, holiday lets, restaurant menus, and more. All from one template.
@@ -245,12 +261,11 @@ blocks:
   # E-Commerce Features (with header, centered, custom colors)
   - type: features
 
-    header_intro: |-
+    intro_content: |-
       ## Commerce Options
 
       Sell products, take quotes, or both. Card payments and enquiry forms are built in.
     center: true
-    heading_level: 4
     items:
       - icon: "hugeicons:credit-card"
         title: Card Checkout
@@ -284,11 +299,10 @@ blocks:
   # SEO Features (with header)
   - type: features
 
-    header_intro: |-
+    intro_content: |-
       ## Built-in SEO
 
       Structured data is generated automatically from your content.
-    heading_level: 4
     items:
       - title: Schema.org Markup
         description: Products, events, FAQs, organizations, and breadcrumbs - all with proper JSON-LD.
@@ -357,7 +371,7 @@ blocks:
 
   # Icon Links
   - type: icon-links
-    intro: |
+    intro_content: |
       ## Quick Links
     items:
       - icon: "hugeicons:github"

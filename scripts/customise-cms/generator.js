@@ -33,6 +33,7 @@ import {
   createFieldContext,
   getDataPath,
   META_FIELDS,
+  slugToLabel,
 } from "#scripts/customise-cms/generator-helpers.js";
 import {
   getAltTagsConfig,
@@ -41,7 +42,7 @@ import {
   getSiteConfig,
 } from "#scripts/customise-cms/static-configs.js";
 import { compact, filterMap } from "#toolkit/fp/array.js";
-import { BLOCK_CMS_FIELDS } from "#utils/block-schema.js";
+import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig
@@ -49,17 +50,6 @@ import { BLOCK_CMS_FIELDS } from "#utils/block-schema.js";
  * @typedef {import('./generator-helpers.js').FieldContext} FieldContext
  * @typedef {import('./generator-helpers.js').CollectionConfig} CollectionConfig
  */
-
-/**
- * Convert a slug to a human-readable label (e.g., "guide-pages" -> "Guide Pages")
- * @param {string} slug - The slug to convert
- * @returns {string} Human-readable label
- */
-const slugToLabel = (slug) =>
-  slug
-    .split("-")
-    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
-    .join(" ");
 
 /**
  * Get optional fields for a custom blocks collection based on enabled features
@@ -103,7 +93,9 @@ const generateCustomBlocksCollectionConfig = (name, config, fieldContext) => {
       createEleventyNavigationField(config.features.external_navigation_urls),
       ...getCustomBlocksOptionalFields(config),
       generateBlocksField(
-        Object.keys(BLOCK_CMS_FIELDS),
+        Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
+          isBlockAllowedIn(type, name),
+        ),
         config.features.use_visual_editor,
       ),
     ]),

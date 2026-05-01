@@ -55,13 +55,13 @@ const useIt = (x) => cached(x);`;
     });
 
     test("detects memoize in deeply nested function", () => {
-      const source = `const outerNested = () => {
-  const innerNested = () => {
+      const source = `const outerFn = () => {
+  const innerFn = () => {
     const deepMemo = memoize((x) => x);
   };
 };`;
       const results = findMemoizeInsideFunction(source);
-      expect(results.length).toBe(1);
+      expect(results).toHaveLength(1);
       expect(results[0].braceDepth).toBe(2);
     });
 

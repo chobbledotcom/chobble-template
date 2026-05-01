@@ -1,0 +1,12 @@
+{%- comment -%}
+Add-to-cart block - renders the current product's add-to-cart button.
+
+Product-only block. Reuses `product-options.html`, which reads the product's
+computed data (`cart_attributes`, `options`, `product_mode`,
+`has_single_cart_option`, `show_cart_quantity_selector`) and the site config
+(`config.cart_mode`). Renders nothing outside a product context.
+{%- endcomment -%}
+
+<div class="add-to-cart-block">
+  {%- include "product-options.html" -%}
+</div>

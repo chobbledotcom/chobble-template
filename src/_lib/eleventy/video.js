@@ -12,8 +12,10 @@ const configureVideo = (eleventyConfig) => {
     /**
      * @param {string} videoId
      * @param {boolean} background
+     * @param {boolean} autoplay
      */
-    (videoId, background = false) => getVideoEmbedUrl(videoId, { background }),
+    (videoId, background = false, autoplay = false) =>
+      getVideoEmbedUrl(videoId, { background, autoplay }),
   );
 
   /** Returns true if the video identifier is a YouTube ID (not a URL). */

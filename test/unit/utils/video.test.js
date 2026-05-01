@@ -32,6 +32,23 @@ describe("getVideoEmbedUrl", () => {
         "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1",
       );
     });
+
+    test("adds mute and playsinline when autoplay is true", () => {
+      const result = getVideoEmbedUrl("dQw4w9WgXcQ", { autoplay: true });
+      expect(result).toBe(
+        "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&playsinline=1",
+      );
+    });
+
+    test("background option wins over autoplay when both are true", () => {
+      const result = getVideoEmbedUrl("dQw4w9WgXcQ", {
+        background: true,
+        autoplay: true,
+      });
+      expect(result).toBe(
+        "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=dQw4w9WgXcQ",
+      );
+    });
   });
 
   describe("with Vimeo URL", () => {
@@ -73,6 +90,14 @@ describe("getVideoEmbedUrl", () => {
       ).toBe(
         "https://player.vimeo.com/video/123456?h=abc123&autoplay=1&loop=1",
       );
+    });
+
+    test("adds muted param when autoplay is true on Vimeo URL", () => {
+      expect(
+        getVideoEmbedUrl("https://player.vimeo.com/video/123456", {
+          autoplay: true,
+        }),
+      ).toBe("https://player.vimeo.com/video/123456?autoplay=1&loop=1&muted=1");
     });
   });
 

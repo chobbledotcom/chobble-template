@@ -20,7 +20,7 @@
   {%- endfor -%}
 {%- else -%}
   {%- for item in items -%}
-    {%- include "list-item.html" -%}
+    {%- include "list-item.html", image_aspect_ratio: image_aspect_ratio -%}
   {%- endfor -%}
 {%- endif -%}
 </ul>

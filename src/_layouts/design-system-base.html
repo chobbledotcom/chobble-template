@@ -10,17 +10,13 @@
 
   {%- include "js-config-script.html" -%}
 
-  <script
-    type="module"
-    src="{{ '/assets/js/bundle.js' | cacheBust }}"
-    data-decrypt-key="{{ encryptKey }}"
-  ></script>
+  {%- include "bundle-script.html" -%}
 
   {%- include "head-schema.html" -%}
 
   {%- include "head-scripts.html" -%}
 </head>
-<body class="design-system {{ layout | getBodyClasses: config, body-classes, featured }}">
+<body class="design-system {{ layout | getBodyClasses: config, body-classes, featured, page.url }}">
   {%- include "body-scripts.html" -%}
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
@@ -48,6 +44,7 @@
   {%- include "design-system/footer.html" -%}
   {%- include "image-popup.html" -%}
   {%- include "client-templates.html" -%}
+  {% slot "templates" %}
   {%- include "theme-switcher.html" -%}
   {%- include "cart-icon.html" -%}
   {%- include "cart-overlay.html" -%}

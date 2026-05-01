@@ -5,8 +5,9 @@
  * Extracted to reduce complexity in image.js and provide reusable utilities.
  */
 import { compact } from "#toolkit/fp/array.js";
+import { isExternalUrl } from "#utils/url-utils.js";
 
-export { isExternalUrl } from "#utils/url-utils.js";
+export { isExternalUrl };
 
 const DEFAULT_WIDTHS = [240, 480, 900, 1300];
 const DEFAULT_SIZE = "auto";
@@ -27,6 +28,28 @@ export const normalizeImagePath = (imageName) => {
   if (imageName.startsWith("src/")) return `./${imageName}`;
   if (imageName.startsWith("images/")) return `./src/${imageName}`;
   return `./src/images/${imageName}`;
+};
+
+/**
+ * Normalize an image path to a browser URL rooted at the site.
+ * Mirrors normalizeImagePath's input shapes but returns URL-space output:
+ * - "/images/photo.jpg"    -> "/images/photo.jpg"
+ * - "src/images/photo.jpg" -> "/images/photo.jpg"
+ * - "images/photo.jpg"     -> "/images/photo.jpg"
+ * - "photo.jpg"            -> "/images/photo.jpg"
+ * External URLs (http:, https:, protocol-relative //, data:) pass through.
+ *
+ * @param {string} imageName - Image path as written in frontmatter
+ * @returns {string} Browser-safe URL
+ */
+export const normalizeImageUrl = (imageName) => {
+  if (isExternalUrl(imageName)) return imageName;
+  if (imageName.startsWith("//") || imageName.startsWith("data:"))
+    return imageName;
+  if (imageName.startsWith("/")) return imageName;
+  if (imageName.startsWith("src/")) return `/${imageName.slice(4)}`;
+  if (imageName.startsWith("images/")) return `/${imageName}`;
+  return `/images/${imageName}`;
 };
 
 /**

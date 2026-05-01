@@ -162,8 +162,9 @@ describe("guideCategoriesByProperty", () => {
       guideCategory("Tips", "seaside-cottage"),
     ];
 
-    const result = guideCategoriesByProperty(categories, "seaside-cottage");
-
-    expectResultTitles(result, ["Getting Started", "Tips"]);
+    expectResultTitles(
+      guideCategoriesByProperty(categories, "seaside-cottage"),
+      ["Getting Started", "Tips"],
+    );
   });
 });

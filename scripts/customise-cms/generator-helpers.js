@@ -153,6 +153,17 @@ export const withHeaderFields = (config, ...fields) =>
   config.features.header_images ? fields : [];
 
 /**
+ * Convert a slug to a human-readable label (e.g., "my-thing" → "My Thing")
+ * @param {string} slug
+ * @returns {string}
+ */
+export const slugToLabel = (slug) =>
+  slug
+    .split(/[-_]/)
+    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
+    .join(" ");
+
+/**
  * Helper to get data path based on whether src folder exists
  * @param {boolean} hasSrcFolder - Whether template has src/ folder
  * @returns {string} Data path
