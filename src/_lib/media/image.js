@@ -126,7 +126,7 @@ const processImageData = lruMemoize(
 /**
  * Generate wrapped image HTML from processing data + presentation attributes.
  *
- * Delegates expensive work to deduplicated processImageData, then applies
+ * Delegates expensive work to memoized processImageData, then applies
  * cheap presentation attributes (alt, classes, sizes, loading) to produce
  * the final HTML.
  *
