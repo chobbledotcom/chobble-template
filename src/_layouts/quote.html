@@ -1,30 +1,23 @@
 ---
 layout: design-system-base
+blocks: false
 ---
 
 {%- include "quote-layout-header.html" -%}
-  {%- include "templates/quote-steps-progress.html", completed_steps: 0 -%}
-  <div class="quote-main">
-    <noscript
-      ><p>JavaScript is required to view and manage your quote cart.</p></noscript
-    >
-    <div id="quote-cart" class="quote-cart">
-      {%- include "quote-cart-header.html" -%}
-      <div class="quote-cart-empty" style="display: none">
-        <p>
-          Your cart is empty. <a href="/products/">Browse products</a> to add items.
-        </p>
-      </div>
-      <ul class="quote-cart-items"></ul>
-      <div class="quote-cart-actions" style="display: none">
-        <a href="/checkout/" class="button">Continue to {{ quoteFields.steps[1].name }}</a>
-      </div>
-    </div>
+{%- include "templates/quote-steps-progress.html", completed_steps: 0 -%}
+<noscript>
+  <p>JavaScript is required to view and manage your quote cart.</p>
+</noscript>
+<div id="quote-cart" class="quote-cart">
+  {%- include "quote-cart-header.html" -%}
+  <div class="quote-cart-empty" style="display: none">
+    <p>
+      Your cart is empty. <a href="/products/">Browse products</a> to add items.
+    </p>
   </div>
-  <aside id="quote-price" class="quote-sidebar" style="display: none"></aside>
+  <ul class="quote-cart-items"></ul>
+  <div class="quote-cart-actions" style="display: none">
+    <a href="/checkout/" class="button">Continue to {{ quoteFields.steps[1].name }}</a>
+  </div>
 </div>
-
-{% push "templates" %}
-  {%- include "templates/quote-step-indicator.html" -%}
-  {%- include "templates/quote-price.html" -%}
-{% endpush %}
+{%- include "quote-layout-footer.html" -%}
