@@ -41,6 +41,7 @@ export type {
   NewsItemData,
   MenuItemData,
   MenuCategoryItemData,
+  DietaryKey,
 
   // Specific collection item types (preferred for type safety)
   ProductCollectionItem,
