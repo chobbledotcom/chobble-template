@@ -45,7 +45,7 @@ describe("search", () => {
           ],
         },
         content: [
-          '<div data-pagefind-ignore>',
+          "<div data-pagefind-ignore>",
           '  {% include "search-box.html" %}',
           "",
           '  <div id="search-results">',
