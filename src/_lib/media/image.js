@@ -41,7 +41,7 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { lruMemoize } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
 
 const DEFAULT_OPTIONS = frozenObject({
@@ -56,14 +56,16 @@ const DEFAULT_OPTIONS = frozenObject({
  *
  * Runs eleventy-img, LQIP generation, and cropping, then returns
  * intermediate data that can be combined with presentation attributes.
- * Results are retained for the whole build: identical (imageName, widths,
- * aspectRatio) tuples resolve to the same cached Promise, so the same
- * image referenced across many pages runs sharp once.
+ * Results are retained across the build via an LRU cache: identical
+ * (imageName, widths, aspectRatio) tuples resolve to the same cached
+ * Promise, so the same image referenced across many pages runs sharp
+ * once. On large sites (thousands of variants) the LRU evicts cold
+ * entries; an evicted image just reprocesses on next reference.
  *
  * @param {ComputeImageProps} props - Image processing properties
  * @returns {Promise<{htmlMetadata: Object, style: string}>}
  */
-const processImageData = memoize(
+const processImageData = lruMemoize(
   async ({
     imageName,
     widths,
@@ -117,6 +119,7 @@ const processImageData = memoize(
         "noLqip",
         "skipMaxWidth",
       ]),
+    maxCacheSize: 10000,
   },
 );
 

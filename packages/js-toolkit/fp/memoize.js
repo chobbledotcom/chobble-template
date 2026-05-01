@@ -183,11 +183,50 @@ const dedupeAsync = (fn, { cacheKey = DEFAULT_KEY_FN } = {}) => {
       .get(cacheKey(args));
 };
 
+/**
+ * Memoize with bounded LRU eviction.
+ *
+ * Like memoize, but instead of throwing when the cache is full, evicts the
+ * least-recently-used entry. Use this when the call space is genuinely large
+ * (so unbounded memoize would leak) but evicting is harmless because the
+ * underlying function can recompute. Map insertion order is used as the
+ * recency order: hits are re-inserted to mark them most-recently-used.
+ *
+ * @template {any[]} A
+ * @template T
+ * @param {(...args: A) => T} fn - Function to memoize
+ * @param {{ cacheKey?: (args: A) => string | number, maxCacheSize?: number }} [options]
+ * @returns {(...args: A) => T} Memoized function with LRU eviction
+ */
+const lruMemoize = (
+  fn,
+  { cacheKey = DEFAULT_KEY_FN, maxCacheSize = DEFAULT_MAX_CACHE_SIZE } = {},
+) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = cacheKey(args);
+    if (cache.has(key)) {
+      const value = cache.get(key);
+      cache.delete(key);
+      cache.set(key, value);
+      return value;
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    if (cache.size > maxCacheSize) {
+      const oldest = cache.keys().next().value;
+      cache.delete(oldest);
+    }
+    return result;
+  };
+};
+
 export {
   dedupeAsync,
   groupByWithCache,
   indexBy,
   jsonKey,
+  lruMemoize,
   memoize,
   memoizeByRef,
 };

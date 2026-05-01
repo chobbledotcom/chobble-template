@@ -46,6 +46,7 @@ export {
   dedupeAsync,
   groupByWithCache,
   indexBy,
+  lruMemoize,
   memoize,
   memoizeByRef,
 } from "./memoize.js";

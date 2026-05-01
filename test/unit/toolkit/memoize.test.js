@@ -2,7 +2,12 @@
  * Tests for js-toolkit memoize utilities
  */
 import { describe, expect, test } from "bun:test";
-import { dedupeAsync, memoize, memoizeByRef } from "#toolkit/fp/memoize.js";
+import {
+  dedupeAsync,
+  lruMemoize,
+  memoize,
+  memoizeByRef,
+} from "#toolkit/fp/memoize.js";
 
 /** Create a counter for tracking function calls in tests */
 const createCounter = () => ({ count: 0 });
@@ -18,6 +23,72 @@ describe("memoize", () => {
 
     // Next unique call should throw
     expect(() => memoized(4)).toThrow("Memoize cache exceeded 3 entries");
+  });
+});
+
+describe("lruMemoize", () => {
+  test("caches results until cache is full", () => {
+    const counter = createCounter();
+    const memoized = lruMemoize(
+      (x) => {
+        counter.count++;
+        return x * 2;
+      },
+      { maxCacheSize: 3 },
+    );
+
+    expect(memoized(1)).toBe(2);
+    expect(memoized(1)).toBe(2);
+    expect(memoized(2)).toBe(4);
+    expect(memoized(2)).toBe(4);
+    expect(counter.count).toBe(2);
+  });
+
+  test("evicts least-recently-used entry when full", () => {
+    const counter = createCounter();
+    const memoized = lruMemoize(
+      (x) => {
+        counter.count++;
+        return x * 2;
+      },
+      { maxCacheSize: 2 },
+    );
+
+    memoized(1);
+    memoized(2);
+    expect(counter.count).toBe(2);
+
+    // Touch 1 so 2 is now least-recently-used
+    memoized(1);
+    expect(counter.count).toBe(2);
+
+    // Inserting 3 should evict 2 (LRU), keeping 1 and 3
+    memoized(3);
+    expect(counter.count).toBe(3);
+
+    // 1 still cached, no recompute
+    memoized(1);
+    expect(counter.count).toBe(3);
+
+    // 2 was evicted, recomputes
+    memoized(2);
+    expect(counter.count).toBe(4);
+  });
+
+  test("respects custom cacheKey", () => {
+    const counter = createCounter();
+    const memoized = lruMemoize(
+      (obj) => {
+        counter.count++;
+        return obj.value;
+      },
+      { cacheKey: (args) => args[0].id, maxCacheSize: 5 },
+    );
+
+    expect(memoized({ id: "a", value: 1 })).toBe(1);
+    // Same id, cached — counter does not increment, original cached value returned
+    expect(memoized({ id: "a", value: 999 })).toBe(1);
+    expect(counter.count).toBe(1);
   });
 });
 
