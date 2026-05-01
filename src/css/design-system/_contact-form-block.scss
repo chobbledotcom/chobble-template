@@ -40,6 +40,7 @@
     input[type="tel"],
     input[type="url"],
     input[type="number"],
+    input[type="date"],
     textarea,
     select {
       @include input-base;
