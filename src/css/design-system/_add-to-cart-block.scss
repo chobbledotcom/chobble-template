@@ -1,0 +1,37 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// ADD-TO-CART BLOCK
+// =============================================================================
+// Styles the `add-to-cart` page block (src/_includes/design-system/add-to-cart-block.html).
+// Delegates rendering to product-options.html, which produces one of:
+//   - A bare `<button class="add-to-cart">` (single option, no quantity)
+//   - A `<div class="list-item-cart-controls">` wrapping button + qty selector
+//   - A `<div>` wrapping a `<select>` + disabled `<button>` (multi-option)
+
+.design-system {
+  .add-to-cart-block {
+    @include flex-row($gap: $space-sm, $align: center, $justify: flex-start);
+    flex-wrap: wrap;
+
+    // Multi-option wrapper rendered by product-options.html
+    > div:not(.list-item-cart-controls) {
+      @include flex-row($gap: $space-sm, $align: center, $justify: flex-start);
+      flex-wrap: wrap;
+    }
+
+    .product-options-select {
+      @include input-base;
+      width: auto;
+      flex: 1 1 auto;
+      min-width: 12rem;
+      margin: 0;
+    }
+
+    .add-to-cart {
+      @include button-primary;
+      margin: 0;
+    }
+  }
+}
