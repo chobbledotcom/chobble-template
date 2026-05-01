@@ -33,10 +33,29 @@ describe("search", () => {
 
   test("search page renders with search-box and results container", async () => {
     const files = [
-      contentFile("pages", "search", "Search", {
-        layout: "search.html",
-        permalink: "/search/",
-      }),
+      {
+        path: "pages/search.md",
+        frontmatter: {
+          title: "Search",
+          layout: "design-system-base.html",
+          permalink: "/search/",
+          blocks: [
+            { type: "section-header", intro: "## Search" },
+            { type: "content" },
+          ],
+        },
+        content: [
+          "<div data-pagefind-ignore>",
+          '  {% include "search-box.html" %}',
+          "",
+          '  <div id="search-results">',
+          '    <p class="search-message"></p>',
+          '    <ul class="search-results-list"></ul>',
+          '    <button class="search-load-more btn btn--secondary" hidden>Load more</button>',
+          "  </div>",
+          "</div>",
+        ].join("\n"),
+      },
     ];
 
     await withTestSite({ files }, async (site) => {
