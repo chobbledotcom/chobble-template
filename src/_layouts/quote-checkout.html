@@ -1,22 +1,18 @@
 ---
-layout: base
+layout: design-system-base
+blocks: false
 ---
 
 {%- include "quote-layout-header.html" -%}
-  {%- include "templates/quote-steps-progress.html", completed_steps: 1 -%}
-  {%- include "form-open.html" -%}
-    {%- include "form-email-config.html",
-        redirect_path: "/quote-complete/",
-        email_from_suffix: "quote request",
-        email_subject: "New quote request from {site_name}"
-    -%}
-    <input type="hidden" id="cart-items" name="cart_items" value="" />
-    <input type="hidden" id="hire_days" name="hire_days" value="" />
-    {%- include "quote-form-steps.html" -%}
-  </form>
-  {% push "templates" %}
-    {%- include "templates/quote-step-indicator.html" -%}
-    {%- include "templates/quote-price.html" -%}
-  {% endpush %}
-  <aside id="quote-price" class="quote-sidebar" style="display: none"></aside>
-</div>
+{%- include "templates/quote-steps-progress.html", completed_steps: 1 -%}
+{%- include "form-open.html" -%}
+  {%- include "form-email-config.html",
+      redirect_path: "/quote-complete/",
+      email_from_suffix: "quote request",
+      email_subject: "New quote request from {site_name}"
+  -%}
+  <input type="hidden" id="cart-items" name="cart_items" value="" />
+  <input type="hidden" id="hire_days" name="hire_days" value="" />
+  {%- include "quote-form-steps.html" -%}
+</form>
+{%- include "quote-layout-footer.html" -%}

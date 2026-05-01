@@ -4,6 +4,7 @@ import { getTemplate, IDS, onReady } from "#public/utils/ui-deps.js";
 
 export function renderStepProgress(container, steps, completedSteps) {
   const ul = document.createElement("ul");
+  ul.className = "quote-steps-progress-list";
   for (const [index, step] of steps.entries()) {
     const template = getTemplate(IDS.QUOTE_STEP_INDICATOR, document);
     const li = template.querySelector("li");
