@@ -27,15 +27,21 @@ describe("memoize", () => {
 });
 
 describe("lruMemoize", () => {
-  test("caches results until cache is full", () => {
+  /** Returns a doubling lruMemoize and its call counter. */
+  const makeDoubler = (maxCacheSize) => {
     const counter = createCounter();
     const memoized = lruMemoize(
       (x) => {
         counter.count++;
         return x * 2;
       },
-      { maxCacheSize: 3 },
+      { maxCacheSize },
     );
+    return { counter, memoized };
+  };
+
+  test("caches results until cache is full", () => {
+    const { counter, memoized } = makeDoubler(3);
 
     expect(memoized(1)).toBe(2);
     expect(memoized(1)).toBe(2);
@@ -45,14 +51,7 @@ describe("lruMemoize", () => {
   });
 
   test("evicts least-recently-used entry when full", () => {
-    const counter = createCounter();
-    const memoized = lruMemoize(
-      (x) => {
-        counter.count++;
-        return x * 2;
-      },
-      { maxCacheSize: 2 },
-    );
+    const { counter, memoized } = makeDoubler(2);
 
     memoized(1);
     memoized(2);

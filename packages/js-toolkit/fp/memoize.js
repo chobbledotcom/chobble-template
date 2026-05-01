@@ -203,21 +203,21 @@ const lruMemoize = (
   { cacheKey = DEFAULT_KEY_FN, maxCacheSize = DEFAULT_MAX_CACHE_SIZE } = {},
 ) => {
   const cache = new Map();
+  const touch = (key, value) => {
+    cache.delete(key);
+    cache.set(key, value);
+  };
+  const evictOldest = () => cache.delete(cache.keys().next().value);
   return (...args) => {
     const key = cacheKey(args);
     if (cache.has(key)) {
-      const value = cache.get(key);
-      cache.delete(key);
-      cache.set(key, value);
-      return value;
+      const cached = cache.get(key);
+      touch(key, cached);
+      return cached;
     }
-    const result = fn(...args);
-    cache.set(key, result);
-    if (cache.size > maxCacheSize) {
-      const oldest = cache.keys().next().value;
-      cache.delete(oldest);
-    }
-    return result;
+    if (cache.size >= maxCacheSize) evictOldest();
+    cache.set(key, fn(...args));
+    return cache.get(key);
   };
 };
 
