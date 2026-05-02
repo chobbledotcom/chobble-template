@@ -19,6 +19,7 @@ export type ImageProps = {
   loading?: string | null;
   noLqip?: boolean;
   skipMaxWidth?: boolean;
+  skipAspectRatio?: boolean;
   document?: Document | null;
 };
 
@@ -35,6 +36,7 @@ export type ComputeImageProps = {
   loading?: string | null;
   noLqip?: boolean;
   skipMaxWidth?: boolean;
+  skipAspectRatio?: boolean;
 };
 
 /**

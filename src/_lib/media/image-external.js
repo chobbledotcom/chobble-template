@@ -45,6 +45,7 @@ const externalFilenameFormat = (_id, _src, width, format, options) =>
  * @param {string | string[] | null} options.widths - Responsive widths
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
  * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
+ * @param {boolean} [options.skipAspectRatio] - Skip aspect-ratio inline style
  * @returns {Promise<string>} Wrapped image HTML
  */
 const computeExternalImageHtml = dedupeAsync(
@@ -57,6 +58,7 @@ const computeExternalImageHtml = dedupeAsync(
     widths,
     aspectRatio,
     skipMaxWidth = false,
+    skipAspectRatio = false,
   }) => {
     const requestedWidths = parseWidths(widths);
     const webpWidths = [LQIP_WIDTH, ...requestedWidths];
@@ -98,6 +100,7 @@ const computeExternalImageHtml = dedupeAsync(
           aspectRatio,
           maxWidth,
           skipMaxWidth,
+          skipAspectRatio,
         }),
       },
     );
@@ -138,6 +141,7 @@ const generateRickAstleyPlaceholder = async (classes, aspectRatio) => {
  * @param {string | string[] | null} options.widths - Responsive widths
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
  * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
+ * @param {boolean} [options.skipAspectRatio] - Skip aspect-ratio inline style
  * @param {boolean} options.returnElement - Whether to return Element or HTML string
  * @param {Document | null} options.document - Optional document for element creation
  * @returns {Promise<string | Element>} HTML string or element
