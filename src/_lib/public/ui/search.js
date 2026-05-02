@@ -103,9 +103,7 @@ const initSearch = () => {
   const container = document.querySelector("#search-results");
   if (!container) return;
 
-  const form = container
-    .closest(".design-system")
-    ?.querySelector(".search-box");
+  const form = container.parentElement?.querySelector(".search-box");
 
   const controller = createSearchController({
     list: container.querySelector(".search-results-list"),

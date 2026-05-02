@@ -312,6 +312,40 @@ describe("initSearch", () => {
     expect(document.querySelector("input[type='search']").value).toBe("hello");
   });
 
+  test("populates page input, not unrelated navigation search box", () => {
+    document.body.innerHTML = `
+      <body class="design-system">
+        <nav>
+          <form class="search-box">
+            <input type="search" name="q" id="nav-input">
+          </form>
+        </nav>
+        <main>
+          <div data-pagefind-ignore>
+            <div class="design-system">
+              <form action="/search/" method="get" class="search-box">
+                <input type="search" name="q" id="page-input">
+              </form>
+            </div>
+            <div id="search-results">
+              <p class="search-message"></p>
+              <ul class="search-results-list"></ul>
+              <button class="search-load-more" hidden></button>
+            </div>
+          </div>
+        </main>
+      </body>
+    `;
+    window.pagefind = createMockPagefind();
+
+    setSearchParam("hello");
+
+    initSearch();
+
+    expect(document.querySelector("#page-input").value).toBe("hello");
+    expect(document.querySelector("#nav-input").value).toBe("");
+  });
+
   test("form submit with empty input does not search", () => {
     document.body.innerHTML = SEARCH_HTML;
     window.pagefind = createMockPagefind();
