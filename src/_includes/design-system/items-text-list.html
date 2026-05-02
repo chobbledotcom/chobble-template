@@ -1,0 +1,15 @@
+{%- comment -%}
+Items text list block: renders a collection as a comma-separated inline list
+of links, appended to optional introductory markdown text.
+
+The current page is excluded from the list automatically.
+
+Parameters (from block):
+  collection    - Name of an Eleventy collection
+  intro_content - Optional markdown rendered inline before the links
+{%- endcomment -%}
+
+{%- assign listItems = collections[block.collection] | prepareItemsTextList: page.url -%}
+{%- if block.intro_content or listItems.size > 0 -%}
+<p class="prose">{{- block.intro_content | renderContent: "md" | replace: "<p>", "" | replace: "</p>", "" -}}{% if block.intro_content and listItems.size > 0 %} {% endif %}{%- for item in listItems -%}<a href="{{ item.url }}{{ config.internal_link_suffix }}">{{ item.name }}</a>{{ item.separator }}{%- endfor -%}</p>
+{%- endif -%}

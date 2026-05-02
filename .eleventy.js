@@ -40,6 +40,7 @@ import { configureHtmlTransform } from "#eleventy/html-transform.js";
 import { configureICal } from "#eleventy/ical.js";
 import { configureJsConfig } from "#eleventy/js-config.js";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
+import { configureItemsTextList } from "#eleventy/items-text-list.js";
 import { configureLinkList } from "#eleventy/link-list.js";
 
 import { configureOpeningTimes } from "#eleventy/opening-times.js";
@@ -109,6 +110,7 @@ export default async function (eleventyConfig) {
   configureIconify(eleventyConfig);
   configureInlineAsset(eleventyConfig);
   configureItemFilterData(eleventyConfig);
+  configureItemsTextList(eleventyConfig);
   await prefetchSpecIcons();
   configureMenus(eleventyConfig);
   await configureNavigation(eleventyConfig);

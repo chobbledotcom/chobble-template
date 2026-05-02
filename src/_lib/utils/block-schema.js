@@ -37,6 +37,7 @@ import * as imageCards from "#utils/block-schema/image-cards.js";
 import * as include from "#utils/block-schema/include.js";
 import * as items from "#utils/block-schema/items.js";
 import * as itemsArray from "#utils/block-schema/items-array.js";
+import * as itemsTextList from "#utils/block-schema/items-text-list.js";
 import * as linkButton from "#utils/block-schema/link-button.js";
 import * as linkColumns from "#utils/block-schema/link-columns.js";
 import * as markdown from "#utils/block-schema/markdown.js";
@@ -91,6 +92,7 @@ const BLOCK_MODULES = [
   videoCards,
   items,
   itemsArray,
+  itemsTextList,
   menu,
   menuPdfDownload,
   socials,
