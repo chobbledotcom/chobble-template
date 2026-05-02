@@ -41,6 +41,7 @@ import * as linkButton from "#utils/block-schema/link-button.js";
 import * as linkColumns from "#utils/block-schema/link-columns.js";
 import * as markdown from "#utils/block-schema/markdown.js";
 import * as marqueeImages from "#utils/block-schema/marquee-images.js";
+import * as menu from "#utils/block-schema/menu.js";
 import * as properties from "#utils/block-schema/properties.js";
 import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
@@ -57,6 +58,7 @@ import * as splitImage from "#utils/block-schema/split-image.js";
 import * as splitVideo from "#utils/block-schema/split-video.js";
 import * as stats from "#utils/block-schema/stats.js";
 import * as videoBackground from "#utils/block-schema/video-background.js";
+import * as videoCards from "#utils/block-schema/video-cards.js";
 
 /**
  * Iteration order determines the order that `scripts/generate-blocks-reference.js`
@@ -85,8 +87,10 @@ const BLOCK_MODULES = [
   videoBackground,
   bunnyVideoBackground,
   imageBackground,
+  videoCards,
   items,
   itemsArray,
+  menu,
   socials,
   linkColumns,
   contactForm,

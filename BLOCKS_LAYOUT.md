@@ -491,6 +491,27 @@ Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 1
 
 ---
 
+### `video-cards`
+
+Grid of clickable video thumbnails. Supports YouTube IDs and custom iframe URLs (Vimeo, Bunny Stream, etc.).
+
+**Component:** `block_video_cards`
+**Template:** `src/_includes/design-system/video-cards-block.html`
+**SCSS:** `src/css/design-system/_items.scss`
+**HTML root:** `<ul class="items" role="list">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `videos` | array | **required** | Video objects. Each: `{id, title}`. `id` is a YouTube video ID or full iframe URL (Vimeo, Bunny Stream, etc.). |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
+| `reveal` | boolean | `true` | Adds `data-reveal` to each video card. |
+| `heading_level` | number | `3` | Heading level for video titles (e.g. `2` for h2). |
+| `expand` | boolean | `false` | If true, videos fill the available width (1=100%, 2=50%, 3+=33.3%) instead of the standard card grid. |
+
+YouTube videos render optimized thumbnails via eleventy-img; custom URLs use a placeholder. Videos load only on click to save bandwidth.
+
+---
+
 ### `items`
 
 Displays an Eleventy collection as a card grid or horizontal slider.
@@ -526,6 +547,18 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
 | `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+
+---
+
+### `menu`
+
+Renders the current menu page's categories, items, dietary key legend and PDF download link. Designed for files in the `menus` collection.
+
+**Component:** `block_menu`
+**Template:** `src/_includes/design-system/menu-block.html`
+**SCSS:** `src/css/design-system/_menu.scss`
+
+No block-level parameters. Resolves the current menu via `page.fileSlug` against `collections.menu-categories` and `collections.menu-items`. Reads `allDietaryKeys` and `pdfFilename` from page data (computed by `src/menus/menus.11tydata.js`).
 
 ---
 

@@ -1,0 +1,76 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// MENU
+// =============================================================================
+// List of menu items with name, price, and optional description.
+// Used inside the `menu` design-system block on menu pages (brunch, lunch, etc.).
+//
+// Markup:
+//   <ul class="menu-items">
+//     <li>
+//       <span class="name"><strong>Item</strong> <span>(V)</span></span>
+//       <span class="price">£8</span>
+//       <p class="description">…</p>
+//     </li>
+//   </ul>
+
+.design-system {
+  .menu-items {
+    @include reset-spacing;
+    list-style: none;
+    margin-block-end: $space-2xl;
+
+    li {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      column-gap: $space-md;
+      row-gap: $space-xs;
+      padding-block: $space-sm;
+      border-bottom: $border-light;
+
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    .name {
+      grid-column: 1;
+      @include body-lg;
+      font-weight: 500;
+    }
+
+    .price {
+      grid-column: 2;
+      align-self: start;
+      @include body-base;
+      font-weight: 600;
+      color: var(--color-link);
+    }
+
+    .description {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: var(--color-text-muted);
+      @include body-sm;
+    }
+  }
+
+  .pdf-download {
+    margin-block-start: $space-md;
+
+    a {
+      @include link-plain;
+      display: inline-flex;
+      align-items: center;
+      gap: $space-xs;
+      font-weight: 600;
+
+      svg {
+        width: 1em;
+        height: 1em;
+      }
+    }
+  }
+}

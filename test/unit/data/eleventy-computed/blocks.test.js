@@ -4,45 +4,45 @@ import eleventyComputed from "#data/eleventyComputed.js";
 const page = { inputPath: "test.html" };
 
 /** Run the blocks computed against a single block and return the processed block. */
-const runSingle = (block) =>
-  eleventyComputed.blocks({ blocks: [block], page })[0];
+const runSingle = async (block) =>
+  (await eleventyComputed.blocks({ blocks: [block], page }))[0];
 
 describe("eleventyComputed.blocks", () => {
-  test("returns undefined when blocks is not set", () => {
-    expect(eleventyComputed.blocks({ page })).toBeUndefined();
+  test("returns undefined when blocks is not set", async () => {
+    expect(await eleventyComputed.blocks({ page })).toBeUndefined();
   });
 
-  test("adds the 'dark: false' default to a minimal markdown block", () => {
-    expect(runSingle({ type: "markdown", content: "test" })).toEqual({
+  test("adds the 'dark: false' default to a minimal markdown block", async () => {
+    expect(await runSingle({ type: "markdown", content: "test" })).toEqual({
       type: "markdown",
       content: "test",
       dark: false,
     });
   });
 
-  test("throws on unknown block types", () => {
-    expect(() => runSingle({ type: "unknown-type", content: "test" })).toThrow(
-      'Unknown block type "unknown-type"',
-    );
+  test("throws on unknown block types", async () => {
+    expect(
+      runSingle({ type: "unknown-type", content: "test" }),
+    ).rejects.toThrow('Unknown block type "unknown-type"');
   });
 
-  test("throws when a block contains unknown keys", () => {
-    expect(() =>
+  test("throws when a block contains unknown keys", async () => {
+    expect(
       runSingle({ type: "video-background", video_url: "bad" }),
-    ).toThrow('unknown keys: "video_url"');
+    ).rejects.toThrow('unknown keys: "video_url"');
   });
 
-  test("includes inputPath in thrown validation errors", () => {
-    expect(() =>
+  test("includes inputPath in thrown validation errors", async () => {
+    expect(
       eleventyComputed.blocks({
         blocks: [{ type: "unknown-type" }],
         page: { inputPath: "src/products/example.md" },
       }),
-    ).toThrow("src/products/example.md");
+    ).rejects.toThrow("src/products/example.md");
   });
 
-  test("applies the features defaults (reveal, center)", () => {
-    expect(runSingle({ type: "features", items: [] })).toEqual({
+  test("applies the features defaults (reveal, center)", async () => {
+    expect(await runSingle({ type: "features", items: [] })).toEqual({
       type: "features",
       items: [],
       reveal: true,
@@ -51,8 +51,8 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
-  test("applies the stats defaults (reveal only)", () => {
-    expect(runSingle({ type: "stats", items: [] })).toEqual({
+  test("applies the stats defaults (reveal only)", async () => {
+    expect(await runSingle({ type: "stats", items: [] })).toEqual({
       type: "stats",
       items: [],
       reveal: true,
@@ -60,8 +60,8 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
-  test("applies split-image defaults including reveal_content 'left'", () => {
-    expect(runSingle({ type: "split-image", title: "Test" })).toEqual({
+  test("applies split-image defaults including reveal_content 'left'", async () => {
+    expect(await runSingle({ type: "split-image", title: "Test" })).toEqual({
       type: "split-image",
       title: "Test",
       title_level: 2,
@@ -71,8 +71,8 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
-  test("sets reveal_content to 'right' when a split block is reversed", () => {
-    const block = runSingle({
+  test("sets reveal_content to 'right' when a split block is reversed", async () => {
+    const block = await runSingle({
       type: "split-html",
       title: "Test",
       reverse: true,
@@ -80,8 +80,8 @@ describe("eleventyComputed.blocks", () => {
     expect(block.reveal_content).toBe("right");
   });
 
-  test("preserves an explicit reveal_content on a split block", () => {
-    const block = runSingle({
+  test("preserves an explicit reveal_content on a split block", async () => {
+    const block = await runSingle({
       type: "split-code",
       title: "Test",
       reveal_content: "left",
@@ -89,8 +89,10 @@ describe("eleventyComputed.blocks", () => {
     expect(block.reveal_content).toBe("left");
   });
 
-  test("applies the section-header defaults (align: center)", () => {
-    expect(runSingle({ type: "section-header", intro: "## Header" })).toEqual({
+  test("applies the section-header defaults (align: center)", async () => {
+    expect(
+      await runSingle({ type: "section-header", intro: "## Header" }),
+    ).toEqual({
       type: "section-header",
       intro: "## Header",
       align: "center",
@@ -98,8 +100,8 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
-  test("applies the image-cards defaults (reveal)", () => {
-    expect(runSingle({ type: "image-cards", items: [] })).toEqual({
+  test("applies the image-cards defaults (reveal)", async () => {
+    expect(await runSingle({ type: "image-cards", items: [] })).toEqual({
       type: "image-cards",
       items: [],
       reveal: true,
@@ -107,9 +109,13 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
-  test("applies the code-block defaults (reveal)", () => {
+  test("applies the code-block defaults (reveal)", async () => {
     expect(
-      runSingle({ type: "code-block", code: "test", filename: "test.js" }),
+      await runSingle({
+        type: "code-block",
+        code: "test",
+        filename: "test.js",
+      }),
     ).toEqual({
       type: "code-block",
       code: "test",
@@ -119,8 +125,8 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
-  test("allows user values to override default values", () => {
-    const block = runSingle({
+  test("allows user values to override default values", async () => {
+    const block = await runSingle({
       type: "features",
       reveal: false,
       center: true,
@@ -129,13 +135,13 @@ describe("eleventyComputed.blocks", () => {
     expect(block.center).toBe(true);
   });
 
-  test("allows user to override the dark default to true", () => {
-    const block = runSingle({ type: "stats", items: [], dark: true });
+  test("allows user to override the dark default to true", async () => {
+    const block = await runSingle({ type: "stats", items: [], dark: true });
     expect(block.dark).toBe(true);
   });
 
-  test("applies per-type defaults across a list of mixed blocks", () => {
-    const result = eleventyComputed.blocks({
+  test("applies per-type defaults across a list of mixed blocks", async () => {
+    const result = await eleventyComputed.blocks({
       blocks: [
         { type: "stats", items: [] },
         { type: "code-block", code: "x", filename: "x.js" },

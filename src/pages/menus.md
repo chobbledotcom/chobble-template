@@ -1,15 +1,21 @@
 ---
-header_image: src/images/menu.jpg
-header_text: Our Menus
 meta_description: Browse our delicious vegan menus
 meta_title: Menus
 eleventyNavigation:
   key: Menus
   order: 4
-layout: menus.html
+layout: design-system-base.html
 permalink: /menus/
+blocks:
+  - type: section-header
+    intro: |-
+      # Our Menus
+
+      Browse our delicious vegan menus
+  - type: content
+  - type: items
+    collection: menus
 ---
-# Menus
 
 This page shows menus. Menus are files in the menus folder. The system uses a three-level structure. Menus contain categories, and categories contain items.
 

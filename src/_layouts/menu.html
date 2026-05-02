@@ -1,58 +1,23 @@
 ---
-layout: base
+layout: design-system-base.html
+blocks: false
 ---
-
-<h1>{{ title }}</h1>
-
-<div class="prose">{{ content }}</div>
-
-<hr>
-
-{%- assign menu_categories = collections.menu-categories | getCategoriesByMenu: page.fileSlug -%}
-{%- if menu_categories.size > 0 -%}
-  {%- if allDietaryKeys.size > 0 -%}
-    <p>
-      {%- for key in allDietaryKeys -%}
-        {%- if forloop.index > 1 -%}, {% endif -%}
-        <strong>({{ key.symbol }})</strong> - {{ key.label }}
-      {%- endfor -%}
-    </p>
-  {%- endif -%}
-  {%- for category in menu_categories -%}
-    <h2>{{ category.data.name }}</h2>
-    {%- if category.templateContent -%}
-      <p>{{ category.templateContent | strip_html | strip }}</p>
+<section>
+  <div class="container-wide">
+    <header class="hero">
+      <h1>{{ title }}</h1>
+      {%- if subtitle -%}
+        <p class="lead">{{ subtitle }}</p>
+      {%- endif -%}
+    </header>
+    {%- if content != "" -%}
+      <div class="prose">{{ content }}</div>
     {%- endif -%}
-    
-    {%- assign items = collections.menu-items | getItemsByCategory: category.fileSlug -%}
-    {%- if items.size > 0 -%}
-      <ul class="menu-items">
-        {%- for item in items -%}
-          <li>
-            <span class="name">
-              <strong>{{ item.data.name }}</strong>
-              {%- for key in item.data.dietaryKeys %}
-                <span>({{ key.symbol }})</span>
-              {%- endfor -%}
-            </span>
-            <span class="price">
-              {{ item.data.price }}
-            </span>
-            {%- if item.data.description -%}
-              <p class="description">
-                {{ item.data.description }}
-              </p>
-            {%- endif -%}
-          </li>
-        {%- endfor -%}
-      </ul>
-    {%- endif -%}
-  {%- endfor -%}
+  </div>
+</section>
 
-  <p class="pdf-download">
-    <a href="{{ pdfFilename }}" download>
-      {{ "hugeicons:pdf-02" | icon }}
-      <span>Download PDF</span>
-    </a>
-  </p>
-{%- endif -%}
+<section>
+  <div class="container-wide">
+    {%- include "design-system/menu-block.html" -%}
+  </div>
+</section>

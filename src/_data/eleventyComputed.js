@@ -43,6 +43,15 @@ const BLOCK_DEFAULTS = {
   downloads: { reveal: true },
 };
 
+/** @param {Array<Record<string, unknown>>} videos */
+const enrichVideos = (videos) =>
+  Promise.all(
+    videos.map(async (video) => ({
+      ...video,
+      thumbnail_url: await getVideoThumbnailUrl(video.id),
+    })),
+  );
+
 export default {
   /**
    * Whether this page should be indexed by Pagefind.
@@ -198,15 +207,16 @@ export default {
 
   /**
    * Validates and applies default values to blocks. Works for any content
-   * with blocks.
+   * with blocks. Also enriches `video-cards` blocks with `thumbnail_url`
+   * for each video so templates don't need to fetch them.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Array<Record<string, unknown>>|undefined} Blocks with defaults applied
+   * @returns {Promise<Array<Record<string, unknown>>|undefined>} Blocks with defaults applied
    * @throws {Error} If any block contains unknown keys
    */
-  blocks: (data) => {
+  blocks: async (data) => {
     if (!data.blocks) return data.blocks;
     validateBlocks(data.blocks, ` in ${data.page.inputPath}`);
-    return data.blocks.map((block) => {
+    const withDefaults = data.blocks.map((block) => {
       const blockType = String(block.type);
       const merged = Object.assign(
         { dark: false },
@@ -218,6 +228,13 @@ export default {
       }
       return merged;
     });
+    return Promise.all(
+      withDefaults.map(async (block) =>
+        block.type === "video-cards" && Array.isArray(block.videos)
+          ? { ...block, videos: await enrichVideos(block.videos) }
+          : block,
+      ),
+    );
   },
 
   /**
@@ -229,11 +246,6 @@ export default {
    */
   videos: async (data) => {
     if (!data.videos) return data.videos;
-    return Promise.all(
-      data.videos.map(async (video) => ({
-        ...video,
-        thumbnail_url: await getVideoThumbnailUrl(video.id),
-      })),
-    );
+    return enrichVideos(data.videos);
   },
 };
