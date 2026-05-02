@@ -5,7 +5,6 @@ import {
   filter,
   filterMap,
   findDuplicate,
-  listSeparator,
   map,
   memberOf,
   notMemberOf,
@@ -55,25 +54,6 @@ describe("array-utils", () => {
     const condition = false;
     // biome-ignore lint/nursery/noUnnecessaryConditions: intentional test of falsy value removal
     expect(compact([condition && "value", "always"])).toEqual(["always"]);
-  });
-
-  // ============================================
-  // listSeparator Tests
-  // ============================================
-  test("Returns comma for most items", () => {
-    const sep = listSeparator(4);
-    expect(sep(0)).toBe(", ");
-    expect(sep(1)).toBe(", ");
-  });
-
-  test("Returns 'and' for second-to-last item", () => {
-    const sep = listSeparator(3);
-    expect(sep(1)).toBe(" and ");
-  });
-
-  test("Returns empty string for last item", () => {
-    const sep = listSeparator(3);
-    expect(sep(2)).toBe("");
   });
 
   // ============================================

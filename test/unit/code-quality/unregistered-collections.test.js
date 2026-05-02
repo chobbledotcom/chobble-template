@@ -80,7 +80,6 @@ describe("unregistered-collections", () => {
       "all",
       "menus",
       "reviews",
-      "locations",
       "properties",
       "navigationLinks",
       "categoryListingFilterUI",

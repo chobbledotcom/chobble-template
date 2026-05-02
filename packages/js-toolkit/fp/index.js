@@ -20,7 +20,6 @@ export {
   findDuplicate,
   flatMap,
   join,
-  listSeparator,
   map,
   memberOf,
   notMemberOf,

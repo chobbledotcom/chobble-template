@@ -135,7 +135,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/categories.js", // Helpers for category property map building
   "src/_lib/collections/events.js", // Thumbnail resolution from products
-  "src/_lib/collections/locations.js", // Thumbnail resolution from child locations
   "src/_lib/collections/navigation.js", // Search box builder kept separate for function length
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // isReviewableTag type guard for TypeScript
@@ -288,8 +287,8 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/public/ui/autosizes.js:76",
 
   // src/_lib/utils - utility functions
-  "src/_lib/utils/collection-utils.js:79", // indexer may not contain the lookup slug
-  "src/_lib/utils/collection-utils.js:110", // CMS boundary: frontmatter array fields may be null before eleventyComputed
+  "src/_lib/utils/collection-utils.js:71", // indexer may not contain the lookup slug
+  "src/_lib/utils/collection-utils.js:102", // CMS boundary: frontmatter array fields may be null before eleventyComputed
   "src/_lib/utils/sorting.js:65", // eleventyNavigation.order (separate from item order)
 ]);
 

@@ -37,14 +37,6 @@ export const getCategoriesFromApi = (collectionApi) =>
 export const getEventsFromApi = (collectionApi) =>
   collectionApi.getFilteredByTag("events");
 
-/**
- * Get locations from collection API (typed wrapper).
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @returns {import("#lib/types").LocationCollectionItem[]}
- */
-export const getLocationsFromApi = (collectionApi) =>
-  collectionApi.getFilteredByTag("locations");
-
 /** Derive a "featured" collection from a base collection creator. */
 export const featuredCollection = (createCollection) => (api) =>
   createCollection(api).filter((item) => item.data.featured);

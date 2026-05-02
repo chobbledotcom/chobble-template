@@ -121,7 +121,7 @@ describe("resolveDependencies", () => {
   });
 
   test("does not add spurious dependencies for independent collections", () => {
-    const selected = ["news", "reviews", "locations", "properties"];
+    const selected = ["news", "reviews", "properties"];
     const resolved = resolveDependencies(selected);
 
     expect(resolved.sort()).toEqual(selected.sort());
