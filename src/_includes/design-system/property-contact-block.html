@@ -1,6 +1,11 @@
----
-layout: design-system-base
----
+{%- comment -%}
+Property-contact block - renders a contact form scoped to the current
+property page (paginated from `collections.propertiesWithContactPage`).
+
+Property-contact-only block. No block-level parameters. Reads `item` from
+pagination, overrides the contact-form target with the property's
+`formspark_id`, and links back to the property page.
+{%- endcomment -%}
 
 <section class="compact">
   <div class="container">

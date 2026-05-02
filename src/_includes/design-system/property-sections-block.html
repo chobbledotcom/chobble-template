@@ -1,0 +1,13 @@
+{%- comment -%}
+Property-sections block - renders the configured `propertyOrder` list of
+section includes for a single property page.
+
+Property-only block. No block-level parameters. Reads the `propertyOrder`
+data variable (driven by `config.property_order`, defaulting to
+`DEFAULT_PROPERTY_ORDER` in `src/_lib/config/list-config.js`) and includes
+each entry from `src/_includes/`.
+{%- endcomment -%}
+
+{%- for section in propertyOrder -%}
+  {%- include section -%}
+{%- endfor -%}

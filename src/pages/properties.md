@@ -2,7 +2,10 @@
 header_text: Properties
 meta_description:
 meta_title: Properties
-layout: properties.html
+layout: design-system-base.html
+blocks:
+  - type: content
+  - type: properties
 permalink: "/{{ strings.property_permalink_dir }}/"
 eleventyNavigation:
   key: Properties

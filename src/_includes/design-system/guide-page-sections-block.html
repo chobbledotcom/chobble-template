@@ -1,0 +1,12 @@
+{%- comment -%}
+Guide-page-sections block - renders the configured `guidePageOrder` list of
+section includes for a single guide page.
+
+Guide-page-only block. No block-level parameters. Reads the `guidePageOrder`
+data variable (driven by `config.guide_page_order`) and includes each entry
+from `src/_includes/`.
+{%- endcomment -%}
+
+{%- for section in guidePageOrder -%}
+  {%- include section -%}
+{%- endfor -%}

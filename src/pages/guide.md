@@ -1,7 +1,10 @@
 ---
 title: Guide
 subtitle: Browse our knowledge base
-layout: guide-index.html
+layout: design-system-base.html
+blocks:
+  - type: content
+  - type: guide-categories
 permalink: /guide/
 eleventyNavigation:
   key: Guide

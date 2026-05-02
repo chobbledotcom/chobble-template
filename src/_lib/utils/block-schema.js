@@ -28,6 +28,8 @@ import * as downloads from "#utils/block-schema/downloads.js";
 import * as features from "#utils/block-schema/features.js";
 import * as gallery from "#utils/block-schema/gallery.js";
 import * as guideCategories from "#utils/block-schema/guide-categories.js";
+import * as guideCategorySections from "#utils/block-schema/guide-category-sections.js";
+import * as guidePageSections from "#utils/block-schema/guide-page-sections.js";
 import * as hero from "#utils/block-schema/hero.js";
 import * as html from "#utils/block-schema/html.js";
 import * as iconLinks from "#utils/block-schema/icon-links.js";
@@ -46,6 +48,10 @@ import * as menu from "#utils/block-schema/menu.js";
 import * as menuPdfDownload from "#utils/block-schema/menu-pdf-download.js";
 import * as newsMeta from "#utils/block-schema/news-meta.js";
 import * as properties from "#utils/block-schema/properties.js";
+import * as propertyContact from "#utils/block-schema/property-contact.js";
+import * as propertySections from "#utils/block-schema/property-sections.js";
+import * as quoteCart from "#utils/block-schema/quote-cart.js";
+import * as quoteCheckout from "#utils/block-schema/quote-checkout.js";
 import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
 import { CONTAINER_FIELDS } from "#utils/block-schema/shared.js";
@@ -107,7 +113,13 @@ const BLOCK_MODULES = [
   include,
   newsMeta,
   properties,
+  propertyContact,
+  propertySections,
   guideCategories,
+  guideCategorySections,
+  guidePageSections,
+  quoteCart,
+  quoteCheckout,
   linkButton,
   reviews,
   gallery,

@@ -420,6 +420,21 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+  block_property_contact:
+    label: Property Contact
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_quote_cart:
+    label: Quote Cart
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_quote_checkout:
+    label: Quote Checkout
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
   block_reviews:
     label: Reviews
     type: object
@@ -795,6 +810,21 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+  block_property_sections:
+    label: Property Sections
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_guide_category_sections:
+    label: Guide Category Sections
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_guide_page_sections:
+    label: Guide Page Sections
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
   block_menu:
     label: Menu
     type: object
@@ -870,6 +900,9 @@ content:
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
           - { name: properties, component: block_properties }
+          - { name: property-contact, component: block_property_contact }
+          - { name: quote-cart, component: block_quote_cart }
+          - { name: quote-checkout, component: block_quote_checkout }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1476,6 +1509,7 @@ content:
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
           - { name: properties, component: block_properties }
+          - { name: property-sections, component: block_property_sections }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1533,6 +1567,8 @@ content:
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
+          - name: guide-category-sections
+            component: block_guide_category_sections
           - { name: hero, component: block_hero }
           - { name: html, component: block_html }
           - { name: icon-links, component: block_icon_links }
@@ -1605,6 +1641,7 @@ content:
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
+          - { name: guide-page-sections, component: block_guide_page_sections }
           - { name: hero, component: block_hero }
           - { name: html, component: block_html }
           - { name: icon-links, component: block_icon_links }

@@ -770,6 +770,28 @@ No block-level parameters. Uses the global `collections.properties` and optional
 
 ---
 
+### `property-contact`
+
+Renders a contact form scoped to the current property page (paginated from `collections.propertiesWithContactPage`).
+
+**Component:** `block_property_contact`
+**Template:** `src/_includes/design-system/property-contact-block.html`
+
+Pages-only block. No parameters. Reads `item` from pagination, overrides the contact form target with the property's formspark_id, and links back to the property page.
+
+---
+
+### `property-sections`
+
+Renders the configured `propertyOrder` list of section includes for a single property page.
+
+**Component:** `block_property_sections`
+**Template:** `src/_includes/design-system/property-sections-block.html`
+
+Property-only block. No parameters. The list of sections is driven by `config.property_order` (defaulting to DEFAULT_PROPERTY_ORDER in src/_lib/config/list-config.js). Each entry is a path under src/_includes/ and is rendered in order.
+
+---
+
 ### `guide-categories`
 
 Displays guide categories collection.
@@ -778,6 +800,50 @@ Displays guide categories collection.
 **Template:** `src/_includes/design-system/guide-categories-block.html`
 
 No block-level parameters. Uses the global `collections.guide-categories`.
+
+---
+
+### `guide-category-sections`
+
+Renders the configured `guideCategoryOrder` list of section includes for a single guide-category landing page.
+
+**Component:** `block_guide_category_sections`
+**Template:** `src/_includes/design-system/guide-category-sections-block.html`
+
+Guide-category-only block. No parameters. The list of sections is driven by `config.guide_category_order`. Each entry is a path under src/_includes/ and is rendered in order.
+
+---
+
+### `guide-page-sections`
+
+Renders the configured `guidePageOrder` list of section includes for a single guide page.
+
+**Component:** `block_guide_page_sections`
+**Template:** `src/_includes/design-system/guide-page-sections-block.html`
+
+Guide-page-only block. No parameters. The list of sections is driven by `config.guide_page_order`. Each entry is a path under src/_includes/ and is rendered in order.
+
+---
+
+### `quote-cart`
+
+Renders the client-side quote cart UI: page content, quote header, step progress, the cart shell (populated by JS), and the templates pushed to the design-system-base templates slot.
+
+**Component:** `block_quote_cart`
+**Template:** `src/_includes/design-system/quote-cart-block.html`
+
+Pages-only block. No parameters. Used on the `/quote/` page when `cart_mode` is `quote`. Renders nothing visible until the cart JS hydrates.
+
+---
+
+### `quote-checkout`
+
+Renders the multi-step quote-request form: page content, quote header, step progress, the form (with cart_items / hire_days hidden inputs populated by JS), and the templates pushed to the design-system-base templates slot.
+
+**Component:** `block_quote_checkout`
+**Template:** `src/_includes/design-system/quote-checkout-block.html`
+
+Pages-only block. No parameters. Used on the `/checkout/` page when `cart_mode` is `quote`. Submits to the configured Formspark form target.
 
 ---
 

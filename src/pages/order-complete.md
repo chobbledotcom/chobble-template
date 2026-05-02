@@ -5,7 +5,7 @@ meta_description: Thank you for your order
 meta_title: Order Complete
 no_index: true
 permalink: /order-complete/
-layout: checkout-complete.html
+layout: design-system-base.html
 ---
 Your payment has been received. Thank you for your order!
 

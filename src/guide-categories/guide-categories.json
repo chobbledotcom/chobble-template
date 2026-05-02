@@ -1,4 +1,5 @@
 {
-	"layout": "guide-category.html",
-	"tags": ["guide-categories"]
+	"layout": "design-system-base.html",
+	"tags": ["guide-categories"],
+	"blocks": [{ "type": "guide-category-sections" }]
 }

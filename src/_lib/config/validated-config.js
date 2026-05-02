@@ -107,7 +107,7 @@ const stripeCartErrors =
         ),
         ...validatePageFrontmatter(
           "order-complete.md",
-          "checkout-complete.html",
+          "design-system-base.html",
           "/order-complete/",
           "stripe",
         ),
@@ -129,7 +129,7 @@ const quoteCartErrors =
             ]),
         ...validatePageFrontmatter(
           "checkout.md",
-          "quote-checkout.html",
+          "design-system-base.html",
           "/checkout/",
           "quote",
         ),

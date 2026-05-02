@@ -4,6 +4,8 @@ pagination:
   size: 1
   alias: item
 permalink: "/{{ strings.property_permalink_dir }}/{{ item.fileSlug }}/contact/"
-layout: property-contact
+layout: design-system-base.html
+blocks:
+  - type: property-contact
 eleventyExcludeFromCollections: true
 ---

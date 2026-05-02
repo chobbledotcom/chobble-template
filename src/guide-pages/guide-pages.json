@@ -1,4 +1,5 @@
 {
-	"layout": "guide-page.html",
-	"tags": ["guide-pages"]
+	"layout": "design-system-base.html",
+	"tags": ["guide-pages"],
+	"blocks": [{ "type": "guide-page-sections" }]
 }
