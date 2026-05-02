@@ -682,6 +682,17 @@ Inline in `render-block.html` — uses `{% include block.file %}`. Escape hatch 
 
 ---
 
+### `news-meta`
+
+Renders a news post's metadata: author name (linking to their team page) with optional thumbnail, plus the post date.
+
+**Component:** `block_news_meta`
+**Template:** `src/_includes/design-system/news-meta-block.html`
+
+News-only block. No parameters. Reads `authorSlug` from the page data and looks up the matching team member in `collections.team`. Renders the author's image when present, falling back to a date-only block when there is no author.
+
+---
+
 ### `properties`
 
 Displays property listings (holiday lets) with filter controls.

@@ -4,7 +4,7 @@
 	"navigationParent": "News",
 	"blocks": [
 		{ "type": "include", "file": "news-post-header.html" },
-		{ "type": "include", "file": "news-post-meta.html" },
+		{ "type": "news-meta" },
 		{ "type": "content" },
 		{ "type": "include", "file": "news-post-gallery.html" },
 		{ "type": "include", "file": "faq.html" }

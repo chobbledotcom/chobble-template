@@ -766,6 +766,11 @@ components:
           search: primary
           value: "{path}"
           label: "{primary}"
+  block_news_meta:
+    label: News Meta
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
 content:
   - name: pages
     label: Pages
@@ -1102,6 +1107,7 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
+          - { name: news-meta, component: block_news_meta }
           - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
