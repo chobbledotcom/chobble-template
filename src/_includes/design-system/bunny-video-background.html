@@ -22,7 +22,7 @@ Usage:
 <div class="video-background{% if block.class %} {{ block.class }}{% endif %}" data-bunny-video>
   {%- if block.thumbnail_url -%}
   <div class="video-background__thumbnail">
-    {% image block.thumbnail_url, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true, true %}
+    {% image block.thumbnail_url, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
   </div>
   {%- endif -%}
   <iframe

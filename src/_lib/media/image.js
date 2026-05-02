@@ -70,7 +70,6 @@ const processImageData = dedupeAsync(
     aspectRatio,
     noLqip = false,
     skipMaxWidth = false,
-    skipAspectRatio = false,
   }) => {
     const imagePath = normalizeImagePath(imageName);
     const metadata = await getMetadata(imagePath);
@@ -106,7 +105,6 @@ const processImageData = dedupeAsync(
       metadata,
       getAspectRatio,
       skipMaxWidth,
-      skipAspectRatio,
     );
 
     return { htmlMetadata, style };
@@ -119,7 +117,6 @@ const processImageData = dedupeAsync(
         "aspectRatio",
         "noLqip",
         "skipMaxWidth",
-        "skipAspectRatio",
       ]),
   },
 );
@@ -144,7 +141,6 @@ const computeWrappedImageHtml = async ({
   loading,
   noLqip = false,
   skipMaxWidth = false,
-  skipAspectRatio = false,
 }) => {
   if (PLACEHOLDER_MODE) {
     return generatePlaceholderHtml({
@@ -153,7 +149,6 @@ const computeWrappedImageHtml = async ({
       sizes,
       loading,
       aspectRatio,
-      skipAspectRatio,
     });
   }
 
@@ -163,7 +158,6 @@ const computeWrappedImageHtml = async ({
     aspectRatio,
     noLqip,
     skipMaxWidth,
-    skipAspectRatio,
   });
 
   const { imgAttributes, pictureAttributes } = prepareImageAttributes({
@@ -206,7 +200,6 @@ const processAndWrapImage = async ({
         sizes: imageProps.sizes,
         loading: imageProps.loading,
         aspectRatio: imageProps.aspectRatio,
-        skipAspectRatio: imageProps.skipAspectRatio,
       });
       return resolveOutput(html, returnElement, document);
     }
@@ -219,7 +212,6 @@ const processAndWrapImage = async ({
       widths: imageProps.widths,
       aspectRatio: imageProps.aspectRatio,
       skipMaxWidth: imageProps.skipMaxWidth,
-      skipAspectRatio: imageProps.skipAspectRatio,
       returnElement,
       document,
     });
@@ -288,7 +280,6 @@ const assertStringOrFalsy = (value, name, imageName) => {
  * @param {string | null} [loading]
  * @param {boolean} [noLqip]
  * @param {boolean} [skipMaxWidth] - Skip max-width constraint (for background images)
- * @param {boolean} [skipAspectRatio] - Skip aspect-ratio inline style (for background images sized by their container)
  */
 const imageShortcode = async (
   imageName,
@@ -300,7 +291,6 @@ const imageShortcode = async (
   loading = null,
   noLqip = false,
   skipMaxWidth = false,
-  skipAspectRatio = false,
 ) => {
   assertStringOrFalsy(loading, "loading", imageName);
   assertStringOrFalsy(classes, "classes", imageName);
@@ -318,7 +308,6 @@ const imageShortcode = async (
     loading: toStringOrNull(loading),
     noLqip,
     skipMaxWidth,
-    skipAspectRatio,
     returnElement: false,
   });
 };

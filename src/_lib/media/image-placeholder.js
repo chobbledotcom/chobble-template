@@ -11,7 +11,7 @@ const PLACEHOLDER_PNG =
 /**
  * Generate placeholder HTML without any image processing.
  * Returns a simple wrapper with a 1px transparent PNG.
- * @param {{ alt?: string | null, classes?: string | null, sizes?: string | null, loading?: string | null, aspectRatio?: string | null, skipAspectRatio?: boolean }} options
+ * @param {{ alt?: string | null, classes?: string | null, sizes?: string | null, loading?: string | null, aspectRatio?: string | null }} options
  */
 const generatePlaceholderHtml = async ({
   alt = "",
@@ -19,7 +19,6 @@ const generatePlaceholderHtml = async ({
   sizes = "auto",
   loading = "lazy",
   aspectRatio,
-  skipAspectRatio = false,
 }) => {
   const imgHtml = await createHtml("img", {
     src: PLACEHOLDER_PNG,
@@ -29,13 +28,11 @@ const generatePlaceholderHtml = async ({
     decoding: "async",
   });
   const pictureHtml = await createHtml("picture", {}, imgHtml);
-  const ratio = skipAspectRatio ? null : aspectRatio || "1/1";
-  const style = ratio
-    ? `aspect-ratio: ${ratio}; background: #eee`
-    : "background: #eee";
   return wrapImageHtml(pictureHtml, {
     classes,
-    style,
+    style: aspectRatio
+      ? `aspect-ratio: ${aspectRatio}; background: #eee`
+      : "aspect-ratio: 1/1; background: #eee",
   });
 };
 

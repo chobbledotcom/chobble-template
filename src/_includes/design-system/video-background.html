@@ -32,7 +32,7 @@ Usage:
 <div class="video-background{% if block.class %} {{ block.class }}{% endif %}"{% if _is_youtube and _thumbnail %} data-youtube-video{% endif %}>
   {%- if _thumbnail -%}
   <div class="video-background__thumbnail">
-    {% image _thumbnail, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true, true %}
+    {% image _thumbnail, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
   </div>
   {%- endif -%}
   {%- include "design-system/video-iframe.html", video_id: block.video_id, title: _video_title, background: true -%}

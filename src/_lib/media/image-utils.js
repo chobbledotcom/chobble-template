@@ -108,7 +108,6 @@ const buildPictureAttributes = (classes) =>
  * @param {string | null} options.aspectRatio - Pre-computed aspect ratio string
  * @param {number | null} [options.maxWidth] - Maximum width in pixels
  * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
- * @param {boolean} [options.skipAspectRatio] - Skip aspect-ratio inline style
  * @returns {string} CSS style string
  */
 export const buildImageWrapperStyles = ({
@@ -116,11 +115,10 @@ export const buildImageWrapperStyles = ({
   aspectRatio,
   maxWidth,
   skipMaxWidth = false,
-  skipAspectRatio = false,
 }) =>
   compact([
     bgImage && `background-image: ${bgImage}`,
-    !skipAspectRatio && aspectRatio && `aspect-ratio: ${aspectRatio}`,
+    aspectRatio && `aspect-ratio: ${aspectRatio}`,
     !skipMaxWidth && maxWidth && `max-width: min(${maxWidth}px, 100%)`,
   ]).join("; ");
 
@@ -132,7 +130,6 @@ export const buildImageWrapperStyles = ({
  * @param {{ width: number }} metadata - Image metadata with width property
  * @param {Function} getAspectRatioFn - Function to compute aspect ratio
  * @param {boolean} [skipMaxWidth=false] - Skip max-width constraint
- * @param {boolean} [skipAspectRatio=false] - Skip aspect-ratio inline style
  */
 export const buildWrapperStyles = (
   bgImage,
@@ -140,14 +137,12 @@ export const buildWrapperStyles = (
   metadata,
   getAspectRatioFn,
   skipMaxWidth = false,
-  skipAspectRatio = false,
 ) =>
   buildImageWrapperStyles({
     bgImage,
     aspectRatio: getAspectRatioFn(aspectRatio, metadata),
     maxWidth: metadata.width,
     skipMaxWidth,
-    skipAspectRatio,
   });
 
 /**
