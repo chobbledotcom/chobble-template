@@ -10,7 +10,7 @@ layout: base
     {%- if page.url and page.data.no_index != true -%}
       <li>
         <a href="{{ page.url }}">
-          {%- if page.data.layout == "news-post.html" -%}
+          {%- if page.data.tags contains "news" -%}
             {{- page.date | date: "%b %-d, %Y" }}:
           {% endif -%}
           {{ page.data.header_text -}}
