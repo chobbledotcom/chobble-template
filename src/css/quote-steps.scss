@@ -120,16 +120,8 @@
   padding-top: 1.5rem;
   border-top: var(--border);
 
-  .btn {
-    width: 100%;
-  }
-
   @include breakpoints.up("sm") {
     flex-direction: row;
-
-    .btn {
-      width: auto;
-    }
 
     .quote-step-back-to-items,
     .quote-step-prev {
