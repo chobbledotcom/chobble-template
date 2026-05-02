@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import eleventyComputed from "#data/eleventyComputed.js";
+import { getVideoThumbnailUrl } from "#utils/video.js";
 
 const page = { inputPath: "test.html" };
 
@@ -150,5 +151,20 @@ describe("eleventyComputed.blocks", () => {
     });
     expect(result[0].reveal).toBe(true);
     expect(result[1].reveal).toBe(true);
+  });
+
+  test("enriches video-cards block videos with thumbnail_url", async () => {
+    const id = "dQw4w9WgXcQ";
+    const block = await runSingle({
+      type: "video-cards",
+      videos: [{ id, title: "Test" }],
+    });
+    expect(block.videos[0].thumbnail_url).toBe(await getVideoThumbnailUrl(id));
+    expect(block.videos[0].title).toBe("Test");
+  });
+
+  test("leaves a video-cards block alone when its videos field is missing", async () => {
+    const block = await runSingle({ type: "video-cards", videos: undefined });
+    expect(block.videos).toBeUndefined();
   });
 });

@@ -43,15 +43,6 @@ const BLOCK_DEFAULTS = {
   downloads: { reveal: true },
 };
 
-/** @param {Array<{ id: string; title: string; thumbnail_url?: string | null }>} videos */
-const enrichVideos = (videos) =>
-  Promise.all(
-    videos.map(async (video) => ({
-      ...video,
-      thumbnail_url: await getVideoThumbnailUrl(video.id),
-    })),
-  );
-
 export default {
   /**
    * Whether this page should be indexed by Pagefind.
@@ -229,23 +220,18 @@ export default {
       return merged;
     });
     return Promise.all(
-      withDefaults.map(async (block) =>
-        block.type === "video-cards" && Array.isArray(block.videos)
-          ? { ...block, videos: await enrichVideos(block.videos) }
-          : block,
-      ),
+      withDefaults.map(async (block) => {
+        if (block.type !== "video-cards" || !Array.isArray(block.videos)) {
+          return block;
+        }
+        const videos = await Promise.all(
+          block.videos.map(async (video) => ({
+            ...video,
+            thumbnail_url: await getVideoThumbnailUrl(video.id),
+          })),
+        );
+        return { ...block, videos };
+      }),
     );
-  },
-
-  /**
-   * Adds thumbnail_url to each video object. YouTube videos get a static
-   * thumbnail URL, Vimeo videos get one via the oEmbed API, and other custom
-   * iframe URLs get null.
-   * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Promise<Array<Record<string, unknown>> | undefined>} Videos with thumbnail_url added
-   */
-  videos: async (data) => {
-    if (!data.videos) return data.videos;
-    return enrichVideos(data.videos);
   },
 };

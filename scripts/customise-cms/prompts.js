@@ -367,27 +367,6 @@ const askBelowProductsQuestion = async (rl, collections, defaultFeatures) => {
 };
 
 /**
- * Ask conditional feature questions for YouTube video embeds on pages
- * @param {readline.Interface} rl - Readline interface
- * @param {string[]} collections - Selected collection names
- * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
- * @returns {Promise<{videos: boolean}>} Videos selection
- */
-const askVideosQuestion = async (rl, collections, defaultFeatures) => {
-  const hasPages = collections.includes("pages");
-
-  return {
-    videos: hasPages
-      ? await askYesNo(
-          rl,
-          "Do you want YouTube video embeds on pages?",
-          defaultFeatures.videos ?? false,
-        )
-      : false,
-  };
-};
-
-/**
  * Ask whether to use blocks layout on all collections
  * @param {readline.Interface} rl - Readline interface
  * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
@@ -516,11 +495,6 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     collections,
     defaultFeatures,
   );
-  const videosFeatures = await askVideosQuestion(
-    rl,
-    collections,
-    defaultFeatures,
-  );
   const belowProductsFeatures = await askBelowProductsQuestion(
     rl,
     collections,
@@ -537,7 +511,6 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     ...noIndexFeatures,
     ...keywordsFeatures,
     ...parentCategoriesFeatures,
-    ...videosFeatures,
     ...belowProductsFeatures,
     ...blocksFeatures,
   };

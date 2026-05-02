@@ -1,5 +1,7 @@
 export const type = "menu";
 
+export const collections = ["menus"];
+
 export const fields = {};
 
 export const docs = {

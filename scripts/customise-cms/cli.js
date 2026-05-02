@@ -36,7 +36,6 @@ const ALL_FEATURES = [
   "use_visual_editor",
   "no_index",
   "parent_categories",
-  "videos",
   "below_products",
   "use_blocks",
 ];
