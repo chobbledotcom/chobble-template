@@ -43,7 +43,7 @@ const BLOCK_DEFAULTS = {
   downloads: { reveal: true },
 };
 
-/** @param {Array<Record<string, unknown>>} videos */
+/** @param {Array<{ id: string; title: string; thumbnail_url?: string | null }>} videos */
 const enrichVideos = (videos) =>
   Promise.all(
     videos.map(async (video) => ({
