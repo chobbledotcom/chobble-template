@@ -550,6 +550,20 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 
 ---
 
+### `items-text-list`
+
+Renders a collection as a comma-separated inline list of links, with optional introductory markdown text prepended. Excludes the current page from the list.
+
+**Component:** `block_items_text_list`
+**Template:** `src/_includes/design-system/items-text-list.html`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `collection` | string | **required** | Name of an Eleventy collection (e.g. `"services"`, `"events"`). |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
+
+---
+
 ### `menu`
 
 Renders the current menu page's categories, items, dietary key legend and PDF download link. Designed for files in the `menus` collection.

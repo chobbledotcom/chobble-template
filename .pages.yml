@@ -346,6 +346,18 @@ components:
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
+  block_items_text_list:
+    label: Items Text List
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: collection
+        type: string
+        label: Collection Name
+        required: true
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_link_button:
     label: Link Button
     type: object
@@ -847,6 +859,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -974,6 +987,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1053,6 +1067,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1126,6 +1141,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1214,6 +1230,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1279,6 +1296,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1351,6 +1369,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1445,6 +1464,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1516,6 +1536,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1587,6 +1608,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1653,6 +1675,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1727,6 +1750,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
@@ -1802,6 +1826,7 @@ content:
           - { name: include, component: block_include }
           - { name: items, component: block_items }
           - { name: items-array, component: block_items_array }
+          - { name: items-text-list, component: block_items_text_list }
           - { name: link-button, component: block_link_button }
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
