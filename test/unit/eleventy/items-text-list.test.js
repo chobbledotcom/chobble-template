@@ -71,10 +71,7 @@ describe("items-text-list", () => {
 
   test("Three results use comma then 'and' separators", () => {
     const prepareItemsTextList = getItemsTextListFilter();
-    const items = [
-      ...THREE_ITEMS,
-      createItem("Delta", "/delta/"),
-    ];
+    const items = [...THREE_ITEMS, createItem("Delta", "/delta/")];
     const result = prepareItemsTextList(items, "/alpha/");
     expectSeparators(result, [", ", " and ", ""]);
   });
