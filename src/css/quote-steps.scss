@@ -120,14 +120,14 @@
   padding-top: 1.5rem;
   border-top: var(--border);
 
-  .button {
+  .btn {
     width: 100%;
   }
 
   @include breakpoints.up("sm") {
     flex-direction: row;
 
-    .button {
+    .btn {
       width: auto;
     }
 
