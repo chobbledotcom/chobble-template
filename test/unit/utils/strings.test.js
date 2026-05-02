@@ -21,7 +21,6 @@ describe("strings", () => {
   test("Returns values from strings-base.json", () => {
     expectObjectProps({
       product_name: "Products",
-      location_name: "Locations",
       event_name: "Events",
     })(strings);
   });

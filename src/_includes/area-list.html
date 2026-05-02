@@ -1,4 +1,0 @@
-{%- assign areas = locations | prepareAreaList: page.url -%}
-{%- if areas.size > 0 -%}
-{{ prefix }}{%- for area in areas -%}<a href="{{ area.url }}{{ config.internal_link_suffix }}">{{ area.name }}</a>{{ area.separator }}{%- endfor -%}{{ suffix }}
-{%- endif -%}

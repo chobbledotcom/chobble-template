@@ -116,17 +116,6 @@ export const COLLECTIONS = [
     supportsAddOns: false,
   },
   {
-    name: "locations",
-    label: "Locations",
-    path: "src/locations",
-    description: "Physical locations or service areas",
-    supportsFeatures: false,
-    supportsSpecs: false,
-    supportsGallery: true,
-    supportsTabs: false,
-    supportsAddOns: false,
-  },
-  {
     name: "properties",
     label: "Properties",
     path: "src/properties",

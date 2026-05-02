@@ -23,7 +23,6 @@ describe("breadcrumbsFilter", () => {
     page,
     title,
     navigationParent,
-    parentLocation,
     parentCategory = undefined,
     itemCategories = undefined,
     collections = {},
@@ -34,7 +33,6 @@ describe("breadcrumbsFilter", () => {
       page,
       title,
       navigationParent,
-      parentLocation,
       parentCategory,
       itemCategories,
       collections,
@@ -108,49 +106,6 @@ describe("breadcrumbsFilter", () => {
     ]);
   });
 
-  test("handles parentLocation for subpages and parent pages", () => {
-    const mockConfig = setupFilter();
-    const locations = [
-      {
-        fileSlug: "london",
-        url: "/locations/london/",
-        data: { title: "London" },
-      },
-    ];
-
-    // Subpage under a location shows all 4 crumbs
-    const subpageCrumbs = callFilter(
-      mockConfig,
-      { url: "/locations/london/widget-removal/" },
-      "Widget Removal",
-      "Locations",
-      "london",
-      undefined,
-      undefined,
-      { locations },
-    );
-    expect(subpageCrumbs).toHaveLength(4);
-    expect(subpageCrumbs[2]).toEqual({
-      label: "London",
-      url: "/locations/london/",
-    });
-    expect(subpageCrumbs[3]).toEqual({ label: "Widget Removal", url: null });
-
-    // At the parent location itself shows 3 crumbs with parent as current
-    const parentCrumbs = callFilter(
-      mockConfig,
-      { url: "/locations/london/" },
-      "London",
-      "Locations",
-      "london",
-      undefined,
-      undefined,
-      { locations },
-    );
-    expect(parentCrumbs).toHaveLength(3);
-    expect(parentCrumbs[2]).toEqual({ label: "London", url: null });
-  });
-
   test("does not duplicate title when navigationParent is missing on child page", () => {
     const mockConfig = setupFilter();
     const crumbs = callFilter(
@@ -205,7 +160,6 @@ describe("breadcrumbsFilter", () => {
         { url: "/products/my-product/" },
         "My Product",
         "Products",
-        null,
         undefined,
         ["widgets"],
         { categories },
@@ -223,7 +177,6 @@ describe("breadcrumbsFilter", () => {
         { url: "/products/my-widget/" },
         "My Widget",
         "Products",
-        null,
         undefined,
         ["premium-widgets"],
         { categories },
@@ -253,7 +206,6 @@ describe("breadcrumbsFilter", () => {
         { url: "/categories/premium-widgets/" },
         "Premium Widgets",
         "Products",
-        null,
         "widgets",
         undefined,
         { categories: [widgetCategory] },
@@ -275,7 +227,6 @@ describe("breadcrumbsFilter", () => {
         { url: "/categories/widgets/" },
         "Widgets",
         "Products",
-        null,
         "widgets",
         undefined,
         { categories: [widgetCategory] },
@@ -301,7 +252,6 @@ describe("breadcrumbsFilter", () => {
           { url: "/categories/premium-widgets/" },
           "Premium Widgets",
           "Products",
-          null,
           "widgets",
           undefined,
           { categories },
@@ -345,7 +295,6 @@ describe("breadcrumbsFilter", () => {
         { url: "/guide/getting-started/" },
         "Getting Started",
         "Guide",
-        null,
         undefined,
         undefined,
         { properties },
@@ -366,7 +315,6 @@ describe("breadcrumbsFilter", () => {
         { url: "/guide/getting-started/my-page/" },
         "My Page",
         "Guide",
-        null,
         undefined,
         undefined,
         { properties, "guide-categories": guideCategories },
@@ -392,7 +340,6 @@ describe("breadcrumbsFilter", () => {
         { url: "/guide/general/my-page/" },
         "My Page",
         "Guide",
-        null,
         undefined,
         undefined,
         { properties, "guide-categories": guideCategories },

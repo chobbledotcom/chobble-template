@@ -23,7 +23,6 @@ import {
 import {
   buildEventsFields,
   buildGuidePagesFields,
-  buildLocationsFields,
   buildMenuCategoriesFields,
   buildMenuItemsFields,
   buildNewsFields,
@@ -62,7 +61,6 @@ const getCoreFields = (collectionName, config, fields) => {
     products: buildProductsFields,
     reviews: buildReviewsFields,
     events: buildEventsFields,
-    locations: buildLocationsFields,
     properties: buildPropertiesFields,
     "guide-pages": buildGuidePagesFields,
     "menu-categories": buildMenuCategoriesFields,
@@ -186,11 +184,6 @@ const RAW_VIEW_CONFIGS = {
     primary: "title",
     sort: ["title"],
   },
-  locations: {
-    fields: ["thumbnail", "title", "subtitle"],
-    primary: "title",
-    sort: ["title"],
-  },
   properties: {
     fields: ["thumbnail", "title", "subtitle", "bedrooms", "sleeps"],
     primary: "title",
@@ -251,7 +244,7 @@ export const generateCollectionConfig = (
     label: collection.label,
     path: collection.path,
     type: "collection",
-    subfolders: collectionName === "locations",
+    subfolders: false,
   };
 
   if (hasFilenameConfig(collectionName)) {

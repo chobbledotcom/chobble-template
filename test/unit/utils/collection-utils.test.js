@@ -10,7 +10,6 @@ import {
   createFieldIndexer,
   featuredCollection,
   getEventsFromApi,
-  getLocationsFromApi,
 } from "#utils/collection-utils.js";
 
 describe("collection-utils", () => {
@@ -65,25 +64,6 @@ describe("collection-utils", () => {
       const api = taggedCollectionApi({ events: [] });
 
       const result = getEventsFromApi(api);
-
-      expect(result).toEqual([]);
-    });
-  });
-
-  describe("getLocationsFromApi", () => {
-    test("returns locations from collection API", () => {
-      const locations = [{ data: { title: "Location 1" } }];
-      const api = taggedCollectionApi({ locations });
-
-      const result = getLocationsFromApi(api);
-
-      expect(result).toEqual(locations);
-    });
-
-    test("returns empty array when no locations", () => {
-      const api = taggedCollectionApi({ locations: [] });
-
-      const result = getLocationsFromApi(api);
 
       expect(result).toEqual([]);
     });

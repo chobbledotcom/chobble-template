@@ -52,8 +52,7 @@
 		"products": "Product",
 		"property": "Property",
 		"properties": "Property",
-		"events": "Event",
-		"locations": "Location"
+		"events": "Event"
 	},
 	"submitButtonText": "Send Enquiry"
 }

@@ -233,24 +233,6 @@ const pick = (keys) => (obj) =>
 const compact = (arr) => arr.filter(Boolean);
 
 /**
- * Get the separator for an item in a list formatted with "and"
- *
- * Returns ", " for most items, " and " for second-to-last, "" for last.
- * Curried: call with length first, then index.
- *
- * @param {number} length - Total length of the list
- * @returns {Function} (index) => separator string
- *
- * @example
- * const sep = listSeparator(3);
- * sep(0)  // ", "
- * sep(1)  // " and "
- * sep(2)  // ""
- */
-const listSeparator = (length) => (index) =>
-  index >= length - 1 ? "" : index === length - 2 ? " and " : ", ";
-
-/**
  * Find the first duplicate item in an array
  *
  * Returns the first item whose key matches a previous item's key.
@@ -415,7 +397,6 @@ export {
   findDuplicate,
   flatMap,
   join,
-  listSeparator,
   map,
   mapAsync,
   mapFilter,

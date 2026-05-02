@@ -11,7 +11,6 @@ import { configureCollectionUtils } from "#utils/collection-utils.js";
 import { configureCategories } from "#collections/categories.js";
 import { configureEvents } from "#collections/events.js";
 import { configureGuides } from "#collections/guides.js";
-import { configureLocations } from "#collections/locations.js";
 import { configureNews } from "#collections/news.js";
 import { configureMenus } from "#collections/menus.js";
 import { configureNavigation } from "#collections/navigation.js";
@@ -21,7 +20,6 @@ import { configureReviews } from "#collections/reviews.js";
 import { configureSocials } from "#collections/socials.js";
 import { configureTags } from "#collections/tags.js";
 import { configureTeam } from "#collections/team.js";
-import { configureAreaList } from "#eleventy/area-list.js";
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { configureCollectionLookup } from "#eleventy/collection-lookup.js";
 import { configureItemFilterData } from "#eleventy/item-filter-data.js";
@@ -42,6 +40,7 @@ import { configureHtmlTransform } from "#eleventy/html-transform.js";
 import { configureICal } from "#eleventy/ical.js";
 import { configureJsConfig } from "#eleventy/js-config.js";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
+import { configureItemsTextList } from "#eleventy/items-text-list.js";
 import { configureLinkList } from "#eleventy/link-list.js";
 
 import { configureOpeningTimes } from "#eleventy/opening-times.js";
@@ -85,7 +84,6 @@ export default async function (eleventyConfig) {
 
   // configureLayoutAliases(eleventyConfig);
 
-  configureAreaList(eleventyConfig);
   configureBlocks(eleventyConfig);
   configureBreadcrumbs(eleventyConfig);
   configureCacheBuster(eleventyConfig);
@@ -112,8 +110,8 @@ export default async function (eleventyConfig) {
   configureIconify(eleventyConfig);
   configureInlineAsset(eleventyConfig);
   configureItemFilterData(eleventyConfig);
+  configureItemsTextList(eleventyConfig);
   await prefetchSpecIcons();
-  configureLocations(eleventyConfig);
   configureMenus(eleventyConfig);
   await configureNavigation(eleventyConfig);
   configureNews(eleventyConfig);

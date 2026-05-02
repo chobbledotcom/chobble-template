@@ -123,15 +123,6 @@ export const buildEventsFields = (config, fields) =>
   ])(config, fields);
 
 /**
- * Build fields for the locations collection
- * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fields - Precomputed fields
- * @returns {CmsField[]} Locations collection fields
- */
-export const buildLocationsFields = (config, fields) =>
-  buildItem((enabled) => [categoriesRef(enabled)])(config, fields);
-
-/**
  * Build fields for the properties collection
  * @param {CmsConfig} config - CMS configuration
  * @param {FieldContext} fields - Precomputed fields

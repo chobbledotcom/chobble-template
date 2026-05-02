@@ -16,7 +16,6 @@ import { getBySlug } from "#eleventy/collection-lookup.js";
 const PARENT_URL_MAP = {
   [strings.product_name]: `/${strings.product_permalink_dir}/`,
   [strings.event_name]: `/${strings.event_permalink_dir}/`,
-  [strings.location_name]: `/${strings.location_permalink_dir}/`,
   [strings.property_name]: `/${strings.property_permalink_dir}/`,
   [strings.menus_name]: `/${strings.menus_permalink_dir}/`,
   [strings.guide_name]: `/${strings.guide_permalink_dir}/`,
@@ -52,11 +51,10 @@ const buildParentCrumbs = (page, baseCrumbs, title, parent) => {
     : withTitleCrumb([...baseCrumbs, crumb], title);
 };
 
-/** Find parent from categories or locations by slug */
-const findParent = (parentCategory, categories, parentLocation, locations) => {
+/** Find parent from categories by slug */
+const findParent = (parentCategory, categories) => {
   if (parentCategory && categories)
     return getBySlug(categories, parentCategory);
-  if (parentLocation && locations) return getBySlug(locations, parentLocation);
   return undefined;
 };
 
@@ -138,7 +136,6 @@ const buildStandardCrumbs = (
   page,
   title,
   navigationParent,
-  parentLocation,
   parentCategory,
   itemCategories,
   collections,
@@ -170,12 +167,7 @@ const buildStandardCrumbs = (
     );
   }
 
-  const parent = findParent(
-    parentCategory,
-    collections.categories,
-    parentLocation,
-    collections.locations,
-  );
+  const parent = findParent(parentCategory, collections.categories);
 
   if (parent) return buildParentCrumbs(page, baseCrumbs, title, parent);
 
@@ -188,7 +180,6 @@ const buildStandardCrumbs = (
  * @param {Object} page - Current page object with url property
  * @param {string} title - Page title
  * @param {string} navigationParent - Navigation parent name
- * @param {string|undefined} parentLocation - Explicit parent location slug
  * @param {string|undefined} parentCategory - Explicit parent category slug
  * @param {string[]|undefined} itemCategories - Item's categories array (slugs)
  * @param {Object} collections - Eleventy collections object
@@ -199,7 +190,6 @@ const breadcrumbsFilter = (
   page,
   title,
   navigationParent,
-  parentLocation,
   parentCategory,
   itemCategories,
   collections,
@@ -227,7 +217,6 @@ const breadcrumbsFilter = (
     page,
     title,
     navigationParent,
-    parentLocation,
     parentCategory,
     itemCategories,
     collections,
