@@ -6,4 +6,5 @@ export default linkableContent("news", {
     if (!data.author) return null;
     return normaliseSlug(data.author);
   },
+  date: (data) => data.page.date,
 });

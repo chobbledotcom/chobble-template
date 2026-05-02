@@ -28,10 +28,6 @@ This directory contains all the HTML layouts used by the Chobble Template. Each 
 - **`categories.html`** - Category listing page
 - **`category.html`** - Individual category page showing related products
 
-### News/Blog
-- **`news-archive.html`** - News listing page with pagination
-- **`news-post.html`** - Individual news article/blog post
-
 ### Events
 - **`events.html`** - Events listing page
 - **`event.html`** - Individual event page with date, location, and map

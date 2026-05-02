@@ -53,8 +53,8 @@ const getPostMeta = async (site, slug) => {
  */
 const getContentHtml = async (site, slug) => {
   const doc = await site.getDoc(`/news/${slug}/index.html`);
-  const content = doc.getElementById("content");
-  return content ? content.innerHTML : "";
+  const main = doc.querySelector("main");
+  return main ? main.innerHTML : "";
 };
 
 /**
@@ -194,8 +194,12 @@ describe("news", () => {
         path: "pages/news.md",
         frontmatter: {
           title: "News",
-          layout: "news-archive.html",
+          layout: "design-system-base.html",
           permalink: "/news/",
+          blocks: [
+            { type: "content" },
+            { type: "items", collection: "news", image_aspect_ratio: "4/3" },
+          ],
         },
         content: "News archive page",
       },

@@ -3,10 +3,15 @@ header_text: News
 meta_description:
 meta_title: News
 
-layout: news-archive.html
+layout: design-system-base.html
 eleventyNavigation:
   key: News
   order: 3
+blocks:
+  - type: content
+  - type: items
+    collection: news
+    image_aspect_ratio: "4/3"
 ---
 
 ## Chobble Template News

@@ -1,5 +1,12 @@
 {
-	"layout": "news-post.html",
+	"layout": "design-system-base.html",
 	"tags": ["news"],
-	"navigationParent": "News"
+	"navigationParent": "News",
+	"blocks": [
+		{ "type": "include", "file": "news-post-header.html" },
+		{ "type": "news-meta" },
+		{ "type": "content" },
+		{ "type": "include", "file": "news-post-gallery.html" },
+		{ "type": "include", "file": "faq.html" }
+	]
 }

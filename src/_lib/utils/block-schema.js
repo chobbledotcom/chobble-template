@@ -43,6 +43,7 @@ import * as markdown from "#utils/block-schema/markdown.js";
 import * as marqueeImages from "#utils/block-schema/marquee-images.js";
 import * as menu from "#utils/block-schema/menu.js";
 import * as menuPdfDownload from "#utils/block-schema/menu-pdf-download.js";
+import * as newsMeta from "#utils/block-schema/news-meta.js";
 import * as properties from "#utils/block-schema/properties.js";
 import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
@@ -102,6 +103,7 @@ const BLOCK_MODULES = [
   iframeEmbed,
   content,
   include,
+  newsMeta,
   properties,
   guideCategories,
   linkButton,
