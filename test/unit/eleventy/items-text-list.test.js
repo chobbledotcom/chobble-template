@@ -10,6 +10,12 @@ const createItem = (title, url) => ({
   data: { title },
 });
 
+const THREE_ITEMS = [
+  createItem("Alpha", "/alpha/"),
+  createItem("Beta", "/beta/"),
+  createItem("Gamma", "/gamma/"),
+];
+
 const getItemsTextListFilter = () => {
   const mockConfig = createMockEleventyConfig();
   configureItemsTextList(mockConfig);
@@ -41,12 +47,7 @@ describe("items-text-list", () => {
 
   test("Excludes current page from results", () => {
     const prepareItemsTextList = getItemsTextListFilter();
-    const items = [
-      createItem("Alpha", "/alpha/"),
-      createItem("Beta", "/beta/"),
-      createItem("Gamma", "/gamma/"),
-    ];
-    const result = prepareItemsTextList(items, "/alpha/");
+    const result = prepareItemsTextList(THREE_ITEMS, "/alpha/");
     expect(result).toHaveLength(2);
     expect(result.some((i) => i.url === "/alpha/")).toBe(false);
   });
@@ -64,21 +65,14 @@ describe("items-text-list", () => {
 
   test("Two results use 'and' separator before last", () => {
     const prepareItemsTextList = getItemsTextListFilter();
-    const items = [
-      createItem("Alpha", "/alpha/"),
-      createItem("Beta", "/beta/"),
-      createItem("Gamma", "/gamma/"),
-    ];
-    const result = prepareItemsTextList(items, "/alpha/");
+    const result = prepareItemsTextList(THREE_ITEMS, "/alpha/");
     expectSeparators(result, [" and ", ""]);
   });
 
   test("Three results use comma then 'and' separators", () => {
     const prepareItemsTextList = getItemsTextListFilter();
     const items = [
-      createItem("Alpha", "/alpha/"),
-      createItem("Beta", "/beta/"),
-      createItem("Gamma", "/gamma/"),
+      ...THREE_ITEMS,
       createItem("Delta", "/delta/"),
     ];
     const result = prepareItemsTextList(items, "/alpha/");
