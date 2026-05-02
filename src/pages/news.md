@@ -9,8 +9,9 @@ eleventyNavigation:
   order: 3
 blocks:
   - type: content
-  - type: include
-    file: news-post-list.html
+  - type: items
+    collection: news
+    image_aspect_ratio: "4/3"
 ---
 
 ## Chobble Template News

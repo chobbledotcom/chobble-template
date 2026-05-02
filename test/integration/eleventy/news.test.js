@@ -198,7 +198,7 @@ describe("news", () => {
           permalink: "/news/",
           blocks: [
             { type: "content" },
-            { type: "include", file: "news-post-list.html" },
+            { type: "items", collection: "news", image_aspect_ratio: "4/3" },
           ],
         },
         content: "News archive page",

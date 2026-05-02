@@ -14,7 +14,8 @@ layout: base
 {%- if homepage.show_news and collections.news.size > 0 -%}
   <hr />
   {%- render_snippet "homepage-news-header", "<h3>Latest Posts</h3>" -%}
-  {% include "news-post-list.html", limit: 2 %}
+  {%- assign latest_news = collections.news | slice: 0, 2 -%}
+  {%- include "items.html", items: latest_news, image_aspect_ratio: "4/3" -%}
 {%- endif -%}
 
 {%- if homepage.show_products and collections.featuredCategories.size > 0 -%}
