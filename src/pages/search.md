@@ -2,9 +2,6 @@
 title: Search
 layout: design-system-base.html
 permalink: /search/
-eleventyNavigation:
-  key: Search
-  order: 99
 header_text: Search
 blocks:
   - type: section-header
