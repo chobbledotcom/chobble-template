@@ -39,11 +39,7 @@
         pointer-events: none;
       }
 
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
+      @include media-background-cover-image;
     }
 
     // The iframe covers the entire container
