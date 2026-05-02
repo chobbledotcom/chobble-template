@@ -10,7 +10,7 @@ const createItem = (title, url) => ({
   data: { title },
 });
 
-const getFilter = () => {
+const getItemsTextListFilter = () => {
   const mockConfig = createMockEleventyConfig();
   configureItemsTextList(mockConfig);
   return mockConfig.filters.prepareItemsTextList;
@@ -24,23 +24,23 @@ describe("items-text-list", () => {
   });
 
   test("Returns empty array for null collection", () => {
-    const prepareItemsTextList = getFilter();
+    const prepareItemsTextList = getItemsTextListFilter();
     expect(prepareItemsTextList(null, "/page/")).toEqual([]);
   });
 
   test("Returns empty array for empty collection", () => {
-    const prepareItemsTextList = getFilter();
+    const prepareItemsTextList = getItemsTextListFilter();
     expect(prepareItemsTextList([], "/page/")).toEqual([]);
   });
 
   test("Returns empty array when only item is current page", () => {
-    const prepareItemsTextList = getFilter();
+    const prepareItemsTextList = getItemsTextListFilter();
     const items = [createItem("Alpha", "/alpha/")];
     expect(prepareItemsTextList(items, "/alpha/")).toEqual([]);
   });
 
   test("Excludes current page from results", () => {
-    const prepareItemsTextList = getFilter();
+    const prepareItemsTextList = getItemsTextListFilter();
     const items = [
       createItem("Alpha", "/alpha/"),
       createItem("Beta", "/beta/"),
@@ -52,15 +52,18 @@ describe("items-text-list", () => {
   });
 
   test("Single result has empty separator", () => {
-    const prepareItemsTextList = getFilter();
-    const items = [createItem("Alpha", "/alpha/"), createItem("Beta", "/beta/")];
+    const prepareItemsTextList = getItemsTextListFilter();
+    const items = [
+      createItem("Alpha", "/alpha/"),
+      createItem("Beta", "/beta/"),
+    ];
     const result = prepareItemsTextList(items, "/alpha/");
     expect(result).toHaveLength(1);
     expect(result[0].separator).toBe("");
   });
 
   test("Two results use 'and' separator before last", () => {
-    const prepareItemsTextList = getFilter();
+    const prepareItemsTextList = getItemsTextListFilter();
     const items = [
       createItem("Alpha", "/alpha/"),
       createItem("Beta", "/beta/"),
@@ -71,7 +74,7 @@ describe("items-text-list", () => {
   });
 
   test("Three results use comma then 'and' separators", () => {
-    const prepareItemsTextList = getFilter();
+    const prepareItemsTextList = getItemsTextListFilter();
     const items = [
       createItem("Alpha", "/alpha/"),
       createItem("Beta", "/beta/"),
@@ -83,7 +86,7 @@ describe("items-text-list", () => {
   });
 
   test("Sorts results alphabetically by title", () => {
-    const prepareItemsTextList = getFilter();
+    const prepareItemsTextList = getItemsTextListFilter();
     const items = [
       createItem("Zebra", "/zebra/"),
       createItem("Alpha", "/alpha/"),
@@ -94,7 +97,7 @@ describe("items-text-list", () => {
   });
 
   test("Result items include url and name from title", () => {
-    const prepareItemsTextList = getFilter();
+    const prepareItemsTextList = getItemsTextListFilter();
     const items = [createItem("Alpha", "/alpha/")];
     const result = prepareItemsTextList(items, "/other/");
     expect(result[0].url).toBe("/alpha/");

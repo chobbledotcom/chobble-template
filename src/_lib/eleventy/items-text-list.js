@@ -1,11 +1,5 @@
 import { filter, map, pipe, sort } from "#toolkit/fp/array.js";
 
-const listSeparator = (total) => (index) => {
-  if (index === total - 1) return "";
-  if (index === total - 2) return " and ";
-  return ", ";
-};
-
 const prepareItemsTextList = (collection, currentUrl) => {
   if (!collection?.length) return [];
 
@@ -14,7 +8,11 @@ const prepareItemsTextList = (collection, currentUrl) => {
     sort((a, b) => a.data.title.localeCompare(b.data.title)),
   )(collection);
 
-  const separator = listSeparator(filtered.length);
+  const separator = (index) => {
+    if (index === filtered.length - 1) return "";
+    if (index === filtered.length - 2) return " and ";
+    return ", ";
+  };
 
   return pipe(
     map((item, index) => ({
