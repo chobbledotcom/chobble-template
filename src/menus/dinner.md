@@ -5,6 +5,14 @@ header_image: src/images/dinner.jpg
 subtitle: Fresh vegan dinner options served daily.
 meta_title: Dinner Menu
 meta_description: Fresh vegan dinner options served daily
+blocks:
+  - type: hero
+    title: Dinner Menu
+    lead: Fresh vegan dinner options served daily.
+  - type: content
+  - type: menu
+  - type: menu-pdf-download
+    variant: secondary
 ---
 Our dinner service runs from 5:30pm to 10pm Tuesday through Sunday. Each dish is carefully crafted by our chef team to showcase the incredible flavours and textures possible with plant-based cooking.
 

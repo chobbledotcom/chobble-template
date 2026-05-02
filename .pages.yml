@@ -783,6 +783,15 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+  block_menu_pdf_download:
+    label: Menu Pdf Download
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: text, type: string, label: Button Text }
+      - { name: variant, type: string, label: Variant }
+      - { name: size, type: string, label: Size }
+      - { name: reveal, type: string, label: Reveal Animation }
 content:
   - name: pages
     label: Pages
@@ -1732,6 +1741,7 @@ content:
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
           - { name: menu, component: block_menu }
+          - { name: menu-pdf-download, component: block_menu_pdf_download }
           - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }

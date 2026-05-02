@@ -1,9 +1,9 @@
 {%- comment -%}
-Menu block - renders the current menu page's categories, items,
-dietary key legend, and PDF download link.
+Menu block - renders the current menu page's categories, items, and
+dietary key legend.
 
-No block-level parameters. Reads from page data (`allDietaryKeys`,
-`pdfFilename`) and `collections.menu-categories` / `collections.menu-items`,
+No block-level parameters. Reads from page data (`allDietaryKeys`)
+and `collections.menu-categories` / `collections.menu-items`,
 filtered against `page.fileSlug`.
 {%- endcomment -%}
 
@@ -47,11 +47,4 @@ filtered against `page.fileSlug`.
       </ul>
     {%- endif -%}
   {%- endfor -%}
-
-  <p class="pdf-download">
-    <a href="{{ pdfFilename }}" download>
-      {{ "hugeicons:pdf-02" | icon }}
-      <span>Download PDF</span>
-    </a>
-  </p>
 {%- endif -%}

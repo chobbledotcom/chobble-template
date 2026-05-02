@@ -42,6 +42,7 @@ import * as linkColumns from "#utils/block-schema/link-columns.js";
 import * as markdown from "#utils/block-schema/markdown.js";
 import * as marqueeImages from "#utils/block-schema/marquee-images.js";
 import * as menu from "#utils/block-schema/menu.js";
+import * as menuPdfDownload from "#utils/block-schema/menu-pdf-download.js";
 import * as properties from "#utils/block-schema/properties.js";
 import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
@@ -91,6 +92,7 @@ const BLOCK_MODULES = [
   items,
   itemsArray,
   menu,
+  menuPdfDownload,
   socials,
   linkColumns,
   contactForm,

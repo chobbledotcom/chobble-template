@@ -118,4 +118,7 @@ Renders a single block by type. Used by blocks.html.
   {%- when "menu" -%}
     {%- include "design-system/menu-block.html", block: block -%}
 
+  {%- when "menu-pdf-download" -%}
+    {%- include "design-system/menu-pdf-download.html", block: block -%}
+
 {%- endcase -%}

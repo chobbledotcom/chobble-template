@@ -56,21 +56,4 @@
       @include body-sm;
     }
   }
-
-  .pdf-download {
-    margin-block-start: $space-md;
-
-    a {
-      @include link-plain;
-      display: inline-flex;
-      align-items: center;
-      gap: $space-xs;
-      font-weight: 600;
-
-      svg {
-        width: 1em;
-        height: 1em;
-      }
-    }
-  }
 }

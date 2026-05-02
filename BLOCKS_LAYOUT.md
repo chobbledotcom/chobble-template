@@ -562,6 +562,24 @@ No block-level parameters. Resolves the current menu via `page.fileSlug` against
 
 ---
 
+### `menu-pdf-download`
+
+Download-as-PDF button for the current menu page. Reuses the `link-button` markup; the URL is auto-derived from the page's `pdfFilename`.
+
+**Component:** `block_menu_pdf_download`
+**Template:** `src/_includes/design-system/menu-pdf-download.html`
+**SCSS:** `src/css/design-system/_link-button.scss`
+**HTML root:** `<div class="link-button">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `text` | string | `"Download PDF"` | Button label. |
+| `variant` | string | `"primary"` | `"primary"`, `"secondary"`, or `"ghost"`. |
+| `size` | string | — | `"sm"`, `"lg"`, or omit for default. |
+| `reveal` | string | — | `data-reveal` value. |
+
+---
+
 ### `socials`
 
 Renders social-media posts loaded from a directory of JSON files as a card grid or horizontal slider.

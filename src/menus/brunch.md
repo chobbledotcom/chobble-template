@@ -5,6 +5,14 @@ header_image: src/images/breakfast.jpg
 subtitle: Delicious plant-based brunch every weekend.
 meta_title: Weekend Brunch Menu
 meta_description: Delicious plant-based brunch served every weekend
+blocks:
+  - type: hero
+    title: Weekend Brunch
+    lead: Delicious plant-based brunch every weekend.
+  - type: content
+  - type: menu
+  - type: menu-pdf-download
+    variant: secondary
 ---
 Join us every Saturday and Sunday from 9am to 3pm for our famous weekend brunch. We've reimagined classic brunch favourites with a plant-based twist, using locally sourced ingredients wherever possible.
 
