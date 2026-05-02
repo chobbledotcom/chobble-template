@@ -198,15 +198,16 @@ export default {
 
   /**
    * Validates and applies default values to blocks. Works for any content
-   * with blocks.
+   * with blocks. Also enriches `video-cards` blocks with `thumbnail_url`
+   * for each video so templates don't need to fetch them.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Array<Record<string, unknown>>|undefined} Blocks with defaults applied
+   * @returns {Promise<Array<Record<string, unknown>>|undefined>} Blocks with defaults applied
    * @throws {Error} If any block contains unknown keys
    */
-  blocks: (data) => {
+  blocks: async (data) => {
     if (!data.blocks) return data.blocks;
     validateBlocks(data.blocks, ` in ${data.page.inputPath}`);
-    return data.blocks.map((block) => {
+    const withDefaults = data.blocks.map((block) => {
       const blockType = String(block.type);
       const merged = Object.assign(
         { dark: false },
@@ -218,22 +219,19 @@ export default {
       }
       return merged;
     });
-  },
-
-  /**
-   * Adds thumbnail_url to each video object. YouTube videos get a static
-   * thumbnail URL, Vimeo videos get one via the oEmbed API, and other custom
-   * iframe URLs get null.
-   * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Promise<Array<Record<string, unknown>> | undefined>} Videos with thumbnail_url added
-   */
-  videos: async (data) => {
-    if (!data.videos) return data.videos;
     return Promise.all(
-      data.videos.map(async (video) => ({
-        ...video,
-        thumbnail_url: await getVideoThumbnailUrl(video.id),
-      })),
+      withDefaults.map(async (block) => {
+        if (block.type !== "video-cards" || !Array.isArray(block.videos)) {
+          return block;
+        }
+        const videos = await Promise.all(
+          block.videos.map(async (video) => ({
+            ...video,
+            thumbnail_url: await getVideoThumbnailUrl(video.id),
+          })),
+        );
+        return { ...block, videos };
+      }),
     );
   },
 };

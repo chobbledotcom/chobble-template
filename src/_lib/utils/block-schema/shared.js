@@ -46,6 +46,23 @@ export const BUTTON_FIELDS_WITH_SIZE = {
   size: str("Size"),
 };
 
+/** Documented button styling fields shared by link-button-style blocks. */
+export const LINK_BUTTON_STYLE_FIELDS = {
+  variant: {
+    ...str("Variant"),
+    default: '"primary"',
+    description: '`"primary"`, `"secondary"`, or `"ghost"`.',
+  },
+  size: {
+    ...str("Size"),
+    description: '`"sm"`, `"lg"`, or omit for default.',
+  },
+  reveal: {
+    ...str("Reveal Animation"),
+    description: "`data-reveal` value.",
+  },
+};
+
 /** Pre-built required title field. */
 export const TITLE_REQUIRED = str("Title", { required: true });
 

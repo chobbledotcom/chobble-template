@@ -20,13 +20,6 @@ components:
     label: Meta Description
     options:
       maxlength: 160
-  videos:
-    label: Videos
-    type: object
-    list: true
-    fields:
-      - { name: id, type: string, label: YouTube Video ID, required: true }
-      - { name: title, type: string, label: Title, required: true }
   block_bunny_video_background:
     label: Bunny Video Background
     type: object
@@ -721,6 +714,25 @@ components:
         type: rich-text
         label: Overlay Content
         required: true
+  block_video_cards:
+    label: Video Cards
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: videos
+        type: object
+        label: Videos
+        required: true
+        list: true
+        fields:
+          - { name: id, type: string, label: Video ID or URL, required: true }
+          - { name: title, type: string, label: Title, required: true }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
+      - { name: reveal, type: boolean, label: Reveal Animation }
+      - { name: heading_level, type: number, label: Heading Level }
+      - { name: expand, type: boolean, label: Expand to Full Width }
   faqs:
     label: FAQs
     type: object
@@ -771,6 +783,20 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+  block_menu:
+    label: Menu
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_menu_pdf_download:
+    label: Menu Pdf Download
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: text, type: string, label: Button Text }
+      - { name: variant, type: string, label: Variant }
+      - { name: size, type: string, label: Size }
+      - { name: reveal, type: string, label: Reveal Animation }
 content:
   - name: pages
     label: Pages
@@ -798,7 +824,6 @@ content:
           - { name: order, type: number }
       - { name: layout, type: string }
       - { name: no_index, type: boolean, label: Hide from listings }
-      - { name: videos, component: videos }
       - name: blocks
         label: Content Blocks
         type: block
@@ -846,6 +871,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
@@ -972,6 +998,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: categories
     label: Categories
     path: src/categories
@@ -1050,6 +1077,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: news
     label: News
     path: src/news
@@ -1123,6 +1151,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: events
     label: Events
     path: src/events
@@ -1210,6 +1239,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: team
     label: Team
     path: src/team
@@ -1274,6 +1304,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: reviews
     label: Reviews
     path: src/reviews
@@ -1345,6 +1376,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: locations
     label: Locations
     path: src/locations
@@ -1427,6 +1459,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: properties
     label: Properties
     path: src/properties
@@ -1520,6 +1553,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: guide-categories
     label: Guide Categories
     path: src/guide-categories
@@ -1590,6 +1624,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: guide-pages
     label: Guide Pages
     path: src/guide-pages
@@ -1660,6 +1695,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: menus
     label: Menus
     path: src/menus
@@ -1710,6 +1746,8 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
+          - { name: menu, component: block_menu }
+          - { name: menu-pdf-download, component: block_menu_pdf_download }
           - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
@@ -1725,6 +1763,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: menu-categories
     label: Menu Categories
     path: src/menu-categories
@@ -1796,6 +1835,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: menu-items
     label: Menu Items
     path: src/menu-items
@@ -1870,6 +1910,7 @@ content:
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: snippets
     label: Snippets
     path: src/snippets

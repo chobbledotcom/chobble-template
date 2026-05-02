@@ -112,6 +112,15 @@ Renders a single block by type. Used by blocks.html.
   {%- when "snippet" -%}
     {%- include "design-system/snippet-block.html", block: block -%}
 
+  {%- when "video-cards" -%}
+    {%- include "design-system/video-cards-block.html", block: block -%}
+
+  {%- when "menu" -%}
+    {%- include "design-system/menu-block.html", block: block -%}
+
+  {%- when "menu-pdf-download" -%}
+    {%- include "design-system/menu-pdf-download.html", block: block -%}
+
   {%- when "news-meta" -%}
     {%- include "design-system/news-meta-block.html" -%}
 
