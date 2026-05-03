@@ -4,7 +4,7 @@
 	"blocks": [
 		{ "type": "guide-header" },
 		{ "type": "guide-navigation" },
-		{ "type": "guide-content" },
+		{ "type": "content" },
 		{ "type": "faqs" }
 	]
 }

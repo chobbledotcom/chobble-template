@@ -935,17 +935,6 @@ Guide-page-only block. No parameters. Renders nothing when the page has no `guid
 
 ---
 
-### `guide-content`
-
-Renders a guide page's body content wrapped in a `.prose` container.
-
-**Component:** `block_guide_content`
-**Template:** `src/_includes/design-system/guide-content-block.html`
-
-Guide-only block. No parameters. Renders the page's `{{ content }}`.
-
----
-
 ### `guide-pages-list`
 
 Lists the guide pages that belong to the current guide category (filtered via `guidesByCategory`).

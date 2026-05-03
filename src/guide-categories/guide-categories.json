@@ -3,7 +3,7 @@
 	"tags": ["guide-categories"],
 	"blocks": [
 		{ "type": "guide-header" },
-		{ "type": "guide-content" },
+		{ "type": "content" },
 		{ "type": "guide-pages-list" }
 	]
 }

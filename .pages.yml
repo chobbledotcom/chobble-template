@@ -865,11 +865,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-  block_guide_content:
-    label: Guide Content
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
   block_guide_header:
     label: Guide Header
     type: object
@@ -1638,7 +1633,6 @@ content:
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
-          - { name: guide-content, component: block_guide_content }
           - { name: guide-header, component: block_guide_header }
           - { name: guide-pages-list, component: block_guide_pages_list }
           - { name: hero, component: block_hero }
@@ -1714,7 +1708,6 @@ content:
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
-          - { name: guide-content, component: block_guide_content }
           - { name: guide-header, component: block_guide_header }
           - { name: guide-navigation, component: block_guide_navigation }
           - { name: hero, component: block_hero }

@@ -30,7 +30,6 @@ import * as features from "#utils/block-schema/features.js";
 import * as freetobook from "#utils/block-schema/freetobook.js";
 import * as gallery from "#utils/block-schema/gallery.js";
 import * as guideCategories from "#utils/block-schema/guide-categories.js";
-import * as guideContent from "#utils/block-schema/guide-content.js";
 import * as guideHeader from "#utils/block-schema/guide-header.js";
 import * as guideNavigation from "#utils/block-schema/guide-navigation.js";
 import * as guidePagesList from "#utils/block-schema/guide-pages-list.js";
@@ -140,7 +139,6 @@ const BLOCK_MODULES = [
   guideCategories,
   guideHeader,
   guideNavigation,
-  guideContent,
   guidePagesList,
   quoteCart,
   quoteCheckout,
