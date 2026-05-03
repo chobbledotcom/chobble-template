@@ -9,11 +9,12 @@ blocks:
   - type: hero
     title: Dinner Menu
     lead: Fresh vegan dinner options served daily.
-  - type: content
+  - type: markdown
+    content: |
+      Our dinner service runs from 5:30pm to 10pm Tuesday through Sunday. Each dish is carefully crafted by our chef team to showcase the incredible flavours and textures possible with plant-based cooking.
+
+      We offer a selection of natural wines and craft beers to complement your meal. Please ask your server about our daily specials and seasonal additions to the menu.
   - type: menu
   - type: menu-pdf-download
     variant: secondary
 ---
-Our dinner service runs from 5:30pm to 10pm Tuesday through Sunday. Each dish is carefully crafted by our chef team to showcase the incredible flavours and textures possible with plant-based cooking.
-
-We offer a selection of natural wines and craft beers to complement your meal. Please ask your server about our daily specials and seasonal additions to the menu.

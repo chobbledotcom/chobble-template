@@ -1,0 +1,17 @@
+{%- comment -%}
+Guide-header block - renders a guide page's heading with optional subtitle.
+
+Used on guide-pages and guide-categories. No block-level parameters. Reads
+`title` and `subtitle` from the page data.
+{%- endcomment -%}
+
+<section class="compact">
+  <div class="container-wide">
+    <header class="guide-header">
+      <h1>{{ title }}</h1>
+      {%- if subtitle -%}
+        <h2>{{ subtitle }}</h2>
+      {%- endif -%}
+    </header>
+  </div>
+</section>

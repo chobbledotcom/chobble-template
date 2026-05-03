@@ -1,11 +1,20 @@
 import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
 
-const contentFile = (collection, slug, title, extras = {}) => ({
-  path: `${collection}/${slug}.md`,
-  frontmatter: { title, ...extras },
-  content: `${title} content.`,
-});
+const contentFile = (collection, slug, title, extras = {}) => {
+  const isNews = collection === "news";
+  return {
+    path: `${collection}/${slug}.md`,
+    frontmatter: {
+      title,
+      ...(isNews && {
+        blocks: [{ type: "markdown", content: `${title} content.` }],
+      }),
+      ...extras,
+    },
+    content: isNews ? "" : `${title} content.`,
+  };
+};
 
 describe("search", () => {
   test("product and category pages get data-pagefind-body, other pages do not", async () => {
@@ -41,20 +50,22 @@ describe("search", () => {
           permalink: "/search/",
           blocks: [
             { type: "section-header", intro: "## Search" },
-            { type: "content" },
+            { type: "include", file: "search-box.html" },
+            {
+              type: "html",
+              content: [
+                "<div data-pagefind-ignore>",
+                '  <div id="search-results">',
+                '    <p class="search-message"></p>',
+                '    <ul class="search-results-list"></ul>',
+                '    <button class="search-load-more btn btn--secondary" hidden>Load more</button>',
+                "  </div>",
+                "</div>",
+              ].join("\n"),
+            },
           ],
         },
-        content: [
-          "<div data-pagefind-ignore>",
-          '  {% include "search-box.html" %}',
-          "",
-          '  <div id="search-results">',
-          '    <p class="search-message"></p>',
-          '    <ul class="search-results-list"></ul>',
-          '    <button class="search-load-more btn btn--secondary" hidden>Load more</button>',
-          "  </div>",
-          "</div>",
-        ].join("\n"),
+        content: "",
       },
     ];
 

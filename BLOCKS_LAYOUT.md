@@ -722,17 +722,6 @@ Provide either `height` for a fixed-height embed or `aspect_ratio` (e.g. `16/9`)
 
 ---
 
-### `content`
-
-Outputs the page's `content` property (from markdown body below frontmatter).
-
-**Component:** `block_content`
-**Template:** `src/_includes/design-system/content-block.html`
-
-No parameters. Renders `{{ content }}` if non-empty. Used for pages that combine blocks with traditional markdown content.
-
----
-
 ### `include`
 
 Includes an arbitrary template file.
@@ -770,6 +759,138 @@ No block-level parameters. Uses the global `collections.properties` and optional
 
 ---
 
+### `property-header`
+
+Renders a property page's heading: title, optional subtitle, and optional price-per-night.
+
+**Component:** `block_property_header`
+**Template:** `src/_includes/design-system/property-header-block.html`
+
+Property-only block. No parameters. Reads `title`, `subtitle`, and `price_per_night` from the property page data.
+
+---
+
+### `freetobook`
+
+Renders a Freetobook booking iframe inside a collapsible details element.
+
+**Component:** `block_freetobook`
+**Template:** `src/_includes/design-system/freetobook-block.html`
+
+Property-only block. No parameters. Renders nothing when the property's `freetobook_token` is not set.
+
+---
+
+### `property-gallery`
+
+Renders the property page's gallery using the property-specific gallery layout (current image + thumbnails + slider).
+
+**Component:** `block_property_gallery`
+**Template:** `src/_includes/design-system/property-gallery-block.html`
+
+Property-only block. No parameters. Renders nothing when the property's `gallery` is empty.
+
+---
+
+### `property-content`
+
+Renders the property page's metadata (reviews-count link, optional about-heading, categories list).
+
+**Component:** `block_property_content`
+**Template:** `src/_includes/design-system/property-content-block.html`
+
+Property-only block. No parameters. Reads `categories` and `tags` from the page; reads `strings.item_about_heading` and `config.show_product_review_counts` from site data. Body content is expressed as a separate `markdown` block in each property's frontmatter.
+
+---
+
+### `property-features`
+
+Renders the property's `features` array as a bulleted list under a 'Features' heading.
+
+**Component:** `block_property_features`
+**Template:** `src/_includes/design-system/property-features-block.html`
+
+Property-only block. No parameters. Renders nothing when the page's `features` array is empty.
+
+---
+
+### `property-guides`
+
+Lists guide categories linked to the current property (via the `guideCategoriesByProperty` filter), styled as a feature grid.
+
+**Component:** `block_property_guides`
+**Template:** `src/_includes/design-system/property-guides-block.html`
+
+Property-only block. No parameters. Renders nothing when no guides are linked to the property.
+
+---
+
+### `property-specs`
+
+Renders the property's `specs` array as a specifications grid under a 'Specifications' heading.
+
+**Component:** `block_property_specs`
+**Template:** `src/_includes/design-system/property-specs-block.html`
+
+Property-only block. No parameters. Renders nothing when the page has no `specs`.
+
+---
+
+### `property-tabs`
+
+Renders the property's `tabs` array as a tabbed content section.
+
+**Component:** `block_property_tabs`
+**Template:** `src/_includes/design-system/property-tabs-block.html`
+
+Property-only block. No parameters. Renders nothing when the page has no `tabs`.
+
+---
+
+### `property-map`
+
+Embeds a map iframe using the page's `map_embed_src`, falling back to `config.map_embed_src`.
+
+**Component:** `block_property_map`
+**Template:** `src/_includes/design-system/property-map-block.html`
+
+Property-only block. No parameters. Renders nothing when no embed source is configured.
+
+---
+
+### `property-contact-section`
+
+Renders the inline contact section on a property page (delegates to `item-contact-section.html`).
+
+**Component:** `block_property_contact_section`
+**Template:** `src/_includes/design-system/property-contact-section-block.html`
+
+Property-only block. No parameters. Distinct from the `property-contact` block, which renders the standalone /contact/ page for a property. Honours the page's `formspark_id` override and falls back to `config.form_target`.
+
+---
+
+### `property-contact`
+
+Renders a contact form scoped to the current property page (paginated from `collections.propertiesWithContactPage`).
+
+**Component:** `block_property_contact`
+**Template:** `src/_includes/design-system/property-contact-block.html`
+
+Pages-only block. No parameters. Reads `item` from pagination, overrides the contact form target with the property's formspark_id, and links back to the property page.
+
+---
+
+### `faqs`
+
+Renders the page's `faqs` array as a definition list under a 'Frequently Asked Questions' heading.
+
+**Component:** `block_faqs`
+**Template:** `src/_includes/design-system/faqs-block.html`
+
+Property and guide-page block. No parameters. Reads `faqs` from the page data. Renders nothing when the array is empty.
+
+---
+
 ### `guide-categories`
 
 Displays guide categories collection.
@@ -778,6 +899,61 @@ Displays guide categories collection.
 **Template:** `src/_includes/design-system/guide-categories-block.html`
 
 No block-level parameters. Uses the global `collections.guide-categories`.
+
+---
+
+### `guide-header`
+
+Renders a guide page's heading: title and optional subtitle.
+
+**Component:** `block_guide_header`
+**Template:** `src/_includes/design-system/guide-header-block.html`
+
+Guide-only block. No parameters. Reads `title` and `subtitle` from the page data.
+
+---
+
+### `guide-navigation`
+
+Renders a 'Back to <category>' breadcrumb link for a guide page.
+
+**Component:** `block_guide_navigation`
+**Template:** `src/_includes/design-system/guide-navigation-block.html`
+
+Guide-page-only block. No parameters. Renders nothing when the page has no `guide-category` field.
+
+---
+
+### `guide-pages-list`
+
+Lists the guide pages that belong to the current guide category (filtered via `guidesByCategory`).
+
+**Component:** `block_guide_pages_list`
+**Template:** `src/_includes/design-system/guide-pages-list-block.html`
+
+Guide-category-only block. No parameters. Renders nothing when there are no pages in the category.
+
+---
+
+### `quote-cart`
+
+Renders the client-side quote cart UI: page content, quote header, step progress, the cart shell (populated by JS), and the templates pushed to the design-system-base templates slot.
+
+**Component:** `block_quote_cart`
+**Template:** `src/_includes/design-system/quote-cart-block.html`
+
+Pages-only block. No parameters. Used on the `/quote/` page when `cart_mode` is `quote`. Renders nothing visible until the cart JS hydrates.
+
+---
+
+### `quote-checkout`
+
+Renders the multi-step quote-request form: page content, quote header, step progress, the form (with cart_items / hire_days hidden inputs populated by JS), and the templates pushed to the design-system-base templates slot.
+
+**Component:** `block_quote_checkout`
+**Template:** `src/_includes/design-system/quote-checkout-block.html`
+
+Pages-only block. No parameters. Used on the `/checkout/` page when `cart_mode` is `quote`. Submits to the configured Formspark form target.
 
 ---
 

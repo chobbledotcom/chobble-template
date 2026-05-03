@@ -92,11 +92,6 @@ components:
       - name: intro_content
         type: rich-text
         label: Intro Content (Markdown)
-  block_content:
-    label: Content
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
   block_cta:
     label: Cta
     type: object
@@ -417,6 +412,21 @@ components:
         label: Intro Content (Markdown)
   block_properties:
     label: Properties
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_contact:
+    label: Property Contact
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_quote_cart:
+    label: Quote Cart
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_quote_checkout:
+    label: Quote Checkout
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
@@ -795,6 +805,76 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+  block_faqs:
+    label: Faqs
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_freetobook:
+    label: Freetobook
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_contact_section:
+    label: Property Contact Section
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_content:
+    label: Property Content
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_features:
+    label: Property Features
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_gallery:
+    label: Property Gallery
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_guides:
+    label: Property Guides
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_header:
+    label: Property Header
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_map:
+    label: Property Map
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_specs:
+    label: Property Specs
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_tabs:
+    label: Property Tabs
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_guide_header:
+    label: Guide Header
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_guide_pages_list:
+    label: Guide Pages List
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_guide_navigation:
+    label: Guide Navigation
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
   block_menu:
     label: Menu
     type: object
@@ -848,7 +928,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -870,6 +949,9 @@ content:
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
           - { name: properties, component: block_properties }
+          - { name: property-contact, component: block_property_contact }
+          - { name: quote-cart, component: block_quote_cart }
+          - { name: quote-checkout, component: block_quote_checkout }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -976,7 +1058,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1056,7 +1137,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1130,7 +1210,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1220,7 +1299,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1286,7 +1364,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1359,7 +1436,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1454,11 +1530,12 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
+          - { name: freetobook, component: block_freetobook }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
           - { name: hero, component: block_hero }
@@ -1476,6 +1553,16 @@ content:
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
           - { name: properties, component: block_properties }
+          - name: property-contact-section
+            component: block_property_contact_section
+          - { name: property-content, component: block_property_content }
+          - { name: property-features, component: block_property_features }
+          - { name: property-gallery, component: block_property_gallery }
+          - { name: property-guides, component: block_property_guides }
+          - { name: property-header, component: block_property_header }
+          - { name: property-map, component: block_property_map }
+          - { name: property-specs, component: block_property_specs }
+          - { name: property-tabs, component: block_property_tabs }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1526,13 +1613,14 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
+          - { name: guide-header, component: block_guide_header }
+          - { name: guide-pages-list, component: block_guide_pages_list }
           - { name: hero, component: block_hero }
           - { name: html, component: block_html }
           - { name: icon-links, component: block_icon_links }
@@ -1598,13 +1686,15 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
+          - { name: guide-header, component: block_guide_header }
+          - { name: guide-navigation, component: block_guide_navigation }
           - { name: hero, component: block_hero }
           - { name: html, component: block_html }
           - { name: icon-links, component: block_icon_links }
@@ -1665,7 +1755,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1740,7 +1829,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1816,7 +1904,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }

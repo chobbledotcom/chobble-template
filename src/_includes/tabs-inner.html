@@ -10,6 +10,6 @@
         {% image tab.image, tab.title, "387,774", "", "", "1/1" %}
       </div>
     {%- endif -%}
-    <div>{{- tab.body | renderContent: "md" -}}</div>
+    <div class="prose">{{- tab.body | renderContent: "md" -}}</div>
   </div>
 {%- endfor -%}

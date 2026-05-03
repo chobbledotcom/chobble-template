@@ -1,0 +1,13 @@
+{%- comment -%}
+Property-contact-section block - renders the inline contact section on
+the property page (delegates to `item-contact-section.html`, which respects
+the page's `formspark_id` override and falls back to `config.form_target`).
+
+Property-only block. No block-level parameters.
+{%- endcomment -%}
+
+<section class="compact">
+  <div class="container">
+    {%- include "item-contact-section.html" -%}
+  </div>
+</section>

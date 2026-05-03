@@ -1,0 +1,5 @@
+<section class="compact">
+  <div class="container">
+    {%- if content != "" -%}<div class="prose">{{ content }}</div>{%- endif -%}
+    {%- include "quote-header.html" -%}
+    {%- include "templates/quote-steps-progress.html", completed_steps: completed_steps -%}

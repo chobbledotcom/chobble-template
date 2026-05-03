@@ -1,0 +1,21 @@
+{%- comment -%}
+Quote-checkout block - renders the multi-step quote-request form: page
+content, quote header, step progress, the form (with cart_items / hire_days
+hidden inputs populated by JS), and the templates pushed to the
+design-system-base templates slot.
+
+Quote-only block. No block-level parameters.
+{%- endcomment -%}
+
+{%- include "quote-page-header.html", completed_steps: 1 -%}
+    {%- include "form-open.html" -%}
+      {%- include "form-email-config.html",
+          redirect_path: "/quote-complete/",
+          email_from_suffix: "quote request",
+          email_subject: "New quote request from {site_name}"
+      -%}
+      <input type="hidden" id="cart-items" name="cart_items" value="" />
+      <input type="hidden" id="hire_days" name="hire_days" value="" />
+      {%- include "quote-form-steps.html" -%}
+    </form>
+{%- include "quote-templates-tail.html" -%}

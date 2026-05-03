@@ -31,11 +31,11 @@ blocks:
         label: Uptime
       - value: "2s"
         label: Load Time
-  - type: content
+  - type: markdown
+    content: |
+      ## How We Work
+
+      We believe in a collaborative approach. Every project starts with understanding your requirements, followed by careful planning and execution.
+
+      Our process is transparent and efficient. You will always know what is happening with your project and when to expect results.
 ---
-
-## How We Work
-
-We believe in a collaborative approach. Every project starts with understanding your requirements, followed by careful planning and execution.
-
-Our process is transparent and efficient. You will always know what is happening with your project and when to expect results.

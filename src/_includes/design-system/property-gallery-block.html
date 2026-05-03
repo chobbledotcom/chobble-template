@@ -1,0 +1,15 @@
+{%- comment -%}
+Property-gallery block - renders the property page's gallery images using
+the property-specific gallery layout (current image + thumbnails + slider).
+Renders nothing when `gallery` is empty.
+
+Property-only block. No block-level parameters.
+{%- endcomment -%}
+
+{%- if gallery and gallery.size > 0 -%}
+<section class="compact">
+  <div class="container-wide">
+    {%- include "property-gallery.html" -%}
+  </div>
+</section>
+{%- endif -%}

@@ -33,14 +33,30 @@ faqs:
   - question: Is there mobile phone signal?
     answer: Signal can be patchy but the lodge has excellent WiFi throughout.
     order: 2
+
+blocks:
+  - type: property-header
+  - type: freetobook
+  - type: property-gallery
+  - type: property-content
+  - type: markdown
+    content: |
+      An impressive mountain lodge offering the perfect escape for larger groups or families. With four spacious bedrooms and breathtaking views, this property is ideal for those seeking adventure or relaxation.
+
+      ## The Property
+
+      The lodge features a large open-plan kitchen and living area with floor-to-ceiling windows showcasing the mountain panorama. The games room includes a pool table and darts board.
+
+      ## The Location
+
+      Nestled in the hills above Royston Vasey, the lodge provides easy access to hiking trails, mountain biking routes and the local village amenities.
+  - type: property-features
+  - type: property-guides
+  - type: property-specs
+  - type: property-tabs
+  - type: property-map
+  - type: reviews
+    current_item: true
+  - type: faqs
+  - type: property-contact-section
 ---
-
-An impressive mountain lodge offering the perfect escape for larger groups or families. With four spacious bedrooms and breathtaking views, this property is ideal for those seeking adventure or relaxation.
-
-## The Property
-
-The lodge features a large open-plan kitchen and living area with floor-to-ceiling windows showcasing the mountain panorama. The games room includes a pool table and darts board.
-
-## The Location
-
-Nestled in the hills above Royston Vasey, the lodge provides easy access to hiking trails, mountain biking routes and the local village amenities.

@@ -21,13 +21,17 @@ import * as buyOptions from "#utils/block-schema/buy-options.js";
 import * as callout from "#utils/block-schema/callout.js";
 import * as codeBlock from "#utils/block-schema/code-block.js";
 import * as contactForm from "#utils/block-schema/contact-form.js";
-import * as content from "#utils/block-schema/content.js";
 import * as cta from "#utils/block-schema/cta.js";
 import * as customContactForm from "#utils/block-schema/custom-contact-form.js";
 import * as downloads from "#utils/block-schema/downloads.js";
+import * as faqs from "#utils/block-schema/faqs.js";
 import * as features from "#utils/block-schema/features.js";
+import * as freetobook from "#utils/block-schema/freetobook.js";
 import * as gallery from "#utils/block-schema/gallery.js";
 import * as guideCategories from "#utils/block-schema/guide-categories.js";
+import * as guideHeader from "#utils/block-schema/guide-header.js";
+import * as guideNavigation from "#utils/block-schema/guide-navigation.js";
+import * as guidePagesList from "#utils/block-schema/guide-pages-list.js";
 import * as hero from "#utils/block-schema/hero.js";
 import * as html from "#utils/block-schema/html.js";
 import * as iconLinks from "#utils/block-schema/icon-links.js";
@@ -46,6 +50,18 @@ import * as menu from "#utils/block-schema/menu.js";
 import * as menuPdfDownload from "#utils/block-schema/menu-pdf-download.js";
 import * as newsMeta from "#utils/block-schema/news-meta.js";
 import * as properties from "#utils/block-schema/properties.js";
+import * as propertyContact from "#utils/block-schema/property-contact.js";
+import * as propertyContactSection from "#utils/block-schema/property-contact-section.js";
+import * as propertyContent from "#utils/block-schema/property-content.js";
+import * as propertyFeatures from "#utils/block-schema/property-features.js";
+import * as propertyGallery from "#utils/block-schema/property-gallery.js";
+import * as propertyGuides from "#utils/block-schema/property-guides.js";
+import * as propertyHeader from "#utils/block-schema/property-header.js";
+import * as propertyMap from "#utils/block-schema/property-map.js";
+import * as propertySpecs from "#utils/block-schema/property-specs.js";
+import * as propertyTabs from "#utils/block-schema/property-tabs.js";
+import * as quoteCart from "#utils/block-schema/quote-cart.js";
+import * as quoteCheckout from "#utils/block-schema/quote-checkout.js";
 import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
 import { CONTAINER_FIELDS } from "#utils/block-schema/shared.js";
@@ -103,11 +119,27 @@ const BLOCK_MODULES = [
   markdown,
   html,
   iframeEmbed,
-  content,
   include,
   newsMeta,
   properties,
+  propertyHeader,
+  freetobook,
+  propertyGallery,
+  propertyContent,
+  propertyFeatures,
+  propertyGuides,
+  propertySpecs,
+  propertyTabs,
+  propertyMap,
+  propertyContactSection,
+  propertyContact,
+  faqs,
   guideCategories,
+  guideHeader,
+  guideNavigation,
+  guidePagesList,
+  quoteCart,
+  quoteCheckout,
   linkButton,
   reviews,
   gallery,
