@@ -1,5 +1,9 @@
 {
 	"layout": "design-system-base.html",
 	"tags": ["guide-categories"],
-	"blocks": [{ "type": "guide-category-sections" }]
+	"blocks": [
+		{ "type": "guide-header" },
+		{ "type": "guide-content" },
+		{ "type": "guide-pages-list" }
+	]
 }

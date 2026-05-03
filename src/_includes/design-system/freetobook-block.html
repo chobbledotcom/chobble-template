@@ -1,3 +1,10 @@
+{%- comment -%}
+Freetobook block - renders a Freetobook booking iframe inside a collapsible
+`<details>` element. Renders nothing when `freetobook_token` is not set.
+
+Property-only block. No block-level parameters.
+{%- endcomment -%}
+
 {%- if freetobook_token -%}
 <section id="freetobook" class="freetobook">
   <details class="container-wide">

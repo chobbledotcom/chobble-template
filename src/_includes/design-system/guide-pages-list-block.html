@@ -1,3 +1,11 @@
+{%- comment -%}
+Guide-pages-list block - lists the guide pages that belong to the current
+guide category (filtered via `guidesByCategory`). Renders nothing when
+there are no pages in the category.
+
+Guide-category-only block. No block-level parameters.
+{%- endcomment -%}
+
 {%- assign guide_pages = collections.guide-pages | guidesByCategory: page.fileSlug -%}
 {%- if guide_pages.size > 0 -%}
 <section>

@@ -810,18 +810,78 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-  block_property_sections:
-    label: Property Sections
+  block_faqs:
+    label: Faqs
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-  block_guide_category_sections:
-    label: Guide Category Sections
+  block_freetobook:
+    label: Freetobook
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-  block_guide_page_sections:
-    label: Guide Page Sections
+  block_property_contact_section:
+    label: Property Contact Section
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_content:
+    label: Property Content
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_features:
+    label: Property Features
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_gallery:
+    label: Property Gallery
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_guides:
+    label: Property Guides
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_header:
+    label: Property Header
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_map:
+    label: Property Map
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_specs:
+    label: Property Specs
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_property_tabs:
+    label: Property Tabs
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_guide_content:
+    label: Guide Content
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_guide_header:
+    label: Guide Header
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_guide_pages_list:
+    label: Guide Pages List
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_guide_navigation:
+    label: Guide Navigation
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
@@ -1491,7 +1551,9 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
+          - { name: freetobook, component: block_freetobook }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
           - { name: hero, component: block_hero }
@@ -1509,7 +1571,16 @@ content:
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
           - { name: properties, component: block_properties }
-          - { name: property-sections, component: block_property_sections }
+          - name: property-contact-section
+            component: block_property_contact_section
+          - { name: property-content, component: block_property_content }
+          - { name: property-features, component: block_property_features }
+          - { name: property-gallery, component: block_property_gallery }
+          - { name: property-guides, component: block_property_guides }
+          - { name: property-header, component: block_property_header }
+          - { name: property-map, component: block_property_map }
+          - { name: property-specs, component: block_property_specs }
+          - { name: property-tabs, component: block_property_tabs }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1567,8 +1638,9 @@ content:
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
-          - name: guide-category-sections
-            component: block_guide_category_sections
+          - { name: guide-content, component: block_guide_content }
+          - { name: guide-header, component: block_guide_header }
+          - { name: guide-pages-list, component: block_guide_pages_list }
           - { name: hero, component: block_hero }
           - { name: html, component: block_html }
           - { name: icon-links, component: block_icon_links }
@@ -1638,10 +1710,13 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
-          - { name: guide-page-sections, component: block_guide_page_sections }
+          - { name: guide-content, component: block_guide_content }
+          - { name: guide-header, component: block_guide_header }
+          - { name: guide-navigation, component: block_guide_navigation }
           - { name: hero, component: block_hero }
           - { name: html, component: block_html }
           - { name: icon-links, component: block_icon_links }

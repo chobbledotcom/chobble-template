@@ -1,3 +1,11 @@
+{%- comment -%}
+Guide-navigation block - renders a "Back to <category>" breadcrumb link
+for a guide page. Renders nothing when the page has no `guide-category`
+field.
+
+Guide-page-only block. No block-level parameters.
+{%- endcomment -%}
+
 {%- if guide-category -%}
 <section class="compact">
   <div class="container-wide">

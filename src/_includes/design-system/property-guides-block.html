@@ -1,3 +1,11 @@
+{%- comment -%}
+Property-guides block - lists guide categories linked to the current
+property via the `guideCategoriesByProperty` filter. Renders nothing when
+no guides are linked.
+
+Property-only block. No block-level parameters.
+{%- endcomment -%}
+
 {%- assign propertyGuides = collections.guide-categories | guideCategoriesByProperty: page.fileSlug -%}
 {%- if propertyGuides.size > 0 -%}
 <section class="compact">

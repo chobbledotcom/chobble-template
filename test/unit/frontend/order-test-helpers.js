@@ -6,7 +6,7 @@ import { ROOT_DIR } from "#lib/paths.js";
 const INCLUDES_DIR = join(ROOT_DIR, "src/_includes");
 
 /**
- * Creates standard tests for an order data module (categoryOrder, propertyOrder, etc).
+ * Creates standard tests for an order data module (e.g. categoryOrder).
  * @param {object} opts
  * @param {Array<string>} opts.order - The exported order array
  * @param {Function} opts.getOrder - The getXOrder function

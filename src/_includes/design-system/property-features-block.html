@@ -1,3 +1,10 @@
+{%- comment -%}
+Property-features block - renders the property's `features` array as a
+bulleted list. Renders nothing when there are no features.
+
+Property-only block. No block-level parameters.
+{%- endcomment -%}
+
 {%- if features and features.size > 0 -%}
 <section class="compact">
   <div class="container">

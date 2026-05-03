@@ -1,3 +1,11 @@
+{%- comment -%}
+Property-map block - renders an embedded map iframe using the page's
+`map_embed_src` (falling back to `config.map_embed_src`). Renders nothing
+when no embed source is configured.
+
+Property-only block. No block-level parameters.
+{%- endcomment -%}
+
 {%- assign embed_src = map_embed_src | default: config.map_embed_src -%}
 {%- if embed_src and embed_src != "" -%}
 <section class="compact">

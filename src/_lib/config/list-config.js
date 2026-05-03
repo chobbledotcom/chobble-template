@@ -10,21 +10,6 @@ const DEFAULT_CATEGORY_ORDER = [
   "category-below-products.html",
 ];
 
-const DEFAULT_PROPERTY_ORDER = [
-  "property/header.html",
-  "property/freetobook.html",
-  "property/gallery.html",
-  "property/content.html",
-  "property/features.html",
-  "property/guides.html",
-  "property/specs.html",
-  "property/tabs.html",
-  "property/map.html",
-  "property/reviews.html",
-  "faqs.html",
-  "property/contact.html",
-];
-
 const DEFAULT_LIST_ITEM_FIELDS = [
   "thumbnail",
   "link",
@@ -41,12 +26,8 @@ const DEFAULT_LIST_ITEM_FIELDS = [
 const getCategoryOrder = (configOrder) =>
   resolveConfigList(configOrder, DEFAULT_CATEGORY_ORDER);
 
-/** @param {unknown} configOrder */
-const getPropertyOrder = (configOrder) =>
-  resolveConfigList(configOrder, DEFAULT_PROPERTY_ORDER);
-
 /** @param {unknown} configFields */
 const selectListItemFields = (configFields) =>
   resolveConfigList(configFields, DEFAULT_LIST_ITEM_FIELDS);
 
-export { getCategoryOrder, getPropertyOrder, selectListItemFields };
+export { getCategoryOrder, selectListItemFields };

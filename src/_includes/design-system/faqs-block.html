@@ -1,0 +1,18 @@
+{%- comment -%}
+Faqs block - renders the page's `faqs` array as a definition list with a
+"Frequently Asked Questions" heading. Renders nothing when there are no
+faqs.
+
+No block-level parameters. Reads `faqs` from the page data.
+{%- endcomment -%}
+
+{%- if faqs.size > 0 -%}
+<section class="compact">
+  <div class="container">
+    <h2>Frequently Asked Questions</h2>
+    <dl class="faqs">
+      {%- include "faqs-list.html" -%}
+    </dl>
+  </div>
+</section>
+{%- endif -%}
