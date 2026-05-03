@@ -1,32 +1,46 @@
 {%- comment -%}
-Property-content block - renders the property page's main content
-(reviews count link, optional about-heading, categories list, and
-the page's `{{ content }}`).
+Property-content block - renders the property page's metadata (reviews
+count link, optional about-heading, categories list).
 
-Property-only block. No block-level parameters.
+Property-only block. No block-level parameters. Reads `categories` and
+`tags` from the page; reads `strings.item_about_heading` and
+`config.show_product_review_counts` from site data. Body content is
+expressed as a separate `markdown` block in each property's frontmatter.
 {%- endcomment -%}
 
+{%- assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags -%}
+{%- assign rating = collections.reviews | getRating: page.fileSlug, tags -%}
+{%- assign show_rating = false -%}
+{%- if config.show_product_review_counts and rating -%}
+  {%- assign show_rating = true -%}
+{%- endif -%}
+{%- assign show_about = false -%}
+{%- if strings.item_about_heading and strings.item_about_heading != "" -%}
+  {%- assign show_about = true -%}
+{%- endif -%}
+{%- assign show_categories = false -%}
+{%- if categories.size > 0 -%}
+  {%- assign show_categories = true -%}
+{%- endif -%}
+{%- if show_rating or show_about or show_categories -%}
 <section>
   <div class="container">
     <div class="property-content">
-      {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags %}
-      {% assign rating = collections.reviews | getRating: page.fileSlug, tags %}
-      {%- if config.show_product_review_counts and rating -%}
+      {%- if show_rating -%}
         <p class="property-rating"><a href="#reviews">{{ rating | ratingToStars }} after {{ reviews.size }} reviews</a></p>
       {%- endif -%}
 
-      {%- if strings.item_about_heading and strings.item_about_heading != "" -%}
+      {%- if show_about -%}
         <h2>{{ strings.item_about_heading }}</h2>
       {%- endif -%}
 
-      {%- if categories.size > 0 -%}
+      {%- if show_categories -%}
         <p>
           <strong>Categories:</strong>
           {{ categories | linkList: collections.categories }}
         </p>
       {%- endif -%}
-
-      {{ content }}
     </div>
   </div>
 </section>
+{%- endif -%}

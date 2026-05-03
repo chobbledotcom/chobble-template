@@ -8,12 +8,10 @@ export const collections = ["properties"];
 export const fields = {};
 /* jscpd:ignore-end */
 
-export const consumesPageContent = true;
-
 export const docs = {
   summary:
-    "Renders the property page's main content (reviews-count link, optional about-heading, categories list, and the page body).",
+    "Renders the property page's metadata (reviews-count link, optional about-heading, categories list).",
   template: "src/_includes/design-system/property-content-block.html",
   notes:
-    "Property-only block. No parameters. Reads `categories`, `tags`, and `{{ content }}` from the page; reads `strings.item_about_heading` and `config.show_product_review_counts` from site data.",
+    "Property-only block. No parameters. Reads `categories` and `tags` from the page; reads `strings.item_about_heading` and `config.show_product_review_counts` from site data. Body content is expressed as a separate `markdown` block in each property's frontmatter.",
 };

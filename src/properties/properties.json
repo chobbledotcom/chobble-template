@@ -1,19 +1,5 @@
 {
 	"layout": "design-system-base.html",
 	"tags": ["properties"],
-	"filter_attributes": [],
-	"blocks": [
-		{ "type": "property-header" },
-		{ "type": "freetobook" },
-		{ "type": "property-gallery" },
-		{ "type": "property-content" },
-		{ "type": "property-features" },
-		{ "type": "property-guides" },
-		{ "type": "property-specs" },
-		{ "type": "property-tabs" },
-		{ "type": "property-map" },
-		{ "type": "reviews", "current_item": true },
-		{ "type": "faqs" },
-		{ "type": "property-contact-section" }
-	]
+	"filter_attributes": []
 }

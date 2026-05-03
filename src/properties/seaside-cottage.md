@@ -33,14 +33,30 @@ faqs:
   - question: What is the check-in time?
     answer: Check-in is from 3pm and check-out is by 10am.
     order: 2
+
+blocks:
+  - type: property-header
+  - type: freetobook
+  - type: property-gallery
+  - type: property-content
+  - type: markdown
+    content: |
+      A beautiful seaside cottage perfect for a relaxing getaway. Located just a short walk from the beach, this charming property offers stunning ocean views and all the comforts of home.
+
+      ## The Property
+
+      The cottage has been lovingly restored to combine traditional character with modern amenities. The open-plan living area features exposed beams and a wood-burning stove, perfect for cosy evenings.
+
+      ## The Location
+
+      Situated in the heart of Springfield, you'll find local shops, restaurants and the famous Springfield beach all within walking distance.
+  - type: property-features
+  - type: property-guides
+  - type: property-specs
+  - type: property-tabs
+  - type: property-map
+  - type: reviews
+    current_item: true
+  - type: faqs
+  - type: property-contact-section
 ---
-
-A beautiful seaside cottage perfect for a relaxing getaway. Located just a short walk from the beach, this charming property offers stunning ocean views and all the comforts of home.
-
-## The Property
-
-The cottage has been lovingly restored to combine traditional character with modern amenities. The open-plan living area features exposed beams and a wood-burning stove, perfect for cosy evenings.
-
-## The Location
-
-Situated in the heart of Springfield, you'll find local shops, restaurants and the famous Springfield beach all within walking distance.

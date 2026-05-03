@@ -32,14 +32,30 @@ faqs:
   - question: How far is the train station?
     answer: The apartment is a 5-minute walk from Fulchester Central station.
     order: 2
+
+blocks:
+  - type: property-header
+  - type: freetobook
+  - type: property-gallery
+  - type: property-content
+  - type: markdown
+    content: |
+      A stylish modern apartment perfectly positioned for exploring Fulchester. Ideal for couples or solo travellers looking for a comfortable base in the city.
+
+      ## The Property
+
+      Recently renovated to a high standard, the apartment features contemporary furnishings and all the amenities you need for a comfortable stay. The open-plan living space is bright and airy with large windows.
+
+      ## The Location
+
+      Steps away from shops, restaurants, theatres and galleries. The apartment puts you right in the centre of the action while providing a peaceful retreat at the end of the day.
+  - type: property-features
+  - type: property-guides
+  - type: property-specs
+  - type: property-tabs
+  - type: property-map
+  - type: reviews
+    current_item: true
+  - type: faqs
+  - type: property-contact-section
 ---
-
-A stylish modern apartment perfectly positioned for exploring Fulchester. Ideal for couples or solo travellers looking for a comfortable base in the city.
-
-## The Property
-
-Recently renovated to a high standard, the apartment features contemporary furnishings and all the amenities you need for a comfortable stay. The open-plan living space is bright and airy with large windows.
-
-## The Location
-
-Steps away from shops, restaurants, theatres and galleries. The apartment puts you right in the centre of the action while providing a peaceful retreat at the end of the day.
