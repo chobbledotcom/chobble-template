@@ -9,11 +9,12 @@ blocks:
   - type: hero
     title: Weekend Brunch
     lead: Delicious plant-based brunch every weekend.
-  - type: content
+  - type: markdown
+    content: |
+      Join us every Saturday and Sunday from 9am to 3pm for our famous weekend brunch. We've reimagined classic brunch favourites with a plant-based twist, using locally sourced ingredients wherever possible.
+
+      Our relaxed atmosphere is perfect for catching up with friends or enjoying a lazy weekend morning with the papers. Bookings recommended for groups of 4 or more.
   - type: menu
   - type: menu-pdf-download
     variant: secondary
 ---
-Join us every Saturday and Sunday from 9am to 3pm for our famous weekend brunch. We've reimagined classic brunch favourites with a plant-based twist, using locally sourced ingredients wherever possible.
-
-Our relaxed atmosphere is perfect for catching up with friends or enjoying a lazy weekend morning with the papers. Bookings recommended for groups of 4 or more.

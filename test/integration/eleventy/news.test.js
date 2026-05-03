@@ -18,9 +18,16 @@ const newsPostFile = (slug, title, { author, ...extras } = {}) => ({
   frontmatter: {
     title,
     ...(author && { author: `src/team/${author}.md` }),
+    blocks: [
+      { type: "include", file: "news-post-header.html" },
+      { type: "news-meta" },
+      { type: "markdown", content: `Content for ${title}.` },
+      { type: "include", file: "news-post-gallery.html" },
+      { type: "include", file: "faq.html" },
+    ],
     ...extras,
   },
-  content: `Content for ${title}.`,
+  content: "",
 });
 
 /**
@@ -197,11 +204,11 @@ describe("news", () => {
           layout: "design-system-base.html",
           permalink: "/news/",
           blocks: [
-            { type: "content" },
+            { type: "markdown", content: "News archive page" },
             { type: "items", collection: "news", image_aspect_ratio: "4/3" },
           ],
         },
-        content: "News archive page",
+        content: "",
       },
     ];
 

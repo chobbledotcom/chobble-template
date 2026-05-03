@@ -92,11 +92,6 @@ components:
       - name: intro_content
         type: rich-text
         label: Intro Content (Markdown)
-  block_content:
-    label: Content
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
   block_cta:
     label: Cta
     type: object
@@ -933,7 +928,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1064,7 +1058,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1144,7 +1137,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1218,7 +1210,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1308,7 +1299,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1374,7 +1364,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1447,7 +1436,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1542,7 +1530,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1626,7 +1613,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1700,7 +1686,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1770,7 +1755,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1845,7 +1829,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
@@ -1921,7 +1904,6 @@ content:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
-          - { name: content, component: block_content }
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }

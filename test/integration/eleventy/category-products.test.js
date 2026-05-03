@@ -90,8 +90,16 @@ describe("category-products", () => {
         files: [
           {
             path: "news/2024-01-01-no-thumb.md",
-            frontmatter: { title: "News Without Thumbnail" },
-            content: "News content without any images",
+            frontmatter: {
+              title: "News Without Thumbnail",
+              blocks: [
+                {
+                  type: "markdown",
+                  content: "News content without any images",
+                },
+              ],
+            },
+            content: "",
           },
         ],
       },

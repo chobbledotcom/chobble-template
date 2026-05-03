@@ -21,7 +21,6 @@ import * as buyOptions from "#utils/block-schema/buy-options.js";
 import * as callout from "#utils/block-schema/callout.js";
 import * as codeBlock from "#utils/block-schema/code-block.js";
 import * as contactForm from "#utils/block-schema/contact-form.js";
-import * as content from "#utils/block-schema/content.js";
 import * as cta from "#utils/block-schema/cta.js";
 import * as customContactForm from "#utils/block-schema/custom-contact-form.js";
 import * as downloads from "#utils/block-schema/downloads.js";
@@ -120,7 +119,6 @@ const BLOCK_MODULES = [
   markdown,
   html,
   iframeEmbed,
-  content,
   include,
   newsMeta,
   properties,
@@ -179,6 +177,17 @@ const BLOCK_CONTAINER_WIDTHS = indexByType((m) =>
 /** @param {string} blockType */
 const getBlockContainerWidth = (blockType) =>
   BLOCK_CONTAINER_WIDTHS[blockType] || "wide";
+
+/**
+ * Set of block types that consume the page's body content (i.e. read
+ * `{{ content }}` from the page). When a `design-system-base.html` page
+ * has body content, at least one of these blocks must be in its effective
+ * blocks list, otherwise `validatePageBodyContent` throws at build time.
+ * @type {Record<string, boolean>}
+ */
+const BLOCK_CONSUMES_PAGE_CONTENT = indexByType((m) =>
+  "consumesPageContent" in m ? m.consumesPageContent : false,
+);
 
 /**
  * Collection allowlist per block type. `null` means the block is available on
@@ -354,6 +363,7 @@ const validateBlocks = (blocks, context = "") => {
 
 export {
   BLOCK_CMS_FIELDS,
+  BLOCK_CONSUMES_PAGE_CONTENT,
   BLOCK_DOCS,
   BLOCK_SCHEMAS,
   getBlockContainerWidth,

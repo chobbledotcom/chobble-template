@@ -722,17 +722,6 @@ Provide either `height` for a fixed-height embed or `aspect_ratio` (e.g. `16/9`)
 
 ---
 
-### `content`
-
-Outputs the page's `content` property (from markdown body below frontmatter).
-
-**Component:** `block_content`
-**Template:** `src/_includes/design-system/content-block.html`
-
-No parameters. Renders `{{ content }}` if non-empty. Used for pages that combine blocks with traditional markdown content.
-
----
-
 ### `include`
 
 Includes an arbitrary template file.

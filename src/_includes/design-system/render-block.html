@@ -67,9 +67,6 @@ Renders a single block by type. Used by blocks.html.
   {%- when "custom-contact-form" -%}
     {%- include "design-system/custom-contact-form-block.html", block: block -%}
 
-  {%- when "content" -%}
-    {%- include "design-system/content-block.html" -%}
-
   {%- when "include" -%}
     {%- include block.file -%}
 

@@ -8,6 +8,8 @@ export const collections = ["properties"];
 export const fields = {};
 /* jscpd:ignore-end */
 
+export const consumesPageContent = true;
+
 export const docs = {
   summary:
     "Renders the property page's main content (reviews-count link, optional about-heading, categories list, and the page body).",

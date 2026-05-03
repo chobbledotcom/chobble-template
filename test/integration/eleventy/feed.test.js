@@ -38,25 +38,40 @@ describe("feed", () => {
       files: [
         {
           path: "news/2024-01-01-older.md",
-          frontmatter: { title: "Older Post" },
-          content: "Check out [our homepage](/) for more info.",
+          frontmatter: {
+            title: "Older Post",
+            blocks: [
+              {
+                type: "markdown",
+                content: "Check out [our homepage](/) for more info.",
+              },
+            ],
+          },
+          content: "",
         },
         {
           path: "news/2024-06-15-newer.md",
-          frontmatter: { title: "Newer Post" },
-          content: "Second post content.",
+          frontmatter: {
+            title: "Newer Post",
+            blocks: [{ type: "markdown", content: "Second post content." }],
+          },
+          content: "",
         },
         {
           path: "news/special.md",
-          frontmatter: { title: "Tom and Jerry's Adventure" },
-          content: "Special chars test",
+          frontmatter: {
+            title: "Tom and Jerry's Adventure",
+            blocks: [{ type: "markdown", content: "Special chars test" }],
+          },
+          content: "",
         },
         {
           path: "news/ampersand.md",
           frontmatter: {
             title: "Marquee Weddings & Photo Booths",
+            blocks: [{ type: "markdown", content: "Ampersand test" }],
           },
-          content: "Ampersand test",
+          content: "",
         },
       ],
     });

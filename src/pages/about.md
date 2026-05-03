@@ -21,14 +21,14 @@ blocks:
         description: Our team of specialists is here to help you 24/7.
   - type: snippet
     reference: specs
-  - type: content
+  - type: markdown
+    content: |
+      ## Our Story
+
+      We started this business with a simple goal: to make quality widgets, wotzits, and gizmos accessible to everyone. What began as a small operation has grown into something we are proud of.
+
+      Our team works tirelessly to ensure every customer has an exceptional experience. From product selection to delivery, we focus on quality at every step.
+
+      <script src="/assets/click-sparkle.js" defer
+              data-sparkle-colour="#22c55e"></script>
 ---
-
-## Our Story
-
-We started this business with a simple goal: to make quality widgets, wotzits, and gizmos accessible to everyone. What began as a small operation has grown into something we are proud of.
-
-Our team works tirelessly to ensure every customer has an exceptional experience. From product selection to delivery, we focus on quality at every step.
-
-<script src="/assets/click-sparkle.js" defer
-        data-sparkle-colour="#22c55e"></script>
