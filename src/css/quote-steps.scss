@@ -184,19 +184,18 @@
   }
 }
 
-.radio-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-
-  input[type="radio"] {
-    margin: 0;
-  }
+.radio-options {
+  @include flex-wrap($space-xs);
 
   label {
+    @include flex-row($space-xs);
     margin: 0;
     font-weight: normal;
+    cursor: pointer;
+
+    input[type="radio"] {
+      margin: 0;
+    }
   }
 }
 
