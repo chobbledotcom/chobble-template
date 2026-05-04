@@ -66,16 +66,17 @@
         margin-bottom: $space-xs;
       }
 
-      .radio-option {
-        @include flex-row($space-xs);
-
-        input[type="radio"] {
-          accent-color: var(--color-link);
-        }
+      .radio-options {
+        @include flex-wrap($space-xs);
 
         label {
+          @include flex-row($space-xs);
           font-weight: 400;
           cursor: pointer;
+
+          input[type="radio"] {
+            accent-color: var(--color-link);
+          }
         }
       }
     }

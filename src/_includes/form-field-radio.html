@@ -1,17 +1,19 @@
 <fieldset class="radio-group{% if field.fieldClass %} {{ field.fieldClass }}{% endif %}">
   <legend>{{ field.label }}</legend>
-  {%- for option in field.options -%}
-    {%- assign optionId = field.name | append: "_" | append: forloop.index -%}
-    <div class="radio-option">
-      <input
-        type="radio"
-        id="{{ optionId }}"
-        name="{{ field.name }}"
-        value="{{ option }}"
-        {%- if field.required and forloop.first %} required{%- endif %}
-      />
-      <label for="{{ optionId }}">{{ option }}</label>
-    </div>
-  {%- endfor -%}
+  <div class="radio-options">
+    {%- for option in field.options -%}
+      {%- assign optionId = field.name | append: "_" | append: forloop.index -%}
+      <label>
+        <input
+          type="radio"
+          id="{{ optionId }}"
+          name="{{ field.name }}"
+          value="{{ option }}"
+          {%- if field.required and forloop.first %} required{%- endif %}
+        />
+        {{ option }}
+      </label>
+    {%- endfor -%}
+  </div>
   {%- include "form-field-note.html" -%}
 </fieldset>
