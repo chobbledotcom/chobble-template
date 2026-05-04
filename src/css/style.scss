@@ -873,32 +873,6 @@ ul.image-gallery {
   }
 }
 
-ul.team {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  li {
-    margin: 2rem 0;
-    padding: 0;
-    &::after {
-      content: "";
-      display: block;
-      clear: both;
-    }
-    &.has-image {
-      padding-left: 11rem;
-      min-height: 10rem;
-      position: relative;
-      .image-link {
-        position: absolute;
-        width: 10rem;
-        left: 0;
-        top: 0;
-      }
-    }
-  }
-}
-
 dl {
   dt {
     font-weight: bold;
@@ -906,14 +880,6 @@ dl {
 }
 
 body {
-  &.team-member {
-    .content {
-      .image-wrapper {
-        width: 50%;
-        margin: 2rem auto;
-      }
-    }
-  }
   &.item {
     .current-image {
       margin-bottom: 1rem;
