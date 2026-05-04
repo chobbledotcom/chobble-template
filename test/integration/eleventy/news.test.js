@@ -42,9 +42,10 @@ const teamMember = (slug, name, { image, ...extras } = {}) => ({
     title: name,
     snippet: extras.snippet ?? `${name} bio snippet`,
     ...(image && { image: `src/images/${image}` }),
+    blocks: [{ type: "markdown", content: `${name} bio.` }],
     ...extras,
   },
-  content: `${name} bio.`,
+  content: "",
 });
 
 /**
