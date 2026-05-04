@@ -192,7 +192,7 @@ export default {
     if (data.no_index) return undefined;
     if (hasTag(data, "products")) return buildProductMeta(data);
     if (hasTag(data, "news")) return buildPostMeta(data);
-    if (data.layout === "contact.html") return buildOrganizationMeta(data);
+    if (data.schema_type === "organization") return buildOrganizationMeta(data);
     return buildBaseMeta(data);
   },
 

@@ -1,10 +1,14 @@
 {%- if block.type == "snippet" -%}
   {%- include "design-system/render-block.html", block: block -%}
 {%- else -%}
-  {%- assign cw = block.type | blockContainerWidth -%}
-  <section{% if block.dark %} class="dark"{% endif %}>
-    {%- unless cw == "full" -%}<div class="container-{{ cw }}">{%- endunless -%}
-    {%- include "design-system/render-block.html", block: block -%}
-    {%- unless cw == "full" -%}</div>{%- endunless -%}
-  </section>
+  {%- capture _block_inner -%}{%- include "design-system/render-block.html", block: block -%}{%- endcapture -%}
+  {%- assign _block_inner_trimmed = _block_inner | strip -%}
+  {%- if _block_inner_trimmed != "" -%}
+    {%- assign cw = block.type | blockContainerWidth -%}
+    <section{% if block.dark %} class="dark"{% endif %}>
+      {%- unless cw == "full" -%}<div class="container-{{ cw }}">{%- endunless -%}
+      {{- _block_inner -}}
+      {%- unless cw == "full" -%}</div>{%- endunless -%}
+    </section>
+  {%- endif -%}
 {%- endif -%}
