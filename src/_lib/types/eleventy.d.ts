@@ -376,6 +376,8 @@ export type EleventyComputedData = Omit<EleventyCollectionItemData, 'title'> & {
   description?: string;
   snippet?: string;
   layout?: string;
+  /** Schema.org type override (e.g. "organization" for contact pages) */
+  schema_type?: string;
   /** Computed metadata for schema.org (empty object if not defined) */
   metaComputed?: Record<string, unknown>;
   /** Design system blocks for block-based content */

@@ -9,7 +9,6 @@ This directory contains all the HTML layouts used by the Chobble Template. Each 
 ## Page Layouts
 
 - **`page.html`** - Standard page layout for general content pages
-- **`contact.html`** - Contact page with integrated contact form
 
 ## Content Type Layouts
 
@@ -25,9 +24,6 @@ This directory contains all the HTML layouts used by the Chobble Template. Each 
 - **`products.html`** - Product listing page showing all products
 - **`categories.html`** - Category listing page
 - **`category.html`** - Individual category page showing related products
-
-### Events
-- **`events.html`** - Events listing page
 
 ### Special
 - **`theme-editor.html`** - Interactive theme customization tool
