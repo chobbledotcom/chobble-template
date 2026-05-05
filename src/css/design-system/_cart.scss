@@ -1,0 +1,140 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
+@use "../dialog";
+
+// =============================================================================
+// CART (Design System)
+// =============================================================================
+// Shopping cart overlay (native <dialog>) and the cart-item rows inside it.
+// The cart icon lives in _cart-icon.scss; inline list-item cart widgets
+// (`.list-item-cart-controls`, `.item-quantity`) live in the legacy
+// src/css/cart.scss because they also need to apply on legacy product
+// listings that are not yet wrapped in `.design-system`.
+
+.design-system {
+  dialog.cart-overlay {
+    @include dialog.dialog-box(40rem);
+
+    > header {
+      padding: $space-md $space-sm;
+      border: 0;
+      box-shadow: none;
+    }
+
+    @include breakpoint.down("md") {
+      @include dialog.dialog-mobile-fullscreen;
+
+      > header {
+        padding: $space-sm;
+      }
+    }
+  }
+
+  .cart-body {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 15rem;
+    padding: $space-md;
+
+    @include breakpoint.down("md") {
+      padding: $space-sm;
+    }
+  }
+
+  .cart-empty {
+    padding: $space-xl $space-sm;
+    text-align: center;
+  }
+
+  .cart-items {
+    @include flex-col($space-sm);
+  }
+
+  .cart-item {
+    @include flex-col($space-sm);
+
+    padding: $space-sm;
+    border: $border-light;
+    border-radius: $radius-md;
+
+    @include breakpoint.up("md") {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .cart-item-info {
+    flex: 1;
+
+    [data-field="name"] {
+      font-weight: 700;
+    }
+  }
+
+  .cart-item-controls {
+    @include flex-wrap($space-sm);
+
+    align-items: center;
+
+    button[data-action="remove"] {
+      @include button-ghost;
+
+      margin: 0;
+      padding: $space-xs $space-sm;
+    }
+  }
+
+  .cart-footer {
+    @include flex-col($space-sm);
+
+    padding: $space-md;
+    border-top: $border-light;
+
+    @include breakpoint.down("md") {
+      padding: $space-sm;
+    }
+  }
+
+  .cart-total {
+    @include flex-between;
+
+    font-size: $font-size-lg;
+    font-weight: 700;
+  }
+
+  .cart-minimum-message {
+    color: var(--color-error);
+    text-align: center;
+  }
+
+  .cart-checkout-buttons {
+    @include flex-col($space-sm);
+  }
+
+  .cart-checkout {
+    @include button-primary;
+
+    width: 100%;
+    margin: 0;
+
+    .payment-icon {
+      flex-shrink: 0;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  .cart-checkout-stripe {
+    border-color: #635bff;
+    color: $color-white;
+    background-color: #635bff;
+
+    &:hover:not(:disabled) {
+      border-color: #4f46e5;
+      color: $color-white;
+      background-color: #4f46e5;
+    }
+  }
+}
