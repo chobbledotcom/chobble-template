@@ -27,6 +27,14 @@ describe("eleventyComputed.thumbnail", () => {
     expect(result).toBe("https://example.com/photo.jpg");
   });
 
+  test("returns null for team without explicit thumbnail", () => {
+    const result = eleventyComputed.thumbnail({
+      tags: ["team"],
+      page: pageAt("/team/jane-doe/"),
+    });
+    expect(result).toBe(null);
+  });
+
   test("returns placeholder for non-reviews without thumbnail", () => {
     const result = eleventyComputed.thumbnail({
       tags: ["products"],

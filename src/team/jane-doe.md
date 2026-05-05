@@ -1,7 +1,7 @@
 ---
 title: Jane Doe
 order: 2
-snippet: This is another team member page in the template
+subtitle: This is another team member page in the template
 blocks:
   - type: markdown
     content: |
