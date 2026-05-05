@@ -79,7 +79,7 @@
         font-weight: 600;
       }
 
-      > ul {
+      ul {
         @include flex-wrap($space-xs);
 
         li {
