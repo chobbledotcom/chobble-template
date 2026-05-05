@@ -445,4 +445,40 @@ blocks:
       );
     });
   });
+
+  describe("process_blocks filter", () => {
+    const callProcessBlocks = (blocks, pageContext) => {
+      const mockConfig = createConfiguredMock();
+      const filter = mockConfig.asyncFilters.process_blocks;
+      return filter.call({ context: { environments: pageContext } }, blocks);
+    };
+
+    test("Registers as an async filter", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureFileUtils(mockConfig);
+      expect(typeof mockConfig.asyncFilters.process_blocks).toBe("function");
+    });
+
+    test("Returns empty array for null/undefined blocks", async () => {
+      expect(await callProcessBlocks(null, {})).toEqual([]);
+      expect(await callProcessBlocks(undefined, {})).toEqual([]);
+    });
+
+    test("Resolves Liquid expressions in block strings with page context", async () => {
+      const blocks = [
+        { type: "markdown", content: "Visit [us]({{ site.url }})" },
+      ];
+      const result = await callProcessBlocks(blocks, {
+        site: { url: "https://example.com" },
+      });
+      expect(result[0].content).toBe("Visit [us](https://example.com)");
+      expect(result[0].type).toBe("markdown");
+    });
+
+    test("Leaves strings without Liquid syntax unchanged", async () => {
+      const blocks = [{ type: "markdown", content: "No templates here" }];
+      const result = await callProcessBlocks(blocks, { title: "Unused" });
+      expect(result[0].content).toBe("No templates here");
+    });
+  });
 });
