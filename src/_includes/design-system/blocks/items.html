@@ -11,17 +11,14 @@ Parameters (from block):
                          includes: string the property must contain
                          equals:   exact value the property must match
   filter_ui_collection - Optional name of a collection mapping page.fileSlug to
-                         a filter UI object. When set, wraps the items in the
-                         products-layout sidebar with the matching filter UI.
+                         a filter UI object. When set, prefixes the items with
+                         the matching client-side filter UI row.
 {%- endcomment -%}
 
 {%- assign blockItems = collections[block.collection] -%}
 {%- if block.filter_ui_collection -%}
   {%- assign filterUIRoot = collections[block.filter_ui_collection] -%}
   {%- assign filterUI = filterUIRoot[page.fileSlug] | default: filterUIRoot -%}
-  {%- include "products-layout-start.html", filterUI: filterUI -%}
-  {%- include "design-system/render-items-block.html", block: block, image_aspect_ratio: block.image_aspect_ratio -%}
-  {%- include "products-layout-end.html" -%}
-{%- else -%}
-  {%- include "design-system/render-items-block.html", block: block, image_aspect_ratio: block.image_aspect_ratio -%}
+  {%- include "products-filter.html", filterUI: filterUI -%}
 {%- endif -%}
+{%- include "design-system/render-items-block.html", block: block, image_aspect_ratio: block.image_aspect_ratio -%}

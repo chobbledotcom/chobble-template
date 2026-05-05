@@ -227,7 +227,7 @@ describe("read-more transform", () => {
 
     test("stops collecting siblings at div elements", async () => {
       const html =
-        '<html><body><p>Intro [Read more..]</p><p>Hidden paragraph</p><div class="products-layout">Products here</div></body></html>';
+        '<html><body><p>Intro [Read more..]</p><p>Hidden paragraph</p><div class="following-block">Products here</div></body></html>';
       const result = await transformHtml(html);
 
       expect(result).toContain('<div class="read-more-content">');
@@ -235,7 +235,7 @@ describe("read-more transform", () => {
         /<div class="read-more-content"><p>Hidden paragraph<\/p><\/div>/,
       );
       expect(result).toMatch(
-        /<\/div><div class="products-layout">Products here<\/div>/,
+        /<\/div><div class="following-block">Products here<\/div>/,
       );
     });
 
