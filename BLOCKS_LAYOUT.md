@@ -785,6 +785,186 @@ News-only block. No parameters. Reads `authorSlug` from the page data and looks 
 
 ---
 
+### `product-header`
+
+Renders a product page's heading: title and optional subtitle.
+
+**Component:** `block_product_header`
+**Template:** `src/_includes/design-system/blocks/item-header.html`
+
+Product-only block. No parameters. Reads `title` and `subtitle` from the product page data.
+
+---
+
+### `product-gallery`
+
+Renders the product page's gallery (current image + thumbnails + slider).
+
+**Component:** `block_product_gallery`
+**Template:** `src/_includes/design-system/blocks/item-gallery.html`
+
+Product-only block. No parameters. Renders nothing when the product's `gallery` is empty.
+
+---
+
+### `product-meta`
+
+Renders the product page's metadata: optional reviews-count link followed by the categories list.
+
+**Component:** `block_product_meta`
+**Template:** `src/_includes/design-system/blocks/product-meta.html`
+
+Product-only block. No parameters. Reads `categories` and `tags` from the page; reads `config.show_product_review_counts` from site data.
+
+---
+
+### `hire-pricing`
+
+Renders the product's hire-mode daily rates, delegating to the `stats` block (price as value, duration as label).
+
+**Component:** `block_hire_pricing`
+**Template:** `src/_includes/design-system/blocks/hire-pricing.html`
+
+Product-only block. No parameters. Renders nothing unless the product's `product_mode` (or `config.product_mode`) is `hire` and the product has at least one option.
+
+---
+
+### `purchase-link`
+
+Renders a 'Purchase Now' button linking to the page's `purchase_url`, delegating to the `link-button` block.
+
+**Component:** `block_purchase_link`
+**Template:** `src/_includes/design-system/blocks/purchase-link.html`
+
+Product-only block. No parameters. Renders nothing when `purchase_url` is not set.
+
+---
+
+### `tabs`
+
+Renders the page's `tabs` array as a tabbed content section.
+
+**Component:** `block_tabs`
+**Template:** `src/_includes/design-system/blocks/tabs.html`
+
+Allowed on collections that surface a `tabs` field (products, events, properties). No parameters. Renders nothing when the page has no `tabs`.
+
+---
+
+### `product-add-ons`
+
+Renders the product's `add_ons` as an add-on card with optional intro markdown plus a priced list of extras.
+
+**Component:** `block_product_add_ons`
+**Template:** `src/_includes/design-system/blocks/product-add-ons.html`
+
+Product-only block. No parameters. Renders nothing when neither `add_ons.intro` nor `add_ons.options` is set.
+
+---
+
+### `product-features`
+
+Lists the product's `features` array as plain text items, delegating to the `icon-links` block.
+
+**Component:** `block_product_features`
+**Template:** `src/_includes/design-system/blocks/product-features.html`
+
+Product-only block. No parameters. Renders nothing when the page's `features` array is empty.
+
+---
+
+### `product-specs`
+
+Renders the product's `specs` array as a feature grid, delegating to the `features` block (icon + name + value per card).
+
+**Component:** `block_product_specs`
+**Template:** `src/_includes/design-system/blocks/product-specs.html`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `highlights` | boolean | `false` | If true, renders only highlighted specs; otherwise renders the full specs list. |
+
+Product-only block. Renders nothing when the page has no `specs` (or no highlighted specs when `highlights` is true).
+
+---
+
+### `product-contact-section`
+
+Renders the inline contact section on a product page, delegating to the shared `item-contact-section.html` partial.
+
+**Component:** `block_product_contact_section`
+**Template:** `src/_includes/design-system/blocks/item-contact-section.html`
+
+Product-only block. No parameters. Honours the page's `formspark_id` override and falls back to `config.form_target`.
+
+---
+
+### `event-header`
+
+Renders an event page's heading: title, optional subtitle, and event details (date, schedule, location, iCal download).
+
+**Component:** `block_event_header`
+**Template:** `src/_includes/design-system/blocks/item-header.html`
+
+Event-only block. No parameters. Reads `title`, `subtitle`, `event_date`, `recurring_date`, `event_location`, and `ical_url` from the page.
+
+---
+
+### `event-gallery`
+
+Renders the event page's gallery (current image + thumbnails + slider).
+
+**Component:** `block_event_gallery`
+**Template:** `src/_includes/design-system/blocks/item-gallery.html`
+
+Event-only block. No parameters. Renders nothing when the event's `gallery` is empty.
+
+---
+
+### `event-meta`
+
+Renders the event page's metadata: optional reviews-count link followed by the event categories list.
+
+**Component:** `block_event_meta`
+**Template:** `src/_includes/design-system/blocks/event-meta.html`
+
+Event-only block. No parameters. Reads `event_categories` and `tags` from the page; reads `config.show_product_review_counts` from site data.
+
+---
+
+### `event-products`
+
+Lists products linked to the current event, combining explicit `products` references with reverse-lookup matches.
+
+**Component:** `block_event_products`
+**Template:** `src/_includes/design-system/blocks/event-products.html`
+
+Event-only block. No parameters. Renders nothing when no products are linked to the event.
+
+---
+
+### `event-map`
+
+Embeds a map iframe using the page's `map_embed_src`, falling back to `config.map_embed_src`.
+
+**Component:** `block_event_map`
+**Template:** `src/_includes/design-system/blocks/event-map.html`
+
+Event-only block. No parameters. Renders nothing when no embed source is configured.
+
+---
+
+### `event-contact-section`
+
+Renders the inline contact section on an event page, delegating to the shared `item-contact-section.html` partial.
+
+**Component:** `block_event_contact_section`
+**Template:** `src/_includes/design-system/blocks/item-contact-section.html`
+
+Event-only block. No parameters. Honours the page's `formspark_id` override and falls back to `config.form_target`.
+
+---
+
 ### `properties`
 
 Displays property listings (holiday lets) with filter controls.
@@ -874,17 +1054,6 @@ Property-only block. No parameters. Renders nothing when the page has no `specs`
 
 ---
 
-### `property-tabs`
-
-Renders the property's `tabs` array as a tabbed content section.
-
-**Component:** `block_property_tabs`
-**Template:** `src/_includes/design-system/blocks/property-tabs.html`
-
-Property-only block. No parameters. Renders nothing when the page has no `tabs`.
-
----
-
 ### `property-map`
 
 Embeds a map iframe using the page's `map_embed_src`, falling back to `config.map_embed_src`.
@@ -898,10 +1067,10 @@ Property-only block. No parameters. Renders nothing when no embed source is conf
 
 ### `property-contact-section`
 
-Renders the inline contact section on a property page (delegates to `item-contact-section.html`).
+Renders the inline contact section on a property page, delegating to the shared `item-contact-section.html` partial.
 
 **Component:** `block_property_contact_section`
-**Template:** `src/_includes/design-system/blocks/property-contact-section.html`
+**Template:** `src/_includes/design-system/blocks/item-contact-section.html`
 
 Property-only block. No parameters. Distinct from the `property-contact` block, which renders the standalone /contact/ page for a property. Honours the page's `formspark_id` override and falls back to `config.form_target`.
 

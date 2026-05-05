@@ -38,12 +38,19 @@ features:
   - Three internal compartments
   - Four external access points
   - "Available in azure, obsidian, and silver"
+
+blocks:
+  - type: snippet
+    reference: product-intro
+  - type: markdown
+    content: |
+      This classic Wotzit Wrapper combines timeless style with modern flexibility. The regular adaptation provides a clean outline without restricting movement, while the premium cloud fiber blend offers breathability with just the right amount of flexibility.
+
+      Perfect for formal gatherings, important meetings, or elevating your casual appearance, this versatile wrapper pairs well with any other wotzits, gadgets, or even simple widgets. The geometric edge pattern and two-point sealing system create a traditional look that never goes out of style.
+
+      Practical details include three internal compartments for secure storage of essentials and four external access points. Available in azure, obsidian, and silver to complement any collection.
+
+      For best results, activate self-cleaning mode only to maintain the wrapper's shape and appearance.
+  - type: snippet
+    reference: product-outro
 ---
-
-This classic Wotzit Wrapper combines timeless style with modern flexibility. The regular adaptation provides a clean outline without restricting movement, while the premium cloud fiber blend offers breathability with just the right amount of flexibility.
-
-Perfect for formal gatherings, important meetings, or elevating your casual appearance, this versatile wrapper pairs well with any other wotzits, gadgets, or even simple widgets. The geometric edge pattern and two-point sealing system create a traditional look that never goes out of style.
-
-Practical details include three internal compartments for secure storage of essentials and four external access points. Available in azure, obsidian, and silver to complement any collection.
-
-For best results, activate self-cleaning mode only to maintain the wrapper's shape and appearance.

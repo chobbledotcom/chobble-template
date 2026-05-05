@@ -1,0 +1,14 @@
+{%- comment -%}
+Item-contact-section block - renders the inline contact section on the
+page (delegates to `item-contact-section.html`, which respects the page's
+`formspark_id` override and falls back to `config.form_target`).
+
+Shared by `product-contact-section` and `event-contact-section`. No
+block-level parameters.
+{%- endcomment -%}
+
+<section class="compact">
+  <div class="container">
+    {%- include "item-contact-section.html" -%}
+  </div>
+</section>

@@ -1,0 +1,11 @@
+{%- comment -%}
+Purchase-link block - delegates to the standard `link-button` block,
+linking to the page's `purchase_url` with the label "Purchase Now".
+Renders nothing when `purchase_url` is not set.
+
+Product-only block. No block-level parameters.
+{%- endcomment -%}
+
+{%- if purchase_url and purchase_url != "" -%}
+  {%- include "design-system/blocks/link-button.html", text: "Purchase Now", href: purchase_url -%}
+{%- endif -%}

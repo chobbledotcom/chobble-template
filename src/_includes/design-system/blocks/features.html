@@ -15,23 +15,21 @@ Parameters (via block object):
   - block.center: If true, centers feature text (default: false)
   - block.intro_content: Optional markdown intro rendered above the grid
 
-Usage:
-  {% include "design-system/features.html", block: { items: page.features } %}
+Embeddable form:
+  - items: pass an items array directly (skips intro_content); reveal still
+    follows block.reveal (default true) so the embedding caller can suppress
+    animations by passing block: { reveal: false }.
 
-  Where page.features = [
-    { icon: "hugeicons:rocket", title: "Fast", description: "Static HTML" },
-    { icon: "&#128640;", title: "Emoji", description: "HTML entity icon" },
-    { icon: "/images/icon.svg", title: "Custom", description: "Path-based icon" },
-    ...
-  ]
+Usage:
+  {% include "design-system/features.html", block: page.features_block %}
+  {% include "design-system/features.html", items: page.spec_feature_items %}
 {%- endcomment -%}
 
+{%- assign _items = items | default: block.items -%}
 {%- assign reveal = block.reveal | default: true -%}
-
-{%- include "design-system/block-intro.html" -%}
-
+{%- unless items -%}{%- include "design-system/block-intro.html" -%}{%- endunless -%}
 <ul class="features{% if block.center %} text-center{% endif %}" role="list">
-  {%- for item in block.items -%}
+  {%- for item in _items -%}
   <li>
     <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
       {%- if item.icon -%}

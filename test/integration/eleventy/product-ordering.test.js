@@ -21,6 +21,7 @@ const eventWithProducts = (slug, title, products) => ({
     title,
     event_date: EXPO_DATE,
     ...(products ? { products: products.map((p) => ({ product: p })) } : {}),
+    blocks: [{ type: "event-products" }],
   },
   content: "",
 });

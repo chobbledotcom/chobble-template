@@ -790,6 +790,57 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+  block_hire_pricing:
+    label: Hire Pricing
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_product_add_ons:
+    label: Product Add Ons
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_product_contact_section:
+    label: Product Contact Section
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_product_features:
+    label: Product Features
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_product_gallery:
+    label: Product Gallery
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_product_header:
+    label: Product Header
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_product_meta:
+    label: Product Meta
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_product_specs:
+    label: Product Specs
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: highlights, type: boolean, label: Highlights Only }
+  block_purchase_link:
+    label: Purchase Link
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_tabs:
+    label: Tabs
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
   block_category_products:
     label: Category Products
     type: object
@@ -830,6 +881,36 @@ components:
           search: primary
           value: "{path}"
           label: "{primary}"
+  block_event_contact_section:
+    label: Event Contact Section
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_event_gallery:
+    label: Event Gallery
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_event_header:
+    label: Event Header
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_event_map:
+    label: Event Map
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_event_meta:
+    label: Event Meta
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+  block_event_products:
+    label: Event Products
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
   block_faqs:
     label: Faqs
     type: object
@@ -877,11 +958,6 @@ components:
       - { name: dark, type: boolean, label: Dark }
   block_property_specs:
     label: Property Specs
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-  block_property_tabs:
-    label: Property Tabs
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
@@ -1090,6 +1166,7 @@ content:
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
           - { name: hero, component: block_hero }
+          - { name: hire-pricing, component: block_hire_pricing }
           - { name: html, component: block_html }
           - { name: icon-links, component: block_icon_links }
           - { name: iframe-embed, component: block_iframe_embed }
@@ -1103,7 +1180,16 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
+          - { name: product-add-ons, component: block_product_add_ons }
+          - name: product-contact-section
+            component: block_product_contact_section
+          - { name: product-features, component: block_product_features }
+          - { name: product-gallery, component: block_product_gallery }
+          - { name: product-header, component: block_product_header }
+          - { name: product-meta, component: block_product_meta }
+          - { name: product-specs, component: block_product_specs }
           - { name: properties, component: block_properties }
+          - { name: purchase-link, component: block_purchase_link }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1117,6 +1203,7 @@ content:
           - { name: split-image, component: block_split_image }
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
+          - { name: tabs, component: block_tabs }
           - { name: video-background, component: block_video_background }
           - { name: video-cards, component: block_video_cards }
   - name: categories
@@ -1324,6 +1411,13 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - name: event-contact-section
+            component: block_event_contact_section
+          - { name: event-gallery, component: block_event_gallery }
+          - { name: event-header, component: block_event_header }
+          - { name: event-map, component: block_event_map }
+          - { name: event-meta, component: block_event_meta }
+          - { name: event-products, component: block_event_products }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1355,6 +1449,7 @@ content:
           - { name: split-image, component: block_split_image }
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
+          - { name: tabs, component: block_tabs }
           - { name: video-background, component: block_video_background }
           - { name: video-cards, component: block_video_cards }
   - name: team
@@ -1583,7 +1678,6 @@ content:
           - { name: property-header, component: block_property_header }
           - { name: property-map, component: block_property_map }
           - { name: property-specs, component: block_property_specs }
-          - { name: property-tabs, component: block_property_tabs }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1597,6 +1691,7 @@ content:
           - { name: split-image, component: block_split_image }
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
+          - { name: tabs, component: block_tabs }
           - { name: video-background, component: block_video_background }
           - { name: video-cards, component: block_video_cards }
   - name: guide-categories

@@ -37,10 +37,17 @@ features:
   - Quick energy absorption
   - Contactless power sharing
   - Identity recognition
+
+blocks:
+  - type: snippet
+    reference: product-intro
+  - type: markdown
+    content: |
+      The PocketGizmo X1 offers an exceptional portable experience with cutting-edge technology and premium design. Its revolutionary triple vision system allows you to capture professional-quality holograms in any environment, while the powerful processor ensures smooth performance for entertainment and multi-functioning.
+
+      The vibrant 6.5" Dimensional Screen delivers stunning visuals with true-to-life depth perception, perfect for streaming content and browsing. With instant connectivity, you'll experience ultra-fast data transfer and minimal delay.
+
+      Power duration is impressive, with the 4500 zap cell easily lasting a full day of heavy use. When you do need to recharge, both quick energy absorption and contactless power sharing options are available.
+  - type: snippet
+    reference: product-outro
 ---
-
-The PocketGizmo X1 offers an exceptional portable experience with cutting-edge technology and premium design. Its revolutionary triple vision system allows you to capture professional-quality holograms in any environment, while the powerful processor ensures smooth performance for entertainment and multi-functioning.
-
-The vibrant 6.5" Dimensional Screen delivers stunning visuals with true-to-life depth perception, perfect for streaming content and browsing. With instant connectivity, you'll experience ultra-fast data transfer and minimal delay.
-
-Power duration is impressive, with the 4500 zap cell easily lasting a full day of heavy use. When you do need to recharge, both quick energy absorption and contactless power sharing options are available.

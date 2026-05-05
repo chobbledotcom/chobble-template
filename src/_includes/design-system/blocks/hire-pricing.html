@@ -1,0 +1,12 @@
+{%- comment -%}
+Hire-pricing block - delegates to the standard `stats` block, with each
+hire option's formatted price as the value and the duration label
+("1 day", "3 days", …) as the label. Renders nothing unless the product
+is in hire mode and has at least one option.
+
+Product-only block. No block-level parameters.
+{%- endcomment -%}
+
+{%- if hire_stat_items.size > 0 -%}
+  {%- include "design-system/blocks/stats.html", items: hire_stat_items -%}
+{%- endif -%}

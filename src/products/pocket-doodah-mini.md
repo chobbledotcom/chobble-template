@@ -41,12 +41,19 @@ features:
   - LED status indicator
   - Magnetic attachment system
   - IPX4 water resistance
+
+blocks:
+  - type: snippet
+    reference: product-intro
+  - type: markdown
+    content: |
+      The Pocket Doodah Mini redefines portability without sacrificing functionality. At just 28 grams, this tiny powerhouse clips onto your keychain, ensuring you always have doodah capabilities at your fingertips.
+
+      Despite its diminutive size, the Mini delivers impressive performance with 48-hour battery life and full feature compatibility. The one-button operation makes it incredibly simple to use, while the bright LED indicator keeps you informed of battery and operational status.
+
+      Available in four stylish colors to match your personal style, each Mini comes with a protective travel case and magnetic mounting clip. The IPX4 water resistance rating means it can handle splashes and light rain without missing a beat.
+
+      Perfect for students, travelers, or anyone who values convenience, the Pocket Doodah Mini proves that essential technology doesn't have to be bulky.
+  - type: snippet
+    reference: product-outro
 ---
-
-The Pocket Doodah Mini redefines portability without sacrificing functionality. At just 28 grams, this tiny powerhouse clips onto your keychain, ensuring you always have doodah capabilities at your fingertips.
-
-Despite its diminutive size, the Mini delivers impressive performance with 48-hour battery life and full feature compatibility. The one-button operation makes it incredibly simple to use, while the bright LED indicator keeps you informed of battery and operational status.
-
-Available in four stylish colors to match your personal style, each Mini comes with a protective travel case and magnetic mounting clip. The IPX4 water resistance rating means it can handle splashes and light rain without missing a beat.
-
-Perfect for students, travelers, or anyone who values convenience, the Pocket Doodah Mini proves that essential technology doesn't have to be bulky.

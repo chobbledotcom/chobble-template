@@ -1,0 +1,14 @@
+export const type = "purchase-link";
+
+/* jscpd:ignore-start */
+export const collections = ["products"];
+
+export const fields = {};
+/* jscpd:ignore-end */
+
+export const docs = {
+  summary:
+    "Renders a 'Purchase Now' button linking to the page's `purchase_url`, delegating to the `link-button` block.",
+  notes:
+    "Product-only block. No parameters. Renders nothing when `purchase_url` is not set.",
+};

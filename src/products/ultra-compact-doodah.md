@@ -39,12 +39,19 @@ features:
   - Energy-efficient operation
   - Dust and water resistant
   - Multi-function indicator lights
+
+blocks:
+  - type: snippet
+    reference: product-intro
+  - type: markdown
+    content: |
+      The Ultra Compact Doodah X5 represents the pinnacle of miniaturization technology. Despite its incredibly small footprint, this pocket-sized powerhouse delivers full doodah functionality without compromise.
+
+      Engineered for professionals on the go, the X5 features our patented quick-deploy mechanism that transforms it from pocket-sized to fully operational in under 2 seconds. The nano-composite shell provides exceptional durability while keeping weight to an absolute minimum.
+
+      Perfect for travel, field work, or simply keeping in your pocket for emergencies, the Ultra Compact Doodah X5 proves that great things really do come in small packages. The 72-hour battery life ensures you're never caught without your essential doodah capabilities.
+
+      The intuitive multi-function indicator lights keep you informed of operational status at a glance, while the dust and water-resistant construction means you can take it anywhere with confidence.
+  - type: snippet
+    reference: product-outro
 ---
-
-The Ultra Compact Doodah X5 represents the pinnacle of miniaturization technology. Despite its incredibly small footprint, this pocket-sized powerhouse delivers full doodah functionality without compromise.
-
-Engineered for professionals on the go, the X5 features our patented quick-deploy mechanism that transforms it from pocket-sized to fully operational in under 2 seconds. The nano-composite shell provides exceptional durability while keeping weight to an absolute minimum.
-
-Perfect for travel, field work, or simply keeping in your pocket for emergencies, the Ultra Compact Doodah X5 proves that great things really do come in small packages. The 72-hour battery life ensures you're never caught without your essential doodah capabilities.
-
-The intuitive multi-function indicator lights keep you informed of operational status at a glance, while the dust and water-resistant construction means you can take it anywhere with confidence.

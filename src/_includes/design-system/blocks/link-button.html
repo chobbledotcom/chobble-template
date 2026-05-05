@@ -7,15 +7,23 @@ Parameters (via block object):
   - block.variant: Button variant - "primary", "secondary", or "ghost" (default: "primary")
   - block.size: Button size - "sm", "lg", or omit for default
   - block.reveal: If set, adds data-reveal animation
+
+Embeddable form:
+  - text, href, variant, size, reveal: pass directly when sugar blocks need
+    to render a button without constructing a `block` object.
 {%- endcomment -%}
 
-{%- if block.text and block.href -%}
-  {%- assign variant = block.variant | default: "primary" -%}
-  {%- assign btnClass = "btn btn--" | append: variant -%}
-  {%- if block.size -%}
-    {%- assign btnClass = btnClass | append: " btn--" | append: block.size -%}
+{%- assign _text = text | default: block.text -%}
+{%- assign _href = href | default: block.href -%}
+{%- assign _variant = variant | default: block.variant | default: "primary" -%}
+{%- assign _size = size | default: block.size -%}
+{%- assign _reveal = reveal | default: block.reveal -%}
+{%- if _text and _href -%}
+  {%- assign btnClass = "btn btn--" | append: _variant -%}
+  {%- if _size -%}
+    {%- assign btnClass = btnClass | append: " btn--" | append: _size -%}
   {%- endif -%}
-  <div class="link-button"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
-    <a href="{{ block.href }}" class="{{ btnClass }}">{{ block.text }}</a>
+  <div class="link-button"{% if _reveal %} data-reveal="{{ _reveal }}"{% endif %}>
+    <a href="{{ _href }}" class="{{ btnClass }}">{{ _text }}</a>
   </div>
 {%- endif -%}

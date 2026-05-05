@@ -1,0 +1,18 @@
+{%- comment -%}
+Product-specs block - delegates to the standard `features` block, mapping
+each spec to a feature card (`{icon, title: name, description: value}`).
+
+Product-only block.
+
+Parameters (from block):
+  highlights - If true, only renders highlighted specs.
+{%- endcomment -%}
+
+{%- if block.highlights -%}
+  {%- assign items_to_show = highlighted_spec_feature_items -%}
+{%- else -%}
+  {%- assign items_to_show = spec_feature_items -%}
+{%- endif -%}
+{%- if items_to_show.size > 0 -%}
+  {%- include "design-system/blocks/features.html", items: items_to_show -%}
+{%- endif -%}

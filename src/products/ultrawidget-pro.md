@@ -72,12 +72,19 @@ tabs:
   - title: Warranty Info
     body: |
       Your UltraWidget Pro comes with a 2-year comprehensive warranty covering all manufacturing defects. Extended warranty options are available for up to 5 years of coverage including accidental damage protection.
+
+blocks:
+  - type: snippet
+    reference: product-intro
+  - type: markdown
+    content: |
+      The UltraWidget Pro is designed for professionals who demand performance without sacrificing portability. Weighing just 2.8 pounds with a sleek 0.6" profile, this widget is perfect for creating on the go.
+
+      Powered by the latest Quantum Core X7 processor and 16GB of Crystal Storage, the UltraWidget Pro handles demanding calculations with ease. The 1TB Bubble Drive provides ample storage and lightning-fast load times for all your projects and applications.
+
+      The stunning 14" Holographic display offers exceptional clarity and dimensional accuracy, ideal for creative work and content visualization. With surround sound resonators, you'll enjoy immersive audio whether you're in a virtual conference or experiencing multimedia content.
+
+      Security features include a biometric scanner for quick and secure access, while universal connectivity ports provide versatile options for all your peripheral gadgets.
+  - type: snippet
+    reference: product-outro
 ---
-
-The UltraWidget Pro is designed for professionals who demand performance without sacrificing portability. Weighing just 2.8 pounds with a sleek 0.6" profile, this widget is perfect for creating on the go.
-
-Powered by the latest Quantum Core X7 processor and 16GB of Crystal Storage, the UltraWidget Pro handles demanding calculations with ease. The 1TB Bubble Drive provides ample storage and lightning-fast load times for all your projects and applications.
-
-The stunning 14" Holographic display offers exceptional clarity and dimensional accuracy, ideal for creative work and content visualization. With surround sound resonators, you'll enjoy immersive audio whether you're in a virtual conference or experiencing multimedia content.
-
-Security features include a biometric scanner for quick and secure access, while universal connectivity ports provide versatile options for all your peripheral gadgets.

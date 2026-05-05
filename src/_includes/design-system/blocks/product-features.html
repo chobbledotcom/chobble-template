@@ -1,0 +1,11 @@
+{%- comment -%}
+Product-features block - delegates to the standard `icon-links` block,
+treating each entry in the product's `features` array as a plain text item
+(no icon, no URL). Renders nothing when there are no features.
+
+Product-only block. No block-level parameters.
+{%- endcomment -%}
+
+{%- if feature_link_items.size > 0 -%}
+  {%- include "design-system/blocks/icon-links.html", items: feature_link_items -%}
+{%- endif -%}

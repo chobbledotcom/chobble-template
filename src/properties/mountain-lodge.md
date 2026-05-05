@@ -53,7 +53,7 @@ blocks:
   - type: property-features
   - type: property-guides
   - type: property-specs
-  - type: property-tabs
+  - type: tabs
   - type: property-map
   - type: reviews
     current_item: true

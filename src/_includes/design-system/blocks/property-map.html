@@ -12,16 +12,7 @@ Property-only block. No block-level parameters.
   <div class="container">
     <h2>Location</h2>
     <div class="property-map">
-      <iframe
-        credentialless
-        title="Embedded map for {{ site.name }}"
-        loading="lazy"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-        referrerpolicy="no-referrer"
-        src="{{ embed_src }}"
-      >
-      </iframe>
+      {%- include "map-embed.html" -%}
     </div>
   </div>
 </section>

@@ -1,5 +1,0 @@
-{% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags %}
-{% assign rating = collections.reviews | getRating: page.fileSlug, tags %}
-{%- if config.show_product_review_counts and rating -%}
-  <p><a href="#reviews">{{ rating | ratingToStars }} after {{ reviews.size }} reviews</a></p>
-{%- endif -%}
