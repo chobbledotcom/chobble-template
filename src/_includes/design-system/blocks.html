@@ -1,4 +1,5 @@
-{%- assign split = blocks | splitBlocksForColumns: tags, blockLayouts -%}
+{%- assign rendered_blocks = blocks | render_block_liquid -%}
+{%- assign split = rendered_blocks | splitBlocksForColumns: tags, blockLayouts -%}
 {%- for block in split.before -%}
   {%- include "design-system/render-full-width-block.html", block: block -%}
 {%- endfor -%}

@@ -175,6 +175,15 @@ async function snippetBlocksFilter(name) {
   return processLiquidStrings(data.blocks, this.context.environments);
 }
 
+/**
+ * @this {LiquidFilterContext}
+ * @param {Record<string, unknown>[] | undefined | null} blocks
+ */
+async function renderBlockLiquidFilter(blocks) {
+  if (!blocks) return [];
+  return processLiquidStrings(blocks, this.context.environments);
+}
+
 /** @param {string} str */
 const escapeHtmlFilter = (str) =>
   str
@@ -204,6 +213,7 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addFilter("file_missing", fileMissingFilter);
   eleventyConfig.addFilter("snippet_data", snippetDataFilter);
   eleventyConfig.addAsyncFilter("snippet_blocks", snippetBlocksFilter);
+  eleventyConfig.addAsyncFilter("render_block_liquid", renderBlockLiquidFilter);
   eleventyConfig.addFilter("escape_html", escapeHtmlFilter);
 
   eleventyConfig.addAsyncShortcode(
