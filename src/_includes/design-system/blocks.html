@@ -1,4 +1,5 @@
-{%- assign split = blocks | splitBlocksForColumns: tags, blockLayouts -%}
+{%- assign processed_blocks = blocks | process_blocks -%}
+{%- assign split = processed_blocks | splitBlocksForColumns: tags, blockLayouts -%}
 {%- for block in split.before -%}
   {%- include "design-system/render-full-width-block.html", block: block -%}
 {%- endfor -%}
