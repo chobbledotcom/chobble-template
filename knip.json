@@ -25,7 +25,7 @@
 	"ignoreDependencies": [
 		"bun-types",
 		"pagefind",
-		"stylelint-config-clean-order",
+		"postcss-scss",
 		"zod"
 	],
 	"ignoreBinaries": [],
