@@ -53,13 +53,21 @@ features:
   - Cloud backup and sync
   - Mobile app control
   - Automatic software updates
+
+blocks:
+  - type: snippet
+    reference: product-intro
+  - type: markdown
+    content: |
+      Welcome to the future with the SmarThingy AI Plus – where artificial intelligence meets everyday convenience. This revolutionary smart thingy learns your patterns, anticipates your needs, and seamlessly integrates with your digital life.
+
+      Powered by our custom quad-core AI processor, the SmarThingy AI Plus processes complex algorithms in real-time, providing intelligent responses and predictive suggestions. The vibrant 4.3" OLED touchscreen offers an intuitive interface, while voice control and gesture recognition provide hands-free operation when needed.
+
+      Connect to your smart home ecosystem with built-in Wi-Fi 6, control remotely via our feature-rich mobile app, or let the AI handle everything automatically. The SmarThingy learns from your usage patterns, optimizing its performance and suggesting actions before you even think of them.
+
+      With 5G connectivity, cloud backup ensures your settings and preferences are always safe and accessible across all your devices. The 5000mAh battery with wireless charging keeps you powered throughout the day, while automatic software updates ensure you always have the latest features and security enhancements.
+
+      Experience the perfect blend of cutting-edge technology and practical functionality with the SmarThingy AI Plus.
+  - type: snippet
+    reference: product-outro
 ---
-Welcome to the future with the SmarThingy AI Plus – where artificial intelligence meets everyday convenience. This revolutionary smart thingy learns your patterns, anticipates your needs, and seamlessly integrates with your digital life.
-
-Powered by our custom quad-core AI processor, the SmarThingy AI Plus processes complex algorithms in real-time, providing intelligent responses and predictive suggestions. The vibrant 4.3" OLED touchscreen offers an intuitive interface, while voice control and gesture recognition provide hands-free operation when needed.
-
-Connect to your smart home ecosystem with built-in Wi-Fi 6, control remotely via our feature-rich mobile app, or let the AI handle everything automatically. The SmarThingy learns from your usage patterns, optimizing its performance and suggesting actions before you even think of them.
-
-With 5G connectivity, cloud backup ensures your settings and preferences are always safe and accessible across all your devices. The 5000mAh battery with wireless charging keeps you powered throughout the day, while automatic software updates ensure you always have the latest features and security enhancements.
-
-Experience the perfect blend of cutting-edge technology and practical functionality with the SmarThingy AI Plus.

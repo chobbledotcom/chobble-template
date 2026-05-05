@@ -42,14 +42,21 @@ features:
   - Brass hardware and detailing
   - Custom engraving available
   - Includes presentation box
+
+blocks:
+  - type: snippet
+    reference: product-intro
+  - type: markdown
+    content: |
+      The Heritage Thingy Deluxe celebrates the golden age of craftsmanship with its meticulously handcrafted design and premium materials. Each unit is individually crafted by skilled artisans using time-honored techniques passed down through generations.
+
+      Constructed from carefully selected hardwood and finished with multiple coats of hand-rubbed oil, the Heritage Thingy Deluxe develops a beautiful patina over time, becoming more distinguished with age. The genuine leather grip provides comfortable handling while adding to the premium aesthetic.
+
+      Solid brass fittings and hardware are precision-machined and hand-polished to a mirror finish, providing both beauty and durability. The mechanical operation requires no batteries or electronics – just the satisfying precision of finely crafted components working in perfect harmony.
+
+      Each Heritage Thingy Deluxe comes in a handsome presentation box, making it an ideal gift for those who appreciate quality and tradition. Custom engraving is available to add a personal touch to this heirloom-quality piece.
+
+      With our lifetime craftsmanship guarantee, the Heritage Thingy Deluxe is designed to be passed down through generations, a testament to the enduring value of traditional manufacturing excellence.
+  - type: snippet
+    reference: product-outro
 ---
-
-The Heritage Thingy Deluxe celebrates the golden age of craftsmanship with its meticulously handcrafted design and premium materials. Each unit is individually crafted by skilled artisans using time-honored techniques passed down through generations.
-
-Constructed from carefully selected hardwood and finished with multiple coats of hand-rubbed oil, the Heritage Thingy Deluxe develops a beautiful patina over time, becoming more distinguished with age. The genuine leather grip provides comfortable handling while adding to the premium aesthetic.
-
-Solid brass fittings and hardware are precision-machined and hand-polished to a mirror finish, providing both beauty and durability. The mechanical operation requires no batteries or electronics – just the satisfying precision of finely crafted components working in perfect harmony.
-
-Each Heritage Thingy Deluxe comes in a handsome presentation box, making it an ideal gift for those who appreciate quality and tradition. Custom engraving is available to add a personal touch to this heirloom-quality piece.
-
-With our lifetime craftsmanship guarantee, the Heritage Thingy Deluxe is designed to be passed down through generations, a testament to the enduring value of traditional manufacturing excellence.

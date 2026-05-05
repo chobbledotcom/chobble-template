@@ -1,0 +1,12 @@
+{%- comment -%}
+Item-gallery block - renders a multi-image gallery (current image,
+thumbnails, full-size slider). Renders nothing when `gallery` is empty.
+
+Shared by `product-gallery` and `event-gallery`. No block-level parameters.
+{%- endcomment -%}
+
+{%- if gallery.size > 0 -%}
+  <section class="compact"><div class="container-wide">
+    <div class="gallery">{%- include "gallery.html" -%}</div>
+  </div></section>
+{%- endif -%}

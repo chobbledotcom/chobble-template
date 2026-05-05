@@ -51,14 +51,21 @@ tabs:
   - title: Compatibility
     body: |
       The Home Hub works with over 10,000 smart devices including lights, thermostats, locks, cameras, and more. Supports Wi-Fi, Zigbee, Z-Wave, and Matter protocols for maximum compatibility with your existing smart home ecosystem.
+
+blocks:
+  - type: snippet
+    reference: product-intro
+  - type: markdown
+    content: |
+      Transform your home into a unified smart ecosystem with the SmarThingy Home Hub. This powerful central command center brings together all your smart thingies and compatible devices under one intuitive interface.
+
+      The brilliant 10.1" HD touchscreen provides at-a-glance control of your entire smart home, while the octa-core processor with dedicated neural engine ensures lightning-fast response times and advanced AI capabilities. Support for all major smart home protocols means the Home Hub works seamlessly with over 10,000 devices from hundreds of brands.
+
+      Create sophisticated automation routines that adapt to your lifestyle, monitor energy usage across all connected devices, and maintain privacy with local processing of sensitive data. The built-in security features let you integrate cameras, sensors, and alarms into a comprehensive home protection system.
+
+      Voice control from anywhere in your home makes operation effortless, while the companion mobile app provides full control when you're away. With automatic device discovery and configuration, setup is remarkably simple – the Home Hub finds and configures compatible devices automatically.
+
+      Whether you're starting your smart home journey or upgrading an existing setup, the SmarThingy Home Hub provides the perfect foundation for a truly connected living experience.
+  - type: snippet
+    reference: product-outro
 ---
-
-Transform your home into a unified smart ecosystem with the SmarThingy Home Hub. This powerful central command center brings together all your smart thingies and compatible devices under one intuitive interface.
-
-The brilliant 10.1" HD touchscreen provides at-a-glance control of your entire smart home, while the octa-core processor with dedicated neural engine ensures lightning-fast response times and advanced AI capabilities. Support for all major smart home protocols means the Home Hub works seamlessly with over 10,000 devices from hundreds of brands.
-
-Create sophisticated automation routines that adapt to your lifestyle, monitor energy usage across all connected devices, and maintain privacy with local processing of sensitive data. The built-in security features let you integrate cameras, sensors, and alarms into a comprehensive home protection system.
-
-Voice control from anywhere in your home makes operation effortless, while the companion mobile app provides full control when you're away. With automatic device discovery and configuration, setup is remarkably simple – the Home Hub finds and configures compatible devices automatically.
-
-Whether you're starting your smart home journey or upgrading an existing setup, the SmarThingy Home Hub provides the perfect foundation for a truly connected living experience.

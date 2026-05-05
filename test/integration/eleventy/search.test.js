@@ -2,17 +2,20 @@ import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
 
 const contentFile = (collection, slug, title, extras = {}) => {
-  const isNews = collection === "news";
+  const usesBlocks =
+    collection === "news" ||
+    collection === "products" ||
+    collection === "events";
   return {
     path: `${collection}/${slug}.md`,
     frontmatter: {
       title,
-      ...(isNews && {
+      ...(usesBlocks && {
         blocks: [{ type: "markdown", content: `${title} content.` }],
       }),
       ...extras,
     },
-    content: isNews ? "" : `${title} content.`,
+    content: usesBlocks ? "" : `${title} content.`,
   };
 };
 

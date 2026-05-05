@@ -1,5 +1,5 @@
 {
-	"layout": "item.html",
+	"layout": "design-system-base.html",
 	"tags": ["products"],
 	"filter_attributes": [],
 	"options": []

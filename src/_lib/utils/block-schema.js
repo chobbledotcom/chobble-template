@@ -24,6 +24,12 @@ import * as contactForm from "#utils/block-schema/contact-form.js";
 import * as cta from "#utils/block-schema/cta.js";
 import * as customContactForm from "#utils/block-schema/custom-contact-form.js";
 import * as downloads from "#utils/block-schema/downloads.js";
+import * as eventContactSection from "#utils/block-schema/event-contact-section.js";
+import * as eventGallery from "#utils/block-schema/event-gallery.js";
+import * as eventHeader from "#utils/block-schema/event-header.js";
+import * as eventMap from "#utils/block-schema/event-map.js";
+import * as eventMeta from "#utils/block-schema/event-meta.js";
+import * as eventProducts from "#utils/block-schema/event-products.js";
 import * as faqs from "#utils/block-schema/faqs.js";
 import * as features from "#utils/block-schema/features.js";
 import * as freetobook from "#utils/block-schema/freetobook.js";
@@ -33,6 +39,7 @@ import * as guideHeader from "#utils/block-schema/guide-header.js";
 import * as guideNavigation from "#utils/block-schema/guide-navigation.js";
 import * as guidePagesList from "#utils/block-schema/guide-pages-list.js";
 import * as hero from "#utils/block-schema/hero.js";
+import * as hirePricing from "#utils/block-schema/hire-pricing.js";
 import * as html from "#utils/block-schema/html.js";
 import * as iconLinks from "#utils/block-schema/icon-links.js";
 import * as iframeEmbed from "#utils/block-schema/iframe-embed.js";
@@ -49,6 +56,14 @@ import * as marqueeImages from "#utils/block-schema/marquee-images.js";
 import * as menu from "#utils/block-schema/menu.js";
 import * as menuPdfDownload from "#utils/block-schema/menu-pdf-download.js";
 import * as newsMeta from "#utils/block-schema/news-meta.js";
+import * as productAddOns from "#utils/block-schema/product-add-ons.js";
+import * as productContactSection from "#utils/block-schema/product-contact-section.js";
+import * as productFeatures from "#utils/block-schema/product-features.js";
+import * as productGallery from "#utils/block-schema/product-gallery.js";
+import * as productHeader from "#utils/block-schema/product-header.js";
+import * as productMeta from "#utils/block-schema/product-meta.js";
+import * as productSpecs from "#utils/block-schema/product-specs.js";
+import * as productTabs from "#utils/block-schema/product-tabs.js";
 import * as properties from "#utils/block-schema/properties.js";
 import * as propertyContact from "#utils/block-schema/property-contact.js";
 import * as propertyContactSection from "#utils/block-schema/property-contact-section.js";
@@ -60,6 +75,7 @@ import * as propertyHeader from "#utils/block-schema/property-header.js";
 import * as propertyMap from "#utils/block-schema/property-map.js";
 import * as propertySpecs from "#utils/block-schema/property-specs.js";
 import * as propertyTabs from "#utils/block-schema/property-tabs.js";
+import * as purchaseLink from "#utils/block-schema/purchase-link.js";
 import * as quoteCart from "#utils/block-schema/quote-cart.js";
 import * as quoteCheckout from "#utils/block-schema/quote-checkout.js";
 import * as reviews from "#utils/block-schema/reviews.js";
@@ -121,6 +137,22 @@ const BLOCK_MODULES = [
   iframeEmbed,
   include,
   newsMeta,
+  productHeader,
+  productGallery,
+  productMeta,
+  hirePricing,
+  purchaseLink,
+  productTabs,
+  productAddOns,
+  productFeatures,
+  productSpecs,
+  productContactSection,
+  eventHeader,
+  eventGallery,
+  eventMeta,
+  eventProducts,
+  eventMap,
+  eventContactSection,
   properties,
   propertyHeader,
   freetobook,

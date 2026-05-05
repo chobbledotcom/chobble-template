@@ -3,8 +3,12 @@ import { withTestSite } from "#test/test-site-factory.js";
 
 const widgetProduct = {
   path: "products/test-widget.md",
-  frontmatter: { title: "Test Widget", categories: ["widgets"] },
-  content: "A test widget product.",
+  frontmatter: {
+    title: "Test Widget",
+    categories: ["widgets"],
+    blocks: [{ type: "markdown", content: "A test widget product." }],
+  },
+  content: "",
 };
 
 const widgetsCategory = (extra = {}) => ({

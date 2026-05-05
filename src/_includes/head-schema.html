@@ -1,7 +1,7 @@
 {%- assign schemaType = "page" -%}
-{%- if layout == "item.html" and tags and tags contains "product" -%}
+{%- if tags and tags contains "products" -%}
   {%- assign schemaType = "product" -%}
-{%- elsif layout == "item.html" and tags and tags contains "events" -%}
+{%- elsif tags and tags contains "events" -%}
   {%- assign schemaType = "event" -%}
 {%- elsif tags and tags contains "news" -%}
   {%- assign schemaType = "post" -%}

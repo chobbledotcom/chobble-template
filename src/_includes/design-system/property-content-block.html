@@ -8,38 +8,22 @@ Property-only block. No block-level parameters. Reads `categories` and
 expressed as a separate `markdown` block in each property's frontmatter.
 {%- endcomment -%}
 
-{%- assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags -%}
-{%- assign rating = collections.reviews | getRating: page.fileSlug, tags -%}
-{%- assign show_rating = false -%}
-{%- if config.show_product_review_counts and rating -%}
-  {%- assign show_rating = true -%}
-{%- endif -%}
+{%- capture rating_html -%}{%- include "design-system/_item-rating-paragraph.html" -%}{%- endcapture -%}
+{%- capture categories_html -%}{%- include "design-system/_item-categories-paragraph.html" -%}{%- endcapture -%}
 {%- assign show_about = false -%}
 {%- if strings.item_about_heading and strings.item_about_heading != "" -%}
   {%- assign show_about = true -%}
 {%- endif -%}
-{%- assign show_categories = false -%}
-{%- if categories.size > 0 -%}
-  {%- assign show_categories = true -%}
-{%- endif -%}
-{%- if show_rating or show_about or show_categories -%}
+{%- assign meta_html = rating_html | append: categories_html | strip -%}
+{%- if show_about or meta_html != "" -%}
 <section>
   <div class="container">
     <div class="property-content">
-      {%- if show_rating -%}
-        <p class="property-rating"><a href="#reviews">{{ rating | ratingToStars }} after {{ reviews.size }} reviews</a></p>
-      {%- endif -%}
-
+      {{ rating_html }}
       {%- if show_about -%}
         <h2>{{ strings.item_about_heading }}</h2>
       {%- endif -%}
-
-      {%- if show_categories -%}
-        <p>
-          <strong>Categories:</strong>
-          {{ categories | linkList: collections.categories }}
-        </p>
-      {%- endif -%}
+      {{ categories_html }}
     </div>
   </div>
 </section>

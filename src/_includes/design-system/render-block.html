@@ -100,8 +100,6 @@ Renders a single block by type. Used by blocks.html.
   {%- when "property-map" -%}
     {%- include "design-system/property-map-block.html" -%}
 
-  {%- when "property-contact-section" -%}
-    {%- include "design-system/property-contact-section-block.html" -%}
 
   {%- when "property-contact" -%}
     {%- include "design-system/property-contact-block.html" -%}
@@ -174,5 +172,44 @@ Renders a single block by type. Used by blocks.html.
 
   {%- when "news-meta" -%}
     {%- include "design-system/news-meta-block.html" -%}
+
+  {%- when "product-header", "event-header" -%}
+    {%- include "design-system/item-header-block.html" -%}
+
+  {%- when "product-gallery", "event-gallery" -%}
+    {%- include "design-system/item-gallery-block.html" -%}
+
+  {%- when "product-meta" -%}
+    {%- include "design-system/product-meta-block.html" -%}
+
+  {%- when "event-meta" -%}
+    {%- include "design-system/event-meta-block.html" -%}
+
+  {%- when "hire-pricing" -%}
+    {%- include "design-system/hire-pricing-block.html" -%}
+
+  {%- when "purchase-link" -%}
+    {%- include "design-system/purchase-link-block.html" -%}
+
+  {%- when "product-tabs" -%}
+    {%- include "design-system/product-tabs-block.html" -%}
+
+  {%- when "product-add-ons" -%}
+    {%- include "design-system/product-add-ons-block.html" -%}
+
+  {%- when "product-features" -%}
+    {%- include "design-system/product-features-block.html" -%}
+
+  {%- when "product-specs" -%}
+    {%- include "design-system/product-specs-block.html", block: block -%}
+
+  {%- when "product-contact-section", "event-contact-section", "property-contact-section" -%}
+    {%- include "design-system/item-contact-section-block.html" -%}
+
+  {%- when "event-products" -%}
+    {%- include "design-system/event-products-block.html" -%}
+
+  {%- when "event-map" -%}
+    {%- include "design-system/event-map-block.html" -%}
 
 {%- endcase -%}

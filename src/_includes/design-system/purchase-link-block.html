@@ -1,0 +1,14 @@
+{%- comment -%}
+Purchase-link block - renders a 'Purchase Now' button linking to the
+page's `purchase_url`. Renders nothing when `purchase_url` is not set.
+
+Product-only block. No block-level parameters.
+{%- endcomment -%}
+
+{%- if purchase_url and purchase_url != "" -%}
+<section class="compact">
+  <div class="container">
+    {%- include "purchase-button.html" -%}
+  </div>
+</section>
+{%- endif -%}

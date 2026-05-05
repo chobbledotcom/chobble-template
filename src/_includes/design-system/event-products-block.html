@@ -1,0 +1,17 @@
+{%- comment -%}
+Event-products block - lists products linked to the current event.
+Combines explicit `products` references in the event's frontmatter with
+products that reverse-link to the event via their own `events` array.
+Renders nothing when no products are linked.
+
+Event-only block. No block-level parameters.
+{%- endcomment -%}
+
+{%- assign eventProducts = collections.products | getProductsByEvent: page.fileSlug, products -%}
+{%- if eventProducts.size > 0 -%}
+<section class="compact">
+  <div class="container-wide">
+    {%- include "items.html", items: eventProducts -%}
+  </div>
+</section>
+{%- endif -%}

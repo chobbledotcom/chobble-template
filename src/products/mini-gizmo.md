@@ -41,9 +41,15 @@ add_ons:
       price: 12.99
 categories:
   - src/categories/compact-doodahs.md
+
 blocks:
   - type: snippet
+    reference: product-intro
+  - type: markdown
+    content: |
+      This is a mini gizmo that demonstrates using a local image path. The system should look for the image in the /images/ directory.
+  - type: snippet
     reference: contact-cta
+  - type: snippet
+    reference: product-outro
 ---
-
-This is a mini gizmo that demonstrates using a local image path. The system should look for the image in the /images/ directory.

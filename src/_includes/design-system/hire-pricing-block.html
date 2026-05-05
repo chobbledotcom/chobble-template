@@ -1,0 +1,16 @@
+{%- comment -%}
+Hire-pricing block - renders a list of daily rates for a hire-mode product.
+Renders nothing unless `product_mode` (or `config.product_mode`) is `hire`
+and the product has at least one option.
+
+Product-only block. No block-level parameters.
+{%- endcomment -%}
+
+{%- assign mode = product_mode | default: config.product_mode -%}
+{%- if mode == "hire" and options.size > 0 -%}
+<section class="compact">
+  <div class="container">
+    {%- include "hire-pricing-table.html" -%}
+  </div>
+</section>
+{%- endif -%}

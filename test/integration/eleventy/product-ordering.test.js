@@ -34,6 +34,7 @@ const eventWithProducts = (slug, title, products) => ({
     title,
     event_date: EXPO_DATE,
     ...(products ? { products: productRefs(products) } : {}),
+    blocks: [{ type: "event-products" }],
   },
   content: "",
 });

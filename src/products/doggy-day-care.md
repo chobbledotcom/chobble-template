@@ -40,14 +40,21 @@ add_ons:
       price: 15
 categories:
   - compact-doodahs
+
+blocks:
+  - type: snippet
+    reference: product-intro
+  - type: markdown
+    content: |
+      Give your furry friend the care they deserve with our professional doggy day care service. Our experienced staff provide a safe, fun environment for dogs of all sizes.
+
+      Each stay includes:
+
+      - Supervised play time
+      - Regular feeding schedules
+      - Comfortable sleeping areas
+      - Daily exercise and walks
+      - Lots of love and attention
+  - type: snippet
+    reference: product-outro
 ---
-
-Give your furry friend the care they deserve with our professional doggy day care service. Our experienced staff provide a safe, fun environment for dogs of all sizes.
-
-Each stay includes:
-
-- Supervised play time
-- Regular feeding schedules
-- Comfortable sleeping areas
-- Daily exercise and walks
-- Lots of love and attention

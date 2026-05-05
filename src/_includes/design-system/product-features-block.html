@@ -1,0 +1,12 @@
+{%- comment -%}
+Product-features block - renders the product's `features` array as a
+bulleted feature card. Renders nothing when there are no features.
+
+Product-only block. No block-level parameters.
+{%- endcomment -%}
+
+{%- if features.size > 0 -%}
+  <section class="compact"><div class="container">
+    {%- include "item-features-list.html" -%}
+  </div></section>
+{%- endif -%}
