@@ -1,0 +1,179 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
+
+// =============================================================================
+// QUOTE CART (Design System)
+// =============================================================================
+// Used by the quote-cart and quote-checkout blocks. The quote flow is the
+// enquiry-mode counterpart to the Stripe cart: items are collected, then
+// submitted via the multi-step quote form.
+
+.design-system {
+  @mixin quote-accent-card {
+    margin: $space-sm 0;
+    padding: $space-sm;
+    border: $border-light;
+    border-radius: $radius-md;
+
+    background: var(--color-accent);
+  }
+
+  @keyframes quoteCartSlideIn {
+    from {
+      max-height: 0;
+      opacity: 0;
+    }
+
+    to {
+      max-height: 2000px;
+      opacity: 1;
+    }
+  }
+
+  .quote-cart-empty {
+    padding: $space-md $space-sm;
+    border: $border-light;
+    border-radius: $radius-md;
+    text-align: center;
+  }
+
+  .quote-cart-items {
+    @include flex-col($space-sm);
+
+    overflow: hidden;
+    list-style: none;
+
+    &:not(:empty) {
+      animation: quoteCartSlideIn 0.4s ease-out forwards;
+    }
+  }
+
+  .quote-cart-item {
+    padding: $space-sm;
+    border: $border-light;
+    border-radius: $radius-md;
+
+    > ul {
+      @include flex-col($space-xs);
+
+      list-style: none;
+
+      @include breakpoint.up("sm") {
+        flex-flow: row wrap;
+        align-items: center;
+      }
+    }
+
+    .quote-cart-item-info {
+      @include flex-wrap($space-sm);
+
+      gap: $space-xs $space-sm;
+      font-weight: 700;
+
+      @include breakpoint.up("sm") {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    .quote-cart-item-actions {
+      display: flex;
+      align-items: center;
+
+      button[data-action="remove"] {
+        @include button-ghost;
+
+        margin-left: $space-sm;
+        padding: 0 $space-sm;
+      }
+    }
+
+    .quote-cart-item-specs {
+      @include body-sm;
+
+      color: var(--color-text-muted);
+
+      @include breakpoint.up("sm") {
+        flex-basis: 100%;
+      }
+    }
+
+    .quote-cart-item-subtitle {
+      width: 100%;
+    }
+  }
+
+  .quote-cart-actions {
+    justify-content: end;
+    margin-top: $space-md;
+    text-align: center;
+    animation: quoteCartSlideIn 0.4s ease-out forwards;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Quote checkout summary (inside quote-form-steps recap)
+  // ---------------------------------------------------------------------------
+
+  .quote-checkout-summary {
+    @include quote-accent-card;
+
+    h3 {
+      margin: 0 0 $space-sm;
+      font-size: $font-size-base;
+    }
+  }
+
+  .quote-checkout-items {
+    @include flex-col($space-xs);
+  }
+
+  .quote-checkout-item {
+    display: flex;
+    gap: $space-sm;
+    padding: $space-xs 0;
+    border-bottom: $border-light;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  .quote-checkout-item-name {
+    flex: 1;
+  }
+
+  .quote-checkout-item-qty {
+    color: var(--color-text-muted);
+  }
+
+  .quote-checkout-item-price {
+    font-weight: 700;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Quote price summary (sticky aside on the quote pages)
+  // ---------------------------------------------------------------------------
+
+  .quote-price {
+    @include quote-accent-card;
+
+    list-style: none;
+
+    > li {
+      padding: $space-xs 0;
+    }
+
+    ul {
+      margin: $space-xs 0;
+      padding-left: 0;
+      list-style: none;
+
+      li {
+        @include flex-between;
+
+        padding: $space-xs 0;
+      }
+    }
+  }
+}
