@@ -5,19 +5,25 @@ Parameters (via block object):
   - block.items: Array of stat objects with 'value' and 'label' properties
   - block.reveal: If true, adds data-reveal to each item (default: true)
 
+Embeddable form:
+  - items: pass an items array directly (sugar blocks like `hire-pricing`
+    pre-format the values).
+
 Usage:
   {% assign myStats = "99%|Uptime,50k|Users,24/7|Support" | split: "," %}
   {% include "design-system/stats.html", block: { items: myStats } %}
+  {% include "design-system/stats.html", items: page.hire_stat_items %}
 
 Or with objects:
   {% include "design-system/stats.html", block: { items: page.stats } %}
   (where page.stats = [{value: "99%", label: "Uptime"}, ...])
 {%- endcomment -%}
 
+{%- assign _items = items | default: block.items -%}
 {%- assign reveal = block.reveal | default: true -%}
 
 <dl class="stats">
-  {%- for item in block.items -%}
+  {%- for item in _items -%}
     {%- comment -%} Handle both "value|label" strings and {value, label} objects {%- endcomment -%}
     {%- if item.value -%}
       {%- assign value = item.value -%}

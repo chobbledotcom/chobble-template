@@ -1,6 +1,6 @@
 {%- comment -%}
-Product-specs block - renders the product's `specs` array as a
-specifications grid. Renders nothing when there are no specs to show.
+Product-specs block - delegates to the standard `features` block, mapping
+each spec to a feature card (`{icon, title: name, description: value}`).
 
 Product-only block.
 
@@ -9,14 +9,10 @@ Parameters (from block):
 {%- endcomment -%}
 
 {%- if block.highlights -%}
-  {%- assign specs_to_show = highlighted_specs -%}
+  {%- assign items_to_show = highlighted_spec_feature_items -%}
 {%- else -%}
-  {%- assign specs_to_show = specs -%}
+  {%- assign items_to_show = spec_feature_items -%}
 {%- endif -%}
-{%- if specs_to_show.size > 0 -%}
-<section class="compact">
-  <div class="container">
-    {%- include "item-specifications-list.html", highlights: block.highlights -%}
-  </div>
-</section>
+{%- if items_to_show.size > 0 -%}
+  {%- include "design-system/features.html", items: items_to_show -%}
 {%- endif -%}

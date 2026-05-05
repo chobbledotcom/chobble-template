@@ -1,15 +1,23 @@
 {%- comment -%}
-Product-add-ons block - renders the product's `add_ons` (intro paragraph
-plus a priced list of optional extras). Renders nothing when neither
-`add_ons.intro` nor `add_ons.options` is set.
+Product-add-ons block - renders the product's `add_ons` as a single
+add-on card containing optional intro markdown plus a priced list of
+extras. Renders nothing when neither `add_ons.intro` nor `add_ons.options`
+is set.
 
 Product-only block. No block-level parameters.
 {%- endcomment -%}
 
 {%- if add_ons.intro or add_ons.options.size > 0 -%}
-<section class="compact">
-  <div class="container">
-    {%- include "product-add-ons.html" -%}
-  </div>
-</section>
+<div class="add-on-card">
+  {%- if add_ons.intro -%}
+    <div class="prose">{{- add_ons.intro | renderContent: "md" -}}</div>
+  {%- endif -%}
+  {%- if add_ons.options.size > 0 -%}
+    <ul>
+      {%- for option in add_ons.options -%}
+        <li>{{ option.name }} — {{ option.price | to_price }}</li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</div>
 {%- endif -%}

@@ -782,7 +782,7 @@ Product-only block. No parameters. Reads `categories` and `tags` from the page; 
 
 ### `hire-pricing`
 
-Renders a hire-mode pricing table listing the product's daily rates.
+Renders the product's hire-mode daily rates, delegating to the `stats` block (price as value, duration as label).
 
 **Component:** `block_hire_pricing`
 **Template:** `src/_includes/design-system/hire-pricing-block.html`
@@ -793,7 +793,7 @@ Product-only block. No parameters. Renders nothing unless the product's `product
 
 ### `purchase-link`
 
-Renders a 'Purchase Now' button linking to the page's `purchase_url`.
+Renders a 'Purchase Now' button linking to the page's `purchase_url`, delegating to the `link-button` block.
 
 **Component:** `block_purchase_link`
 **Template:** `src/_includes/design-system/purchase-link-block.html`
@@ -815,7 +815,7 @@ Product-only block. No parameters. Renders nothing when the page has no `tabs`.
 
 ### `product-add-ons`
 
-Renders the product's `add_ons` block: an intro paragraph plus a priced list of optional extras.
+Renders the product's `add_ons` as an add-on card with optional intro markdown plus a priced list of extras.
 
 **Component:** `block_product_add_ons`
 **Template:** `src/_includes/design-system/product-add-ons-block.html`
@@ -826,7 +826,7 @@ Product-only block. No parameters. Renders nothing when neither `add_ons.intro` 
 
 ### `product-features`
 
-Renders the product's `features` array as a bulleted feature card.
+Lists the product's `features` array as plain text items, delegating to the `icon-links` block.
 
 **Component:** `block_product_features`
 **Template:** `src/_includes/design-system/product-features-block.html`
@@ -837,7 +837,7 @@ Product-only block. No parameters. Renders nothing when the page's `features` ar
 
 ### `product-specs`
 
-Renders the product's `specs` array as a specifications grid with icon badges.
+Renders the product's `specs` array as a feature grid, delegating to the `features` block (icon + name + value per card).
 
 **Component:** `block_product_specs`
 **Template:** `src/_includes/design-system/product-specs-block.html`
