@@ -21,7 +21,6 @@ export const fields = {
 export const docs = {
   summary:
     "Bunny CDN video background with player.js-powered thumbnail that fades when playback starts.",
-  template: "src/_includes/design-system/bunny-video-background.html",
   scss: "src/css/design-system/_video-background.scss",
   htmlRoot: '<div class="video-background" data-bunny-video>',
   notes:

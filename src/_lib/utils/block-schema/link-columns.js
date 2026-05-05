@@ -27,6 +27,5 @@ export const fields = {
 export const docs = {
   summary:
     "Renders a collection as a plain-text unordered list of links arranged in responsive CSS columns. Optionally strips matching text via a regex so repetitive prefixes/suffixes can be removed.",
-  template: "src/_includes/design-system/link-columns.html",
   scss: "src/css/design-system/_link-columns.scss",
 };

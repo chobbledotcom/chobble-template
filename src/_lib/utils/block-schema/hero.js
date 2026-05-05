@@ -41,7 +41,6 @@ export const fields = {
 export const docs = {
   summary:
     "Full-width hero banner with optional badge, title, lead text, and action buttons.",
-  template: "src/_includes/design-system/hero.html",
   scss: "src/css/design-system/_hero.scss",
   htmlRoot: '<header class="hero">',
 };

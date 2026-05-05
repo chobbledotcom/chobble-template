@@ -13,5 +13,5 @@ export const fields = {
 export const docs = {
   summary: "Outputs raw HTML without processing.",
   notes:
-    "Inline in `render-block.html` (no separate template file). No wrapping element. Useful for custom embeds, iframes, or one-off HTML.",
+    "No wrapping element. Useful for custom embeds, iframes, or one-off HTML.",
 };

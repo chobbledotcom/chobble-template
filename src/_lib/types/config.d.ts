@@ -77,7 +77,6 @@ export type SiteConfig = {
   cart_mode: CartMode;
   ecommerce_api_host: string | null;
   product_mode: ProductMode;
-  category_order: string[] | null;
   screenshots: ScreenshotConfig | null;
   form_target: string | null;
 

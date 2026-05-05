@@ -104,7 +104,8 @@ const addOptionalFields = (
   if (collectionName === "snippets") return coreFields;
 
   const collection = getCollection(collectionName);
-  const alreadyHasBlocks = collectionName === "pages";
+  const alreadyHasBlocks =
+    collectionName === "pages" || collectionName === "categories";
   const allowedBlockTypes = Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
     isBlockAllowedIn(type, collectionName),
   );

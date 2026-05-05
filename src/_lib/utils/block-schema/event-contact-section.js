@@ -1,4 +1,5 @@
 export const type = "event-contact-section";
+export const template = "design-system/blocks/item-contact-section.html";
 
 /* jscpd:ignore-start */
 export const containerWidth = "full";
@@ -10,8 +11,7 @@ export const fields = {};
 
 export const docs = {
   summary:
-    "Renders the inline contact section on an event page (delegates to `item-contact-section.html`).",
-  template: "src/_includes/design-system/item-contact-section-block.html",
+    "Renders the inline contact section on an event page, delegating to the shared `item-contact-section.html` partial.",
   notes:
     "Event-only block. No parameters. Honours the page's `formspark_id` override and falls back to `config.form_target`.",
 };

@@ -28,7 +28,6 @@ export const fields = {
 export const docs = {
   summary:
     "One-column callout/note with icon, title, and short content — for content warnings, advisories, tips, etc.",
-  template: "src/_includes/design-system/callout.html",
   scss: "src/css/design-system/_callout.scss",
   htmlRoot: '<aside class="callout">',
 };

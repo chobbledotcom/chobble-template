@@ -19,6 +19,8 @@ import * as addToCart from "#utils/block-schema/add-to-cart.js";
 import * as bunnyVideoBackground from "#utils/block-schema/bunny-video-background.js";
 import * as buyOptions from "#utils/block-schema/buy-options.js";
 import * as callout from "#utils/block-schema/callout.js";
+import * as categoryProducts from "#utils/block-schema/category-products.js";
+import * as childCategories from "#utils/block-schema/child-categories.js";
 import * as codeBlock from "#utils/block-schema/code-block.js";
 import * as contactForm from "#utils/block-schema/contact-form.js";
 import * as cta from "#utils/block-schema/cta.js";
@@ -125,6 +127,8 @@ const BLOCK_MODULES = [
   items,
   itemsArray,
   itemsTextList,
+  categoryProducts,
+  childCategories,
   menu,
   menuPdfDownload,
   socials,
@@ -207,6 +211,38 @@ const BLOCK_CONTAINER_WIDTHS = indexByType((m) =>
 /** @param {string} blockType */
 const getBlockContainerWidth = (blockType) =>
   BLOCK_CONTAINER_WIDTHS[blockType] || "wide";
+
+/**
+ * Per-block override of the dispatch path. The default is
+ * `design-system/blocks/<type>.html`. A block module exports `template` only
+ * when multiple types share one underlying template (e.g. every `split-*`
+ * variant points at `design-system/split.html`).
+ * @type {Record<string, string | undefined>}
+ */
+const BLOCK_TEMPLATE_OVERRIDES = indexByType((m) =>
+  "template" in m ? m.template : undefined,
+);
+
+/**
+ * Returns the include-relative template path for a block type. Default is
+ * derived from `type`; schema modules can override by exporting a `template`
+ * string (used by split-* variants that share one underlying template).
+ * Throws on unknown types so dispatching fails loudly rather than silently
+ * including a non-existent path.
+ *
+ * @param {string} blockType
+ * @returns {string} e.g. `"design-system/blocks/hero.html"`
+ */
+const getBlockTemplate = (blockType) => {
+  if (!(blockType in BLOCK_SCHEMAS)) {
+    throw new Error(
+      `Unknown block type "${blockType}". Valid types: ${Object.keys(BLOCK_SCHEMAS).join(", ")}`,
+    );
+  }
+  const override = BLOCK_TEMPLATE_OVERRIDES[blockType];
+  if (override) return override;
+  return `design-system/blocks/${blockType}.html`;
+};
 
 /**
  * Collection allowlist per block type. `null` means the block is available on
@@ -385,6 +421,7 @@ export {
   BLOCK_DOCS,
   BLOCK_SCHEMAS,
   getBlockContainerWidth,
+  getBlockTemplate,
   isBlockAllowedIn,
   validateBlock,
   validateBlocks,

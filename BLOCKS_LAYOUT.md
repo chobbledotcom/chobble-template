@@ -51,7 +51,7 @@ Blocks can use `data-reveal` attributes on elements. Values: `""` (fade up), `"l
 Standalone section header with rich text intro.
 
 **Component:** `block_section_header`
-**Template:** `src/_includes/design-system/section-header.html`
+**Template:** `src/_includes/design-system/blocks/section-header.html`
 **SCSS:** `src/css/design-system/_base.scss`
 **HTML root:** `<div class="section-header prose">`
 
@@ -68,7 +68,7 @@ Standalone section header with rich text intro.
 Grid of feature cards with optional icons, titles, and descriptions.
 
 **Component:** `block_features`
-**Template:** `src/_includes/design-system/features.html`
+**Template:** `src/_includes/design-system/blocks/features.html`
 **SCSS:** `src/css/design-system/_feature.scss`
 **HTML root:** `<ul class="features" role="list"> containing <li><article class="feature"> items`
 
@@ -86,7 +86,7 @@ Grid of feature cards with optional icons, titles, and descriptions.
 Grid of cards featuring images with titles and optional descriptions.
 
 **Component:** `block_image_cards`
-**Template:** `src/_includes/design-system/image-cards.html`
+**Template:** `src/_includes/design-system/blocks/image-cards.html`
 **SCSS:** `src/css/design-system/_items.scss`
 **HTML root:** `<ul class="items" role="list">`
 
@@ -104,7 +104,7 @@ Grid of cards featuring images with titles and optional descriptions.
 Grid of buyable products — image, title, optional subtitle, price, and a buy button. Emits schema.org Product microdata.
 
 **Component:** `block_buy_options`
-**Template:** `src/_includes/design-system/buy-options.html`
+**Template:** `src/_includes/design-system/blocks/buy-options.html`
 **SCSS:** `src/css/design-system/_items.scss`
 **HTML root:** `<ul class="items" role="list">`
 
@@ -124,7 +124,7 @@ Each item renders as a `<li>` with `itemscope itemtype="https://schema.org/Produ
 Renders the current product's add-to-cart button, reusing the same controls shown in the product options area.
 
 **Component:** `block_add_to_cart`
-**Template:** `src/_includes/design-system/add-to-cart-block.html`
+**Template:** `src/_includes/design-system/blocks/add-to-cart.html`
 
 Product-only block. Reads `cart_attributes`, `options`, `product_mode`, `has_single_cart_option`, and `show_cart_quantity_selector` from the product's computed data and delegates rendering to `product-options.html`. Renders nothing when `config.cart_mode` is disabled or the page has no cart attributes.
 
@@ -135,7 +135,7 @@ Product-only block. Reads `cart_attributes`, `options`, `product_mode`, `has_sin
 Key metrics displayed as large numbers with labels.
 
 **Component:** `block_stats`
-**Template:** `src/_includes/design-system/stats.html`
+**Template:** `src/_includes/design-system/blocks/stats.html`
 **SCSS:** `src/css/design-system/_stats.scss`
 **HTML root:** `<dl class="stats">`
 
@@ -151,7 +151,7 @@ Key metrics displayed as large numbers with labels.
 Terminal-style code display with macOS-like toolbar header.
 
 **Component:** `block_code_block`
-**Template:** `src/_includes/design-system/code-block.html`
+**Template:** `src/_includes/design-system/blocks/code-block.html`
 **SCSS:** `src/css/design-system/_code-block.scss`
 **HTML root:** `<div class="code-block">`
 
@@ -169,7 +169,7 @@ Terminal-style code display with macOS-like toolbar header.
 Full-width hero banner with optional badge, title, lead text, and action buttons.
 
 **Component:** `block_hero`
-**Template:** `src/_includes/design-system/hero.html`
+**Template:** `src/_includes/design-system/blocks/hero.html`
 **SCSS:** `src/css/design-system/_hero.scss`
 **HTML root:** `<header class="hero">`
 
@@ -312,7 +312,7 @@ Two-column layout with text content and custom HTML.
 Two-column layout with text content and a styled callout box with icon, title, and subtitle.
 
 **Component:** `block_split_callout`
-**Template:** `src/_includes/design-system/split-callout.html`
+**Template:** `src/_includes/design-system/blocks/split-callout.html`
 **SCSS:** `src/css/design-system/_split-callout.scss`
 **HTML root:** `<div class="split-callout">`
 
@@ -371,7 +371,7 @@ Figure renders as `<figure itemscope itemtype="https://schema.org/Product">` wit
 Full-width two-panel layout with distinct background colors per side.
 
 **Component:** `block_split_full`
-**Template:** `src/_includes/design-system/split-full.html`
+**Template:** `src/_includes/design-system/blocks/split-full.html`
 **SCSS:** `src/css/design-system/_split.scss`
 **HTML root:** `<div class="split-full">`
 
@@ -397,7 +397,7 @@ Variants: `"dark-left"` / `"dark-right"` (dark bg + light text), `"primary-left"
 Call-to-action banner with gradient background.
 
 **Component:** `block_cta`
-**Template:** `src/_includes/design-system/cta.html`
+**Template:** `src/_includes/design-system/blocks/cta.html`
 **SCSS:** `src/css/design-system/_cta.scss`
 **HTML root:** `<aside class="cta">`
 
@@ -415,7 +415,7 @@ Call-to-action banner with gradient background.
 One-column callout/note with icon, title, and short content — for content warnings, advisories, tips, etc.
 
 **Component:** `block_callout`
-**Template:** `src/_includes/design-system/callout.html`
+**Template:** `src/_includes/design-system/blocks/callout.html`
 **SCSS:** `src/css/design-system/_callout.scss`
 **HTML root:** `<aside class="callout">`
 
@@ -433,7 +433,7 @@ One-column callout/note with icon, title, and short content — for content warn
 Auto-playing video background with overlaid text content.
 
 **Component:** `block_video_background`
-**Template:** `src/_includes/design-system/video-background.html`
+**Template:** `src/_includes/design-system/blocks/video-background.html`
 **SCSS:** `src/css/design-system/_video-background.scss`
 **HTML root:** `<div class="video-background">`
 
@@ -454,7 +454,7 @@ YouTube IDs get `youtube-nocookie.com` embed URLs with `autoplay=1&mute=1&loop=1
 Bunny CDN video background with player.js-powered thumbnail that fades when playback starts.
 
 **Component:** `block_bunny_video_background`
-**Template:** `src/_includes/design-system/bunny-video-background.html`
+**Template:** `src/_includes/design-system/blocks/bunny-video-background.html`
 **SCSS:** `src/css/design-system/_video-background.scss`
 **HTML root:** `<div class="video-background" data-bunny-video>`
 
@@ -475,7 +475,7 @@ Uses player.js to detect when the video starts playing, then fades out the thumb
 Full-width image background with overlaid text and optional parallax.
 
 **Component:** `block_image_background`
-**Template:** `src/_includes/design-system/image-background.html`
+**Template:** `src/_includes/design-system/blocks/image-background.html`
 **SCSS:** `src/css/design-system/_image-background.scss`
 **HTML root:** `<div class="image-background">`
 
@@ -496,7 +496,7 @@ Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 1
 Grid of clickable video thumbnails. Supports YouTube IDs and custom iframe URLs (Vimeo, Bunny Stream, etc.).
 
 **Component:** `block_video_cards`
-**Template:** `src/_includes/design-system/video-cards-block.html`
+**Template:** `src/_includes/design-system/blocks/video-cards.html`
 **SCSS:** `src/css/design-system/_items.scss`
 **HTML root:** `<ul class="items" role="list">`
 
@@ -517,7 +517,7 @@ YouTube videos render optimized thumbnails via eleventy-img; custom URLs use a p
 Displays an Eleventy collection as a card grid or horizontal slider.
 
 **Component:** `block_items`
-**Template:** `src/_includes/design-system/items-block.html`
+**Template:** `src/_includes/design-system/blocks/items.html`
 **SCSS:** `src/css/design-system/_items.scss`
 
 | Parameter | Type | Default | Description |
@@ -526,8 +526,9 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+| `filter_ui_collection` | string | — | Optional name of a collection providing the client-side filter UI. When the collection is keyed by `page.fileSlug` (e.g. `categoryListingFilterUI`), the matching entry is used. Otherwise the collection itself is treated as a flat filter UI (e.g. `filteredProductPagesListingFilterUI`). When set, wraps the items in the products-layout sidebar. |
 
 ---
 
@@ -536,7 +537,7 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 Renders items from an explicit list of paths. The collection is inferred dynamically from each item's path. Directory paths (ending in `/` or with no `.md` extension) expand to every item in that directory.
 
 **Component:** `block_items_array`
-**Template:** `src/_includes/design-system/items-array-block.html`
+**Template:** `src/_includes/design-system/blocks/items-array.html`
 **SCSS:** `src/css/design-system/_items.scss`
 
 | Parameter | Type | Default | Description |
@@ -545,7 +546,7 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 
 ---
@@ -555,7 +556,7 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 Renders a collection as a comma-separated inline list of links, with optional introductory markdown text prepended. Excludes the current page from the list.
 
 **Component:** `block_items_text_list`
-**Template:** `src/_includes/design-system/items-text-list.html`
+**Template:** `src/_includes/design-system/blocks/items-text-list.html`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -564,12 +565,48 @@ Renders a collection as a comma-separated inline list of links, with optional in
 
 ---
 
+### `category-products`
+
+Lists every product tagged with the current category, with the client-side filter sidebar.
+
+**Component:** `block_category_products`
+**Template:** `src/_includes/design-system/blocks/category-products.html`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
+| `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
+| `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+
+Categories-only block. Equivalent to an `items` block with `collection: products`, a `data.categories equals page.fileSlug` filter, and `filter_ui_collection: categoryListingFilterUI` — exposed as a single block so editors don't have to wire those settings up themselves. Accepts the same presentation fields as `items` (`intro_content`, `horizontal`, `masonry`, `image_aspect_ratio`).
+
+---
+
+### `child-categories`
+
+Lists every direct child category of the current category. Renders nothing when the category has no children.
+
+**Component:** `block_child_categories`
+**Template:** `src/_includes/design-system/blocks/child-categories.html`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
+| `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
+| `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+
+Categories-only block. Equivalent to an `items` block with `collection: categories` and `filter: { property: "data.parent", equals: "<page.fileSlug>" }` — exposed as a single block so editors don't have to wire those settings up themselves. Accepts the same presentation fields as `items` (`intro_content`, `horizontal`, `masonry`, `image_aspect_ratio`).
+
+---
+
 ### `menu`
 
 Renders the current menu page's categories, items, dietary key legend and PDF download link. Designed for files in the `menus` collection.
 
 **Component:** `block_menu`
-**Template:** `src/_includes/design-system/menu-block.html`
+**Template:** `src/_includes/design-system/blocks/menu.html`
 **SCSS:** `src/css/design-system/_menu.scss`
 
 No block-level parameters. Resolves the current menu via `page.fileSlug` against `collections.menu-categories` and `collections.menu-items`. Reads `allDietaryKeys` and `pdfFilename` from page data (computed by `src/menus/menus.11tydata.js`).
@@ -581,7 +618,7 @@ No block-level parameters. Resolves the current menu via `page.fileSlug` against
 Download-as-PDF button for the current menu page. Reuses the `link-button` markup; the URL is auto-derived from the page's `pdfFilename`.
 
 **Component:** `block_menu_pdf_download`
-**Template:** `src/_includes/design-system/menu-pdf-download.html`
+**Template:** `src/_includes/design-system/blocks/menu-pdf-download.html`
 **SCSS:** `src/css/design-system/_link-button.scss`
 **HTML root:** `<div class="link-button">`
 
@@ -599,7 +636,7 @@ Download-as-PDF button for the current menu page. Reuses the `link-button` marku
 Renders social-media posts loaded from a directory of JSON files as a card grid or horizontal slider.
 
 **Component:** `block_socials`
-**Template:** `src/_includes/design-system/socials-block.html`
+**Template:** `src/_includes/design-system/blocks/socials.html`
 **SCSS:** `src/css/design-system/_items.scss`
 
 | Parameter | Type | Default | Description |
@@ -608,7 +645,7 @@ Renders social-media posts loaded from a directory of JSON files as a card grid 
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 
 Posts are loaded per-block from the given directory, so the same template works for Instagram, Mastodon, or any other source. External `url` values open in a new tab.
 
@@ -619,14 +656,14 @@ Posts are loaded per-block from the given directory, so the same template works 
 Renders a collection as a plain-text unordered list of links arranged in responsive CSS columns. Optionally strips matching text via a regex so repetitive prefixes/suffixes can be removed.
 
 **Component:** `block_link_columns`
-**Template:** `src/_includes/design-system/link-columns.html`
+**Template:** `src/_includes/design-system/blocks/link-columns.html`
 **SCSS:** `src/css/design-system/_link-columns.scss`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `collection` | string | **required** | Name of an Eleventy collection (e.g. `"locations"`, `"services"`). |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 | `remove_text` | string | — | Regex pattern (JavaScript syntax, global flag implied). Each match is removed from every link's display text and the result is trimmed. Useful for stripping repetitive prefixes like `"Service in "` so links render tidier. |
 
 ---
@@ -636,7 +673,7 @@ Renders a collection as a plain-text unordered list of links arranged in respons
 Two-column layout with prose content and a contact form.
 
 **Component:** `block_contact_form`
-**Template:** `src/_includes/design-system/contact-form-block.html`
+**Template:** `src/_includes/design-system/blocks/contact-form.html`
 **SCSS:** `src/css/design-system/_contact-form-block.scss`
 **HTML root:** `<div class="contact-form-block">`
 
@@ -652,7 +689,7 @@ Two-column layout with prose content and a contact form.
 Contact form block with a custom, block-level field list instead of the site-wide `contactForm.fields`.
 
 **Component:** `block_custom_contact_form`
-**Template:** `src/_includes/design-system/custom-contact-form-block.html`
+**Template:** `src/_includes/design-system/blocks/custom-contact-form.html`
 **SCSS:** `src/css/design-system/_contact-form-block.scss`
 **HTML root:** `<div class="contact-form-block">`
 
@@ -671,14 +708,13 @@ Identical layout and styling to `contact-form`, but accepts its own `fields` arr
 Renders markdown content as rich text.
 
 **Component:** `block_markdown`
+**Template:** `src/_includes/design-system/blocks/markdown.html`
 **SCSS:** `src/css/design-system/_prose.scss`
 **HTML root:** `<div class="prose">`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `content` | string | **required** | Markdown content. Passed through `renderContent: "md"` filter. |
-
-Inline in `render-block.html` (no separate template file).
 
 ---
 
@@ -687,12 +723,13 @@ Inline in `render-block.html` (no separate template file).
 Outputs raw HTML without processing.
 
 **Component:** `block_html`
+**Template:** `src/_includes/design-system/blocks/html.html`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `content` | string | **required** | Raw HTML. Output directly with `{{ block.content }}`. |
 
-Inline in `render-block.html` (no separate template file). No wrapping element. Useful for custom embeds, iframes, or one-off HTML.
+No wrapping element. Useful for custom embeds, iframes, or one-off HTML.
 
 ---
 
@@ -701,7 +738,7 @@ Inline in `render-block.html` (no separate template file). No wrapping element. 
 Third-party iframe embed (itch.io widgets, Buttondown, Bandcamp, Stripe buttons, etc).
 
 **Component:** `block_iframe_embed`
-**Template:** `src/_includes/design-system/iframe-embed.html`
+**Template:** `src/_includes/design-system/blocks/iframe-embed.html`
 **SCSS:** `src/css/design-system/_iframe-embed.scss`
 **HTML root:** `<div class="iframe-embed">`
 
@@ -727,12 +764,13 @@ Provide either `height` for a fixed-height embed or `aspect_ratio` (e.g. `16/9`)
 Includes an arbitrary template file.
 
 **Component:** `block_include`
+**Template:** `src/_includes/design-system/blocks/include.html`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | string | **required** | Path to the template file to include. |
 
-Inline in `render-block.html` — uses `{% include block.file %}`. Escape hatch for custom content that doesn't fit the block system.
+Escape hatch for custom content that doesn't fit the block system. The `file` value is passed straight to `{% include %}`.
 
 ---
 
@@ -741,7 +779,7 @@ Inline in `render-block.html` — uses `{% include block.file %}`. Escape hatch 
 Renders a news post's metadata: author name (linking to their team page) with optional thumbnail, plus the post date.
 
 **Component:** `block_news_meta`
-**Template:** `src/_includes/design-system/news-meta-block.html`
+**Template:** `src/_includes/design-system/blocks/news-meta.html`
 
 News-only block. No parameters. Reads `authorSlug` from the page data and looks up the matching team member in `collections.team`. Renders the author's thumbnail when present, falling back to a date-only block when there is no author.
 
@@ -752,7 +790,7 @@ News-only block. No parameters. Reads `authorSlug` from the page data and looks 
 Renders a product page's heading: title and optional subtitle.
 
 **Component:** `block_product_header`
-**Template:** `src/_includes/design-system/item-header-block.html`
+**Template:** `src/_includes/design-system/blocks/item-header.html`
 
 Product-only block. No parameters. Reads `title` and `subtitle` from the product page data.
 
@@ -763,7 +801,7 @@ Product-only block. No parameters. Reads `title` and `subtitle` from the product
 Renders the product page's gallery (current image + thumbnails + slider).
 
 **Component:** `block_product_gallery`
-**Template:** `src/_includes/design-system/item-gallery-block.html`
+**Template:** `src/_includes/design-system/blocks/item-gallery.html`
 
 Product-only block. No parameters. Renders nothing when the product's `gallery` is empty.
 
@@ -774,7 +812,7 @@ Product-only block. No parameters. Renders nothing when the product's `gallery` 
 Renders the product page's metadata: optional reviews-count link followed by the categories list.
 
 **Component:** `block_product_meta`
-**Template:** `src/_includes/design-system/product-meta-block.html`
+**Template:** `src/_includes/design-system/blocks/product-meta.html`
 
 Product-only block. No parameters. Reads `categories` and `tags` from the page; reads `config.show_product_review_counts` from site data.
 
@@ -785,7 +823,7 @@ Product-only block. No parameters. Reads `categories` and `tags` from the page; 
 Renders the product's hire-mode daily rates, delegating to the `stats` block (price as value, duration as label).
 
 **Component:** `block_hire_pricing`
-**Template:** `src/_includes/design-system/hire-pricing-block.html`
+**Template:** `src/_includes/design-system/blocks/hire-pricing.html`
 
 Product-only block. No parameters. Renders nothing unless the product's `product_mode` (or `config.product_mode`) is `hire` and the product has at least one option.
 
@@ -796,7 +834,7 @@ Product-only block. No parameters. Renders nothing unless the product's `product
 Renders a 'Purchase Now' button linking to the page's `purchase_url`, delegating to the `link-button` block.
 
 **Component:** `block_purchase_link`
-**Template:** `src/_includes/design-system/purchase-link-block.html`
+**Template:** `src/_includes/design-system/blocks/purchase-link.html`
 
 Product-only block. No parameters. Renders nothing when `purchase_url` is not set.
 
@@ -807,7 +845,7 @@ Product-only block. No parameters. Renders nothing when `purchase_url` is not se
 Renders the page's `tabs` array as a tabbed content section.
 
 **Component:** `block_tabs`
-**Template:** `src/_includes/design-system/tabs-block.html`
+**Template:** `src/_includes/design-system/blocks/tabs.html`
 
 Allowed on collections that surface a `tabs` field (products, events, properties). No parameters. Renders nothing when the page has no `tabs`.
 
@@ -818,7 +856,7 @@ Allowed on collections that surface a `tabs` field (products, events, properties
 Renders the product's `add_ons` as an add-on card with optional intro markdown plus a priced list of extras.
 
 **Component:** `block_product_add_ons`
-**Template:** `src/_includes/design-system/product-add-ons-block.html`
+**Template:** `src/_includes/design-system/blocks/product-add-ons.html`
 
 Product-only block. No parameters. Renders nothing when neither `add_ons.intro` nor `add_ons.options` is set.
 
@@ -829,7 +867,7 @@ Product-only block. No parameters. Renders nothing when neither `add_ons.intro` 
 Lists the product's `features` array as plain text items, delegating to the `icon-links` block.
 
 **Component:** `block_product_features`
-**Template:** `src/_includes/design-system/product-features-block.html`
+**Template:** `src/_includes/design-system/blocks/product-features.html`
 
 Product-only block. No parameters. Renders nothing when the page's `features` array is empty.
 
@@ -840,7 +878,7 @@ Product-only block. No parameters. Renders nothing when the page's `features` ar
 Renders the product's `specs` array as a feature grid, delegating to the `features` block (icon + name + value per card).
 
 **Component:** `block_product_specs`
-**Template:** `src/_includes/design-system/product-specs-block.html`
+**Template:** `src/_includes/design-system/blocks/product-specs.html`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -852,10 +890,10 @@ Product-only block. Renders nothing when the page has no `specs` (or no highligh
 
 ### `product-contact-section`
 
-Renders the inline contact section on a product page (delegates to `item-contact-section.html`).
+Renders the inline contact section on a product page, delegating to the shared `item-contact-section.html` partial.
 
 **Component:** `block_product_contact_section`
-**Template:** `src/_includes/design-system/item-contact-section-block.html`
+**Template:** `src/_includes/design-system/blocks/item-contact-section.html`
 
 Product-only block. No parameters. Honours the page's `formspark_id` override and falls back to `config.form_target`.
 
@@ -866,7 +904,7 @@ Product-only block. No parameters. Honours the page's `formspark_id` override an
 Renders an event page's heading: title, optional subtitle, and event details (date, schedule, location, iCal download).
 
 **Component:** `block_event_header`
-**Template:** `src/_includes/design-system/item-header-block.html`
+**Template:** `src/_includes/design-system/blocks/item-header.html`
 
 Event-only block. No parameters. Reads `title`, `subtitle`, `event_date`, `recurring_date`, `event_location`, and `ical_url` from the page.
 
@@ -877,7 +915,7 @@ Event-only block. No parameters. Reads `title`, `subtitle`, `event_date`, `recur
 Renders the event page's gallery (current image + thumbnails + slider).
 
 **Component:** `block_event_gallery`
-**Template:** `src/_includes/design-system/item-gallery-block.html`
+**Template:** `src/_includes/design-system/blocks/item-gallery.html`
 
 Event-only block. No parameters. Renders nothing when the event's `gallery` is empty.
 
@@ -888,7 +926,7 @@ Event-only block. No parameters. Renders nothing when the event's `gallery` is e
 Renders the event page's metadata: optional reviews-count link followed by the event categories list.
 
 **Component:** `block_event_meta`
-**Template:** `src/_includes/design-system/event-meta-block.html`
+**Template:** `src/_includes/design-system/blocks/event-meta.html`
 
 Event-only block. No parameters. Reads `event_categories` and `tags` from the page; reads `config.show_product_review_counts` from site data.
 
@@ -899,7 +937,7 @@ Event-only block. No parameters. Reads `event_categories` and `tags` from the pa
 Lists products linked to the current event, combining explicit `products` references with reverse-lookup matches.
 
 **Component:** `block_event_products`
-**Template:** `src/_includes/design-system/event-products-block.html`
+**Template:** `src/_includes/design-system/blocks/event-products.html`
 
 Event-only block. No parameters. Renders nothing when no products are linked to the event.
 
@@ -910,7 +948,7 @@ Event-only block. No parameters. Renders nothing when no products are linked to 
 Embeds a map iframe using the page's `map_embed_src`, falling back to `config.map_embed_src`.
 
 **Component:** `block_event_map`
-**Template:** `src/_includes/design-system/event-map-block.html`
+**Template:** `src/_includes/design-system/blocks/event-map.html`
 
 Event-only block. No parameters. Renders nothing when no embed source is configured.
 
@@ -918,10 +956,10 @@ Event-only block. No parameters. Renders nothing when no embed source is configu
 
 ### `event-contact-section`
 
-Renders the inline contact section on an event page (delegates to `item-contact-section.html`).
+Renders the inline contact section on an event page, delegating to the shared `item-contact-section.html` partial.
 
 **Component:** `block_event_contact_section`
-**Template:** `src/_includes/design-system/item-contact-section-block.html`
+**Template:** `src/_includes/design-system/blocks/item-contact-section.html`
 
 Event-only block. No parameters. Honours the page's `formspark_id` override and falls back to `config.form_target`.
 
@@ -932,7 +970,7 @@ Event-only block. No parameters. Honours the page's `formspark_id` override and 
 Displays property listings (holiday lets) with filter controls.
 
 **Component:** `block_properties`
-**Template:** `src/_includes/design-system/properties-block.html`
+**Template:** `src/_includes/design-system/blocks/properties.html`
 **SCSS:** `src/css/design-system/_property.scss`
 
 No block-level parameters. Uses the global `collections.properties` and optional `filterPage` data for URL-based filtering.
@@ -944,7 +982,7 @@ No block-level parameters. Uses the global `collections.properties` and optional
 Renders a property page's heading: title, optional subtitle, and optional price-per-night.
 
 **Component:** `block_property_header`
-**Template:** `src/_includes/design-system/property-header-block.html`
+**Template:** `src/_includes/design-system/blocks/property-header.html`
 
 Property-only block. No parameters. Reads `title`, `subtitle`, and `price_per_night` from the property page data.
 
@@ -955,7 +993,7 @@ Property-only block. No parameters. Reads `title`, `subtitle`, and `price_per_ni
 Renders a Freetobook booking iframe inside a collapsible details element.
 
 **Component:** `block_freetobook`
-**Template:** `src/_includes/design-system/freetobook-block.html`
+**Template:** `src/_includes/design-system/blocks/freetobook.html`
 
 Property-only block. No parameters. Renders nothing when the property's `freetobook_token` is not set.
 
@@ -966,7 +1004,7 @@ Property-only block. No parameters. Renders nothing when the property's `freetob
 Renders the property page's gallery using the property-specific gallery layout (current image + thumbnails + slider).
 
 **Component:** `block_property_gallery`
-**Template:** `src/_includes/design-system/property-gallery-block.html`
+**Template:** `src/_includes/design-system/blocks/property-gallery.html`
 
 Property-only block. No parameters. Renders nothing when the property's `gallery` is empty.
 
@@ -977,7 +1015,7 @@ Property-only block. No parameters. Renders nothing when the property's `gallery
 Renders the property page's metadata (reviews-count link, optional about-heading, categories list).
 
 **Component:** `block_property_content`
-**Template:** `src/_includes/design-system/property-content-block.html`
+**Template:** `src/_includes/design-system/blocks/property-content.html`
 
 Property-only block. No parameters. Reads `categories` and `tags` from the page; reads `strings.item_about_heading` and `config.show_product_review_counts` from site data. Body content is expressed as a separate `markdown` block in each property's frontmatter.
 
@@ -988,7 +1026,7 @@ Property-only block. No parameters. Reads `categories` and `tags` from the page;
 Renders the property's `features` array as a bulleted list under a 'Features' heading.
 
 **Component:** `block_property_features`
-**Template:** `src/_includes/design-system/property-features-block.html`
+**Template:** `src/_includes/design-system/blocks/property-features.html`
 
 Property-only block. No parameters. Renders nothing when the page's `features` array is empty.
 
@@ -999,7 +1037,7 @@ Property-only block. No parameters. Renders nothing when the page's `features` a
 Lists guide categories linked to the current property (via the `guideCategoriesByProperty` filter), styled as a feature grid.
 
 **Component:** `block_property_guides`
-**Template:** `src/_includes/design-system/property-guides-block.html`
+**Template:** `src/_includes/design-system/blocks/property-guides.html`
 
 Property-only block. No parameters. Renders nothing when no guides are linked to the property.
 
@@ -1010,7 +1048,7 @@ Property-only block. No parameters. Renders nothing when no guides are linked to
 Renders the property's `specs` array as a specifications grid under a 'Specifications' heading.
 
 **Component:** `block_property_specs`
-**Template:** `src/_includes/design-system/property-specs-block.html`
+**Template:** `src/_includes/design-system/blocks/property-specs.html`
 
 Property-only block. No parameters. Renders nothing when the page has no `specs`.
 
@@ -1021,7 +1059,7 @@ Property-only block. No parameters. Renders nothing when the page has no `specs`
 Embeds a map iframe using the page's `map_embed_src`, falling back to `config.map_embed_src`.
 
 **Component:** `block_property_map`
-**Template:** `src/_includes/design-system/property-map-block.html`
+**Template:** `src/_includes/design-system/blocks/property-map.html`
 
 Property-only block. No parameters. Renders nothing when no embed source is configured.
 
@@ -1029,10 +1067,10 @@ Property-only block. No parameters. Renders nothing when no embed source is conf
 
 ### `property-contact-section`
 
-Renders the inline contact section on a property page (delegates to `item-contact-section.html`).
+Renders the inline contact section on a property page, delegating to the shared `item-contact-section.html` partial.
 
 **Component:** `block_property_contact_section`
-**Template:** `src/_includes/design-system/item-contact-section-block.html`
+**Template:** `src/_includes/design-system/blocks/item-contact-section.html`
 
 Property-only block. No parameters. Distinct from the `property-contact` block, which renders the standalone /contact/ page for a property. Honours the page's `formspark_id` override and falls back to `config.form_target`.
 
@@ -1043,7 +1081,7 @@ Property-only block. No parameters. Distinct from the `property-contact` block, 
 Renders a contact form scoped to the current property page (paginated from `collections.propertiesWithContactPage`).
 
 **Component:** `block_property_contact`
-**Template:** `src/_includes/design-system/property-contact-block.html`
+**Template:** `src/_includes/design-system/blocks/property-contact.html`
 
 Pages-only block. No parameters. Reads `item` from pagination, overrides the contact form target with the property's formspark_id, and links back to the property page.
 
@@ -1054,7 +1092,7 @@ Pages-only block. No parameters. Reads `item` from pagination, overrides the con
 Renders the page's `faqs` array as a definition list under a 'Frequently Asked Questions' heading.
 
 **Component:** `block_faqs`
-**Template:** `src/_includes/design-system/faqs-block.html`
+**Template:** `src/_includes/design-system/blocks/faqs.html`
 
 Property and guide-page block. No parameters. Reads `faqs` from the page data. Renders nothing when the array is empty.
 
@@ -1065,7 +1103,7 @@ Property and guide-page block. No parameters. Reads `faqs` from the page data. R
 Displays guide categories collection.
 
 **Component:** `block_guide_categories`
-**Template:** `src/_includes/design-system/guide-categories-block.html`
+**Template:** `src/_includes/design-system/blocks/guide-categories.html`
 
 No block-level parameters. Uses the global `collections.guide-categories`.
 
@@ -1076,7 +1114,7 @@ No block-level parameters. Uses the global `collections.guide-categories`.
 Renders a guide page's heading: title and optional subtitle.
 
 **Component:** `block_guide_header`
-**Template:** `src/_includes/design-system/guide-header-block.html`
+**Template:** `src/_includes/design-system/blocks/guide-header.html`
 
 Guide-only block. No parameters. Reads `title` and `subtitle` from the page data.
 
@@ -1087,7 +1125,7 @@ Guide-only block. No parameters. Reads `title` and `subtitle` from the page data
 Renders a 'Back to <category>' breadcrumb link for a guide page.
 
 **Component:** `block_guide_navigation`
-**Template:** `src/_includes/design-system/guide-navigation-block.html`
+**Template:** `src/_includes/design-system/blocks/guide-navigation.html`
 
 Guide-page-only block. No parameters. Renders nothing when the page has no `guide-category` field.
 
@@ -1098,7 +1136,7 @@ Guide-page-only block. No parameters. Renders nothing when the page has no `guid
 Lists the guide pages that belong to the current guide category (filtered via `guidesByCategory`).
 
 **Component:** `block_guide_pages_list`
-**Template:** `src/_includes/design-system/guide-pages-list-block.html`
+**Template:** `src/_includes/design-system/blocks/guide-pages-list.html`
 
 Guide-category-only block. No parameters. Renders nothing when there are no pages in the category.
 
@@ -1109,7 +1147,7 @@ Guide-category-only block. No parameters. Renders nothing when there are no page
 Renders the client-side quote cart UI: page content, quote header, step progress, the cart shell (populated by JS), and the templates pushed to the design-system-base templates slot.
 
 **Component:** `block_quote_cart`
-**Template:** `src/_includes/design-system/quote-cart-block.html`
+**Template:** `src/_includes/design-system/blocks/quote-cart.html`
 
 Pages-only block. No parameters. Used on the `/quote/` page when `cart_mode` is `quote`. Renders nothing visible until the cart JS hydrates.
 
@@ -1120,7 +1158,7 @@ Pages-only block. No parameters. Used on the `/quote/` page when `cart_mode` is 
 Renders the multi-step quote-request form: page content, quote header, step progress, the form (with cart_items / hire_days hidden inputs populated by JS), and the templates pushed to the design-system-base templates slot.
 
 **Component:** `block_quote_checkout`
-**Template:** `src/_includes/design-system/quote-checkout-block.html`
+**Template:** `src/_includes/design-system/blocks/quote-checkout.html`
 
 Pages-only block. No parameters. Used on the `/checkout/` page when `cart_mode` is `quote`. Submits to the configured Formspark form target.
 
@@ -1131,7 +1169,7 @@ Pages-only block. No parameters. Used on the `/checkout/` page when `cart_mode` 
 Standalone centered button linking to an anchor or URL.
 
 **Component:** `block_link_button`
-**Template:** `src/_includes/design-system/link-button.html`
+**Template:** `src/_includes/design-system/blocks/link-button.html`
 **SCSS:** `src/css/design-system/_link-button.scss`
 **HTML root:** `<div class="link-button">`
 
@@ -1150,7 +1188,7 @@ Standalone centered button linking to an anchor or URL.
 Renders reviews collection with optional filtering to the current item.
 
 **Component:** `block_reviews`
-**Template:** `src/_includes/design-system/reviews-block.html`
+**Template:** `src/_includes/design-system/blocks/reviews.html`
 **SCSS:** `src/css/design-system/_reviews.scss`
 
 | Parameter | Type | Default | Description |
@@ -1169,7 +1207,7 @@ Uses `getReviewsFor` filter to match reviews by slug and tags when `current_item
 Image grid with optional aspect ratio cropping and captions.
 
 **Component:** `block_gallery`
-**Template:** `src/_includes/design-system/gallery.html`
+**Template:** `src/_includes/design-system/blocks/gallery.html`
 **SCSS:** `src/css/design-system/_items.scss`
 **HTML root:** `<ul class="items" role="list">`
 
@@ -1187,7 +1225,7 @@ Image grid with optional aspect ratio cropping and captions.
 Continuously scrolling marquee of images (e.g. brand logos, partner badges).
 
 **Component:** `block_marquee_images`
-**Template:** `src/_includes/design-system/marquee-images.html`
+**Template:** `src/_includes/design-system/blocks/marquee-images.html`
 **SCSS:** `src/css/design-system/_marquee-images.scss`
 **HTML root:** `<div class="marquee-images">`
 
@@ -1205,7 +1243,7 @@ Continuously scrolling marquee of images (e.g. brand logos, partner badges).
 Vertical list of links with icons, rendered as a flex column stack.
 
 **Component:** `block_icon_links`
-**Template:** `src/_includes/design-system/icon-links.html`
+**Template:** `src/_includes/design-system/blocks/icon-links.html`
 **SCSS:** `src/css/design-system/_icon-links.scss`
 **HTML root:** `<ul class="icon-links" role="list">`
 
@@ -1222,7 +1260,7 @@ Vertical list of links with icons, rendered as a flex column stack.
 List of downloadable files. Each item auto-detects its icon from the file extension and its size from the filesystem at build time.
 
 **Component:** `block_downloads`
-**Template:** `src/_includes/design-system/downloads.html`
+**Template:** `src/_includes/design-system/blocks/downloads.html`
 **SCSS:** `src/css/design-system/_downloads.scss`
 **HTML root:** `<ul class="downloads" role="list">`
 
@@ -1241,6 +1279,7 @@ The `file` path is resolved against `src/` (e.g. `/files/guide.pdf` reads from `
 Renders blocks from a named snippet file, enabling reusable block compositions.
 
 **Component:** `block_snippet`
+**Template:** `src/_includes/design-system/blocks/snippet.html`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

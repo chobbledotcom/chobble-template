@@ -58,7 +58,6 @@ export const fields = {
 export const docs = {
   summary:
     "Full-width two-panel layout with distinct background colors per side.",
-  template: "src/_includes/design-system/split-full.html",
   scss: "src/css/design-system/_split.scss",
   htmlRoot: '<div class="split-full">',
   notes:

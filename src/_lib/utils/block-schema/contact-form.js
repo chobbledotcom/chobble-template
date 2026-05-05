@@ -13,7 +13,6 @@ export const fields = {
 
 export const docs = {
   summary: "Two-column layout with prose content and a contact form.",
-  template: "src/_includes/design-system/contact-form-block.html",
   scss: "src/css/design-system/_contact-form-block.scss",
   htmlRoot: '<div class="contact-form-block">',
 };

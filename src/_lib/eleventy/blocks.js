@@ -2,7 +2,10 @@ import {
   getLayoutForTags,
   splitBlocksForColumns,
 } from "#utils/block-columns.js";
-import { getBlockContainerWidth } from "#utils/block-schema.js";
+import {
+  getBlockContainerWidth,
+  getBlockTemplate,
+} from "#utils/block-schema.js";
 
 const DESIGN_SYSTEM_LAYOUT = "design-system-base.html";
 
@@ -27,6 +30,7 @@ const validatePageBodyContent = (content, layout, inputPath) => {
 /** @param {{ addFilter: Function }} eleventyConfig */
 export const configureBlocks = (eleventyConfig) => {
   eleventyConfig.addFilter("blockContainerWidth", getBlockContainerWidth);
+  eleventyConfig.addFilter("blockTemplate", getBlockTemplate);
   eleventyConfig.addFilter(
     "splitBlocksForColumns",
     /**

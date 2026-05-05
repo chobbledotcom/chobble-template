@@ -8,6 +8,7 @@ import {
 /* jscpd:ignore-end */
 
 export const type = "split-buy-options";
+export const template = "design-system/split.html";
 
 export const fields = {
   ...SPLIT_BASE_FIELDS,

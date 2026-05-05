@@ -60,7 +60,6 @@ export const SPLIT_BASE_FIELDS = {
 
 /** Shared docs metadata for all split variants. */
 export const SPLIT_BASE_DOCS = {
-  template: "src/_includes/design-system/split.html",
   scss: "src/css/design-system/_split.scss",
   htmlRoot: '<div class="split">',
 };

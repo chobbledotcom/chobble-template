@@ -34,7 +34,6 @@ const STRICT_CLEAN_FILES = [
   "packages/js-toolkit/test-utils/resource.js",
   "src/_data/altTagsLookup.js",
   "src/_data/body-classes.js",
-  "src/_data/categoryOrder.js",
   "src/_data/config.js",
   "src/_data/contact-form.js",
   "src/_data/dietaryIndicators.js",

@@ -7,5 +7,5 @@ Product-only block. No block-level parameters.
 {%- endcomment -%}
 
 {%- if purchase_url and purchase_url != "" -%}
-  {%- include "design-system/link-button.html", text: "Purchase Now", href: purchase_url -%}
+  {%- include "design-system/blocks/link-button.html", text: "Purchase Now", href: purchase_url -%}
 {%- endif -%}

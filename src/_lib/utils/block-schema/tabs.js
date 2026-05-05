@@ -8,7 +8,6 @@ export const fields = {};
 
 export const docs = {
   summary: "Renders the page's `tabs` array as a tabbed content section.",
-  template: "src/_includes/design-system/tabs-block.html",
   notes:
     "Allowed on collections that surface a `tabs` field (products, events, properties). No parameters. Renders nothing when the page has no `tabs`.",
 };

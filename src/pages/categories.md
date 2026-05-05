@@ -2,8 +2,13 @@
 header_text: Categories
 meta_description:
 meta_title: Categories
-layout: categories.html
+layout: design-system-base.html
 permalink: "/categories/"
+blocks:
+  - type: markdown
+    content: |
+      Browse our product categories.
+  - type: items
+    collection: featuredCategories
+    filter_ui_collection: filteredProductPagesListingFilterUI
 ---
-
-Browse our product categories.

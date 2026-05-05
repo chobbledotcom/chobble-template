@@ -19,7 +19,6 @@ export const fields = {
 
 export const docs = {
   summary: "Standalone section header with rich text intro.",
-  template: "src/_includes/design-system/section-header.html",
   scss: "src/css/design-system/_base.scss",
   htmlRoot: '<div class="section-header prose">',
 };

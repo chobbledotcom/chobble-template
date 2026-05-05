@@ -30,6 +30,5 @@ export const fields = {
 
 export const docs = {
   summary: "Image grid with optional aspect ratio cropping and captions.",
-  template: "src/_includes/design-system/gallery.html",
   ...ITEMS_GRID_META,
 };

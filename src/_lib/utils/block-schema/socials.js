@@ -14,7 +14,6 @@ export const fields = {
 export const docs = {
   summary:
     "Renders social-media posts loaded from a directory of JSON files as a card grid or horizontal slider.",
-  template: "src/_includes/design-system/socials-block.html",
   scss: "src/css/design-system/_items.scss",
   notes:
     "Posts are loaded per-block from the given directory, so the same template works for Instagram, Mastodon, or any other source. External `url` values open in a new tab.",

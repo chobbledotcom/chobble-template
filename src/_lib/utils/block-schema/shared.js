@@ -107,16 +107,39 @@ export const IMAGE_ASPECT_RATIO_FIELD = {
   description: 'Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`.',
 };
 
-/** Unified fields shared between items and items-array blocks. */
-export const ITEMS_COMMON_FIELDS = {
+/**
+ * Presentation fields shared by every items-style block (items, items-array,
+ * category-products, …). Anything that controls *how* items render — but not
+ * *which* items — lives here so the blocks stay in lock-step.
+ */
+export const ITEMS_PRESENTATION_FIELDS = {
   intro_content: INTRO_CONTENT_FIELD,
   horizontal: HORIZONTAL_FIELD,
   masonry: MASONRY_FIELD,
+};
+
+/**
+ * Items-style fields plus the generic `filter` selector. Used by blocks that
+ * let editors choose their own items (items, items-array). Sugar blocks like
+ * `category-products` deliberately omit `filter` because they hardcode it.
+ */
+export const ITEMS_COMMON_FIELDS = {
+  ...ITEMS_PRESENTATION_FIELDS,
   filter: {
     ...FILTER_FIELD,
     description:
-      'Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value.',
+      'Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value.',
   },
+};
+
+/**
+ * Field set for "items-style sugar" blocks — those that hardcode the
+ * collection and filter (e.g. `category-products`, `child-categories`) and
+ * only need to expose how items render.
+ */
+export const ITEMS_SUGAR_FIELDS = {
+  ...ITEMS_PRESENTATION_FIELDS,
+  image_aspect_ratio: IMAGE_ASPECT_RATIO_FIELD,
 };
 
 export const REVEAL_BOOLEAN_FIELD = {

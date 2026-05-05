@@ -320,6 +320,9 @@ components:
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
+      - name: filter_ui_collection
+        type: string
+        label: Filter UI Collection
   block_items_array:
     label: Items Array
     type: object
@@ -838,6 +841,33 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+  block_category_products:
+    label: Category Products
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
+      - { name: masonry, type: boolean, label: Masonry Grid }
+      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
+  block_child_categories:
+    label: Child Categories
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
+      - { name: masonry, type: boolean, label: Masonry Grid }
+      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
+  block_news_meta:
+    label: News Meta
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
   products_list:
     label: Products
     type: object
@@ -851,11 +881,6 @@ components:
           search: primary
           value: "{path}"
           label: "{primary}"
-  block_news_meta:
-    label: News Meta
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
   block_event_contact_section:
     label: Event Contact Section
     type: object
@@ -1198,20 +1223,11 @@ content:
           search: primary
           value: "{path}"
           label: "{primary}"
-      - { name: products, component: products_list }
-      - { name: body, type: rich-text, label: Body }
-      - name: below_products
-        type: rich-text
-        label: Below Products Description
       - { name: featured, type: boolean, label: Featured }
       - { name: keywords, type: string, label: Search Keywords, list: true }
       - { name: meta_title, component: meta_title }
       - { name: meta_description, component: meta_description }
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: permalink, type: string, label: Permalink }
-      - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, component: faqs }
-      - { name: gallery, component: gallery }
       - name: blocks
         label: Content Blocks
         type: block
@@ -1222,6 +1238,8 @@ content:
             component: block_bunny_video_background
           - { name: buy-options, component: block_buy_options }
           - { name: callout, component: block_callout }
+          - { name: category-products, component: block_category_products }
+          - { name: child-categories, component: block_child_categories }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
           - { name: cta, component: block_cta }
@@ -1260,6 +1278,10 @@ content:
           - { name: stats, component: block_stats }
           - { name: video-background, component: block_video_background }
           - { name: video-cards, component: block_video_cards }
+      - { name: permalink, type: string, label: Permalink }
+      - { name: redirect_from, type: string, label: Redirect From, list: true }
+      - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
   - name: news
     label: News
     path: src/news
