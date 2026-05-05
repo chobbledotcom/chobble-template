@@ -114,13 +114,29 @@ const addGallery = (item) => {
 };
 
 /**
+ * Normalise data.categories so values are always plain slugs, regardless of
+ * whether the editor used a slug, a path like "categories/foo.md", or a
+ * PagesCMS reference like "src/categories/foo.md".
+ *
+ * @param {ProductCollectionItem} item
+ * @returns {ProductCollectionItem}
+ */
+const normaliseCategorySlugs = (item) => {
+  if (item.data.categories)
+    item.data.categories = item.data.categories.map(normaliseSlug);
+  return item;
+};
+
+const processProduct = (item) => normaliseCategorySlugs(addGallery(item));
+
+/**
  * Create the products collection.
  *
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @returns {ProductCollectionItem[]}
  */
 const createProductsCollection = (collectionApi) =>
-  getProductsFromApi(collectionApi).map(addGallery).sort(sortItems);
+  getProductsFromApi(collectionApi).map(processProduct).sort(sortItems);
 
 /**
  * Create a bidirectional product filter for a given indexer.
@@ -216,7 +232,7 @@ const createApiSkusCollection = (collectionApi) => {
   return Object.fromEntries(allSkuEntries);
 };
 
-const productsWithReviewsPage = withReviewsPage("products", addGallery);
+const productsWithReviewsPage = withReviewsPage("products", processProduct);
 const productReviewsRedirects = reviewsRedirects("products");
 
 /**

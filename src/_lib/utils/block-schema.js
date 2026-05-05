@@ -19,6 +19,8 @@ import * as addToCart from "#utils/block-schema/add-to-cart.js";
 import * as bunnyVideoBackground from "#utils/block-schema/bunny-video-background.js";
 import * as buyOptions from "#utils/block-schema/buy-options.js";
 import * as callout from "#utils/block-schema/callout.js";
+import * as categoryProducts from "#utils/block-schema/category-products.js";
+import * as childCategories from "#utils/block-schema/child-categories.js";
 import * as codeBlock from "#utils/block-schema/code-block.js";
 import * as contactForm from "#utils/block-schema/contact-form.js";
 import * as cta from "#utils/block-schema/cta.js";
@@ -110,6 +112,8 @@ const BLOCK_MODULES = [
   items,
   itemsArray,
   itemsTextList,
+  categoryProducts,
+  childCategories,
   menu,
   menuPdfDownload,
   socials,

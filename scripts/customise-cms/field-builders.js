@@ -14,7 +14,6 @@ import { generateBlocksField } from "#scripts/customise-cms/blocks.js";
 import {
   COMMON_FIELDS,
   createEleventyNavigationField,
-  createMarkdownField,
   createObjectListField,
   createReferenceField,
   KEYWORDS_FIELD,
@@ -86,28 +85,24 @@ export const getCollectionFieldBuilders = (config, fields) => ({
       ),
     ]),
 
-  categories: () => {
-    const enabled = memberOf(config.collections);
-    return compact([
+  categories: () =>
+    compact([
       COMMON_FIELDS.title,
       COMMON_FIELDS.thumbnail,
       config.features.parent_categories &&
         createReferenceField("parent", "Parent Category", "categories", false),
-      productsRefList(enabled),
-      fields.body,
-      config.features.below_products &&
-        createMarkdownField(
-          "below_products",
-          "Below Products Description",
-          config.features.use_visual_editor,
-        ),
       COMMON_FIELDS.featured,
       config.features.keywords && KEYWORDS_FIELD,
       ...getHeaderFields(config),
       ...META_FIELDS,
       COMMON_FIELDS.subtitle,
-    ]);
-  },
+      generateBlocksField(
+        Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
+          isBlockAllowedIn(type, "categories"),
+        ),
+        config.features.use_visual_editor,
+      ),
+    ]),
 
   team: () =>
     compact([

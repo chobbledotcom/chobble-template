@@ -87,4 +87,37 @@ describe("filterItems", () => {
     });
     expect(result).toEqual([]);
   });
+
+  describe("array-valued property", () => {
+    const withCats = (url, categories) => ({ url, data: { categories } });
+    const filterByCategory = (items, op) =>
+      filterItems(items, { property: "data.categories", ...op }).map(
+        (i) => i.url,
+      );
+
+    test("equals matches exact element in array", () => {
+      const items = [
+        withCats("/a/", ["pocket-widgets", "widgets"]),
+        withCats("/b/", ["pocket-widgets"]),
+        withCats("/c/", ["doodahs"]),
+      ];
+      expect(filterByCategory(items, { equals: "widgets" })).toEqual(["/a/"]);
+    });
+
+    test("equals does not match substring of array element", () => {
+      const items = [
+        withCats("/a/", ["premium-widgets"]),
+        withCats("/b/", ["widgets"]),
+      ];
+      expect(filterByCategory(items, { equals: "widgets" })).toEqual(["/b/"]);
+    });
+
+    test("includes matches substring of any array element", () => {
+      const items = [
+        withCats("/a/", ["premium-widgets"]),
+        withCats("/b/", ["doodahs"]),
+      ];
+      expect(filterByCategory(items, { includes: "widget" })).toEqual(["/a/"]);
+    });
+  });
 });
