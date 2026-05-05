@@ -52,7 +52,11 @@
 		"happy-dom": "^20.9.0",
 		"jscpd": "^4.0.9",
 		"knip": "^5.88.1",
+		"postcss-scss": "^4.0.9",
+		"stylelint": "^17.10.0",
 		"stylelint-config-clean-order": "^8.0.1",
+		"stylelint-config-standard-scss": "^17.0.0",
+		"stylelint-order": "^8.1.1",
 		"typescript": "^5.9.3",
 		"zod": "^3.25.76"
 	},
