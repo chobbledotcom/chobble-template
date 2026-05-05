@@ -20,7 +20,7 @@ onReady(() => {
   const container = document.querySelector("[data-filter-container]");
   if (!container) return;
 
-  const list = container.closest(".products-layout")?.querySelector(".items");
+  const list = container.parentElement?.querySelector(".items");
   if (!list) return;
 
   const lis = list.querySelectorAll("li[data-filter-item]");
