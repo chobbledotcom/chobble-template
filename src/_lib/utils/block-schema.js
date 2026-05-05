@@ -63,7 +63,7 @@ import * as productGallery from "#utils/block-schema/product-gallery.js";
 import * as productHeader from "#utils/block-schema/product-header.js";
 import * as productMeta from "#utils/block-schema/product-meta.js";
 import * as productSpecs from "#utils/block-schema/product-specs.js";
-import * as productTabs from "#utils/block-schema/product-tabs.js";
+import * as tabs from "#utils/block-schema/tabs.js";
 import * as properties from "#utils/block-schema/properties.js";
 import * as propertyContact from "#utils/block-schema/property-contact.js";
 import * as propertyContactSection from "#utils/block-schema/property-contact-section.js";
@@ -74,7 +74,6 @@ import * as propertyGuides from "#utils/block-schema/property-guides.js";
 import * as propertyHeader from "#utils/block-schema/property-header.js";
 import * as propertyMap from "#utils/block-schema/property-map.js";
 import * as propertySpecs from "#utils/block-schema/property-specs.js";
-import * as propertyTabs from "#utils/block-schema/property-tabs.js";
 import * as purchaseLink from "#utils/block-schema/purchase-link.js";
 import * as quoteCart from "#utils/block-schema/quote-cart.js";
 import * as quoteCheckout from "#utils/block-schema/quote-checkout.js";
@@ -142,7 +141,7 @@ const BLOCK_MODULES = [
   productMeta,
   hirePricing,
   purchaseLink,
-  productTabs,
+  tabs,
   productAddOns,
   productFeatures,
   productSpecs,
@@ -161,7 +160,6 @@ const BLOCK_MODULES = [
   propertyFeatures,
   propertyGuides,
   propertySpecs,
-  propertyTabs,
   propertyMap,
   propertyContactSection,
   propertyContact,

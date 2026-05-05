@@ -7,6 +7,6 @@ blocks:
   - type: hire-pricing
   - type: add-to-cart
   - type: purchase-link
-  - type: product-tabs
+  - type: tabs
   - type: product-add-ons
 ---

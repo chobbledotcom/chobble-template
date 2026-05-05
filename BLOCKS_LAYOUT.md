@@ -802,14 +802,14 @@ Product-only block. No parameters. Renders nothing when `purchase_url` is not se
 
 ---
 
-### `product-tabs`
+### `tabs`
 
-Renders the product's `tabs` array as a tabbed content section.
+Renders the page's `tabs` array as a tabbed content section.
 
-**Component:** `block_product_tabs`
-**Template:** `src/_includes/design-system/product-tabs-block.html`
+**Component:** `block_tabs`
+**Template:** `src/_includes/design-system/tabs-block.html`
 
-Product-only block. No parameters. Renders nothing when the page has no `tabs`.
+Allowed on collections that surface a `tabs` field (products, events, properties). No parameters. Renders nothing when the page has no `tabs`.
 
 ---
 
@@ -1013,17 +1013,6 @@ Renders the property's `specs` array as a specifications grid under a 'Specifica
 **Template:** `src/_includes/design-system/property-specs-block.html`
 
 Property-only block. No parameters. Renders nothing when the page has no `specs`.
-
----
-
-### `property-tabs`
-
-Renders the property's `tabs` array as a tabbed content section.
-
-**Component:** `block_property_tabs`
-**Template:** `src/_includes/design-system/property-tabs-block.html`
-
-Property-only block. No parameters. Renders nothing when the page has no `tabs`.
 
 ---
 

@@ -1,8 +1,8 @@
 {%- comment -%}
-Product-tabs block - renders the product's `tabs` array as a tabbed
-content section. Renders nothing when there are no tabs.
+Tabs block - renders the page's `tabs` array as a tabbed content section.
+Renders nothing when there are no tabs.
 
-Product-only block. No block-level parameters.
+No block-level parameters. Reads `tabs` from the page data.
 {%- endcomment -%}
 
 {%- if tabs.size > 0 -%}
