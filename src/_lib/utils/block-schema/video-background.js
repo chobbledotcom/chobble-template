@@ -20,7 +20,6 @@ export const fields = {
 
 export const docs = {
   summary: "Auto-playing video background with overlaid text content.",
-  template: "src/_includes/design-system/video-background.html",
   scss: "src/css/design-system/_video-background.scss",
   htmlRoot: '<div class="video-background">',
   notes:

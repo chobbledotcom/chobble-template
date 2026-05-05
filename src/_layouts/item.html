@@ -24,7 +24,7 @@ layout: base
       <div class="prose">{{ content }}</div>
       {% include "item-features-list.html" %}
       {% include "item-specifications-list.html", highlights: true %}
-      {%- include "design-system/reviews-block.html", current_item: true -%}
+      {%- include "design-system/blocks/reviews.html", current_item: true -%}
     </div>
     {%- include "faq.html" -%}
     {%- if blocks -%}

@@ -13,5 +13,5 @@ export const fields = {
 export const docs = {
   summary: "Includes an arbitrary template file.",
   notes:
-    "Inline in `render-block.html` — uses `{% include block.file %}`. Escape hatch for custom content that doesn't fit the block system.",
+    "Escape hatch for custom content that doesn't fit the block system. The `file` value is passed straight to `{% include %}`.",
 };

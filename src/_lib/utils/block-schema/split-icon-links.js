@@ -5,6 +5,7 @@ import {
 } from "#utils/block-schema/split-shared.js";
 
 export const type = "split-icon-links";
+export const template = "design-system/split.html";
 
 export const fields = {
   ...SPLIT_BASE_FIELDS,

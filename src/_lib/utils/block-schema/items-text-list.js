@@ -15,5 +15,4 @@ export const fields = {
 export const docs = {
   summary:
     "Renders a collection as a comma-separated inline list of links, with optional introductory markdown text prepended. Excludes the current page from the list.",
-  template: "src/_includes/design-system/items-text-list.html",
 };

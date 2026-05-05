@@ -30,7 +30,6 @@ export const fields = imageCardGridFields({
 export const docs = {
   summary:
     "Grid of buyable products — image, title, optional subtitle, price, and a buy button. Emits schema.org Product microdata.",
-  template: "src/_includes/design-system/buy-options.html",
   ...ITEMS_GRID_META,
   notes:
     'Each item renders as a `<li>` with `itemscope itemtype="https://schema.org/Product"`. The price is emitted as a nested `Offer` with `priceCurrency` (defaults to `GBP`). Use this block when the buy action is external (Stripe, itch.io, Gumroad); for sitewide shop listings, use the `items` block with a `products` collection.',

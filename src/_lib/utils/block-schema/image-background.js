@@ -31,7 +31,6 @@ export const fields = {
 export const docs = {
   summary:
     "Full-width image background with overlaid text and optional parallax.",
-  template: "src/_includes/design-system/image-background.html",
   scss: "src/css/design-system/_image-background.scss",
   htmlRoot: '<div class="image-background">',
   notes:

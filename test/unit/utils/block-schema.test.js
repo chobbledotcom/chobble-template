@@ -3,6 +3,7 @@ import {
   BLOCK_DOCS,
   BLOCK_SCHEMAS,
   getBlockContainerWidth,
+  getBlockTemplate,
   validateBlocks,
 } from "#utils/block-schema.js";
 
@@ -269,5 +270,34 @@ describe("getBlockContainerWidth", () => {
 
   test("defaults unknown block types to wide", () => {
     expect(getBlockContainerWidth("not-a-real-block")).toBe("wide");
+  });
+});
+
+describe("getBlockTemplate", () => {
+  test("derives the include-relative path from the block type", () => {
+    expect(getBlockTemplate("hero")).toBe("design-system/blocks/hero.html");
+    expect(getBlockTemplate("section-header")).toBe(
+      "design-system/blocks/section-header.html",
+    );
+  });
+
+  test("honors the per-module template override (split-* variants)", () => {
+    for (const type of [
+      "split-image",
+      "split-video",
+      "split-code",
+      "split-icon-links",
+      "split-html",
+      "split-buy-options",
+    ]) {
+      expect(getBlockTemplate(type)).toBe("design-system/split.html");
+    }
+  });
+
+  test("throws on unknown block types and lists valid ones", () => {
+    expect(() => getBlockTemplate("not-a-real-block")).toThrow(
+      'Unknown block type "not-a-real-block"',
+    );
+    expect(() => getBlockTemplate("not-a-real-block")).toThrow("Valid types:");
   });
 });

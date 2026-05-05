@@ -64,9 +64,9 @@ Parameters (via block object):
           <figcaption>{{ block.figure_caption }}</figcaption>
         {%- endif -%}
       {%- when "split-code" -%}
-        {%- include "design-system/code-block.html", filename: block.figure_filename, code: block.figure_code, language: block.figure_language -%}
+        {%- include "design-system/blocks/code-block.html", filename: block.figure_filename, code: block.figure_code, language: block.figure_language -%}
       {%- when "split-icon-links" -%}
-        {%- include "design-system/icon-links.html", items: block.figure_items -%}
+        {%- include "design-system/blocks/icon-links.html", items: block.figure_items -%}
       {%- when "split-html" -%}
         {{ block.figure_html }}
       {%- when "split-buy-options" -%}

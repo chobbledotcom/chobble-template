@@ -12,7 +12,11 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
 import { COLUMN_DISALLOWED_TYPES } from "#utils/block-columns.js";
-import { BLOCK_DOCS, BLOCK_SCHEMAS } from "#utils/block-schema.js";
+import {
+  BLOCK_DOCS,
+  BLOCK_SCHEMAS,
+  getBlockTemplate,
+} from "#utils/block-schema.js";
 
 const BLOCKS_LAYOUT_PATH = join(ROOT_DIR, "BLOCKS_LAYOUT.md");
 
@@ -38,7 +42,7 @@ const renderMetaLines = (doc, type) => {
   const lines = [];
   const component = `block_${type.replaceAll("-", "_")}`;
   lines.push(`**Component:** \`${component}\``);
-  if (doc.template) lines.push(`**Template:** \`${doc.template}\``);
+  lines.push(`**Template:** \`src/_includes/${getBlockTemplate(type)}\``);
   if (doc.scss) lines.push(`**SCSS:** \`${doc.scss}\``);
   if (doc.htmlRoot) lines.push(`**HTML root:** \`${doc.htmlRoot}\``);
   lines.push("");

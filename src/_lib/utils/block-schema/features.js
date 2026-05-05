@@ -34,7 +34,6 @@ export const fields = {
 export const docs = {
   summary:
     "Grid of feature cards with optional icons, titles, and descriptions.",
-  template: "src/_includes/design-system/features.html",
   scss: "src/css/design-system/_feature.scss",
   htmlRoot:
     '<ul class="features" role="list"> containing <li><article class="feature"> items',

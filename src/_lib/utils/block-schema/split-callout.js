@@ -31,7 +31,6 @@ export const fields = {
 export const docs = {
   summary:
     "Two-column layout with text content and a styled callout box with icon, title, and subtitle.",
-  template: "src/_includes/design-system/split-callout.html",
   scss: "src/css/design-system/_split-callout.scss",
   htmlRoot: '<div class="split-callout">',
 };

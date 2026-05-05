@@ -27,7 +27,6 @@ export const fields = {
 
 export const docs = {
   summary: "Terminal-style code display with macOS-like toolbar header.",
-  template: "src/_includes/design-system/code-block.html",
   scss: "src/css/design-system/_code-block.scss",
   htmlRoot: '<div class="code-block">',
 };

@@ -7,6 +7,7 @@ import {
 /* jscpd:ignore-end */
 
 export const type = "split-image";
+export const template = "design-system/split.html";
 
 export const fields = {
   ...SPLIT_BASE_FIELDS,
