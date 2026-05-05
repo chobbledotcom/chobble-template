@@ -714,8 +714,11 @@ nav {
       }
 
       &.two-columns main {
-        grid-template:
-          "nav content" 1fr "nav right" min-content / 10rem 1fr;
+        grid-template-areas:
+          "nav content"
+          "nav right";
+        grid-template-columns: 10rem 1fr;
+        grid-template-rows: 1fr min-content;
 
         @include breakpoints.up("lg") {
           grid-template-areas: "nav content right";
@@ -991,36 +994,6 @@ ul.image-gallery {
   }
 }
 
-ul.team {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-
-  li {
-    margin: 2rem 0;
-    padding: 0;
-
-    &::after {
-      content: "";
-      clear: both;
-      display: block;
-    }
-
-    &.has-image {
-      position: relative;
-      min-height: 10rem;
-      padding-left: 11rem;
-
-      .image-link {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 10rem;
-      }
-    }
-  }
-}
-
 dl {
   dt {
     font-weight: bold;
@@ -1028,15 +1001,6 @@ dl {
 }
 
 body {
-  &.team-member {
-    .content {
-      .image-wrapper {
-        width: 50%;
-        margin: 2rem auto;
-      }
-    }
-  }
-
   &.item {
     .current-image {
       margin-bottom: 1rem;

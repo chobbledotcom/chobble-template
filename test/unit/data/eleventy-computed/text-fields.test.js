@@ -40,21 +40,12 @@ describe("eleventyComputed.description", () => {
     expect(
       eleventyComputed.description({
         description: "Main description",
-        snippet: "Snippet",
+        meta_description: "Meta desc",
       }),
     ).toBe("Main description");
   });
 
-  test("falls back to snippet when description is not set", () => {
-    expect(
-      eleventyComputed.description({
-        snippet: "Snippet text",
-        meta_description: "Meta desc",
-      }),
-    ).toBe("Snippet text");
-  });
-
-  test("falls back to meta_description when description and snippet are not set", () => {
+  test("falls back to meta_description when description is not set", () => {
     expect(
       eleventyComputed.description({ meta_description: "Meta description" }),
     ).toBe("Meta description");

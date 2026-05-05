@@ -3,8 +3,8 @@
  *
  * These collections don't follow the standard "item" layout (title, subtitle,
  * thumbnail, body, meta). Instead each one has a bespoke field list — e.g.
- * `pages` carries layout and navigation fields, `team` has a role and profile
- * image, `snippets` is just name + body.
+ * `pages` carries layout and navigation fields, `team` has an order and
+ * biography, `snippets` is just name + body.
  *
  * The reusable `categoriesRef` and `productsRefList` helpers are also exported
  * here for use by the item-based builders in `item-builders.js`.
@@ -114,8 +114,7 @@ export const getCollectionFieldBuilders = (config, fields) => ({
       COMMON_FIELDS.title,
       COMMON_FIELDS.thumbnail,
       COMMON_FIELDS.order,
-      { name: "snippet", type: "string", label: "Role" },
-      { name: "image", type: "image", label: "Profile Image" },
+      COMMON_FIELDS.subtitle,
       config.features.header_images && COMMON_FIELDS.header_image,
       fields.bodyWithLabel("Biography"),
     ]),
