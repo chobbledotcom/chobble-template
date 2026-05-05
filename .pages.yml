@@ -801,6 +801,17 @@ components:
       - { name: horizontal, type: boolean, label: Horizontal Slider }
       - { name: masonry, type: boolean, label: Masonry Grid }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
+  block_child_categories:
+    label: Child Categories
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
+      - { name: masonry, type: boolean, label: Masonry Grid }
+      - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
   block_news_meta:
     label: News Meta
     type: object
@@ -1141,6 +1152,7 @@ content:
           - { name: buy-options, component: block_buy_options }
           - { name: callout, component: block_callout }
           - { name: category-products, component: block_category_products }
+          - { name: child-categories, component: block_child_categories }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
           - { name: cta, component: block_cta }

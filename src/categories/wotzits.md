@@ -8,10 +8,6 @@ blocks:
       # Wotzits
 
       Shop our collection of stylish wotzits for every environment and function.
-  - type: items
-    collection: categories
-    filter:
-      property: data.parent
-      equals: wotzits
+  - type: child-categories
   - type: category-products
 ---

@@ -8,10 +8,6 @@ blocks:
       # Widgets
 
       Browse our selection of high-quality widgets, from pocket gizmos and premium widgets to smart space enhancers.
-  - type: items
-    collection: categories
-    filter:
-      property: data.parent
-      equals: widgets
+  - type: child-categories
   - type: category-products
 ---

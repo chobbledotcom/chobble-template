@@ -1,16 +1,12 @@
-import {
-  IMAGE_ASPECT_RATIO_FIELD,
-  ITEMS_PRESENTATION_FIELDS,
-} from "#utils/block-schema/shared.js";
+import { ITEMS_SUGAR_FIELDS } from "#utils/block-schema/shared.js";
 
 export const type = "category-products";
 
+/* jscpd:ignore-start */
 export const collections = ["categories"];
 
-export const fields = {
-  ...ITEMS_PRESENTATION_FIELDS,
-  image_aspect_ratio: IMAGE_ASPECT_RATIO_FIELD,
-};
+export const fields = ITEMS_SUGAR_FIELDS;
+/* jscpd:ignore-end */
 
 export const docs = {
   summary:

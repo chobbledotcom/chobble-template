@@ -8,10 +8,6 @@ blocks:
       # Thingies
 
       Discover our extensive range of thingies, from smart connected models to timeless classic designs that never go out of style.
-  - type: items
-    collection: categories
-    filter:
-      property: data.parent
-      equals: thingies
+  - type: child-categories
   - type: category-products
 ---

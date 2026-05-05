@@ -583,6 +583,24 @@ Categories-only block. Equivalent to an `items` block with `collection: products
 
 ---
 
+### `child-categories`
+
+Lists every direct child category of the current category. Renders nothing when the category has no children.
+
+**Component:** `block_child_categories`
+**Template:** `src/_includes/design-system/child-categories-block.html`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
+| `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
+| `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+
+Categories-only block. Equivalent to an `items` block with `collection: categories` and `filter: { property: "data.parent", equals: "<page.fileSlug>" }` — exposed as a single block so editors don't have to wire those settings up themselves. Accepts the same presentation fields as `items` (`intro_content`, `horizontal`, `masonry`, `image_aspect_ratio`).
+
+---
+
 ### `menu`
 
 Renders the current menu page's categories, items, dietary key legend and PDF download link. Designed for files in the `menus` collection.

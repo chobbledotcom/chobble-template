@@ -132,6 +132,16 @@ export const ITEMS_COMMON_FIELDS = {
   },
 };
 
+/**
+ * Field set for "items-style sugar" blocks — those that hardcode the
+ * collection and filter (e.g. `category-products`, `child-categories`) and
+ * only need to expose how items render.
+ */
+export const ITEMS_SUGAR_FIELDS = {
+  ...ITEMS_PRESENTATION_FIELDS,
+  image_aspect_ratio: IMAGE_ASPECT_RATIO_FIELD,
+};
+
 export const REVEAL_BOOLEAN_FIELD = {
   type: "boolean",
   default: "true",
