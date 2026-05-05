@@ -28,7 +28,6 @@ const DEFAULTS = frozenObject({
   list_item_fields: ["link", "subtitle", "thumbnail"],
   nav_thumbnails: false,
   navigation_content_anchor: false,
-  category_order: null,
   screenshots: {},
   design_system_layouts: ["design-system-base.html"],
   phoneNumberLength: 11,

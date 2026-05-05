@@ -17,7 +17,6 @@ const DISABLED_FEATURES = {
   header_images: false,
   event_locations_and_dates: false,
   use_visual_editor: false,
-  below_products: false,
   use_blocks: false,
 };
 
@@ -351,29 +350,6 @@ describe("generatePagesYaml add_ons", () => {
     const addOnsSection = withEditor.substring(addOnsStart, addOnsStart + 500);
 
     expect(addOnsSection).toContain("type: rich-text");
-  });
-});
-
-describe("generatePagesYaml below_products", () => {
-  test("categories include below_products when enabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "categories"],
-        features: { below_products: true },
-      }),
-    );
-    const section = getSection("categories")(yaml);
-
-    expect(section).toContain("name: below_products");
-  });
-
-  test("categories exclude below_products when disabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({ collections: ["pages", "categories"] }),
-    );
-    const section = getSection("categories")(yaml);
-
-    expect(section).not.toContain("name: below_products");
   });
 });
 

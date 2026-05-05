@@ -23,7 +23,23 @@ const getNestedProperty = (obj, path) =>
  */
 
 /**
+ * Match a single non-array value against a filter config.
+ * @param {unknown} value
+ * @param {FilterConfig} filterConfig
+ */
+const matchesValue = (value, filterConfig) => {
+  const stringValue = String(value);
+  if (filterConfig.includes !== undefined)
+    return stringValue.includes(filterConfig.includes);
+  return stringValue === filterConfig.equals;
+};
+
+/**
  * Filters a collection of Eleventy items based on a filter config object.
+ *
+ * When the resolved property value is an array, the filter matches if any
+ * element matches the operator (per-element exact match for `equals`,
+ * per-element substring for `includes`).
  *
  * @param {Record<string, unknown>[]} items - Eleventy collection items
  * @param {FilterConfig} filterConfig - Filter configuration
@@ -50,10 +66,9 @@ const filterItems = (items, filterConfig) => {
   return items.filter((item) => {
     const value = getNestedProperty(item, filterConfig.property);
     if (value === undefined || value === null) return false;
-    const stringValue = String(value);
-    if (filterConfig.includes !== undefined)
-      return stringValue.includes(filterConfig.includes);
-    return stringValue === filterConfig.equals;
+    if (Array.isArray(value))
+      return value.some((v) => matchesValue(v, filterConfig));
+    return matchesValue(value, filterConfig);
   });
 };
 

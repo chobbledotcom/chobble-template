@@ -23,8 +23,7 @@ This directory contains all the HTML layouts used by the Chobble Template. Each 
 
 ### Products & Categories
 - **`products.html`** - Product listing page showing all products
-- **`categories.html`** - Category listing page
-- **`category.html`** - Individual category page showing related products
+- Categories use `design-system-base.html` with blocks (e.g. `items` with a `data.categories` filter and `filter_ui_collection: categoryListingFilterUI`).
 
 ### Events
 - **`events.html`** - Events listing page

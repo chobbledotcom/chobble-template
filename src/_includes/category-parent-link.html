@@ -1,6 +1,0 @@
-{% if parent %}
-  {% assign parentCategory = collections.categories | getBySlug: parent %}
-  <a href="{{ parentCategory.url }}/">
-    Back to {{ parentCategory.data.title }}
-  </a>
-{% endif %}

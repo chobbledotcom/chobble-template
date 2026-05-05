@@ -526,8 +526,9 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+| `filter_ui_collection` | string | — | Optional name of a collection providing the client-side filter UI. When the collection is keyed by `page.fileSlug` (e.g. `categoryListingFilterUI`), the matching entry is used. Otherwise the collection itself is treated as a flat filter UI (e.g. `filteredProductPagesListingFilterUI`). When set, wraps the items in the products-layout sidebar. |
 
 ---
 
@@ -545,7 +546,7 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 
 ---
@@ -608,7 +609,7 @@ Renders social-media posts loaded from a directory of JSON files as a card grid 
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 
 Posts are loaded per-block from the given directory, so the same template works for Instagram, Mastodon, or any other source. External `url` values open in a new tab.
 
@@ -626,7 +627,7 @@ Renders a collection as a plain-text unordered list of links arranged in respons
 |---|---|---|---|
 | `collection` | string | **required** | Name of an Eleventy collection (e.g. `"locations"`, `"services"`). |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). `includes` matches substring, `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 | `remove_text` | string | — | Regex pattern (JavaScript syntax, global flag implied). Each match is removed from every link's display text and the result is trimmed. Useful for stripping repetitive prefixes like `"Service in "` so links render tidier. |
 
 ---
