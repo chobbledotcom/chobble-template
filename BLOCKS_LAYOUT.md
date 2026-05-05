@@ -565,6 +565,17 @@ Renders a collection as a comma-separated inline list of links, with optional in
 
 ---
 
+### `category-products`
+
+Lists every product tagged with the current category, with the client-side filter sidebar.
+
+**Component:** `block_category_products`
+**Template:** `src/_includes/design-system/category-products-block.html`
+
+Categories-only block. No parameters. Equivalent to an `items` block with `collection: products`, a `data.categories equals page.fileSlug` filter, and `filter_ui_collection: categoryListingFilterUI` — exposed as a single block so editors don't have to wire those settings up themselves.
+
+---
+
 ### `menu`
 
 Renders the current menu page's categories, items, dietary key legend and PDF download link. Designed for files in the `menus` collection.

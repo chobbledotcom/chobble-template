@@ -1,0 +1,15 @@
+{%- comment -%}
+Category products block: lists every product tagged with the current
+category and wraps them in the products-layout sidebar with the matching
+client-side filter UI. No block-level parameters — reads `page.fileSlug`.
+
+Equivalent to an `items` block with `collection: products`,
+`filter: { property: "data.categories", equals: "<page.fileSlug>" }`, and
+`filter_ui_collection: categoryListingFilterUI`.
+{%- endcomment -%}
+
+{%- assign categoryProducts = collections.products | getProductsByCategory: page.fileSlug -%}
+{%- assign filterUI = collections.categoryListingFilterUI[page.fileSlug] -%}
+{%- include "products-layout-start.html", filterUI: filterUI -%}
+{%- include "items.html", items: categoryProducts -%}
+{%- include "products-layout-end.html" -%}

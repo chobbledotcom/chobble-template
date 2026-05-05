@@ -13,10 +13,5 @@ blocks:
 
       Discover our range of premium widgets, from simple options to high-performance models for professionals.
   - type: faqs
-  - type: items
-    collection: products
-    filter:
-      property: data.categories
-      equals: premium-widgets
-    filter_ui_collection: categoryListingFilterUI
+  - type: category-products
 ---

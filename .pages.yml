@@ -790,6 +790,11 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+  block_category_products:
+    label: Category Products
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
   block_news_meta:
     label: News Meta
     type: object
@@ -1129,6 +1134,7 @@ content:
             component: block_bunny_video_background
           - { name: buy-options, component: block_buy_options }
           - { name: callout, component: block_callout }
+          - { name: category-products, component: block_category_products }
           - { name: code-block, component: block_code_block }
           - { name: contact-form, component: block_contact_form }
           - { name: cta, component: block_cta }

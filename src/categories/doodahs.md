@@ -13,10 +13,5 @@ blocks:
     filter:
       property: data.parent
       equals: doodahs
-  - type: items
-    collection: products
-    filter:
-      property: data.categories
-      equals: doodahs
-    filter_ui_collection: categoryListingFilterUI
+  - type: category-products
 ---

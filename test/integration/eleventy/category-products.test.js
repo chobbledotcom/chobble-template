@@ -7,16 +7,12 @@ const widgetProduct = {
   content: "A test widget product.",
 };
 
-const widgetsItemsBlock = {
-  type: "items",
-  collection: "products",
-  filter: { property: "data.categories", equals: "widgets" },
-};
+const categoryProductsBlock = { type: "category-products" };
 
 const categoryWithProduct = [
   {
     path: "categories/widgets.md",
-    frontmatter: { title: "Widgets", blocks: [widgetsItemsBlock] },
+    frontmatter: { title: "Widgets", blocks: [categoryProductsBlock] },
     content: "",
   },
   {
@@ -34,7 +30,7 @@ describe("category-products", () => {
         title: "Widgets",
         blocks: [
           { type: "markdown", content: "Category description." },
-          widgetsItemsBlock,
+          categoryProductsBlock,
         ],
       },
       content: "",

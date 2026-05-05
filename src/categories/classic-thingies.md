@@ -8,10 +8,5 @@ blocks:
       # Classic Thingies
 
       Shop our collection of classic thingies featuring time-tested designs, premium materials, and the reliability that has made them favorites for generations.
-  - type: items
-    collection: products
-    filter:
-      property: data.categories
-      equals: classic-thingies
-    filter_ui_collection: categoryListingFilterUI
+  - type: category-products
 ---

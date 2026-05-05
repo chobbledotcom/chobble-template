@@ -13,10 +13,5 @@ blocks:
     filter:
       property: data.parent
       equals: widgets
-  - type: items
-    collection: products
-    filter:
-      property: data.categories
-      equals: widgets
-    filter_ui_collection: categoryListingFilterUI
+  - type: category-products
 ---
