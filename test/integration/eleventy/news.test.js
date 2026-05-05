@@ -34,17 +34,18 @@ const newsPostFile = (slug, title, { author, ...extras } = {}) => ({
  * Create a team member file for test site
  * @param {string} slug - Team member slug
  * @param {string} name - Team member name
- * @param {Object} options - Additional frontmatter (image, snippet, etc.)
+ * @param {Object} options - Additional frontmatter (thumbnail, subtitle, etc.)
  */
-const teamMember = (slug, name, { image, ...extras } = {}) => ({
+const teamMember = (slug, name, { thumbnail, ...extras } = {}) => ({
   path: `team/${slug}.md`,
   frontmatter: {
     title: name,
-    snippet: extras.snippet ?? `${name} bio snippet`,
-    ...(image && { image: `src/images/${image}` }),
+    subtitle: extras.subtitle ?? `${name} bio subtitle`,
+    ...(thumbnail && { thumbnail: `src/images/${thumbnail}` }),
+    blocks: [{ type: "markdown", content: `${name} bio.` }],
     ...extras,
   },
-  content: `${name} bio.`,
+  content: "",
 });
 
 /**
@@ -68,8 +69,9 @@ const getContentHtml = async (site, slug) => {
  * Extract images from test files (for images array)
  */
 const extractImages = pipe(
-  filter((file) => file.frontmatter?.image),
-  (files) => files.map((f) => f.frontmatter.image.replace("src/images/", "")),
+  filter((file) => file.frontmatter?.thumbnail),
+  (files) =>
+    files.map((f) => f.frontmatter.thumbnail.replace("src/images/", "")),
 );
 
 /**
@@ -130,7 +132,9 @@ describe("news", () => {
       newsPostFile("with-author-image", "Post With Author and Image", {
         author: "jane-doe",
       }),
-      teamMember("jane-doe", "Jane Doe", { image: "placeholders/blue.svg" }),
+      teamMember("jane-doe", "Jane Doe", {
+        thumbnail: "placeholders/blue.svg",
+      }),
 
       // Post with author but no image
       newsPostFile("with-author-no-image", "Post With Author No Image", {

@@ -72,8 +72,7 @@ export default {
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {string} Description
    */
-  description: (data) =>
-    data.description || data.snippet || data.meta_description || "",
+  description: (data) => data.description || data.meta_description || "",
 
   /**
    * Override filter_attributes with mock values in FAST_INACCURATE_BUILDS mode.
@@ -131,7 +130,7 @@ export default {
       data.header_image,
     ]);
     if (image) return image;
-    if (hasTag(data, "reviews")) return null;
+    if (hasTag(data, "reviews") || hasTag(data, "team")) return null;
     const config = data.config || getConfig();
     if (!config.placeholder_images) return null;
     const url = data.page?.url;
