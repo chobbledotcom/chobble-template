@@ -107,11 +107,24 @@ export const IMAGE_ASPECT_RATIO_FIELD = {
   description: 'Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`.',
 };
 
-/** Unified fields shared between items and items-array blocks. */
-export const ITEMS_COMMON_FIELDS = {
+/**
+ * Presentation fields shared by every items-style block (items, items-array,
+ * category-products, …). Anything that controls *how* items render — but not
+ * *which* items — lives here so the blocks stay in lock-step.
+ */
+export const ITEMS_PRESENTATION_FIELDS = {
   intro_content: INTRO_CONTENT_FIELD,
   horizontal: HORIZONTAL_FIELD,
   masonry: MASONRY_FIELD,
+};
+
+/**
+ * Items-style fields plus the generic `filter` selector. Used by blocks that
+ * let editors choose their own items (items, items-array). Sugar blocks like
+ * `category-products` deliberately omit `filter` because they hardcode it.
+ */
+export const ITEMS_COMMON_FIELDS = {
+  ...ITEMS_PRESENTATION_FIELDS,
   filter: {
     ...FILTER_FIELD,
     description:

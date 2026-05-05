@@ -572,7 +572,14 @@ Lists every product tagged with the current category, with the client-side filte
 **Component:** `block_category_products`
 **Template:** `src/_includes/design-system/category-products-block.html`
 
-Categories-only block. No parameters. Equivalent to an `items` block with `collection: products`, a `data.categories equals page.fileSlug` filter, and `filter_ui_collection: categoryListingFilterUI` — exposed as a single block so editors don't have to wire those settings up themselves.
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
+| `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
+| `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
+| `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
+
+Categories-only block. Equivalent to an `items` block with `collection: products`, a `data.categories equals page.fileSlug` filter, and `filter_ui_collection: categoryListingFilterUI` — exposed as a single block so editors don't have to wire those settings up themselves. Accepts the same presentation fields as `items` (`intro_content`, `horizontal`, `masonry`, `image_aspect_ratio`).
 
 ---
 

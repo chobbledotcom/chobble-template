@@ -131,7 +131,7 @@ Renders a single block by type. Used by blocks.html.
     {%- include "design-system/items-array-block.html", block: block -%}
 
   {%- when "category-products" -%}
-    {%- include "design-system/category-products-block.html" -%}
+    {%- include "design-system/category-products-block.html", block: block -%}
 
   {%- when "socials" -%}
     {%- include "design-system/socials-block.html", block: block -%}
