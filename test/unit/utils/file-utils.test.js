@@ -446,29 +446,31 @@ blocks:
     });
   });
 
-  describe("process_blocks filter", () => {
-    const callProcessBlocks = (blocks, pageContext) => {
+  describe("render_block_liquid filter", () => {
+    const callRenderBlockLiquid = (blocks, pageContext) => {
       const mockConfig = createConfiguredMock();
-      const filter = mockConfig.asyncFilters.process_blocks;
+      const filter = mockConfig.asyncFilters.render_block_liquid;
       return filter.call({ context: { environments: pageContext } }, blocks);
     };
 
     test("Registers as an async filter", () => {
       const mockConfig = createMockEleventyConfig();
       configureFileUtils(mockConfig);
-      expect(typeof mockConfig.asyncFilters.process_blocks).toBe("function");
+      expect(typeof mockConfig.asyncFilters.render_block_liquid).toBe(
+        "function",
+      );
     });
 
     test("Returns empty array for null/undefined blocks", async () => {
-      expect(await callProcessBlocks(null, {})).toEqual([]);
-      expect(await callProcessBlocks(undefined, {})).toEqual([]);
+      expect(await callRenderBlockLiquid(null, {})).toEqual([]);
+      expect(await callRenderBlockLiquid(undefined, {})).toEqual([]);
     });
 
     test("Resolves Liquid expressions in block strings with page context", async () => {
       const blocks = [
         { type: "markdown", content: "Visit [us]({{ site.url }})" },
       ];
-      const result = await callProcessBlocks(blocks, {
+      const result = await callRenderBlockLiquid(blocks, {
         site: { url: "https://example.com" },
       });
       expect(result[0].content).toBe("Visit [us](https://example.com)");
@@ -477,7 +479,7 @@ blocks:
 
     test("Leaves strings without Liquid syntax unchanged", async () => {
       const blocks = [{ type: "markdown", content: "No templates here" }];
-      const result = await callProcessBlocks(blocks, { title: "Unused" });
+      const result = await callRenderBlockLiquid(blocks, { title: "Unused" });
       expect(result[0].content).toBe("No templates here");
     });
   });

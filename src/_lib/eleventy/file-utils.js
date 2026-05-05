@@ -179,7 +179,7 @@ async function snippetBlocksFilter(name) {
  * @this {LiquidFilterContext}
  * @param {Record<string, unknown>[] | undefined | null} blocks
  */
-async function processBlocksFilter(blocks) {
+async function renderBlockLiquidFilter(blocks) {
   if (!blocks) return [];
   return processLiquidStrings(blocks, this.context.environments);
 }
@@ -213,7 +213,7 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addFilter("file_missing", fileMissingFilter);
   eleventyConfig.addFilter("snippet_data", snippetDataFilter);
   eleventyConfig.addAsyncFilter("snippet_blocks", snippetBlocksFilter);
-  eleventyConfig.addAsyncFilter("process_blocks", processBlocksFilter);
+  eleventyConfig.addAsyncFilter("render_block_liquid", renderBlockLiquidFilter);
   eleventyConfig.addFilter("escape_html", escapeHtmlFilter);
 
   eleventyConfig.addAsyncShortcode(
