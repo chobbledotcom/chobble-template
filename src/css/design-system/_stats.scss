@@ -11,25 +11,29 @@
 .design-system {
   dl.stats {
     @include flex-wrap($space-xl);
+
     justify-content: center;
   }
 
   // Also support legacy div.stats
   div.stats {
     @include flex-wrap($space-xl);
+
     justify-content: center;
   }
 
   .stat {
     @include flex-col($space-xs, center);
-    text-align: center;
+
     min-width: 150px;
     padding: $space-xs $space-sm;
+    text-align: center;
 
     dt {
       @include body-base;
-      color: var(--color-text-muted);
+
       order: 1;
+      color: var(--color-text-muted);
     }
 
     dd {
@@ -38,8 +42,8 @@
       strong {
         font-size: $font-size-4xl;
         font-weight: 700;
-        color: var(--color-link);
         line-height: 1;
+        color: var(--color-link);
 
         @include breakpoint.up("md") {
           font-size: $font-size-5xl;

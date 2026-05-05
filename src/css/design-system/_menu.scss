@@ -19,14 +19,15 @@
 .design-system {
   .menu-items {
     @include reset-spacing;
-    list-style: none;
+
     margin-block-end: $space-2xl;
+    list-style: none;
 
     li {
       display: grid;
       grid-template-columns: 1fr auto;
-      column-gap: $space-md;
-      row-gap: $space-xs;
+      gap: $space-xs $space-md;
+
       padding-block: $space-sm;
       border-bottom: $border-light;
 
@@ -37,14 +38,18 @@
 
     .name {
       grid-column: 1;
+
       @include body-lg;
+
       font-weight: 500;
     }
 
     .price {
       grid-column: 2;
       align-self: start;
+
       @include body-base;
+
       font-weight: 600;
       color: var(--color-link);
     }
@@ -53,6 +58,7 @@
       grid-column: 1 / -1;
       margin: 0;
       color: var(--color-text-muted);
+
       @include body-sm;
     }
   }

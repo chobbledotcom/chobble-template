@@ -16,8 +16,8 @@
 
   .block-columns {
     display: grid;
-    gap: $space-xl;
     grid-template-columns: 1fr;
+    gap: $space-xl;
 
     @include breakpoint.up("md") {
       gap: $space-2xl;

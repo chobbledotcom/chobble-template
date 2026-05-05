@@ -17,6 +17,7 @@ import {
 // Full test suite uses lint (not fix), includes build, and coverage
 const steps = [
   COMMON_STEPS.lint,
+  COMMON_STEPS.lintScss,
   COMMON_STEPS.typecheck,
   COMMON_STEPS.typecheckStrict,
   COMMON_STEPS.cpdDesignSystem,

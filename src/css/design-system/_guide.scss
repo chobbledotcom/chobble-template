@@ -18,9 +18,11 @@
 
     p {
       @include body-sm;
+
       color: var(--color-text-muted);
     }
   }
+
   // ===========================================================================
   // HEADER
   // ===========================================================================
@@ -46,6 +48,7 @@
 
   .guide-categories-list {
     @include flex-col($space-md);
+
     list-style: none;
 
     > li {
@@ -76,6 +79,7 @@
 
   .guide-list {
     @include flex-col($space-sm);
+
     list-style: none;
 
     > li {

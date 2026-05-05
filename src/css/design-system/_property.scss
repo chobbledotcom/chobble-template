@@ -20,6 +20,7 @@
 
     .property-price {
       @include heading-md;
+
       color: var(--color-link);
     }
   }
@@ -34,12 +35,13 @@
 
     .current-image {
       cursor: zoom-in;
-      border-radius: $radius-md;
       overflow: hidden;
+      border-radius: $radius-md;
 
       .image-wrapper {
         @include image-wrapper($radius-md);
         @include aspect-ratio(4, 3);
+
         width: 100%;
 
         img {
@@ -72,8 +74,8 @@
           }
 
           a {
-            display: block;
             overflow: hidden;
+            display: block;
             border-radius: $radius-sm;
             transition: transform $transition-fast, box-shadow $transition-fast;
 
@@ -109,8 +111,8 @@
       }
 
       .slider-nav {
-        text-align: center;
         margin-top: $space-xs;
+        text-align: center;
 
         a {
           cursor: pointer;
@@ -118,9 +120,7 @@
           text-decoration: none;
 
           &[disabled] {
-            opacity: 0.3;
-            pointer-events: none;
-            cursor: default;
+            @include disabled-state;
           }
         }
       }
@@ -151,6 +151,7 @@
 
   .property-features {
     @include flex-col($space-xs);
+
     padding-left: $space-lg;
     list-style: disc;
   }
@@ -165,9 +166,11 @@
 
       > div {
         @include flex-row($space-xs);
+
         padding: $space-xs $space-sm;
-        background: var(--body-background-alt);
         border-radius: $radius-sm;
+        background: var(--body-background-alt);
+
         @include body-sm;
 
         span[aria-hidden] {
@@ -195,20 +198,24 @@
 
     > ul {
       @include flex-wrap($space-xs);
+
       list-style: none;
 
       a {
         display: inline-block;
+
         padding: $space-xs $space-sm;
         border-radius: $radius-sm;
-        text-decoration: none;
+
         color: var(--color-text-muted);
+        text-decoration: none;
+
         transition: background $transition-fast, color $transition-fast;
 
         &:hover,
         &.active {
-          background: var(--body-background-alt);
           color: var(--color-text);
+          background: var(--body-background-alt);
         }
       }
     }
@@ -247,8 +254,9 @@
 
   .property-map {
     @include iframe-embed;
-    border-radius: $radius-md;
+
     border: $border-light;
+    border-radius: $radius-md;
   }
 
   // ===========================================================================

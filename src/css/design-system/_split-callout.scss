@@ -15,9 +15,11 @@
 
   .callout-box {
     @include flex-col($space-md, center, center);
-    text-align: center;
+
     padding: clamp($space-lg, 6vw, $space-3xl);
     border-radius: $radius-2xl;
+    text-align: center;
+
     @include contrast-text-vars;
 
     &--primary {
@@ -42,6 +44,7 @@
 
     &__subtitle {
       @include body-lg;
+
       opacity: 0.9;
     }
   }

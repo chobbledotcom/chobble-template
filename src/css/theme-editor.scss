@@ -26,8 +26,8 @@
 
   .border-width {
     display: flex;
-    align-items: center;
     gap: 0.25rem;
+    align-items: center;
 
     input {
       width: 4rem;
@@ -49,11 +49,13 @@
 
   .editor-tabs ul {
     display: flex;
-    justify-content: center;
     gap: 1.5rem;
-    list-style: none;
-    padding: 0;
+    justify-content: center;
+
     margin-bottom: 2rem;
+    padding: 0;
+
+    list-style: none;
   }
 
   .tab-link.active {
@@ -69,11 +71,13 @@
   }
 
   label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
     cursor: pointer;
+
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    margin-bottom: 0.25rem;
 
     &.no-checkbox {
       display: block;
@@ -81,14 +85,14 @@
   }
 
   input[type="checkbox"] {
-    margin: 0;
     cursor: pointer;
+    margin: 0;
   }
 
   input:disabled,
   select:disabled {
-    opacity: 0.5;
     cursor: not-allowed;
+    opacity: 0.5;
   }
 
   @include breakpoints.down("sm") {

@@ -22,11 +22,11 @@
 
     display: flex;
     flex-wrap: wrap;
-    list-style: none;
     gap: $space-lg;
+    list-style: none;
 
     // Grid layout for non-slider
-    &:not(.slider):not(.masonry) {
+    &:not(.slider, .masonry) {
       > li {
         flex: 1 1 $width-card;
         max-width: 100%;
@@ -48,14 +48,16 @@
 
     // Masonry variant: positioned by JS using uWrap height prediction
     &.masonry {
-      display: block;
       position: relative;
+      display: block;
 
       > li {
+        will-change: transform;
+
         position: absolute;
         top: 0;
         left: 0;
-        will-change: transform;
+
         transition:
           border-color $transition-normal,
           outline-color $transition-normal;
@@ -67,13 +69,16 @@
     // =========================================================================
 
     > li {
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       gap: var(--item-gap);
-      border-radius: $radius-lg;
+
       border: $border-light;
+      border-radius: $radius-lg;
+
       background: var(--color-card-bg);
-      overflow: hidden;
+
       @include card-hover;
 
       &.featured {
@@ -105,8 +110,8 @@
       // =======================================================================
 
       .image-link {
-        display: block;
         overflow: hidden;
+        display: block;
 
         .image-wrapper {
           @include image-wrapper($border-radius: 0);
@@ -129,6 +134,7 @@
 
       p:not(.price) {
         @include body-sm;
+
         color: var(--color-text-muted);
       }
 
@@ -140,20 +146,23 @@
       > .button,
       > .add-to-cart {
         @include button-primary;
+
         margin-block-start: auto;
         margin-inline: var(--item-padding-inline);
       }
 
       // Cart controls row (button + quantity selector)
       .list-item-cart-controls {
-        margin-block-start: auto;
         display: flex;
-        align-items: center;
         gap: $space-sm;
+        align-items: center;
+
+        margin-block-start: auto;
         padding: 0 var(--item-padding-inline) var(--item-padding-inline);
 
         .add-to-cart {
           @include button-primary;
+
           margin: 0;
         }
 
@@ -170,20 +179,23 @@
         display: flex;
         flex-wrap: wrap;
         gap: $space-sm;
+
         margin-block-start: auto; // Push to bottom of flex container
+
         list-style: none;
+
         @include body-sm;
 
         li {
           display: flex;
-          align-items: center;
           gap: $space-xs;
+          align-items: center;
           color: var(--color-text-muted);
 
           svg {
             width: 1em;
             height: 1em;
-            fill: currentColor;
+            fill: currentcolor;
           }
 
           span {

@@ -37,13 +37,14 @@
 
     .date {
       @include body-sm;
-      color: var(--color-text-muted);
+
       margin-inline-start: auto;
+      color: var(--color-text-muted);
     }
 
     .review {
-      max-height: 160px;
       overflow-y: auto;
+      max-height: 160px;
 
       p {
         padding-inline: 0 !important;
@@ -52,7 +53,9 @@
 
     .products {
       flex: 1;
+
       @include body-sm;
+
       font-style: italic;
       color: var(--color-text-muted);
 
@@ -63,6 +66,7 @@
 
     .author-info {
       @include flex-row($space-sm, flex-start);
+
       margin-block-start: auto;
 
       @include breakpoint.down("md") {
@@ -71,16 +75,19 @@
       }
 
       .reviewer-avatar {
+        flex-shrink: 0;
+
         width: 40px;
         height: 40px;
         border-radius: $radius-full;
+
         object-fit: cover;
-        flex-shrink: 0;
       }
     }
 
     .author-details {
       @include flex-col($space-xs);
+
       font-size: $font-size-sm;
     }
 

@@ -1,39 +1,36 @@
 // Ocean Theme - Deep blue with aqua accents
 :root {
   --width-content: 1400px;
-
   --color-bg: #001f3f;
   --color-card-bg: #002850;
   --color-accent: #002b54;
+
   // heropatterns "Wiggle" - wave-like curves for the ocean
   --body-background: #002a55
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='26' viewBox='0 0 52 26'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' fill='%230074d9' fill-opacity='0.15' fill-rule='evenodd'/%3E%3C/svg%3E");
-  --body-background-alt: #003366
+  --body-background-alt: #036
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='26' viewBox='0 0 52 26'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' fill='%230074d9' fill-opacity='0.15' fill-rule='evenodd'/%3E%3C/svg%3E");
   --color-text: #7fdbff;
   --color-link: #39cccc;
   --color-tint: #0a2a2a;
   --color-link-hover: #7fdbff;
   --color-contrast-text: #001f3f;
-  --color-contrast-text-muted: rgba(0, 31, 63, 0.8);
-  --color-gradient-start: rgba(0, 116, 217, 0.2);
-  --color-gradient-end: rgba(57, 204, 204, 0.2);
-
+  --color-contrast-text-muted: rgb(0 31 63 / 80%);
+  --color-gradient-start: rgb(0 116 217 / 20%);
+  --color-gradient-end: rgb(57 204 204 / 20%);
   --border: 2px solid #0074d9;
   --border-radius: 0;
-  --box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.4);
-
+  --box-shadow: 8px 8px 16px rgb(0 0 0 / 40%);
   --font-family-heading: "Courier New", monospace;
   --font-family-body: "Courier New", monospace;
   --line-height: 1.8;
   --link-decoration: underline;
   --link-decoration-hover: none;
   --link-decoration-style: wavy;
-
   --list-marker-content: "〜 ";
   --list-marker-color: #39cccc;
 }
 
 header {
-  --color-text: #ffffff;
+  --color-text: #fff;
 }

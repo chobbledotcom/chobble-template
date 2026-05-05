@@ -18,7 +18,7 @@
 
 $color-bg: #fafafa !default;
 $body-background-alt: #f3f4f6 !default;
-$color-card-bg: #ffffff !default;
+$color-card-bg: #fff !default;
 $color-text: #1f2937 !default;
 $color-text-muted: #6b7280 !default;
 $color-primary: #2563eb !default;
@@ -26,7 +26,7 @@ $color-primary-dark: #1d4ed8 !default;
 $color-tint: #dbeafe !default;
 $color-secondary: #7c3aed !default;
 $color-accent: color.adjust($color-bg, $lightness: -5%) !default;
-$color-hover-bg: rgba(0, 0, 0, 0.05) !default;
+$color-hover-bg: rgb(0 0 0 / 5%) !default;
 
 // Dark section colors
 $color-dark-bg: #1f2937 !default;
@@ -37,15 +37,15 @@ $color-dark-card-bg: #374151 !default;
 $color-dark-link: #d1d5db !default;
 
 // Constant colors
-$color-white: #ffffff !default;
+$color-white: #fff !default;
 
 // Contrast text (light text on colored/dark backgrounds)
 $color-contrast-text: $color-white !default;
-$color-contrast-text-muted: rgba(255, 255, 255, 0.8) !default;
+$color-contrast-text-muted: rgb(255 255 255 / 80%) !default;
 
 // Shadows
-$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12) !default;
-$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.18) !default;
+$shadow-sm: 0 2px 8px rgb(0 0 0 / 12%) !default;
+$shadow-md: 0 4px 12px rgb(0 0 0 / 18%) !default;
 
 // Video play button colors
 $color-video-play-bg: #212121 !default;
@@ -60,9 +60,9 @@ $color-dot-green: #10b981 !default;
 // FONTS
 // -----------------------------------------------------------------------------
 
-$font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-  "Helvetica Neue", Arial, sans-serif !default;
-$font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+$font-sans: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto,
+  "Helvetica Neue", arial, sans-serif !default;
+$font-mono: ui-monospace, sfmono-regular, "SF Mono", menlo, consolas,
   monospace !default;
 
 // -----------------------------------------------------------------------------
@@ -136,9 +136,9 @@ $radius-full: 9999px !default;
 // BORDERS
 // -----------------------------------------------------------------------------
 
-$border-light: 1px solid rgba(0, 0, 0, 0.1) !default;
-$border-medium: 1px solid rgba(0, 0, 0, 0.15) !default;
-$border-dark: 1px solid rgba(0, 0, 0, 0.2) !default;
+$border-light: 1px solid rgb(0 0 0 / 10%) !default;
+$border-medium: 1px solid rgb(0 0 0 / 15%) !default;
+$border-dark: 1px solid rgb(0 0 0 / 20%) !default;
 
 // -----------------------------------------------------------------------------
 // TRANSITIONS
