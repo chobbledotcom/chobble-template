@@ -8,11 +8,12 @@
 
 .design-system {
   .iframe-embed {
+    overflow: hidden;
     display: block;
+
     width: 100%;
     margin-inline: auto;
     border-radius: $radius-md;
-    overflow: hidden;
 
     > iframe {
       display: block;

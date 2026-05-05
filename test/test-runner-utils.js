@@ -230,6 +230,12 @@ export const COMMON_STEPS = {
   },
   lint: { name: "lint", cmd: "bun", args: ["run", "lint"] },
   lintFix: { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
+  lintScss: { name: "lint:scss", cmd: "bun", args: ["run", "lint:scss"] },
+  lintScssFix: {
+    name: "lint:scss:fix",
+    cmd: "bun",
+    args: ["run", "lint:scss:fix"],
+  },
   knipFix: { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
   typecheck: { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
   typecheckStrict: {

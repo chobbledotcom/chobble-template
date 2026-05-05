@@ -1,4 +1,5 @@
 @use "../variables" as *;
+@use "../mixins" as *;
 
 // =============================================================================
 // THEME SWITCHER BUTTON (Design System)
@@ -8,29 +9,26 @@
 
 .design-system {
   #theme-switcher-button {
-    position: fixed;
-    bottom: $space-md;
-    right: $space-md;
-    z-index: $z-toast;
-    background: var(--color-bg);
-    color: var(--color-text);
-    border: $border-light;
-    border-radius: $radius-full;
-    width: 48px;
-    height: 48px;
     cursor: pointer;
-    transition: transform $transition-fast, box-shadow $transition-fast;
-    box-shadow: var(--shadow-sm);
+
+    position: fixed;
+    z-index: $z-toast;
+    right: $space-md;
+    bottom: $space-md;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: $font-size-xl;
-    padding: 0;
 
-    &:hover {
-      transform: scale(1.1);
-      box-shadow: var(--shadow-md);
-    }
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: $border-light;
+    border-radius: $radius-full;
+
+    font-size: $font-size-xl;
+
+    @include floating-button-style(1.1);
 
     &:active {
       transform: scale(0.95);

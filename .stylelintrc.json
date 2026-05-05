@@ -1,0 +1,32 @@
+{
+	"extends": [
+		"stylelint-config-standard-scss",
+		"stylelint-config-clean-order"
+	],
+	"plugins": ["stylelint-order"],
+	"rules": {
+		"selector-class-pattern": [
+			"^[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
+			{
+				"message": "Expected class selector to be kebab-case with optional BEM __element and --modifier suffixes"
+			}
+		],
+		"keyframes-name-pattern": null,
+		"scss/operator-no-unspaced": null,
+		"scss/comment-no-empty": null,
+		"scss/double-slash-comment-empty-line-before": null,
+		"declaration-block-no-redundant-longhand-properties": [
+			true,
+			{ "ignoreShorthands": ["grid-template"] }
+		],
+		"at-rule-empty-line-before": [
+			"always",
+			{
+				"except": ["blockless-after-same-name-blockless", "first-nested"],
+				"ignore": ["after-comment"],
+				"ignoreAtRules": ["else", "if", "elseif"]
+			}
+		]
+	},
+	"ignoreFiles": ["_site/**", "node_modules/**", ".jscpd-report/**"]
+}

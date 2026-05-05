@@ -19,8 +19,8 @@
 
     .price {
       display: flex;
-      align-items: baseline;
       gap: $space-xs;
+      align-items: baseline;
     }
   }
 
@@ -48,11 +48,13 @@
 
     p.subtitle {
       @include body-sm;
+
       color: var(--color-text-muted);
     }
 
     > .button {
       @include button-primary;
+
       margin-block-start: auto;
     }
   }

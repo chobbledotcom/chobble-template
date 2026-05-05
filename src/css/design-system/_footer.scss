@@ -11,11 +11,13 @@
     @include section-compact;
     @include section;
     @include dark-section-vars;
+
     color: $color-dark-text-muted;
     text-align: center;
 
     a {
       color: $color-dark-link;
+
       &:hover {
         color: $color-white;
       }
@@ -27,13 +29,16 @@
 
     .socials {
       @include flex-row($space-lg, center, center);
+
       flex-wrap: wrap;
       justify-content: center;
-      list-style: none;
-      padding: 0;
-      margin: 0 auto $space-md;
+
       max-width: min(75%, 30rem);
+      margin: 0 auto $space-md;
+      padding: 0;
+
       font-size: 2rem;
+      list-style: none;
     }
   }
 }

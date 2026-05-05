@@ -18,10 +18,12 @@
     display: flex;
     flex-direction: column;
     gap: $space-sm;
+
     padding: $space-md;
-    background: var(--color-accent);
     border: var(--border);
     border-radius: var(--border-radius);
+
+    background: var(--color-accent);
 
     @include breakpoints.down("sm") {
       text-align: center;
@@ -30,8 +32,8 @@
 
   .review-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
   }
 
   .rating {
@@ -39,9 +41,9 @@
   }
 
   .date {
+    margin-left: auto;
     font-size: $font-size-sm;
     opacity: 0.7;
-    margin-left: auto;
   }
 
   .review {
@@ -63,8 +65,8 @@
 
   .author-info {
     display: flex;
-    align-items: flex-start;
     gap: $space-sm;
+    align-items: flex-start;
     margin-top: auto;
 
     @include breakpoints.down("sm") {
@@ -73,11 +75,13 @@
     }
 
     .reviewer-avatar {
+      flex-shrink: 0;
+
       width: 40px;
       height: 40px;
       border-radius: 50%;
+
       object-fit: cover;
-      flex-shrink: 0;
     }
   }
 

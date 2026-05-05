@@ -111,8 +111,8 @@
 
 @mixin card($padding: $space-lg, $radius: $radius-lg) {
   padding: $padding;
-  border-radius: $radius;
   border: $border-light;
+  border-radius: $radius;
   background: var(--color-card-bg);
 }
 
@@ -124,7 +124,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    border-color: rgba(0, 0, 0, 0.2);
+    border-color: rgb(0 0 0 / 20%);
   }
 
   // Focus styles for keyboard navigation
@@ -141,7 +141,6 @@
 @mixin glass($blur: 10px, $opacity: 0.8) {
   background: rgba(255, 255, 255, $opacity);
   backdrop-filter: blur($blur);
-  -webkit-backdrop-filter: blur($blur);
 }
 
 // =============================================================================
@@ -150,8 +149,8 @@
 
 @mixin heading-xl {
   font-size: $font-size-3xl;
-  line-height: $line-height-tight;
   font-weight: 700;
+  line-height: $line-height-tight;
   letter-spacing: -0.02em;
 
   @include breakpoint.up("md") {
@@ -165,8 +164,8 @@
 
 @mixin heading-lg {
   font-size: $font-size-2xl;
-  line-height: $line-height-tight;
   font-weight: 700;
+  line-height: $line-height-tight;
   letter-spacing: -0.01em;
 
   @include breakpoint.up("md") {
@@ -176,8 +175,8 @@
 
 @mixin heading-md {
   font-size: $font-size-xl;
-  line-height: $line-height-snug;
   font-weight: 600;
+  line-height: $line-height-snug;
 
   @include breakpoint.up("md") {
     font-size: $font-size-2xl;
@@ -186,8 +185,8 @@
 
 @mixin heading-sm {
   font-size: $font-size-lg;
-  line-height: $line-height-snug;
   font-weight: 600;
+  line-height: $line-height-snug;
 }
 
 @mixin body-lg {
@@ -248,6 +247,7 @@
 
   .price {
     @include body-base;
+
     font-weight: 600;
     color: var(--color-link);
   }
@@ -263,28 +263,31 @@
 
   dd {
     @include body-base;
-    color: var(--color-text-muted);
+
     line-height: $line-height-relaxed;
+    color: var(--color-text-muted);
   }
 }
 
 // Contrast text custom properties for primary/dark panels
 @mixin contrast-text-vars {
-  color: var(--color-contrast-text);
   --color-text: var(--color-contrast-text);
   --color-text-muted: var(--color-contrast-text-muted);
+
+  color: var(--color-contrast-text);
 }
 
 // Dark section custom properties
 @mixin dark-section-vars {
-  background: var(--color-dark-bg);
-  color: #{$color-dark-text};
   --color-bg: var(--color-dark-bg);
   --body-background-alt: #{$color-dark-card-bg};
   --color-text: #{$color-dark-text};
   --color-text-muted: #{$color-dark-text-muted};
   --color-card-bg: #{$color-dark-card-bg};
   --color-tint: #{$color-dark-card-bg};
+
+  color: #{$color-dark-text};
+  background: var(--color-dark-bg);
 }
 
 // =============================================================================
@@ -292,18 +295,22 @@
 // =============================================================================
 
 @mixin button-base {
+  cursor: pointer;
+
   display: inline-flex;
+  gap: $space-xs;
   align-items: center;
   justify-content: center;
-  gap: $space-xs;
+
   padding: $space-sm $space-lg;
+  border: 2px solid transparent;
+  border-radius: $radius-md;
+
   font-size: $font-size-base;
   font-weight: 600;
   line-height: 1;
   text-decoration: none;
-  border-radius: $radius-md;
-  border: 2px solid transparent;
-  cursor: pointer;
+
   transition:
     background $transition-fast,
     color $transition-fast,
@@ -311,20 +318,21 @@
     transform $transition-fast;
 
   &:disabled {
-    opacity: 0.5;
     cursor: not-allowed;
+    opacity: 0.5;
   }
 }
 
 @mixin button-primary {
   @include button-base;
-  background: var(--color-link);
+
   color: var(--color-contrast-text);
+  background: var(--color-link);
 
   &:hover:not(:disabled) {
-    background: var(--color-link-hover);
-    color: var(--color-contrast-text);
     transform: translateY(-1px);
+    color: var(--color-contrast-text);
+    background: var(--color-link-hover);
   }
 
   &:active:not(:disabled) {
@@ -334,20 +342,22 @@
 
 @mixin button-secondary {
   @include button-base;
-  background: transparent;
+
   border-color: var(--color-link);
   color: var(--color-link);
+  background: transparent;
 
   &:hover:not(:disabled) {
-    background: var(--color-link);
     color: var(--color-contrast-text);
+    background: var(--color-link);
   }
 }
 
 @mixin button-ghost {
   @include button-base;
-  background: transparent;
+
   color: var(--color-text);
+  background: transparent;
 
   &:hover:not(:disabled) {
     background: var(--color-hover-bg);
@@ -359,56 +369,33 @@
 // =============================================================================
 
 // Scroll reveal animation (use with IntersectionObserver)
-@mixin scroll-reveal {
+@mixin scroll-reveal-base($from-transform, $to-transform) {
+  transform: $from-transform;
   opacity: 0;
-  transform: translateY(30px);
   transition:
     opacity 0.6s ease,
     transform 0.6s ease;
 
   &.is-visible {
+    transform: $to-transform;
     opacity: 1;
-    transform: translateY(0);
   }
+}
+
+@mixin scroll-reveal {
+  @include scroll-reveal-base(translateY(30px), translateY(0));
 }
 
 @mixin scroll-reveal-left {
-  opacity: 0;
-  transform: translateX(-30px);
-  transition:
-    opacity 0.6s ease,
-    transform 0.6s ease;
-
-  &.is-visible {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  @include scroll-reveal-base(translateX(-30px), translateX(0));
 }
 
 @mixin scroll-reveal-right {
-  opacity: 0;
-  transform: translateX(30px);
-  transition:
-    opacity 0.6s ease,
-    transform 0.6s ease;
-
-  &.is-visible {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  @include scroll-reveal-base(translateX(30px), translateX(0));
 }
 
 @mixin scroll-reveal-scale {
-  opacity: 0;
-  transform: scale(0.95);
-  transition:
-    opacity 0.6s ease,
-    transform 0.6s ease;
-
-  &.is-visible {
-    opacity: 1;
-    transform: scale(1);
-  }
+  @include scroll-reveal-base(scale(0.95), scale(1));
 }
 
 // Staggered children animation
@@ -436,14 +423,18 @@
 // Screen reader only
 @mixin sr-only {
   position: absolute;
+
+  overflow: hidden;
+
   width: 1px;
   height: 1px;
-  padding: 0;
   margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+  padding: 0;
   border: 0;
+
+  white-space: nowrap;
+
+  clip-path: inset(50%);
 }
 
 // Aspect ratio container
@@ -454,13 +445,14 @@
 // Responsive iframe embed (maps, videos, etc.)
 @mixin iframe-embed($ratio-w: 16, $ratio-h: 9) {
   position: relative;
-  width: 100%;
-  aspect-ratio: #{$ratio-w} / #{$ratio-h};
   overflow: hidden;
+  aspect-ratio: #{$ratio-w} / #{$ratio-h};
+  width: 100%;
 
   iframe {
     position: absolute;
     inset: 0;
+
     width: 100%;
     height: 100%;
     border: 0;
@@ -476,17 +468,22 @@
   }
 
   .video-facade {
+    cursor: pointer;
+
     position: relative;
+
+    overflow: hidden;
     display: block;
+
     width: 100%;
     padding: 0;
     border: 0;
+
     background: none;
-    cursor: pointer;
-    overflow: hidden;
 
     .image-wrapper {
       @include image-wrapper($border-radius: $radius);
+
       aspect-ratio: 16 / 9;
 
       img {
@@ -499,6 +496,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+
       transition:
         transform $transition-fast,
         opacity $transition-fast;
@@ -527,8 +525,8 @@
     }
 
     &.video-facade--no-thumbnail {
-      background: var(--body-background-alt);
       aspect-ratio: 16 / 9;
+      background: var(--body-background-alt);
     }
   }
 }
@@ -540,10 +538,10 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   } @else {
-    display: -webkit-box;
-    -webkit-line-clamp: $lines;
-    -webkit-box-orient: vertical;
     overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $lines;
   }
 }
 
@@ -565,12 +563,65 @@
 // Shared styles for video-background and image-background content overlays.
 // No background tint is applied — tint the source image or video if needed.
 
+// Floating button styling shared by cart-icon, theme-switcher, etc.
+// Caller provides positioning, dimensions, and font sizing.
+@mixin floating-button-style($hover-scale: 1.05) {
+  color: var(--color-text);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform $transition-fast,
+    box-shadow $transition-fast;
+
+  &:hover {
+    transform: scale($hover-scale);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+// Disabled link/button styling (visual-only; reduces opacity and blocks pointer)
+@mixin disabled-state($opacity: 0.3) {
+  pointer-events: none;
+  cursor: default;
+  opacity: $opacity;
+}
+
+// Vertical list of items with no marker, used for downloads, icon-links, etc.
+@mixin vertical-stack-list($gap: $space-sm, $max-width: $width-narrow) {
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+
+  max-width: $max-width;
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+@mixin media-background-container($aspect-ratio, $overflow: hidden) {
+  position: relative;
+
+  overflow: $overflow;
+
+  aspect-ratio: $aspect-ratio;
+  width: 100%;
+
+  background: $color-dark-bg;
+
+  @include breakpoint.down("md") {
+    aspect-ratio: 4/3;
+  }
+}
+
 @mixin media-background-cover-image {
   .image-wrapper {
     position: absolute;
     inset: 0;
+
     width: 100%;
     height: 100%;
+
     background-size: cover;
   }
 
@@ -583,20 +634,22 @@
 
 @mixin media-background-content {
   > figure {
-    position: absolute;
-    inset: 0;
-    @include flex-center;
-    color: var(--color-contrast-text);
-    padding: $space-lg;
-
     --color-text: var(--color-contrast-text);
     --color-text-muted: var(--color-contrast-text-muted);
+
+    position: absolute;
+    inset: 0;
+    padding: $space-lg;
+    color: var(--color-contrast-text);
+
+    @include flex-center;
   }
 
   figcaption {
     @include container($width-default);
-    text-align: center;
+
     max-width: 100%;
+    text-align: center;
 
     h1, h2, h3, h4, h5, h6 {
       color: var(--color-contrast-text);
@@ -609,9 +662,9 @@
     }
 
     .btn, a.btn {
-      background: var(--color-contrast-text-muted);
-      color: var(--color-text);
       border-color: transparent;
+      color: var(--color-text);
+      background: var(--color-contrast-text-muted);
 
       &:hover {
         background: var(--color-contrast-text);
@@ -619,9 +672,9 @@
     }
 
     .btn--primary {
-      background: var(--color-link);
-      color: var(--color-contrast-text);
       border-color: transparent;
+      color: var(--color-contrast-text);
+      background: var(--color-link);
 
       &:hover {
         background: var(--color-link-hover);
@@ -632,8 +685,8 @@
 
 // Tinted accent background (used by badges, icons, etc.)
 @mixin tint-bg {
-  background: var(--color-tint);
   color: var(--color-text);
+  background: var(--color-tint);
 }
 
 // Brand gradient background
@@ -656,13 +709,16 @@
 @mixin input-base {
   width: 100%;
   padding: $space-sm;
+  border: $border-medium;
+  border-radius: $radius-md;
+
   font-family: inherit;
   font-size: $font-size-base;
   line-height: $line-height-normal;
   color: var(--color-text);
+
   background: var(--color-card-bg);
-  border: $border-medium;
-  border-radius: $radius-md;
+
   transition: border-color $transition-fast;
 
   &::placeholder {
@@ -670,8 +726,8 @@
   }
 
   &:focus {
-    outline: none;
     border-color: var(--color-link);
+    outline: none;
     box-shadow: 0 0 0 3px var(--color-tint);
   }
 }
@@ -684,15 +740,19 @@
 
 @mixin image-wrapper($border-radius: $radius-sm) {
   position: relative;
+
+  overflow: hidden;
   display: block;
+
   max-width: 100%;
   height: auto;
-  overflow: hidden;
   border-radius: $border-radius;
+
+  background-repeat: no-repeat;
+  background-position: center;
+
   // LQIP background settings
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 
   img {
     display: block;

@@ -34,21 +34,25 @@
   .spec-badge {
     @include flex-row($space-sm, center, flex-start);
     @include card($space-sm, $radius-md);
+
     min-height: $space-xl;
   }
 
   .spec-content {
     @include flex-col(0);
+
     min-width: 0;
 
     dt {
       @include body-sm;
-      color: var(--color-text-muted);
+
       font-weight: 400;
+      color: var(--color-text-muted);
     }
 
     dd {
       @include body-base;
+
       font-weight: 600;
       color: var(--color-text);
     }

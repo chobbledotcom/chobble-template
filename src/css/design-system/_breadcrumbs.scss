@@ -9,20 +9,22 @@
 .design-system {
   ol.breadcrumbs {
     @include container($width-wide);
+
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    list-style: none;
-    padding-block: $space-sm;
+    flex-flow: row wrap;
     gap: $space-xs;
+    align-items: center;
+
+    padding-block: $space-sm;
+
     font-size: $font-size-sm;
+    list-style: none;
 
     li {
       display: flex;
       flex-direction: row;
-      align-items: center;
       gap: $space-xs;
+      align-items: center;
     }
 
     a {
@@ -40,8 +42,8 @@
     }
 
     span[aria-current] {
-      color: var(--color-text);
       font-weight: 600;
+      color: var(--color-text);
     }
   }
 }

@@ -8,16 +8,19 @@
 .design-system {
   .cta {
     @include flex-col($space-lg, center, center);
+
+    border: none;
     text-align: center;
+
     @include card(clamp($space-lg, 6vw, $space-3xl), $radius-2xl);
     @include brand-gradient;
-    border: none;
     @include contrast-text-vars;
 
     p {
       @include body-lg;
-      opacity: 0.9;
+
       max-width: $width-narrow;
+      opacity: 0.9;
     }
 
     a:not(.btn) {
@@ -28,9 +31,10 @@
     .btn--secondary {
       border-color: var(--color-contrast-text);
       color: var(--color-contrast-text);
+
       &:hover {
-        background: var(--color-contrast-text);
         color: var(--color-link);
+        background: var(--color-contrast-text);
       }
     }
   }

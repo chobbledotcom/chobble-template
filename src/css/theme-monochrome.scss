@@ -1,35 +1,32 @@
 // Monochrome Theme - Grayscale minimalist
 :root {
   --width-content: 1200px;
-
   --color-bg: #1a1a1a;
-  --color-card-bg: #222222;
-  --color-accent: #222222;
+  --color-card-bg: #222;
+  --color-accent: #222;
+
   // heropatterns "Texture" - minimal tiny dots
   --body-background: #2a2a2a
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23ffffff' fill-opacity='0.05' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'/%3E%3C/svg%3E");
   --body-background-alt: #323232
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23ffffff' fill-opacity='0.05' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'/%3E%3C/svg%3E");
   --color-text: #e0e0e0;
-  --color-link: #ffffff;
+  --color-link: #fff;
   --color-tint: #2a2a2a;
-  --color-link-hover: #cccccc;
+  --color-link-hover: #ccc;
   --color-contrast-text: #1a1a1a;
-  --color-contrast-text-muted: rgba(0, 0, 0, 0.7);
-  --color-gradient-start: rgba(255, 255, 255, 0.2);
-  --color-gradient-end: rgba(128, 128, 128, 0.2);
-
+  --color-contrast-text-muted: rgb(0 0 0 / 70%);
+  --color-gradient-start: rgb(255 255 255 / 20%);
+  --color-gradient-end: rgb(128 128 128 / 20%);
   --border: 1px solid #808080;
   --border-radius: 2px;
-  --box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-
+  --box-shadow: 0 0 20px rgb(255 255 255 / 10%);
   --font-family-heading: system-ui, sans-serif;
   --font-family-body: system-ui, sans-serif;
   --line-height: 1.4;
   --link-decoration: underline;
   --link-decoration-hover: underline;
   --link-decoration-style: solid;
-
   --list-marker-content: "— ";
   --list-marker-color: #808080;
 }

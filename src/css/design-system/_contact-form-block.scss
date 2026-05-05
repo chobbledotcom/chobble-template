@@ -8,6 +8,7 @@
 .design-system {
   .contact-form-block {
     @include two-column-split;
+
     align-items: center;
   }
 
@@ -30,6 +31,7 @@
     > label {
       @include flex-col($space-xs);
       @include body-base;
+
       font-weight: 600;
       color: var(--color-text);
     }
@@ -58,12 +60,13 @@
     // Radio group fieldset
     fieldset.radio-group {
       @include flex-col($space-xs);
-      border: none;
+
       padding: 0;
+      border: none;
 
       legend {
-        font-weight: 600;
         margin-bottom: $space-xs;
+        font-weight: 600;
       }
 
       .radio-options {
@@ -71,8 +74,9 @@
 
         label {
           @include flex-row($space-xs);
-          font-weight: 400;
+
           cursor: pointer;
+          font-weight: 400;
 
           input[type="radio"] {
             accent-color: var(--color-link);
@@ -84,6 +88,7 @@
     // Submit button
     > button[type="submit"] {
       @include button-primary;
+
       align-self: flex-start;
       margin-top: $space-xs;
     }

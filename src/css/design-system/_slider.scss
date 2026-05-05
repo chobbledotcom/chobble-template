@@ -9,6 +9,7 @@
 .design-system {
   .slider-container {
     @include flex-col($space-md);
+
     position: relative;
 
     // Hide nav when content fits (no overflow)
@@ -18,19 +19,22 @@
   }
 
   .slider {
-    display: flex;
-    gap: $space-lg;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: $space-sm; // Space for scrollbar
-    list-style: none;
+    scrollbar-color: var(--color-text-muted) transparent;
 
     // Hide scrollbar but keep functionality
     scrollbar-width: thin;
-    scrollbar-color: var(--color-text-muted) transparent;
+    scroll-snap-type: x mandatory;
+
+    overflow: auto hidden;
+    display: flex;
+    gap: $space-lg;
+
+    padding-bottom: $space-sm; // Space for scrollbar
+
+    list-style: none;
+
+    -webkit-overflow-scrolling: touch;
 
     &::-webkit-scrollbar {
       height: 6px;
@@ -41,8 +45,8 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background: var(--color-text-muted);
       border-radius: $radius-full;
+      background: var(--color-text-muted);
     }
 
     @include breakpoint.reduced-motion {
@@ -50,8 +54,8 @@
     }
 
     > * {
-      flex-shrink: 0;
       scroll-snap-align: start;
+      flex-shrink: 0;
     }
 
     // Default card width - can be overridden
@@ -74,36 +78,39 @@
   a.slider-next {
     @include button-base;
     @include focus-ring;
-    text-decoration: none;
+
+    cursor: pointer;
+
     width: 44px;
     height: 44px;
     padding: 0;
-    background: var(--color-card-bg);
     border: 1px solid var(--body-background-alt);
     border-radius: $radius-full;
-    color: var(--color-text);
+
     font-size: $font-size-lg;
-    cursor: pointer;
+    color: var(--color-text);
+    text-decoration: none;
+
+    background: var(--color-card-bg);
+
     transition: all $transition-fast;
 
     &:hover:not([disabled]) {
-      background: var(--color-link);
       border-color: var(--color-link);
       color: $color-white;
+      background: var(--color-link);
     }
 
     &[disabled] {
-      opacity: 0.3;
-      cursor: default;
-      pointer-events: none;
+      @include disabled-state;
     }
   }
 
   // Dark section variant - hover inherits from base rule above
   .dark a.slider-prev,
   .dark a.slider-next {
-    background: var(--color-card-bg);
     border-color: $color-dark-card-bg;
     color: $color-dark-text;
+    background: var(--color-card-bg);
   }
 }

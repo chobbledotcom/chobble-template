@@ -1,4 +1,5 @@
 @use "../variables" as *;
+@use "../mixins" as *;
 @use "../breakpoints" as breakpoint;
 
 // =============================================================================
@@ -9,29 +10,26 @@
 
 .design-system {
   .cart-icon {
+    cursor: pointer;
+
     position: fixed;
+    z-index: $z-toast;
     bottom: $space-md;
     left: $space-md;
-    padding: $space-xs $space-sm;
-    margin: 0;
-    cursor: pointer;
+
     display: flex;
-    align-items: center;
-    z-index: $z-toast;
-    border-radius: $radius-md;
-    border: $border-light;
-    background: var(--color-bg);
-    color: var(--color-text);
     gap: $space-xs;
+    align-items: center;
+
+    margin: 0;
+    padding: $space-xs $space-sm;
+    border: $border-light;
+    border-radius: $radius-md;
+
     font-family: var(--font-family-body);
     font-size: $font-size-base;
-    box-shadow: var(--shadow-sm);
-    transition: transform $transition-fast, box-shadow $transition-fast;
 
-    &:hover {
-      transform: scale(1.05);
-      box-shadow: var(--shadow-md);
-    }
+    @include floating-button-style(1.05);
 
     svg {
       width: 1.5rem;
@@ -39,8 +37,8 @@
     }
 
     .cart-count {
-      font-size: $font-size-xs;
       height: 1.25rem;
+      font-size: $font-size-xs;
     }
 
     @include breakpoint.down("md") {
@@ -54,6 +52,7 @@
     100% {
       transform: scale(1);
     }
+
     50% {
       transform: scale(1.2);
     }

@@ -14,6 +14,7 @@ nav {
   html:has(body.sticky-mobile-nav) {
     scroll-padding-top: 5rem;
   }
+
   body.sticky-mobile-nav {
     padding-top: 5rem;
 
@@ -41,15 +42,18 @@ nav {
   .toggle-label {
     display: none !important;
   }
+
   .mobile-menu-toggle {
     display: none !important;
   }
+
   body {
     &.left-nav {
       nav {
         @include nav.nav-left(1rem);
       }
     }
+
     &.horizontal-nav {
       nav {
         @include nav.nav-horizontal-layout(2rem, 0.5rem);

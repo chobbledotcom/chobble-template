@@ -10,11 +10,13 @@
 
 .design-system {
   ul.link-columns {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    column-gap: $space-lg;
     columns: 1;
+    column-gap: $space-lg;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
 
     @include breakpoint.up("sm") {
       columns: 2;

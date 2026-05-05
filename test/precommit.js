@@ -17,6 +17,7 @@ const steps = [
   COMMON_STEPS.install,
   COMMON_STEPS.generateTypes,
   COMMON_STEPS.lintFix,
+  COMMON_STEPS.lintScssFix,
   COMMON_STEPS.knipFix,
   COMMON_STEPS.typecheck,
   COMMON_STEPS.typecheckStrict,

@@ -27,7 +27,6 @@
   // ===========================================================================
 
   @include breakpoint.down("md") {
-
     @at-root html:has(body#{&}.sticky-mobile-nav) {
       scroll-padding-top: 5rem;
     }
@@ -70,14 +69,17 @@
 
     &.horizontal-nav nav {
       @include nav.nav-horizontal-layout($space-lg, $space-xs);
+
       position: sticky;
-      top: $space-sm;
       z-index: $z-sticky;
-      background: var(--color-bg);
-      padding-inline: $space-lg;
-      padding-block: $space-xs;
+      top: $space-sm;
+
       margin-inline: $space-sm;
+      padding-block: $space-xs;
+      padding-inline: $space-lg;
       border-radius: var(--border-radius);
+
+      background: var(--color-bg);
     }
 
   }

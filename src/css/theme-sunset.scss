@@ -1,10 +1,10 @@
 // Sunset Theme - Purple and orange sunset palette
 :root {
   --width-content: 1400px;
-
   --color-bg: #3d1e6d;
   --color-card-bg: #462578;
   --color-accent: #4a2880;
+
   // heropatterns "Overlapping Circles" - sun/moon disc motif
   --body-background: #4d2d7d
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='16' fill='none' stroke='%23f4a261' stroke-opacity='0.08' stroke-width='1'/%3E%3Ccircle cx='0' cy='24' r='16' fill='none' stroke='%23f4a261' stroke-opacity='0.08' stroke-width='1'/%3E%3Ccircle cx='48' cy='24' r='16' fill='none' stroke='%23f4a261' stroke-opacity='0.08' stroke-width='1'/%3E%3Ccircle cx='24' cy='0' r='16' fill='none' stroke='%23f4a261' stroke-opacity='0.08' stroke-width='1'/%3E%3Ccircle cx='24' cy='48' r='16' fill='none' stroke='%23f4a261' stroke-opacity='0.08' stroke-width='1'/%3E%3C/svg%3E");
@@ -15,21 +15,18 @@
   --color-tint: #2d1610;
   --color-link-hover: #f4a261;
   --color-contrast-text: #1a1a1a;
-  --color-contrast-text-muted: rgba(0, 0, 0, 0.7);
-  --color-gradient-start: rgba(136, 67, 242, 0.2);
-  --color-gradient-end: rgba(231, 111, 81, 0.2);
-
+  --color-contrast-text-muted: rgb(0 0 0 / 70%);
+  --color-gradient-start: rgb(136 67 242 / 20%);
+  --color-gradient-end: rgb(231 111 81 / 20%);
   --border: 3px solid #8843f2;
   --border-radius: 15px;
-  --box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3);
-
-  --font-family-heading: Impact, sans-serif;
-  --font-family-body: Arial, sans-serif;
+  --box-shadow: 10px 10px 20px rgb(0 0 0 / 30%);
+  --font-family-heading: impact, sans-serif;
+  --font-family-body: arial, sans-serif;
   --line-height: 1.5;
   --link-decoration: none;
   --link-decoration-hover: underline;
   --link-decoration-style: double;
-
   --list-marker-content: "● ";
   --list-marker-color: #e76f51;
 }

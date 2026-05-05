@@ -59,6 +59,7 @@ coveragePathIgnorePatterns = [
   "src/_lib/utils/console.js",
   "test/test-runner-utils.js",
   "test/test-utils.js",
+  "test/unit/code-quality/code-quality-utils.js",
   "src/_lib/eleventy/screenshots.js",
   "src/_lib/media/screenshot.js",
   "src/_lib/media/browser-utils.js",

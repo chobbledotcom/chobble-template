@@ -17,15 +17,7 @@
   }
 
   .image-background {
-    position: relative;
-    width: 100%;
-    overflow: clip;
-    aspect-ratio: 8/3;
-    background: $color-dark-bg;
-
-    @include breakpoint.down("md") {
-      aspect-ratio: 4/3;
-    }
+    @include media-background-container(8/3, clip);
 
     // The image covers the entire container
     > div {
@@ -39,9 +31,9 @@
 
     // Parallax: JS-driven scroll effect moves the image opposite to scroll
     &.parallax > div {
+      will-change: transform;
       // Extend the image beyond the container so it has room to translate
       inset: -10%;
-      will-change: transform;
     }
   }
 }
