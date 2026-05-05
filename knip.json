@@ -25,6 +25,7 @@
 	"ignoreDependencies": [
 		"bun-types",
 		"pagefind",
+		"postcss-scss",
 		"zod"
 	],
 	"ignoreBinaries": [],

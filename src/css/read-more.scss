@@ -14,21 +14,26 @@
 
 // Hide the checkbox visually but keep it functional
 .read-more-toggle {
-  position: absolute;
-  opacity: 0;
   pointer-events: none;
+
+  position: absolute;
+
+  overflow: hidden;
+
   width: 1px;
   height: 1px;
-  overflow: hidden;
+
+  opacity: 0;
 }
 
 // Style the label as an interactive link (inline with text)
 .read-more-label {
-  color: var(--color-link);
   cursor: pointer;
+
+  font-weight: bold;
+  color: var(--color-link);
   text-decoration: var(--link-decoration);
   text-decoration-style: var(--link-decoration-style);
-  font-weight: bold;
 
   &:hover,
   &:focus {
@@ -37,9 +42,9 @@
   }
 
   &:focus-visible {
+    border-radius: var(--border-radius-small);
     outline: 2px solid var(--color-link);
     outline-offset: 2px;
-    border-radius: var(--border-radius-small);
   }
 }
 

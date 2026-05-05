@@ -4,13 +4,15 @@
 @use "breakpoints";
 
 ul.items.slider {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+
+  overflow: auto hidden;
+  flex-wrap: nowrap;
+
   padding-bottom: 0.5rem; // Space for scrollbar
+
+  -webkit-overflow-scrolling: touch;
 
   // Respect reduced motion preference
   @include breakpoints.reduced-motion {
@@ -18,8 +20,8 @@ ul.items.slider {
   }
 
   & > * {
-    flex-shrink: 0;
     scroll-snap-align: start;
+    flex-shrink: 0;
   }
 }
 
@@ -32,16 +34,16 @@ ul.items.slider {
 }
 
 .slider-nav {
-  text-align: center;
   margin: 0.5rem 0 0;
+  text-align: center;
 
   a {
     cursor: pointer;
 
     &[disabled] {
-      opacity: 0.3;
       pointer-events: none;
       cursor: default;
+      opacity: 0.3;
     }
   }
 }

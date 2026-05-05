@@ -6,12 +6,16 @@ img,
 
 .image-wrapper {
   position: relative;
-  display: block;
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-  border-radius: var(--border-radius-small);
+
   overflow: hidden;
+  display: block;
+
+  border-radius: var(--border-radius-small);
+
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+
   img {
     background-color: transparent;
   }

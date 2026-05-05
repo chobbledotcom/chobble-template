@@ -8,10 +8,11 @@
   .freetobook {
     .iframe-container {
       @include card($padding: 0);
+
       iframe {
-        border: none;
         width: 100%;
         height: 1000px;
+        border: none;
       }
     }
   }

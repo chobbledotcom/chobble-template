@@ -56,9 +56,18 @@
   // compact variants (e.g. section.compact, footer).
   --section-padding-y: calc(#{$space-3xl} * 0.6);
 
-  @include breakpoint.up("md") {
-    --section-padding-y: #{$space-3xl};
-  }
+  scroll-behavior: smooth;
+
+  // ===========================================================================
+  // ROOT STYLES
+  // ===========================================================================
+
+  font-family: var(--font-family-body);
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: var(--color-text);
+
+  -webkit-font-smoothing: antialiased;
 
   main & {
     --section-padding-y: calc(#{$space-3xl} * 0.3);
@@ -79,22 +88,6 @@
     margin: 0;
     padding: 0;
   }
-
-  scroll-behavior: smooth;
-
-  @include breakpoint.reduced-motion {
-    scroll-behavior: auto;
-  }
-
-  // ===========================================================================
-  // ROOT STYLES
-  // ===========================================================================
-
-  font-family: var(--font-family-body);
-  font-size: $font-size-base;
-  line-height: $line-height-normal;
-  color: var(--color-text);
-  -webkit-font-smoothing: antialiased;
 
   // ===========================================================================
   // TYPOGRAPHY
@@ -117,12 +110,15 @@
   h1 {
     @include heading-xl;
   }
+
   h2 {
     @include heading-lg;
   }
+
   h3 {
     @include heading-md;
   }
+
   h4 {
     @include heading-sm;
   }
@@ -136,29 +132,36 @@
     color: var(--color-link);
     text-decoration: underline;
     transition: color $transition-fast;
+
     &:hover {
       text-decoration: underline;
     }
   }
 
   code {
+    padding: 0.2em 0.4em;
+    border-radius: $radius-sm;
+
     font-family: var(--font-family-mono);
     font-size: 0.9em;
-    padding: 0.2em 0.4em;
+
     background: var(--body-background-alt);
-    border-radius: $radius-sm;
   }
 
   pre {
-    padding: $space-md;
-    background: #{$color-dark-bg};
-    color: #{$color-dark-text};
-    border-radius: $radius-md;
     overflow-x: auto;
+
+    padding: $space-md;
+    border-radius: $radius-md;
+
+    color: #{$color-dark-text};
+
+    background: #{$color-dark-bg};
+
     code {
-      background: none;
       padding: 0;
       color: inherit;
+      background: none;
     }
   }
 
@@ -175,15 +178,15 @@
 
   img,
   .image-wrapper {
+    display: block;
     max-width: 100%;
     height: auto;
-    display: block;
   }
 
   .image-wrapper {
-    background-size: cover;
-    background-position: center;
     background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
   }
 
   // Override the 695px max-width from legacy page styles when design-system
@@ -197,6 +200,7 @@
   ul:not([class]),
   ol:not([class]) {
     @include flex-col($space-xs);
+
     padding-left: $space-lg;
   }
 
@@ -220,14 +224,6 @@
     @include scroll-reveal-scale;
   }
 
-  @include breakpoint.reduced-motion {
-    [data-reveal] {
-      opacity: 1;
-      transform: none;
-      transition: none;
-    }
-  }
-
   // ===========================================================================
   // CONTAINER
   // ===========================================================================
@@ -241,9 +237,11 @@
   .container {
     @include container($width-default);
   }
+
   .container-wide {
     @include container($width-wide);
   }
+
   .container-narrow {
     @include container($width-narrow);
   }
@@ -258,9 +256,11 @@
     &.compact {
       @include section-compact;
     }
+
     &.dark {
       @include dark-section-vars;
     }
+
     &.gradient {
       background: linear-gradient(
         135deg,
@@ -285,6 +285,7 @@
   > .section-header {
     @include card($space-xl, $radius-lg);
     @include flex-col($space-sm);
+
     text-align: center;
 
     // Gradient text style (opt-in via .gradient class)
@@ -297,8 +298,9 @@
       h5,
       h6 {
         @include brand-gradient;
+
         background-clip: text;
-        -webkit-background-clip: text;
+
         -webkit-text-fill-color: transparent;
       }
     }
@@ -311,8 +313,8 @@
 
   [role="doc-subtitle"] {
     address {
-      font-style: normal;
       font-weight: 700;
+      font-style: normal;
     }
 
     time {
@@ -323,9 +325,9 @@
       max-width: $width-author-thumbnail;
 
       a {
+        overflow: hidden;
         display: block;
         border-radius: 50%;
-        overflow: hidden;
       }
 
       img {
@@ -343,7 +345,7 @@
   // When .design-system is used as a content wrapper (not on body/section),
   // it becomes a flex column with consistent gap between blocks.
 
-  &:not(body):not(section) {
+  &:not(body, section) {
     @include flex-col($space-2xl);
   }
 
@@ -362,6 +364,22 @@
   main > section.dark:nth-child(even) {
     background: var(--color-dark-bg-alt);
   }
+
+  @include breakpoint.up("md") {
+    --section-padding-y: #{$space-3xl};
+  }
+
+  @include breakpoint.reduced-motion {
+    scroll-behavior: auto;
+  }
+
+  @include breakpoint.reduced-motion {
+    [data-reveal] {
+      transform: none;
+      opacity: 1;
+      transition: none;
+    }
+  }
 }
 
 // =============================================================================
@@ -371,5 +389,6 @@
 
 body.design-system {
   @include reset-spacing;
+
   background: var(--body-background);
 }

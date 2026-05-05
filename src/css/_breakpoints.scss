@@ -12,6 +12,7 @@ $breakpoints: (
 // Uses $value + 1 to avoid overlap with down() at the same breakpoint
 @mixin up($name) {
   $value: map.get($breakpoints, $name);
+
   @media screen and (min-width: $value + 1) {
     @content;
   }
@@ -20,6 +21,7 @@ $breakpoints: (
 // Usage: @include breakpoint.down("md") { ... }
 @mixin down($name) {
   $value: map.get($breakpoints, $name);
+
   @media screen and (max-width: $value) {
     @content;
   }

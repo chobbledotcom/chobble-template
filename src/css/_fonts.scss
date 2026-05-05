@@ -7,8 +7,9 @@ $latin-unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC,
 /* latin-ext */
 @font-face {
   font-family: "Princess Sofia";
-  font-style: normal;
   font-weight: 400;
+  font-style: normal;
+
   font-display: swap;
   src:
     url("/assets/fonts/princess-sofia-latin-ext-400-normal.woff2")
@@ -24,8 +25,9 @@ $latin-unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC,
 /* latin */
 @font-face {
   font-family: "Princess Sofia";
-  font-style: normal;
   font-weight: 400;
+  font-style: normal;
+
   font-display: swap;
   src:
     url("/assets/fonts/princess-sofia-latin-400-normal.woff2") format("woff2"),
@@ -36,8 +38,9 @@ $latin-unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC,
 /* latin */
 @font-face {
   font-family: "Share Tech Mono";
-  font-style: normal;
   font-weight: 400;
+  font-style: normal;
+
   font-display: swap;
   src:
     url("/assets/fonts/share-tech-mono-latin-400-normal.woff2")
@@ -48,9 +51,10 @@ $latin-unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC,
 
 /* latin */
 @font-face {
-  font-family: "Orbitron";
-  font-style: normal;
+  font-family: Orbitron;
   font-weight: 600;
+  font-style: normal;
+
   font-display: swap;
   src:
     url("/assets/fonts/orbitron-latin-600-normal.woff2") format("woff2"),

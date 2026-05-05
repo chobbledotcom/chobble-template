@@ -3,39 +3,47 @@
 // Search box: inline input + button that looks like part of the field.
 // This is the base-theme version for use outside .design-system containers.
 .search-box {
+  overflow: hidden;
   display: flex;
+
+  min-width: fit-content;
   margin: 0;
   padding: 0;
   border: var(--border);
   border-radius: var(--border-radius);
-  overflow: hidden;
-  min-width: fit-content;
 
   input[type="search"] {
     flex: 1;
+
+    width: 10rem;
+    min-width: 0;
+    margin: 0;
     padding: 0.5em;
+    border: none;
+
     font: inherit;
     color: var(--color-text);
+
     background: var(--color-bg);
-    border: none;
     outline: none;
-    min-width: 0;
-    width: 10rem;
-    margin: 0;
   }
 
   button {
+    cursor: pointer;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5em 0.75em;
-    background: var(--color-link);
-    color: var(--color-bg);
-    border: none;
-    cursor: pointer;
-    font: inherit;
+
     margin: 0;
+    padding: 0.5em 0.75em;
+    border: none;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+
+    font: inherit;
+    color: var(--color-bg);
+
+    background: var(--color-link);
   }
 }

@@ -25,10 +25,6 @@ This directory contains all the HTML layouts used by the Chobble Template. Each 
 - **`categories.html`** - Category listing page
 - **`category.html`** - Individual category page showing related products
 
-### Team
-- **`team.html`** - Team listing page showing all members
-- **`team-member.html`** - Individual team member profile page
-
 ### Special
 - **`theme-editor.html`** - Interactive theme customization tool
 

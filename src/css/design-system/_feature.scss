@@ -9,6 +9,7 @@
 .design-system {
   ul.features {
     @include grid-auto($width-card, $space-md);
+
     list-style: none;
   }
 
@@ -51,8 +52,6 @@
   .feature {
     @include card($space-md, $radius-lg);
     @include card-hover;
-    // When inside a list, ensure full height for grid alignment
-    height: 100%;
 
     // Grid layout: icon + heading on row 1, description spans full width on row 2
     display: grid;
@@ -61,24 +60,29 @@
     gap: $space-xs $space-md;
     align-items: start;
 
+    // When inside a list, ensure full height for grid alignment
+    height: 100%;
+
     .icon {
-      grid-row: 1;
       grid-column: 1;
+      grid-row: 1;
     }
 
     h3,
     h4 {
       @include heading-sm;
-      grid-row: 1;
+
       grid-column: 2;
+      grid-row: 1;
       align-self: center;
     }
 
     .prose {
       @include body-base;
-      color: var(--color-text-muted);
-      grid-row: 2;
+
       grid-column: 1 / -1;
+      grid-row: 2;
+      color: var(--color-text-muted);
     }
 
     // Code blocks in features should span full width below heading

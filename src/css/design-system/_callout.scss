@@ -10,11 +10,14 @@
 .design-system {
   .callout {
     @include flex-row($space-md, flex-start, flex-start);
+
     padding: $space-md $space-lg;
+    border-left: 4px solid currentcolor;
     border-radius: $radius-lg;
-    border-left: 4px solid currentColor;
-    background: var(--callout-bg);
+
     color: var(--callout-fg);
+
+    background: var(--callout-bg);
 
     &--info {
       --callout-bg: var(--color-tint);
@@ -44,6 +47,7 @@
 
     &__title {
       @include heading-sm;
+
       color: var(--callout-fg);
     }
 

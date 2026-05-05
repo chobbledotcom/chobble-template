@@ -1,10 +1,10 @@
 // Floral Theme - Pink and pastel
 :root {
   --width-content: 1100px;
-
   --color-bg: #ffe0f0;
   --color-card-bg: #fff0f8;
   --color-accent: #ffd0e8;
+
   // heropatterns "Polka Dots" - soft and feminine
   --body-background: #ffc0e0
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='1.5' fill='%23ff69b4' fill-opacity='0.15'/%3E%3C/svg%3E");
@@ -15,21 +15,18 @@
   --color-tint: #ffe0ef;
   --color-link-hover: #ff1493;
   --color-contrast-text: #1a1a1a;
-  --color-contrast-text-muted: rgba(0, 0, 0, 0.7);
-  --color-gradient-start: rgba(255, 105, 180, 0.2);
-  --color-gradient-end: rgba(255, 182, 193, 0.2);
-
+  --color-contrast-text-muted: rgb(0 0 0 / 70%);
+  --color-gradient-start: rgb(255 105 180 / 20%);
+  --color-gradient-end: rgb(255 182 193 / 20%);
   --border: 3px solid #ffb6c1;
   --border-radius: 25px;
-  --box-shadow: 5px 5px 15px rgba(255, 182, 193, 0.5);
-
+  --box-shadow: 5px 5px 15px rgb(255 182 193 / 50%);
   --font-family-heading: "Princess Sofia", "Brush Script MT", cursive;
-  --font-family-body: Georgia, "Times New Roman", serif;
+  --font-family-body: georgia, "Times New Roman", serif;
   --line-height: 1.6;
   --link-decoration: none;
   --link-decoration-hover: underline;
   --link-decoration-style: wavy;
-
   --list-marker-content: "✿ ";
   --list-marker-color: #ff69b4;
 }

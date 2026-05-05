@@ -18,6 +18,7 @@
       > :first-child {
         order: 2;
       }
+
       > :last-child {
         order: 1;
       }
@@ -28,9 +29,9 @@
     align-items: start;
 
     > figure {
-      border-radius: $radius-xl;
       overflow: hidden;
       border: $border-light;
+      border-radius: $radius-xl;
 
       img {
         width: 100%;
@@ -56,24 +57,24 @@
     // Child panels
     .left,
     .right {
+      display: flex;
       flex: 1;
       padding: var(--section-padding-y) $space-md;
-      display: flex;
 
       @include breakpoint.up("md") {
         padding: var(--section-padding-y) $space-lg;
       }
 
       > * {
+        justify-content: center;
         width: 100%;
         max-width: calc(#{$width-wide} / 2);
-        justify-content: center;
       }
     }
 
     .left {
-      background: var(--body-background-alt);
       justify-content: flex-end;
+      background: var(--body-background-alt);
 
       > * {
         @include breakpoint.up("md") {
@@ -83,8 +84,8 @@
     }
 
     .right {
-      background: var(--color-card-bg);
       justify-content: flex-start;
+      background: var(--color-card-bg);
 
       > * {
         @include breakpoint.up("md") {
@@ -102,23 +103,26 @@
     // Dark colored panels
     &.dark-left .left,
     &.dark-right .right {
-      background: $color-dark-bg;
-      color: $color-dark-text;
       --color-text: #{$color-dark-text};
       --color-text-muted: #{$color-dark-text-muted};
       --split-btn-color: #{$color-dark-text};
       --split-btn-hover-bg: #{$color-dark-text};
       --split-btn-hover-color: #{$color-dark-bg};
+
+      color: $color-dark-text;
+      background: $color-dark-bg;
     }
 
     // Primary colored panels
     &.primary-left .left,
     &.primary-right .right {
-      background: var(--color-link);
-      @include contrast-text-vars;
       --split-btn-color: var(--color-contrast-text);
       --split-btn-hover-bg: var(--color-contrast-text);
       --split-btn-hover-color: #{$color-text};
+
+      background: var(--color-link);
+
+      @include contrast-text-vars;
     }
 
     // Button overrides for colored panels
@@ -131,8 +135,8 @@
         color: var(--split-btn-color);
 
         &:hover:not(:disabled) {
-          background: var(--split-btn-hover-bg);
           color: var(--split-btn-hover-color);
+          background: var(--split-btn-hover-bg);
         }
       }
     }

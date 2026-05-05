@@ -15,11 +15,15 @@
 .design-system {
   .icon {
     @include flex-center;
+
     flex-shrink: 0;
+
     width: 42px;
     height: 42px;
-    font-size: $font-size-2xl;
-    @include tint-bg;
     border-radius: $radius-md;
+
+    font-size: $font-size-2xl;
+
+    @include tint-bg;
   }
 }
