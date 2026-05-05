@@ -5,7 +5,7 @@
   {%- assign schemaType = "event" -%}
 {%- elsif tags and tags contains "news" -%}
   {%- assign schemaType = "post" -%}
-{%- elsif layout == "contact.html" -%}
+{%- elsif schema_type == "organization" -%}
   {%- assign schemaType = "organization" -%}
 {%- elsif layout == "design-system-base.html" -%}
   {%- assign schemaType = "website" -%}

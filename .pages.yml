@@ -1355,8 +1355,7 @@ content:
       - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
-      - { name: snippet, type: string, label: Role }
-      - { name: image, type: image, label: Profile Image }
+      - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Biography }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }

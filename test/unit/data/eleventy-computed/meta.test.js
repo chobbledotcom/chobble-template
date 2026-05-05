@@ -27,9 +27,9 @@ describe("eleventyComputed.meta", () => {
     expect(result.datePublished).toBe("2024-01-15");
   });
 
-  test("returns organization-shaped meta for contact layouts", () => {
+  test("returns organization-shaped meta when schema_type is 'organization'", () => {
     const result = eleventyComputed.meta({
-      layout: "contact.html",
+      schema_type: "organization",
       title: "Contact Us",
       site,
       page: { url: "/contact/" },
