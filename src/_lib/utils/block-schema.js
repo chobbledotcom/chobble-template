@@ -65,7 +65,6 @@ import * as productGallery from "#utils/block-schema/product-gallery.js";
 import * as productHeader from "#utils/block-schema/product-header.js";
 import * as productMeta from "#utils/block-schema/product-meta.js";
 import * as productSpecs from "#utils/block-schema/product-specs.js";
-import * as tabs from "#utils/block-schema/tabs.js";
 import * as properties from "#utils/block-schema/properties.js";
 import * as propertyContact from "#utils/block-schema/property-contact.js";
 import * as propertyContactSection from "#utils/block-schema/property-contact-section.js";
@@ -93,6 +92,7 @@ import * as splitIconLinks from "#utils/block-schema/split-icon-links.js";
 import * as splitImage from "#utils/block-schema/split-image.js";
 import * as splitVideo from "#utils/block-schema/split-video.js";
 import * as stats from "#utils/block-schema/stats.js";
+import * as tabs from "#utils/block-schema/tabs.js";
 import * as videoBackground from "#utils/block-schema/video-background.js";
 import * as videoCards from "#utils/block-schema/video-cards.js";
 
