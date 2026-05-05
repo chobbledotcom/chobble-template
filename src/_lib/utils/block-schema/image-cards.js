@@ -25,6 +25,5 @@ export const fields = imageCardGridFields({
 export const docs = {
   summary:
     "Grid of cards featuring images with titles and optional descriptions.",
-  template: "src/_includes/design-system/image-cards.html",
   ...ITEMS_GRID_META,
 };

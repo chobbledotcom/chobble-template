@@ -36,7 +36,6 @@ export const fields = {
 export const docs = {
   summary:
     "List of downloadable files. Each item auto-detects its icon from the file extension and its size from the filesystem at build time.",
-  template: "src/_includes/design-system/downloads.html",
   scss: "src/css/design-system/_downloads.scss",
   htmlRoot: '<ul class="downloads" role="list">',
   notes: FILE_RESOLUTION_NOTE,

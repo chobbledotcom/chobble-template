@@ -37,7 +37,6 @@ export const fields = {
 export const docs = {
   summary:
     "Continuously scrolling marquee of images (e.g. brand logos, partner badges).",
-  template: "src/_includes/design-system/marquee-images.html",
   scss: "src/css/design-system/_marquee-images.scss",
   htmlRoot: '<div class="marquee-images">',
 };

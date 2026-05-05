@@ -33,7 +33,6 @@ export const fields = {
 export const docs = {
   summary:
     "Vertical list of links with icons, rendered as a flex column stack.",
-  template: "src/_includes/design-system/icon-links.html",
   scss: "src/css/design-system/_icon-links.scss",
   htmlRoot: '<ul class="icon-links" role="list">',
 };

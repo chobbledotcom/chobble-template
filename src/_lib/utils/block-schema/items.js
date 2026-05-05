@@ -23,6 +23,5 @@ export const fields = {
 export const docs = {
   summary:
     "Displays an Eleventy collection as a card grid or horizontal slider.",
-  template: "src/_includes/design-system/items-block.html",
   scss: "src/css/design-system/_items.scss",
 };

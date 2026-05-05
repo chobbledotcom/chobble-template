@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { rootDir } from "#test/test-utils.js";
-import { BLOCK_DOCS, BLOCK_SCHEMAS } from "#utils/block-schema.js";
+import { BLOCK_SCHEMAS, getBlockTemplate } from "#utils/block-schema.js";
 
 // Keys the outer wrapper in blocks.html injects onto every block, plus `type`
 // which is always present as the discriminant.
@@ -48,38 +48,46 @@ const readWithIncludes = (absPath, visited = new Set()) => {
   return [stripNonCode(rawContent), ...childSources].join("\n");
 };
 
-const collectBlockRefs = (templatePath) => {
-  const combined = readWithIncludes(join(rootDir, templatePath));
+const collectBlockRefs = (templateAbsPath) => {
+  const combined = readWithIncludes(templateAbsPath);
   return new Set([...combined.matchAll(BLOCK_REF_PATTERN)].map((m) => m[1]));
 };
 
-/** Multiple block types (e.g. all split-* variants) can share one template.
- *  Group them so the allowed-keys set is the union across the group. */
+/** Multiple block types (e.g. all split-* variants) can share one template via
+ *  `getBlockTemplate` returning the same path. Group them so the allowed-keys
+ *  set is the union across the group. */
 const groupBlockTypesByTemplate = () =>
   Object.entries(
-    Object.groupBy(
-      Object.entries(BLOCK_DOCS).filter(([, docs]) => docs.template),
-      ([, docs]) => docs.template,
+    Object.groupBy(Object.keys(BLOCK_SCHEMAS), (type) =>
+      getBlockTemplate(type),
     ),
-  ).map(([template, entries]) => [template, entries.map(([type]) => type)]);
+  );
 
 const unionSchemaFields = (blockTypes) =>
   new Set(blockTypes.flatMap((type) => Object.keys(BLOCK_SCHEMAS[type])));
 
 describe("template ↔ block schema sync", () => {
   for (const [templatePath, blockTypes] of groupBlockTypesByTemplate()) {
-    const label = blockTypes.join(", ");
-    const refs = collectBlockRefs(templatePath);
+    const absPath = join(INCLUDES_DIR, templatePath);
+    const refs = collectBlockRefs(absPath);
     const schemaFields = unionSchemaFields(blockTypes);
+    const label =
+      blockTypes.length > 1
+        ? `${templatePath} (${blockTypes.join(", ")})`
+        : templatePath;
 
-    test(`${templatePath}: every block.<field> in the template is declared in the schema (${label})`, () => {
+    test(`${label}: template file exists`, () => {
+      expect(existsSync(absPath)).toBe(true);
+    });
+
+    test(`${label}: every block.<field> in the template is declared in the schema`, () => {
       const undeclared = [...refs]
         .filter((k) => !schemaFields.has(k) && !ALWAYS_ALLOWED_KEYS.includes(k))
         .sort();
       expect(undeclared).toEqual([]);
     });
 
-    test(`${templatePath}: every schema field is used somewhere in the template (${label})`, () => {
+    test(`${label}: every schema field is used somewhere in the template`, () => {
       const unused = [...schemaFields].filter((f) => !refs.has(f)).sort();
       expect(unused).toEqual([]);
     });

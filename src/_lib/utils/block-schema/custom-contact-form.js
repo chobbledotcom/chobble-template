@@ -38,7 +38,6 @@ export const fields = {
 export const docs = {
   summary:
     "Contact form block with a custom, block-level field list instead of the site-wide `contactForm.fields`.",
-  template: "src/_includes/design-system/custom-contact-form-block.html",
   scss: "src/css/design-system/_contact-form-block.scss",
   htmlRoot: '<div class="contact-form-block">',
   notes:

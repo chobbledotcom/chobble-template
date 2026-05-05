@@ -23,7 +23,6 @@ export const fields = {
 
 export const docs = {
   summary: "Key metrics displayed as large numbers with labels.",
-  template: "src/_includes/design-system/stats.html",
   scss: "src/css/design-system/_stats.scss",
   htmlRoot: '<dl class="stats">',
 };

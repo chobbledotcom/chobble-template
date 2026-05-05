@@ -43,7 +43,6 @@ export const fields = {
 export const docs = {
   summary:
     "Grid of clickable video thumbnails. Supports YouTube IDs and custom iframe URLs (Vimeo, Bunny Stream, etc.).",
-  template: "src/_includes/design-system/video-cards-block.html",
   ...ITEMS_GRID_META,
   notes:
     "YouTube videos render optimized thumbnails via eleventy-img; custom URLs use a placeholder. Videos load only on click to save bandwidth.",

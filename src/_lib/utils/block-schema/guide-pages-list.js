@@ -11,7 +11,6 @@ export const fields = {};
 export const docs = {
   summary:
     "Lists the guide pages that belong to the current guide category (filtered via `guidesByCategory`).",
-  template: "src/_includes/design-system/guide-pages-list-block.html",
   notes:
     "Guide-category-only block. No parameters. Renders nothing when there are no pages in the category.",
 };

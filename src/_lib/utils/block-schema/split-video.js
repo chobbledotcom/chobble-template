@@ -8,6 +8,7 @@ import {
 /* jscpd:ignore-end */
 
 export const type = "split-video";
+export const template = "design-system/split.html";
 
 export const fields = {
   ...SPLIT_BASE_FIELDS,

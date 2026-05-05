@@ -18,7 +18,6 @@ export const fields = {
 
 export const docs = {
   summary: "Standalone centered button linking to an anchor or URL.",
-  template: "src/_includes/design-system/link-button.html",
   scss: "src/css/design-system/_link-button.scss",
   htmlRoot: '<div class="link-button">',
 };

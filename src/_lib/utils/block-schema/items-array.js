@@ -21,6 +21,5 @@ export const fields = {
 export const docs = {
   summary:
     "Renders items from an explicit list of paths. The collection is inferred dynamically from each item's path. Directory paths (ending in `/` or with no `.md` extension) expand to every item in that directory.",
-  template: "src/_includes/design-system/items-array-block.html",
   scss: ITEMS_GRID_META.scss,
 };

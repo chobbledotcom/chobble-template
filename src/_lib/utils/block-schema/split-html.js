@@ -5,6 +5,7 @@ import {
 } from "#utils/block-schema/split-shared.js";
 
 export const type = "split-html";
+export const template = "design-system/split.html";
 
 export const fields = {
   ...SPLIT_BASE_FIELDS,

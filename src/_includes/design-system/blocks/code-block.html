@@ -6,12 +6,12 @@ Accepts either direct parameters or a block object:
   Block:  block.filename, block.code, block.language, block.reveal
 
 Usage (direct params - used by split figure):
-  {% include "design-system/code-block.html",
+  {% include "design-system/blocks/code-block.html",
      filename: "example.js", code: "const x = 1;", language: "javascript"
   %}
 
 Usage (block object - used by standalone code-block type):
-  {% include "design-system/code-block.html",
+  {% include "design-system/blocks/code-block.html",
      block: { filename: "example.js", code: "const x = 1;" }
   %}
 {%- endcomment -%}

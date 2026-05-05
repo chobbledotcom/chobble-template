@@ -10,7 +10,6 @@ export const fields = {};
 
 export const docs = {
   summary: "Renders the property's `tabs` array as a tabbed content section.",
-  template: "src/_includes/design-system/property-tabs-block.html",
   notes:
     "Property-only block. No parameters. Renders nothing when the page has no `tabs`.",
 };

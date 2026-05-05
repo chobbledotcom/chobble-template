@@ -50,7 +50,6 @@ export const fields = {
 export const docs = {
   summary:
     "Third-party iframe embed (itch.io widgets, Buttondown, Bandcamp, Stripe buttons, etc).",
-  template: "src/_includes/design-system/iframe-embed.html",
   scss: "src/css/design-system/_iframe-embed.scss",
   htmlRoot: '<div class="iframe-embed">',
   notes:

@@ -16,8 +16,8 @@ Parameters:
     - url: Link URL (optional - renders as plain text if omitted)
 
 Usage:
-  {% include "design-system/icon-links.html", block: block %}
-  {% include "design-system/icon-links.html", items: block.figure_items %}
+  {% include "design-system/blocks/icon-links.html", block: block %}
+  {% include "design-system/blocks/icon-links.html", items: block.figure_items %}
 {%- endcomment -%}
 
 {%- assign _items = items | default: block.items -%}
