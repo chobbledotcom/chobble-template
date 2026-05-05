@@ -80,7 +80,9 @@
       }
 
       ul {
-        @include flex-wrap($space-xs);
+        @include flex-row($space-xs);
+
+        flex-wrap: wrap;
 
         li {
           font-size: $font-size-sm;
