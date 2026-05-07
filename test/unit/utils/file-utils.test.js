@@ -83,8 +83,27 @@ describe("file-utils", () => {
       expect(typeof mockConfig.filters.file_missing).toBe("function");
       expect(typeof mockConfig.filters.snippet_data).toBe("function");
       expect(typeof mockConfig.filters.escape_html).toBe("function");
+      expect(typeof mockConfig.filters.markdown).toBe("function");
       expect(typeof mockConfig.asyncShortcodes.render_snippet).toBe("function");
       expect(typeof mockConfig.shortcodes.read_file).toBe("function");
+    });
+  });
+
+  describe("markdown filter", () => {
+    test("Renders markdown to HTML", () => {
+      const { markdown } = createConfiguredMock().filters;
+      expect(markdown("# Heading")).toContain("<h1>Heading</h1>");
+      expect(markdown("**bold**")).toContain("<strong>bold</strong>");
+      expect(markdown("[link](https://example.com)")).toContain(
+        '<a href="https://example.com">link</a>',
+      );
+    });
+
+    test("Returns empty string for falsy input", () => {
+      const { markdown } = createConfiguredMock().filters;
+      expect(markdown("")).toBe("");
+      expect(markdown(null)).toBe("");
+      expect(markdown(undefined)).toBe("");
     });
   });
 
