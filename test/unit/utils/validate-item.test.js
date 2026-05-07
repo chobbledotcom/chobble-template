@@ -11,7 +11,9 @@ const errorsForBlock = (blockType, blockData) =>
 
 describe("collectItemErrors", () => {
   test("returns empty array when name is present", () => {
-    expect(collectItemErrors({ name: "Widget Pro", tags: ["products"] })).toEqual([]);
+    expect(
+      collectItemErrors({ name: "Widget Pro", tags: ["products"] }),
+    ).toEqual([]);
   });
 
   test("returns empty array for untagged utility templates without name", () => {
@@ -19,7 +21,10 @@ describe("collectItemErrors", () => {
   });
 
   test("returns error when tagged item is missing name", () => {
-    const errors = collectItemErrors({ tags: ["pages"], subtitle: "A page" }, " in test.md");
+    const errors = collectItemErrors(
+      { tags: ["pages"], subtitle: "A page" },
+      " in test.md",
+    );
     expect(errors).toHaveLength(1);
     expect(errors[0]).toContain('missing required "name" field');
     expect(errors[0]).toContain("in test.md");
@@ -32,7 +37,13 @@ describe("collectItemErrors", () => {
   });
 
   test("returns empty array when item has no blocks", () => {
-    expect(collectItemErrors({ name: "Widget", tags: ["products"], subtitle: "Nice" })).toEqual([]);
+    expect(
+      collectItemErrors({
+        name: "Widget",
+        tags: ["products"],
+        subtitle: "Nice",
+      }),
+    ).toEqual([]);
   });
 
   test("returns empty array for block types without named object-list fields", () => {
@@ -72,7 +83,10 @@ describe("collectItemErrors", () => {
       name: "My Page",
       tags: ["pages"],
       blocks: [
-        { type: "features", items: [{ description: "no name 1" }, { description: "no name 2" }] },
+        {
+          type: "features",
+          items: [{ description: "no name 1" }, { description: "no name 2" }],
+        },
         { type: "image-cards", items: [{ image: "/img.jpg" }] },
       ],
     };
@@ -81,7 +95,10 @@ describe("collectItemErrors", () => {
 
   test("aggregates item-level and nested block errors together", () => {
     const errors = collectItemErrors(
-      { tags: ["pages"], blocks: [{ type: "features", items: [{ description: "no name" }] }] },
+      {
+        tags: ["pages"],
+        blocks: [{ type: "features", items: [{ description: "no name" }] }],
+      },
       " in file.md",
     );
     expect(errors).toHaveLength(2);
@@ -106,9 +123,9 @@ describe("validateItem", () => {
   });
 
   test("throws when tagged item is missing name", () => {
-    expect(() => validateItem({ tags: ["pages"], subtitle: "No name" }, " in test.md")).toThrow(
-      'missing required "name" field',
-    );
+    expect(() =>
+      validateItem({ tags: ["pages"], subtitle: "No name" }, " in test.md"),
+    ).toThrow('missing required "name" field');
   });
 
   test("throws when nested block item is missing name", () => {
