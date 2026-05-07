@@ -1,5 +1,5 @@
 /* jscpd:ignore-start */
-import { img, num } from "#utils/block-schema/shared.js";
+import { img } from "#utils/block-schema/shared.js";
 import {
   SPLIT_BASE_DOCS,
   SPLIT_BASE_FIELDS,
@@ -46,11 +46,6 @@ export const fields = {
     ...str("Buy Button Text"),
     default: '"Buy now"',
     description: "Button label.",
-  },
-  figure_heading_level: {
-    ...num("Product Heading Level"),
-    default: "3",
-    description: "Heading level for the product name.",
   },
   figure_image_aspect_ratio: {
     ...str("Product Image Aspect Ratio"),

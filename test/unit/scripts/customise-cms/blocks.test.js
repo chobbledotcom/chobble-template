@@ -88,14 +88,13 @@ describe("generateBlocksField list field conversion", () => {
 
 describe("generateBlocksField generic field conversion", () => {
   test("passes primitive type strings through verbatim", () => {
-    // split-image covers string, number, boolean, and image in one block.
+    // split-image covers string, boolean, and image in one block.
     const field = generateBlocksField(["split-image"], false);
     const byName = Object.fromEntries(
       field.blocks[0].fields.map((f) => [f.name, f]),
     );
 
-    expect(byName.name.type).toBe("string");
-    expect(byName.heading_level.type).toBe("number");
+    expect(byName.subtitle.type).toBe("string");
     expect(byName.reverse.type).toBe("boolean");
     expect(byName.figure_src.type).toBe("image");
   });

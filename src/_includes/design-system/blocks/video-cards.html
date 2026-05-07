@@ -5,7 +5,6 @@ Parameters (via block object):
   - block.videos: Array of video objects (see video-cards.html)
   - block.intro_content: Optional markdown intro rendered above the grid
   - block.reveal: Adds data-reveal to each card (default: true)
-  - block.heading_level: Heading level for titles (default: 3)
   - block.expand: If true, videos fill available width
 {%- endcomment -%}
 
@@ -14,6 +13,5 @@ Parameters (via block object):
   {%- include "design-system/video-cards.html",
        videos: block.videos,
        reveal: block.reveal,
-       heading_level: block.heading_level,
        expand: block.expand -%}
 {%- endif -%}

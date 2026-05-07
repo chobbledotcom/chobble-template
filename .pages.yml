@@ -97,8 +97,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: name, type: string, label: Name, required: true }
-      - { name: description, type: rich-text, label: Description }
+      - { name: content, type: rich-text, label: Content, required: true }
       - name: button
         type: object
         label: Button
@@ -489,8 +488,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: name, type: string, label: Name }
-      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -518,9 +515,6 @@ components:
         label: Product Currency (ISO code, e.g. GBP)
       - { name: figure_link, type: string, label: Buy Link, required: true }
       - { name: figure_button_text, type: string, label: Buy Button Text }
-      - name: figure_heading_level
-        type: number
-        label: Product Heading Level
       - name: figure_image_aspect_ratio
         type: string
         label: Product Image Aspect Ratio
@@ -529,8 +523,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: name, type: string, label: Name }
-      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -555,8 +547,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: name, type: string, label: Name }
-      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -579,8 +569,6 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: variant, type: string, label: Variant }
-      - { name: heading_level, type: number, label: Heading Level }
-      - { name: left_name, type: string, label: Left Name }
       - { name: left_content, type: rich-text, label: Left Content }
       - name: left_button
         type: object
@@ -589,7 +577,6 @@ components:
           - { name: text, type: string, label: Button Text, required: true }
           - { name: href, type: string, label: URL, required: true }
           - { name: variant, type: string, label: Variant }
-      - { name: right_name, type: string, label: Right Name }
       - { name: right_content, type: rich-text, label: Right Content }
       - name: right_button
         type: object
@@ -605,8 +592,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: name, type: string, label: Name }
-      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -629,8 +614,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: name, type: string, label: Name }
-      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -661,8 +644,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: name, type: string, label: Name }
-      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -684,8 +665,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: name, type: string, label: Name }
-      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -750,7 +729,6 @@ components:
         type: rich-text
         label: Intro Content (Markdown)
       - { name: reveal, type: boolean, label: Reveal Animation }
-      - { name: heading_level, type: number, label: Heading Level }
       - { name: expand, type: boolean, label: Expand to Full Width }
   faqs:
     label: FAQs

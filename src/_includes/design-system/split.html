@@ -7,10 +7,8 @@ The figure type is derived from the block type (e.g., "split-image" → "image")
 
 Parameters (via block object):
   Shared:
-    - block.name: Section heading
-    - block.heading_level: Heading level, defaults to 2
     - block.subtitle: Optional subtitle text (with text-muted styling)
-    - block.content: Main content (can include HTML like <ul>, <p>)
+    - block.content: Main content with markdown headings (rendered as markdown)
     - block.reverse: If true, reverses the layout (content on right)
     - block.reveal_content: Animation for content side (e.g., "left", "right")
     - block.reveal_figure: Animation for figure side (default: "scale")
@@ -25,8 +23,7 @@ Parameters (via block object):
     split-html:         figure_html
     split-buy-options:  figure_image, figure_name, figure_subtitle,
                         figure_price, figure_currency, figure_link,
-                        figure_button_text, figure_heading_level,
-                        figure_image_aspect_ratio
+                        figure_button_text, figure_image_aspect_ratio
 {%- endcomment -%}
 
 {%- assign reveal_content = block.reveal_content | default: "left" -%}
@@ -78,7 +75,6 @@ Parameters (via block object):
            currency: block.figure_currency,
            link: block.figure_link,
            button_text: block.figure_button_text,
-           heading_level: block.figure_heading_level,
            image_aspect_ratio: block.figure_image_aspect_ratio -%}
     {%- endcase -%}
   </figure>

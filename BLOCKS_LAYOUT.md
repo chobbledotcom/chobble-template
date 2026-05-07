@@ -195,10 +195,8 @@ Two-column layout with text content and a responsive image.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `name` | string | — | Section heading. |
-| `heading_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -220,10 +218,8 @@ Two-column layout with text content and an embedded video.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `name` | string | — | Section heading. |
-| `heading_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -247,10 +243,8 @@ Two-column layout with text content and a code block.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `name` | string | — | Section heading. |
-| `heading_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -272,10 +266,8 @@ Two-column layout with text content and an icon-links list.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `name` | string | — | Section heading. |
-| `heading_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -295,10 +287,8 @@ Two-column layout with text content and custom HTML.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `name` | string | — | Section heading. |
-| `heading_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -318,10 +308,8 @@ Two-column layout with text content and a styled callout box with icon, name, an
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `name` | string | — | Section heading. |
-| `heading_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -344,10 +332,8 @@ Two-column layout with text content and a single buyable product card. Emits sch
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `name` | string | — | Section heading. |
-| `heading_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -359,7 +345,6 @@ Two-column layout with text content and a single buyable product card. Emits sch
 | `figure_currency` | string | `"GBP"` | ISO currency code for schema.org `priceCurrency`. |
 | `figure_link` | string | **required** | Buy URL. |
 | `figure_button_text` | string | `"Buy now"` | Button label. |
-| `figure_heading_level` | number | `3` | Heading level for the product name. |
 | `figure_image_aspect_ratio` | string | — | Aspect ratio, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 
 Figure renders as `<figure itemscope itemtype="https://schema.org/Product">` with the same card markup as each item in the `buy-options` block (shared partial `src/_includes/design-system/buy-option-card.html`). Use this when you have a single buy action to promote alongside text; use `buy-options` for a grid of products.
@@ -378,12 +363,9 @@ Full-width two-panel layout with distinct background colors per side.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `variant` | string | — | Color scheme: `"dark-left"`, `"dark-right"`, `"primary-left"`, `"primary-right"`. |
-| `heading_level` | number | `2` | Heading level for both sides. |
-| `left_name` | string | — | Left panel heading. |
-| `left_content` | string | — | Left panel content (rendered as markdown via `.prose`). |
+| `left_content` | string | — | Left panel content with markdown headings (e.g. `## Heading`). Rendered as markdown via `.prose`. |
 | `left_button` | object | — | `{text, href, variant}`. |
-| `right_name` | string | — | Right panel heading. |
-| `right_content` | string | — | Right panel content (rendered as markdown via `.prose`). |
+| `right_content` | string | — | Right panel content with markdown headings (e.g. `## Heading`). Rendered as markdown via `.prose`. |
 | `right_button` | object | — | `{text, href, variant}`. |
 | `reveal_left` | string | — | `data-reveal` for left panel. |
 | `reveal_right` | string | — | `data-reveal` for right panel. |
@@ -403,8 +385,7 @@ Call-to-action banner with gradient background.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `name` | string | **required** | CTA heading (`<h2>`). |
-| `description` | string | — | Supporting markdown text. `body-lg`, 0.9 opacity, max-width `$width-narrow`. |
+| `content` | string | **required** | Markdown content with optional heading (e.g. `## Heading`). `body-lg`, 0.9 opacity, max-width `$width-narrow`. |
 | `button` | object | — | `{text, href, variant, size}`. Default variant: `"secondary"`, default size: `"lg"`. |
 | `reveal` | string | — | `data-reveal` value. |
 
@@ -505,7 +486,6 @@ Grid of clickable video thumbnails. Supports YouTube IDs and custom iframe URLs 
 | `videos` | array | **required** | Video objects. Each: `{id, name}`. `id` is a YouTube video ID or full iframe URL (Vimeo, Bunny Stream, etc.). |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each video card. |
-| `heading_level` | number | `3` | Heading level for video names (e.g. `2` for h2). |
 | `expand` | boolean | `false` | If true, videos fill the available width (1=100%, 2=50%, 3+=33.3%) instead of the standard card grid. |
 
 YouTube videos render optimized thumbnails via eleventy-img; custom URLs use a placeholder. Videos load only on click to save bandwidth.

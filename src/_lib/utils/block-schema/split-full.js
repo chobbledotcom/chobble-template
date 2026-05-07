@@ -1,7 +1,6 @@
 import {
   BUTTON_FIELDS_BASE,
   md,
-  num,
   objectField,
   str,
 } from "#utils/block-schema/shared.js";
@@ -16,30 +15,19 @@ export const fields = {
     description:
       'Color scheme: `"dark-left"`, `"dark-right"`, `"primary-left"`, `"primary-right"`.',
   },
-  heading_level: {
-    ...num("Heading Level"),
-    default: "2",
-    description: "Heading level for both sides.",
-  },
-  left_name: {
-    ...str("Left Name"),
-    description: "Left panel heading.",
-  },
   left_content: {
     ...md("Left Content"),
-    description: "Left panel content (rendered as markdown via `.prose`).",
+    description:
+      "Left panel content with markdown headings (e.g. `## Heading`). Rendered as markdown via `.prose`.",
   },
   left_button: {
     ...objectField("Left Button", BUTTON_FIELDS_BASE),
     description: "`{text, href, variant}`.",
   },
-  right_name: {
-    ...str("Right Name"),
-    description: "Right panel heading.",
-  },
   right_content: {
     ...md("Right Content"),
-    description: "Right panel content (rendered as markdown via `.prose`).",
+    description:
+      "Right panel content with markdown headings (e.g. `## Heading`). Rendered as markdown via `.prose`.",
   },
   right_button: {
     ...objectField("Right Button", BUTTON_FIELDS_BASE),

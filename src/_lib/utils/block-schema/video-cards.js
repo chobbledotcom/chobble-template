@@ -2,7 +2,6 @@ import {
   bool,
   INTRO_CONTENT_FIELD,
   ITEMS_GRID_META,
-  num,
   objectList,
   str,
 } from "#utils/block-schema/shared.js";
@@ -26,11 +25,6 @@ export const fields = {
     ...bool("Reveal Animation"),
     default: "true",
     description: "Adds `data-reveal` to each video card.",
-  },
-  heading_level: {
-    ...num("Heading Level"),
-    default: "3",
-    description: "Heading level for video names (e.g. `2` for h2).",
   },
   expand: {
     ...bool("Expand to Full Width"),

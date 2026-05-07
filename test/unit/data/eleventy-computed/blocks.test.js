@@ -65,11 +65,10 @@ describe("eleventyComputed.blocks", () => {
 
   test("applies split-image defaults including reveal_content 'left'", async () => {
     expect(
-      await runSingle({ type: "split-image", name: "Section Heading" }),
+      await runSingle({ type: "split-image", content: "## Section Heading" }),
     ).toEqual({
       type: "split-image",
-      name: "Section Heading",
-      heading_level: 2,
+      content: "## Section Heading",
       reveal_figure: "scale",
       reveal_content: "left",
       dark: false,
@@ -79,7 +78,7 @@ describe("eleventyComputed.blocks", () => {
   test("sets reveal_content to 'right' when a split block is reversed", async () => {
     const block = await runSingle({
       type: "split-html",
-      name: "Section Heading",
+      content: "## Section Heading",
       reverse: true,
     });
     expect(block.reveal_content).toBe("right");
@@ -88,7 +87,7 @@ describe("eleventyComputed.blocks", () => {
   test("preserves an explicit reveal_content on a split block", async () => {
     const block = await runSingle({
       type: "split-code",
-      name: "Section Heading",
+      content: "## Section Heading",
       reveal_content: "left",
     });
     expect(block.reveal_content).toBe("left");

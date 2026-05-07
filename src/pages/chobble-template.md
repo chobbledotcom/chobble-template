@@ -189,8 +189,9 @@ blocks:
     variant: dark-left
     reveal_left: left
     reveal_right: right
-    left_name: 14 Content Types
     left_content: |
+      ## 14 Content Types
+
       A bunch of different collection types and layouts for all sorts of business websites:
 
       - **Products** - Galleries, variants, SKUs, specifications
@@ -203,8 +204,8 @@ blocks:
       - **Reviews** - Ratings linked to products
       - **Team** - Staff profiles
       - **Guides** - Documentation and help articles
-    right_name: Example Product
     right_content: |
+      ## Example Product
       ```
       ---
       name: Organic Coffee Beans
@@ -227,10 +228,11 @@ blocks:
 
   # Themes Split (reversed)
   - type: split-callout
-    name: 10 Themes.
     reverse: true
     reveal_content: right
     content: |
+      ## 10 Themes.
+
       Each theme is a set of SCSS variables that controls colours, fonts, and spacing. They all work without modification.
 
       There's also a theme editor so you can test new CSS variables live (kinda buggy atm)
@@ -245,9 +247,10 @@ blocks:
 
   # Single-product promo (split layout + buy card with schema.org Product)
   - type: split-buy-options
-    name: Featured Product
     reveal_content: left
     content: |
+      ## Featured Product
+
       A single buy-option promoted alongside explanatory copy — same product
       card as the `buy-options` grid, but framed as a split hero.
     figure_image: src/images/breakfast.jpg
@@ -277,9 +280,10 @@ blocks:
 
   # Performance Split
   - type: split-code
-    name: Static HTML, Optimised Images
     reveal_content: left
     content: |
+      ## Static HTML, Optimised Images
+
       The output is plain HTML and CSS with no client-side framework. Images are processed at build time into multiple sizes and WebP format with blurred placeholders.
 
       - **LQIP Placeholders** - Inline base64 blurred previews, no extra requests
@@ -313,10 +317,11 @@ blocks:
 
   # Deployment Split (reversed)
   - type: split-html
-    name: Hosting and Deployment
     reverse: true
     reveal_content: right
     content: |
+      ## Hosting and Deployment
+
       Includes a GitHub Actions workflow. Push to main and it deploys to Neocities or Bunny CDN. Since the output is static files, any web host works.
 
       **Included deployment targets:**
@@ -349,8 +354,9 @@ blocks:
     variant: primary-left
     reveal_left: left
     reveal_right: right
-    left_name: Want It Built For You?
     left_content: |
+      ## Want It Built For You?
+
       Not everyone wants to DIY — and that's fine.
 
       I'm **Stef**, the developer behind Chobble Template. I've been building websites and software for over 20 years from Manchester, UK.
@@ -393,8 +399,10 @@ blocks:
 
   # CTA
   - type: cta
-    name: Get the Template
-    description: Fork the repository, add your content, and deploy. Or get in touch and Stef will set it up for you.
+    content: |
+      ## Get the Template
+
+      Fork the repository, add your content, and deploy. Or get in touch and Stef will set it up for you.
     button:
       text: Get Started on GitHub
       href: https://github.com/chobbledotcom/chobble-template
