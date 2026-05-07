@@ -39,7 +39,7 @@ describe("feed", () => {
         {
           path: "news/2024-01-01-older.md",
           frontmatter: {
-            title: "Older Post",
+            name: "Older Post",
             blocks: [
               {
                 type: "markdown",
@@ -52,7 +52,7 @@ describe("feed", () => {
         {
           path: "news/2024-06-15-newer.md",
           frontmatter: {
-            title: "Newer Post",
+            name: "Newer Post",
             blocks: [{ type: "markdown", content: "Second post content." }],
           },
           content: "",
@@ -60,7 +60,7 @@ describe("feed", () => {
         {
           path: "news/special.md",
           frontmatter: {
-            title: "Tom and Jerry's Adventure",
+            name: "Tom and Jerry's Adventure",
             blocks: [{ type: "markdown", content: "Special chars test" }],
           },
           content: "",
@@ -68,7 +68,7 @@ describe("feed", () => {
         {
           path: "news/ampersand.md",
           frontmatter: {
-            title: "Marquee Weddings & Photo Booths",
+            name: "Marquee Weddings & Photo Booths",
             blocks: [{ type: "markdown", content: "Ampersand test" }],
           },
           content: "",
@@ -163,7 +163,7 @@ describe("feed", () => {
       files: [
         {
           path: "pages/about.md",
-          frontmatter: { title: "About", layout: "page" },
+          frontmatter: { name: "About", layout: "page" },
           content: "# About us",
         },
       ],

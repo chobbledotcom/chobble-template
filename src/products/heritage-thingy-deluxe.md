@@ -1,5 +1,5 @@
 ---
-title: Heritage Thingy Deluxe
+name: Heritage Thingy Deluxe
 subtitle: Handcrafted classic thingy with timeless appeal
 filter_attributes:
   - name: Size

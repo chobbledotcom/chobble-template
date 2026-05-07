@@ -223,7 +223,7 @@ const createTestSite = async (options = {}) => {
     }
 
     createMarkdownFile(srcDir)("pages/index.md", {
-      frontmatter: { title: "Test Site", layout: "page", permalink: "/" },
+      frontmatter: { name: "Test Site", layout: "page", permalink: "/" },
       content: "# Test Site",
     });
   };

@@ -4,7 +4,7 @@ import { withTestSite } from "#test/test-site-factory.js";
 const widgetProduct = {
   path: "products/test-widget.md",
   frontmatter: {
-    title: "Test Widget",
+    name: "Test Widget",
     categories: ["widgets"],
     blocks: [{ type: "markdown", content: "A test widget product." }],
   },
@@ -16,12 +16,12 @@ const categoryProductsBlock = { type: "category-products" };
 const categoryWithProduct = [
   {
     path: "categories/widgets.md",
-    frontmatter: { title: "Widgets", blocks: [categoryProductsBlock] },
+    frontmatter: { name: "Widgets", blocks: [categoryProductsBlock] },
     content: "",
   },
   {
     path: "products/no-image.md",
-    frontmatter: { title: "No Image Product", categories: ["widgets"] },
+    frontmatter: { name: "No Image Product", categories: ["widgets"] },
     content: "",
   },
 ];
@@ -31,7 +31,7 @@ describe("category-products", () => {
     const widgetsCategory = {
       path: "categories/widgets.md",
       frontmatter: {
-        title: "Widgets",
+        name: "Widgets",
         blocks: [
           { type: "markdown", content: "Category description." },
           categoryProductsBlock,
@@ -78,7 +78,7 @@ describe("category-products", () => {
           {
             path: "news/2024-01-01-no-thumb.md",
             frontmatter: {
-              title: "News Without Thumbnail",
+              name: "News Without Thumbnail",
               blocks: [
                 {
                   type: "markdown",

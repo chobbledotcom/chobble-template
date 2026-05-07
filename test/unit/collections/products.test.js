@@ -21,11 +21,11 @@ import {
 /** Product factory with default empty categories */
 const product = data({ categories: [] });
 
-/** Products with title and categories */
-const categoryProduct = product("title", "categories");
+/** Products with name and categories */
+const categoryProduct = product("name", "categories");
 
-/** Products with title and events list */
-const eventProduct = product("title", "events");
+/** Products with name and events list */
+const eventProduct = product("name", "events");
 
 // ============================================
 // Test Fixture Builders
@@ -320,9 +320,9 @@ describe("products", () => {
   describe("bidirectional category-product relationships", () => {
     /** Reusable product with slug and category membership */
     const widgetA = (categories = []) =>
-      createProduct({ slug: "widget-a", title: "Widget A", categories });
+      createProduct({ slug: "widget-a", name: "Widget A", categories });
     const widgetB = (categories = []) =>
-      createProduct({ slug: "widget-b", title: "Widget B", categories });
+      createProduct({ slug: "widget-b", name: "Widget B", categories });
 
     const widgetsByCategory = (filters, ...extraArgs) =>
       filters.getProductsByCategory(
@@ -370,9 +370,9 @@ describe("products", () => {
     test("explicit products maintain frontmatter order over order field", () => {
       const { filters } = setupProductsConfig();
       const testProducts = [
-        createProduct({ slug: "alpha", title: "Alpha", order: 1 }),
-        createProduct({ slug: "beta", title: "Beta", order: 2 }),
-        createProduct({ slug: "gamma", title: "Gamma", order: 3 }),
+        createProduct({ slug: "alpha", name: "Alpha", order: 1 }),
+        createProduct({ slug: "beta", name: "Beta", order: 2 }),
+        createProduct({ slug: "gamma", name: "Gamma", order: 3 }),
       ];
 
       const result = filters.getProductsByCategory(testProducts, "widgets", [
@@ -387,16 +387,16 @@ describe("products", () => {
     test("reverse-lookup products sorted by order after explicit ones", () => {
       const { filters } = setupProductsConfig();
       const testProducts = [
-        createProduct({ slug: "explicit-one", title: "Explicit One" }),
+        createProduct({ slug: "explicit-one", name: "Explicit One" }),
         createProduct({
           slug: "reverse-b",
-          title: "Reverse B",
+          name: "Reverse B",
           order: 2,
           categories: ["widgets"],
         }),
         createProduct({
           slug: "reverse-a",
-          title: "Reverse A",
+          name: "Reverse A",
           order: 1,
           categories: ["widgets"],
         }),
@@ -461,9 +461,9 @@ describe("products", () => {
 
   describe("bidirectional event-product relationships", () => {
     const productA = (events = []) =>
-      createProduct({ slug: "product-a", title: "Product A", events });
+      createProduct({ slug: "product-a", name: "Product A", events });
     const productB = (events = []) =>
-      createProduct({ slug: "product-b", title: "Product B", events });
+      createProduct({ slug: "product-b", name: "Product B", events });
 
     test("includes products listed in page frontmatter", () => {
       const { filters } = setupProductsConfig();
@@ -541,7 +541,7 @@ describe("products", () => {
 
   describe("addGallery helper", () => {
     const expectSameRef = (result, testProduct) => {
-      expect(result.data.title).toBe(testProduct.data.title);
+      expect(result.data.name).toBe(testProduct.data.name);
       expect(result).toBe(testProduct);
     };
 

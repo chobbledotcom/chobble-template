@@ -11,14 +11,14 @@ import { expectAsyncThrows, rootDir } from "#test/test-utils.js";
 /** Minimal page file for tests that just need a valid site */
 const MINIMAL_PAGE = {
   path: "pages/index.md",
-  frontmatter: { title: "Home", permalink: "/" },
+  frontmatter: { name: "Home", permalink: "/" },
   content: "Home",
 };
 
 /** Basic test page file with common defaults */
 const factoryTestPage = (options = {}) => ({
   path: options.path || "pages/test.md",
-  frontmatter: { title: options.title || "Test", ...options.frontmatter },
+  frontmatter: { name: options.name || "Test", ...options.frontmatter },
   content: options.content || "Test",
 });
 
@@ -144,7 +144,7 @@ describe("test-site-factory", () => {
 
     test("addMarkdown adds a markdown file with frontmatter", () => {
       site.addMarkdown("pages/added.md", {
-        frontmatter: { title: "Added Page" },
+        frontmatter: { name: "Added Page" },
         content: "# Added Content",
       });
 
@@ -152,7 +152,7 @@ describe("test-site-factory", () => {
       expect(fs.existsSync(filePath)).toBe(true);
 
       const fileContent = fs.readFileSync(filePath, "utf-8");
-      expect(fileContent).toContain("title: Added Page");
+      expect(fileContent).toContain("name: Added Page");
       expect(fileContent).toContain("# Added Content");
     });
   });
@@ -169,12 +169,12 @@ describe("test-site-factory", () => {
           MINIMAL_PAGE,
           {
             path: "pages/test.md",
-            frontmatter: { title: "Test Page", permalink: "/test/" },
+            frontmatter: { name: "Test Page", permalink: "/test/" },
             content: "# Hello World",
           },
           {
             path: "pages/about.md",
-            frontmatter: { title: "About", permalink: "/about/" },
+            frontmatter: { name: "About", permalink: "/about/" },
             content: "About",
           },
         ],
@@ -251,7 +251,7 @@ describe("test-site-factory", () => {
       // Create a couple of test sites with different pages
       const site1 = await createTestSite({ files: defaultTestFiles });
       const site2 = await createTestSite({
-        files: [factoryTestPage({ path: "pages/test2.md", title: "Test 2" })],
+        files: [factoryTestPage({ path: "pages/test2.md", name: "Test 2" })],
       });
 
       // Get the test sites directory

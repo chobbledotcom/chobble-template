@@ -20,16 +20,16 @@ describe("collection-utils", () => {
 
     test("filters items by featured flag", () => {
       const products = [
-        { data: { title: "Item 1", featured: true } },
-        { data: { title: "Item 2", featured: false } },
-        { data: { title: "Item 3", featured: true } },
+        { data: { name: "Item 1", featured: true } },
+        { data: { name: "Item 2", featured: false } },
+        { data: { name: "Item 3", featured: true } },
       ];
       const result = getFeatured(taggedCollectionApi({ products }));
       expectResultTitles(result, ["Item 1", "Item 3"]);
     });
 
     test("returns empty array when no items are featured", () => {
-      const products = [{ data: { title: "Item 1", featured: false } }];
+      const products = [{ data: { name: "Item 1", featured: false } }];
       const result = getFeatured(taggedCollectionApi({ products }));
       expect(result).toHaveLength(0);
     });
@@ -50,8 +50,8 @@ describe("collection-utils", () => {
   describe("getEventsFromApi", () => {
     test("returns events from collection API", () => {
       const events = [
-        { data: { title: "Event 1" } },
-        { data: { title: "Event 2" } },
+        { data: { name: "Event 1" } },
+        { data: { name: "Event 2" } },
       ];
       const api = taggedCollectionApi({ events });
 
@@ -77,17 +77,17 @@ describe("collection-utils", () => {
       { format: "path with .md", value: "events/summer-sale.md" },
       { format: "path without extension", value: "events/summer-sale" },
     ])("normalises $format to bare slug for lookup", ({ value }) => {
-      const items = [{ data: { title: "P1", events: [value] } }];
+      const items = [{ data: { name: "P1", events: [value] } }];
       const index = indexByEvents(items);
       expect(index["summer-sale"]).toHaveLength(1);
-      expect(index["summer-sale"][0].data.title).toBe("P1");
+      expect(index["summer-sale"][0].data.name).toBe("P1");
     });
 
     test("groups items with mixed slug formats under same key", () => {
       const items = [
-        { data: { title: "P1", events: ["summer-sale"] } },
-        { data: { title: "P2", events: ["events/summer-sale.md"] } },
-        { data: { title: "P3", events: ["events/summer-sale"] } },
+        { data: { name: "P1", events: ["summer-sale"] } },
+        { data: { name: "P2", events: ["events/summer-sale.md"] } },
+        { data: { name: "P3", events: ["events/summer-sale"] } },
       ];
       const index = indexByEvents(items);
       expect(index["summer-sale"]).toHaveLength(3);
@@ -102,7 +102,7 @@ describe("collection-utils", () => {
       { format: "path with .md", value: "categories/widgets.md" },
       { format: "path without extension", value: "categories/widgets" },
     ])("normalises $format to bare slug for lookup", ({ value }) => {
-      const items = [{ data: { title: "C1", parent: value } }];
+      const items = [{ data: { name: "C1", parent: value } }];
       const index = indexByParent(items);
       expect(index.widgets).toHaveLength(1);
     });

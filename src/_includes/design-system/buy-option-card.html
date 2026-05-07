@@ -6,7 +6,7 @@ split.html for the `split-buy-options` block (rendered inside a
 
 Parameters (passed directly via include):
   - image: Image path (optional)
-  - title: Product name (required)
+  - name: Product name (required)
   - subtitle: Short secondary line, e.g. "Print edition" (optional)
   - price: Display price string, e.g. "£15" (optional)
   - currency: ISO currency code for schema.org (default: "GBP")
@@ -26,12 +26,12 @@ Parameters (passed directly via include):
 {%- assign _heading_level = heading_level | default: 3 -%}
 {%- if image -%}
   <a class="image-link" href="{{ link }}">
-    {%- image image, title, "", "", "", image_aspect_ratio -%}
+    {%- image image, name, "", "", "", image_aspect_ratio -%}
     <meta itemprop="image" content="{{ image }}">
   </a>
 {%- endif -%}
 <h{{ _heading_level }} itemprop="name">
-  <a href="{{ link }}">{{ title }}</a>
+  <a href="{{ link }}">{{ name }}</a>
 </h{{ _heading_level }}>
 {%- if subtitle -%}
   <p class="subtitle">{{ subtitle }}</p>

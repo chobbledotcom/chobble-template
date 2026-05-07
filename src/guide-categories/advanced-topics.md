@@ -1,5 +1,5 @@
 ---
-title: Advanced Topics
+name: Advanced Topics
 subtitle: Deep dives into complex features and customisation
 order: 2
 icon: "hugeicons:settings-02"

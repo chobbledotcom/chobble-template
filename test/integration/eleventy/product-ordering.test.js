@@ -6,19 +6,19 @@ import { withTestSite } from "#test/test-site-factory.js";
 // ============================================
 
 /** Product with given categories (default: none). */
-const product = (slug, title, order = 0, extras = {}) => ({
+const product = (slug, name, order = 0, extras = {}) => ({
   path: `products/${slug}.md`,
-  frontmatter: { title, order, categories: [], ...extras },
+  frontmatter: { name, order, categories: [], ...extras },
   content: "",
 });
 
 const EXPO_DATE = "2026-06-19";
 
 /** Build a test event file with optional explicit products. */
-const eventWithProducts = (slug, title, products) => ({
+const eventWithProducts = (slug, name, products) => ({
   path: `events/${slug}.md`,
   frontmatter: {
-    title,
+    name,
     event_date: EXPO_DATE,
     ...(products ? { products: products.map((p) => ({ product: p })) } : {}),
     blocks: [{ type: "event-products" }],

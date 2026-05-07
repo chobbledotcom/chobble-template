@@ -35,7 +35,7 @@ Usage:
       {%- if item.icon -%}
         {%- include "design-system/icon-badge.html", icon: item.icon, label: item.icon_label -%}
       {%- endif -%}
-      <h3>{{ item.title }}</h3>
+      <h3>{{ item.name }}</h3>
       {%- if item.description -%}
         <div class="prose">{{ item.description | renderContent: "md" }}</div>
       {%- endif -%}

@@ -3,7 +3,7 @@ import eleventyComputed from "#data/eleventyComputed.js";
 
 /** Build a product-shaped page data object with sensible defaults. */
 const makeProduct = (overrides = {}) => ({
-  title: "Test Product",
+  name: "Test Product",
   tags: ["products"],
   options: [],
   filter_attributes: [],
@@ -13,18 +13,18 @@ const makeProduct = (overrides = {}) => ({
 describe("eleventyComputed.filter_data", () => {
   test("returns undefined when the page is not tagged 'products'", () => {
     expect(
-      eleventyComputed.filter_data({ title: "Some Event", tags: ["events"] }),
+      eleventyComputed.filter_data({ name: "Some Event", tags: ["events"] }),
     ).toBeUndefined();
   });
 
-  test("lowercases the product title so client-side search is case-insensitive", () => {
+  test("lowercases the product name so client-side search is case-insensitive", () => {
     const result = eleventyComputed.filter_data(
       makeProduct({
-        title: "UPPERCASE PRODUCT",
+        name: "UPPERCASE PRODUCT",
         options: [{ unit_price: 10 }],
       }),
     );
-    expect(result.title).toBe("uppercase product");
+    expect(result.name).toBe("uppercase product");
   });
 
   test("uses the lowest option unit_price when options exist", () => {

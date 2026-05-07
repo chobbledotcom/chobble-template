@@ -13,7 +13,7 @@ Guide-category-only block. No block-level parameters.
     <ul class="guide-list">
       {%- for guide_page in guide_pages -%}
         <li>
-          <a href="{{ guide_page.url }}">{{ guide_page.data.title }}</a>
+          <a href="{{ guide_page.url }}">{{ guide_page.data.name }}</a>
           {%- if guide_page.data.subtitle -%}
             <p>{{ guide_page.data.subtitle }}</p>
           {%- endif -%}

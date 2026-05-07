@@ -1,5 +1,5 @@
 ---
-title: John Doe
+name: John Doe
 order: 1
 subtitle: This is a team member page in the template
 blocks:

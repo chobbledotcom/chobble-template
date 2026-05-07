@@ -14,7 +14,7 @@ describe("sitemap", () => {
         files: [
           {
             path: "pages/about.md",
-            frontmatter: { title: "About", permalink: "/about/" },
+            frontmatter: { name: "About", permalink: "/about/" },
             content: "About page",
           },
         ],
@@ -32,13 +32,13 @@ describe("sitemap", () => {
         files: [
           {
             path: "pages/visible.md",
-            frontmatter: { title: "Visible", permalink: "/visible/" },
+            frontmatter: { name: "Visible", permalink: "/visible/" },
             content: "Visible page",
           },
           {
             path: "pages/hidden.md",
             frontmatter: {
-              title: "Hidden",
+              name: "Hidden",
               permalink: "/hidden/",
               no_index: true,
             },
@@ -61,7 +61,7 @@ describe("sitemap", () => {
           {
             path: "pages/q.md",
             frontmatter: {
-              title: "Query",
+              name: "Query",
               permalink: "/search/?q=cats&p=1",
             },
             content: "Query page",
@@ -84,7 +84,7 @@ describe("sitemap", () => {
           {
             path: "pages/secret.md",
             frontmatter: {
-              title: "Secret Page",
+              name: "Secret Page",
               permalink: "/secret/",
               no_index: true,
             },

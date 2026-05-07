@@ -122,12 +122,12 @@ describe("item-filters", () => {
       const priceAsc = [...items].sort(getSortOption("price-asc").compare);
       const priceDesc = [...items].sort(getSortOption("price-desc").compare);
 
-      expect(priceAsc.map((item) => item.data.title)).toEqual([
+      expect(priceAsc.map((item) => item.data.name)).toEqual([
         "Low",
         "High",
         "No Price",
       ]);
-      expect(priceDesc.map((item) => item.data.title)).toEqual([
+      expect(priceDesc.map((item) => item.data.name)).toEqual([
         "High",
         "Low",
         "No Price",
@@ -144,12 +144,12 @@ describe("item-filters", () => {
       const nameAsc = [...items].sort(getSortOption("name-asc").compare);
       const nameDesc = [...items].sort(getSortOption("name-desc").compare);
 
-      expect(nameAsc.map((item) => item.data.title)).toEqual([
+      expect(nameAsc.map((item) => item.data.name)).toEqual([
         "Alpha",
         "middle",
         "zebra",
       ]);
-      expect(nameDesc.map((item) => item.data.title)).toEqual([
+      expect(nameDesc.map((item) => item.data.name)).toEqual([
         "zebra",
         "middle",
         "Alpha",

@@ -1,5 +1,5 @@
 ---
-title: Doggy Day Care
+name: Doggy Day Care
 subtitle: Professional pet care while you're away
 keywords:
   - pets

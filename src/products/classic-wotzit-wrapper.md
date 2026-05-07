@@ -1,5 +1,5 @@
 ---
-title: Classic Wotzit Wrapper
+name: Classic Wotzit Wrapper
 subtitle: Timeless structured wrapper for formal occasions
 keywords:
   - formal

@@ -25,7 +25,7 @@ const getAnchorSuffix = async () => {
  */
 const createItemLink = (anchor) => async (item) => {
   const url = `${item.url}${anchor}`;
-  return createHtml("a", { href: url }, item.data.title);
+  return createHtml("a", { href: url }, item.data.name);
 };
 
 /**

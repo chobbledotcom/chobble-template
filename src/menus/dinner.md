@@ -1,12 +1,12 @@
 ---
-title: Dinner Menu
+name: Dinner Menu
 order: 2
 subtitle: Fresh vegan dinner options served daily.
 meta_title: Dinner Menu
 meta_description: Fresh vegan dinner options served daily
 blocks:
   - type: hero
-    title: Dinner Menu
+    name: Dinner Menu
     lead: Fresh vegan dinner options served daily.
   - type: markdown
     content: |

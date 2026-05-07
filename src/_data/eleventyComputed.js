@@ -4,7 +4,7 @@ import quoteFieldsFn from "#data/quote-fields.js";
 import { slugifyAttr } from "#filters/filter-core.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
-import { validateBlocks } from "#utils/block-schema.js";
+import { collectBlockErrors } from "#utils/block-schema.js";
 import { getFilterAttributes } from "#utils/mock-filter-attributes.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
@@ -13,6 +13,7 @@ import {
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
+import { collectItemErrors } from "#utils/validate-item.js";
 import { getVideoThumbnailUrl } from "#utils/video.js";
 
 /**
@@ -30,17 +31,42 @@ const hasTag = (data, tag) => (data.tags || []).includes(tag);
 const BLOCK_DEFAULTS = {
   features: { reveal: true, center: false },
   stats: { reveal: true },
-  "split-image": { title_level: 2, reveal_figure: "scale" },
-  "split-video": { title_level: 2, reveal_figure: "scale" },
-  "split-code": { title_level: 2, reveal_figure: "scale" },
-  "split-icon-links": { title_level: 2, reveal_figure: "scale" },
-  "split-html": { title_level: 2, reveal_figure: "scale" },
-  "split-callout": { title_level: 2, reveal_figure: "scale" },
+  "split-image": { heading_level: 2, reveal_figure: "scale" },
+  "split-video": { heading_level: 2, reveal_figure: "scale" },
+  "split-code": { heading_level: 2, reveal_figure: "scale" },
+  "split-icon-links": { heading_level: 2, reveal_figure: "scale" },
+  "split-html": { heading_level: 2, reveal_figure: "scale" },
+  "split-callout": { heading_level: 2, reveal_figure: "scale" },
   "section-header": { align: "center" },
   "image-cards": { reveal: true },
   "code-block": { reveal: true },
   "icon-links": { reveal: true },
   downloads: { reveal: true },
+};
+
+const applyBlockDefaults = (block) => {
+  const blockType = String(block.type);
+  const merged = Object.assign(
+    { dark: false },
+    BLOCK_DEFAULTS[blockType],
+    block,
+  );
+  if (blockType.startsWith("split-") && !block.reveal_content) {
+    merged.reveal_content = block.reverse ? "right" : "left";
+  }
+  return merged;
+};
+
+const enrichVideoCards = async (block) => {
+  if (block.type !== "video-cards" || !Array.isArray(block.videos))
+    return block;
+  const videos = await Promise.all(
+    block.videos.map(async (video) => ({
+      ...video,
+      thumbnail_url: await getVideoThumbnailUrl(video.id),
+    })),
+  );
+  return { ...block, videos };
 };
 
 export default {
@@ -84,7 +110,7 @@ export default {
    * .map() preserves holes causing Object.fromEntries to fail, while
    * .filter(Boolean) materializes the proxy into a real empty array.
    * @param {import("#lib/types").ProductItemData & import("#lib/types").EleventyComputedData} data - Page data (products only)
-   * @returns {{ title: string, price: number|undefined, filters: Record<string, string> }|undefined}
+   * @returns {{ name: string, price: number|undefined, filters: Record<string, string> }|undefined}
    */
   filter_data: (data) => {
     if (!hasTag(data, "products")) return undefined;
@@ -100,7 +126,7 @@ export default {
     };
 
     return {
-      title: data.title.toLowerCase(),
+      name: data.name.toLowerCase(),
       price: getPrice(),
       filters: Object.fromEntries(
         data.filter_attributes.filter(Boolean).map(slugifyAttr),
@@ -194,33 +220,19 @@ export default {
    * @throws {Error} If any block contains unknown keys
    */
   blocks: async (data) => {
-    if (!data.blocks) return data.blocks;
-    validateBlocks(data.blocks, ` in ${data.page.inputPath}`);
-    const withDefaults = data.blocks.map((block) => {
-      const blockType = String(block.type);
-      const merged = Object.assign(
-        { dark: false },
-        BLOCK_DEFAULTS[blockType],
-        block,
-      );
-      if (blockType.startsWith("split-") && !block.reveal_content) {
-        merged.reveal_content = block.reverse ? "right" : "left";
-      }
-      return merged;
-    });
+    const context = ` in ${data.page.inputPath}`;
+    const itemErrors = collectItemErrors(data, context);
+    if (!data.blocks) {
+      if (itemErrors.length > 0) throw new Error(itemErrors.join("\n"));
+      return data.blocks;
+    }
+    const allErrors = [
+      ...itemErrors,
+      ...collectBlockErrors(data.blocks, context),
+    ];
+    if (allErrors.length > 0) throw new Error(allErrors.join("\n"));
     return Promise.all(
-      withDefaults.map(async (block) => {
-        if (block.type !== "video-cards" || !Array.isArray(block.videos)) {
-          return block;
-        }
-        const videos = await Promise.all(
-          block.videos.map(async (video) => ({
-            ...video,
-            thumbnail_url: await getVideoThumbnailUrl(video.id),
-          })),
-        );
-        return { ...block, videos };
-      }),
+      data.blocks.map(applyBlockDefaults).map(enrichVideoCards),
     );
   },
 };

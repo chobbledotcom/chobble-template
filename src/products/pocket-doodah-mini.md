@@ -1,5 +1,5 @@
 ---
-title: Pocket Doodah Mini
+name: Pocket Doodah Mini
 subtitle: Ultra-portable doodah for everyday carry
 filter_attributes:
   - name: Size

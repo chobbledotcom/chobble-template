@@ -48,7 +48,7 @@ components:
         list: true
         fields:
           - { name: image, type: image, label: Image, required: true }
-          - { name: title, type: string, label: Title, required: true }
+          - { name: name, type: string, label: Name, required: true }
           - { name: subtitle, type: string, label: Subtitle }
           - name: price
             type: string
@@ -73,7 +73,7 @@ components:
       - name: icon
         type: string
         label: Icon (Iconify ID, emoji, or path)
-      - { name: title, type: string, label: Title }
+      - { name: name, type: string, label: Name }
       - { name: content, type: rich-text, label: Content, required: true }
   block_code_block:
     label: Code Block
@@ -97,7 +97,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title, required: true }
+      - { name: name, type: string, label: Name, required: true }
       - { name: description, type: rich-text, label: Description }
       - name: button
         type: object
@@ -165,7 +165,7 @@ components:
           - name: icon
             type: string
             label: Icon (Iconify ID or HTML entity)
-          - { name: title, type: string, label: Title, required: true }
+          - { name: name, type: string, label: Name, required: true }
           - { name: description, type: rich-text, label: Description }
           - { name: style, type: string, label: Custom Style }
       - name: intro_content
@@ -201,7 +201,7 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: badge, type: string, label: Badge Text }
-      - { name: title, type: string, label: Title, required: true }
+      - { name: name, type: string, label: Name, required: true }
       - { name: lead, type: string, label: Lead Text }
       - name: buttons
         type: object
@@ -245,7 +245,7 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: src, type: string, label: Iframe URL, required: true }
-      - { name: title, type: string, label: Accessible Title, required: true }
+      - { name: name, type: string, label: Accessible Name, required: true }
       - { name: width, type: number, label: Width (px) }
       - { name: height, type: number, label: Height (px) }
       - { name: aspect_ratio, type: string, label: Aspect Ratio (e.g. 16/9) }
@@ -283,7 +283,7 @@ components:
         list: true
         fields:
           - { name: image, type: image, label: Image, required: true }
-          - { name: title, type: string, label: Title, required: true }
+          - { name: name, type: string, label: Name, required: true }
           - { name: description, type: string, label: Description }
           - { name: link, type: string, label: Link URL }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
@@ -316,7 +316,7 @@ components:
         fields:
           - name: property
             type: string
-            label: Property (e.g. url, data.title)
+            label: Property (e.g. url, data.name)
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
@@ -340,7 +340,7 @@ components:
         fields:
           - name: property
             type: string
-            label: Property (e.g. url, data.title)
+            label: Property (e.g. url, data.name)
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
       - { name: image_aspect_ratio, type: string, label: Image Aspect Ratio }
@@ -384,7 +384,7 @@ components:
         fields:
           - name: property
             type: string
-            label: Property (e.g. url, data.title)
+            label: Property (e.g. url, data.name)
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
       - { name: remove_text, type: string, label: Remove Text (Regex) }
@@ -481,7 +481,7 @@ components:
         fields:
           - name: property
             type: string
-            label: Property (e.g. url, data.title)
+            label: Property (e.g. url, data.name)
           - { name: includes, type: string, label: Contains }
           - { name: equals, type: string, label: Equals }
   block_split_buy_options:
@@ -489,8 +489,8 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
+      - { name: name, type: string, label: Name }
+      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -508,10 +508,7 @@ components:
         type: image
         label: Product Image
         required: true
-      - name: figure_title
-        type: string
-        label: Product Title
-        required: true
+      - { name: figure_name, type: string, label: Product Name, required: true }
       - { name: figure_subtitle, type: string, label: Product Subtitle }
       - name: figure_price
         type: string
@@ -532,8 +529,8 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
+      - { name: name, type: string, label: Name }
+      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -550,10 +547,7 @@ components:
       - name: figure_icon
         type: string
         label: Icon (Iconify ID, emoji, or path)
-      - name: figure_title
-        type: string
-        label: Callout Title
-        required: true
+      - { name: figure_name, type: string, label: Callout Name, required: true }
       - { name: figure_subtitle, type: string, label: Callout Subtitle }
       - { name: figure_variant, type: string, label: Callout Color Variant }
   block_split_code:
@@ -561,8 +555,8 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
+      - { name: name, type: string, label: Name }
+      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -585,8 +579,8 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: variant, type: string, label: Variant }
-      - { name: title_level, type: number, label: Heading Level }
-      - { name: left_title, type: string, label: Left Title }
+      - { name: heading_level, type: number, label: Heading Level }
+      - { name: left_name, type: string, label: Left Name }
       - { name: left_content, type: rich-text, label: Left Content }
       - name: left_button
         type: object
@@ -595,7 +589,7 @@ components:
           - { name: text, type: string, label: Button Text, required: true }
           - { name: href, type: string, label: URL, required: true }
           - { name: variant, type: string, label: Variant }
-      - { name: right_title, type: string, label: Right Title }
+      - { name: right_name, type: string, label: Right Name }
       - { name: right_content, type: rich-text, label: Right Content }
       - name: right_button
         type: object
@@ -611,8 +605,8 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
+      - { name: name, type: string, label: Name }
+      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -635,8 +629,8 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
+      - { name: name, type: string, label: Name }
+      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -667,8 +661,8 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
+      - { name: name, type: string, label: Name }
+      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -690,8 +684,8 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-      - { name: title, type: string, label: Title }
-      - { name: title_level, type: number, label: Heading Level }
+      - { name: name, type: string, label: Name }
+      - { name: heading_level, type: number, label: Heading Level }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -751,7 +745,7 @@ components:
         list: true
         fields:
           - { name: id, type: string, label: Video ID or URL, required: true }
-          - { name: title, type: string, label: Title, required: true }
+          - { name: name, type: string, label: Name, required: true }
       - name: intro_content
         type: rich-text
         label: Intro Content (Markdown)
@@ -782,7 +776,7 @@ components:
     type: object
     list: true
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: name, type: string, label: Name, required: true }
       - { name: image, type: image, label: Image }
       - { name: body, type: rich-text, label: Body, required: true }
   block_add_to_cart:
@@ -1079,7 +1073,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: name, type: string, label: Name }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -1213,7 +1207,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: name, type: string, label: Name }
       - { name: thumbnail, type: image, label: Thumbnail }
       - name: parent
         label: Parent Category
@@ -1287,8 +1281,15 @@ content:
     path: src/news
     type: collection
     subfolders: false
+    view:
+      fields:
+        - name
+        - date
+      primary: name
+      sort:
+        - date
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: name, type: string, label: Name }
       - { name: date, label: Date, type: date }
       - name: author
         label: Author
@@ -1365,15 +1366,15 @@ content:
     view:
       fields:
         - thumbnail
-        - title
+        - name
         - event_date
         - recurring_date
         - event_location
-      primary: title
+      primary: name
       sort:
-        - title
+        - name
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: name, type: string, label: Name }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -1459,7 +1460,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: name, type: string, label: Name }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
       - { name: subtitle, type: string, label: Subtitle }
@@ -1597,15 +1598,15 @@ content:
     view:
       fields:
         - thumbnail
-        - title
+        - name
         - subtitle
         - bedrooms
         - sleeps
-      primary: title
+      primary: name
       sort:
-        - title
+        - name
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: name, type: string, label: Name }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -1701,7 +1702,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: name, type: string, label: Name }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: order, type: number, label: Order }
       - { name: icon, type: image, label: Icon }
@@ -1774,7 +1775,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: name, type: string, label: Name }
       - { name: subtitle, type: string, label: Subtitle }
       - name: guide-category
         label: Guide Category
@@ -1848,7 +1849,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: name, type: string, label: Name }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }

@@ -10,7 +10,7 @@ Videos only load when clicked, saving bandwidth until user interaction.
 Parameters:
   - videos: Array of video objects with properties:
     - id: YouTube video ID or custom iframe URL (required)
-    - title: Video title (required)
+    - name: Video name (required)
     - thumbnail_url: Computed property - YouTube thumbnail URL or null for custom URLs
   - reveal: If true, adds data-reveal animation (default: true)
   - heading_level: Heading level for titles, defaults to 3 (h3)
@@ -34,8 +34,8 @@ Usage:
 <ul class="items video-cards{% if expand %} expanded{% endif %}" role="list">
   {%- for video in videos -%}
   <li{% if reveal %} data-reveal{% endif %}>
-    {%- include "design-system/video-facade.html", video_id: video.id, title: video.title, thumbnail_url: video.thumbnail_url -%}
-    <h{{ heading_level }}>{{ video.title }}</h{{ heading_level }}>
+    {%- include "design-system/video-facade.html", video_id: video.id, name: video.name, thumbnail_url: video.thumbnail_url -%}
+    <h{{ heading_level }}>{{ video.name }}</h{{ heading_level }}>
   </li>
   {%- endfor -%}
 </ul>

@@ -10,7 +10,7 @@ export default linkableContent("guide", {
       return withNavigationAnchor(data, data.eleventyNavigation);
     }
     return withNavigationAnchor(data, {
-      key: data.title,
+      key: data.name,
       parent: data.strings.guide_name,
       order: data.link_order || 0,
     });

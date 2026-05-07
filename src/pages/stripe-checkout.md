@@ -1,5 +1,5 @@
 ---
-title: Checkout
+name: Checkout
 meta_title: Checkout
 no_index: true
 permalink: /stripe-checkout/

@@ -2,7 +2,7 @@
 Call-to-action block with gradient background.
 
 Parameters (via block object):
-  - block.title: CTA heading (required)
+  - block.name: CTA heading (required)
   - block.description: Supporting text (rendered as markdown)
   - block.button: Button object with:
     - text: Button label
@@ -14,7 +14,7 @@ Parameters (via block object):
 Usage:
   {% include "design-system/cta.html",
      block: {
-       title: "Ready to Get Started?",
+       name: "Ready to Get Started?",
        description: "Join thousands of happy customers.",
        button: { text: "Sign Up Now", href: "/signup" }
      }
@@ -22,7 +22,7 @@ Usage:
 {%- endcomment -%}
 
 <aside class="cta"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
-  <h2>{{ block.title }}</h2>
+  <h2>{{ block.name }}</h2>
   {%- if block.description -%}
     <div class="prose">{{ block.description | renderContent: "md" }}</div>
   {%- endif -%}

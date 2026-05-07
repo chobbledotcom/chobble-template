@@ -73,7 +73,7 @@ export default {
       const mode = getProductMode(data);
       const defaultMaxQuantity = getDefaultMaxQuantity(data);
       return buildCartAttributes({
-        title: data.title,
+        name: data.name,
         subtitle: data.subtitle,
         options: computeOptions(data, mode, defaultMaxQuantity),
         specs: computeSpecs(data.specs || []),

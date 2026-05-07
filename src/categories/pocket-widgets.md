@@ -1,5 +1,5 @@
 ---
-title: Pocket Widgets
+name: Pocket Widgets
 subtitle: Portable widgets with advanced functionality capabilities
 parent: widgets
 blocks:

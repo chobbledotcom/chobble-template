@@ -11,13 +11,13 @@ blocks:
   - type: features
     items:
       - icon: "hugeicons:rocket"
-        title: Fast Delivery
+        name: Fast Delivery
         description: We dispatch orders within 24 hours across the United Kingdom.
       - icon: "hugeicons:money-bag-02"
-        title: Competitive Prices
+        name: Competitive Prices
         description: Fair pricing on all our widgets, wotzits, and gizmos.
       - icon: "hugeicons:customer-support"
-        title: Expert Support
+        name: Expert Support
         description: Our team of specialists is here to help you 24/7.
   - type: snippet
     reference: specs

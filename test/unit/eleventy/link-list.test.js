@@ -3,10 +3,10 @@ import { configureLinkList, linkList } from "#eleventy/link-list.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 const createCollection = (items) =>
-  items.map(([slug, title, url]) => ({
+  items.map(([slug, name, url]) => ({
     fileSlug: slug,
     url,
-    data: { title },
+    data: { name },
   }));
 
 describe("link-list", () => {

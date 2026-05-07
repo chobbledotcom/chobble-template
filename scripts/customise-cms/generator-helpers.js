@@ -88,11 +88,11 @@ export const getContentFields = (fields) => [
 ];
 
 /**
- * Top of every item: title, subtitle, thumbnail, order
+ * Top of every item: name, subtitle, thumbnail, order
  * @returns {CmsField[]}
  */
 export const getItemTop = () => [
-  COMMON_FIELDS.title,
+  COMMON_FIELDS.name,
   COMMON_FIELDS.subtitle,
   COMMON_FIELDS.thumbnail,
   COMMON_FIELDS.order,

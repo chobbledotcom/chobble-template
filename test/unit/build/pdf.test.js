@@ -13,10 +13,10 @@ import {
 } from "#test/test-utils.js";
 
 // Helper to create mock menu
-const createMockMenu = (slug, title, subtitle = null) => ({
+const createMockMenu = (slug, name, subtitle = null) => ({
   fileSlug: slug,
   data: {
-    title,
+    name,
     subtitle,
   },
 });
@@ -324,7 +324,7 @@ describe("pdf", () => {
 
       configurePdf(mockConfig);
 
-      const mockMenus = [{ fileSlug: "lunch", data: { title: "Lunch" } }];
+      const mockMenus = [{ fileSlug: "lunch", data: { name: "Lunch" } }];
       const mockCategories = [
         { fileSlug: "apps", data: { name: "Appetizers" } },
       ];

@@ -11,11 +11,11 @@ import {
 // Curried Data Factories
 // ============================================
 
-/** Item factory for order/title sorting */
-const orderedItem = data({})("title", "order");
+/** Item factory for order/name sorting */
+const orderedItem = data({})("name", "order");
 
 /** Navigation item factory */
-const navItem = data({})("eleventyNavigation", "title");
+const navItem = data({})("eleventyNavigation", "name");
 
 // Generic helper: sort items and assert extracted values match expected
 const expectSortedValues = (items, comparator, extractor, expected) =>
@@ -27,12 +27,12 @@ describe("sorting", () => {
   // ============================================
   test("Items with different order values sort by order, ignoring title", () => {
     const items = orderedItem(["A", 2], ["B", 1], ["C", 3]);
-    expectSortedValues(items, sortItems, (i) => i.data.title, ["B", "A", "C"]);
+    expectSortedValues(items, sortItems, (i) => i.data.name, ["B", "A", "C"]);
   });
 
   test("Items with identical order values fall back to alphabetical title sorting", () => {
     const items = orderedItem(["Zebra", 1], ["Apple", 1], ["Mango", 1]);
-    expectSortedValues(items, sortItems, (i) => i.data.title, [
+    expectSortedValues(items, sortItems, (i) => i.data.name, [
       "Apple",
       "Mango",
       "Zebra",
@@ -41,7 +41,7 @@ describe("sorting", () => {
 
   test("Items with order 0 sort before items with positive order", () => {
     const items = orderedItem(["B", 1], ["A", 0], ["C", -1]);
-    expectSortedValues(items, sortItems, (i) => i.data.title, ["C", "A", "B"]);
+    expectSortedValues(items, sortItems, (i) => i.data.name, ["C", "A", "B"]);
   });
 
   // ============================================
@@ -195,7 +195,7 @@ describe("sorting", () => {
       [{ order: 1 }, "Zebra Title"],
       [{ order: 1 }, "Apple Title"],
     );
-    expectSortedValues(items, sortNavigationItems, (i) => i.data.title, [
+    expectSortedValues(items, sortNavigationItems, (i) => i.data.name, [
       "Apple Title",
       "Zebra Title",
     ]);

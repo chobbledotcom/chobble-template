@@ -4,7 +4,7 @@ Split layout with text content and a styled callout box.
 Shares layout params with split.html (title, subtitle, content, reverse,
 reveal_content, reveal_figure, button). Additional callout-specific fields:
     - block.figure_icon: Iconify ID, emoji, or image path
-    - block.figure_title: Bold heading text in the callout
+    - block.figure_name: Bold heading text in the callout
     - block.figure_subtitle: Supporting text
     - block.figure_variant: Color scheme ("primary", "secondary", "gradient",
       or a custom CSS gradient string)
@@ -39,8 +39,8 @@ Usage:
     {%- if block.figure_icon -%}
       <div class="callout-box__icon">{%- include "design-system/icon.html", icon: block.figure_icon -%}</div>
     {%- endif -%}
-    {%- if block.figure_title -%}
-      <strong class="callout-box__title">{{ block.figure_title }}</strong>
+    {%- if block.figure_name -%}
+      <strong class="callout-box__title">{{ block.figure_name }}</strong>
     {%- endif -%}
     {%- if block.figure_subtitle -%}
       <p class="callout-box__subtitle">{{ block.figure_subtitle }}</p>

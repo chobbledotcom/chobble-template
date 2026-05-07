@@ -155,10 +155,10 @@ const createValidatedViewConfig = (rawConfig, availableFields) => {
   // Use first valid field as primary if original primary is unavailable
   const validPrimary = availableFields.includes(rawConfig.primary)
     ? rawConfig.primary
-    : validFields[0] || availableFields[0] || "title";
+    : validFields[0] || availableFields[0] || "name";
 
   return {
-    fields: validFields.length > 0 ? validFields : ["title"],
+    fields: validFields.length > 0 ? validFields : ["name"],
     primary: validPrimary,
     sort: validSort.length > 0 ? validSort : [validPrimary],
   };
@@ -174,21 +174,26 @@ const RAW_VIEW_CONFIGS = {
     primary: "meta_title",
     sort: ["meta_title"],
   },
+  news: {
+    fields: ["thumbnail", "name", "date"],
+    primary: "name",
+    sort: ["date"],
+  },
   events: {
     fields: [
       "thumbnail",
-      "title",
+      "name",
       "event_date",
       "recurring_date",
       "event_location",
     ],
-    primary: "title",
-    sort: ["title"],
+    primary: "name",
+    sort: ["name"],
   },
   properties: {
-    fields: ["thumbnail", "title", "subtitle", "bedrooms", "sleeps"],
-    primary: "title",
-    sort: ["title"],
+    fields: ["thumbnail", "name", "subtitle", "bedrooms", "sleeps"],
+    primary: "name",
+    sort: ["name"],
   },
 };
 

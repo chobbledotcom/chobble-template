@@ -32,7 +32,6 @@
  * @type {Record<string, CmsField>}
  */
 export const COMMON_FIELDS = {
-  title: { name: "title", type: "string", label: "Title" },
   name: { name: "name", type: "string", label: "Name" },
   thumbnail: { name: "thumbnail", type: "image", label: "Thumbnail" },
   subtitle: { name: "subtitle", type: "string", label: "Subtitle" },
@@ -307,7 +306,7 @@ export const createTabsField = (useVisualEditor) => ({
   list: true,
   _componentName: "tabs",
   fields: [
-    { name: "title", type: "string", label: "Title", required: true },
+    { name: "name", type: "string", label: "Name", required: true },
     { name: "image", type: "image", label: "Image" },
     createMarkdownField("body", "Body", useVisualEditor, { required: true }),
   ],

@@ -31,7 +31,7 @@ const postMeta = (overrides = {}) =>
 /** Curried: (overrides) => buildOrganizationMeta result */
 const orgMeta = (overrides = {}) =>
   buildOrganizationMeta(
-    createSchemaData({ pageUrl: "/", title: "Home", ...overrides }),
+    createSchemaData({ pageUrl: "/", name: "Home", ...overrides }),
   );
 
 /** Curried: (price input) => stripped price string from offers */
@@ -53,7 +53,7 @@ describe("buildBaseMeta", () => {
   test("returns basic meta with url, title, and description", () => {
     const result = baseMeta({
       pageUrl: "/test-page/",
-      title: "Test Page",
+      name: "Test Page",
       meta_description: "A test description",
     });
     expect(result.title).toBe("Test Page");

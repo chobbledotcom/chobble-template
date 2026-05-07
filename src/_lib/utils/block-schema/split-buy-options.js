@@ -18,8 +18,8 @@ export const fields = {
     description:
       "Product image path. Processed by `{% image %}` shortcode for responsive srcset + LQIP.",
   },
-  figure_title: {
-    ...str("Product Title"),
+  figure_name: {
+    ...str("Product Name"),
     required: true,
     description: "Product name. Schema.org `name`.",
   },
@@ -50,7 +50,7 @@ export const fields = {
   figure_heading_level: {
     ...num("Product Heading Level"),
     default: "3",
-    description: "Heading level for the product title.",
+    description: "Heading level for the product name.",
   },
   figure_image_aspect_ratio: {
     ...str("Product Image Aspect Ratio"),

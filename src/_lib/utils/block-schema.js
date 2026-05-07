@@ -357,6 +357,22 @@ const BLOCK_FIELD_SPECS = Object.fromEntries(
 );
 
 /**
+ * Pre-computed map of block type → field names that are object-lists
+ * whose sub-schema requires `name`. Built once at module load.
+ * @type {Record<string, string[]>}
+ */
+const NAMED_LIST_FIELDS = Object.fromEntries(
+  Object.entries(BLOCK_SCHEMAS)
+    .map(([type, fields]) => [
+      type,
+      Object.entries(fields)
+        .filter(([, f]) => f.type === "object" && f.list && f.fields?.name)
+        .map(([fieldName]) => fieldName),
+    ])
+    .filter(([, names]) => names.length > 0),
+);
+
+/**
  * Validates a single block against its schema.
  *
  * @param {Block} block - Block to validate
@@ -399,6 +415,17 @@ const validateBlock = (block, ctx) => {
 };
 
 /**
+ * Collects validation errors for an array of blocks without throwing.
+ * @param {Block[]} blocks - Array of blocks to validate
+ * @param {string} context - Context for error messages (e.g., file path)
+ * @returns {string[]} Array of error strings
+ */
+const collectBlockErrors = (blocks, context = "") =>
+  blocks.flatMap((block, index) =>
+    validateBlock(block, ` (block ${index + 1}${context})`),
+  );
+
+/**
  * Validates an array of blocks against their schemas.
  * Collects all errors across all blocks before throwing so the user sees
  * every problem in one build rather than one at a time.
@@ -408,9 +435,7 @@ const validateBlock = (block, ctx) => {
  * @throws {Error} If any block contains unknown keys or invalid type
  */
 const validateBlocks = (blocks, context = "") => {
-  const errors = blocks.flatMap((block, index) =>
-    validateBlock(block, ` (block ${index + 1}${context})`),
-  );
+  const errors = collectBlockErrors(blocks, context);
   if (errors.length > 0) {
     throw new Error(errors.join("\n"));
   }
@@ -420,9 +445,11 @@ export {
   BLOCK_CMS_FIELDS,
   BLOCK_DOCS,
   BLOCK_SCHEMAS,
+  collectBlockErrors,
   getBlockContainerWidth,
   getBlockTemplate,
   isBlockAllowedIn,
+  NAMED_LIST_FIELDS,
   validateBlock,
   validateBlocks,
 };

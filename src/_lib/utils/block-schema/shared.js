@@ -63,12 +63,12 @@ export const LINK_BUTTON_STYLE_FIELDS = {
   },
 };
 
-/** Pre-built required title field. */
-export const TITLE_REQUIRED = str("Title", { required: true });
+/** Pre-built required name field. */
+export const NAME_REQUIRED = str("Name", { required: true });
 
 /** Filter object field shared between items and items-array. */
 export const FILTER_FIELD = objectField("Filter", {
-  property: str("Property (e.g. url, data.title)"),
+  property: str("Property (e.g. url, data.name)"),
   includes: str("Contains"),
   equals: str("Equals"),
 });
@@ -128,7 +128,7 @@ export const ITEMS_COMMON_FIELDS = {
   filter: {
     ...FILTER_FIELD,
     description:
-      'Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value.',
+      'Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.name"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value.',
   },
 };
 

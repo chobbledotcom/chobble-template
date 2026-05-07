@@ -1,5 +1,5 @@
 ---
-title: Theme Editor
+name: Theme Editor
 layout: theme-editor.html
 ---
 

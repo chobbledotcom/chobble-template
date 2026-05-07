@@ -13,8 +13,8 @@ import {
 
 /** Property factory: (defaults) => (fields...) => (rows...) => items */
 const property = data({});
-const withLoc = property("title", "locations");
-const withLocOrder = property("title", "locations", "order");
+const withLoc = property("name", "locations");
+const withLocOrder = property("name", "locations", "order");
 
 // Extract filters/collections once - pure functions, safe to reuse
 const { filters, collections } = withConfiguredMock(configureProperties)();
@@ -44,8 +44,8 @@ const createPropertyReviewFixture = (countA, countB) => {
     });
   }
   const propertyItems = [
-    { fileSlug: "property-a", data: { title: "Property A" } },
-    { fileSlug: "property-b", data: { title: "Property B" } },
+    { fileSlug: "property-a", data: { name: "Property A" } },
+    { fileSlug: "property-b", data: { name: "Property B" } },
   ];
   return {
     getFilteredByTag: (tag) => {

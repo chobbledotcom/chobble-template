@@ -8,10 +8,11 @@ export const fields = {
     required: true,
     description: "Full URL of the iframe to embed.",
   },
-  title: {
-    ...str("Accessible Title"),
+  name: {
+    ...str("Accessible Name"),
     required: true,
-    description: "Accessible title for the iframe.",
+    description:
+      "Accessible name (rendered as the iframe's `title` attribute).",
   },
   width: {
     ...num("Width (px)"),

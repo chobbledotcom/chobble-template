@@ -7,11 +7,11 @@ import {
 } from "#eleventy/collection-lookup.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
-/** Create a single collection item with slug, title, and url */
+/** Create a single collection item with slug, name, and url */
 const slugItem = (slug, title, url) => ({
   fileSlug: slug,
   url,
-  data: { title },
+  data: { name: title },
 });
 
 /** Create collection items from [slug, title, url] tuples */
@@ -38,7 +38,7 @@ describe("collection-lookup", () => {
       const result = getBySlug(collection, "widget");
 
       expect(result.fileSlug).toBe("widget");
-      expect(result.data.title).toBe("Widget Pro");
+      expect(result.data.name).toBe("Widget Pro");
       expect(result.url).toBe("/products/widget/");
     });
 
@@ -47,13 +47,13 @@ describe("collection-lookup", () => {
         ["widget", "Widget Pro", "/products/widget/"],
       ]);
 
-      expect(getBySlug(collection, "products/widget.md").data.title).toBe(
+      expect(getBySlug(collection, "products/widget.md").data.name).toBe(
         "Widget Pro",
       );
-      expect(getBySlug(collection, "products/widget").data.title).toBe(
+      expect(getBySlug(collection, "products/widget").data.name).toBe(
         "Widget Pro",
       );
-      expect(getBySlug(collection, "widget").data.title).toBe("Widget Pro");
+      expect(getBySlug(collection, "widget").data.name).toBe("Widget Pro");
     });
 
     test("Throws for non-existent slug", () => {
@@ -77,7 +77,7 @@ describe("collection-lookup", () => {
 
       const result = getBySlug(collection, "only-item");
 
-      expect(result.data.title).toBe("Only Item");
+      expect(result.data.name).toBe("Only Item");
     });
   });
 
@@ -90,8 +90,8 @@ describe("collection-lookup", () => {
 
       const index = indexBySlug(collection);
 
-      expect(index.widget.data.title).toBe("Widget Pro");
-      expect(index.gadget.data.title).toBe("Gadget Plus");
+      expect(index.widget.data.name).toBe("Widget Pro");
+      expect(index.gadget.data.name).toBe("Gadget Plus");
     });
 
     test("Returns same cached object for same collection reference", () => {
@@ -133,7 +133,7 @@ describe("collection-lookup", () => {
 
       const index = indexBySlug(collection);
 
-      expect(index.widget.data.title).toBe("Second Widget");
+      expect(index.widget.data.name).toBe("Second Widget");
     });
   });
 
@@ -141,7 +141,7 @@ describe("collection-lookup", () => {
     const pathItem = (inputPath, title) => ({
       inputPath,
       fileSlug: inputPath.split("/").pop().replace(".md", ""),
-      data: { title },
+      data: { name: title },
     });
 
     test("Returns items matching paths in order, normalising ./ prefix", () => {
@@ -158,9 +158,9 @@ describe("collection-lookup", () => {
       ]);
 
       expect(result).toHaveLength(3);
-      expect(result[0].data.title).toBe("Launch");
-      expect(result[1].data.title).toBe("Widget");
-      expect(result[2].data.title).toBe("Gadget");
+      expect(result[0].data.name).toBe("Launch");
+      expect(result[1].data.name).toBe("Widget");
+      expect(result[2].data.name).toBe("Gadget");
     });
 
     test("Skips paths that do not match any item", () => {
@@ -172,7 +172,7 @@ describe("collection-lookup", () => {
       ]);
 
       expect(result).toHaveLength(1);
-      expect(result[0].data.title).toBe("Widget");
+      expect(result[0].data.name).toBe("Widget");
     });
 
     test("Returns empty array for empty paths", () => {
@@ -188,7 +188,7 @@ describe("collection-lookup", () => {
       expect(getItemsByPath(collection, undefined)).toEqual([]);
     });
 
-    const titles = (items) => items.map((i) => i.data.title);
+    const titles = (items) => items.map((i) => i.data.name);
     const fulchesterPair = () => [
       pathItem("./src/locations/fulchester/gizmo-cleaning.md", "Gizmo"),
       pathItem("./src/locations/fulchester/widget-removal.md", "Widget"),
@@ -258,9 +258,9 @@ describe("collection-lookup", () => {
       const result2 = getBySlug(collection, "b");
       const result3 = getBySlug(collection, "c");
 
-      expect(result1.data.title).toBe("Item A");
-      expect(result2.data.title).toBe("Item B");
-      expect(result3.data.title).toBe("Item C");
+      expect(result1.data.name).toBe("Item A");
+      expect(result2.data.name).toBe("Item B");
+      expect(result3.data.name).toBe("Item C");
     });
   });
 });

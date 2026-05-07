@@ -1,5 +1,5 @@
 ---
-title: Installation
+name: Installation
 subtitle: How to install and set up your environment
 guide-category: getting-started
 order: 1

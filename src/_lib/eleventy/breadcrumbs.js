@@ -23,7 +23,7 @@ const PARENT_URL_MAP = {
 
 /** Create a crumb object for an item */
 const makeCrumb = (item, isCurrentPage) => ({
-  label: item.data.title,
+  label: item.data.name,
   url: isCurrentPage ? null : item.url,
 });
 

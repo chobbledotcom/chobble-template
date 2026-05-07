@@ -1,5 +1,5 @@
 ---
-title: PagesCMS Integration
+name: PagesCMS Integration
 subtitle: Integrates with the free and customisable PagesCMS editor
 categories:
   - open-source

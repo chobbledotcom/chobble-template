@@ -80,7 +80,7 @@ export const getCollectionFieldBuilders = (config, fields) => ({
 
   categories: () =>
     compact([
-      COMMON_FIELDS.title,
+      COMMON_FIELDS.name,
       COMMON_FIELDS.thumbnail,
       config.features.parent_categories &&
         createReferenceField("parent", "Parent Category", "categories", false),
@@ -98,7 +98,7 @@ export const getCollectionFieldBuilders = (config, fields) => ({
 
   team: () =>
     compact([
-      COMMON_FIELDS.title,
+      COMMON_FIELDS.name,
       COMMON_FIELDS.thumbnail,
       COMMON_FIELDS.order,
       COMMON_FIELDS.subtitle,
@@ -107,7 +107,7 @@ export const getCollectionFieldBuilders = (config, fields) => ({
 
   "guide-categories": () =>
     compact([
-      COMMON_FIELDS.title,
+      COMMON_FIELDS.name,
       COMMON_FIELDS.subtitle,
       COMMON_FIELDS.order,
       { name: "icon", type: "image", label: "Icon" },

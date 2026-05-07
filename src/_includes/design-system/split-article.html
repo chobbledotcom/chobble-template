@@ -3,8 +3,8 @@ Shared article (text side) of split-* layouts. Used by split.html and
 split-callout.html.
 
 Parameters (via block object):
-  - block.title: Section heading
-  - block.title_level: Heading level, defaults to 2
+  - block.name: Section heading
+  - block.heading_level: Heading level, defaults to 2
   - block.subtitle: Optional subtitle text (with text-muted styling)
   - block.content: Main content (rendered as markdown)
   - block.button: Optional button object { text, href, variant }
@@ -13,11 +13,11 @@ Parameters (direct):
   - reveal_content: data-reveal value for the article
 {%- endcomment -%}
 
-{%- assign title_level = block.title_level | default: 2 -%}
+{%- assign heading_level = block.heading_level | default: 2 -%}
 
 <article class="stack" data-reveal="{{ reveal_content }}">
-  {%- if block.title -%}
-    <h{{ title_level }}>{{ block.title }}</h{{ title_level }}>
+  {%- if block.name -%}
+    <h{{ heading_level }}>{{ block.name }}</h{{ heading_level }}>
   {%- endif -%}
   {%- if block.subtitle -%}
     <p class="text-muted">{{ block.subtitle }}</p>

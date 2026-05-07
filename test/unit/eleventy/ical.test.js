@@ -8,9 +8,9 @@ import {
 } from "#test/test-utils.js";
 
 /** iCal event factory matching EventCollectionItem shape */
-const icalEvent = (title, eventDate, icalUrl, url, extra = {}) => ({
+const icalEvent = (name, eventDate, icalUrl, url, extra = {}) => ({
   data: {
-    title,
+    name,
     event_date: eventDate,
     ...(icalUrl && { ical_url: icalUrl }),
     ...extra,
@@ -19,7 +19,7 @@ const icalEvent = (title, eventDate, icalUrl, url, extra = {}) => ({
 });
 
 /** Event for oneOffEvents collection tests */
-const eventItem = data({})("title", "event_date", "recurring_date");
+const eventItem = data({})("name", "event_date", "recurring_date");
 
 // =============================================================================
 // eventIcal filter

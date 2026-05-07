@@ -11,8 +11,7 @@ import { orderThenString } from "#toolkit/fp/sorting.js";
 /**
  * @typedef {Object} CollectionItemData
  * @property {number} [order] - Sort order
- * @property {string} [title] - Item title
- * @property {string} [name] - Item name (fallback)
+ * @property {string} [name] - Item name
  * @property {{ order?: number, key?: string }} [eleventyNavigation] - Navigation data
  */
 
@@ -22,10 +21,10 @@ import { orderThenString } from "#toolkit/fp/sorting.js";
  * @property {Date} [date] - Item date
  */
 
-/** Comparator for sorting collection items by order then by title. */
+/** Comparator for sorting collection items by order then by name. */
 const sortItems = orderThenString(
   (item) => item.data.order,
-  (item) => item.data.title,
+  (item) => item.data.name,
 );
 
 /**
@@ -47,7 +46,7 @@ const sortByDateDescending = (a, b) => {
 /**
  * @typedef {Object} NavigationItemData
  * @property {number} [order]
- * @property {string} title
+ * @property {string} name
  * @property {{ order?: number, key?: string }} eleventyNavigation
  */
 
@@ -63,7 +62,7 @@ const sortByDateDescending = (a, b) => {
  */
 const sortNavigationItems = orderThenString(
   (item) => item.data.eleventyNavigation.order ?? 999,
-  (item) => item.data.eleventyNavigation.key || item.data.title,
+  (item) => item.data.eleventyNavigation.key || item.data.name,
 );
 
 export { sortByDateDescending, sortItems, sortNavigationItems };

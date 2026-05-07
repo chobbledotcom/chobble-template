@@ -12,14 +12,14 @@ import { createMockEleventyConfig, expectHtmlList } from "#test/test-utils.js";
 
 /**
  * Create an event with nested data structure matching Eleventy collection format
- * @param {string} title - Event title
+ * @param {string} name - Event name
  * @param {string} recurring - Recurring date string
  * @param {Object} options - Additional options (url, location)
  */
-const event = (title, recurring, { url, location } = {}) => ({
+const event = (name, recurring, { url, location } = {}) => ({
   ...(url && { url }),
   data: {
-    title,
+    name,
     recurring_date: recurring,
     ...(location && { event_location: location }),
   },
@@ -175,17 +175,17 @@ describe("recurring-events", () => {
   /**
    * Create a recurring event file for test site
    */
-  const eventFile = (slug, title, recurring, extras = {}) => ({
+  const eventFile = (slug, name, recurring, extras = {}) => ({
     path: `events/${slug}.md`,
-    frontmatter: { title, recurring_date: recurring, ...extras },
+    frontmatter: { name, recurring_date: recurring, ...extras },
   });
 
   /**
    * Create a one-time event file (no recurring_date)
    */
-  const oneTimeEventFile = (slug, title, date) => ({
+  const oneTimeEventFile = (slug, name, date) => ({
     path: `events/${slug}.md`,
-    frontmatter: { title, event_date: date },
+    frontmatter: { name, event_date: date },
   });
 
   /**
@@ -193,7 +193,7 @@ describe("recurring-events", () => {
    */
   const eventsTestPage = (content = "{% recurring_events %}") => ({
     path: "pages/test.md",
-    frontmatter: { title: "Test", layout: "page", permalink: "/test/" },
+    frontmatter: { name: "Test", layout: "page", permalink: "/test/" },
     content,
   });
 

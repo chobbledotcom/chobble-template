@@ -19,8 +19,8 @@ export { md, str } from "#utils/block-schema/shared.js";
 
 /** Unified fields shared by all split variants. */
 export const SPLIT_BASE_FIELDS = {
-  title: { ...str("Title"), description: "Section heading." },
-  title_level: {
+  name: { ...str("Name"), description: "Section heading." },
+  heading_level: {
     ...num("Heading Level"),
     default: "2",
     description: "Heading level.",

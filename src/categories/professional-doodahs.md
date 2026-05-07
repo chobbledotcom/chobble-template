@@ -1,5 +1,5 @@
 ---
-title: Professional Doodahs
+name: Professional Doodahs
 subtitle: Enterprise-grade doodahs for demanding applications
 parent: doodahs
 blocks:

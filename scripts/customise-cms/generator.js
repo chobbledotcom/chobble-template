@@ -82,7 +82,7 @@ const generateCustomBlocksCollectionConfig = (name, config, fieldContext) => {
     type: "collection",
     filename: "{primary}.md",
     fields: compact([
-      COMMON_FIELDS.title,
+      COMMON_FIELDS.name,
       COMMON_FIELDS.subtitle,
       COMMON_FIELDS.thumbnail,
       COMMON_FIELDS.order,

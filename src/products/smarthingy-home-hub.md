@@ -1,5 +1,5 @@
 ---
-title: SmarThingy Home Hub
+name: SmarThingy Home Hub
 subtitle: Central command center for your smart thingy ecosystem
 filter_attributes:
   - name: Size

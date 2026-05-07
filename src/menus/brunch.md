@@ -1,12 +1,12 @@
 ---
-title: Weekend Brunch
+name: Weekend Brunch
 order: 1
 subtitle: Delicious plant-based brunch every weekend.
 meta_title: Weekend Brunch Menu
 meta_description: Delicious plant-based brunch served every weekend
 blocks:
   - type: hero
-    title: Weekend Brunch
+    name: Weekend Brunch
     lead: Delicious plant-based brunch every weekend.
   - type: markdown
     content: |

@@ -23,7 +23,7 @@ Parameters (from block):
 {%- if linkItems.size > 0 -%}
 <ul class="link-columns" role="list">
   {%- for item in linkItems -%}
-    {%- assign label = item.data.name | default: item.data.title -%}
+    {%- assign label = item.data.name | default: item.data.name -%}
     {%- if block.remove_text -%}
       {%- assign label = label | removePattern: block.remove_text -%}
     {%- endif -%}

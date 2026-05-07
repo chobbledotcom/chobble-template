@@ -85,12 +85,12 @@ export interface PagesCMSAddOn {
 
 /**
  * @typedef {Object} PagesCMSTab
- * @property {string} title - Title
+ * @property {string} name - Name
  * @property {string} ?image - Image
  * @property {string} body - Body
  */
 export interface PagesCMSTab {
-  title: string;
+  name: string;
   image?: string;
   body: string;
 }

@@ -3,13 +3,13 @@ Split full-width layout with two-tone background sections.
 
 Parameters (via block object):
   - block.variant: Color variant - "dark-left", "dark-right", "primary-left", "primary-right"
-  - block.left_title: Heading for left side
+  - block.left_name: Heading for left side
   - block.left_content: Content for left side (rendered as markdown)
   - block.left_button: Optional button { text, href, variant }
-  - block.right_title: Heading for right side
+  - block.right_name: Heading for right side
   - block.right_content: Content for right side (rendered as markdown)
   - block.right_button: Optional button { text, href, variant }
-  - block.title_level: Heading level, defaults to 2
+  - block.heading_level: Heading level, defaults to 2
   - block.reveal_left: Animation for left side (e.g., "left")
   - block.reveal_right: Animation for right side (e.g., "right")
 
@@ -25,13 +25,13 @@ Usage:
   %}
 {%- endcomment -%}
 
-{%- assign title_level = block.title_level | default: 2 -%}
+{%- assign title_level = block.heading_level | default: 2 -%}
 
 <div class="split-full{% if block.variant %} {{ block.variant }}{% endif %}">
   <div class="left">
     <div class="stack"{% if block.reveal_left %} data-reveal="{{ block.reveal_left }}"{% endif %}>
-      {%- if block.left_title -%}
-        <h{{ title_level }}>{{ block.left_title }}</h{{ title_level }}>
+      {%- if block.left_name -%}
+        <h{{ title_level }}>{{ block.left_name }}</h{{ title_level }}>
       {%- endif -%}
       <div class="prose">{{ block.left_content | renderContent: "md" }}</div>
       {%- if block.left_button -%}
@@ -42,8 +42,8 @@ Usage:
   </div>
   <div class="right">
     <div class="stack"{% if block.reveal_right %} data-reveal="{{ block.reveal_right }}"{% endif %}>
-      {%- if block.right_title -%}
-        <h{{ title_level }}>{{ block.right_title }}</h{{ title_level }}>
+      {%- if block.right_name -%}
+        <h{{ title_level }}>{{ block.right_name }}</h{{ title_level }}>
       {%- endif -%}
       <div class="prose">{{ block.right_content | renderContent: "md" }}</div>
       {%- if block.right_button -%}

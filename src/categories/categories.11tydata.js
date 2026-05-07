@@ -13,7 +13,7 @@ export default {
       buildNavigation(data, (d) => {
         if (d.parent !== null && d.parent !== undefined) return false;
         return withNavigationAnchor(d, {
-          key: d.title,
+          key: d.name,
           parent: strings.product_name,
           order: d.link_order || 0,
         });

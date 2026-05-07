@@ -8,7 +8,7 @@ import { expectProp } from "#test/test-utils.js";
 // Simple field fixture factories
 const heading = (title) => ({ type: "heading", title });
 const field = (name, type = "text") => ({ name, type });
-const section = (fields, title) => (title ? { title, fields } : { fields });
+const section = (fields, name) => (name ? { name, fields } : { fields });
 
 // Quote data factory with defaults
 const quoteData = (sections, overrides = {}) => ({

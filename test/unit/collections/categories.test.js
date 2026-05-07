@@ -49,11 +49,11 @@ describe("categories", () => {
 
     test("preserves category data properties", () => {
       const categories = cats([
-        ["widgets", "own-thumb.jpg", { title: "Widgets", featured: true }],
+        ["widgets", "own-thumb.jpg", { name: "Widgets", featured: true }],
       ]);
       const result = getCollection({ categories, products: [] });
 
-      expect(result[0].data.title).toBe("Widgets");
+      expect(result[0].data.name).toBe("Widgets");
       expect(result[0].data.featured).toBe(true);
       expect(result[0].data.thumbnail).toBe("own-thumb.jpg");
     });

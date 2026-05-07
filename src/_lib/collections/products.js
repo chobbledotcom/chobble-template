@@ -209,10 +209,7 @@ const toSkuEntry = (productTitle) => (option) => [
  */
 const extractSkuEntries = (product) => {
   if (!product.data.options) return [];
-  return filterMap(
-    hasSku,
-    toSkuEntry(product.data.title),
-  )(product.data.options);
+  return filterMap(hasSku, toSkuEntry(product.data.name))(product.data.options);
 };
 
 /**

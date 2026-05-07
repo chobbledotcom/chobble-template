@@ -1,5 +1,5 @@
 ---
-title: Smart Thingies
+name: Smart Thingies
 subtitle: Connected thingies with intelligent features
 parent: thingies
 blocks:

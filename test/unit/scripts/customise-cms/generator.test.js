@@ -443,7 +443,7 @@ describe("generatePagesYaml custom blocks collections", () => {
     const section = getSection("clients")(yaml);
 
     expect(section).toContain("name: blocks");
-    expect(section).toContain("name: title");
+    expect(section).toContain("name: name");
     expect(section).toContain("name: body");
   });
 

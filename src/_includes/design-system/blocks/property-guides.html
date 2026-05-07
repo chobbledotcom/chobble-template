@@ -16,9 +16,9 @@ Property-only block. No block-level parameters.
       <li>
         <article class="feature" data-reveal>
           {%- if category.data.icon -%}
-            {%- include "design-system/icon-badge.html", icon: category.data.icon, label: category.data.title -%}
+            {%- include "design-system/icon-badge.html", icon: category.data.icon, label: category.data.name -%}
           {%- endif -%}
-          <h3><a href="{{ category.url }}">{{ category.data.title }}</a></h3>
+          <h3><a href="{{ category.url }}">{{ category.data.name }}</a></h3>
           {%- if category.data.subtitle -%}
             <p>{{ category.data.subtitle }}</p>
           {%- endif -%}

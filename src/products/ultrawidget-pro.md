@@ -1,5 +1,5 @@
 ---
-title: UltraWidget Pro
+name: UltraWidget Pro
 subtitle: 'Lightweight, powerful widget for professionals'
 featured: true
 filter_attributes:

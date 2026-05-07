@@ -41,7 +41,7 @@ import {
  */
 export const buildNewsFields = (config, fields) =>
   withEnabled((enabled) => [
-    COMMON_FIELDS.title,
+    COMMON_FIELDS.name,
     { name: "date", label: "Date", type: "date" },
     enabled("team") && createReferenceField("author", "Author", "team", false),
     ...getContentFields(fields),
@@ -186,7 +186,7 @@ export const buildMenuItemsFields = (config, fields) =>
  */
 export const buildGuidePagesFields = (config, fields) =>
   withEnabled((enabled) => [
-    COMMON_FIELDS.title,
+    COMMON_FIELDS.name,
     COMMON_FIELDS.subtitle,
     enabled("guide-categories") &&
       createReferenceField(

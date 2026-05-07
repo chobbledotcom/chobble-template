@@ -1,5 +1,5 @@
 ---
-title: Thingies
+name: Thingies
 subtitle: Versatile thingies for every occasion
 featured: true
 blocks:

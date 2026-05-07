@@ -58,7 +58,7 @@ describe("pdf-integration", () => {
         // Small menu (1 item)
         {
           path: "menus/small.md",
-          frontmatter: { title: "Small Menu", order: 1 },
+          frontmatter: { name: "Small Menu", order: 1 },
           content: "",
         },
         {
@@ -78,7 +78,7 @@ describe("pdf-integration", () => {
         // Large menu (5 items across 2 categories)
         {
           path: "menus/large.md",
-          frontmatter: { title: "Large Menu", order: 2 },
+          frontmatter: { name: "Large Menu", order: 2 },
           content: "",
         },
         {
@@ -140,7 +140,7 @@ describe("pdf-integration", () => {
         // Empty menu (no items)
         {
           path: "menus/empty.md",
-          frontmatter: { title: "Empty Menu", order: 3 },
+          frontmatter: { name: "Empty Menu", order: 3 },
           content: "",
         },
       ],

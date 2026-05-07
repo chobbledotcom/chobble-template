@@ -1,5 +1,5 @@
 ---
-title: Wotzits
+name: Wotzits
 subtitle: Wotzits for all users and purposes
 featured: true
 blocks:

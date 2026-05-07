@@ -1,5 +1,5 @@
 ---
-title: Search
+name: Search
 layout: design-system-base.html
 permalink: /search/
 blocks:

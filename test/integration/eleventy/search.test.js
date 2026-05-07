@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
 
-const contentFile = (collection, slug, title, extras = {}) => {
+const contentFile = (collection, slug, name, extras = {}) => {
   const usesBlocks =
     collection === "news" ||
     collection === "categories" ||
@@ -10,13 +10,13 @@ const contentFile = (collection, slug, title, extras = {}) => {
   return {
     path: `${collection}/${slug}.md`,
     frontmatter: {
-      title,
+      name,
       ...(usesBlocks && {
-        blocks: [{ type: "markdown", content: `${title} content.` }],
+        blocks: [{ type: "markdown", content: `${name} content.` }],
       }),
       ...extras,
     },
-    content: usesBlocks ? "" : `${title} content.`,
+    content: usesBlocks ? "" : `${name} content.`,
   };
 };
 
@@ -49,7 +49,7 @@ describe("search", () => {
       {
         path: "pages/search.md",
         frontmatter: {
-          title: "Search",
+          name: "Search",
           layout: "design-system-base.html",
           permalink: "/search/",
           blocks: [

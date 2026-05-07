@@ -1,5 +1,5 @@
 ---
-title: Classic Thingies
+name: Classic Thingies
 subtitle: Timeless thingies with traditional craftsmanship
 parent: thingies
 blocks:

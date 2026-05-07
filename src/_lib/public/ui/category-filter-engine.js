@@ -4,8 +4,8 @@ const SORT_COMPARATORS = {
   default: (a, b) => a.originalIndex - b.originalIndex,
   "price-asc": (a, b) => a.data.price - b.data.price,
   "price-desc": (a, b) => b.data.price - a.data.price,
-  "name-asc": (a, b) => a.data.title.localeCompare(b.data.title),
-  "name-desc": (a, b) => b.data.title.localeCompare(a.data.title),
+  "name-asc": (a, b) => a.data.name.localeCompare(b.data.name),
+  "name-desc": (a, b) => b.data.name.localeCompare(a.data.name),
 };
 
 const applyFiltersAndSort = (

@@ -111,7 +111,7 @@ function buildBaseMeta(data) {
   return {
     ...data.metaComputed,
     url: canonicalUrl(data.page.url),
-    title: data.title,
+    title: data.name,
     description: data.meta_description || data.subtitle,
     ...(imageUrl && { image: { src: imageUrl } }),
     ...(data.faqs?.length > 0 && { faq: data.faqs }),
@@ -173,7 +173,7 @@ const buildProductMeta = (data) => {
 
   return {
     ...buildBaseMeta(data),
-    name: data.title,
+    name: data.name,
     brand: data.site.name,
     ...(data.price && { offers: buildOffers(data.price) }),
     ...buildReviewsMeta(),

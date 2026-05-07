@@ -21,7 +21,7 @@ export function processQuoteFields(data) {
 
   const stepNames = [
     data.quoteStepName || "Your Items",
-    ...data.sections.map((s) => s.title),
+    ...data.sections.map((s) => s.name),
     data.recapTitle || "Review",
   ];
   const steps = stepNames.map((name, index) => ({

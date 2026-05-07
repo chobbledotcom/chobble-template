@@ -16,13 +16,13 @@ export const fields = {
     description:
       'Color scheme: `"dark-left"`, `"dark-right"`, `"primary-left"`, `"primary-right"`.',
   },
-  title_level: {
+  heading_level: {
     ...num("Heading Level"),
     default: "2",
     description: "Heading level for both sides.",
   },
-  left_title: {
-    ...str("Left Title"),
+  left_name: {
+    ...str("Left Name"),
     description: "Left panel heading.",
   },
   left_content: {
@@ -33,8 +33,8 @@ export const fields = {
     ...objectField("Left Button", BUTTON_FIELDS_BASE),
     description: "`{text, href, variant}`.",
   },
-  right_title: {
-    ...str("Right Title"),
+  right_name: {
+    ...str("Right Name"),
     description: "Right panel heading.",
   },
   right_content: {

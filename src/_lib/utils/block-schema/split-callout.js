@@ -11,14 +11,14 @@ export const fields = {
     description:
       "Icon content: Iconify ID (`prefix:name`), emoji, or image path.",
   },
-  figure_title: {
-    ...str("Callout Title"),
+  figure_name: {
+    ...str("Callout Name"),
     required: true,
     description: "Bold heading text in the callout box.",
   },
   figure_subtitle: {
     ...str("Callout Subtitle"),
-    description: "Supporting text below the title.",
+    description: "Supporting text below the name.",
   },
   figure_variant: {
     ...str("Callout Color Variant"),
@@ -30,7 +30,7 @@ export const fields = {
 
 export const docs = {
   summary:
-    "Two-column layout with text content and a styled callout box with icon, title, and subtitle.",
+    "Two-column layout with text content and a styled callout box with icon, name, and subtitle.",
   scss: "src/css/design-system/_split-callout.scss",
   htmlRoot: '<div class="split-callout">',
 };

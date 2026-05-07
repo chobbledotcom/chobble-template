@@ -7,7 +7,7 @@ describe("eleventyComputed.meta", () => {
   test("returns product-shaped meta when the page is tagged 'products'", () => {
     const result = eleventyComputed.meta({
       tags: ["products"],
-      title: "Test Product",
+      name: "Test Product",
       site,
       page: { url: "/products/test/" },
     });
@@ -30,7 +30,7 @@ describe("eleventyComputed.meta", () => {
   test("returns organization-shaped meta when schema_type is 'organization'", () => {
     const result = eleventyComputed.meta({
       schema_type: "organization",
-      title: "Contact Us",
+      name: "Contact Us",
       site,
       page: { url: "/contact/" },
     });
@@ -41,7 +41,7 @@ describe("eleventyComputed.meta", () => {
   test("returns base meta for pages without a product/news/contact signal", () => {
     const result = eleventyComputed.meta({
       tags: ["pages"],
-      title: "About Us",
+      name: "About Us",
       site,
       page: { url: "/about/" },
     });

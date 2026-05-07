@@ -13,17 +13,17 @@ export const type = "image-cards";
 export const fields = imageCardGridFields({
   ...objectList("Cards", {
     image: img("Image", { required: true }),
-    title: str("Title", { required: true }),
+    name: str("Name", { required: true }),
     description: str("Description"),
     link: str("Link URL"),
   }),
   required: true,
   description:
-    "Card objects. Each: `{image, title, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP.",
+    "Card objects. Each: `{image, name, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP.",
 });
 
 export const docs = {
   summary:
-    "Grid of cards featuring images with titles and optional descriptions.",
+    "Grid of cards featuring images with names and optional descriptions.",
   ...ITEMS_GRID_META,
 };

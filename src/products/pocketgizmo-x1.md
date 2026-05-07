@@ -1,5 +1,5 @@
 ---
-title: PocketGizmo X1
+name: PocketGizmo X1
 subtitle: Premium pocket gizmo with advanced vision system
 featured: true
 options:

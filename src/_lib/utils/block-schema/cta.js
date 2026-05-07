@@ -1,15 +1,15 @@
 import {
   BUTTON_FIELDS_WITH_SIZE,
   md,
+  NAME_REQUIRED,
   objectField,
   REVEAL_STRING_FIELD,
-  TITLE_REQUIRED,
 } from "#utils/block-schema/shared.js";
 
 export const type = "cta";
 
 export const fields = {
-  title: { ...TITLE_REQUIRED, description: "CTA heading (`<h2>`)." },
+  name: { ...NAME_REQUIRED, description: "CTA heading (`<h2>`)." },
   description: {
     ...md("Description"),
     description:

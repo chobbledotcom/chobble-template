@@ -1,6 +1,6 @@
 ---
 layout: design-system-base.html
-title: Chobble Template - Free Eleventy Starter for Small Business Websites
+name: Chobble Template - Free Eleventy Starter for Small Business Websites
 meta_title: Chobble Template - Free Eleventy Starter for Small Business Websites
 meta_description: A free, open-source Eleventy template with e-commerce, 10 themes, and 14 content types. AGPLv3 licensed. Hosting from £5/month.
 permalink: /
@@ -12,7 +12,7 @@ blocks:
   - type: hero
     class: gradient
     badge: Opinionated & Complete
-    title: A Free Eleventy Template for Small Business Websites
+    name: A Free Eleventy Template for Small Business Websites
     lead: >-
       With loads of stuff included that your business might need - collections, layouts, themes, and integrations.
       It builds to static HTML. You host it wherever you like. Hosting from £10/month, or £5/month for charities — or self-host for free.
@@ -154,34 +154,34 @@ blocks:
       Product catalogs, event calendars, holiday lets, restaurant menus, and more. All from one template.
     items:
       - icon: "hugeicons:shopping-cart-01"
-        title: E-Commerce Ready
+        name: E-Commerce Ready
         description: Built-in shopping cart with Stripe and Square integration. Or use quote mode for service businesses.
       - icon: "hugeicons:paint-brush-01"
-        title: 10 Themes
+        name: 10 Themes
         description: Ranges from clean to retro. Includes a live theme editor so visitors can switch between them.
       - icon: "hugeicons:image-02"
-        title: Automatic Image Processing
+        name: Automatic Image Processing
         description: Generates responsive srcsets, converts to WebP, and creates blurred placeholders. Uses eleventy-img and sharp.
       - icon: "hugeicons:calendar-03"
-        title: Events & Calendars
+        name: Events & Calendars
         description: One-off or recurring events. iCal export. Property availability calendars built-in.
       - icon: "hugeicons:restaurant-01"
-        title: Restaurant Menus
+        name: Restaurant Menus
         description: Full menu management with dietary indicators, categories, pricing display, and PDFs.
       - icon: "hugeicons:house-01"
-        title: Property Listings
+        name: Property Listings
         description: Built for holiday lets. Bedrooms, amenities, price per night, and booking calendars.
       - icon: "hugeicons:star"
-        title: Reviews & Ratings
+        name: Reviews & Ratings
         description: Product reviews with 1-5 star ratings. Automatic aggregate scores for SEO. Google imports.
       - icon: "hugeicons:search-02"
-        title: SEO Optimized
+        name: SEO Optimized
         description: Schema.org markup, RSS feeds, sitemaps, canonical URLs, and meta descriptions.
       - icon: "hugeicons:laptop-programming"
-        title: No-Code CMS
+        name: No-Code CMS
         description: PagesCMS integration lets non-technical users edit content with a visual interface.
       - icon: "hugeicons:gears"
-        title: Bun Powered
+        name: Bun Powered
         description: I try and keep the builds as fast as I can
 
   # Content Types Split Full
@@ -189,7 +189,7 @@ blocks:
     variant: dark-left
     reveal_left: left
     reveal_right: right
-    left_title: 14 Content Types
+    left_name: 14 Content Types
     left_content: |
       A bunch of different collection types and layouts for all sorts of business websites:
 
@@ -203,11 +203,11 @@ blocks:
       - **Reviews** - Ratings linked to products
       - **Team** - Staff profiles
       - **Guides** - Documentation and help articles
-    right_title: Example Product
+    right_name: Example Product
     right_content: |
       ```
       ---
-      title: Organic Coffee Beans
+      name: Organic Coffee Beans
       price: 12.99
       categories:
         - coffee
@@ -227,7 +227,7 @@ blocks:
 
   # Themes Split (reversed)
   - type: split-callout
-    title: 10 Themes.
+    name: 10 Themes.
     reverse: true
     reveal_content: right
     content: |
@@ -239,19 +239,19 @@ blocks:
       href: https://example.chobble.com/theme-editor/
       variant: secondary
     figure_icon: "🎨"
-    figure_title: Theme Switcher
+    figure_name: Theme Switcher
     figure_subtitle: Let visitors preview themes instantly (in the bottom right)
     figure_variant: gradient
 
   # Single-product promo (split layout + buy card with schema.org Product)
   - type: split-buy-options
-    title: Featured Product
+    name: Featured Product
     reveal_content: left
     content: |
       A single buy-option promoted alongside explanatory copy — same product
       card as the `buy-options` grid, but framed as a split hero.
     figure_image: src/images/breakfast.jpg
-    figure_title: Sample Product
+    figure_name: Sample Product
     figure_subtitle: Limited edition
     figure_price: "£15"
     figure_currency: GBP
@@ -268,16 +268,16 @@ blocks:
     center: true
     items:
       - icon: "hugeicons:credit-card"
-        title: Card Checkout
+        name: Card Checkout
         description: Powered by a Bunny Edge Script
       - icon: "hugeicons:note-edit"
-        title: Quote Mode
+        name: Quote Mode
         description: Collect enquiries instead of payments
         style: "--primary-light: #d1fae5; --primary: #059669;"
 
   # Performance Split
   - type: split-code
-    title: Static HTML, Optimised Images
+    name: Static HTML, Optimised Images
     reveal_content: left
     content: |
       The output is plain HTML and CSS with no client-side framework. Images are processed at build time into multiple sizes and WebP format with blurred placeholders.
@@ -313,7 +313,7 @@ blocks:
 
   # Deployment Split (reversed)
   - type: split-html
-    title: Hosting and Deployment
+    name: Hosting and Deployment
     reverse: true
     reveal_content: right
     content: |
@@ -349,7 +349,7 @@ blocks:
     variant: primary-left
     reveal_left: left
     reveal_right: right
-    left_title: Want It Built For You?
+    left_name: Want It Built For You?
     left_content: |
       Not everyone wants to DIY — and that's fine.
 
@@ -393,7 +393,7 @@ blocks:
 
   # CTA
   - type: cta
-    title: Get the Template
+    name: Get the Template
     description: Fork the repository, add your content, and deploy. Or get in touch and Stef will set it up for you.
     button:
       text: Get Started on GitHub

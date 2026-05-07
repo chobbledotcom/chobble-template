@@ -1,5 +1,5 @@
 ---
-title: Eleventy
+name: Eleventy
 subtitle: The Chobble Template is built with the Eleventy static site generator
 categories:
   - open-source
