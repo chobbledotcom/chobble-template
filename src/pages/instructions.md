@@ -1,4 +1,5 @@
 ---
+name: Setup Instructions
 meta_description: Step-by-step instructions for setting up, customising, and
   deploying your website using the Chobble Template
 meta_title: Setup Instructions | Chobble Template

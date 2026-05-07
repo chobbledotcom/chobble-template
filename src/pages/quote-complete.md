@@ -1,4 +1,5 @@
 ---
+name: Quote Request Sent
 meta_description: Your quote request has been submitted
 meta_title: Quote Request Sent
 layout: design-system-base.html

@@ -1,4 +1,5 @@
 ---
+name: Menus
 meta_description: Browse our delicious vegan menus
 meta_title: Menus
 eleventyNavigation:

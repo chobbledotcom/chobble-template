@@ -1,4 +1,5 @@
 ---
+name: Team
 meta_description:
 meta_title: Team
 layout: design-system-base.html

@@ -1,4 +1,5 @@
 ---
+name: Properties
 meta_description:
 meta_title: Properties
 layout: design-system-base.html

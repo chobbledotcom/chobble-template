@@ -304,11 +304,11 @@ blocks:
 
       Structured data is generated automatically from your content.
     items:
-      - title: Schema.org Markup
+      - name: Schema.org Markup
         description: Products, events, FAQs, organizations, and breadcrumbs - all with proper JSON-LD.
-      - title: RSS & iCal Feeds
+      - name: RSS & iCal Feeds
         description: Atom feeds for news, iCal exports for events. Let people subscribe to your content.
-      - title: Aggregate Ratings
+      - name: Aggregate Ratings
         description: Product reviews automatically generate aggregate ratings for rich snippets.
 
   # Deployment Split (reversed)

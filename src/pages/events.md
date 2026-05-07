@@ -1,4 +1,5 @@
 ---
+name: Events
 meta_description: Check out our upcoming and past events
 meta_title: Events Listing Website | Chobble Template
 permalink: /events/

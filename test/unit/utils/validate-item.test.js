@@ -20,6 +20,15 @@ describe("collectItemErrors", () => {
     expect(collectItemErrors({ subtitle: "A utility page" })).toEqual([]);
   });
 
+  test("returns empty array for excluded pagination templates without name", () => {
+    expect(
+      collectItemErrors({
+        tags: ["pages"],
+        eleventyExcludeFromCollections: true,
+      }),
+    ).toEqual([]);
+  });
+
   test("returns error when tagged item is missing name", () => {
     const errors = collectItemErrors(
       { tags: ["pages"], subtitle: "A page" },

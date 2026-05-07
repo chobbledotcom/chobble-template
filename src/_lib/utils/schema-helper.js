@@ -27,7 +27,7 @@ import { isExternalUrl } from "#utils/url-utils.js";
  * @property {string} [image] - Image path
  * @property {SiteInfo} site - Site information
  * @property {PageInfo} page - Page information
- * @property {string} title - Page title (required - computed for pages, explicit for collections)
+ * @property {string} name - Page name (required - computed for pages, explicit for collections)
  * @property {string} [meta_description] - Meta description
  * @property {string} [subtitle] - Page subtitle
  * @property {FAQ[]} [faqs] - FAQ items
@@ -36,7 +36,7 @@ import { isExternalUrl } from "#utils/url-utils.js";
 
 /**
  * @typedef {Object} ProductPageData
- * @property {string} [title] - Product title
+ * @property {string} [name] - Product name
  * @property {string | number} [price] - Product price
  * @property {SiteInfo} site - Site information
  * @property {PageInfo} page - Page information
@@ -47,7 +47,7 @@ import { isExternalUrl } from "#utils/url-utils.js";
 /**
  * @typedef {Object} PostPageData
  * @property {PageInfo} page - Page information
- * @property {string} [title] - Post title
+ * @property {string} [name] - Post name
  * @property {string} [author] - Post author
  * @property {SiteInfo} site - Site information
  */

@@ -11,7 +11,7 @@ faqs:
     answer: Basic knowledge helps, but you can build sites with just Markdown.
     order: 2
 tabs:
-  - title: Installation
+  - name: Installation
     body: |
       To install Eleventy, run the following command:
 
@@ -20,12 +20,12 @@ tabs:
       ```
 
       Make sure you have Bun installed first.
-  - title: Configuration
+  - name: Configuration
     body: |
       Create an `.eleventy.js` file in your project root to configure Eleventy.
 
       You can customise input/output directories, add plugins, and define custom filters.
-  - title: Resources
+  - name: Resources
     body: |
       - [Official Documentation](https://www.11ty.dev/docs/)
       - [Starter Projects](https://www.11ty.dev/docs/starter/)

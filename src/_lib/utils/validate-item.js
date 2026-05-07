@@ -43,7 +43,7 @@ const collectNestedNameErrors = (block, ctx) => {
 export const collectItemErrors = (data, context = "") => {
   const isTaggedContent = Array.isArray(data.tags) && data.tags.length > 0;
   const nameError =
-    isTaggedContent && !data.name
+    isTaggedContent && !data.eleventyExcludeFromCollections && !data.name
       ? [`Item is missing required "name" field${context}`]
       : [];
 

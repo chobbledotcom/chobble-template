@@ -1,4 +1,5 @@
 ---
+name: Contact
 meta_description:
 meta_title: Contact
 schema_type: organization
