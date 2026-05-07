@@ -215,6 +215,9 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addAsyncFilter("snippet_blocks", snippetBlocksFilter);
   eleventyConfig.addAsyncFilter("render_block_liquid", renderBlockLiquidFilter);
   eleventyConfig.addFilter("escape_html", escapeHtmlFilter);
+  eleventyConfig.addFilter("markdown", (str) =>
+    str ? mdRenderer.render(str) : "",
+  );
 
   eleventyConfig.addAsyncShortcode(
     "render_snippet",
