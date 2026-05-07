@@ -10,7 +10,7 @@ export default linkableContent("menus", {
   pdfFilename: (data) => buildPdfFilename(data.site.name, data.page.fileSlug),
   eleventyNavigation: (data) =>
     withNavigationAnchor(data, {
-      key: data.title,
+      key: data.name,
       parent: data.strings.menus_name,
       order: data.order || 0,
     }),

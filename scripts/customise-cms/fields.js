@@ -32,10 +32,8 @@
  * @type {Record<string, CmsField>}
  */
 export const COMMON_FIELDS = {
-  title: { name: "title", type: "string", label: "Title" },
   name: { name: "name", type: "string", label: "Name" },
   thumbnail: { name: "thumbnail", type: "image", label: "Thumbnail" },
-  header_image: { name: "header_image", type: "image", label: "Header Image" },
   subtitle: { name: "subtitle", type: "string", label: "Subtitle" },
   body: {
     name: "body",
@@ -43,7 +41,6 @@ export const COMMON_FIELDS = {
     type: "code",
     options: { language: "markdown" },
   },
-  header_text: { name: "header_text", type: "string", label: "Header Text" },
   meta_title: {
     name: "meta_title",
     type: "string",
@@ -309,7 +306,7 @@ export const createTabsField = (useVisualEditor) => ({
   list: true,
   _componentName: "tabs",
   fields: [
-    { name: "title", type: "string", label: "Title", required: true },
+    { name: "name", type: "string", label: "Name", required: true },
     { name: "image", type: "image", label: "Image" },
     createMarkdownField("body", "Body", useVisualEditor, { required: true }),
   ],

@@ -181,8 +181,8 @@ export const countMatches = (lookup, filters, totalItems) =>
 // Sort Options
 // ============================================================================
 
-/** @param {{ data: { title: string } }} item */
-const getName = (item) => item.data.title.toLowerCase();
+/** @param {{ data: { name: string } }} item */
+const getName = (item) => item.data.name.toLowerCase();
 
 /**
  * @param {EleventyCollectionItem} item

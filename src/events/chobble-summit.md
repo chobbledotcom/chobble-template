@@ -1,5 +1,5 @@
 ---
-title: Chobble Global Summit
+name: Chobble Global Summit
 subtitle: 40,000 developers can't be wrong
 meta_description: Annual sold-out arena event celebrating the Chobble template at Fulchester Arena
 recurring_date: Annually - Last weekend of July

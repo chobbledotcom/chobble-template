@@ -1,5 +1,5 @@
 ---
-title: SmarThingy AI Plus
+name: SmarThingy AI Plus
 subtitle: Next-generation AI-powered thingy with cloud connectivity
 filter_attributes:
   - name: Size

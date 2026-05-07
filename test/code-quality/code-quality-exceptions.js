@@ -155,6 +155,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
   "src/_lib/utils/block-columns.js", // Validation and distribution helpers kept separate for complexity
+  "src/_lib/utils/validate-item.js", // collectNestedNameErrors kept separate for clarity
+  "src/_data/eleventyComputed.js", // applyBlockDefaults/enrichVideoCards extracted for function length
   "src/_lib/public/design-system.js", // initVideoFacades kept separate to manage complexity
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
@@ -238,6 +240,10 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 
   // Video utilities - constant and helper exported for test verification
   "src/_lib/utils/video.js:RICK_ASTLEY_VIDEO_ID",
+
+  // Validation helpers - throwing wrappers tested directly
+  "src/_lib/utils/block-schema.js:validateBlocks",
+  "src/_lib/utils/validate-item.js:validateItem",
 ]);
 
 // ============================================
@@ -289,7 +295,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   // src/_lib/utils - utility functions
   "src/_lib/utils/collection-utils.js:71", // indexer may not contain the lookup slug
   "src/_lib/utils/collection-utils.js:102", // CMS boundary: frontmatter array fields may be null before eleventyComputed
-  "src/_lib/utils/sorting.js:65", // eleventyNavigation.order (separate from item order)
+  "src/_lib/utils/sorting.js:64", // eleventyNavigation.order (separate from item order)
 ]);
 
 export {

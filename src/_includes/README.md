@@ -52,8 +52,6 @@ To modify a layout:
 Common variables available in layouts:
 - `title` - Page title
 - `content` - Page content
-- `header_image` - Header background image
-- `header_text` - Header display text
 - `meta_description` - SEO description
 - `meta_title` - SEO title
 - `site` - Global site configuration

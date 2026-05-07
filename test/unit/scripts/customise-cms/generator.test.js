@@ -14,7 +14,6 @@ const DISABLED_FEATURES = {
   features: false,
   galleries: false,
   add_ons: false,
-  header_images: false,
   event_locations_and_dates: false,
   use_visual_editor: false,
   use_blocks: false,
@@ -379,16 +378,6 @@ describe("generatePagesYaml view config", () => {
 
     expect(view).toContain("- permalink");
   });
-
-  test("pages view excludes header_text when header_images disabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({ features: { header_images: false } }),
-    );
-    const view = getViewSection(yaml, "pages");
-
-    expect(view).not.toContain("- header_text");
-    expect(view).toContain("- meta_title");
-  });
 });
 
 describe("generatePagesYaml blocks", () => {
@@ -454,7 +443,7 @@ describe("generatePagesYaml custom blocks collections", () => {
     const section = getSection("clients")(yaml);
 
     expect(section).toContain("name: blocks");
-    expect(section).toContain("name: title");
+    expect(section).toContain("name: name");
     expect(section).toContain("name: body");
   });
 

@@ -1,5 +1,5 @@
 ---
-title: Customisation
+name: Customisation
 subtitle: Tailoring the template to your needs
 guide-category: advanced-topics
 order: 1

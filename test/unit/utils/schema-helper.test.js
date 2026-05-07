@@ -31,7 +31,7 @@ const postMeta = (overrides = {}) =>
 /** Curried: (overrides) => buildOrganizationMeta result */
 const orgMeta = (overrides = {}) =>
   buildOrganizationMeta(
-    createSchemaData({ pageUrl: "/", title: "Home", ...overrides }),
+    createSchemaData({ pageUrl: "/", name: "Home", ...overrides }),
   );
 
 /** Curried: (price input) => stripped price string from offers */
@@ -53,7 +53,7 @@ describe("buildBaseMeta", () => {
   test("returns basic meta with url, title, and description", () => {
     const result = baseMeta({
       pageUrl: "/test-page/",
-      title: "Test Page",
+      name: "Test Page",
       meta_description: "A test description",
     });
     expect(result.title).toBe("Test Page");
@@ -65,38 +65,32 @@ describe("buildBaseMeta", () => {
     expect(baseMeta({ subtitle: "A subtitle" }).description).toBe("A subtitle");
   });
 
-  test("includes image from header_image", () => {
-    const result = baseMeta({ header_image: "test-image.jpg" });
-    expect(result.image).toBeTruthy();
-    expect(result.image.src.includes("test-image.jpg")).toBe(true);
-  });
-
-  test("includes image from image field when header_image is not provided", () => {
+  test("includes image from image field", () => {
     const result = baseMeta({ image: "fallback-image.jpg" });
     expect(result.image).toBeTruthy();
     expect(result.image.src.includes("fallback-image.jpg")).toBe(true);
   });
 
   test("handles absolute URL images (http://)", () => {
-    expect(
-      baseMeta({ header_image: "http://other.com/image.jpg" }).image.src,
-    ).toBe("http://other.com/image.jpg");
+    expect(baseMeta({ image: "http://other.com/image.jpg" }).image.src).toBe(
+      "http://other.com/image.jpg",
+    );
   });
 
   test("handles absolute URL images (https://)", () => {
-    expect(
-      baseMeta({ header_image: "https://other.com/image.jpg" }).image.src,
-    ).toBe("https://other.com/image.jpg");
+    expect(baseMeta({ image: "https://other.com/image.jpg" }).image.src).toBe(
+      "https://other.com/image.jpg",
+    );
   });
 
   test("handles images with leading slash", () => {
-    expect(baseMeta({ header_image: "/images/photo.jpg" }).image.src).toBe(
+    expect(baseMeta({ image: "/images/photo.jpg" }).image.src).toBe(
       "https://example.com/images/photo.jpg",
     );
   });
 
   test("prepends /images/ for plain image filenames", () => {
-    expect(baseMeta({ header_image: "photo.jpg" }).image.src).toBe(
+    expect(baseMeta({ image: "photo.jpg" }).image.src).toBe(
       "https://example.com/images/photo.jpg",
     );
   });

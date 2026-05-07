@@ -3,14 +3,15 @@ import eleventyComputed from "#data/eleventyComputed.js";
 import { getVideoThumbnailUrl } from "#utils/video.js";
 
 const page = { inputPath: "test.html" };
+const name = "Test Item";
 
 /** Run the blocks computed against a single block and return the processed block. */
 const runSingle = async (block) =>
-  (await eleventyComputed.blocks({ blocks: [block], page }))[0];
+  (await eleventyComputed.blocks({ blocks: [block], page, name }))[0];
 
 describe("eleventyComputed.blocks", () => {
   test("returns undefined when blocks is not set", async () => {
-    expect(await eleventyComputed.blocks({ page })).toBeUndefined();
+    expect(await eleventyComputed.blocks({ page, name })).toBeUndefined();
   });
 
   test("adds the 'dark: false' default to a minimal markdown block", async () => {
@@ -37,6 +38,7 @@ describe("eleventyComputed.blocks", () => {
     expect(
       eleventyComputed.blocks({
         blocks: [{ type: "unknown-type" }],
+        name,
         page: { inputPath: "src/products/example.md" },
       }),
     ).rejects.toThrow("src/products/example.md");
@@ -62,10 +64,11 @@ describe("eleventyComputed.blocks", () => {
   });
 
   test("applies split-image defaults including reveal_content 'left'", async () => {
-    expect(await runSingle({ type: "split-image", title: "Test" })).toEqual({
+    expect(
+      await runSingle({ type: "split-image", content: "## Section Heading" }),
+    ).toEqual({
       type: "split-image",
-      title: "Test",
-      title_level: 2,
+      content: "## Section Heading",
       reveal_figure: "scale",
       reveal_content: "left",
       dark: false,
@@ -75,7 +78,7 @@ describe("eleventyComputed.blocks", () => {
   test("sets reveal_content to 'right' when a split block is reversed", async () => {
     const block = await runSingle({
       type: "split-html",
-      title: "Test",
+      content: "## Section Heading",
       reverse: true,
     });
     expect(block.reveal_content).toBe("right");
@@ -84,7 +87,7 @@ describe("eleventyComputed.blocks", () => {
   test("preserves an explicit reveal_content on a split block", async () => {
     const block = await runSingle({
       type: "split-code",
-      title: "Test",
+      content: "## Section Heading",
       reveal_content: "left",
     });
     expect(block.reveal_content).toBe("left");
@@ -147,6 +150,7 @@ describe("eleventyComputed.blocks", () => {
         { type: "stats", items: [] },
         { type: "code-block", code: "x", filename: "x.js" },
       ],
+      name,
       page,
     });
     expect(result[0].reveal).toBe(true);
@@ -157,10 +161,10 @@ describe("eleventyComputed.blocks", () => {
     const id = "dQw4w9WgXcQ";
     const block = await runSingle({
       type: "video-cards",
-      videos: [{ id, title: "Test" }],
+      videos: [{ id, name: "Section Heading" }],
     });
     expect(block.videos[0].thumbnail_url).toBe(await getVideoThumbnailUrl(id));
-    expect(block.videos[0].title).toBe("Test");
+    expect(block.videos[0].name).toBe("Section Heading");
   });
 
   test("leaves a video-cards block alone when its videos field is missing", async () => {

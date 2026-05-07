@@ -1,5 +1,5 @@
 ---
-title: Doodah Pro Enterprise Edition
+name: Doodah Pro Enterprise Edition
 subtitle: Industrial-grade doodah for commercial applications
 options:
   - name: Basic

@@ -1,5 +1,5 @@
 ---
-title: Widgets
+name: Widgets
 subtitle: Innovative widgets for home and business use
 featured: true
 blocks:

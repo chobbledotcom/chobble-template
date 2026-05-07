@@ -3,11 +3,11 @@
   "recapTitle": "Review Your Request",
   "sections": [
     {
-      "title": "Event Details",
+      "name": "Event Details",
       "fields": [
         {
           "type": "heading",
-          "title": "Event Details"
+          "name": "Event Details"
         },
         {
           "name": "start_date",
@@ -61,11 +61,11 @@
       ]
     },
     {
-      "title": "Your Details",
+      "name": "Your Details",
       "fields": [
         {
           "type": "heading",
-          "title": "Your Details"
+          "name": "Your Details"
         },
         {
           "name": "name",

@@ -1,5 +1,5 @@
 /* jscpd:ignore-start */
-import { img, num } from "#utils/block-schema/shared.js";
+import { img } from "#utils/block-schema/shared.js";
 import {
   SPLIT_BASE_DOCS,
   SPLIT_BASE_FIELDS,
@@ -18,8 +18,8 @@ export const fields = {
     description:
       "Product image path. Processed by `{% image %}` shortcode for responsive srcset + LQIP.",
   },
-  figure_title: {
-    ...str("Product Title"),
+  figure_name: {
+    ...str("Product Name"),
     required: true,
     description: "Product name. Schema.org `name`.",
   },
@@ -46,11 +46,6 @@ export const fields = {
     ...str("Buy Button Text"),
     default: '"Buy now"',
     description: "Button label.",
-  },
-  figure_heading_level: {
-    ...num("Product Heading Level"),
-    default: "3",
-    description: "Heading level for the product title.",
   },
   figure_image_aspect_ratio: {
     ...str("Product Image Aspect Ratio"),

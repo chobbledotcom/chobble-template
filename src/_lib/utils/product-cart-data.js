@@ -101,7 +101,7 @@ const hasDays = (opt) => opt.days != null;
  * @returns {string | null} HTML-escaped JSON string for data attribute, or null
  */
 export const buildCartAttributes = ({
-  title,
+  name,
   subtitle,
   options,
   specs,
@@ -109,10 +109,10 @@ export const buildCartAttributes = ({
 }) => {
   if (options.length === 0) return null;
 
-  if (mode === "hire") validateHireOptions(options, title);
+  if (mode === "hire") validateHireOptions(options, name);
 
   return JSON.stringify({
-    name: title,
+    name,
     subtitle,
     options: options.map((opt) => ({
       name: opt.name,

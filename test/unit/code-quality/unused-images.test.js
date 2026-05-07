@@ -206,23 +206,6 @@ describe("unused-images", () => {
     );
   });
 
-  test("Detects images referenced in header_image frontmatter field", async () => {
-    await runUnusedImagesTest(
-      "frontmatter-header",
-      (tempDir, imagesDir) => {
-        fs.writeFileSync(path.join(imagesDir, "banner.jpg"), "fake jpg");
-        fs.writeFileSync(
-          path.join(tempDir, "page.md"),
-          createFrontmatter(
-            { header_image: "src/images/banner.jpg" },
-            "# Page",
-          ),
-        );
-      },
-      expectAllImagesUsed,
-    );
-  });
-
   test("Detects images referenced in image frontmatter field", async () => {
     await runUnusedImagesTest(
       "frontmatter-image",
@@ -255,13 +238,13 @@ describe("unused-images", () => {
     await runUnusedImagesTest(
       "both",
       (tempDir, imagesDir) => {
-        fs.writeFileSync(path.join(imagesDir, "header.jpg"), "fake jpg");
+        fs.writeFileSync(path.join(imagesDir, "thumb.jpg"), "fake jpg");
         fs.writeFileSync(path.join(imagesDir, "inline.png"), "fake png");
         fs.writeFileSync(path.join(imagesDir, "unused.gif"), "fake gif");
         fs.writeFileSync(
           path.join(tempDir, "page.md"),
           createFrontmatter(
-            { header_image: "header.jpg" },
+            { thumbnail: "thumb.jpg" },
             "![Inline](/images/inline.png)",
           ),
         );

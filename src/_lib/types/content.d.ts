@@ -31,7 +31,7 @@ export type { PagesCMSBlock as Block } from './pages-cms-generated.d.ts';
  * Body is guaranteed to be a string (defaults to empty string if not set).
  */
 export type Tab = {
-  title: string;
+  name: string;
   image?: string;
   /** Body content - always a string after computed processing (never null/undefined) */
   body: string;
@@ -42,7 +42,7 @@ export type Tab = {
  * Body may be undefined in raw frontmatter data.
  */
 export type RawTab = {
-  title: string;
+  name: string;
   image?: string;
   body?: string;
 };
@@ -94,14 +94,14 @@ export type ProductSpec = {
  */
 export type ProductData = {
   options?: ProductOption[];
-  title: string;
+  name: string;
 };
 
 /**
  * Parameters for generating cart attributes
  */
 export type CartAttributesParams = {
-  title: string;
+  name: string;
   subtitle?: string;
   options: NormalizedProductOption[];
   specs?: ProductSpec[];

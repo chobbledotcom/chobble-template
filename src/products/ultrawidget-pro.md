@@ -1,5 +1,5 @@
 ---
-title: UltraWidget Pro
+name: UltraWidget Pro
 subtitle: 'Lightweight, powerful widget for professionals'
 featured: true
 filter_attributes:
@@ -66,10 +66,10 @@ add_ons:
     - name: Wireless Charging Pad
       price: 49.99
 tabs:
-  - title: Setup Guide
+  - name: Setup Guide
     body: |
       Getting started with your UltraWidget Pro is easy. Simply connect the power adapter, press the holographic power button, and follow the on-screen setup wizard. The biometric scanner will guide you through fingerprint registration for secure access.
-  - title: Warranty Info
+  - name: Warranty Info
     body: |
       Your UltraWidget Pro comes with a 2-year comprehensive warranty covering all manufacturing defects. Extended warranty options are available for up to 5 years of coverage including accidental damage protection.
 

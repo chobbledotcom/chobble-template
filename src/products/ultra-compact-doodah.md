@@ -1,5 +1,5 @@
 ---
-title: Ultra Compact Doodah X5
+name: Ultra Compact Doodah X5
 subtitle: Pocket-sized doodah with maximum efficiency
 filter_attributes:
   - name: Size

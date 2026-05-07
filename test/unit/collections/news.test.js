@@ -6,10 +6,10 @@ import {
   expectResultTitles,
 } from "#test/test-utils.js";
 
-/** Create news posts from an array of [title, dateStr, options] tuples */
+/** Create news posts from an array of [name, dateStr, options] tuples */
 const newsPostItems = (tuples) =>
-  tuples.map(([title, dateStr, options = {}]) => ({
-    data: { title, ...options },
+  tuples.map(([name, dateStr, options = {}]) => ({
+    data: { name, ...options },
     date: new Date(dateStr),
   }));
 

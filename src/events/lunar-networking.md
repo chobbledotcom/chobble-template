@@ -1,5 +1,5 @@
 ---
-title: Lunar Networking Extravaganza
+name: Lunar Networking Extravaganza
 subtitle: Small businesses meet Eleventy developers... on the Moon!
 meta_description: Monthly networking on the lunar surface for Chobble template enthusiasts
 recurring_date: First Thursday of each month (3-day travel time required)

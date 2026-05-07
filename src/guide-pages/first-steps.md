@@ -1,5 +1,5 @@
 ---
-title: First Steps
+name: First Steps
 subtitle: Your first actions after installation
 guide-category: getting-started
 order: 2

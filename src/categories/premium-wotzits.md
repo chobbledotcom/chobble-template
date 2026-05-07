@@ -1,5 +1,5 @@
 ---
-title: Premium Wotzits
+name: Premium Wotzits
 subtitle: Wotzits designed for optimal performance
 parent: wotzits
 blocks:

@@ -26,9 +26,9 @@ describe("linkableContent", () => {
   });
 
   test("merges extra computed properties", () => {
-    const extra = { myField: (data) => data.title };
+    const extra = { myField: (data) => data.name };
     const result = linkableContent("event", extra);
-    expect(result.eleventyComputed.myField({ title: "Hello" })).toBe("Hello");
+    expect(result.eleventyComputed.myField({ name: "Hello" })).toBe("Hello");
   });
 
   test("extra computed properties override defaults", () => {

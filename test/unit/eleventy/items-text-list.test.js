@@ -5,9 +5,9 @@ import { createMockEleventyConfig, expectProp } from "#test/test-utils.js";
 const expectNames = expectProp("name");
 const expectSeparators = expectProp("separator");
 
-const createItem = (title, url) => ({
+const createItem = (name, url) => ({
   url,
-  data: { title },
+  data: { name },
 });
 
 const THREE_ITEMS = [

@@ -5,7 +5,7 @@ const prepareItemsTextList = (collection, currentUrl) => {
 
   const filtered = pipe(
     filter((item) => item.url !== currentUrl),
-    sort((a, b) => a.data.title.localeCompare(b.data.title)),
+    sort((a, b) => a.data.name.localeCompare(b.data.name)),
   )(collection);
 
   const separator = (index) => {
@@ -17,7 +17,7 @@ const prepareItemsTextList = (collection, currentUrl) => {
   return pipe(
     map((item, index) => ({
       url: item.url,
-      name: item.data.title,
+      name: item.data.name,
       separator: separator(index),
     })),
   )(filtered);

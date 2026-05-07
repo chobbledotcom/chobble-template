@@ -238,36 +238,34 @@ const DEFAULT_ORDER = 9999;
 /**
  * Create a collection item with nested data structure.
  */
-const item = (title, options = {}) => ({
+const item = (name, options = {}) => ({
   data: {
     order: DEFAULT_ORDER,
-    ...(title && { title }),
+    ...(name && { name }),
     ...options,
   },
 });
 
 /**
- * Create items from an array of [title, options] tuples.
+ * Create items from an array of [name, options] tuples.
  */
-const items = map(([title, options]) => item(title, options));
+const items = map(([name, options]) => item(name, options));
 
 const createFrontmatter = (frontmatterData, content = "") =>
   matter.stringify(content, frontmatterData);
 
 const createProduct = ({
   slug = null,
-  title = "Test Product",
+  name = "Test Product",
   categories = [],
   order = DEFAULT_ORDER,
-  headerImage = null,
   ...extraData
 } = {}) => ({
   ...(slug && { fileSlug: slug }),
   data: {
-    title,
+    name,
     categories,
     order,
-    header_image: headerImage,
     ...extraData,
   },
 });
@@ -296,7 +294,7 @@ const expectValidScriptTag = (result) => {
 
 // Pre-built data array checkers
 const expectGalleries = expectDataArray("gallery");
-const expectResultTitles = expectDataArray("title");
+const expectResultTitles = expectDataArray("name");
 
 // ============================================
 // Mock Collection API Helpers

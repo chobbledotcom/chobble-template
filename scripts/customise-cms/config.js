@@ -19,7 +19,6 @@ import { map, unique } from "#toolkit/fp/array.js";
  * @property {boolean} features - Enable feature lists on products/properties
  * @property {boolean} galleries - Enable image galleries on items
  * @property {boolean} add_ons - Enable add-ons on products
- * @property {boolean} header_images - Enable header images and text on items
  * @property {boolean} external_navigation_urls - Enable external URLs in navigation
  * @property {boolean} external_purchases - Enable external purchase URLs for products
  * @property {boolean} event_locations_and_dates - Enable locations and dates for events

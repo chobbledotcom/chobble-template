@@ -1,5 +1,5 @@
 ---
-title: Summer Expo
+name: Summer Expo
 subtitle: Exclusive deals aplenty!
 meta_description: Join us for our upcoming Summer Expo with exclusive deals
 event_date: 2026-06-19

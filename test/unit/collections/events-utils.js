@@ -31,24 +31,24 @@ const formatDateString = (date) => date.toISOString().split("T")[0];
  * Unified event fixture factory using functional options pattern.
  *
  * @param {Object} options
- * @param {string} [options.title] - Event title (defaults based on event type)
+ * @param {string} [options.name] - Event name (defaults based on event type)
  * @param {Date} [options.date] - Explicit date for the event
  * @param {number} [options.daysOffset=30] - Days from today (positive=future, negative=past)
  * @param {string} [options.recurring] - Recurring date string (e.g., "Every Monday")
  * @param {boolean} [options.undated] - Create event without date
- * @returns {Object} Event fixture with { data: { title, event_date|recurring_date, ... } }
+ * @returns {Object} Event fixture with { data: { name, event_date|recurring_date, ... } }
  *
  * @example
- * createEvent({ title: "Summer Fest", daysOffset: 60 })
- * createEvent({ title: "Weekly Meetup", recurring: "Every Monday" })
- * createEvent({ title: "Past Event", daysOffset: -30 })
- * createEvent({ title: "No Date Event", undated: true })
+ * createEvent({ name: "Summer Fest", daysOffset: 60 })
+ * createEvent({ name: "Weekly Meetup", recurring: "Every Monday" })
+ * createEvent({ name: "Past Event", daysOffset: -30 })
+ * createEvent({ name: "No Date Event", undated: true })
  */
 /** Default order for items without explicit order (matches eleventyComputed) */
 const DEFAULT_ORDER = 9999;
 
 const createEvent = ({
-  title,
+  name,
   date,
   daysOffset = 30,
   recurring,
@@ -59,7 +59,7 @@ const createEvent = ({
   if (recurring !== undefined) {
     return {
       data: {
-        title: title ?? "Recurring Event",
+        name: name ?? "Recurring Event",
         recurring_date: recurring,
         order,
         ...extraData,
@@ -70,7 +70,7 @@ const createEvent = ({
   if (undated) {
     return {
       data: {
-        title: title ?? "Undated Event",
+        name: name ?? "Undated Event",
         order,
         ...extraData,
       },
@@ -81,7 +81,7 @@ const createEvent = ({
 
   return {
     data: {
-      title: title ?? (daysOffset < 0 ? "Past Event" : "Future Event"),
+      name: name ?? (daysOffset < 0 ? "Past Event" : "Future Event"),
       event_date:
         eventDate instanceof Date ? formatDateString(eventDate) : eventDate,
       order,

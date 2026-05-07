@@ -1,6 +1,5 @@
 ---
-title: Order Complete
-header_text: Thank You for Your Order
+name: Order Complete
 meta_description: Thank you for your order
 meta_title: Order Complete
 no_index: true

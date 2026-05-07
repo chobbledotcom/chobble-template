@@ -10,17 +10,17 @@ it appears.
 
 Parameters:
   - video_id: YouTube video ID or custom iframe URL (required)
-  - title: Accessible title/alt for the video (required)
+  - name: Accessible title/alt for the video (required)
   - thumbnail_url: Thumbnail image URL. Falsy renders the no-thumbnail variant.
 {%- endcomment -%}
 
 <button
   type="button"
   class="video-facade{% unless thumbnail_url %} video-facade--no-thumbnail{% endunless %}"
-  aria-label="Play {{ title }}"
+  aria-label="Play {{ name }}"
 >
   {%- if thumbnail_url -%}
-  {%- image thumbnail_url, title, "", "", "", "16/9", "", false, true -%}
+  {%- image thumbnail_url, name, "", "", "", "16/9", "", false, true -%}
   {%- endif -%}
   <span class="video-play-button" aria-hidden="true">
     <svg viewBox="0 0 68 48" width="68" height="48">
@@ -28,5 +28,5 @@ Parameters:
       <path class="video-play-icon" d="M 45,24 27,14 27,34"/>
     </svg>
   </span>
-  <template>{%- include "design-system/video-iframe.html", video_id: video_id, title: title -%}</template>
+  <template>{%- include "design-system/video-iframe.html", video_id: video_id, name: name -%}</template>
 </button>

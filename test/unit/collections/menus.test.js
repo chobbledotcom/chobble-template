@@ -15,11 +15,11 @@ import {
 // Curried Data Factories
 // ============================================
 
-/** Category factory: creates { data: { title, menus } } items */
-const category = data({})("title", "menus");
+/** Category factory: creates { data: { name, menus } } items */
+const category = data({})("name", "menus");
 
-/** Menu item factory: creates { data: { title, menu_categories } } items */
-const menuItem = data({})("title", "menu_categories");
+/** Menu item factory: creates { data: { name, menu_categories } } items */
+const menuItem = data({})("name", "menu_categories");
 
 describe("menus", () => {
   // getCategoriesByMenu tests
@@ -256,9 +256,9 @@ describe("menus collection", () => {
 
   test("returns menus sorted by order", () => {
     const menus = [
-      { data: { title: "Dinner", order: 3 }, fileSlug: "dinner" },
-      { data: { title: "Brunch", order: 1 }, fileSlug: "brunch" },
-      { data: { title: "Lunch", order: 2 }, fileSlug: "lunch" },
+      { data: { name: "Dinner", order: 3 }, fileSlug: "dinner" },
+      { data: { name: "Brunch", order: 1 }, fileSlug: "brunch" },
+      { data: { name: "Lunch", order: 2 }, fileSlug: "lunch" },
     ];
     const result = getCollection({ menus });
     expectResultTitles(result, ["Brunch", "Lunch", "Dinner"]);

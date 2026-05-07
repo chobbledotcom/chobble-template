@@ -1,5 +1,5 @@
 ---
-title: City Centre Apartment
+name: City Centre Apartment
 subtitle: Modern 1-bedroom apartment in the heart of town
 locations:
   - fulchester

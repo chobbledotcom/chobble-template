@@ -9,10 +9,10 @@ pagination, overrides the contact-form target with the property's
 
 <section class="compact">
   <div class="container">
-    <h1>Contact {{ item.data.title }}</h1>
+    <h1>Contact {{ item.data.name }}</h1>
     {%- assign form_target_override = "https://submit-form.com/" | append: item.data.formspark_id -%}
     {%- include "contact-form.html" -%}
     {%- assign form_target_override = nil -%}
-    <a href="/{{ strings.property_permalink_dir }}/{{ item.fileSlug }}/" class="btn btn--primary">Back to {{ item.data.title }}</a>
+    <a href="/{{ strings.property_permalink_dir }}/{{ item.fileSlug }}/" class="btn btn--primary">Back to {{ item.data.name }}</a>
   </div>
 </section>

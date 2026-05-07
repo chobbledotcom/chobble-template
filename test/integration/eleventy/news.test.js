@@ -10,18 +10,18 @@ import { normaliseSlug } from "#utils/slug-utils.js";
 /**
  * Create a news post file for test site
  * @param {string} slug - Post slug (without date prefix)
- * @param {string} title - Post title
+ * @param {string} name - Post name
  * @param {Object} options - Additional frontmatter (author, etc.)
  */
-const newsPostFile = (slug, title, { author, ...extras } = {}) => ({
+const newsPostFile = (slug, name, { author, ...extras } = {}) => ({
   path: `news/2024-01-01-${slug}.md`,
   frontmatter: {
-    title,
+    name,
     ...(author && { author: `src/team/${author}.md` }),
     blocks: [
       { type: "include", file: "news-post-header.html" },
       { type: "news-meta" },
-      { type: "markdown", content: `Content for ${title}.` },
+      { type: "markdown", content: `Content for ${name}.` },
       { type: "include", file: "news-post-gallery.html" },
       { type: "include", file: "faq.html" },
     ],
@@ -39,7 +39,7 @@ const newsPostFile = (slug, title, { author, ...extras } = {}) => ({
 const teamMember = (slug, name, { thumbnail, ...extras } = {}) => ({
   path: `team/${slug}.md`,
   frontmatter: {
-    title: name,
+    name,
     subtitle: extras.subtitle ?? `${name} bio subtitle`,
     ...(thumbnail && { thumbnail: `src/images/${thumbnail}` }),
     blocks: [{ type: "markdown", content: `${name} bio.` }],
@@ -204,7 +204,7 @@ describe("news", () => {
       {
         path: "pages/news.md",
         frontmatter: {
-          title: "News",
+          name: "News",
           layout: "design-system-base.html",
           permalink: "/news/",
           blocks: [

@@ -121,7 +121,7 @@ describe("product-cart-data", () => {
   describe("buildCartAttributes", () => {
     test("returns null when no options", () => {
       const result = buildCartAttributes({
-        title: "Test",
+        name: "Empty Product",
         subtitle: "Sub",
         options: [],
         specs: null,
@@ -132,7 +132,7 @@ describe("product-cart-data", () => {
 
     test("builds JSON with escaped quotes for buy mode", () => {
       const result = buildCartAttributes({
-        title: "Widget",
+        name: "Widget",
         subtitle: "A widget",
         options: [{ name: "Standard", unit_price: 10, sku: "WDG-001" }],
         specs: [{ name: "Color", value: "Red" }],
@@ -148,7 +148,7 @@ describe("product-cart-data", () => {
 
     test("builds hire_prices map for hire mode", () => {
       const result = buildCartAttributes({
-        title: "Hire Item",
+        name: "Hire Item",
         subtitle: null,
         options: [
           { name: "1 Day", days: 1, unit_price: 10 },
@@ -166,7 +166,7 @@ describe("product-cart-data", () => {
     test("throws when hire options missing 1-day option", () => {
       expect(() =>
         buildCartAttributes({
-          title: "Bad Hire",
+          name: "Bad Hire",
           subtitle: null,
           options: [{ days: 3, unit_price: 30 }],
           specs: null,
@@ -178,7 +178,7 @@ describe("product-cart-data", () => {
     test("throws when hire options have duplicate days", () => {
       expect(() =>
         buildCartAttributes({
-          title: "Dupe Hire",
+          name: "Dupe Hire",
           subtitle: null,
           options: [
             { days: 1, unit_price: 10 },

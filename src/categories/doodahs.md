@@ -1,5 +1,5 @@
 ---
-title: Doodahs
+name: Doodahs
 subtitle: Innovative doodahs for modern lifestyles
 featured: true
 blocks:

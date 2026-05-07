@@ -16,7 +16,7 @@ export const fields = {
     description:
       "Icon content: Iconify ID (`prefix:name`), emoji, or image path.",
   },
-  title: { ...str("Title"), description: "Bold heading text." },
+  name: { ...str("Name"), description: "Bold heading text." },
   content: {
     ...md("Content"),
     required: true,
@@ -27,7 +27,7 @@ export const fields = {
 
 export const docs = {
   summary:
-    "One-column callout/note with icon, title, and short content — for content warnings, advisories, tips, etc.",
+    "One-column callout/note with icon, name, and short content — for content warnings, advisories, tips, etc.",
   scss: "src/css/design-system/_callout.scss",
   htmlRoot: '<aside class="callout">',
 };

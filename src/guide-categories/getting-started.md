@@ -1,5 +1,5 @@
 ---
-title: Getting Started
+name: Getting Started
 subtitle: Learn the basics and get up and running quickly
 order: 1
 icon: "hugeicons:book-02"

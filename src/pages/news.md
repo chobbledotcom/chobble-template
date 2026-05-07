@@ -1,5 +1,5 @@
 ---
-header_text: News
+name: News
 meta_description:
 meta_title: News
 

@@ -93,7 +93,6 @@ const first = (generator) => {
  * const thumbnail = findFirst(
  *   () => item.data.thumbnail,
  *   () => item.data.gallery?.[0],
- *   () => item.data.header_image,
  * );
  */
 const findFirst = (...sources) => first(yieldFromSources(sources));

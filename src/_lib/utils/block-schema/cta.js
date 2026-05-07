@@ -3,17 +3,16 @@ import {
   md,
   objectField,
   REVEAL_STRING_FIELD,
-  TITLE_REQUIRED,
 } from "#utils/block-schema/shared.js";
 
 export const type = "cta";
 
 export const fields = {
-  title: { ...TITLE_REQUIRED, description: "CTA heading (`<h2>`)." },
-  description: {
-    ...md("Description"),
+  content: {
+    ...md("Content"),
+    required: true,
     description:
-      "Supporting markdown text. `body-lg`, 0.9 opacity, max-width `$width-narrow`.",
+      "Markdown content with optional heading (e.g. `## Heading`). `body-lg`, 0.9 opacity, max-width `$width-narrow`.",
   },
   button: {
     ...objectField("Button", BUTTON_FIELDS_WITH_SIZE),

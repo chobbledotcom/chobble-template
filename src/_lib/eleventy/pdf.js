@@ -71,7 +71,7 @@ function buildMenuPdfData(menu, { menuCategories, menuItems }) {
 
   return {
     businessName: site.name,
-    menuTitle: menu.data.title,
+    menuTitle: menu.data.name,
     subtitle: menu.data.subtitle,
     categories: pdfCategories,
     dietaryKeyString,
@@ -220,7 +220,7 @@ async function generateMenuPdf(menu, state, outputDir) {
   const renderPdfTemplate = await getPdfRenderer();
   const pdfDoc = renderPdfTemplate(template, data);
   if (!pdfDoc) {
-    logError(`Failed to generate PDF for menu: ${menu.data.title}`);
+    logError(`Failed to generate PDF for menu: ${menu.data.name}`);
     return null;
   }
 

@@ -65,7 +65,7 @@ Standalone section header with rich text intro.
 
 ### `features`
 
-Grid of feature cards with optional icons, titles, and descriptions.
+Grid of feature cards with optional icons, names, and descriptions.
 
 **Component:** `block_features`
 **Template:** `src/_includes/design-system/blocks/features.html`
@@ -74,7 +74,7 @@ Grid of feature cards with optional icons, titles, and descriptions.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Feature objects. Each: `{icon, icon_label, title, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji. |
+| `items` | array | **required** | Feature objects. Each: `{icon, icon_label, name, description, style}`. Icon can be an Iconify ID (`"prefix:name"`), image path (`"/images/foo.svg"`), or raw HTML/emoji. |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
 | `center` | boolean | `false` | If true, centers feature text. |
@@ -83,7 +83,7 @@ Grid of feature cards with optional icons, titles, and descriptions.
 
 ### `image-cards`
 
-Grid of cards featuring images with titles and optional descriptions.
+Grid of cards featuring images with names and optional descriptions.
 
 **Component:** `block_image_cards`
 **Template:** `src/_includes/design-system/blocks/image-cards.html`
@@ -92,7 +92,7 @@ Grid of cards featuring images with titles and optional descriptions.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Card objects. Each: `{image, title, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
+| `items` | array | **required** | Card objects. Each: `{image, name, description, link}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
@@ -101,7 +101,7 @@ Grid of cards featuring images with titles and optional descriptions.
 
 ### `buy-options`
 
-Grid of buyable products — image, title, optional subtitle, price, and a buy button. Emits schema.org Product microdata.
+Grid of buyable products — image, name, optional subtitle, price, and a buy button. Emits schema.org Product microdata.
 
 **Component:** `block_buy_options`
 **Template:** `src/_includes/design-system/blocks/buy-options.html`
@@ -110,7 +110,7 @@ Grid of buyable products — image, title, optional subtitle, price, and a buy b
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Product objects. Each: `{image, title, subtitle, price, currency, link, button_text}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
+| `items` | array | **required** | Product objects. Each: `{image, name, subtitle, price, currency, link, button_text}`. Images processed by `{% image %}` shortcode for responsive srcset + LQIP. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each item. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
@@ -166,7 +166,7 @@ Terminal-style code display with macOS-like toolbar header.
 
 ### `hero`
 
-Full-width hero banner with optional badge, title, lead text, and action buttons.
+Full-width hero banner with optional badge, name, lead text, and action buttons.
 
 **Component:** `block_hero`
 **Template:** `src/_includes/design-system/blocks/hero.html`
@@ -175,8 +175,8 @@ Full-width hero banner with optional badge, title, lead text, and action buttons
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `badge` | string | — | Small pill label above the title. Renders as `<span class="badge">`. |
-| `title` | string | **required** | Main `<h1>` heading. |
+| `badge` | string | — | Small pill label above the name. Renders as `<span class="badge">`. |
+| `name` | string | **required** | Main `<h1>` heading. |
 | `lead` | string | — | Subtitle paragraph. `body-lg` size, muted color, max-width `$width-narrow` (680px). |
 | `buttons` | array | — | Action buttons. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default. |
 | `class` | string | — | Extra CSS classes on the `<header>`. Use `"gradient"` for gradient bg. |
@@ -195,10 +195,8 @@ Two-column layout with text content and a responsive image.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | — | Section heading. |
-| `title_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -220,10 +218,8 @@ Two-column layout with text content and an embedded video.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | — | Section heading. |
-| `title_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -247,10 +243,8 @@ Two-column layout with text content and a code block.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | — | Section heading. |
-| `title_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -272,10 +266,8 @@ Two-column layout with text content and an icon-links list.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | — | Section heading. |
-| `title_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -295,10 +287,8 @@ Two-column layout with text content and custom HTML.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | — | Section heading. |
-| `title_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
@@ -309,7 +299,7 @@ Two-column layout with text content and custom HTML.
 
 ### `split-callout`
 
-Two-column layout with text content and a styled callout box with icon, title, and subtitle.
+Two-column layout with text content and a styled callout box with icon, name, and subtitle.
 
 **Component:** `block_split_callout`
 **Template:** `src/_includes/design-system/blocks/split-callout.html`
@@ -318,17 +308,15 @@ Two-column layout with text content and a styled callout box with icon, title, a
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | — | Section heading. |
-| `title_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
 | `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
 | `figure_icon` | string | — | Icon content: Iconify ID (`prefix:name`), emoji, or image path. |
-| `figure_title` | string | **required** | Bold heading text in the callout box. |
-| `figure_subtitle` | string | — | Supporting text below the title. |
+| `figure_name` | string | **required** | Bold heading text in the callout box. |
+| `figure_subtitle` | string | — | Supporting text below the name. |
 | `figure_variant` | string | `"primary"` | Color scheme: `"primary"`, `"secondary"`, `"gradient"`, or a custom CSS gradient string. |
 
 ---
@@ -344,22 +332,19 @@ Two-column layout with text content and a single buyable product card. Emits sch
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | — | Section heading. |
-| `title_level` | number | `2` | Heading level. |
 | `subtitle` | string | — | Subtitle with `.text-muted` styling. |
-| `content` | string | — | Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`. |
+| `content` | string | — | Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`. |
 | `reverse` | boolean | `false` | Reverses column order (content right, figure left) on desktop. |
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
 | `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
 | `figure_image` | string | **required** | Product image path. Processed by `{% image %}` shortcode for responsive srcset + LQIP. |
-| `figure_title` | string | **required** | Product name. Schema.org `name`. |
+| `figure_name` | string | **required** | Product name. Schema.org `name`. |
 | `figure_subtitle` | string | — | Optional subtitle, e.g. `Print edition`. Rendered italic. |
 | `figure_price` | string | — | Display price. Currency symbols are stripped for schema.org `price`. |
 | `figure_currency` | string | `"GBP"` | ISO currency code for schema.org `priceCurrency`. |
 | `figure_link` | string | **required** | Buy URL. |
 | `figure_button_text` | string | `"Buy now"` | Button label. |
-| `figure_heading_level` | number | `3` | Heading level for the product title. |
 | `figure_image_aspect_ratio` | string | — | Aspect ratio, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 
 Figure renders as `<figure itemscope itemtype="https://schema.org/Product">` with the same card markup as each item in the `buy-options` block (shared partial `src/_includes/design-system/buy-option-card.html`). Use this when you have a single buy action to promote alongside text; use `buy-options` for a grid of products.
@@ -378,12 +363,9 @@ Full-width two-panel layout with distinct background colors per side.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `variant` | string | — | Color scheme: `"dark-left"`, `"dark-right"`, `"primary-left"`, `"primary-right"`. |
-| `title_level` | number | `2` | Heading level for both sides. |
-| `left_title` | string | — | Left panel heading. |
-| `left_content` | string | — | Left panel content (rendered as markdown via `.prose`). |
+| `left_content` | string | — | Left panel content with markdown headings (e.g. `## Heading`). Rendered as markdown via `.prose`. |
 | `left_button` | object | — | `{text, href, variant}`. |
-| `right_title` | string | — | Right panel heading. |
-| `right_content` | string | — | Right panel content (rendered as markdown via `.prose`). |
+| `right_content` | string | — | Right panel content with markdown headings (e.g. `## Heading`). Rendered as markdown via `.prose`. |
 | `right_button` | object | — | `{text, href, variant}`. |
 | `reveal_left` | string | — | `data-reveal` for left panel. |
 | `reveal_right` | string | — | `data-reveal` for right panel. |
@@ -403,8 +385,7 @@ Call-to-action banner with gradient background.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | string | **required** | CTA heading (`<h2>`). |
-| `description` | string | — | Supporting markdown text. `body-lg`, 0.9 opacity, max-width `$width-narrow`. |
+| `content` | string | **required** | Markdown content with optional heading (e.g. `## Heading`). `body-lg`, 0.9 opacity, max-width `$width-narrow`. |
 | `button` | object | — | `{text, href, variant, size}`. Default variant: `"secondary"`, default size: `"lg"`. |
 | `reveal` | string | — | `data-reveal` value. |
 
@@ -412,7 +393,7 @@ Call-to-action banner with gradient background.
 
 ### `callout`
 
-One-column callout/note with icon, title, and short content — for content warnings, advisories, tips, etc.
+One-column callout/note with icon, name, and short content — for content warnings, advisories, tips, etc.
 
 **Component:** `block_callout`
 **Template:** `src/_includes/design-system/blocks/callout.html`
@@ -423,7 +404,7 @@ One-column callout/note with icon, title, and short content — for content warn
 |---|---|---|---|
 | `variant` | string | `"info"` | Color scheme: `"info"`, `"warning"`, `"success"`, or `"danger"`. |
 | `icon` | string | — | Icon content: Iconify ID (`prefix:name`), emoji, or image path. |
-| `title` | string | — | Bold heading text. |
+| `name` | string | — | Bold heading text. |
 | `content` | string | **required** | Markdown content rendered via `renderContent: "md"` inside `.prose`. |
 
 ---
@@ -502,10 +483,9 @@ Grid of clickable video thumbnails. Supports YouTube IDs and custom iframe URLs 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `videos` | array | **required** | Video objects. Each: `{id, title}`. `id` is a YouTube video ID or full iframe URL (Vimeo, Bunny Stream, etc.). |
+| `videos` | array | **required** | Video objects. Each: `{id, name}`. `id` is a YouTube video ID or full iframe URL (Vimeo, Bunny Stream, etc.). |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each video card. |
-| `heading_level` | number | `3` | Heading level for video titles (e.g. `2` for h2). |
 | `expand` | boolean | `false` | If true, videos fill the available width (1=100%, 2=50%, 3+=33.3%) instead of the standard card grid. |
 
 YouTube videos render optimized thumbnails via eleventy-img; custom URLs use a placeholder. Videos load only on click to save bandwidth.
@@ -526,7 +506,7 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.name"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 | `filter_ui_collection` | string | — | Optional name of a collection providing the client-side filter UI. When the collection is keyed by `page.fileSlug` (e.g. `categoryListingFilterUI`), the matching entry is used. Otherwise the collection itself is treated as a flat filter UI (e.g. `filteredProductPagesListingFilterUI`). When set, prefixes the items with the filter row. |
 
@@ -546,7 +526,7 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.name"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 | `image_aspect_ratio` | string | — | Aspect ratio for images, e.g. `"16/9"`, `"1/1"`, `"4/3"`. |
 
 ---
@@ -645,7 +625,7 @@ Renders social-media posts loaded from a directory of JSON files as a card grid 
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.name"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 
 Posts are loaded per-block from the given directory, so the same template works for Instagram, Mastodon, or any other source. External `url` values open in a new tab.
 
@@ -663,7 +643,7 @@ Renders a collection as a plain-text unordered list of links arranged in respons
 |---|---|---|---|
 | `collection` | string | **required** | Name of an Eleventy collection (e.g. `"locations"`, `"services"`). |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
-| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.title"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
+| `filter` | object | — | Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.name"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value. |
 | `remove_text` | string | — | Regex pattern (JavaScript syntax, global flag implied). Each match is removed from every link's display text and the result is trimmed. Useful for stripping repetitive prefixes like `"Service in "` so links render tidier. |
 
 ---
@@ -745,7 +725,7 @@ Third-party iframe embed (itch.io widgets, Buttondown, Bandcamp, Stripe buttons,
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `src` | string | **required** | Full URL of the iframe to embed. |
-| `title` | string | **required** | Accessible title for the iframe. |
+| `name` | string | **required** | Accessible name (rendered as the iframe's `title` attribute). |
 | `width` | number | — | Fixed pixel width. Omit to fill the container. |
 | `height` | number | — | Fixed pixel height. Required for non-responsive embeds unless `aspect_ratio` is set. |
 | `aspect_ratio` | string | — | CSS `aspect-ratio` for responsive height, e.g. `"16/9"`. Alternative to `height`. |

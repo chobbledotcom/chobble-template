@@ -1,13 +1,12 @@
 ---
-title: Lunch Menu
+name: Lunch Menu
 order: 3
-header_image: src/images/lunch.jpg
 subtitle: Quick and tasty vegan lunch options.
 meta_title: Lunch Menu
 meta_description: Quick and tasty vegan lunch options
 blocks:
   - type: hero
-    title: Lunch Menu
+    name: Lunch Menu
     lead: Quick and tasty vegan lunch options.
   - type: markdown
     content: |

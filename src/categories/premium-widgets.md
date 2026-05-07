@@ -1,5 +1,5 @@
 ---
-title: Premium Widgets
+name: Premium Widgets
 subtitle: Advanced widgets for creation and entertainment
 parent: widgets
 faqs:

@@ -23,7 +23,7 @@
   {%- for post in collections.news limit: 20 %}
   {%- assign absolutePostUrl = post.url | htmlBaseUrl: site.url %}
   <entry>
-    <title>{{ post.data.title | escape }}</title>
+    <title>{{ post.data.name | escape }}</title>
     <link href="{{ absolutePostUrl | escape }}" />
     <updated>{{ post.date | dateToRfc3339 }}</updated>
     <id>{{ absolutePostUrl | escape }}</id>

@@ -28,7 +28,7 @@ Parameters (via block object):
     <li itemscope itemtype="https://schema.org/Product"{% if reveal %} data-reveal{% endif %}>
       {%- include "design-system/buy-option-card.html",
          image: item.image,
-         title: item.title,
+         name: item.name,
          subtitle: item.subtitle,
          price: item.price,
          currency: item.currency,

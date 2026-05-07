@@ -24,11 +24,10 @@ import { isExternalUrl } from "#utils/url-utils.js";
 
 /**
  * @typedef {Object} BasePageData
- * @property {string} [header_image] - Header image path
  * @property {string} [image] - Image path
  * @property {SiteInfo} site - Site information
  * @property {PageInfo} page - Page information
- * @property {string} title - Page title (required - computed for pages, explicit for collections)
+ * @property {string} name - Page name (required - computed for pages, explicit for collections)
  * @property {string} [meta_description] - Meta description
  * @property {string} [subtitle] - Page subtitle
  * @property {FAQ[]} [faqs] - FAQ items
@@ -37,7 +36,7 @@ import { isExternalUrl } from "#utils/url-utils.js";
 
 /**
  * @typedef {Object} ProductPageData
- * @property {string} [title] - Product title
+ * @property {string} [name] - Product name
  * @property {string | number} [price] - Product price
  * @property {SiteInfo} site - Site information
  * @property {PageInfo} page - Page information
@@ -48,7 +47,7 @@ import { isExternalUrl } from "#utils/url-utils.js";
 /**
  * @typedef {Object} PostPageData
  * @property {PageInfo} page - Page information
- * @property {string} [title] - Post title
+ * @property {string} [name] - Post name
  * @property {string} [author] - Post author
  * @property {SiteInfo} site - Site information
  */
@@ -107,13 +106,12 @@ function buildImageUrl(imageInput, { url }) {
  * @returns {SchemaOrgMeta} Schema.org metadata object
  */
 function buildBaseMeta(data) {
-  const imageSource = data.header_image || data.image;
-  const imageUrl = imageSource ? buildImageUrl(imageSource, data.site) : null;
+  const imageUrl = data.image ? buildImageUrl(data.image, data.site) : null;
 
   return {
     ...data.metaComputed,
     url: canonicalUrl(data.page.url),
-    title: data.title,
+    title: data.name,
     description: data.meta_description || data.subtitle,
     ...(imageUrl && { image: { src: imageUrl } }),
     ...(data.faqs?.length > 0 && { faq: data.faqs }),
@@ -175,7 +173,7 @@ const buildProductMeta = (data) => {
 
   return {
     ...buildBaseMeta(data),
-    name: data.title,
+    name: data.name,
     brand: data.site.name,
     ...(data.price && { offers: buildOffers(data.price) }),
     ...buildReviewsMeta(),

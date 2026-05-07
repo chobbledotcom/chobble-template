@@ -35,7 +35,7 @@ describe("upcomingEvents collection", () => {
 
   test("includes events happening today", () => {
     const result = fromEvents(getUpcoming)([
-      createEvent({ title: "Today Event", date: new Date() }),
+      createEvent({ name: "Today Event", date: new Date() }),
     ]);
     expect(result).toHaveLength(1);
   });
@@ -47,9 +47,9 @@ describe("upcomingEvents collection", () => {
 
   test("sorts by date (earliest first)", () => {
     const events = createEvents([
-      { title: "Latest Event", daysOffset: 60 },
-      { title: "Earliest Event", daysOffset: 30 },
-      { title: "Middle Event", daysOffset: 45 },
+      { name: "Latest Event", daysOffset: 60 },
+      { name: "Earliest Event", daysOffset: 30 },
+      { name: "Middle Event", daysOffset: 45 },
     ]);
     expectResultTitles(fromEvents(getUpcoming)(events), [
       "Earliest Event",
@@ -72,9 +72,9 @@ describe("pastEvents collection", () => {
 
   test("sorts by date (most recent first)", () => {
     const events = createEvents([
-      { title: "Oldest Event", daysOffset: -60 },
-      { title: "Most Recent Event", daysOffset: -30 },
-      { title: "Middle Event", daysOffset: -45 },
+      { name: "Oldest Event", daysOffset: -60 },
+      { name: "Most Recent Event", daysOffset: -30 },
+      { name: "Middle Event", daysOffset: -45 },
     ]);
     expectResultTitles(fromEvents(getPast)(events), [
       "Most Recent Event",
@@ -87,8 +87,8 @@ describe("pastEvents collection", () => {
 describe("regularEvents collection", () => {
   test("includes recurring events", () => {
     const events = createEvents([
-      { title: "Weekly Meeting", recurring: "Every Monday at 10 AM" },
-      { title: "Monthly Review", recurring: "First Friday of each month" },
+      { name: "Weekly Meeting", recurring: "Every Monday at 10 AM" },
+      { name: "Monthly Review", recurring: "First Friday of each month" },
     ]);
     expect(fromEvents(getRegular)(events)).toHaveLength(2);
   });
@@ -97,7 +97,7 @@ describe("regularEvents collection", () => {
     const events = [
       {
         data: {
-          title: "Hybrid Event",
+          name: "Hybrid Event",
           recurring_date: "Every Friday",
           event_date: formatDateString(createOffsetDate()),
           order: 9999,
@@ -111,9 +111,9 @@ describe("regularEvents collection", () => {
 
   test("sorts alphabetically by title", () => {
     const events = createEvents([
-      { title: "Zumba Class", recurring: "Every Thursday" },
-      { title: "Book Club", recurring: "First Wednesday" },
-      { title: "Monthly Meeting", recurring: "Last Friday" },
+      { name: "Zumba Class", recurring: "Every Thursday" },
+      { name: "Book Club", recurring: "First Wednesday" },
+      { name: "Monthly Meeting", recurring: "Last Friday" },
     ]);
     expectResultTitles(fromEvents(getRegular)(events), [
       "Book Club",
@@ -126,17 +126,17 @@ describe("regularEvents collection", () => {
 describe("undatedEvents collection", () => {
   test("includes events without dates", () => {
     const events = createEvents([
-      { title: "No Date Event 1", undated: true },
-      { title: "No Date Event 2", undated: true },
+      { name: "No Date Event 1", undated: true },
+      { name: "No Date Event 2", undated: true },
     ]);
     expect(fromEvents(getUndated)(events)).toHaveLength(2);
   });
 
   test("sorts alphabetically by title", () => {
     const events = createEvents([
-      { title: "Zulu Event", undated: true },
-      { title: "Alpha Event", undated: true },
-      { title: "Mike Event", undated: true },
+      { name: "Zulu Event", undated: true },
+      { name: "Alpha Event", undated: true },
+      { name: "Mike Event", undated: true },
     ]);
     expectResultTitles(fromEvents(getUndated)(events), [
       "Alpha Event",
@@ -149,10 +149,10 @@ describe("undatedEvents collection", () => {
 describe("event categories are mutually exclusive", () => {
   test("mixed events land in correct collections", () => {
     const events = createEvents([
-      { title: "Future Event" },
-      { title: "Past Event", daysOffset: -30 },
-      { title: "Weekly Meeting", recurring: "Every Monday" },
-      { title: "Undated Event", undated: true },
+      { name: "Future Event" },
+      { name: "Past Event", daysOffset: -30 },
+      { name: "Weekly Meeting", recurring: "Every Monday" },
+      { name: "Undated Event", undated: true },
     ]);
     const tagMap = { events, products: [] };
     expect(getUpcoming(tagMap)).toHaveLength(1);
@@ -177,7 +177,7 @@ describe("event categories are mutually exclusive", () => {
 /** Helper to create event items with fileSlug */
 const eventItem = (slug, data = {}) => ({
   fileSlug: slug,
-  data: { title: `Event ${slug}`, ...data },
+  data: { name: `Event ${slug}`, ...data },
 });
 
 /** Helper to create product items with events array */
@@ -193,9 +193,9 @@ describe("events collection", () => {
   });
 
   test("preserves event data when no products match", () => {
-    const events = [eventItem("summer-fest", { title: "Summer Festival" })];
+    const events = [eventItem("summer-fest", { name: "Summer Festival" })];
     const result = getCollection({ events, products: [] });
-    expect(result[0].data.title).toBe("Summer Festival");
+    expect(result[0].data.name).toBe("Summer Festival");
   });
 
   test("inherits thumbnail from product in event", () => {
@@ -246,22 +246,22 @@ describe("events collection", () => {
 describe("featuredEvents collection", () => {
   test("returns only featured events", () => {
     const events = [
-      eventItem("featured-event", { title: "Featured", featured: true }),
-      eventItem("normal-event", { title: "Normal" }),
+      eventItem("featured-event", { name: "Featured", featured: true }),
+      eventItem("normal-event", { name: "Normal" }),
     ];
     const result = getFeatured({ events, products: [] });
     expect(result).toHaveLength(1);
-    expect(result[0].data.title).toBe("Featured");
+    expect(result[0].data.name).toBe("Featured");
   });
 
   test("returns empty when no featured events", () => {
-    const events = [eventItem("normal-event", { title: "Normal" })];
+    const events = [eventItem("normal-event", { name: "Normal" })];
     expect(getFeatured({ events, products: [] })).toHaveLength(0);
   });
 
   test("inherits thumbnails from products", () => {
     const events = [
-      eventItem("featured-event", { title: "Featured", featured: true }),
+      eventItem("featured-event", { name: "Featured", featured: true }),
     ];
     const products = [productItem("p1", ["featured-event"], "thumb.jpg")];
     const result = getFeatured({ events, products });
@@ -273,8 +273,8 @@ describe("featuredEvents collection", () => {
 describe("recurringEvents collection", () => {
   test("returns only recurring events", () => {
     const events = [
-      createEvent({ title: "Weekly Class", recurring_date: "Every Monday" }),
-      createEvent({ title: "One-off Gig", event_date: createOffsetDate(5) }),
+      createEvent({ name: "Weekly Class", recurring_date: "Every Monday" }),
+      createEvent({ name: "One-off Gig", event_date: createOffsetDate(5) }),
     ];
     const result = getRecurring({ events, products: [] });
     expect(result).toHaveLength(1);
@@ -283,7 +283,7 @@ describe("recurringEvents collection", () => {
 
   test("returns empty when no recurring events", () => {
     const events = [
-      createEvent({ title: "One-off", event_date: createOffsetDate(5) }),
+      createEvent({ name: "One-off", event_date: createOffsetDate(5) }),
     ];
     expect(getRecurring({ events, products: [] })).toHaveLength(0);
   });

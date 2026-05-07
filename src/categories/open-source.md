@@ -1,5 +1,5 @@
 ---
-title: Open Source
+name: Open Source
 featured: true
 subtitle: Built with free and open source tools
 blocks:

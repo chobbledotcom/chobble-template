@@ -9,7 +9,6 @@ import {
   BUTTON_FIELDS_WITH_SIZE,
   bool,
   md,
-  num,
   objectField,
   str,
 } from "#utils/block-schema/shared.js";
@@ -19,12 +18,6 @@ export { md, str } from "#utils/block-schema/shared.js";
 
 /** Unified fields shared by all split variants. */
 export const SPLIT_BASE_FIELDS = {
-  title: { ...str("Title"), description: "Section heading." },
-  title_level: {
-    ...num("Heading Level"),
-    default: "2",
-    description: "Heading level.",
-  },
   subtitle: {
     ...str("Subtitle"),
     description: "Subtitle with `.text-muted` styling.",
@@ -32,7 +25,7 @@ export const SPLIT_BASE_FIELDS = {
   content: {
     ...md("Content"),
     description:
-      'Main content. Rendered through `renderContent: "md"` filter (supports markdown). Wrapped in `.prose`.',
+      'Main content with markdown headings (e.g. `## Heading`). Rendered through `renderContent: "md"` filter, wrapped in `.prose`.',
   },
   reverse: {
     ...bool("Reverse Layout"),

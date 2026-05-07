@@ -29,7 +29,6 @@ const ALL_FEATURES = [
   "features",
   "galleries",
   "add_ons",
-  "header_images",
   "external_navigation_urls",
   "external_purchases",
   "event_locations_and_dates",

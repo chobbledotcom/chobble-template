@@ -97,9 +97,9 @@ const createSchemaData = (options = {}) => {
     site: createSchemaSite({ url: siteUrl, name: siteName, logo: siteLogo }),
     ...extraData,
   };
-  // Only add title if not explicitly set to undefined
-  if (!("title" in options) || options.title !== undefined) {
-    data.title = options.title ?? "Test";
+  // Only add name if not explicitly set to undefined
+  if (!("name" in options) || options.name !== undefined) {
+    data.name = options.name ?? "Test";
   }
   return data;
 };
@@ -109,7 +109,7 @@ const createSchemaData = (options = {}) => {
  *
  * @param {Object} options - Configuration options
  * @param {string} [options.fileSlug="test"] - Product slug
- * @param {string} [options.title="Test Product"] - Product title
+ * @param {string} [options.name="Test Product"] - Product name
  * @param {string} [options.siteName="Test Store"] - Site name
  * @param {number} [options.price] - Product price
  * @param {Array} [options.reviews] - Reviews collection
@@ -118,7 +118,7 @@ const createSchemaData = (options = {}) => {
  */
 const createProductSchemaData = ({
   fileSlug = "test",
-  title = "Test Product",
+  name = "Test Product",
   siteName = "Test Store",
   price = null,
   reviews = null,
@@ -128,7 +128,7 @@ const createProductSchemaData = ({
   const data = createSchemaData({
     pageUrl: `/products/${fileSlug}/`,
     pageFileSlug: fileSlug,
-    title,
+    name,
     siteName,
     ...extraData,
   });
@@ -144,7 +144,7 @@ const createProductSchemaData = ({
  * Create post/news schema data
  *
  * @param {Object} options - Configuration options
- * @param {string} [options.title="Test Post"] - Post title
+ * @param {string} [options.name="Test Post"] - Post name
  * @param {Object} [options.author] - Author object
  * @param {Date} [options.date] - Post date
  * @param {string} [options.siteName="Test Site"] - Site name
@@ -152,7 +152,7 @@ const createProductSchemaData = ({
  * @returns {Object} Post schema data
  */
 const createPostSchemaData = ({
-  title = "Test Post",
+  name = "Test Post",
   author = null,
   date = new Date("2024-03-15"),
   siteName = "Test Site",
@@ -162,7 +162,7 @@ const createPostSchemaData = ({
   const data = createSchemaData({
     pageUrl: "/news/test-post/",
     pageDate: date,
-    title,
+    name,
     siteName,
     siteLogo,
     ...extraData,

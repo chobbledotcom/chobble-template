@@ -1,7 +1,7 @@
 ---
 layout: products
 permalink: "/{{ strings.product_permalink_dir }}/search/"
-title: All Products
+name: All Products
 eleventyExcludeFromCollections: true
 ---
 

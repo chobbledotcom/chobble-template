@@ -34,8 +34,7 @@ export type EleventyPageData = {
  * Fields guaranteed by Eleventy are non-optional.
  */
 export type BaseItemData = {
-  title: string;
-  name?: string;
+  name: string;
   /** Subtitle for display */
   subtitle?: string;
   /** Sort order (lower numbers first) */
@@ -61,8 +60,6 @@ export type BaseItemData = {
   thumbnail?: string;
   /** Main image path */
   image?: string;
-  /** Header image path */
-  header_image?: string;
 };
 
 /**
@@ -365,13 +362,10 @@ export type EleventyNavigation = {
  * Page data available to eleventyComputed functions.
  * Combines Eleventy's page object with frontmatter data.
  */
-export type EleventyComputedData = Omit<EleventyCollectionItemData, 'title'> & {
-  title: string;
+export type EleventyComputedData = EleventyCollectionItemData & {
   page: EleventyPageData;
   site: import('./config.d.ts').SiteInfo;
   config?: import('./config.d.ts').SiteConfig;
-  header_image?: string;
-  header_text?: string;
   meta_title?: string;
   description?: string;
   snippet?: string;

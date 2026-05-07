@@ -1,5 +1,5 @@
 ---
-title: Mini Gizmo with Local Image
+name: Mini Gizmo with Local Image
 subtitle: This gizmo uses a local image file path
 filter_attributes:
   - name: Size

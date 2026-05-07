@@ -1,9 +1,9 @@
 {%- comment -%}
-Hero section with badge, title, lead text, and action buttons.
+Hero section with badge, name, lead text, and action buttons.
 
 Parameters (via block object):
-  - block.badge: Optional badge text above title
-  - block.title: Main heading (required)
+  - block.badge: Optional badge text above name
+  - block.name: Main heading (required)
   - block.lead: Subtitle/description text
   - block.buttons: Array of button objects with:
     - text: Button label
@@ -17,7 +17,7 @@ Usage:
   {% include "design-system/hero.html",
      block: {
        badge: "New Release",
-       title: "Welcome to Our Site",
+       name: "Welcome to Our Site",
        lead: "A short description here",
        buttons: page.hero_buttons,
        class: "gradient"
@@ -29,7 +29,7 @@ Usage:
   {%- if block.badge -%}
     <span class="badge">{{ block.badge }}</span>
   {%- endif -%}
-  <h1>{{ block.title }}</h1>
+  <h1>{{ block.name }}</h1>
   {%- if block.lead -%}
     <p class="lead">{{ block.lead }}</p>
   {%- endif -%}

@@ -1,9 +1,9 @@
 import {
   BUTTON_FIELDS_WITH_SIZE,
+  NAME_REQUIRED,
   objectList,
   REVEAL_STRING_FIELD,
   str,
-  TITLE_REQUIRED,
 } from "#utils/block-schema/shared.js";
 
 export const type = "hero";
@@ -14,10 +14,10 @@ export const fields = {
   badge: {
     ...str("Badge Text"),
     description:
-      'Small pill label above the title. Renders as `<span class="badge">`.',
+      'Small pill label above the name. Renders as `<span class="badge">`.',
   },
-  title: {
-    ...TITLE_REQUIRED,
+  name: {
+    ...NAME_REQUIRED,
     description: "Main `<h1>` heading.",
   },
   lead: {
@@ -40,7 +40,7 @@ export const fields = {
 
 export const docs = {
   summary:
-    "Full-width hero banner with optional badge, title, lead text, and action buttons.",
+    "Full-width hero banner with optional badge, name, lead text, and action buttons.",
   scss: "src/css/design-system/_hero.scss",
   htmlRoot: '<header class="hero">',
 };

@@ -1,5 +1,5 @@
 ---
-title: Compact Doodahs
+name: Compact Doodahs
 subtitle: Space-saving doodahs with maximum functionality
 parent: doodahs
 blocks:

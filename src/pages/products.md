@@ -1,5 +1,5 @@
 ---
-header_text: Products
+name: Products
 meta_description:
 meta_title: Products
 layout: products

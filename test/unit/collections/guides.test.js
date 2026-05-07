@@ -9,18 +9,18 @@ import {
   expectResultTitles,
 } from "#test/test-utils.js";
 
-/** Create a guide page with title and category */
-const guide = (title, category) => ({
-  data: { title, ...(category && { "guide-category": category }) },
+/** Create a guide page with name and category */
+const guide = (name, category) => ({
+  data: { name, ...(category && { "guide-category": category }) },
 });
 
-/** Create multiple guides from [title, category] pairs */
+/** Create multiple guides from [name, category] pairs */
 const guides = (pairs) =>
-  pairs.map(([title, category]) => guide(title, category));
+  pairs.map(([name, category]) => guide(name, category));
 
-/** Create a guide category with title and optional property */
-const guideCategory = (title, property) => ({
-  data: { title, ...(property && { property }) },
+/** Create a guide category with name and optional property */
+const guideCategory = (name, property) => ({
+  data: { name, ...(property && { property }) },
 });
 
 describe("guides", () => {

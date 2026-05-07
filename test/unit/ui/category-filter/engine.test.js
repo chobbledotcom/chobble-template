@@ -22,7 +22,7 @@ const createDOMItems = async (specs = DEFAULT_SPECS) => {
     ul.appendChild(li);
     return {
       element: li,
-      data: { title: spec.title, price: spec.price, filters: spec.filters },
+      data: { name: spec.title, price: spec.price, filters: spec.filters },
       originalIndex: index,
     };
   });

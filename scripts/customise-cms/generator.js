@@ -61,8 +61,6 @@ const getCustomBlocksOptionalFields = (config) => [
   config.features.redirects && COMMON_FIELDS.redirect_from,
   config.features.faqs && FAQS_FIELD,
   config.features.galleries && GALLERY_FIELD,
-  config.features.header_images && COMMON_FIELDS.header_image,
-  config.features.header_images && COMMON_FIELDS.header_text,
 ];
 
 /**
@@ -84,7 +82,7 @@ const generateCustomBlocksCollectionConfig = (name, config, fieldContext) => {
     type: "collection",
     filename: "{primary}.md",
     fields: compact([
-      COMMON_FIELDS.title,
+      COMMON_FIELDS.name,
       COMMON_FIELDS.subtitle,
       COMMON_FIELDS.thumbnail,
       COMMON_FIELDS.order,

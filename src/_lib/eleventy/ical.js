@@ -31,7 +31,7 @@ const eventIcal = (event) => {
   const _calendarEvent = calendar.createEvent({
     start: startDate,
     allDay: true,
-    summary: event.data.title,
+    summary: event.data.name,
     description: event.data.subtitle || event.data.meta_description,
     location: event.data.event_location,
     url: canonicalUrl(event.url),

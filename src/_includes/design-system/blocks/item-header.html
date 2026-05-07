@@ -3,7 +3,7 @@ Item-header block - renders the page's title, optional subtitle, and (for
 events only) date / recurring schedule / location / iCal-download details.
 
 Shared by `product-header` and `event-header`. No block-level parameters.
-Reads `title`, `subtitle`, `event_date`, `recurring_date`, `event_location`,
+Reads `name`, `subtitle`, `event_date`, `recurring_date`, `event_location`,
 and `ical_url` from the page data; the event-detail include is a no-op when
 those fields are absent.
 {%- endcomment -%}
@@ -11,7 +11,7 @@ those fields are absent.
 <section class="compact">
   <div class="container-wide">
     <header>
-      <h1>{{ title }}</h1>
+      <h1>{{ name }}</h1>
       {%- if subtitle -%}
         <h2>{{ subtitle }}</h2>
       {%- endif -%}

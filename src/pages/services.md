@@ -1,4 +1,5 @@
 ---
+name: Our Services
 meta_title: Our Services
 meta_description: Explore our range of services for widgets, wotzits, and gizmos.
 layout: design-system-base.html
@@ -11,16 +12,16 @@ blocks:
   - type: features
     items:
       - icon: "hugeicons:wrench-01"
-        title: Custom Widgets
+        name: Custom Widgets
         description: Bespoke widget solutions built for your specific requirements.
       - icon: "hugeicons:gears"
-        title: Wotzit Maintenance
+        name: Wotzit Maintenance
         description: Keep your wotzits running smoothly with our maintenance plans.
       - icon: "hugeicons:rocket"
-        title: Gizmo Optimisation
+        name: Gizmo Optimisation
         description: Improve your gizmo performance and efficiency.
       - icon: "hugeicons:lock"
-        title: Secure Storage
+        name: Secure Storage
         description: Safe and secure storage for your valuable equipment.
   - type: code-block
     filename: install.sh

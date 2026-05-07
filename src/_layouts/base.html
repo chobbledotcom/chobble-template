@@ -3,7 +3,6 @@
 {% include "head.html" %}
 <body class="{{ layout | getBodyClasses: config, body-classes, featured, page.url }}">
   {%- include "body-scripts.html" -%}
-  {%- include "header.html" -%}
   <main>
     {%- include "navigation.html" -%}
     <article class="content" id="content"{% if pagefind_body %} data-pagefind-body{% endif %}>

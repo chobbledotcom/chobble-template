@@ -1,6 +1,5 @@
 ---
-header_image: src/images/fireworks.jpg
-title: Chobble Template Launch Party
+name: Chobble Template Launch Party
 meta_description: Our monthly product launch showcasing new widgets
 meta_title: Product Launch Meetup
 subtitle: The internet will never be the same again

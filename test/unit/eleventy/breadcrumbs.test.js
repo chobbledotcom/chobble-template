@@ -143,12 +143,12 @@ describe("breadcrumbsFilter", () => {
     const widgetCategory = {
       fileSlug: "widgets",
       url: "/categories/widgets/",
-      data: { title: "Widgets" },
+      data: { name: "Widgets" },
     };
     const premiumWidgets = {
       fileSlug: "premium-widgets",
       url: "/categories/premium-widgets/",
-      data: { title: "Premium Widgets", parent: "widgets" },
+      data: { name: "Premium Widgets", parent: "widgets" },
     };
     const categories = [widgetCategory, premiumWidgets];
     const WIDGETS_CRUMB = { label: "Widgets", url: "/categories/widgets/" };
@@ -196,7 +196,7 @@ describe("breadcrumbsFilter", () => {
     const widgetCategory = {
       fileSlug: "widgets",
       url: "/categories/widgets/",
-      data: { title: "Widgets" },
+      data: { name: "Widgets" },
     };
 
     test("handles explicit parentCategory for child category pages", () => {
@@ -242,7 +242,7 @@ describe("breadcrumbsFilter", () => {
         {
           fileSlug: "other",
           url: "/categories/other/",
-          data: { title: "Other" },
+          data: { name: "Other" },
         },
       ];
 
@@ -271,7 +271,7 @@ describe("breadcrumbsFilter", () => {
       {
         fileSlug: "sunset-cottage",
         url: "/properties/sunset-cottage/",
-        data: { title: "Sunset Cottage" },
+        data: { name: "Sunset Cottage" },
       },
     ];
 
@@ -279,12 +279,12 @@ describe("breadcrumbsFilter", () => {
       {
         fileSlug: "getting-started",
         url: "/guide/getting-started/",
-        data: { title: "Getting Started", property: "sunset-cottage" },
+        data: { name: "Getting Started", property: "sunset-cottage" },
       },
       {
         fileSlug: "general",
         url: "/guide/general/",
-        data: { title: "General" },
+        data: { name: "General" },
       },
     ];
 

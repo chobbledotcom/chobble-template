@@ -1,5 +1,5 @@
 ---
-title: Street Advocacy Sessions
+name: Street Advocacy Sessions
 subtitle: Bringing Chobble to the masses of Fulchester
 meta_description: Quarterly public demonstrations of the Chobble template in Fulchester city centre
 recurring_date: Quarterly - First Saturday of March, June, September, December

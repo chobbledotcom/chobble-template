@@ -1,5 +1,5 @@
 ---
-title: Thingy Classic Original
+name: Thingy Classic Original
 subtitle: The original thingy design that started it all
 options:
   - name: Standard

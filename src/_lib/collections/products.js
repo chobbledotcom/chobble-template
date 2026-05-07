@@ -80,14 +80,13 @@ const mergeWithExplicitProducts = (
 };
 
 /**
- * Compute gallery array from gallery or header_image (for eleventyComputed).
+ * Compute gallery array from gallery (for eleventyComputed).
  *
  * @param {ProductItemData} data - Product data from frontmatter
- * @returns {string[]} Gallery array (empty if no images)
+ * @returns {string[]} Gallery array (empty if no gallery)
  */
 const computeGallery = (data) => {
   if (data.gallery) return data.gallery.map(toAbsoluteImageUrl);
-  if (data.header_image) return [toAbsoluteImageUrl(data.header_image)];
   return [];
 };
 
@@ -210,10 +209,7 @@ const toSkuEntry = (productTitle) => (option) => [
  */
 const extractSkuEntries = (product) => {
   if (!product.data.options) return [];
-  return filterMap(
-    hasSku,
-    toSkuEntry(product.data.title),
-  )(product.data.options);
+  return filterMap(hasSku, toSkuEntry(product.data.name))(product.data.options);
 };
 
 /**

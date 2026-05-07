@@ -29,23 +29,6 @@ import { normaliseSlug } from "#utils/slug-utils.js";
  */
 
 /**
- * Build initial mapping from categories to [value, order] tuples.
- * @param {CategoryCollectionItem[]} categories
- * @param {"header_image" | "thumbnail"} propertyName
- * @returns {CategoryPropertyMap}
- */
-const buildInitialMapping = (categories, propertyName) =>
-  Object.fromEntries(
-    categories.map((c) => {
-      const value = c.data[propertyName];
-      return [
-        c.fileSlug,
-        [value, value != null ? Number.POSITIVE_INFINITY : -1],
-      ];
-    }),
-  );
-
-/**
  * Merge a property entry into mapping, preferring higher order values.
  * @param {CategoryPropertyMap} mapping
  * @param {PropertyMapEntry} entry
@@ -59,81 +42,62 @@ const mergeByHighestOrder = (mapping, { categorySlug, value, order }) => {
 };
 
 /**
- * Extract property entries from a product for all its categories.
- * @param {"header_image" | "thumbnail"} propertyName
- * @returns {(product: ProductCollectionItem) => PropertyMapEntry[]}
+ * Extract thumbnail entries from a product for all its categories.
+ * @param {ProductCollectionItem} product
+ * @returns {PropertyMapEntry[]}
  */
-const extractProductPropertyEntries = (propertyName) => (product) => {
-  const value = product.data[propertyName];
-  if (!value) return [];
+const extractProductThumbnailEntries = (product) => {
+  if (!product.data.thumbnail) return [];
   return product.data.categories.map((slug) => ({
     categorySlug: normaliseSlug(slug),
-    value,
+    value: product.data.thumbnail,
     order: product.data.order,
   }));
 };
-
-/**
- * Build a map of category slugs to property values, preferring highest order.
- * @param {CategoryCollectionItem[]} categories
- * @param {ProductCollectionItem[]} products
- * @param {"header_image" | "thumbnail"} propertyName
- * @returns {CategoryPropertyMap}
- */
-const buildCategoryPropertyMap = (categories, products, propertyName) =>
-  pipe(
-    flatMap(extractProductPropertyEntries(propertyName)),
-    reduce(mergeByHighestOrder, buildInitialMapping(categories, propertyName)),
-  )(products);
 
 const PLACEHOLDER_PREFIX = "images/placeholders/";
 const isRealImage = (value) =>
   value != null && !value.startsWith(PLACEHOLDER_PREFIX);
 
 /**
- * Build a map of category slugs to product thumbnail values only (no category
- * own values). Used as the final fallback in the thumbnail resolution chain.
+ * Build a map of category slugs to product thumbnail values, preferring
+ * highest order. Used as the final fallback in the thumbnail resolution
+ * chain.
  * @param {ProductCollectionItem[]} products
  * @returns {CategoryPropertyMap}
  */
 const buildProductThumbnailMap = (products) =>
   pipe(
-    flatMap(extractProductPropertyEntries("thumbnail")),
+    flatMap(extractProductThumbnailEntries),
     reduce(mergeByHighestOrder, {}),
   )(products);
 
 /**
- * Snapshot each category's own images before mutation.
+ * Snapshot each category's own thumbnail before mutation.
  * @param {CategoryCollectionItem[]} categories
- * @returns {Record<string, {header_image?: string, thumbnail?: string}>}
+ * @returns {Record<string, string | undefined>}
  */
-const snapshotOwnImages = (categories) =>
-  Object.fromEntries(
-    categories.map((c) => [
-      c.fileSlug,
-      { header_image: c.data.header_image, thumbnail: c.data.thumbnail },
-    ]),
-  );
+const snapshotOwnThumbnails = (categories) =>
+  Object.fromEntries(categories.map((c) => [c.fileSlug, c.data.thumbnail]));
 
 /**
  * Create a recursive thumbnail resolver.
- * Top-level chain: header_image > thumbnail > subcategories > products.
- * Subcategory recursion only checks thumbnail (not header_image).
- * @param {Record<string, {header_image?: string, thumbnail?: string}>} ownImages
+ * Chain: own thumbnail > subcategory thumbnail > product thumbnail.
+ * @param {Record<string, string | undefined>} ownThumbnails
  * @param {CategoryPropertyMap} productThumbnails - Product-only thumbnail lookup
  * @param {Map<string, CategoryCollectionItem[]>} childrenByParent
  * @returns {(category: CategoryCollectionItem) => string | undefined}
  */
 const createThumbnailResolver = (
-  ownImages,
+  ownThumbnails,
   productThumbnails,
   childrenByParent,
-) => {
-  const resolveChild = createChildThumbnailResolver({
+) =>
+  createChildThumbnailResolver({
     childrenByParent,
     getOwnThumbnail: (category) => {
-      const own = ownImages[category.fileSlug];
-      return isRealImage(own?.thumbnail) ? own.thumbnail : undefined;
+      const own = ownThumbnails[category.fileSlug];
+      return isRealImage(own) ? own : undefined;
     },
     getFallbackThumbnail: (category) => {
       const thumb = productThumbnails[category.fileSlug]?.[0];
@@ -141,14 +105,8 @@ const createThumbnailResolver = (
     },
   });
 
-  return (category) => {
-    const own = ownImages[category.fileSlug];
-    return own?.header_image ?? resolveChild(category);
-  };
-};
-
 /**
- * Create the categories collection with inherited images from products.
+ * Create the categories collection with inherited thumbnails from products.
  * For parent categories without thumbnails, inherit from child categories.
  * NOTE: Mutates category.data directly because Eleventy template objects
  * have special getters/internal state that break with spread operators.
@@ -159,20 +117,18 @@ const createCategoriesCollection = (collectionApi) => {
   const categories = getCategoriesFromApi(collectionApi);
   if (categories.length === 0) return [];
   const products = getProductsFromApi(collectionApi);
-  const images = buildCategoryPropertyMap(categories, products, "header_image");
   const productThumbnails = buildProductThumbnailMap(products);
   const childrenByParent = groupBy(categories, (c) =>
     c.data.parent ? normaliseSlug(c.data.parent) : null,
   );
-  const ownImages = snapshotOwnImages(categories);
+  const ownThumbnails = snapshotOwnThumbnails(categories);
   const resolveThumbnail = createThumbnailResolver(
-    ownImages,
+    ownThumbnails,
     productThumbnails,
     childrenByParent,
   );
 
   return categories.map((category) => {
-    category.data.header_image = images[category.fileSlug]?.[0];
     const thumb = resolveThumbnail(category);
     if (thumb) category.data.thumbnail = thumb;
     return category;
