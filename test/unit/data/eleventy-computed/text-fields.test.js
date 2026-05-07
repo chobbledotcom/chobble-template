@@ -1,23 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import eleventyComputed from "#data/eleventyComputed.js";
 
-describe("eleventyComputed.header_text", () => {
-  test("returns header_text when set", () => {
-    expect(
-      eleventyComputed.header_text({
-        header_text: "Custom Header",
-        title: "Page Title",
-      }),
-    ).toBe("Custom Header");
-  });
-
-  test("falls back to title when header_text is not set", () => {
-    expect(eleventyComputed.header_text({ title: "Page Title" })).toBe(
-      "Page Title",
-    );
-  });
-});
-
 describe("eleventyComputed.meta_title", () => {
   test("returns meta_title when set", () => {
     expect(

@@ -14,7 +14,6 @@ const DISABLED_FEATURES = {
   features: false,
   galleries: false,
   add_ons: false,
-  header_images: false,
   event_locations_and_dates: false,
   use_visual_editor: false,
   use_blocks: false,
@@ -378,16 +377,6 @@ describe("generatePagesYaml view config", () => {
     const view = getViewSection(yaml, "pages");
 
     expect(view).toContain("- permalink");
-  });
-
-  test("pages view excludes header_text when header_images disabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({ features: { header_images: false } }),
-    );
-    const view = getViewSection(yaml, "pages");
-
-    expect(view).not.toContain("- header_text");
-    expect(view).toContain("- meta_title");
   });
 });
 

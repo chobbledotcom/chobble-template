@@ -5,36 +5,31 @@ import {
 } from "#collections/categories.js";
 import {
   createMockEleventyConfig,
-  expectDataArray,
   getCollectionFrom,
 } from "#test/test-utils.js";
 import { map } from "#toolkit/fp/array.js";
 
-const expectHeaderImages = expectDataArray("header_image");
-
 // Fixture builders
-const cat = (slug, headerImage, extraData = {}) => ({
+const cat = (slug, thumbnail, extraData = {}) => ({
   fileSlug: slug,
   data: {
-    ...(headerImage !== undefined && { header_image: headerImage }),
+    ...(thumbnail !== undefined && { thumbnail }),
     ...extraData,
   },
 });
 
-const cats = map(([slug, headerImage, extraData]) =>
-  cat(slug, headerImage, extraData),
+const cats = map(([slug, thumbnail, extraData]) =>
+  cat(slug, thumbnail, extraData),
 );
 
-const prod = ({ order, cats: c = [], headerImage, ...extra } = {}) => ({
+const prods = map(({ order, cats: c = [], thumbnail, ...extra } = {}) => ({
   data: {
     ...(order !== undefined && { order }),
     categories: c,
-    ...(headerImage && { header_image: headerImage }),
+    ...(thumbnail && { thumbnail }),
     ...extra,
   },
-});
-
-const prods = map(prod);
+}));
 
 const getCollection = getCollectionFrom("categories")(configureCategories);
 
@@ -52,111 +47,15 @@ describe("categories", () => {
       expect(getCollection({ categories: [], products: [] })).toEqual([]);
     });
 
-    test("returns categories with their own header images when no products", () => {
-      const categories = cats([
-        ["widgets", "widget-header.jpg", { title: "Widgets" }],
-        ["gadgets", "gadget-header.jpg", { title: "Gadgets" }],
-      ]);
-      expectHeaderImages(getCollection({ categories, products: [] }), [
-        "widget-header.jpg",
-        "gadget-header.jpg",
-      ]);
-    });
-
-    test("inherits header image from highest-order product in category", () => {
-      const categories = cats([["widgets", undefined]]);
-      const products = prods([
-        { order: 2, cats: ["widgets"], headerImage: "low-priority.jpg" },
-        { order: 5, cats: ["widgets"], headerImage: "high-priority.jpg" },
-        { order: 3, cats: ["widgets"], headerImage: "mid-priority.jpg" },
-      ]);
-      expectHeaderImages(getCollection({ categories, products }), [
-        "high-priority.jpg",
-      ]);
-    });
-
-    test("uses category default when products have no header images", () => {
-      const categories = [cat("widgets", "widget-header.jpg")];
-      const products = [prod({ order: 10, cats: ["widgets"] })];
-      expectHeaderImages(getCollection({ categories, products }), [
-        "widget-header.jpg",
-      ]);
-    });
-
-    test("category own header image takes priority over products", () => {
-      const categories = [cat("widgets", "widget-header.jpg")];
-      const products = [
-        prod({ cats: ["widgets"], headerImage: "product-image.jpg" }),
-      ];
-      expectHeaderImages(getCollection({ categories, products }), [
-        "widget-header.jpg",
-      ]);
-    });
-
-    test("handles products in multiple categories", () => {
-      const categories = cats([
-        ["widgets", "widget-default.jpg"],
-        ["gadgets", "gadget-default.jpg"],
-      ]);
-      const products = [
-        prod({
-          order: 5,
-          cats: ["widgets", "gadgets"],
-          headerImage: "shared-image.jpg",
-        }),
-      ];
-      expectHeaderImages(getCollection({ categories, products }), [
-        "widget-default.jpg",
-        "gadget-default.jpg",
-      ]);
-    });
-
-    test("ignores products without categories", () => {
-      const categories = [cat("widgets", "widget-header.jpg")];
-      const products = [prod({ order: 10, headerImage: "orphan-image.jpg" })];
-      expectHeaderImages(getCollection({ categories, products }), [
-        "widget-header.jpg",
-      ]);
-    });
-
     test("preserves category data properties", () => {
       const categories = cats([
-        ["widgets", undefined, { title: "Widgets", featured: true }],
+        ["widgets", "own-thumb.jpg", { title: "Widgets", featured: true }],
       ]);
-      const products = prods([
-        { order: 5, cats: ["widgets"], headerImage: "product.jpg" },
-      ]);
-      const result = getCollection({ categories, products });
+      const result = getCollection({ categories, products: [] });
 
       expect(result[0].data.title).toBe("Widgets");
       expect(result[0].data.featured).toBe(true);
-      expect(result[0].data.header_image).toBe("product.jpg");
-    });
-
-    test("handles complex scenario with multiple categories and products", () => {
-      const categories = cats([
-        ["widgets", "widget-default.jpg"],
-        ["gadgets", "gadget-default.jpg"],
-        ["tools", undefined],
-      ]);
-      const products = prods([
-        {
-          order: 3,
-          cats: ["widgets", "gadgets"],
-          headerImage: "cross-category.jpg",
-        },
-        { order: 1, cats: ["widgets"], headerImage: "low-priority-widget.jpg" },
-        { order: 5, cats: ["tools"], headerImage: "high-priority-tool.jpg" },
-        { cats: ["gadgets"], headerImage: "default-order-gadget.jpg" },
-      ]);
-      // widgets: has own image, keeps it
-      // gadgets: has own image, keeps it
-      // tools: no own image, gets highest-order product (order 5)
-      expectHeaderImages(getCollection({ categories, products }), [
-        "widget-default.jpg",
-        "gadget-default.jpg",
-        "high-priority-tool.jpg",
-      ]);
+      expect(result[0].data.thumbnail).toBe("own-thumb.jpg");
     });
   });
 
@@ -166,21 +65,10 @@ describe("categories", () => {
       expect(result[0].data.thumbnail).toBe(expected);
     };
 
-    test("uses header_image as thumbnail for the current category", () => {
-      expectThumbnail([cat("widgets", "banner.jpg")], "banner.jpg");
-    });
-
-    test("uses own thumbnail when no header_image", () => {
+    test("uses own thumbnail when present", () => {
       expectThumbnail(
         [cat("widgets", undefined, { thumbnail: "thumb.jpg" })],
         "thumb.jpg",
-      );
-    });
-
-    test("header_image takes priority over own thumbnail", () => {
-      expectThumbnail(
-        [cat("widgets", "banner.jpg", { thumbnail: "thumb.jpg" })],
-        "banner.jpg",
       );
     });
 
@@ -196,19 +84,6 @@ describe("categories", () => {
         { cats: ["electronics"], thumbnail: "direct-product.jpg" },
       ]);
       expectThumbnail(categories, "phones-thumb.jpg", products);
-    });
-
-    test("subcategory resolution uses thumbnail, not header_image", () => {
-      const categories = [
-        cat("electronics", undefined),
-        cat("phones", "phones-banner.jpg", { parent: "electronics" }),
-      ];
-      const products = prods([
-        { cats: ["electronics"], thumbnail: "direct-product.jpg" },
-      ]);
-      // phones has header_image but no thumbnail; subcategory resolution
-      // only checks thumbnail, so falls through to direct product
-      expectThumbnail(categories, "direct-product.jpg", products);
     });
 
     test("falls back to product in subcategory", () => {
@@ -249,6 +124,17 @@ describe("categories", () => {
       ]);
       const result = getCollection({ categories, products });
       expect(result[0].data.thumbnail).toBe("premium-thumb.jpg");
+    });
+
+    test("uses highest-order product thumbnail when no own thumbnail", () => {
+      const categories = cats([["widgets", undefined]]);
+      const products = prods([
+        { order: 2, cats: ["widgets"], thumbnail: "low-priority.jpg" },
+        { order: 5, cats: ["widgets"], thumbnail: "high-priority.jpg" },
+        { order: 3, cats: ["widgets"], thumbnail: "mid-priority.jpg" },
+      ]);
+      const result = getCollection({ categories, products });
+      expect(result[0].data.thumbnail).toBe("high-priority.jpg");
     });
 
     test("returns undefined when no images exist anywhere", () => {

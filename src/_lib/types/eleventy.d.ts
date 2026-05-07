@@ -61,8 +61,6 @@ export type BaseItemData = {
   thumbnail?: string;
   /** Main image path */
   image?: string;
-  /** Header image path */
-  header_image?: string;
 };
 
 /**
@@ -370,8 +368,6 @@ export type EleventyComputedData = Omit<EleventyCollectionItemData, 'title'> & {
   page: EleventyPageData;
   site: import('./config.d.ts').SiteInfo;
   config?: import('./config.d.ts').SiteConfig;
-  header_image?: string;
-  header_text?: string;
   meta_title?: string;
   description?: string;
   snippet?: string;

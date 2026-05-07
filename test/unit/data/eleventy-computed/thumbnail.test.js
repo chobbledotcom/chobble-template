@@ -86,21 +86,11 @@ describe("eleventyComputed.thumbnail", () => {
     expect(result).toBe("https://example.com/gallery1.jpg");
   });
 
-  test("falls back to header_image when no thumbnail or gallery is set", () => {
-    const result = eleventyComputed.thumbnail({
-      tags: ["products"],
-      header_image: "https://example.com/header.jpg",
-      page: pageAt("/products/test/"),
-    });
-    expect(result).toBe("https://example.com/header.jpg");
-  });
-
-  test("prefers thumbnail over gallery and header_image", () => {
+  test("prefers thumbnail over gallery", () => {
     const result = eleventyComputed.thumbnail({
       tags: ["products"],
       thumbnail: "https://example.com/thumb.jpg",
       gallery: ["https://example.com/gallery.jpg"],
-      header_image: "https://example.com/header.jpg",
       page: pageAt("/products/test/"),
     });
     expect(result).toBe("https://example.com/thumb.jpg");

@@ -58,12 +58,6 @@ export default {
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {string} Header text
-   */
-  header_text: (data) => data.header_text || data.title,
-
-  /**
-   * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {string|undefined} Meta title (explicit only, no fallback to avoid cycle with title)
    */
   meta_title: (data) => data.meta_title,
@@ -124,11 +118,7 @@ export default {
    * @returns {string|null} Valid image path or null
    */
   thumbnail: (data) => {
-    const image = getFirstValidImage([
-      data.thumbnail,
-      data.gallery?.[0],
-      data.header_image,
-    ]);
+    const image = getFirstValidImage([data.thumbnail, data.gallery?.[0]]);
     if (image) return image;
     if (hasTag(data, "reviews") || hasTag(data, "team")) return null;
     const config = data.config || getConfig();

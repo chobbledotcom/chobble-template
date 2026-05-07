@@ -24,7 +24,6 @@ import { isExternalUrl } from "#utils/url-utils.js";
 
 /**
  * @typedef {Object} BasePageData
- * @property {string} [header_image] - Header image path
  * @property {string} [image] - Image path
  * @property {SiteInfo} site - Site information
  * @property {PageInfo} page - Page information
@@ -107,8 +106,7 @@ function buildImageUrl(imageInput, { url }) {
  * @returns {SchemaOrgMeta} Schema.org metadata object
  */
 function buildBaseMeta(data) {
-  const imageSource = data.header_image || data.image;
-  const imageUrl = imageSource ? buildImageUrl(imageSource, data.site) : null;
+  const imageUrl = data.image ? buildImageUrl(data.image, data.site) : null;
 
   return {
     ...data.metaComputed,

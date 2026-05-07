@@ -1,5 +1,4 @@
 ---
-header_text: Reviews
 meta_description:
 meta_title: Reviews
 layout: design-system-base.html

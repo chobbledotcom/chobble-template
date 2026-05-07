@@ -42,10 +42,9 @@ import {
 export const buildNewsFields = (config, fields) =>
   withEnabled((enabled) => [
     COMMON_FIELDS.title,
-    config.features.header_images && COMMON_FIELDS.header_image,
     { name: "date", label: "Date", type: "date" },
     enabled("team") && createReferenceField("author", "Author", "team", false),
-    ...getContentFields(config, fields),
+    ...getContentFields(fields),
     config.features.no_index && COMMON_FIELDS.no_index,
   ])(config);
 

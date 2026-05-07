@@ -1,5 +1,4 @@
 ---
-header_text: Contact Example
 meta_description:
 meta_title: Contact
 schema_type: organization

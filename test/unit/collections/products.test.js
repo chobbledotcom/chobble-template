@@ -587,13 +587,7 @@ describe("products", () => {
       expect(result).toEqual(["/images/img1.jpg", "/images/img2.jpg"]);
     });
 
-    test("wraps header_image in array when no gallery", () => {
-      const data = { header_image: "header.jpg" };
-      const result = computeGallery(data);
-      expect(result).toEqual(["/images/header.jpg"]);
-    });
-
-    test("returns empty array when no gallery or header_image", () => {
+    test("returns empty array when no gallery", () => {
       const data = { title: "Product" };
       const result = computeGallery(data);
       expect(result).toEqual([]);

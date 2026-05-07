@@ -259,7 +259,6 @@ const createProduct = ({
   title = "Test Product",
   categories = [],
   order = DEFAULT_ORDER,
-  headerImage = null,
   ...extraData
 } = {}) => ({
   ...(slug && { fileSlug: slug }),
@@ -267,7 +266,6 @@ const createProduct = ({
     title,
     categories,
     order,
-    header_image: headerImage,
     ...extraData,
   },
 });

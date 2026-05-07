@@ -170,7 +170,7 @@ const createValidatedViewConfig = (rawConfig, availableFields) => {
  */
 const RAW_VIEW_CONFIGS = {
   pages: {
-    fields: ["thumbnail", "permalink", "meta_title", "header_text"],
+    fields: ["thumbnail", "permalink", "meta_title"],
     primary: "meta_title",
     sort: ["meta_title"],
   },

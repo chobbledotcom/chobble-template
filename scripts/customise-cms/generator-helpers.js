@@ -4,7 +4,7 @@
  * Collects the reusable pieces that stitch collection field lists together:
  * the `FieldContext` (body/tabs fields precomputed from the visual-editor
  * setting), the common meta fields, and the composition helpers (`withEnabled`,
- * `buildItem`, `withHeaderFields`) used by each per-collection field builder.
+ * `buildItem`) used by each per-collection field builder.
  */
 
 import {
@@ -77,25 +77,13 @@ export const createFieldContext = (useVisualEditor) => {
 };
 
 /**
- * Get optional header fields based on config
- * @param {CmsConfig} config - CMS configuration
- * @returns {(false | CmsField)[]} Header fields or false values to be compacted
- */
-export const getHeaderFields = (config) => [
-  config.features.header_images && COMMON_FIELDS.header_image,
-  config.features.header_images && COMMON_FIELDS.header_text,
-];
-
-/**
- * Get common trailing content fields (subtitle, body, header_text, meta)
- * @param {CmsConfig} config - CMS configuration
+ * Get common trailing content fields (subtitle, body, meta)
  * @param {FieldContext} fields - Precomputed fields
- * @returns {(false | CmsField)[]} Content fields with optional header_text
+ * @returns {CmsField[]} Content fields
  */
-export const getContentFields = (config, fields) => [
+export const getContentFields = (fields) => [
   COMMON_FIELDS.subtitle,
   fields.body,
-  config.features.header_images && COMMON_FIELDS.header_text,
   ...META_FIELDS,
 ];
 
@@ -111,17 +99,11 @@ export const getItemTop = () => [
 ];
 
 /**
- * Bottom of every item: body, header_image, header_text (if enabled), meta
- * @param {CmsConfig} config
+ * Bottom of every item: body, meta
  * @param {FieldContext} fields - Precomputed fields
- * @returns {(false | CmsField)[]}
+ * @returns {CmsField[]}
  */
-export const getItemBottom = (config, fields) => [
-  fields.body,
-  config.features.header_images && COMMON_FIELDS.header_image,
-  config.features.header_images && COMMON_FIELDS.header_text,
-  ...META_FIELDS,
-];
+export const getItemBottom = (fields) => [fields.body, ...META_FIELDS];
 
 /**
  * Build fields with an "enabled" helper that checks if a collection is enabled
@@ -140,17 +122,8 @@ export const buildItem = (middle) => (config, fields) =>
   withEnabled((enabled) => [
     ...getItemTop(),
     ...middle(enabled),
-    ...getItemBottom(config, fields),
+    ...getItemBottom(fields),
   ])(config);
-
-/**
- * Helper function to conditionally include header image/text
- * @param {CmsConfig} config - CMS configuration
- * @param {...CmsField} fields - Fields to include if header_images enabled
- * @returns {CmsField[]} Fields if header_images is enabled, empty array otherwise
- */
-export const withHeaderFields = (config, ...fields) =>
-  config.features.header_images ? fields : [];
 
 /**
  * Convert a slug to a human-readable label (e.g., "my-thing" → "My Thing")

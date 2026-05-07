@@ -19,11 +19,9 @@ import {
   KEYWORDS_FIELD,
 } from "#scripts/customise-cms/fields.js";
 import {
-  getHeaderFields,
   getItemBottom,
   getItemTop,
   META_FIELDS,
-  withHeaderFields,
 } from "#scripts/customise-cms/generator-helpers.js";
 import { compact, memberOf } from "#toolkit/fp/array.js";
 import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
@@ -65,11 +63,6 @@ export const productsRefList = (enabled) =>
 export const getCollectionFieldBuilders = (config, fields) => ({
   pages: () =>
     compact([
-      ...withHeaderFields(
-        config,
-        COMMON_FIELDS.header_image,
-        COMMON_FIELDS.header_text,
-      ),
       COMMON_FIELDS.subtitle,
       fields.body,
       COMMON_FIELDS.meta_title,
@@ -93,7 +86,6 @@ export const getCollectionFieldBuilders = (config, fields) => ({
         createReferenceField("parent", "Parent Category", "categories", false),
       COMMON_FIELDS.featured,
       config.features.keywords && KEYWORDS_FIELD,
-      ...getHeaderFields(config),
       ...META_FIELDS,
       COMMON_FIELDS.subtitle,
       generateBlocksField(
@@ -110,7 +102,6 @@ export const getCollectionFieldBuilders = (config, fields) => ({
       COMMON_FIELDS.thumbnail,
       COMMON_FIELDS.order,
       COMMON_FIELDS.subtitle,
-      config.features.header_images && COMMON_FIELDS.header_image,
       fields.bodyWithLabel("Biography"),
     ]),
 
@@ -127,5 +118,5 @@ export const getCollectionFieldBuilders = (config, fields) => ({
 
   snippets: () => [COMMON_FIELDS.name, fields.body],
 
-  menus: () => compact([...getItemTop(), ...getItemBottom(config, fields)]),
+  menus: () => compact([...getItemTop(), ...getItemBottom(fields)]),
 });

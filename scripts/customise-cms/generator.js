@@ -61,8 +61,6 @@ const getCustomBlocksOptionalFields = (config) => [
   config.features.redirects && COMMON_FIELDS.redirect_from,
   config.features.faqs && FAQS_FIELD,
   config.features.galleries && GALLERY_FIELD,
-  config.features.header_images && COMMON_FIELDS.header_image,
-  config.features.header_images && COMMON_FIELDS.header_text,
 ];
 
 /**

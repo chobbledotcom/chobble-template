@@ -1,7 +1,6 @@
 ---
 title: Dinner Menu
 order: 2
-header_image: src/images/dinner.jpg
 subtitle: Fresh vegan dinner options served daily.
 meta_title: Dinner Menu
 meta_description: Fresh vegan dinner options served daily

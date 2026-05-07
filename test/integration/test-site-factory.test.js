@@ -197,8 +197,8 @@ describe("test-site-factory", () => {
 
       // Should return a document we can query
       expect(doc.querySelector("h1")).toBeTruthy();
-      // The H1 contains the title from frontmatter
-      expect(doc.querySelector("h1").textContent).toContain("Test Page");
+      // The H1 comes from the markdown content
+      expect(doc.querySelector("h1").textContent).toContain("Hello World");
     });
 
     test("listOutputFiles returns all output files recursively", () => {
