@@ -43,7 +43,8 @@ const mergeByHighestOrder = (mapping, { categorySlug, value, order }) => {
 
 /**
  * Extract thumbnail entries from a product for all its categories.
- * @returns {(product: ProductCollectionItem) => PropertyMapEntry[]}
+ * @param {ProductCollectionItem} product
+ * @returns {PropertyMapEntry[]}
  */
 const extractProductThumbnailEntries = (product) => {
   if (!product.data.thumbnail) return [];
