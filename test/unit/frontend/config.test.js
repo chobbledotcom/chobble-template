@@ -22,7 +22,7 @@ describe("config", () => {
       "formspark_id",
       "botpoison_public_key",
       "template_repo_url",
-      "chobble_link",
+      "homepage_footer_markdown",
       "map_embed_src",
       "cart_mode",
       "ecommerce_api_host",

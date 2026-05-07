@@ -72,7 +72,7 @@ export type SiteConfig = {
   contact_form_target: string | null;
   formspark_id: string | null;
   botpoison_public_key: string | null;
-  chobble_link: string | null;
+  homepage_footer_markdown: string | null;
   map_embed_src: string | null;
   cart_mode: CartMode;
   ecommerce_api_host: string | null;

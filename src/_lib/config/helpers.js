@@ -12,7 +12,7 @@ const DEFAULTS = frozenObject({
   formspark_id: null,
   botpoison_public_key: null,
   template_repo_url: "https://github.com/chobbledotcom/chobble-template",
-  chobble_link: null,
+  homepage_footer_markdown: null,
   map_embed_src: null,
   cart_mode: null,
   ecommerce_api_host: null,

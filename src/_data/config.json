@@ -14,7 +14,7 @@
   "enable_theme_switcher": true,
   "externalLinksTargetBlank": null,
   "template_repo_url": null,
-  "chobble_link": null,
+  "homepage_footer_markdown": "[template](https://github.com/chobbledotcom/chobble-template) by [chobble](https://chobble.com)",
   "cart_mode": "stripe",
   "ecommerce_api_host": "ecom.chobble.com",
   "currency": "GBP",
