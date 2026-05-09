@@ -274,6 +274,12 @@
       padding-top: 0;
       padding-bottom: 0;
     }
+
+    // Sections containing a hero have no padding; the hero fills the section
+    &:has(> .hero) {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
   }
 
   // ===========================================================================

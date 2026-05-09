@@ -9,13 +9,9 @@
 .design-system {
   .hero {
     @include flex-col($space-lg, center, center);
+    @include section-self-padding;
 
-    padding: 0 $space-md;
     text-align: center;
-
-    @include breakpoint.up("md") {
-      padding: 0 $space-lg;
-    }
 
     h1 {
       max-width: $width-default;

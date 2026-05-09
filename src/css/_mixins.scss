@@ -96,6 +96,16 @@
   padding-bottom: var(--section-padding-y);
 }
 
+// Self-padding for elements that replace section padding (e.g. hero, split-full
+// panels) — vertical from --section-padding-y, horizontal responsive.
+@mixin section-self-padding {
+  padding: var(--section-padding-y) $space-md;
+
+  @include breakpoint.up("md") {
+    padding: var(--section-padding-y) $space-lg;
+  }
+}
+
 // Compact section padding override
 @mixin section-compact {
   --section-padding-y: calc(#{$space-2xl} * 0.6);
