@@ -57,13 +57,10 @@
     // Child panels
     .left,
     .right {
+      @include section-self-padding;
+
       display: flex;
       flex: 1;
-      padding: var(--section-padding-y) $space-md;
-
-      @include breakpoint.up("md") {
-        padding: var(--section-padding-y) $space-lg;
-      }
 
       > * {
         justify-content: center;
