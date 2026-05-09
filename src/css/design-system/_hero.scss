@@ -10,11 +10,11 @@
   .hero {
     @include flex-col($space-lg, center, center);
 
-    padding: 0 $space-md;
+    padding: var(--section-padding-y) $space-md;
     text-align: center;
 
     @include breakpoint.up("md") {
-      padding: 0 $space-lg;
+      padding: var(--section-padding-y) $space-lg;
     }
 
     h1 {
