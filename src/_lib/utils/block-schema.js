@@ -65,7 +65,6 @@ import * as productGallery from "#utils/block-schema/product-gallery.js";
 import * as productHeader from "#utils/block-schema/product-header.js";
 import * as productMeta from "#utils/block-schema/product-meta.js";
 import * as productSpecs from "#utils/block-schema/product-specs.js";
-import * as properties from "#utils/block-schema/properties.js";
 import * as propertyContact from "#utils/block-schema/property-contact.js";
 import * as propertyContactSection from "#utils/block-schema/property-contact-section.js";
 import * as propertyContent from "#utils/block-schema/property-content.js";
@@ -156,7 +155,6 @@ const BLOCK_MODULES = [
   eventProducts,
   eventMap,
   eventContactSection,
-  properties,
   propertyHeader,
   freetobook,
   propertyGallery,

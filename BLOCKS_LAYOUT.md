@@ -792,7 +792,7 @@ Product-only block. No parameters. Renders nothing when the product's `gallery` 
 Renders the product page's metadata: optional reviews-count link followed by the categories list.
 
 **Component:** `block_product_meta`
-**Template:** `src/_includes/design-system/blocks/product-meta.html`
+**Template:** `src/_includes/design-system/blocks/item-meta.html`
 
 Product-only block. No parameters. Reads `categories` and `tags` from the page; reads `config.show_product_review_counts` from site data.
 
@@ -906,7 +906,7 @@ Event-only block. No parameters. Renders nothing when the event's `gallery` is e
 Renders the event page's metadata: optional reviews-count link followed by the event categories list.
 
 **Component:** `block_event_meta`
-**Template:** `src/_includes/design-system/blocks/event-meta.html`
+**Template:** `src/_includes/design-system/blocks/item-meta.html`
 
 Event-only block. No parameters. Reads `event_categories` and `tags` from the page; reads `config.show_product_review_counts` from site data.
 
@@ -928,7 +928,7 @@ Event-only block. No parameters. Renders nothing when no products are linked to 
 Embeds a map iframe using the page's `map_embed_src`, falling back to `config.map_embed_src`.
 
 **Component:** `block_event_map`
-**Template:** `src/_includes/design-system/blocks/event-map.html`
+**Template:** `src/_includes/design-system/blocks/map.html`
 
 Event-only block. No parameters. Renders nothing when no embed source is configured.
 
@@ -942,18 +942,6 @@ Renders the inline contact section on an event page, delegating to the shared `i
 **Template:** `src/_includes/design-system/blocks/item-contact-section.html`
 
 Event-only block. No parameters. Honours the page's `formspark_id` override and falls back to `config.form_target`.
-
----
-
-### `properties`
-
-Displays property listings (holiday lets) with filter controls.
-
-**Component:** `block_properties`
-**Template:** `src/_includes/design-system/blocks/properties.html`
-**SCSS:** `src/css/design-system/_property.scss`
-
-No block-level parameters. Uses the global `collections.properties` and optional `filterPage` data for URL-based filtering.
 
 ---
 
@@ -995,7 +983,7 @@ Property-only block. No parameters. Renders nothing when the property's `gallery
 Renders the property page's metadata (reviews-count link, optional about-heading, categories list).
 
 **Component:** `block_property_content`
-**Template:** `src/_includes/design-system/blocks/property-content.html`
+**Template:** `src/_includes/design-system/blocks/item-meta.html`
 
 Property-only block. No parameters. Reads `categories` and `tags` from the page; reads `strings.item_about_heading` and `config.show_product_review_counts` from site data. Body content is expressed as a separate `markdown` block in each property's frontmatter.
 
@@ -1039,7 +1027,7 @@ Property-only block. No parameters. Renders nothing when the page has no `specs`
 Embeds a map iframe using the page's `map_embed_src`, falling back to `config.map_embed_src`.
 
 **Component:** `block_property_map`
-**Template:** `src/_includes/design-system/blocks/property-map.html`
+**Template:** `src/_includes/design-system/blocks/map.html`
 
 Property-only block. No parameters. Renders nothing when no embed source is configured.
 

@@ -17,5 +17,6 @@ blocks:
       Properties can link to locations. When you add location slugs to a property, it shows up on those location pages. You can also add filter attributes like number of bedrooms or whether pets are allowed. If you turn on filtering in the config, visitors can search by these attributes.
 
       If you use the [Freetobook](https://freetobook.com) booking system, you can add an availability calendar by setting a Freetobook ID and token on your property. Properties with featured set to true show on the homepage.
-  - type: properties
+  - type: items
+    collection: properties
 ---

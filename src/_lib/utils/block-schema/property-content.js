@@ -1,6 +1,8 @@
 export const type = "property-content";
 
 /* jscpd:ignore-start */
+export const template = "design-system/blocks/item-meta.html";
+
 export const containerWidth = "full";
 
 export const collections = ["properties"];

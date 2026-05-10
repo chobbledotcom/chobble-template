@@ -412,11 +412,6 @@ components:
       - name: intro_content
         type: rich-text
         label: Intro Content (Markdown)
-  block_properties:
-    label: Properties
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
   block_property_contact:
     label: Property Contact
     type: object
@@ -1021,7 +1016,6 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: properties, component: block_properties }
           - { name: property-contact, component: block_property_contact }
           - { name: quote-cart, component: block_quote_cart }
           - { name: quote-checkout, component: block_quote_checkout }
@@ -1160,7 +1154,6 @@ content:
           - { name: product-header, component: block_product_header }
           - { name: product-meta, component: block_product_meta }
           - { name: product-specs, component: block_product_specs }
-          - { name: properties, component: block_properties }
           - { name: purchase-link, component: block_purchase_link }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
@@ -1234,7 +1227,6 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1319,7 +1311,6 @@ content:
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
           - { name: news-meta, component: block_news_meta }
-          - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1414,7 +1405,6 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1479,7 +1469,6 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1551,7 +1540,6 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1647,7 +1635,6 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: properties, component: block_properties }
           - name: property-contact-section
             component: block_property_contact_section
           - { name: property-content, component: block_property_content }
@@ -1730,7 +1717,6 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1804,7 +1790,6 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1872,7 +1857,6 @@ content:
           - { name: marquee-images, component: block_marquee_images }
           - { name: menu, component: block_menu }
           - { name: menu-pdf-download, component: block_menu_pdf_download }
-          - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1944,7 +1928,6 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -2019,7 +2002,6 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
-          - { name: properties, component: block_properties }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
