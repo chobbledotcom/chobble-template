@@ -1,0 +1,30 @@
+{%- comment -%}
+Item meta block - renders page metadata: optional reviews count link,
+optional about heading, and categories. Handles product/property
+`categories` and event `event_categories` fields.
+
+Shared template for product-meta, event-meta, and property-content.
+{%- endcomment -%}
+{%- capture rating_html -%}{%- include "design-system/_item-rating-paragraph.html" -%}{%- endcapture -%}
+{%- capture categories_html -%}
+  {%- include "design-system/_item-categories-paragraph.html" -%}
+  {%- if event_categories.size > 0 -%}
+    <p><strong>Event Type:</strong> {{ event_categories | join: ", " }}</p>
+  {%- endif -%}
+{%- endcapture -%}
+{%- assign show_about = false -%}
+{%- if strings.item_about_heading and strings.item_about_heading != "" -%}
+  {%- assign show_about = true -%}
+{%- endif -%}
+{%- assign meta_html = rating_html | append: categories_html | strip -%}
+{%- if show_about or meta_html != "" -%}
+<section>
+  <div class="container">
+    {{ rating_html }}
+    {%- if show_about -%}
+      <h2>{{ strings.item_about_heading }}</h2>
+    {%- endif -%}
+    {{ categories_html }}
+  </div>
+</section>
+{%- endif -%}

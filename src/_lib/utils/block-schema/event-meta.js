@@ -1,6 +1,8 @@
 export const type = "event-meta";
 
 /* jscpd:ignore-start */
+export const template = "design-system/blocks/item-meta.html";
+
 export const containerWidth = "full";
 
 export const collections = ["events"];

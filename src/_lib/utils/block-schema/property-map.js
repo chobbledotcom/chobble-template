@@ -1,6 +1,8 @@
 export const type = "property-map";
 
 /* jscpd:ignore-start */
+export const template = "design-system/blocks/map.html";
+
 export const containerWidth = "full";
 
 export const collections = ["properties"];
