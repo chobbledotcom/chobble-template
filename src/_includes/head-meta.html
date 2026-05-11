@@ -21,14 +21,14 @@
   content="{{ eleventy.generator }}"
 >
 
-<link
-  rel="canonical"
-  href="{{ page.url | canonicalUrl }}"
->
-
 {%- if no_index -%}
   <meta
     name="robots"
     value="noindex,nofollow"
+  >
+{%- else -%}
+  <link
+    rel="canonical"
+    href="{{ page.url | canonicalUrl }}"
   >
 {%- endif -%}
