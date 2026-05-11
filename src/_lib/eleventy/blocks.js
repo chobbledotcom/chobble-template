@@ -10,17 +10,17 @@ import {
 const DESIGN_SYSTEM_LAYOUT = "design-system-base.html";
 
 /**
- * Throws if a `design-system-base.html` page has any body content. All
- * content on a design-system-base page must be expressed as blocks in
- * frontmatter (use a `markdown` block for prose).
+ * Passes through content from intermediate layouts unchanged. For pages that
+ * directly specify `layout: design-system-base.html`, throws if there is body
+ * content — direct users must express all content as blocks in frontmatter.
  *
  * @param {string} content
  * @param {string | undefined} layout
  * @param {string | undefined} inputPath
- * @returns {string} Empty string (used as a no-output assertion).
+ * @returns {string} Content string, or empty string for direct design-system-base pages.
  */
 const validatePageBodyContent = (content, layout, inputPath) => {
-  if (layout !== DESIGN_SYSTEM_LAYOUT) return "";
+  if (layout !== DESIGN_SYSTEM_LAYOUT) return content;
   if (!content || content.trim() === "") return "";
   throw new Error(
     `${inputPath}: uses ${DESIGN_SYSTEM_LAYOUT} but has body content. Move it into a 'markdown' block in frontmatter — design-system-base pages must express all content as blocks.`,
