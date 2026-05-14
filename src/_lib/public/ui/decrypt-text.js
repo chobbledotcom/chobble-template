@@ -66,5 +66,6 @@ onReady(async () => {
     ]);
     link.setAttribute("href", href);
     link.innerHTML = html;
+    link.removeAttribute("data-decrypt-link");
   }
 });
