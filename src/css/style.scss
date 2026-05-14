@@ -136,6 +136,10 @@ a {
     color: var(--color-link-hover);
     text-decoration: var(--link-decoration-hover);
   }
+
+  &[data-decrypt-link] {
+    visibility: hidden;
+  }
 }
 
 button,
