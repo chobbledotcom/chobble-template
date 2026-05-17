@@ -16,6 +16,14 @@
         </em>
       </li>
     {%- endif -%}
+    {%- if event_time -%}
+      <li>
+        <em>
+          Time:
+          <strong>{{ event_time }}</strong>
+        </em>
+      </li>
+    {%- endif -%}
     {%- if event_location != blank -%}
       <li>
         <em>

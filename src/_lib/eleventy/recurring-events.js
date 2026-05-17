@@ -13,7 +13,7 @@ const getTemplate = createTemplateLoader("recurring-events-list.html");
 /**
  * Render recurring events as HTML list using Liquid template
  *
- * @param {Array<{url: string, data: {name: string, recurring_date: string, event_location?: string}}>} events
+ * @param {Array<{url: string, data: {name: string, recurring_date: string, event_time?: string, event_location?: string}}>} events
  * @returns {Promise<string>}
  */
 const renderRecurringEvents = createTemplateRenderer(getTemplate, "events");
@@ -55,6 +55,7 @@ const getRecurringEventsHtml = memoize(async () => {
           data: {
             name: data.name,
             recurring_date: data.recurring_date,
+            event_time: data.event_time,
             event_location: data.event_location,
           },
         },

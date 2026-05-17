@@ -110,6 +110,8 @@ export type EventItemData = BaseItemData & {
   event_date?: string;
   /** Recurring date pattern */
   recurring_date?: string;
+  /** Event time, free-text (e.g. "10:00am – 5:00pm") */
+  event_time?: string;
   /** Event location description */
   event_location?: string;
   /** iCal URL */

@@ -3,6 +3,7 @@ name: Summer Expo
 subtitle: Exclusive deals aplenty!
 meta_description: Join us for our upcoming Summer Expo with exclusive deals
 event_date: 2026-06-19
+event_time: 10:00am – 5:00pm
 event_location: City Exhibition Hall
 featured: true
 products:

@@ -272,6 +272,7 @@ describe("generatePagesYaml events", () => {
     const section = getEventsSection(yaml);
 
     expect(section).toContain("name: event_date");
+    expect(section).toContain("name: event_time");
     expect(section).toContain("name: event_location");
     expect(section).toContain("name: map_embed_src");
   });
@@ -283,6 +284,7 @@ describe("generatePagesYaml events", () => {
     const section = getEventsSection(yaml);
 
     expect(section).not.toContain("name: event_date");
+    expect(section).not.toContain("name: event_time");
     expect(section).not.toContain("name: event_location");
   });
 
