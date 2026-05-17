@@ -1353,6 +1353,10 @@ content:
         type: string
         label: Recurring Date (e.g. "Every Friday at 2 PM")
         required: false
+      - name: event_time
+        type: string
+        label: Event Time (e.g. "10:00am – 5:00pm")
+        required: false
       - { name: event_location, type: string, label: Event Location }
       - { name: products, component: products_list }
       - name: map_embed_src

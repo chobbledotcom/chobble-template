@@ -108,6 +108,12 @@ export const buildEventsFields = (config, fields) =>
       required: false,
     },
     config.features.event_locations_and_dates && {
+      name: "event_time",
+      type: "string",
+      label: 'Event Time (e.g. "10:00am – 5:00pm")',
+      required: false,
+    },
+    config.features.event_locations_and_dates && {
       name: "event_location",
       type: "string",
       label: "Event Location",

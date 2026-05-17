@@ -2,5 +2,6 @@
   <p>
     <strong>Date:</strong>
     {{ item.data.recurring_date | default: item.data.event_date | date: "%b %-d, %Y" }}
+    {%- if item.data.event_time %} · {{ item.data.event_time }}{% endif -%}
   </p>
 {%- endif -%}

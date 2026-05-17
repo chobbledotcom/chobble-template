@@ -228,4 +228,20 @@ describe("recurring-events", () => {
         );
       },
     ));
+
+  test("Recurring events render event_time when provided", async () =>
+    withTestSite(
+      {
+        files: [
+          eventFile("yoga-class", "Yoga Class", "Every Wednesday", {
+            event_time: "6:30pm – 7:30pm",
+          }),
+          eventsTestPage(),
+        ],
+      },
+      async (site) => {
+        const html = site.getOutput("/test/index.html");
+        expect(html.includes("6:30pm – 7:30pm")).toBe(true);
+      },
+    ));
 });
