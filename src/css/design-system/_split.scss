@@ -100,14 +100,11 @@
     // Dark colored panels
     &.dark-left .left,
     &.dark-right .right {
-      --color-text: #{$color-dark-text};
-      --color-text-muted: #{$color-dark-text-muted};
+      @include dark-section-vars;
+
       --split-btn-color: #{$color-dark-text};
       --split-btn-hover-bg: #{$color-dark-text};
       --split-btn-hover-color: #{$color-dark-bg};
-
-      color: $color-dark-text;
-      background: $color-dark-bg;
     }
 
     // Primary colored panels
