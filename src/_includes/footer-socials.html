@@ -1,4 +1,4 @@
-<ul class="socials">
+{%- capture socialsContent -%}
   {%- for social in site.socials -%}
     {%- if social[1] -%}
       <li>
@@ -14,4 +14,9 @@
       </li>
     {%- endif -%}
   {%- endfor -%}
+{%- endcapture -%}
+{%- if socialsContent != blank -%}
+<ul class="socials">
+  {{ socialsContent }}
 </ul>
+{%- endif -%}
