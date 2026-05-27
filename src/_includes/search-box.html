@@ -11,14 +11,12 @@ Optional parameters:
 {%- assign placeholder = placeholder | default: "Search..." -%}
 {%- assign button_icon = button_icon | default: "hugeicons:search-02" -%}
 
-<div class="design-system">
-  <form action="/search/" method="get" class="search-box">
-    <input
-      type="search"
-      name="q"
-      placeholder="{{ placeholder }}"
-      autocomplete="off"
-    >
-    <button type="submit">{{ button_icon | renderIcon }}</button>
-  </form>
-</div>
+<form action="/search/" method="get" class="search-box">
+  <input
+    type="search"
+    name="q"
+    placeholder="{{ placeholder }}"
+    autocomplete="off"
+  >
+  <button type="submit">{{ button_icon | renderIcon }}</button>
+</form>
