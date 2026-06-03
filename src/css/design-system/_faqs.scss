@@ -1,0 +1,8 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.design-system {
+  .faqs {
+    @include faqs-list;
+  }
+}

@@ -150,6 +150,22 @@ components:
             label: File Path (e.g. /files/guide.pdf)
             required: true
           - { name: label, type: string, label: Label, required: true }
+  block_faqs:
+    label: Faqs
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - name: items
+        type: object
+        label: FAQs
+        required: true
+        list: true
+        fields:
+          - { name: question, type: string, label: Question, required: true }
+          - { name: answer, type: rich-text, label: Answer (Markdown) }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_features:
     label: Features
     type: object
@@ -878,11 +894,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-  block_faqs:
-    label: Faqs
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
   block_freetobook:
     label: Freetobook
     type: object
@@ -999,6 +1010,7 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1128,6 +1140,7 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1210,6 +1223,7 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1293,6 +1307,7 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1392,6 +1407,7 @@ content:
           - { name: event-map, component: block_event_map }
           - { name: event-meta, component: block_event_meta }
           - { name: event-products, component: block_event_products }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1456,6 +1472,7 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1527,6 +1544,7 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1702,6 +1720,7 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1842,6 +1861,7 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1915,6 +1935,7 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }
@@ -1989,6 +2010,7 @@ content:
           - { name: cta, component: block_cta }
           - { name: custom-contact-form, component: block_custom_contact_form }
           - { name: downloads, component: block_downloads }
+          - { name: faqs, component: block_faqs }
           - { name: features, component: block_features }
           - { name: gallery, component: block_gallery }
           - { name: guide-categories, component: block_guide_categories }

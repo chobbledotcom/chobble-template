@@ -1,18 +1,22 @@
 {%- comment -%}
-Faqs block - renders the page's `faqs` array as a definition list with a
-"Frequently Asked Questions" heading. Renders nothing when there are no
-faqs.
+Faqs block - renders question/answer pairs as a definition list.
 
-No block-level parameters. Reads `faqs` from the page data.
+Parameters (via block object):
+  - block.items: Array of FAQ objects with:
+    - question: The question text
+    - answer: Answer text (rendered as markdown)
+  - block.intro_content: Optional markdown intro above the FAQ list
+
+If block.items is not provided, falls back to the page-level `faqs` array.
 {%- endcomment -%}
 
-{%- if faqs.size > 0 -%}
-<section class="compact">
-  <div class="container">
-    <h2>Frequently Asked Questions</h2>
-    <dl class="faqs">
-      {%- include "faqs-list.html" -%}
-    </dl>
-  </div>
-</section>
+{%- assign _faqs = block.items | default: faqs -%}
+{%- if _faqs.size > 0 -%}
+{%- include "design-system/block-intro.html" -%}
+<dl class="faqs">
+  {%- for faq in _faqs -%}
+  <dt>{{ faq.question }}</dt>
+  <dd>{{ faq.answer | renderContent: "md" }}</dd>
+  {%- endfor -%}
+</dl>
 {%- endif -%}

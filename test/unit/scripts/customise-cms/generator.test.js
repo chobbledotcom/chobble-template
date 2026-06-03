@@ -148,11 +148,13 @@ describe("generatePagesYaml feature flags", () => {
 
   test("excludes optional fields from pages when disabled", () => {
     const yaml = generatePagesYaml(createTestConfig());
-    const pagesSection = getSection("pages")(yaml);
+    const parsed = YAML.parse(yaml);
+    const pagesCollection = parsed.content.find((c) => c.name === "pages");
+    const fieldNames = pagesCollection.fields.map((f) => f.name);
 
-    expect(pagesSection).not.toContain("name: faqs");
-    expect(pagesSection).not.toContain("name: specs");
-    expect(pagesSection).not.toContain("name: redirect_from");
+    expect(fieldNames).not.toContain("faqs");
+    expect(fieldNames).not.toContain("specs");
+    expect(fieldNames).not.toContain("redirect_from");
   });
 
   test("includes permalink and redirect_from when enabled", () => {

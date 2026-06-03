@@ -1057,12 +1057,17 @@ Pages-only block. No parameters. Reads `item` from pagination, overrides the con
 
 ### `faqs`
 
-Renders the page's `faqs` array as a definition list under a 'Frequently Asked Questions' heading.
+Renders question/answer pairs as a definition list. Available on all page types.
 
 **Component:** `block_faqs`
 **Template:** `src/_includes/design-system/blocks/faqs.html`
 
-Property and guide-page block. No parameters. Reads `faqs` from the page data. Renders nothing when the array is empty.
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `items` | array | **required** | FAQ question/answer pairs. Answers support markdown formatting. Falls back to page-level `faqs` array if omitted. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
+
+Define FAQs inline via `items`, or omit to fall back to the page-level `faqs` array (useful for properties/guide-pages that declare FAQs in frontmatter). Answers are rendered as markdown.
 
 ---
 
