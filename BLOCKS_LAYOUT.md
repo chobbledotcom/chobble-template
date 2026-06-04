@@ -467,6 +467,7 @@ Full-width image background with overlaid text and optional parallax.
 | `class` | string | — | Extra CSS classes. |
 | `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
 | `parallax` | boolean | `false` | Enables CSS `animation-timeline: scroll()` parallax effect. |
+| `tint` | boolean | `false` | Applies a dark gradient overlay for text legibility over the background image. |
 
 Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 16/9. Parallax uses `animation-timeline: scroll()` for native CSS scroll-driven translation.
 

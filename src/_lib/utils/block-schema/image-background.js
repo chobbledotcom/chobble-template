@@ -26,6 +26,12 @@ export const fields = {
     default: "false",
     description: "Enables CSS `animation-timeline: scroll()` parallax effect.",
   },
+  tint: {
+    ...bool("Tint"),
+    default: "false",
+    description:
+      "Applies a dark gradient overlay for text legibility over the background image.",
+  },
 };
 
 export const docs = {
