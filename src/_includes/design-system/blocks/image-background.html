@@ -9,6 +9,7 @@ Parameters (via block object):
   - block.content: HTML/markdown content to overlay on the image (required)
   - block.class: Additional classes for the container (optional)
   - block.parallax: Enable parallax scrolling effect on the image (optional, default: false)
+  - block.tint: Enable dark gradient overlay for legibility over white text (optional, default: false)
 
 Usage:
   {% include "design-system/image-background.html", block: block %}
@@ -16,7 +17,7 @@ Usage:
 
 {%- assign _image_alt = block.image_alt | default: "Background image" -%}
 
-<div class="image-background{% if block.parallax %} parallax{% endif %}{% if block.class %} {{ block.class }}{% endif %}">
+<div class="image-background{% if block.tint %} tinted{% endif %}{% if block.parallax %} parallax{% endif %}{% if block.class %} {{ block.class }}{% endif %}">
   <div>
     {% image block.image, _image_alt, "2560,1920,1280,960,640", "", "100vw", "8/3", "", false, true %}
   </div>

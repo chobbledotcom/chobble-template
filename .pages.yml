@@ -286,6 +286,7 @@ components:
         label: Overlay Content
         required: true
       - { name: parallax, type: boolean, label: Parallax }
+      - { name: tint, type: boolean, label: Tint }
   block_image_cards:
     label: Image Cards
     type: object

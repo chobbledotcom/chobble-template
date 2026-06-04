@@ -29,6 +29,32 @@
 
     @include media-background-content;
 
+    &.tinted {
+      isolation: isolate;
+      position: relative;
+      color: #fff;
+
+      &::before {
+        pointer-events: none;
+        content: "";
+
+        position: absolute;
+        z-index: 2;
+        inset: 0;
+
+        background: linear-gradient(
+          180deg,
+          rgb(10 8 6 / 35%) 0%,
+          rgb(10 8 6 / 55%) 100%
+        );
+      }
+
+      > figure {
+        position: relative;
+        z-index: 3;
+      }
+    }
+
     // Parallax: JS-driven scroll effect moves the image opposite to scroll
     &.parallax > div {
       will-change: transform;
