@@ -124,7 +124,6 @@ describe("product-cart-data", () => {
         name: "Empty Product",
         subtitle: "Sub",
         options: [],
-        specs: null,
         mode: "buy",
       });
       expect(result).toBeNull();
@@ -135,7 +134,6 @@ describe("product-cart-data", () => {
         name: "Widget",
         subtitle: "A widget",
         options: [{ name: "Standard", unit_price: 10, sku: "WDG-001" }],
-        specs: [{ name: "Color", value: "Red" }],
         mode: "buy",
       });
 
@@ -143,7 +141,6 @@ describe("product-cart-data", () => {
       const parsed = JSON.parse(result.replace(/&quot;/g, '"'));
       expect(parsed.name).toBe("Widget");
       expect(parsed.options[0].unit_price).toBe(10);
-      expect(parsed.specs[0]).toEqual({ name: "Color", value: "Red" });
     });
 
     test("builds hire_prices map for hire mode", () => {
@@ -154,7 +151,6 @@ describe("product-cart-data", () => {
           { name: "1 Day", days: 1, unit_price: 10 },
           { name: "3 Days", days: 3, unit_price: 25 },
         ],
-        specs: null,
         mode: "hire",
       });
 
@@ -169,7 +165,6 @@ describe("product-cart-data", () => {
           name: "Bad Hire",
           subtitle: null,
           options: [{ days: 3, unit_price: 30 }],
-          specs: null,
           mode: "hire",
         }),
       ).toThrow('Product "Bad Hire" is hire mode but has no 1-day option');
@@ -185,7 +180,6 @@ describe("product-cart-data", () => {
             { days: 3, unit_price: 25 },
             { days: 3, unit_price: 30 },
           ],
-          specs: null,
           mode: "hire",
         }),
       ).toThrow('Product "Dupe Hire" has duplicate options for days=3');

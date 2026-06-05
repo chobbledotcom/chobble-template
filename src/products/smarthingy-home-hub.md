@@ -24,17 +24,6 @@ options:
 categories:
   - smart-thingies
   - thingies
-specs:
-  - name: Display
-    value: 10.1" HD touchscreen
-  - name: Connectivity
-    value: 'Wi-Fi 6E, Zigbee, Z-Wave, Matter'
-  - name: Processor
-    value: Octa-core with neural engine
-  - name: Storage
-    value: 128GB with cloud expansion
-  - name: Compatibility
-    value: 'Works with 10,000+ smart devices'
 features:
   - Controls unlimited smart thingies
   - Advanced automation routines
@@ -66,6 +55,23 @@ blocks:
       Voice control from anywhere in your home makes operation effortless, while the companion mobile app provides full control when you're away. With automatic device discovery and configuration, setup is remarkably simple – the Home Hub finds and configures compatible devices automatically.
 
       Whether you're starting your smart home journey or upgrading an existing setup, the SmarThingy Home Hub provides the perfect foundation for a truly connected living experience.
+  - type: features
+    items:
+      - icon: "hugeicons:full-screen"
+        name: Display
+        description: '10.1" HD touchscreen'
+      - icon: "hugeicons:wifi-connected-01"
+        name: Connectivity
+        description: 'Wi-Fi 6E, Zigbee, Z-Wave, Matter'
+      - icon: "hugeicons:cpu"
+        name: Processor
+        description: Octa-core with neural engine
+      - icon: "hugeicons:hard-drive"
+        name: Storage
+        description: 128GB with cloud expansion
+      - icon: "hugeicons:laptop-phone-sync"
+        name: Compatibility
+        description: 'Works with 10,000+ smart devices'
   - type: snippet
     reference: product-outro
 ---

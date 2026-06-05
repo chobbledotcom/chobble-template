@@ -70,8 +70,6 @@ export type ProductItemData = BaseItemData & {
   options: PagesCMSOption[];
   /** Standalone price field (used when options is empty). May contain currency symbols. */
   price?: string | number;
-  /** Product specifications */
-  specs?: PagesCMSSpec[];
   /** Frequently asked questions */
   faqs?: PagesCMSFaq[];
   /** Additional content tabs (body may be undefined before eleventyComputed) */
@@ -144,8 +142,6 @@ export type ReviewItemData = BaseItemData & {
 export type PropertyItemData = BaseItemData & {
   /** Filter attributes for faceted search */
   filter_attributes?: PagesCMSFilterAttribute[];
-  /** Property specifications */
-  specs?: PagesCMSSpec[];
   /** Location slugs this property belongs to */
   locations: string[];
   /** Gallery image paths */

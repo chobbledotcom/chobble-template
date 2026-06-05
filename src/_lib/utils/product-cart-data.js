@@ -4,18 +4,11 @@
  * Functions for computing product options and cart attributes,
  * extracted from products.11tydata.js for testability and reuse.
  */
-import {
-  filterMap,
-  findDuplicate,
-  pick,
-  pipe,
-  sortBy,
-} from "#toolkit/fp/array.js";
+import { filterMap, findDuplicate, pipe, sortBy } from "#toolkit/fp/array.js";
 import { toObject } from "#toolkit/fp/object.js";
 
 /** @typedef {import("#lib/types").ProductOption} ProductOption */
 /** @typedef {import("#lib/types").NormalizedProductOption} NormalizedProductOption */
-/** @typedef {import("#lib/types").ProductSpec} ProductSpec */
 /** @typedef {import("#lib/types").ProductData} ProductData */
 /** @typedef {import("#lib/types").CartAttributesParams} CartAttributesParams */
 
@@ -100,13 +93,7 @@ const hasDays = (opt) => opt.days != null;
  * @param {CartAttributesParams} params - Parameters
  * @returns {string | null} HTML-escaped JSON string for data attribute, or null
  */
-export const buildCartAttributes = ({
-  name,
-  subtitle,
-  options,
-  specs,
-  mode,
-}) => {
+export const buildCartAttributes = ({ name, subtitle, options, mode }) => {
   if (options.length === 0) return null;
 
   if (mode === "hire") validateHireOptions(options, name);
@@ -121,7 +108,6 @@ export const buildCartAttributes = ({
       sku: opt.sku,
       days: opt.days,
     })),
-    specs: specs ? specs.map(pick(["name", "value"])) : null,
     hire_prices:
       mode === "hire"
         ? toObject(options.filter(hasDays), (opt) => [opt.days, opt.unit_price])

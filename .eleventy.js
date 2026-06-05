@@ -54,7 +54,6 @@ import { configureWrapHashtags } from "#eleventy/wrap-hashtags.js";
 
 // Filters
 import { configureFilters } from "#filters/configure-filters.js";
-import { prefetchSpecIcons } from "#filters/spec-filters.js";
 
 // Media
 import { configureIconify } from "#media/iconify.js";
@@ -111,7 +110,6 @@ export default async function (eleventyConfig) {
   configureInlineAsset(eleventyConfig);
   configureItemFilterData(eleventyConfig);
   configureItemsTextList(eleventyConfig);
-  await prefetchSpecIcons();
   configureMenus(eleventyConfig);
   await configureNavigation(eleventyConfig);
   configureNews(eleventyConfig);

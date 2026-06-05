@@ -18,19 +18,6 @@ options:
 categories:
   - pocket-widgets
   - widgets
-specs:
-  - name: Display
-    value: 6.5" Dimensional Screen
-  - name: Processor
-    value: Octa-pulse 2.8THz
-  - name: Memory
-    value: 8GB
-  - name: Storage
-    value: 256GB Cloud Bubble
-  - name: Vision Lenses
-    value: Triple 12X + 48X + 12X
-  - name: Power Cell
-    value: 4500 zaps
 features:
   - Completely waterproof
   - Instant connectivity
@@ -48,6 +35,26 @@ blocks:
       The vibrant 6.5" Dimensional Screen delivers stunning visuals with true-to-life depth perception, perfect for streaming content and browsing. With instant connectivity, you'll experience ultra-fast data transfer and minimal delay.
 
       Power duration is impressive, with the 4500 zap cell easily lasting a full day of heavy use. When you do need to recharge, both quick energy absorption and contactless power sharing options are available.
+  - type: features
+    items:
+      - icon: "hugeicons:full-screen"
+        name: Display
+        description: '6.5" Dimensional Screen'
+      - icon: "hugeicons:cpu"
+        name: Processor
+        description: Octa-pulse 2.8THz
+      - icon: "hugeicons:ram-memory"
+        name: Memory
+        description: 8GB
+      - icon: "hugeicons:hard-drive"
+        name: Storage
+        description: 256GB Cloud Bubble
+      - icon: "hugeicons:eye"
+        name: Vision Lenses
+        description: Triple 12X + 48X + 12X
+      - icon: "hugeicons:battery-charging-01"
+        name: Power Cell
+        description: 4500 zaps
   - type: snippet
     reference: product-outro
 ---

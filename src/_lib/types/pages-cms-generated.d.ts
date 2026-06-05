@@ -54,16 +54,6 @@ export interface PagesCMSFilterAttribute {
 }
 
 /**
- * @typedef {Object} PagesCMSSpec
- * @property {string} name - Name
- * @property {string} value - Value
- */
-export interface PagesCMSSpec {
-  name: string;
-  value: string;
-}
-
-/**
  * @typedef {Object} PagesCMSAddOnOption
  * @property {string} name - Name
  * @property {number} price - Price

@@ -155,15 +155,6 @@ const createNameValueListField = (name, label) =>
   createObjectListField(name, label, NAME_VALUE_FIELDS);
 
 /**
- * Specs field configuration
- * @type {CmsField}
- */
-export const SPECS_FIELD = {
-  ...createNameValueListField("specs", "Specifications"),
-  _componentName: "specs",
-};
-
-/**
  * Features list field configuration
  * @type {CmsField}
  */

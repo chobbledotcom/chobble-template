@@ -206,9 +206,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/eleventy/pdf.js:generateMenuPdf",
   "src/_lib/eleventy/recurring-events.js:renderRecurringEvents",
 
-  // Filter helpers - tested for icon path resolution
-  "src/_lib/filters/spec-filters.js:resolveIconAssetPath",
-
   // Pure leaf tested directly to avoid coupling to global config()
   "src/_lib/collections/reviews.js:ratingToStars",
 

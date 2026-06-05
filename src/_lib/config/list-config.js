@@ -8,7 +8,6 @@ const DEFAULT_LIST_ITEM_FIELDS = [
   "subtitle",
   "location",
   "event-date",
-  "specs",
   "cart-button",
 ];
 

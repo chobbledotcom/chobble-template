@@ -19,13 +19,6 @@ options:
     max_quantity: 10
     unit_price: 0.30
     sku: MH6D2J
-specs:
-  - name: Material
-    value: Crystalized Flubber
-  - name: Weight
-    value: 1.2 kg
-  - name: Has dongle
-    value: "Yes"
 features:
   - Colorful blinking lights
   - Makes whooshing sounds
@@ -50,6 +43,17 @@ blocks:
       This is a mini gizmo that demonstrates using a local image path. The system should look for the image in the /images/ directory.
   - type: snippet
     reference: contact-cta
+  - type: features
+    items:
+      - icon: "hugeicons:cube"
+        name: Material
+        description: Crystalized Flubber
+      - icon: "hugeicons:weight-scale"
+        name: Weight
+        description: 1.2 kg
+      - icon: "hugeicons:usb-connected-01"
+        name: Has dongle
+        description: "Yes"
   - type: snippet
     reference: product-outro
 ---

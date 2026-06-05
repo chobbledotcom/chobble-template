@@ -24,15 +24,6 @@ options:
 categories:
   - compact-doodahs
   - doodahs
-specs:
-  - name: Dimensions
-    value: 5cm x 3cm x 1.5cm (folded)
-  - name: Weight
-    value: 85g
-  - name: Material
-    value: Nano-composite shell
-  - name: Battery Life
-    value: 72 hours continuous use
 features:
   - Ultra-portable folding design
   - Quick-deploy mechanism
@@ -52,6 +43,20 @@ blocks:
       Perfect for travel, field work, or simply keeping in your pocket for emergencies, the Ultra Compact Doodah X5 proves that great things really do come in small packages. The 72-hour battery life ensures you're never caught without your essential doodah capabilities.
 
       The intuitive multi-function indicator lights keep you informed of operational status at a glance, while the dust and water-resistant construction means you can take it anywhere with confidence.
+  - type: features
+    items:
+      - icon: "hugeicons:ruler"
+        name: Dimensions
+        description: 5cm x 3cm x 1.5cm (folded)
+      - icon: "hugeicons:weight-scale"
+        name: Weight
+        description: 85g
+      - icon: "hugeicons:cube"
+        name: Material
+        description: Nano-composite shell
+      - icon: "hugeicons:battery-full"
+        name: Battery Life
+        description: 72 hours continuous use
   - type: snippet
     reference: product-outro
 ---

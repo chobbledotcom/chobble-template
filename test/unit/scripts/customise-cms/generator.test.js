@@ -132,16 +132,15 @@ describe("generatePagesYaml paths", () => {
 });
 
 describe("generatePagesYaml feature flags", () => {
-  test("includes faqs/specs/features/gallery fields when enabled", () => {
+  test("includes faqs/features/gallery fields when enabled", () => {
     const yaml = generatePagesYaml(
       createTestConfig({
         collections: ["pages", "products", "categories"],
-        features: { faqs: true, specs: true, features: true, galleries: true },
+        features: { faqs: true, features: true, galleries: true },
       }),
     );
 
     expect(yaml).toContain("name: faqs");
-    expect(yaml).toContain("name: specs");
     expect(yaml).toContain("name: features");
     expect(yaml).toContain("name: gallery");
   });
@@ -153,7 +152,6 @@ describe("generatePagesYaml feature flags", () => {
     const fieldNames = pagesCollection.fields.map((f) => f.name);
 
     expect(fieldNames).not.toContain("faqs");
-    expect(fieldNames).not.toContain("specs");
     expect(fieldNames).not.toContain("redirect_from");
   });
 

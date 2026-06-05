@@ -52,7 +52,6 @@ blocks:
       Situated in the heart of Springfield, you'll find local shops, restaurants and the famous Springfield beach all within walking distance.
   - type: property-features
   - type: property-guides
-  - type: property-specs
   - type: tabs
   - type: property-map
   - type: reviews

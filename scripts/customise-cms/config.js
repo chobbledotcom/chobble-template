@@ -121,7 +121,6 @@ export const createDefaultConfig = () => ({
     permalinks: true,
     redirects: true,
     faqs: true,
-    specs: true,
     features: true,
     galleries: true,
     add_ons: true,

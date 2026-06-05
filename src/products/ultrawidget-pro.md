@@ -29,23 +29,6 @@ options:
 categories:
   - /categories/premium-widgets.md
   - widgets
-specs:
-  - name: Display
-    value: 14" Holographic
-  - name: Processor
-    value: Quantum Core X7
-  - name: Memory
-    value: 16GB Crystal Storage
-  - name: Storage
-    value: 1TB Bubble Drive
-  - name: Graphics
-    value: Integrated Rainbow Projector
-  - name: Battery Life
-    value: Up to 12 hours
-  - name: Waterproof
-    value: Splash resistant
-  - name: Has dongle
-    value: "No"
 features:
   - Ultra-thin design (0.6")
   - Glow-in-the-dark control panel
@@ -85,6 +68,32 @@ blocks:
       The stunning 14" Holographic display offers exceptional clarity and dimensional accuracy, ideal for creative work and content visualization. With surround sound resonators, you'll enjoy immersive audio whether you're in a virtual conference or experiencing multimedia content.
 
       Security features include a biometric scanner for quick and secure access, while universal connectivity ports provide versatile options for all your peripheral gadgets.
+  - type: features
+    items:
+      - icon: "hugeicons:full-screen"
+        name: Display
+        description: '14" Holographic'
+      - icon: "hugeicons:cpu"
+        name: Processor
+        description: Quantum Core X7
+      - icon: "hugeicons:ram-memory"
+        name: Memory
+        description: 16GB Crystal Storage
+      - icon: "hugeicons:hard-drive"
+        name: Storage
+        description: 1TB Bubble Drive
+      - icon: "hugeicons:gpu"
+        name: Graphics
+        description: Integrated Rainbow Projector
+      - icon: "hugeicons:battery-full"
+        name: Battery Life
+        description: Up to 12 hours
+      - icon: "hugeicons:droplet"
+        name: Waterproof
+        description: Splash resistant
+      - icon: "hugeicons:usb-connected-01"
+        name: Has dongle
+        description: "No"
   - type: snippet
     reference: product-outro
 ---

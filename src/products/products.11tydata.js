@@ -1,10 +1,5 @@
 import { computeGallery } from "#collections/products.js";
 import getConfig from "#data/config.js";
-import {
-  computeSpecs,
-  getHighlightedSpecs,
-  getListItemSpecs,
-} from "#filters/spec-filters.js";
 import { formatPrice } from "#utils/format-price.js";
 import { linkableContent } from "#utils/linkable-content.js";
 import {
@@ -28,13 +23,6 @@ const getDefaultMaxQuantity = (data) => {
   return config.default_max_quantity;
 };
 
-/** @param {{name: string, value: string, icon: string}} spec */
-const specToFeature = (spec) => ({
-  icon: spec.icon,
-  title: spec.name,
-  description: spec.value,
-});
-
 export default {
   options: [],
   ...linkableContent("product", {
@@ -44,19 +32,6 @@ export default {
     product_mode: (data) => getProductMode(data),
     options: (data) =>
       computeOptions(data, getProductMode(data), getDefaultMaxQuantity(data)),
-    specs: (data) => computeSpecs(data.specs || []),
-    highlighted_specs: (data) => {
-      const specs = computeSpecs(data.specs || []);
-      return getHighlightedSpecs(specs);
-    },
-    list_item_specs: (data) => {
-      const specs = computeSpecs(data.specs || []);
-      return getListItemSpecs(specs);
-    },
-    spec_feature_items: (data) =>
-      computeSpecs(data.specs || []).map(specToFeature),
-    highlighted_spec_feature_items: (data) =>
-      getHighlightedSpecs(computeSpecs(data.specs || [])).map(specToFeature),
     feature_link_items: (data) =>
       (data.features || []).map((text) => ({ text })),
     hire_stat_items: (data) => {
@@ -76,7 +51,6 @@ export default {
         name: data.name,
         subtitle: data.subtitle,
         options: computeOptions(data, mode, defaultMaxQuantity),
-        specs: computeSpecs(data.specs || []),
         mode,
       });
     },

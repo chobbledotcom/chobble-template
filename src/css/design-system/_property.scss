@@ -141,39 +141,6 @@
   }
 
   // ===========================================================================
-  // SPECIFICATIONS
-  // ===========================================================================
-
-  .property-specs {
-    dl {
-      @include flex-wrap($space-sm);
-
-      > div {
-        @include flex-row($space-xs);
-
-        padding: $space-xs $space-sm;
-        border-radius: $radius-sm;
-        background: var(--body-background-alt);
-
-        @include body-sm;
-
-        span[aria-hidden] {
-          flex-shrink: 0;
-        }
-
-        dt {
-          font-weight: 600;
-          color: var(--color-text);
-        }
-
-        dd {
-          color: var(--color-text-muted);
-        }
-      }
-    }
-  }
-
-  // ===========================================================================
   // FAQS
   // ===========================================================================
 
