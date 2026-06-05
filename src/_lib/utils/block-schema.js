@@ -64,7 +64,6 @@ import * as productFeatures from "#utils/block-schema/product-features.js";
 import * as productGallery from "#utils/block-schema/product-gallery.js";
 import * as productHeader from "#utils/block-schema/product-header.js";
 import * as productMeta from "#utils/block-schema/product-meta.js";
-import * as productSpecs from "#utils/block-schema/product-specs.js";
 import * as propertyContact from "#utils/block-schema/property-contact.js";
 import * as propertyContactSection from "#utils/block-schema/property-contact-section.js";
 import * as propertyContent from "#utils/block-schema/property-content.js";
@@ -73,7 +72,6 @@ import * as propertyGallery from "#utils/block-schema/property-gallery.js";
 import * as propertyGuides from "#utils/block-schema/property-guides.js";
 import * as propertyHeader from "#utils/block-schema/property-header.js";
 import * as propertyMap from "#utils/block-schema/property-map.js";
-import * as propertySpecs from "#utils/block-schema/property-specs.js";
 import * as purchaseLink from "#utils/block-schema/purchase-link.js";
 import * as quoteCart from "#utils/block-schema/quote-cart.js";
 import * as quoteCheckout from "#utils/block-schema/quote-checkout.js";
@@ -147,7 +145,6 @@ const BLOCK_MODULES = [
   tabs,
   productAddOns,
   productFeatures,
-  productSpecs,
   productContactSection,
   eventHeader,
   eventGallery,
@@ -161,7 +158,6 @@ const BLOCK_MODULES = [
   propertyContent,
   propertyFeatures,
   propertyGuides,
-  propertySpecs,
   propertyMap,
   propertyContactSection,
   propertyContact,

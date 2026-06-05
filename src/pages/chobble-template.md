@@ -308,11 +308,14 @@ blocks:
 
       Structured data is generated automatically from your content.
     items:
-      - name: Schema.org Markup
+      - icon: "hugeicons:code-circle"
+        name: Schema.org Markup
         description: Products, events, FAQs, organizations, and breadcrumbs - all with proper JSON-LD.
-      - name: RSS & iCal Feeds
+      - icon: "hugeicons:rss"
+        name: RSS & iCal Feeds
         description: Atom feeds for news, iCal exports for events. Let people subscribe to your content.
-      - name: Aggregate Ratings
+      - icon: "hugeicons:star"
+        name: Aggregate Ratings
         description: Product reviews automatically generate aggregate ratings for rich snippets.
 
   # Deployment Split (reversed)

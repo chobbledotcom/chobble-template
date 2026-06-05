@@ -17,17 +17,6 @@ options:
 categories:
   - professional-doodahs
   - doodahs
-specs:
-  - name: Dimensions
-    value: 45cm x 30cm x 15cm
-  - name: Weight
-    value: 8.5 kg
-  - name: Power Requirements
-    value: 240V AC / 50-60Hz
-  - name: Operating Temperature
-    value: '-20°C to +85°C'
-  - name: Certifications
-    value: 'CE, FCC, ISO 9001'
 features:
   - Heavy-duty reinforced chassis
   - Redundant safety systems
@@ -51,6 +40,23 @@ blocks:
       With operating temperature tolerance from -20°C to +85°C and full certification compliance, the Doodah Pro Enterprise Edition is ready for deployment in factories, laboratories, data centers, and other demanding professional environments. The included mounting hardware supports rack, wall, or desktop installation configurations.
 
       Backed by our commercial warranty and priority support services, the Enterprise Edition represents the ultimate in professional doodah technology.
+  - type: features
+    items:
+      - icon: "hugeicons:ruler"
+        name: Dimensions
+        description: 45cm x 30cm x 15cm
+      - icon: "hugeicons:weight-scale"
+        name: Weight
+        description: 8.5 kg
+      - icon: "hugeicons:plug-01"
+        name: Power Requirements
+        description: 240V AC / 50-60Hz
+      - icon: "hugeicons:temperature"
+        name: Operating Temperature
+        description: '-20°C to +85°C'
+      - icon: "hugeicons:certificate-01"
+        name: Certifications
+        description: 'CE, FCC, ISO 9001'
   - type: snippet
     reference: product-outro
 ---

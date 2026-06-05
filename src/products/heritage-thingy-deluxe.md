@@ -24,17 +24,6 @@ options:
 categories:
   - classic-thingies
   - thingies
-specs:
-  - name: Construction
-    value: Solid hardwood with brass fittings
-  - name: Finish
-    value: Hand-rubbed oil finish
-  - name: Dimensions
-    value: 25cm x 18cm x 10cm
-  - name: Weight
-    value: 1.8 kg
-  - name: Warranty
-    value: Lifetime craftsmanship guarantee
 features:
   - Handcrafted by skilled artisans
   - Premium hardwood construction
@@ -57,6 +46,23 @@ blocks:
       Each Heritage Thingy Deluxe comes in a handsome presentation box, making it an ideal gift for those who appreciate quality and tradition. Custom engraving is available to add a personal touch to this heirloom-quality piece.
 
       With our lifetime craftsmanship guarantee, the Heritage Thingy Deluxe is designed to be passed down through generations, a testament to the enduring value of traditional manufacturing excellence.
+  - type: features
+    items:
+      - icon: "hugeicons:wrench-01"
+        name: Construction
+        description: Solid hardwood with brass fittings
+      - icon: "hugeicons:paint-brush-01"
+        name: Finish
+        description: Hand-rubbed oil finish
+      - icon: "hugeicons:ruler"
+        name: Dimensions
+        description: 25cm x 18cm x 10cm
+      - icon: "hugeicons:weight-scale"
+        name: Weight
+        description: 1.8 kg
+      - icon: "hugeicons:shield-01"
+        name: Warranty
+        description: Lifetime craftsmanship guarantee
   - type: snippet
     reference: product-outro
 ---

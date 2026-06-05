@@ -4,7 +4,7 @@
  * Turns a collection name + `CmsConfig` into a complete `CollectionConfig`:
  *   1. `getCoreFields` dispatches to the right field builder.
  *   2. `addOptionalFields` appends feature-gated fields (permalinks, FAQs,
- *      galleries, specs, add-ons, tabs, blocks).
+ *      galleries, add-ons, tabs, blocks).
  *   3. `getValidatedViewConfig` filters the list-view config down to fields
  *      that actually exist on the collection.
  *   4. `generateCollectionConfig` wraps it all up with path/label/filename.
@@ -18,7 +18,6 @@ import {
   createAddOnsField,
   FAQS_FIELD,
   GALLERY_FIELD,
-  SPECS_FIELD,
 } from "#scripts/customise-cms/fields.js";
 import {
   buildEventsFields,
@@ -80,7 +79,6 @@ const getCoreFields = (collectionName, config, fields) => {
  */
 const getCollectionSpecificFields = (collection, config, fieldContext) => [
   config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
-  config.features.specs && collection.supportsSpecs && SPECS_FIELD,
   config.features.add_ons &&
     collection.supportsAddOns &&
     createAddOnsField(config.features.use_visual_editor),

@@ -40,7 +40,7 @@ const main = async () => {
   console.log(".pages.yml has been generated with:");
   console.log(`  - ${config.collections.length} collections`);
   console.log(
-    "  - All features enabled (permalinks, redirects, faqs, specs, features, galleries, blocks)",
+    "  - All features enabled (permalinks, redirects, faqs, features, galleries, blocks)",
   );
   if (config.features.use_visual_editor) {
     console.log("  - Visual rich-text editor enabled");

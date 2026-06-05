@@ -172,30 +172,23 @@ const askCollectionQuestions = async (rl, defaultCollections) => {
 };
 
 /**
- * Ask conditional feature questions for specs/features
+ * Ask conditional feature questions for features
  * @param {readline.Interface} rl - Readline interface
  * @param {string[]} collections - Selected collection names
  * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
- * @returns {Promise<{specs: boolean, features: boolean}>} Specs and features selections
+ * @returns {Promise<{features: boolean}>} Features selection
  */
 const askSpecsAndFeaturesQuestions = async (
   rl,
   collections,
   defaultFeatures,
 ) => {
-  const hasSpecsCollections = collections.some(
+  const hasFeaturesCollections = collections.some(
     memberOf(["products", "properties"]),
   );
 
   return {
-    specs: hasSpecsCollections
-      ? await askYesNo(
-          rl,
-          "Do you want specifications on products/properties?",
-          defaultFeatures.specs ?? false,
-        )
-      : false,
-    features: hasSpecsCollections
+    features: hasFeaturesCollections
       ? await askYesNo(
           rl,
           "Do you want feature lists on products/properties?",

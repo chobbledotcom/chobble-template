@@ -24,17 +24,6 @@ options:
 categories:
   - compact-doodahs
   - doodahs
-specs:
-  - name: Dimensions
-    value: 3.5cm x 2.5cm x 1cm
-  - name: Weight
-    value: 28g
-  - name: Battery Life
-    value: 48 hours per charge
-  - name: Waterproof
-    value: IPX4 rated
-  - name: Colors
-    value: 'Midnight, Pearl, Rose Gold, Forest'
 features:
   - Keychain compatible
   - One-button operation
@@ -54,6 +43,23 @@ blocks:
       Available in four stylish colors to match your personal style, each Mini comes with a protective travel case and magnetic mounting clip. The IPX4 water resistance rating means it can handle splashes and light rain without missing a beat.
 
       Perfect for students, travelers, or anyone who values convenience, the Pocket Doodah Mini proves that essential technology doesn't have to be bulky.
+  - type: features
+    items:
+      - icon: "hugeicons:ruler"
+        name: Dimensions
+        description: 3.5cm x 2.5cm x 1cm
+      - icon: "hugeicons:weight-scale"
+        name: Weight
+        description: 28g
+      - icon: "hugeicons:battery-full"
+        name: Battery Life
+        description: 48 hours per charge
+      - icon: "hugeicons:droplet"
+        name: Waterproof
+        description: IPX4 rated
+      - icon: "hugeicons:colors"
+        name: Colors
+        description: 'Midnight, Pearl, Rose Gold, Forest'
   - type: snippet
     reference: product-outro
 ---

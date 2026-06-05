@@ -89,16 +89,6 @@
       }
     }
 
-    .quote-cart-item-specs {
-      @include body-sm;
-
-      color: var(--color-text-muted);
-
-      @include breakpoint.up("sm") {
-        flex-basis: 100%;
-      }
-    }
-
     .quote-cart-item-subtitle {
       width: 100%;
     }

@@ -757,13 +757,6 @@ components:
     label: Gallery
     options:
       multiple: true
-  specs:
-    label: Specifications
-    type: object
-    list: true
-    fields:
-      - { name: name, type: string, label: Name, required: true }
-      - { name: value, type: string, label: Value, required: true }
   tabs:
     label: Tabs
     type: object
@@ -812,12 +805,6 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
-  block_product_specs:
-    label: Product Specs
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: highlights, type: boolean, label: Highlights Only }
   block_purchase_link:
     label: Purchase Link
     type: object
@@ -935,11 +922,6 @@ components:
       - { name: dark, type: boolean, label: Dark }
   block_property_map:
     label: Property Map
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-  block_property_specs:
-    label: Property Specs
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
@@ -1114,7 +1096,6 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
-      - { name: specs, component: specs }
       - name: add_ons
         label: Add-ons
         type: object
@@ -1170,7 +1151,6 @@ content:
           - { name: product-gallery, component: block_product_gallery }
           - { name: product-header, component: block_product_header }
           - { name: product-meta, component: block_product_meta }
-          - { name: product-specs, component: block_product_specs }
           - { name: purchase-link, component: block_purchase_link }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
@@ -1625,7 +1605,6 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
-      - { name: specs, component: specs }
       - { name: tabs, component: tabs }
       - name: blocks
         label: Content Blocks
@@ -1669,7 +1648,6 @@ content:
           - { name: property-guides, component: block_property_guides }
           - { name: property-header, component: block_property_header }
           - { name: property-map, component: block_property_map }
-          - { name: property-specs, component: block_property_specs }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
@@ -1709,6 +1687,7 @@ content:
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
+      - { name: gallery, component: gallery }
       - name: blocks
         label: Content Blocks
         type: block

@@ -6,7 +6,6 @@
  */
 
 // Re-export PagesCMS types with shorter names
-export type { PagesCMSSpec as Spec } from './pages-cms-generated.d.ts';
 export type { PagesCMSFaq as Faq } from './pages-cms-generated.d.ts';
 export type { PagesCMSOption as Option } from './pages-cms-generated.d.ts';
 export type { PagesCMSFilterAttribute as FilterAttribute } from './pages-cms-generated.d.ts';
@@ -51,7 +50,6 @@ export type RawTab = {
 export type { PagesCMSEleventyNavigation } from './pages-cms-generated.d.ts';
 export type { PagesCMSImage } from './pages-cms-generated.d.ts';
 export type { PagesCMSOption } from './pages-cms-generated.d.ts';
-export type { PagesCMSSpec } from './pages-cms-generated.d.ts';
 export type { PagesCMSFaq } from './pages-cms-generated.d.ts';
 export type { PagesCMSTab } from './pages-cms-generated.d.ts';
 export type { PagesCMSFilterAttribute } from './pages-cms-generated.d.ts';
@@ -82,14 +80,6 @@ export type NormalizedProductOption = {
 };
 
 /**
- * Product specification
- */
-export type ProductSpec = {
-  name: string;
-  value: string;
-};
-
-/**
  * Product data from frontmatter
  */
 export type ProductData = {
@@ -104,6 +94,5 @@ export type CartAttributesParams = {
   name: string;
   subtitle?: string;
   options: NormalizedProductOption[];
-  specs?: ProductSpec[];
   mode: string;
 };

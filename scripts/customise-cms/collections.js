@@ -7,7 +7,6 @@
  * - path: Path to content files
  * - description: Human-readable description for prompts
  * - supportsFeatures: Whether collection can have features list
- * - supportsSpecs: Whether collection can have specifications
  * - supportsGallery: Whether collection can have image gallery
  * - supportsAddOns: Whether collection can have add-ons
  * - dependencies: Other collections this one requires
@@ -22,7 +21,6 @@ import { filter, unique } from "#toolkit/fp/array.js";
  * @property {string} path - Path to content files
  * @property {string} description - Human-readable description for prompts
  * @property {boolean} supportsFeatures - Whether collection can have features list
- * @property {boolean} supportsSpecs - Whether collection can have specifications
  * @property {boolean} supportsGallery - Whether collection can have image gallery
  * @property {boolean} supportsTabs - Whether collection can have tabbed content
  * @property {boolean} supportsAddOns - Whether collection can have add-ons
@@ -42,7 +40,6 @@ export const COLLECTIONS = [
     path: "src/pages",
     description: "Static pages (about, contact, etc.)",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
     supportsAddOns: false,
@@ -54,7 +51,6 @@ export const COLLECTIONS = [
     path: "src/products",
     description: "Products for sale or hire",
     supportsFeatures: true,
-    supportsSpecs: true,
     supportsGallery: true,
     supportsTabs: true,
     supportsAddOns: true,
@@ -66,7 +62,6 @@ export const COLLECTIONS = [
     path: "src/categories",
     description: "Product/content categories",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
     supportsAddOns: false,
@@ -77,7 +72,6 @@ export const COLLECTIONS = [
     path: "src/news",
     description: "Blog posts and news articles",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
     supportsAddOns: false,
@@ -88,7 +82,6 @@ export const COLLECTIONS = [
     path: "src/events",
     description: "Events and recurring activities",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
     supportsAddOns: false,
@@ -99,7 +92,6 @@ export const COLLECTIONS = [
     path: "src/team",
     description: "Team member profiles",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
     supportsAddOns: false,
@@ -110,7 +102,6 @@ export const COLLECTIONS = [
     path: "src/reviews",
     description: "Customer reviews and testimonials",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: false,
     supportsTabs: false,
     supportsAddOns: false,
@@ -121,7 +112,6 @@ export const COLLECTIONS = [
     path: "src/properties",
     description: "Holiday lets or rental properties",
     supportsFeatures: true,
-    supportsSpecs: true,
     supportsGallery: true,
     supportsTabs: true,
     supportsAddOns: false,
@@ -132,8 +122,7 @@ export const COLLECTIONS = [
     path: "src/guide-categories",
     description: "Categories for organizing guide pages",
     supportsFeatures: false,
-    supportsSpecs: false,
-    supportsGallery: false,
+    supportsGallery: true,
     supportsTabs: false,
     supportsAddOns: false,
   },
@@ -143,7 +132,6 @@ export const COLLECTIONS = [
     path: "src/guide-pages",
     description: "Individual guide/documentation pages",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
     supportsAddOns: false,
@@ -155,7 +143,6 @@ export const COLLECTIONS = [
     path: "src/menus",
     description: "Restaurant/cafe menus",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
     supportsAddOns: false,
@@ -166,7 +153,6 @@ export const COLLECTIONS = [
     path: "src/menu-categories",
     description: "Menu section categories",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
     supportsAddOns: false,
@@ -178,7 +164,6 @@ export const COLLECTIONS = [
     path: "src/menu-items",
     description: "Individual menu items",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
     supportsAddOns: false,
@@ -190,7 +175,6 @@ export const COLLECTIONS = [
     path: "src/snippets",
     description: "Reusable content snippets",
     supportsFeatures: false,
-    supportsSpecs: false,
     supportsGallery: false,
     supportsTabs: false,
     supportsAddOns: false,

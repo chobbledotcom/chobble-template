@@ -80,7 +80,6 @@ export type {
   PagesCMSEleventyNavigation,
   PagesCMSImage,
   PagesCMSOption,
-  PagesCMSSpec,
   PagesCMSFaq,
   PagesCMSTab,
   PagesCMSFilterAttribute,
@@ -88,7 +87,6 @@ export type {
   // Extended types
   ProductOption,
   NormalizedProductOption,
-  ProductSpec,
   ProductData,
   CartAttributesParams,
 } from './content.d.ts';

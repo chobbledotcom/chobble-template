@@ -25,7 +25,6 @@ const ALL_FEATURES = [
   "permalinks",
   "redirects",
   "faqs",
-  "specs",
   "features",
   "galleries",
   "add_ons",

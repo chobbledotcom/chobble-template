@@ -32,19 +32,6 @@ options:
 categories:
   - smart-thingies
   - thingies
-specs:
-  - name: Processor
-    value: Quad-core AI chip
-  - name: Connectivity
-    value: 'Wi-Fi 6, Bluetooth 5.3, 5G'
-  - name: Display
-    value: 4.3" OLED touchscreen
-  - name: Battery Life
-    value: Up to 48 hours
-  - name: Waterproof
-    value: IP68 rated
-  - name: OS
-    value: ThingyOS 3.0
 features:
   - Advanced AI learning algorithms
   - Voice and gesture control
@@ -68,6 +55,26 @@ blocks:
       With 5G connectivity, cloud backup ensures your settings and preferences are always safe and accessible across all your devices. The 5000mAh battery with wireless charging keeps you powered throughout the day, while automatic software updates ensure you always have the latest features and security enhancements.
 
       Experience the perfect blend of cutting-edge technology and practical functionality with the SmarThingy AI Plus.
+  - type: features
+    items:
+      - icon: "hugeicons:cpu"
+        name: Processor
+        description: Quad-core AI chip
+      - icon: "hugeicons:wifi-connected-01"
+        name: Connectivity
+        description: 'Wi-Fi 6, Bluetooth 5.3, 5G'
+      - icon: "hugeicons:full-screen"
+        name: Display
+        description: '4.3" OLED touchscreen'
+      - icon: "hugeicons:battery-full"
+        name: Battery Life
+        description: Up to 48 hours
+      - icon: "hugeicons:droplet"
+        name: Waterproof
+        description: IP68 rated
+      - icon: "hugeicons:laptop-programming"
+        name: OS
+        description: ThingyOS 3.0
   - type: snippet
     reference: product-outro
 ---

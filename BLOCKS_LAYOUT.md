@@ -855,21 +855,6 @@ Product-only block. No parameters. Renders nothing when the page's `features` ar
 
 ---
 
-### `product-specs`
-
-Renders the product's `specs` array as a feature grid, delegating to the `features` block (icon + name + value per card).
-
-**Component:** `block_product_specs`
-**Template:** `src/_includes/design-system/blocks/product-specs.html`
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `highlights` | boolean | `false` | If true, renders only highlighted specs; otherwise renders the full specs list. |
-
-Product-only block. Renders nothing when the page has no `specs` (or no highlighted specs when `highlights` is true).
-
----
-
 ### `product-contact-section`
 
 Renders the inline contact section on a product page, delegating to the shared `item-contact-section.html` partial.
@@ -1010,17 +995,6 @@ Lists guide categories linked to the current property (via the `guideCategoriesB
 **Template:** `src/_includes/design-system/blocks/property-guides.html`
 
 Property-only block. No parameters. Renders nothing when no guides are linked to the property.
-
----
-
-### `property-specs`
-
-Renders the property's `specs` array as a specifications grid under a 'Specifications' heading.
-
-**Component:** `block_property_specs`
-**Template:** `src/_includes/design-system/blocks/property-specs.html`
-
-Property-only block. No parameters. Renders nothing when the page has no `specs`.
 
 ---
 

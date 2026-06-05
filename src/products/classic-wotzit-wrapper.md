@@ -23,15 +23,6 @@ categories:
   - wotzits
 events:
   - chobble-summit
-specs:
-  - name: Material
-    value: "98% Cloud Fiber, 2% Flex Membrane"
-  - name: Fit
-    value: Regular adaptation
-  - name: Closure
-    value: Magnetic sealing
-  - name: Care
-    value: Self-cleaning only
 features:
   - Geometric edge pattern
   - Two-point sealing system
@@ -51,6 +42,20 @@ blocks:
       Practical details include three internal compartments for secure storage of essentials and four external access points. Available in azure, obsidian, and silver to complement any collection.
 
       For best results, activate self-cleaning mode only to maintain the wrapper's shape and appearance.
+  - type: features
+    items:
+      - icon: "hugeicons:cube"
+        name: Material
+        description: "98% Cloud Fiber, 2% Flex Membrane"
+      - icon: "hugeicons:body-weight"
+        name: Fit
+        description: Regular adaptation
+      - icon: "hugeicons:lock"
+        name: Closure
+        description: Magnetic sealing
+      - icon: "hugeicons:paint-brush-04"
+        name: Care
+        description: Self-cleaning only
   - type: snippet
     reference: product-outro
 ---

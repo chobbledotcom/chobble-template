@@ -81,7 +81,6 @@ const createCheckoutPage = async (options = {}) => {
       { name: "Small", unit_price: "5.00", max_quantity: 5, sku: "SKU-S" },
       { name: "Large", unit_price: "10.00", max_quantity: 3, sku: "SKU-L" },
     ],
-    productSpecs = null,
     productMode = null,
     // Computed values - must be provided explicitly as test fixtures
     hasSingleCartOption = false,
@@ -105,7 +104,6 @@ const createCheckoutPage = async (options = {}) => {
             max_quantity: opt.max_quantity || null,
             sku: opt.sku || null,
           })),
-          specs: productSpecs,
         }).replace(/"/g, "&quot;")
       : null;
 

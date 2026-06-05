@@ -88,8 +88,7 @@
       // Shared inline padding for text content
       h3,
       .price,
-      p:not(.price),
-      ul.list-item-specs {
+      p:not(.price) {
         padding-inline: var(--item-padding-inline);
       }
 
@@ -168,39 +167,6 @@
 
         .item-quantity {
           margin: 0;
-        }
-      }
-
-      // =======================================================================
-      // SPECS
-      // =======================================================================
-
-      ul.list-item-specs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: $space-sm;
-
-        margin-block-start: auto; // Push to bottom of flex container
-
-        list-style: none;
-
-        @include body-sm;
-
-        li {
-          display: flex;
-          gap: $space-xs;
-          align-items: center;
-          color: var(--color-text-muted);
-
-          svg {
-            width: 1em;
-            height: 1em;
-            fill: currentcolor;
-          }
-
-          span {
-            white-space: nowrap;
-          }
         }
       }
     }

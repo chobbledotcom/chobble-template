@@ -13,15 +13,6 @@ const enrichQuoteItem = (template, item) => {
   } else {
     subtitleLi.style.display = "none";
   }
-
-  const specsLi = template.querySelector(".quote-cart-item-specs");
-  if (item.specs && item.specs.length > 0) {
-    specsLi.querySelector('[data-field="specs"]').textContent = item.specs
-      .map((s) => `${s.name}: ${s.value}`)
-      .join(", ");
-  } else {
-    specsLi.remove();
-  }
 };
 
 const renderCart = createCartRenderer({
