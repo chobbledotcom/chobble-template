@@ -711,6 +711,9 @@ components:
         fields:
           - { name: value, type: string, label: Value, required: true }
           - { name: label, type: string, label: Label, required: true }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_video_background:
     label: Video Background
     type: object
