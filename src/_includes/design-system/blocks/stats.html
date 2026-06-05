@@ -4,10 +4,11 @@ Stats display as a description list with dt (label) and dd (value).
 Parameters (via block object):
   - block.items: Array of stat objects with 'value' and 'label' properties
   - block.reveal: If true, adds data-reveal to each item (default: true)
+  - block.intro_content: Optional markdown intro rendered above the stats
 
 Embeddable form:
   - items: pass an items array directly (sugar blocks like `hire-pricing`
-    pre-format the values).
+    pre-format the values); skips intro_content.
 
 Usage:
   {% assign myStats = "99%|Uptime,50k|Users,24/7|Support" | split: "," %}
@@ -22,6 +23,7 @@ Or with objects:
 {%- assign _items = items | default: block.items -%}
 {%- assign reveal = block.reveal | default: true -%}
 
+{%- unless items -%}{%- include "design-system/block-intro.html" -%}{%- endunless -%}
 <dl class="stats">
   {%- for item in _items -%}
     {%- comment -%} Handle both "value|label" strings and {value, label} objects {%- endcomment -%}

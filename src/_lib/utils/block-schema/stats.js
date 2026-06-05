@@ -1,4 +1,8 @@
-import { objectList, str } from "#utils/block-schema/shared.js";
+import {
+  INTRO_CONTENT_FIELD,
+  objectList,
+  str,
+} from "#utils/block-schema/shared.js";
 
 export const type = "stats";
 
@@ -14,6 +18,7 @@ export const fields = {
       'Stat objects: `{value, label}` or pipe-delimited strings `"value|label"`.',
   },
   /* jscpd:ignore-end */
+  intro_content: INTRO_CONTENT_FIELD,
   reveal: {
     type: "boolean",
     default: "true",

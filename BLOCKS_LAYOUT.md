@@ -142,6 +142,7 @@ Key metrics displayed as large numbers with labels.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | array | **required** | Stat objects: `{value, label}` or pipe-delimited strings `"value|label"`. |
+| `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each stat. |
 
 ---
