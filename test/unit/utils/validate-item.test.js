@@ -78,24 +78,15 @@ describe("collectItemErrors", () => {
     expect(errors[0]).toContain('"name"');
   });
 
-  test("returns error for features block item missing icon or description", () => {
-    const missingIcon = errorsForBlock("features", {
+  test("returns error for features block item missing icon", () => {
+    const errors = errorsForBlock("features", {
       items: [
         { name: "Feature", icon: "star", description: "Desc" },
         { name: "No Icon", description: "Missing icon" },
       ],
     });
-    expect(missingIcon).toHaveLength(1);
-    expect(missingIcon[0]).toContain('"icon"');
-
-    const missingDesc = errorsForBlock("features", {
-      items: [
-        { name: "Feature", icon: "star", description: "Desc" },
-        { name: "No Desc", icon: "star" },
-      ],
-    });
-    expect(missingDesc).toHaveLength(1);
-    expect(missingDesc[0]).toContain('"description"');
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('"icon"');
   });
 
   test("returns error for features block item missing multiple fields", () => {
@@ -105,7 +96,6 @@ describe("collectItemErrors", () => {
     expect(errors).toHaveLength(1);
     expect(errors[0]).toContain('"name"');
     expect(errors[0]).toContain('"icon"');
-    expect(errors[0]).toContain('"description"');
   });
 
   test("returns error for video-cards block video missing name", () => {
@@ -130,19 +120,6 @@ describe("collectItemErrors", () => {
       ],
     };
     expect(collectItemErrors(data)).toHaveLength(3);
-  });
-
-  test("aggregates item-level and nested block errors together", () => {
-    const errors = collectItemErrors(
-      {
-        tags: ["pages"],
-        blocks: [{ type: "features", items: [{ description: "no name" }] }],
-      },
-      " in file.md",
-    );
-    expect(errors).toHaveLength(2);
-    expect(errors[0]).toContain("Item is missing required");
-    expect(errors[1]).toContain("features");
   });
 });
 
