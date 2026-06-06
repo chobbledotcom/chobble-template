@@ -3,7 +3,6 @@
  *
  * Checks that collection items have a `name` field, and that nested
  * object-list entries in blocks also have `name` where required by schema.
- * Features blocks additionally require `icon` on each item.
  * Errors are collected before throwing so the user sees every problem
  * in one build.
  */
@@ -42,13 +41,13 @@ const collectNestedNameErrors = (block, ctx) => {
  */
 const getMissingFeatureFields = (item) => {
   if (!item || typeof item !== "object") return [];
-  const required = ["name", "icon"];
+  const required = ["name"];
   return required.filter((field) => !item[field]);
 };
 
 /**
  * Collect errors for features block items missing required fields.
- * Each feature item must have `name` and `icon`.
+ * Each feature item must have `name`.
  * @param {Record<string, unknown>} block
  * @param {string} ctx
  * @returns {string[]}

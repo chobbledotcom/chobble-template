@@ -78,24 +78,12 @@ describe("collectItemErrors", () => {
     expect(errors[0]).toContain('"name"');
   });
 
-  test("returns error for features block item missing icon", () => {
-    const errors = errorsForBlock("features", {
-      items: [
-        { name: "Feature", icon: "star", description: "Desc" },
-        { name: "No Icon", description: "Missing icon" },
-      ],
-    });
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('"icon"');
-  });
-
   test("returns error for features block item missing multiple fields", () => {
     const errors = errorsForBlock("features", {
       items: [{ name: "Good", icon: "star", description: "Desc" }, {}],
     });
     expect(errors).toHaveLength(1);
     expect(errors[0]).toContain('"name"');
-    expect(errors[0]).toContain('"icon"');
   });
 
   test("returns error for video-cards block video missing name", () => {
