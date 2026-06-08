@@ -18,5 +18,38 @@
       content: var(--list-marker-content);
       color: var(--list-marker-color);
     }
+
+    // =======================================================================
+    // TABLES
+    // =======================================================================
+    // Markdown tables with alternating rows and themed header.
+    // Uses CSS custom properties for automatic dark mode support.
+
+    table {
+      border-spacing: 0;
+      border: $border-light;
+      border-radius: $radius-md;
+      overflow: hidden;
+    }
+
+    thead {
+      background: var(--color-link);
+      color: var(--color-contrast-text);
+    }
+
+    th {
+      padding: $space-sm $space-md;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    td {
+      padding: $space-sm $space-md;
+      border-top: $border-light;
+    }
+
+    tbody tr:nth-child(even) {
+      background: var(--body-background-alt);
+    }
   }
 }
