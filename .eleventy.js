@@ -36,6 +36,7 @@ import { configureFileInfo } from "#eleventy/file-info.js";
 import { configureFileUtils, stripPlusPlus } from "#eleventy/file-utils.js";
 import { configureFormatPrice } from "#eleventy/format-price.js";
 import { configureFormHelpers } from "#eleventy/form-helpers.js";
+import { configureGitDates } from "#eleventy/git-dates.js";
 import { configureHtmlTransform } from "#eleventy/html-transform.js";
 import { configureICal } from "#eleventy/ical.js";
 import { configureJsConfig } from "#eleventy/js-config.js";
@@ -99,6 +100,7 @@ export default async function (eleventyConfig) {
   configureFileUtils(eleventyConfig);
   configureFormatPrice(eleventyConfig);
   configureFormHelpers(eleventyConfig);
+  configureGitDates(eleventyConfig);
   configureGuides(eleventyConfig);
   configureHtmlTransform(eleventyConfig, processAndWrapImage);
   configureICal(eleventyConfig);
