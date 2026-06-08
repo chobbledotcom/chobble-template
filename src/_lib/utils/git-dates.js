@@ -30,6 +30,7 @@ export const datesFor = (inputPath) => {
       .filter((repo) => existsSync(resolve(repo)));
 
     const roots = repos
+      .filter((repo) => existsSync(resolve(repo, ".git")))
       .map((repo) => runGit(resolve(repo), ["rev-parse", "--show-toplevel"]))
       .filter(Boolean);
 
