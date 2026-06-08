@@ -1,19 +1,44 @@
 import { execFileSync } from "node:child_process";
+import { resolve } from "node:path";
 
 const cache = new Map();
 
-const runGit = (args) =>
-  execFileSync("git", args, {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  }).trim();
-
-export const datesFor = (inputPath) => {
-  if (!inputPath) return null;
+const pathCandidates = (inputPath) => {
   const rel = inputPath.replace(/^\.\//, "");
-  if (cache.has(rel)) return cache.get(rel);
+  return rel.startsWith("src/") ? [rel, rel.slice(4)] : [rel];
+};
 
-  const created = runGit([
+const runGit = (repo, args) => {
+  try {
+    return execFileSync("git", ["-C", repo, ...args], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    }).trim();
+  } catch {
+    return "";
+  }
+};
+
+const gitRoot = (repo) => runGit(repo, ["rev-parse", "--show-toplevel"]);
+
+const candidateRepos = () => {
+  const repos = [
+    process.env.GIT_DATES_REPO,
+    process.cwd(),
+    resolve(process.cwd(), "..", "source"),
+  ].filter(Boolean);
+
+  return [
+    ...new Set(
+      repos
+        .map((repo) => gitRoot(resolve(repo)))
+        .filter(Boolean),
+    ),
+  ];
+};
+
+const datesForPath = (repo, rel) => {
+  const created = runGit(repo, [
     "log",
     "--follow",
     "--diff-filter=A",
@@ -25,19 +50,34 @@ export const datesFor = (inputPath) => {
     .filter(Boolean)
     .pop();
 
-  const modified = runGit(["log", "-1", "--format=%aI", "--", rel]);
+  const modified = runGit(repo, ["log", "-1", "--format=%aI", "--", rel]);
 
-  if (!created && !modified) {
-    cache.set(rel, null);
-    return null;
-  }
+  if (!created && !modified) return null;
 
-  const result = {
+  return {
     published: created ?? modified ?? null,
     updated: modified ?? created ?? null,
   };
-  cache.set(rel, result);
-  return result;
+};
+
+export const datesFor = (inputPath) => {
+  if (!inputPath) return null;
+
+  const cacheKey = inputPath.replace(/^\.\//, "");
+  if (cache.has(cacheKey)) return cache.get(cacheKey);
+
+  for (const repo of candidateRepos()) {
+    for (const rel of pathCandidates(inputPath)) {
+      const result = datesForPath(repo, rel);
+      if (result) {
+        cache.set(cacheKey, result);
+        return result;
+      }
+    }
+  }
+
+  cache.set(cacheKey, null);
+  return null;
 };
 
 export const formatHuman = (iso) => {
