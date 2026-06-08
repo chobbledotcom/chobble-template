@@ -3,14 +3,9 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { withTempDirAsync } from "#test/test-utils.js";
-import {
-  clearCache,
-  datesFor,
-  formatHuman,
-  formatIso,
-} from "#utils/git-dates.js";
+import { datesFor, formatHuman, formatIso } from "#utils/git-dates.js";
 
-const runGit = (args, cwd) =>
+const runGitInDir = (args, cwd) =>
   execFileSync("git", args, {
     cwd,
     encoding: "utf8",
@@ -18,14 +13,14 @@ const runGit = (args, cwd) =>
   }).trim();
 
 const initGitRepo = (dir) => {
-  runGit(["init"], dir);
-  runGit(["config", "user.email", "test@test.com"], dir);
-  runGit(["config", "user.name", "Test"], dir);
+  runGitInDir(["init"], dir);
+  runGitInDir(["config", "user.email", "test@test.com"], dir);
+  runGitInDir(["config", "user.name", "Test"], dir);
 };
 
 const gitCommit = (dir, message) => {
-  runGit(["add", "-A"], dir);
-  runGit(["commit", "-m", message, "--allow-empty"], dir);
+  runGitInDir(["add", "-A"], dir);
+  runGitInDir(["commit", "-m", message, "--allow-empty"], dir);
 };
 
 const withGitRepo =
@@ -40,7 +35,6 @@ const withGitRepo =
       const originalCwd = process.cwd();
       try {
         process.chdir(tempDir);
-        clearCache();
         await testFn({ tempDir, filePath });
       } finally {
         process.chdir(originalCwd);
@@ -87,7 +81,6 @@ describe("git-dates", () => {
         const originalCwd = process.cwd();
         try {
           process.chdir(tempDir);
-          clearCache();
           expect(datesFor("untracked.md")).toBe(null);
         } finally {
           process.chdir(originalCwd);
@@ -96,38 +89,39 @@ describe("git-dates", () => {
     });
 
     test("returns published and updated dates for committed file", () =>
-      withGitRepo("git-dates-committed")(({ filePath }) => {
-        const result = datesFor("page.md");
+      withGitRepo("git-dates-committed", { fileName: "committed.md" })(() => {
+        const result = datesFor("committed.md");
         expect(result).not.toBe(null);
         expect(result.published).toMatch(/^\d{4}-\d{2}-\d{2}T/);
         expect(result.updated).toMatch(/^\d{4}-\d{2}-\d{2}T/);
       }));
 
     test("updated date changes after modification", () =>
-      withGitRepo("git-dates-modified")(({ tempDir, filePath }) => {
-        const before = datesFor("page.md");
+      withGitRepo("git-dates-modified", { fileName: "modified.md" })(
+        ({ tempDir, filePath }) => {
+          const before = datesFor("modified.md");
 
-        fs.writeFileSync(filePath, "modified content");
-        gitCommit(tempDir, "modify page");
-        clearCache();
+          fs.writeFileSync(filePath, "modified content");
+          gitCommit(tempDir, "modify page");
 
-        const after = datesFor("page.md");
-        expect(after.published).toBe(before.published);
-        expect(new Date(after.updated).getTime()).toBeGreaterThanOrEqual(
-          new Date(before.updated).getTime(),
-        );
-      }));
+          const after = datesFor("modified.md");
+          expect(after.published).toBe(before.published);
+          expect(new Date(after.updated).getTime()).toBeGreaterThanOrEqual(
+            new Date(before.updated).getTime(),
+          );
+        },
+      ));
 
     test("caches results for same path", () =>
-      withGitRepo("git-dates-cache")(() => {
-        const first = datesFor("page.md");
-        const second = datesFor("page.md");
+      withGitRepo("git-dates-cache", { fileName: "cached.md" })(() => {
+        const first = datesFor("cached.md");
+        const second = datesFor("cached.md");
         expect(first).toBe(second);
       }));
 
     test("strips leading ./ from path", () =>
-      withGitRepo("git-dates-dot-slash")(() => {
-        expect(datesFor("./page.md")).not.toBe(null);
+      withGitRepo("git-dates-dot-slash", { fileName: "dotpath.md" })(() => {
+        expect(datesFor("./dotpath.md")).not.toBe(null);
       }));
   });
 });

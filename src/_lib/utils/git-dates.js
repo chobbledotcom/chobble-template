@@ -33,8 +33,8 @@ export const datesFor = (inputPath) => {
   }
 
   const result = {
-    published: created || modified || null,
-    updated: modified || created || null,
+    published: created ?? modified ?? null,
+    updated: modified ?? created ?? null,
   };
   cache.set(rel, result);
   return result;
@@ -53,8 +53,4 @@ export const formatHuman = (iso) => {
 export const formatIso = (iso) => {
   if (!iso) return "";
   return new Date(iso).toISOString().slice(0, 10);
-};
-
-export const clearCache = () => {
-  cache.clear();
 };
