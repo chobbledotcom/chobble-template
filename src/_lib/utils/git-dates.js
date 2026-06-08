@@ -2,16 +2,11 @@ import { execFileSync } from "node:child_process";
 
 const cache = new Map();
 
-const runGit = (args) => {
-  try {
-    return execFileSync("git", args, {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
-  } catch {
-    return "";
-  }
-};
+const runGit = (args) =>
+  execFileSync("git", args, {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
 
 export const datesFor = (inputPath) => {
   if (!inputPath) return null;
