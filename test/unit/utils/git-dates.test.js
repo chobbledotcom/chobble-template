@@ -112,11 +112,12 @@ describe("git-dates", () => {
         },
       ));
 
-    test("caches results for same path", () =>
-      withGitRepo("git-dates-cache", { fileName: "cached.md" })(() => {
+    test("returns consistent results for same path", () =>
+      withGitRepo("git-dates-consistent", { fileName: "cached.md" })(() => {
         const first = datesFor("cached.md");
         const second = datesFor("cached.md");
-        expect(first).toBe(second);
+        expect(first.published).toBe(second.published);
+        expect(first.updated).toBe(second.updated);
       }));
 
     test("strips leading ./ from path", () =>

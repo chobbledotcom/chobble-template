@@ -1,82 +1,73 @@
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-const cache = new Map();
-
-const pathCandidates = (inputPath) => {
-  const rel = inputPath.replace(/^\.\//, "");
-  return rel.startsWith("src/") ? [rel, rel.slice(4)] : [rel];
-};
-
 const runGit = (repo, args) => {
-  try {
-    return execFileSync("git", ["-C", repo, ...args], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
-    }).trim();
-  } catch {
-    return "";
-  }
-};
-
-const gitRoot = (repo) => runGit(repo, ["rev-parse", "--show-toplevel"]);
-
-const candidateRepos = () => {
-  const repos = [
-    process.env.GIT_DATES_REPO,
-    process.cwd(),
-    resolve(process.cwd(), "..", "source"),
-  ].filter(Boolean);
-
-  return [
-    ...new Set(
-      repos
-        .map((repo) => gitRoot(resolve(repo)))
-        .filter(Boolean),
-    ),
-  ];
-};
-
-const datesForPath = (repo, rel) => {
-  const created = runGit(repo, [
-    "log",
-    "--follow",
-    "--diff-filter=A",
-    "--format=%aI",
-    "--",
-    rel,
-  ])
-    .split("\n")
-    .filter(Boolean)
-    .pop();
-
-  const modified = runGit(repo, ["log", "-1", "--format=%aI", "--", rel]);
-
-  if (!created && !modified) return null;
-
-  return {
-    published: created ?? modified ?? null,
-    updated: modified ?? created ?? null,
-  };
+  const result = execFileSync("git", ["-C", repo, ...args], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    timeout: 5000,
+  });
+  const trimmed = result.trim();
+  return trimmed === "" ? undefined : trimmed;
 };
 
 export const datesFor = (inputPath) => {
   if (!inputPath) return null;
 
-  const cacheKey = inputPath.replace(/^\.\//, "");
-  if (cache.has(cacheKey)) return cache.get(cacheKey);
+  const pathCandidates = (path) => {
+    const rel = path.replace(/^\.\//, "");
+    return rel.startsWith("src/") ? [rel, rel.slice(4)] : [rel];
+  };
 
-  for (const repo of candidateRepos()) {
-    for (const rel of pathCandidates(inputPath)) {
-      const result = datesForPath(repo, rel);
-      if (result) {
-        cache.set(cacheKey, result);
-        return result;
-      }
-    }
+  const candidateRepos = () => {
+    const repos = [
+      process.env.GIT_DATES_REPO,
+      process.cwd(),
+      resolve(process.cwd(), "..", "source"),
+    ]
+      .filter(Boolean)
+      .filter((repo) => existsSync(resolve(repo)));
+
+    const roots = repos
+      .map((repo) => runGit(resolve(repo), ["rev-parse", "--show-toplevel"]))
+      .filter(Boolean);
+
+    return [...new Set(roots)];
+  };
+
+  const datesForPath = (repo, rel) => {
+    const created = runGit(repo, [
+      "log",
+      "--follow",
+      "--diff-filter=A",
+      "--format=%aI",
+      "--",
+      rel,
+    ])
+      ?.split("\n")
+      .filter(Boolean)
+      .pop();
+
+    const modified = runGit(repo, ["log", "-1", "--format=%aI", "--", rel]);
+
+    if (!created && !modified) return null;
+
+    const published = created || modified;
+    const updated = modified || created;
+
+    return { published, updated };
+  };
+
+  const pairs = candidateRepos().flatMap((repo) =>
+    pathCandidates(inputPath).map((rel) => [repo, rel]),
+  );
+
+  for (const [repo, rel] of pairs) {
+    const result = datesForPath(repo, rel);
+    if (result) return result;
   }
 
-  cache.set(cacheKey, null);
   return null;
 };
 
