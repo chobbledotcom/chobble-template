@@ -103,9 +103,6 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "src/_lib/public/design-system.js:35",
   // Frontend - Map cache for uWrap font counters (one per unique computed font)
   "src/_lib/public/masonry.js:11",
-
-  // Utils - Map cache for git date lookups (avoids repeated git log calls per build)
-  "src/_lib/utils/git-dates.js:3",
 ]);
 
 // ============================================
@@ -298,8 +295,6 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   // src/_lib/utils - utility functions
   "src/_lib/utils/collection-utils.js:71", // indexer may not contain the lookup slug
   "src/_lib/utils/collection-utils.js:102", // CMS boundary: frontmatter array fields may be null before eleventyComputed
-  "src/_lib/utils/git-dates.js:36", // git log may return null for created/modified dates
-  "src/_lib/utils/git-dates.js:37",
   "src/_lib/utils/sorting.js:64", // eleventyNavigation.order (separate from item order)
 ]);
 
