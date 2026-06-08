@@ -18,9 +18,12 @@ jobs:
     env:
       NEOCITIES_API_KEY: ${{ secrets.NEOCITIES_API_KEY }}
       BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -47,6 +50,10 @@ jobs:
           bun install --frozen-lockfile
           bun run build
 
+      - name: Write IndexNow key file
+        if: github.ref == 'refs/heads/main' && env.INDEXNOW_KEY != ''
+        run: echo "${{ secrets.INDEXNOW_KEY }}" > "_site/${{ secrets.INDEXNOW_KEY }}.txt"
+
       - name: Deploy to Neocities
         if: github.ref == 'refs/heads/main' && env.NEOCITIES_API_KEY != ''
         uses: bcomnes/deploy-to-neocities@v3
@@ -71,6 +78,17 @@ jobs:
           enable-purge-pull-zone: true
           pull-zone-id: 4582983
           replication-timeout: "15000"
+
+      - name: Get site URL
+        id: site-url
+        run: echo "url=$(jq -r '.url' src/_data/site.json)" >> $GITHUB_OUTPUT
+
+      - name: Submit to IndexNow
+        if: github.ref == 'refs/heads/main' && env.INDEXNOW_KEY != ''
+        uses: bojieyang/indexnow-action@v3
+        with:
+          sitemap-location: "${{ steps.site-url.outputs.url }}/sitemap.xml"
+          key: ${{ secrets.INDEXNOW_KEY }}
 
   notify-failure:
     name: Notify on Failure

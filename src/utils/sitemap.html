@@ -8,7 +8,11 @@ eleventyExcludeFromCollections: true
   {%- for page in collections.all -%}
     {%- if page.data.no_index != true and page.url -%}
       {%- unless page.url contains "." -%}
-         <url><loc>{{ page.url | canonicalUrl | escape }}</loc></url>
+        {%- assign dates = page.inputPath | gitDates -%}
+        <url>
+          <loc>{{ page.url | canonicalUrl | escape }}</loc>
+          {%- if dates %}<lastmod>{{ dates.updated | isoDate }}</lastmod>{% endif -%}
+        </url>
       {%- endunless -%}
     {%- endif -%}
   {%- endfor -%}
