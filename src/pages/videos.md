@@ -2,7 +2,6 @@
 name: Videos
 meta_title: Videos
 meta_description: Watch our collection of videos
-layout: design-system-base.html
 eleventyNavigation:
   key: Videos
   order: 5

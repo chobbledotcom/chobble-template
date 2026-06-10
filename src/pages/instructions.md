@@ -3,7 +3,6 @@ name: Setup Instructions
 meta_description: Step-by-step instructions for setting up, customising, and
   deploying your website using the Chobble Template
 meta_title: Setup Instructions | Chobble Template
-layout: design-system-base.html
 permalink: /instructions/
 eleventyNavigation:
   key: Instructions

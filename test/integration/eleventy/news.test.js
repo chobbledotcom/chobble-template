@@ -205,7 +205,6 @@ describe("news", () => {
         path: "pages/news.md",
         frontmatter: {
           name: "News",
-          layout: "design-system-base.html",
           permalink: "/news/",
           blocks: [
             { type: "markdown", content: "News archive page" },

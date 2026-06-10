@@ -1,4 +1,9 @@
-# _lib Directory Structure
+---
+permalink: false
+layout: ""
+---
+
+# \_lib Directory Structure
 
 This directory contains all JavaScript modules for the Eleventy build system, organized by concern.
 
@@ -28,6 +33,7 @@ import config from "#data/config.json" with { type: "json" };
 ```
 
 Available aliases:
+
 - `#data/*` - `./src/_data/*`
 - `#lib/*` - `./src/_lib/*`
 - `#build/*` - `./src/_lib/build/*`
@@ -41,6 +47,7 @@ Available aliases:
 ## Conventions
 
 ### Eleventy Plugin Files
+
 Files that register with Eleventy should export a `configureX` function:
 
 ```js
@@ -53,13 +60,17 @@ export function configureProducts(eleventyConfig) {
 ### Directory Details
 
 #### `build/`
+
 Build-time tooling that runs during the Eleventy build process:
+
 - `js-bundler.js` - JavaScript bundling
 - `scss.js` - SCSS compilation
 - `theme-compiler.js` - Compiles theme SCSS files for theme-switcher
 
 #### `collections/`
+
 Domain-specific collections and their associated filters:
+
 - `products.js` - Products, reviews, SKUs
 - `properties.js` - Property listings
 - `events.js` - Event categorization (upcoming/past/recurring)
@@ -72,13 +83,17 @@ Domain-specific collections and their associated filters:
 - `tags.js` - Tag extraction
 
 #### `config/`
+
 Configuration helpers separated from data files (required because Eleventy data files cannot have named exports):
+
 - `helpers.js` - Config defaults, validation, and form_target computation
 
 #### `eleventy/`
+
 Eleventy-specific configuration helpers:
+
 - `cache-buster.js` - URL cache busting for production
-- `external-links.js` - External link handling (target="_blank")
+- `external-links.js` - External link handling (target="\_blank")
 - `feed.js` - RSS feed configuration
 - `file-utils.js` - File existence checks, snippet rendering
 - `ical.js` - iCal generation for events
@@ -87,23 +102,31 @@ Eleventy-specific configuration helpers:
 - `recurring-events.js` - Recurring events shortcode/filter
 
 #### `filters/`
+
 URL-based filtering system:
+
 - `item-filters.js` - Generic filtering factory (used by products and properties)
 - `product-filters.js` - Product-specific filter configuration
 - `property-filters.js` - Property-specific filter configuration
 
 #### `media/`
+
 Image and asset processing:
+
 - `image.js` - Responsive images, lazy loading, blurry placeholders
 - `inline-asset.js` - Inline SVG and images into HTML
 - `unused-images.js` - Reports unused images after build
 
 #### `scripts/`
+
 Standalone CLI utilities (not part of the build):
+
 - `add-skus.js` - Add unique SKUs to product options
 
 #### `utils/`
+
 Pure utility functions with no Eleventy dependencies:
+
 - `memoize.js` - Caching wrapper
 - `sorting.js` - Collection sorting utilities
 - `slug-utils.js` - Slug normalization and permalink building

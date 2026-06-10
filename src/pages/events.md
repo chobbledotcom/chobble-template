@@ -3,7 +3,6 @@ name: Events
 meta_description: Check out our upcoming and past events
 meta_title: Events Listing Website | Chobble Template
 permalink: /events/
-layout: design-system-base.html
 eleventyNavigation:
   key: Events
   order: 4

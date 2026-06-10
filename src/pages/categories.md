@@ -2,7 +2,6 @@
 name: Categories
 meta_description:
 meta_title: Categories
-layout: design-system-base.html
 permalink: "/categories/"
 blocks:
   - type: markdown

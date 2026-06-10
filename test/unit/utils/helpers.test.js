@@ -105,10 +105,6 @@ describe("DEFAULTS", () => {
     })(DEFAULTS);
   });
 
-  test("has design_system_layouts default with design-system-base.html", () => {
-    expect(DEFAULTS.design_system_layouts).toEqual(["design-system-base.html"]);
-  });
-
   test("has null cart_mode by default", () => {
     expect(DEFAULTS.cart_mode).toBe(null);
   });

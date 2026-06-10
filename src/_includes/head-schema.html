@@ -7,7 +7,7 @@
   {%- assign schemaType = "post" -%}
 {%- elsif schema_type == "organization" -%}
   {%- assign schemaType = "organization" -%}
-{%- elsif layout == "design-system-base.html" -%}
+{%- else -%}
   {%- assign schemaType = "website" -%}
 {%- endif -%}
 

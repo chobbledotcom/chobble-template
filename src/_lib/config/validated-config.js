@@ -49,9 +49,9 @@ const validatePageFrontmatter = (filename, layout, permalink, cartMode) => {
   }
 
   const layoutErrors =
-    data.layout !== layout
-      ? [cartModeError(cartMode, filename, `does not have layout: ${layout}`)]
-      : [];
+    layout === null || data.layout === layout
+      ? []
+      : [cartModeError(cartMode, filename, `does not have layout: ${layout}`)];
   const permalinkErrors =
     data.permalink !== permalink
       ? [
@@ -101,13 +101,13 @@ const stripeCartErrors =
             ]),
         ...validatePageFrontmatter(
           "stripe-checkout.md",
-          "stripe-checkout.html",
+          null,
           "/stripe-checkout/",
           "stripe",
         ),
         ...validatePageFrontmatter(
           "order-complete.md",
-          "design-system-base.html",
+          null,
           "/order-complete/",
           "stripe",
         ),
@@ -127,12 +127,7 @@ const quoteCartErrors =
           : [
               'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
             ]),
-        ...validatePageFrontmatter(
-          "checkout.md",
-          "design-system-base.html",
-          "/checkout/",
-          "quote",
-        ),
+        ...validatePageFrontmatter("checkout.md", "/checkout/", "quote"),
       ];
 
 const errors = [

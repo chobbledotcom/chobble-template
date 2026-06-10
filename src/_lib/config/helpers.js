@@ -29,7 +29,6 @@ const DEFAULTS = frozenObject({
   nav_thumbnails: false,
   navigation_content_anchor: false,
   screenshots: {},
-  design_system_layouts: ["design-system-base.html"],
   phoneNumberLength: 11,
   use_visual_editor: false,
   default_image_widths: [240, 480, 900, 1300],

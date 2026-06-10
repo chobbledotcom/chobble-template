@@ -5,7 +5,6 @@ meta_title: Menus
 eleventyNavigation:
   key: Menus
   order: 4
-layout: design-system-base.html
 permalink: /menus/
 blocks:
   - type: section-header

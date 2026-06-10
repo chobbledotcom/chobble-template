@@ -2,7 +2,6 @@
 name: Not Found
 meta_title: Not Found
 no_index: true
-layout: design-system-base.html
 permalink: /bunnycdn_errors/404.html
 blocks:
   - type: markdown
