@@ -34,7 +34,7 @@ const validateEnum = (value, validValues, field, defaultNote) => {
 const cartModeError = (cartMode, filename, issue) =>
   `cart_mode is "${cartMode}" but src/pages/${filename} ${issue}`;
 
-const validatePageFrontmatter = (filename, layout, permalink, cartMode) => {
+const validatePageFrontmatter = (filename, permalink, cartMode) => {
   const pagePath = path.isAbsolute(filename)
     ? filename
     : path.join(PAGES_DIR, filename);
@@ -48,21 +48,15 @@ const validatePageFrontmatter = (filename, layout, permalink, cartMode) => {
     return [cartModeError(cartMode, filename, "has no frontmatter")];
   }
 
-  const layoutErrors =
-    layout === null || data.layout === layout
-      ? []
-      : [cartModeError(cartMode, filename, `does not have layout: ${layout}`)];
-  const permalinkErrors =
-    data.permalink !== permalink
-      ? [
-          cartModeError(
-            cartMode,
-            filename,
-            `does not have permalink: ${permalink}`,
-          ),
-        ]
-      : [];
-  return [...layoutErrors, ...permalinkErrors];
+  return data.permalink === permalink
+    ? []
+    : [
+        cartModeError(
+          cartMode,
+          filename,
+          `does not have permalink: ${permalink}`,
+        ),
+      ];
 };
 
 const siteUrlProtocolErrors = !site.url
@@ -101,13 +95,11 @@ const stripeCartErrors =
             ]),
         ...validatePageFrontmatter(
           "stripe-checkout.md",
-          null,
           "/stripe-checkout/",
           "stripe",
         ),
         ...validatePageFrontmatter(
           "order-complete.md",
-          null,
           "/order-complete/",
           "stripe",
         ),
