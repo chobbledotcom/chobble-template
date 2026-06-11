@@ -74,6 +74,24 @@ describe("search", () => {
     });
   });
 
+  test("redirect stubs are not indexable and match the site language", async () => {
+    const files = [
+      contentFile("products", "widget", "Widget", {
+        redirect_from: ["/old-widget/"],
+      }),
+    ];
+
+    await withTestSite({ files }, async (site) => {
+      const stubDoc = await site.getDoc("old-widget/index.html");
+      expect(stubDoc.querySelector("[data-pagefind-body]")).toBe(null);
+
+      const productDoc = await site.getDoc("products/widget/index.html");
+      expect(stubDoc.documentElement.getAttribute("lang")).toBe(
+        productDoc.documentElement.getAttribute("lang"),
+      );
+    });
+  });
+
   test("search_collections config controls which pages are indexed", async () => {
     const files = [
       contentFile("products", "gadget", "Gadget"),
