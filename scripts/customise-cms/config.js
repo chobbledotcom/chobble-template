@@ -26,7 +26,6 @@ import { map, unique } from "#toolkit/fp/array.js";
  * @property {boolean} no_index - Enable hiding pages/news from listings
  * @property {boolean} parent_categories - Enable parent/child category hierarchy
  * @property {boolean} keywords - Enable search keywords on products and categories
- * @property {boolean} use_blocks - Enable blocks layout on all collections (base.html)
  */
 
 /**
@@ -129,7 +128,6 @@ export const createDefaultConfig = () => ({
     no_index: true,
     keywords: true,
     parent_categories: true,
-    use_blocks: false,
   },
   hasSrcFolder: true,
   customHomePage: false,

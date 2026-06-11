@@ -339,20 +339,6 @@ const askKeywordsQuestion = async (rl, collections, defaultFeatures) => {
 };
 
 /**
- * Ask whether to use blocks layout on all collections
- * @param {readline.Interface} rl - Readline interface
- * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
- * @returns {Promise<{use_blocks: boolean}>} Use blocks selection
- */
-const askUseBlocksQuestion = async (rl, defaultFeatures) => ({
-  use_blocks: await askYesNo(
-    rl,
-    "Are you using the blocks layout on all collections (base.html)?",
-    defaultFeatures.use_blocks ?? false,
-  ),
-});
-
-/**
  * Parse a comma-separated string into an array of slugified names
  * @param {string} input - Comma-separated names (e.g., "clients, services")
  * @returns {string[]} Array of slugified names
@@ -462,8 +448,6 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     collections,
     defaultFeatures,
   );
-  const blocksFeatures = await askUseBlocksQuestion(rl, defaultFeatures);
-
   return {
     ...baseFeatures,
     ...conditionalFeatures,
@@ -473,7 +457,6 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     ...noIndexFeatures,
     ...keywordsFeatures,
     ...parentCategoriesFeatures,
-    ...blocksFeatures,
   };
 };
 
@@ -535,12 +518,10 @@ export const askQuestions = async (existingConfig = null) => {
       defaultFeatures,
     );
 
-    const customBlocksCollections = features.use_blocks
-      ? await askCustomBlocksCollectionsQuestion(
-          rl,
-          defaultCustomBlocksCollections,
-        )
-      : [];
+    const customBlocksCollections = await askCustomBlocksCollectionsQuestion(
+      rl,
+      defaultCustomBlocksCollections,
+    );
 
     return {
       collections,

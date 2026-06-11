@@ -27,7 +27,6 @@ describe("hasCliFlags", () => {
     ["dry-run", { "dry-run": true }],
     ["quiet", { quiet: true }],
     ["regenerate", { regenerate: true }],
-    ["use-blocks", { "use-blocks": true }],
     ["custom-blocks-collections", { "custom-blocks-collections": "clients" }],
   ])("returns true when %s is provided", (_label, values) => {
     expect(hasCliFlags(values)).toBe(true);
@@ -135,24 +134,9 @@ describe("buildConfigFromCli", () => {
     expect(config.customHomePage).toBe(false);
   });
 
-  test("--use-blocks and --no-use-blocks control blocks feature", () => {
-    const enabled = buildConfigFromCli({
-      collections: "pages",
-      "use-blocks": true,
-    });
-    const disabled = buildConfigFromCli({
-      all: true,
-      "no-use-blocks": true,
-    });
-
-    expect(enabled.features.use_blocks).toBe(true);
-    expect(disabled.features.use_blocks).toBe(false);
-  });
-
   test("--custom-blocks-collections parses comma-separated list", () => {
     const config = buildConfigFromCli({
       collections: "pages",
-      "use-blocks": true,
       "custom-blocks-collections": "clients,services",
     });
 

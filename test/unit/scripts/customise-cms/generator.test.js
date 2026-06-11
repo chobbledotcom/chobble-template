@@ -16,7 +16,6 @@ const DISABLED_FEATURES = {
   add_ons: false,
   event_locations_and_dates: false,
   use_visual_editor: false,
-  use_blocks: false,
 };
 
 /**
@@ -383,31 +382,18 @@ describe("generatePagesYaml view config", () => {
 });
 
 describe("generatePagesYaml blocks", () => {
-  test("adds blocks field to products when use_blocks enabled", () => {
+  test("adds blocks field to products", () => {
     const yaml = generatePagesYaml(
       createTestConfig({
         collections: ["pages", "products", "categories"],
-        features: { use_blocks: true },
       }),
     );
 
     expect(getSection("products")(yaml)).toContain("name: blocks");
   });
 
-  test("does not add blocks to products when use_blocks disabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "products", "categories"],
-      }),
-    );
-
-    expect(getSection("products")(yaml)).not.toContain("name: blocks");
-  });
-
-  test("does not duplicate blocks on pages when use_blocks enabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({ features: { use_blocks: true } }),
-    );
+  test("does not duplicate blocks on pages", () => {
+    const yaml = generatePagesYaml(createTestConfig());
     const pagesSection = getSection("pages")(yaml);
     const matches = pagesSection.match(/name: blocks/g);
 
@@ -418,7 +404,6 @@ describe("generatePagesYaml blocks", () => {
     const yaml = generatePagesYaml(
       createTestConfig({
         collections: ["pages", "snippets"],
-        features: { use_blocks: true },
       }),
     );
 

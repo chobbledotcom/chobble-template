@@ -113,8 +113,7 @@ const addOptionalFields = (
     config.features.redirects && COMMON_FIELDS.redirect_from,
     config.features.faqs && FAQS_FIELD,
     ...getCollectionSpecificFields(collection, config, fieldContext),
-    config.features.use_blocks &&
-      !alreadyHasBlocks &&
+    !alreadyHasBlocks &&
       generateBlocksField(allowedBlockTypes, config.features.use_visual_editor),
   ]);
 };
