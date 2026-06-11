@@ -72,11 +72,13 @@ const enrichVideoCards = async (block) => {
 export default {
   /**
    * Whether this page should be indexed by Pagefind.
-   * True when any of the page's tags appear in config.search_collections.
+   * True when any of the page's tags appear in config.search_collections,
+   * unless the page is marked no_index.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {boolean}
    */
   pagefind_body: (data) => {
+    if (data.no_index) return false;
     const collections = data.config?.search_collections;
     if (!collections) return false;
     return (data.tags || []).some((tag) => collections.includes(tag));

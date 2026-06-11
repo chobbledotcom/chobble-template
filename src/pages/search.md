@@ -1,6 +1,7 @@
 ---
 name: Search
 permalink: /search/
+no_index: true
 blocks:
   - type: section-header
     intro: |-

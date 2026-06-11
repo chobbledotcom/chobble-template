@@ -33,6 +33,16 @@ describe("eleventyComputed.pagefind_body", () => {
       }),
     ).toBe(false);
   });
+
+  test("returns false for no_index pages even when tags match", () => {
+    expect(
+      eleventyComputed.pagefind_body({
+        no_index: true,
+        tags: ["products"],
+        config: { search_collections: ["products"] },
+      }),
+    ).toBe(false);
+  });
 });
 
 describe("eleventyComputed.eleventyNavigation", () => {

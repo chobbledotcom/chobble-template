@@ -12,11 +12,15 @@ const contentFile = (collection, slug, name, extras = {}) => ({
 });
 
 describe("search", () => {
-  test("product and category pages get data-pagefind-body, other pages do not", async () => {
+  test("collection and static pages get data-pagefind-body, no_index pages do not", async () => {
     const files = [
       contentFile("products", "widget", "Widget"),
       contentFile("categories", "tools", "Tools"),
       contentFile("pages", "about", "About Us", { permalink: "/about/" }),
+      contentFile("pages", "checkout", "Checkout", {
+        permalink: "/checkout/",
+        no_index: true,
+      }),
     ];
 
     await withTestSite({ files }, async (site) => {
@@ -31,7 +35,12 @@ describe("search", () => {
       );
 
       const aboutDoc = await site.getDoc("about/index.html");
-      expect(aboutDoc.querySelector("[data-pagefind-body]")).toBe(null);
+      expect(aboutDoc.querySelector("[data-pagefind-body]") !== null).toBe(
+        true,
+      );
+
+      const checkoutDoc = await site.getDoc("checkout/index.html");
+      expect(checkoutDoc.querySelector("[data-pagefind-body]")).toBe(null);
     });
   });
 
