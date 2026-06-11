@@ -84,13 +84,7 @@ const runPagefind = () => {
   console.log("\nRunning Pagefind indexer...");
   const result = spawnSync(
     "bun",
-    [
-      "./node_modules/.bin/pagefind",
-      "--site",
-      "_site",
-      "--exclude-selectors",
-      "body.filtered-properties [data-pagefind-body], body.base [data-pagefind-body]",
-    ],
+    ["./node_modules/.bin/pagefind", "--site", "_site"],
     { stdio: "inherit", env: process.env },
   );
   if (result.status !== 0) {

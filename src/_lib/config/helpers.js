@@ -40,6 +40,7 @@ const DEFAULTS = frozenObject({
     "events",
     "properties",
     "news",
+    "pages",
   ],
   linkify_urls: true,
 });
