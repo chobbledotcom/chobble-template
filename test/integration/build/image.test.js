@@ -18,7 +18,7 @@ import { map } from "#toolkit/fp/array.js";
  */
 const imageTestPage = (content, permalink = "/test/", name = "Test") => ({
   path: "pages/test.md",
-  frontmatter: { name, layout: "page", permalink },
+  frontmatter: { name, layout: "", permalink },
   content,
 });
 

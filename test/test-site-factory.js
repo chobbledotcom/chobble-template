@@ -223,8 +223,11 @@ const createTestSite = async (options = {}) => {
     }
 
     createMarkdownFile(srcDir)("pages/index.md", {
-      frontmatter: { name: "Test Site", layout: "page", permalink: "/" },
-      content: "# Test Site",
+      frontmatter: {
+        name: "Test Site",
+        permalink: "/",
+        blocks: [{ type: "markdown", content: "# Test Site" }],
+      },
     });
   };
   ensureIndexPage(templateSrc, srcDir, options.files, collections);
@@ -248,6 +251,12 @@ const createTestSite = async (options = {}) => {
     }
   };
   copyTestImages(srcDir, options.images);
+
+  // Copy the directory data file providing the default base.html layout
+  copyToDir(srcDir)(
+    path.join(templateSrc, "src.11tydata.js"),
+    "src.11tydata.js",
+  );
 
   // Copy config and create symlinks
   copyToDir(siteDir)(path.join(rootDir, ".eleventy.js"), ".eleventy.js");

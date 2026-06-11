@@ -11,15 +11,23 @@ import { expectAsyncThrows, rootDir } from "#test/test-utils.js";
 /** Minimal page file for tests that just need a valid site */
 const MINIMAL_PAGE = {
   path: "pages/index.md",
-  frontmatter: { name: "Home", permalink: "/" },
-  content: "Home",
+  frontmatter: {
+    name: "Home",
+    permalink: "/",
+    blocks: [{ type: "markdown", content: "Home" }],
+  },
+  content: "",
 };
 
 /** Basic test page file with common defaults */
 const factoryTestPage = (options = {}) => ({
   path: options.path || "pages/test.md",
-  frontmatter: { name: options.name || "Test", ...options.frontmatter },
-  content: options.content || "Test",
+  frontmatter: {
+    name: options.name || "Test",
+    blocks: [{ type: "markdown", content: options.content || "Test" }],
+    ...options.frontmatter,
+  },
+  content: "",
 });
 
 /** Common test file configuration */
@@ -169,13 +177,21 @@ describe("test-site-factory", () => {
           MINIMAL_PAGE,
           {
             path: "pages/test.md",
-            frontmatter: { name: "Test Page", permalink: "/test/" },
-            content: "# Hello World",
+            frontmatter: {
+              name: "Test Page",
+              permalink: "/test/",
+              blocks: [{ type: "markdown", content: "# Hello World" }],
+            },
+            content: "",
           },
           {
             path: "pages/about.md",
-            frontmatter: { name: "About", permalink: "/about/" },
-            content: "About",
+            frontmatter: {
+              name: "About",
+              permalink: "/about/",
+              blocks: [{ type: "markdown", content: "About" }],
+            },
+            content: "",
           },
         ],
       });

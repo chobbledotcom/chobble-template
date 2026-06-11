@@ -7,19 +7,23 @@ import {
   getBlockTemplate,
 } from "#utils/block-schema.js";
 
+const BASE_LAYOUTS = ["base.html", "base"];
+
 /**
  * Passes through content from intermediate layouts unchanged. For pages that
- * use the blocks layout, throws if there is body content — direct users must
- * express all content as blocks in frontmatter.
+ * use the base layout directly, throws if there is body content — direct
+ * users must express all content as blocks in frontmatter.
  *
  * @param {string} content
+ * @param {string | undefined} layout
  * @param {string | undefined} inputPath
- * @returns {string} Content string, or empty string for blocks layout pages.
+ * @returns {string} Content string, or empty string for base layout pages.
  */
-const validatePageBodyContent = (content, inputPath) => {
+const validatePageBodyContent = (content, layout, inputPath) => {
+  if (!BASE_LAYOUTS.includes(layout)) return content;
   if (!content || content.trim() === "") return "";
   throw new Error(
-    `${inputPath}: has body content. Move it into a 'markdown' block in frontmatter — blocks layout pages must express all content as blocks.`,
+    `${inputPath}: uses base.html but has body content. Move it into a 'markdown' block in frontmatter — base layout pages must express all content as blocks.`,
   );
 };
 

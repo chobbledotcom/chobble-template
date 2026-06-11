@@ -14,8 +14,12 @@ describe("image-crop", () => {
         files: [
           {
             path: "pages/index.md",
-            frontmatter: { name: "Test", permalink: "/" },
-            content: "Test",
+            frontmatter: {
+              name: "Crop Fixture Home",
+              permalink: "/",
+              blocks: [{ type: "markdown", content: "Crop fixture" }],
+            },
+            content: "",
           },
         ],
       },

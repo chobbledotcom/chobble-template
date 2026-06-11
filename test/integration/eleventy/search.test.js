@@ -1,24 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
 
-const contentFile = (collection, slug, name, extras = {}) => {
-  const usesBlocks =
-    collection === "news" ||
-    collection === "categories" ||
-    collection === "products" ||
-    collection === "events";
-  return {
-    path: `${collection}/${slug}.md`,
-    frontmatter: {
-      name,
-      ...(usesBlocks && {
-        blocks: [{ type: "markdown", content: `${name} content.` }],
-      }),
-      ...extras,
-    },
-    content: usesBlocks ? "" : `${name} content.`,
-  };
-};
+const contentFile = (collection, slug, name, extras = {}) => ({
+  path: `${collection}/${slug}.md`,
+  frontmatter: {
+    name,
+    blocks: [{ type: "markdown", content: `${name} content.` }],
+    ...extras,
+  },
+  content: "",
+});
 
 describe("search", () => {
   test("product and category pages get data-pagefind-body, other pages do not", async () => {

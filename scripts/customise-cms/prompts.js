@@ -347,7 +347,7 @@ const askKeywordsQuestion = async (rl, collections, defaultFeatures) => {
 const askUseBlocksQuestion = async (rl, defaultFeatures) => ({
   use_blocks: await askYesNo(
     rl,
-    "Are you using the blocks layout on all collections (design-system-base.html)?",
+    "Are you using the blocks layout on all collections (base.html)?",
     defaultFeatures.use_blocks ?? false,
   ),
 });

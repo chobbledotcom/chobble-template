@@ -193,7 +193,7 @@ describe("recurring-events", () => {
    */
   const eventsTestPage = (content = "{% recurring_events %}") => ({
     path: "pages/test.md",
-    frontmatter: { name: "Test", layout: "page", permalink: "/test/" },
+    frontmatter: { name: "Test", layout: "", permalink: "/test/" },
     content,
   });
 
