@@ -26,6 +26,10 @@ import {
   linkifyPhones,
   SKIP_TAGS,
 } from "#transforms/linkify.js";
+import {
+  extractRawTextElements,
+  restoreRawTextElements,
+} from "#transforms/raw-text-guard.js";
 import { hasReadMoreMarker, processReadMore } from "#transforms/read-more.js";
 import { wrapTables } from "#transforms/responsive-tables.js";
 import { loadDOM, withDOMSlot } from "#utils/lazy-dom.js";
@@ -70,6 +74,26 @@ const applyDomTransforms = (html, config, processAndWrapImage) =>
   });
 
 /**
+ * Linkify URLs/emails with raw-text elements guarded: linkify-html's
+ * ignoreTags only prevents linkification, but its tokenizer still
+ * entity-escapes script/style text nodes when re-serialising, corrupting
+ * inline JS and CSS. Extract those elements first and restore them after.
+ * @param {string} content
+ * @param {object} config
+ * @returns {string}
+ */
+const linkifyHtml = (content, config) => {
+  const { content: guarded, blocks } = extractRawTextElements(content);
+  const linkified = linkifyHtmlLib(guarded, {
+    ignoreTags: [...SKIP_TAGS],
+    target: config.externalLinksTargetBlank ? "_blank" : null,
+    rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
+    format: { url: formatUrlDisplay },
+  });
+  return restoreRawTextElements(linkified, blocks);
+};
+
+/**
  * Apply string-based transforms (URL/email linkification, external link attrs)
  * Skips linkification when FAST_INACCURATE_BUILDS is enabled.
  * @param {string} content
@@ -80,12 +104,7 @@ const applyStringTransforms = (content, config) => {
   const processed =
     FAST_INACCURATE_BUILDS || !config.linkify_urls
       ? content
-      : linkifyHtmlLib(content, {
-          ignoreTags: [...SKIP_TAGS],
-          target: config.externalLinksTargetBlank ? "_blank" : null,
-          rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
-          format: { url: formatUrlDisplay },
-        });
+      : linkifyHtml(content, config);
   return addExternalLinkAttrs(processed, config);
 };
 

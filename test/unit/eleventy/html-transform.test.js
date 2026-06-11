@@ -53,6 +53,27 @@ describe("html-transform", () => {
       expect(result).toContain(">example.com</a>");
     });
 
+    test("leaves inline script bodies unescaped while linkifying", async () => {
+      const transform = createHtmlTransform(mockImageProcessor);
+      const script = "<script>const f = (a) => a > 1 && a < 5;</script>";
+      const html = `<html><body><p>Visit https://example.com</p>${script}</body></html>`;
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain(script);
+      expect(result).not.toContain("&gt;");
+      expect(result).toContain('href="https://example.com"');
+    });
+
+    test("leaves inline style bodies unescaped while linkifying", async () => {
+      const transform = createHtmlTransform(mockImageProcessor);
+      const style = "<style>.parent > .child { color: red; }</style>";
+      const html = `<html><body><p>Visit https://example.com</p>${style}</body></html>`;
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain(style);
+      expect(result).not.toContain("&gt;");
+    });
+
     test("linkifies and encrypts email addresses", async () => {
       const transform = createHtmlTransform(mockImageProcessor);
       const html = "<html><body><p>Contact hello@example.com</p></body></html>";
