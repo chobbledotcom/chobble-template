@@ -1,6 +1,7 @@
 ---
 permalink: "/{{ strings.product_permalink_dir }}/search/"
 name: All Products
+no_index: true
 eleventyExcludeFromCollections: true
 blocks:
   - type: include
