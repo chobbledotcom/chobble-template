@@ -822,17 +822,6 @@ Product-only block. No parameters. Renders nothing when `purchase_url` is not se
 
 ---
 
-### `tabs`
-
-Renders the page's `tabs` array as a tabbed content section.
-
-**Component:** `block_tabs`
-**Template:** `src/_includes/design-system/blocks/tabs.html`
-
-Allowed on collections that surface a `tabs` field (products, events, properties). No parameters. Renders nothing when the page has no `tabs`.
-
----
-
 ### `product-add-ons`
 
 Renders the product's `add_ons` as an add-on card with optional intro markdown plus a priced list of extras.

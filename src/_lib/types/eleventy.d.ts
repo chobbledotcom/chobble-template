@@ -17,7 +17,7 @@ import type {
   PagesCMSFilterAttribute,
   PagesCMSOpeningTime,
 } from './pages-cms-generated.d.ts';
-import type { RawTab, EleventyNav } from './content.d.ts';
+import type { EleventyNav } from './content.d.ts';
 
 /**
  * Eleventy page data (url, fileSlug, date, inputPath)
@@ -72,8 +72,6 @@ export type ProductItemData = BaseItemData & {
   price?: string | number;
   /** Frequently asked questions */
   faqs?: PagesCMSFaq[];
-  /** Additional content tabs (body may be undefined before eleventyComputed) */
-  tabs?: RawTab[];
   /** Filter attributes for faceted search. Defaults to [] via products.json */
   filter_attributes: PagesCMSFilterAttribute[];
   /** Category slugs this product belongs to */

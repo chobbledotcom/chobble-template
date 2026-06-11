@@ -2,16 +2,12 @@
  * Shared helpers and types for the CMS config generator.
  *
  * Collects the reusable pieces that stitch collection field lists together:
- * the `FieldContext` (body/tabs fields precomputed from the visual-editor
+ * the `FieldContext` (body field precomputed from the visual-editor
  * setting), the common meta fields, and the composition helpers (`withEnabled`,
  * `buildItem`) used by each per-collection field builder.
  */
 
-import {
-  COMMON_FIELDS,
-  createTabsField,
-  getBodyField,
-} from "#scripts/customise-cms/fields.js";
+import { COMMON_FIELDS, getBodyField } from "#scripts/customise-cms/fields.js";
 import { compact, memberOf, pipe } from "#toolkit/fp/array.js";
 
 /**
@@ -49,7 +45,6 @@ import { compact, memberOf, pipe } from "#toolkit/fp/array.js";
 /**
  * @typedef {Object} FieldContext
  * @property {CmsField} body - Body field (code or rich-text based on config)
- * @property {CmsField} tabs - Tabs field with appropriate body type
  * @property {(label: string) => CmsField} bodyWithLabel - Create body field with custom label
  */
 
@@ -71,7 +66,6 @@ export const createFieldContext = (useVisualEditor) => {
   const body = getBodyField(useVisualEditor);
   return {
     body,
-    tabs: createTabsField(useVisualEditor),
     bodyWithLabel: (label) => ({ ...body, label }),
   };
 };

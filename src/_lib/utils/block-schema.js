@@ -89,7 +89,6 @@ import * as splitIconLinks from "#utils/block-schema/split-icon-links.js";
 import * as splitImage from "#utils/block-schema/split-image.js";
 import * as splitVideo from "#utils/block-schema/split-video.js";
 import * as stats from "#utils/block-schema/stats.js";
-import * as tabs from "#utils/block-schema/tabs.js";
 import * as videoBackground from "#utils/block-schema/video-background.js";
 import * as videoCards from "#utils/block-schema/video-cards.js";
 
@@ -142,7 +141,6 @@ const BLOCK_MODULES = [
   productMeta,
   hirePricing,
   purchaseLink,
-  tabs,
   productAddOns,
   productFeatures,
   productContactSection,

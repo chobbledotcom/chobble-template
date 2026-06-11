@@ -1,8 +1,9 @@
+{%- capture add_to_cart_button -%}<button class="add-to-cart{% if extra_class %} {{ extra_class }}{% endif %}" data-item="{{ cart_attributes }}"{% if disabled %} disabled{% endif %}>{{ btn_text }}</button>{%- endcapture -%}
 {%- if show_quantity -%}
 <div class="list-item-cart-controls">
-  <button class="add-to-cart{% if extra_class %} {{ extra_class }}{% endif %}" data-item="{{ cart_attributes }}"{% if disabled %} disabled{% endif %}>{{ btn_text }}</button>
+  {{ add_to_cart_button }}
   {%- include "list-item-quantity-selector.html", max_quantity: max_quantity -%}
 </div>
 {%- else -%}
-<button class="add-to-cart{% if extra_class %} {{ extra_class }}{% endif %}" data-item="{{ cart_attributes }}"{% if disabled %} disabled{% endif %}>{{ btn_text }}</button>
+{{ add_to_cart_button }}
 {%- endif -%}

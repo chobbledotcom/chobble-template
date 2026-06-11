@@ -4,7 +4,7 @@
  * Turns a collection name + `CmsConfig` into a complete `CollectionConfig`:
  *   1. `getCoreFields` dispatches to the right field builder.
  *   2. `addOptionalFields` appends feature-gated fields (permalinks, FAQs,
- *      galleries, add-ons, tabs, blocks).
+ *      galleries, add-ons, blocks).
  *   3. `getValidatedViewConfig` filters the list-view config down to fields
  *      that actually exist on the collection.
  *   4. `generateCollectionConfig` wraps it all up with path/label/filename.
@@ -77,12 +77,11 @@ const getCoreFields = (collectionName, config, fields) => {
  * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {(false | CmsField)[]} Collection-specific optional fields
  */
-const getCollectionSpecificFields = (collection, config, fieldContext) => [
+const getCollectionSpecificFields = (collection, config) => [
   config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
   config.features.add_ons &&
     collection.supportsAddOns &&
     createAddOnsField(config.features.use_visual_editor),
-  collection.supportsTabs && fieldContext.tabs,
 ];
 
 /**
@@ -90,15 +89,9 @@ const getCollectionSpecificFields = (collection, config, fieldContext) => [
  * @param {CmsField[]} coreFields - Existing fields
  * @param {string} collectionName - Name of the collection
  * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {CmsField[]} Fields with optional fields added
  */
-const addOptionalFields = (
-  coreFields,
-  collectionName,
-  config,
-  fieldContext,
-) => {
+const addOptionalFields = (coreFields, collectionName, config) => {
   if (collectionName === "snippets") return coreFields;
 
   const collection = getCollection(collectionName);
@@ -112,7 +105,7 @@ const addOptionalFields = (
     config.features.permalinks && COMMON_FIELDS.permalink,
     config.features.redirects && COMMON_FIELDS.redirect_from,
     config.features.faqs && FAQS_FIELD,
-    ...getCollectionSpecificFields(collection, config, fieldContext),
+    ...getCollectionSpecificFields(collection, config),
     !alreadyHasBlocks &&
       generateBlocksField(allowedBlockTypes, config.features.use_visual_editor),
   ]);
@@ -127,7 +120,7 @@ const addOptionalFields = (
  */
 const buildCollectionFields = (collectionName, config, fieldContext) => {
   const coreFields = getCoreFields(collectionName, config, fieldContext);
-  return addOptionalFields(coreFields, collectionName, config, fieldContext);
+  return addOptionalFields(coreFields, collectionName, config);
 };
 
 /**

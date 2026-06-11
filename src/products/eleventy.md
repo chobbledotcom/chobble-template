@@ -10,26 +10,6 @@ faqs:
   - question: Do I need to know JavaScript?
     answer: Basic knowledge helps, but you can build sites with just Markdown.
     order: 2
-tabs:
-  - name: Installation
-    body: |
-      To install Eleventy, run the following command:
-
-      ```bash
-      bun add @11ty/eleventy
-      ```
-
-      Make sure you have Bun installed first.
-  - name: Configuration
-    body: |
-      Create an `.eleventy.js` file in your project root to configure Eleventy.
-
-      You can customise input/output directories, add plugins, and define custom filters.
-  - name: Resources
-    body: |
-      - [Official Documentation](https://www.11ty.dev/docs/)
-      - [Starter Projects](https://www.11ty.dev/docs/starter/)
-      - [Community Discord](https://www.11ty.dev/blog/discord/)
 features:
   - Open source static site generator
   - Markdown-based content files
@@ -71,6 +51,29 @@ blocks:
       ## Developer Experience
 
       I like to have the site open on one half of my screen, and a terminal window on the other. As I make changes to the code in the terminal, the site refreshes to show my updates live! This is a feature that's built into Eleventy, and it makes it really fast to develop new features or change styles because you can see your work straight away.
+  - type: markdown
+    content: |
+      ## Installation
+
+      To install Eleventy, run the following command:
+
+      ```bash
+      bun add @11ty/eleventy
+      ```
+
+      Make sure you have Bun installed first.
+
+      ## Configuration
+
+      Create an `.eleventy.js` file in your project root to configure Eleventy.
+
+      You can customise input/output directories, add plugins, and define custom filters.
+
+      ## Resources
+
+      - [Official Documentation](https://www.11ty.dev/docs/)
+      - [Starter Projects](https://www.11ty.dev/docs/starter/)
+      - [Community Discord](https://www.11ty.dev/blog/discord/)
   - type: snippet
     reference: product-outro
 ---

@@ -22,7 +22,6 @@ import { filter, unique } from "#toolkit/fp/array.js";
  * @property {string} description - Human-readable description for prompts
  * @property {boolean} supportsFeatures - Whether collection can have features list
  * @property {boolean} supportsGallery - Whether collection can have image gallery
- * @property {boolean} supportsTabs - Whether collection can have tabbed content
  * @property {boolean} supportsAddOns - Whether collection can have add-ons
  * @property {string[]} [dependencies] - Other collections this one requires
  * @property {boolean} [required] - Whether collection is required (cannot be disabled)
@@ -41,7 +40,6 @@ export const COLLECTIONS = [
     description: "Static pages (about, contact, etc.)",
     supportsFeatures: false,
     supportsGallery: true,
-    supportsTabs: false,
     supportsAddOns: false,
     required: true,
   },
@@ -52,7 +50,6 @@ export const COLLECTIONS = [
     description: "Products for sale or hire",
     supportsFeatures: true,
     supportsGallery: true,
-    supportsTabs: true,
     supportsAddOns: true,
     dependencies: ["categories"],
   },
@@ -63,7 +60,6 @@ export const COLLECTIONS = [
     description: "Product/content categories",
     supportsFeatures: false,
     supportsGallery: true,
-    supportsTabs: false,
     supportsAddOns: false,
   },
   {
@@ -73,7 +69,6 @@ export const COLLECTIONS = [
     description: "Blog posts and news articles",
     supportsFeatures: false,
     supportsGallery: true,
-    supportsTabs: false,
     supportsAddOns: false,
   },
   {
@@ -83,7 +78,6 @@ export const COLLECTIONS = [
     description: "Events and recurring activities",
     supportsFeatures: false,
     supportsGallery: true,
-    supportsTabs: false,
     supportsAddOns: false,
   },
   {
@@ -93,7 +87,6 @@ export const COLLECTIONS = [
     description: "Team member profiles",
     supportsFeatures: false,
     supportsGallery: true,
-    supportsTabs: false,
     supportsAddOns: false,
   },
   {
@@ -103,7 +96,6 @@ export const COLLECTIONS = [
     description: "Customer reviews and testimonials",
     supportsFeatures: false,
     supportsGallery: false,
-    supportsTabs: false,
     supportsAddOns: false,
   },
   {
@@ -113,7 +105,6 @@ export const COLLECTIONS = [
     description: "Holiday lets or rental properties",
     supportsFeatures: true,
     supportsGallery: true,
-    supportsTabs: true,
     supportsAddOns: false,
   },
   {
@@ -123,7 +114,6 @@ export const COLLECTIONS = [
     description: "Categories for organizing guide pages",
     supportsFeatures: false,
     supportsGallery: true,
-    supportsTabs: false,
     supportsAddOns: false,
   },
   {
@@ -133,7 +123,6 @@ export const COLLECTIONS = [
     description: "Individual guide/documentation pages",
     supportsFeatures: false,
     supportsGallery: true,
-    supportsTabs: false,
     supportsAddOns: false,
     dependencies: ["guide-categories"],
   },
@@ -144,7 +133,6 @@ export const COLLECTIONS = [
     description: "Restaurant/cafe menus",
     supportsFeatures: false,
     supportsGallery: true,
-    supportsTabs: false,
     supportsAddOns: false,
   },
   {
@@ -154,7 +142,6 @@ export const COLLECTIONS = [
     description: "Menu section categories",
     supportsFeatures: false,
     supportsGallery: true,
-    supportsTabs: false,
     supportsAddOns: false,
     dependencies: ["menus"],
   },
@@ -165,7 +152,6 @@ export const COLLECTIONS = [
     description: "Individual menu items",
     supportsFeatures: false,
     supportsGallery: true,
-    supportsTabs: false,
     supportsAddOns: false,
     dependencies: ["menu-categories"],
   },
@@ -176,7 +162,6 @@ export const COLLECTIONS = [
     description: "Reusable content snippets",
     supportsFeatures: false,
     supportsGallery: false,
-    supportsTabs: false,
     supportsAddOns: false,
     internal: true,
     required: true,

@@ -106,7 +106,7 @@ const generateCustomBlocksCollectionConfig = (name, config, fieldContext) => {
  * @returns {string} YAML string for .pages.yml
  */
 export const generatePagesYaml = (config) => {
-  // Create field context once - precomputes body and tabs fields based on visual editor setting
+  // Create field context once - precomputes body field based on visual editor setting
   const fieldContext = createFieldContext(config.features.use_visual_editor);
 
   const collectionConfigs = filterMap(

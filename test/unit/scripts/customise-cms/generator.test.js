@@ -240,22 +240,6 @@ describe("generatePagesYaml visual editor", () => {
     expect(teamSection).toContain("label: Biography");
     expect(teamSection).toContain("type: rich-text");
   });
-
-  test("tabs component uses rich-text body when visual editor enabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "products", "categories"],
-        features: { use_visual_editor: true },
-      }),
-    );
-
-    expect(yaml).toContain("component: tabs");
-    const componentsSection = yaml.substring(
-      yaml.indexOf("components:"),
-      yaml.indexOf("\ncontent:"),
-    );
-    expect(componentsSection).toContain("type: rich-text");
-  });
 });
 
 describe("generatePagesYaml events", () => {

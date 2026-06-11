@@ -757,14 +757,6 @@ components:
     label: Gallery
     options:
       multiple: true
-  tabs:
-    label: Tabs
-    type: object
-    list: true
-    fields:
-      - { name: name, type: string, label: Name, required: true }
-      - { name: image, type: image, label: Image }
-      - { name: body, type: rich-text, label: Body, required: true }
   block_add_to_cart:
     label: Add To Cart
     type: object
@@ -807,11 +799,6 @@ components:
       - { name: dark, type: boolean, label: Dark }
   block_purchase_link:
     label: Purchase Link
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-  block_tabs:
-    label: Tabs
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
@@ -1108,7 +1095,6 @@ content:
             fields:
               - { name: name, type: string, label: Name, required: true }
               - { name: price, type: number, label: Price, required: true }
-      - { name: tabs, component: tabs }
       - name: blocks
         label: Content Blocks
         type: block
@@ -1165,7 +1151,6 @@ content:
           - { name: split-image, component: block_split_image }
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
-          - { name: tabs, component: block_tabs }
           - { name: video-background, component: block_video_background }
           - { name: video-cards, component: block_video_cards }
   - name: categories
@@ -1422,7 +1407,6 @@ content:
           - { name: split-image, component: block_split_image }
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
-          - { name: tabs, component: block_tabs }
           - { name: video-background, component: block_video_background }
           - { name: video-cards, component: block_video_cards }
   - name: team
@@ -1605,7 +1589,6 @@ content:
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
       - { name: gallery, component: gallery }
-      - { name: tabs, component: tabs }
       - name: blocks
         label: Content Blocks
         type: block
@@ -1661,7 +1644,6 @@ content:
           - { name: split-image, component: block_split_image }
           - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
-          - { name: tabs, component: block_tabs }
           - { name: video-background, component: block_video_background }
           - { name: video-cards, component: block_video_cards }
   - name: guide-categories

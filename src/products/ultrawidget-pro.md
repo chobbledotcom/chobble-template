@@ -48,14 +48,6 @@ add_ons:
       price: 29.99
     - name: Wireless Charging Pad
       price: 49.99
-tabs:
-  - name: Setup Guide
-    body: |
-      Getting started with your UltraWidget Pro is easy. Simply connect the power adapter, press the holographic power button, and follow the on-screen setup wizard. The biometric scanner will guide you through fingerprint registration for secure access.
-  - name: Warranty Info
-    body: |
-      Your UltraWidget Pro comes with a 2-year comprehensive warranty covering all manufacturing defects. Extended warranty options are available for up to 5 years of coverage including accidental damage protection.
-
 blocks:
   - type: snippet
     reference: product-intro
@@ -68,6 +60,15 @@ blocks:
       The stunning 14" Holographic display offers exceptional clarity and dimensional accuracy, ideal for creative work and content visualization. With surround sound resonators, you'll enjoy immersive audio whether you're in a virtual conference or experiencing multimedia content.
 
       Security features include a biometric scanner for quick and secure access, while universal connectivity ports provide versatile options for all your peripheral gadgets.
+  - type: markdown
+    content: |
+      ## Setup Guide
+
+      Getting started with your UltraWidget Pro is easy. Simply connect the power adapter, press the holographic power button, and follow the on-screen setup wizard. The biometric scanner will guide you through fingerprint registration for secure access.
+
+      ## Warranty Info
+
+      Your UltraWidget Pro comes with a 2-year comprehensive warranty covering all manufacturing defects. Extended warranty options are available for up to 5 years of coverage including accidental damage protection.
   - type: features
     items:
       - icon: "hugeicons:full-screen"

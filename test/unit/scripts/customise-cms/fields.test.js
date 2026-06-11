@@ -4,9 +4,7 @@ import {
   createBodyField,
   createMarkdownField,
   createReferenceField,
-  createTabsField,
   getBodyField,
-  TABS_FIELD,
 } from "#scripts/customise-cms/fields.js";
 
 describe("createMarkdownField", () => {
@@ -64,28 +62,6 @@ describe("createBodyField", () => {
 
     expect(field.type).toBe("rich-text");
     expect(field.label).toBe("Biography");
-  });
-});
-
-describe("createTabsField", () => {
-  test("tabs body uses code when visual editor disabled", () => {
-    const field = createTabsField(false);
-    const bodyField = field.fields.find((f) => f.name === "body");
-
-    expect(bodyField.type).toBe("code");
-  });
-
-  test("tabs body uses rich-text when visual editor enabled", () => {
-    const field = createTabsField(true);
-    const bodyField = field.fields.find((f) => f.name === "body");
-
-    expect(bodyField.type).toBe("rich-text");
-  });
-
-  test("TABS_FIELD constant uses markdown (legacy default)", () => {
-    const bodyField = TABS_FIELD.fields.find((f) => f.name === "body");
-
-    expect(bodyField.type).toBe("code");
   });
 });
 
