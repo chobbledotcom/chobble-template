@@ -3,7 +3,7 @@
 {%- endif -%}
 {%- assign _effective_form_target = form_target_override | default: config.form_target -%}
 {%- if _effective_form_target and _effective_form_target != "" -%}
-  <div class="contact">
+  <div>
     <h2>Get in Touch</h2>
     {%- include "contact-form.html" -%}
   </div>

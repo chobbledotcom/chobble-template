@@ -11,4 +11,13 @@
 @use "quote-steps";
 @use "image-popup";
 @use "item-filter";
+@use "maps";
+@use "notification";
+@use "hire";
+@use "read-more";
+@use "scroll-fade";
+@use "stripe-checkout";
+@use "noscript";
+@use "tabs";
+@use "theme-editor";
 @use "theme"; // client theme overrides - must be last
