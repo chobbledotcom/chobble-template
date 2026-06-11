@@ -1,19 +1,16 @@
 ---
-layout: design-system-base
+layout: "base.html"
 ---
 
 <section id="item">
-  <div class="title">
-    {% include "item-title.html" %}
-  </div>
+  <div>{% include "item-title.html" %}</div>
 
   {% include "item-gallery.html" %}
 
   <div class="description">
-    {% assign reviews = collections.reviews | getReviewsFor: item.fileSlug, item.data.tags %}
-    {%- if reviews.size > 0 -%}
-      <h2 id="reviews">Reviews</h2>
-      {%- include "items.html", items: reviews, compact: true -%}
-    {%- endif -%}
+    {% assign reviews = collections.reviews | getReviewsFor: item.fileSlug,
+    item.data.tags %} {%- if reviews.size > 0 -%}
+    <h2 id="reviews">Reviews</h2>
+    {%- include "items.html", items: reviews, compact: true -%} {%- endif -%}
   </div>
-</div>
+</section>

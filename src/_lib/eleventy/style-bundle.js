@@ -1,16 +1,8 @@
-// Determines which CSS/JS bundle to use based on layout and config
+// Generates body CSS classes based on layout and config
 
 import fs from "node:fs";
 import path from "node:path";
 import { slugify } from "#utils/slug-utils.js";
-
-const usesDesignSystem = (layout, designSystemLayouts) =>
-  designSystemLayouts.includes(layout);
-
-const getCssBundle = (layout, designSystemLayouts) =>
-  usesDesignSystem(layout, designSystemLayouts)
-    ? "/css/design-system-bundle.css"
-    : "/css/bundle.css";
 
 const RIGHT_CONTENT_PATH = "src/snippets/right-content.md";
 
@@ -78,7 +70,5 @@ const getBodyClasses = (
 };
 
 export const configureStyleBundle = (eleventyConfig) => {
-  eleventyConfig.addFilter("usesDesignSystem", usesDesignSystem);
-  eleventyConfig.addFilter("getCssBundle", getCssBundle);
   eleventyConfig.addFilter("getBodyClasses", getBodyClasses);
 };

@@ -51,7 +51,6 @@ blocks:
       Steps away from shops, restaurants, theatres and galleries. The apartment puts you right in the centre of the action while providing a peaceful retreat at the end of the day.
   - type: property-features
   - type: property-guides
-  - type: tabs
   - type: property-map
   - type: reviews
     current_item: true

@@ -7,7 +7,7 @@ import getConfig from "#data/config.js";
 let sass = null;
 
 // Files that should be compiled (not just imported as partials)
-const COMPILED_BUNDLES = ["bundle.scss", "design-system-bundle.scss"];
+const COMPILED_BUNDLES = ["design-system-bundle.scss"];
 
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);

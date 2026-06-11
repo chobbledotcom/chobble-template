@@ -52,7 +52,6 @@ blocks:
       Nestled in the hills above Royston Vasey, the lodge provides easy access to hiking trails, mountain biking routes and the local village amenities.
   - type: property-features
   - type: property-guides
-  - type: tabs
   - type: property-map
   - type: reviews
     current_item: true

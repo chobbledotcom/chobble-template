@@ -74,18 +74,6 @@ export interface PagesCMSAddOn {
 }
 
 /**
- * @typedef {Object} PagesCMSTab
- * @property {string} name - Name
- * @property {string} ?image - Image
- * @property {string} body - Body
- */
-export interface PagesCMSTab {
-  name: string;
-  image?: string;
-  body: string;
-}
-
-/**
  * @typedef {Object} PagesCMSProduct
  * @property {string} ?product - Product
  */

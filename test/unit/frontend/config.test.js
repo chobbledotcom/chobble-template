@@ -39,7 +39,6 @@ describe("config", () => {
       "nav_thumbnails",
       "navigation_content_anchor",
       "screenshots",
-      "design_system_layouts",
       "phoneNumberLength",
       "use_visual_editor",
       "currency",

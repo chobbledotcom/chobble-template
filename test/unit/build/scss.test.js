@@ -104,7 +104,7 @@ describe("scss", () => {
     const result = await compileExtension(
       scssExtension,
       "$color: green; .test { color: $color; }",
-      "/project/bundle.scss",
+      "/project/design-system-bundle.scss",
     );
     expect(
       result.includes("color: green") || result.includes("color:green"),
@@ -118,7 +118,7 @@ describe("scss", () => {
     await compileExtension(
       mockConfig.extensions.scss,
       ".test { color: blue; }",
-      "/project/src/css/bundle.scss",
+      "/project/src/css/design-system-bundle.scss",
     );
   });
 
@@ -160,7 +160,7 @@ describe("scss", () => {
 
   test("Bundle compilation fails when CSS variables are undefined", async () => {
     const scss = "body { color: var(--does-not-exist); }";
-    const inputPath = "/project/bundle.scss";
+    const inputPath = "/project/design-system-bundle.scss";
 
     const compiler = createScssCompiler(scss, inputPath);
     await expect(compiler({})).rejects.toThrow(/undefined CSS variable/);
@@ -169,7 +169,7 @@ describe("scss", () => {
   test("Bundle compilation error lists all undefined variables", async () => {
     const scss =
       "body { color: var(--missing-a); background: var(--missing-b); }";
-    const inputPath = "/project/bundle.scss";
+    const inputPath = "/project/design-system-bundle.scss";
 
     const compiler = createScssCompiler(scss, inputPath);
     await expect(compiler({})).rejects.toThrow(/--missing-a/);
@@ -177,7 +177,7 @@ describe("scss", () => {
 
   test("Bundle compilation succeeds when all CSS variables are defined", async () => {
     const scss = ":root { --my-color: red; } body { color: var(--my-color); }";
-    const inputPath = "/project/bundle.scss";
+    const inputPath = "/project/design-system-bundle.scss";
 
     const compiler = createScssCompiler(scss, inputPath);
     const result = await compiler({});
@@ -187,7 +187,7 @@ describe("scss", () => {
   test("Bundle validates nested var() fallback references", async () => {
     const scss =
       ":root { --font-body: sans-serif; } body { font: var(--font-heading, var(--font-body)); }";
-    const inputPath = "/project/bundle.scss";
+    const inputPath = "/project/design-system-bundle.scss";
 
     const compiler = createScssCompiler(scss, inputPath);
     // --font-heading is used but not defined

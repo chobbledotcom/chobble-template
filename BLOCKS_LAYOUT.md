@@ -7,10 +7,10 @@ Technical reference for the composable page blocks in Chobble Template's design 
 ### Rendering Pipeline
 
 ```
-frontmatter blocks[] → design-system-base.html → blocks.html → render-block.html → [block template]
+frontmatter blocks[] → base.html → blocks.html → render-block.html → [block template]
 ```
 
-**Layout:** `src/_layouts/design-system-base.html` applies `class="design-system"` to `<body>`, loads the design system CSS bundle, and iterates blocks via `blocks.html`.
+**Layout:** `src/_layouts/base.html` applies `class="design-system"` to `<body>`, loads the design system CSS bundle, and iterates blocks via `blocks.html`.
 
 **Block loop** (`src/_includes/design-system/blocks.html`): Each block becomes a `<section>`. If `block.dark` is true, the section gets `class="dark"`. Container width is determined by block type via the `blockContainerWidth` Liquid filter (registered in `src/_lib/eleventy/blocks.js`, backed by `getBlockContainerWidth()` in `src/_lib/utils/block-schema.js`). Each block module declares its own width via an optional `containerWidth` export; modules that omit it default to `"wide"` (`.container-wide`, 1200px). Other values are `"full"` (no wrapper) and `"narrow"` (`.container-narrow`, 680px).
 
@@ -822,17 +822,6 @@ Product-only block. No parameters. Renders nothing when `purchase_url` is not se
 
 ---
 
-### `tabs`
-
-Renders the page's `tabs` array as a tabbed content section.
-
-**Component:** `block_tabs`
-**Template:** `src/_includes/design-system/blocks/tabs.html`
-
-Allowed on collections that surface a `tabs` field (products, events, properties). No parameters. Renders nothing when the page has no `tabs`.
-
----
-
 ### `product-add-ons`
 
 Renders the product's `add_ons` as an add-on card with optional intro markdown plus a priced list of extras.
@@ -1093,7 +1082,7 @@ Guide-category-only block. No parameters. Renders nothing when there are no page
 
 ### `quote-cart`
 
-Renders the client-side quote cart UI: page content, quote header, step progress, the cart shell (populated by JS), and the templates pushed to the design-system-base templates slot.
+Renders the client-side quote cart UI: page content, quote header, step progress, the cart shell (populated by JS), and the templates pushed to the base layout templates slot.
 
 **Component:** `block_quote_cart`
 **Template:** `src/_includes/design-system/blocks/quote-cart.html`
@@ -1104,7 +1093,7 @@ Pages-only block. No parameters. Used on the `/quote/` page when `cart_mode` is 
 
 ### `quote-checkout`
 
-Renders the multi-step quote-request form: page content, quote header, step progress, the form (with cart_items / hire_days hidden inputs populated by JS), and the templates pushed to the design-system-base templates slot.
+Renders the multi-step quote-request form: page content, quote header, step progress, the form (with cart_items / hire_days hidden inputs populated by JS), and the templates pushed to the base layout templates slot.
 
 **Component:** `block_quote_checkout`
 **Template:** `src/_includes/design-system/blocks/quote-checkout.html`
@@ -1473,7 +1462,7 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 
 | File | Purpose |
 |---|---|
-| `src/_layouts/design-system-base.html` | Base HTML shell, loads CSS/JS, applies `.design-system` to body |
+| `src/_layouts/base.html` | Base HTML shell, loads CSS/JS, applies `.design-system` to body |
 | `src/_includes/design-system/blocks.html` | Block loop: iterates blocks, wraps in sections + containers |
 | `src/_includes/design-system/render-block.html` | Block router: dispatches block.type to template |
 

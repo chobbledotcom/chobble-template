@@ -3,7 +3,6 @@ name: News
 meta_description:
 meta_title: News
 
-layout: design-system-base.html
 eleventyNavigation:
   key: News
   order: 3

@@ -28,15 +28,15 @@
 
     // Tables — Markdown tables with alternating rows and themed header
     table {
+      overflow: hidden;
       border-spacing: 0;
       border: $border-light;
       border-radius: $radius-md;
-      overflow: hidden;
     }
 
     thead {
-      background: var(--color-link);
       color: var(--color-contrast-text);
+      background: var(--color-link);
     }
 
     th {

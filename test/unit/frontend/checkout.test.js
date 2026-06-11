@@ -3,6 +3,7 @@
 // Uses actual cart-utils.js and renders real Liquid templates
 
 import { describe, expect, mock, test } from "bun:test";
+import matter from "gray-matter";
 import { Liquid } from "liquidjs";
 import { configureJsConfig } from "#eleventy/js-config.js";
 
@@ -131,11 +132,14 @@ const createCheckoutPage = async (options = {}) => {
     },
   );
 
-  // Render stripe checkout page if needed
+  // Render stripe checkout page markup from the page's frontmatter blocks
   const stripeCheckoutPage = includeStripeCheckoutPage
-    ? (
-        await renderTemplate("src/_layouts/stripe-checkout.html", { config })
-      ).replace(/^---[\s\S]*?---\s*/, "")
+    ? matter(
+        fs.readFileSync(
+          path.join(rootDir, "src/pages/stripe-checkout.md"),
+          "utf-8",
+        ),
+      ).data.blocks[0].content
     : "";
 
   // Build config script using the Eleventy filter

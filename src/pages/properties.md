@@ -2,7 +2,6 @@
 name: Properties
 meta_description:
 meta_title: Properties
-layout: design-system-base.html
 permalink: "/{{ strings.property_permalink_dir }}/"
 eleventyNavigation:
   key: Properties

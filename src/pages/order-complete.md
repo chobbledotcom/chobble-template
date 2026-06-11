@@ -4,7 +4,6 @@ meta_description: Thank you for your order
 meta_title: Order Complete
 no_index: true
 permalink: /order-complete/
-layout: design-system-base.html
 blocks:
   - type: markdown
     content: |

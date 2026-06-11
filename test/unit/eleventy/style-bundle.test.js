@@ -10,47 +10,9 @@ import {
 } from "#test/test-utils.js";
 
 // Extract filters once - they're pure functions, safe to reuse
-const { usesDesignSystem, getCssBundle, getBodyClasses } =
-  withConfiguredMock(configureStyleBundle)().filters;
+const { getBodyClasses } = withConfiguredMock(configureStyleBundle)().filters;
 
 describe("style-bundle", () => {
-  describe("usesDesignSystem filter", () => {
-    test("returns true when layout is in design system layouts list", () => {
-      expect(usesDesignSystem("landing-page.html", ["landing-page.html"])).toBe(
-        true,
-      );
-    });
-
-    test("returns false when layout is not in design system layouts list", () => {
-      expect(usesDesignSystem("base.html", ["landing-page.html"])).toBe(false);
-    });
-
-    test("returns false for empty designSystemLayouts array", () => {
-      expect(usesDesignSystem("landing-page.html", [])).toBe(false);
-    });
-
-    test("handles multiple layouts in list", () => {
-      const layouts = ["landing-page.html", "promo.html", "splash.html"];
-      expect(usesDesignSystem("promo.html", layouts)).toBe(true);
-      expect(usesDesignSystem("splash.html", layouts)).toBe(true);
-      expect(usesDesignSystem("base.html", layouts)).toBe(false);
-    });
-  });
-
-  describe("getCssBundle filter", () => {
-    test("returns design system bundle path for design system layout", () => {
-      expect(getCssBundle("landing-page.html", ["landing-page.html"])).toBe(
-        "/css/design-system-bundle.css",
-      );
-    });
-
-    test("returns main bundle path for non-design-system layout", () => {
-      expect(getCssBundle("base.html", ["landing-page.html"])).toBe(
-        "/css/bundle.css",
-      );
-    });
-  });
-
   describe("getBodyClasses filter", () => {
     const baseConfig = {
       sticky_mobile_nav: false,
@@ -189,8 +151,6 @@ describe("style-bundle", () => {
       const mockConfig = createMockEleventyConfig();
       configureStyleBundle(mockConfig);
 
-      expect(typeof mockConfig.filters.usesDesignSystem).toBe("function");
-      expect(typeof mockConfig.filters.getCssBundle).toBe("function");
       expect(typeof mockConfig.filters.getBodyClasses).toBe("function");
     });
   });

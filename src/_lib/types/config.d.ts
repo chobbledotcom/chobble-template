@@ -60,7 +60,6 @@ export type SiteConfig = {
   list_item_fields: string[];
   navigation_content_anchor: boolean;
   nav_thumbnails: boolean;
-  design_system_layouts: string[];
   default_image_widths: number[];
   currency: string;
   default_max_quantity: number;

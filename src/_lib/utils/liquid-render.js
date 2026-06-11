@@ -3,9 +3,12 @@ import { Liquid } from "liquidjs";
 import { SRC_DIR } from "#lib/paths.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 
-const liquid = new Liquid();
-
 const INCLUDES_DIR = join(SRC_DIR, "_includes");
+
+const liquid = new Liquid({
+  root: INCLUDES_DIR,
+  extname: "",
+});
 
 /**
  * Create a memoized template loader for a given include file.

@@ -28,7 +28,6 @@ const main = async () => {
   );
 
   const config = createDefaultConfig();
-  config.features.use_blocks = true;
 
   // Apply use_visual_editor from config.json if set
   if (siteConfig.use_visual_editor != null) {

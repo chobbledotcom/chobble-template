@@ -25,33 +25,11 @@ export type { PagesCMSOrganization as Organization } from './pages-cms-generated
 export type { PagesCMSImage as Image } from './pages-cms-generated.d.ts';
 export type { PagesCMSBlock as Block } from './pages-cms-generated.d.ts';
 
-/**
- * Tab type after eleventyComputed processing.
- * Body is guaranteed to be a string (defaults to empty string if not set).
- */
-export type Tab = {
-  name: string;
-  image?: string;
-  /** Body content - always a string after computed processing (never null/undefined) */
-  body: string;
-};
-
-/**
- * Raw tab type from frontmatter (before eleventyComputed).
- * Body may be undefined in raw frontmatter data.
- */
-export type RawTab = {
-  name: string;
-  image?: string;
-  body?: string;
-};
-
 // Also export with PagesCMS prefix for explicit use
 export type { PagesCMSEleventyNavigation } from './pages-cms-generated.d.ts';
 export type { PagesCMSImage } from './pages-cms-generated.d.ts';
 export type { PagesCMSOption } from './pages-cms-generated.d.ts';
 export type { PagesCMSFaq } from './pages-cms-generated.d.ts';
-export type { PagesCMSTab } from './pages-cms-generated.d.ts';
 export type { PagesCMSFilterAttribute } from './pages-cms-generated.d.ts';
 export type { PagesCMSOpeningTime } from './pages-cms-generated.d.ts';
 

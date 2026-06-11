@@ -66,8 +66,6 @@ export type {
   // Short names
   Spec,
   Faq,
-  Tab,
-  RawTab,
   Option,
   FilterAttribute,
   OpeningTime,
@@ -81,7 +79,6 @@ export type {
   PagesCMSImage,
   PagesCMSOption,
   PagesCMSFaq,
-  PagesCMSTab,
   PagesCMSFilterAttribute,
   PagesCMSOpeningTime,
   // Extended types

@@ -286,30 +286,6 @@ export const createAddOnsField = (useVisualEditor) => ({
 });
 
 /**
- * Create tabs field with appropriate body type based on config
- * @param {boolean} useVisualEditor - Whether to use visual editor
- * @returns {CmsField} Tabs field configuration
- */
-export const createTabsField = (useVisualEditor) => ({
-  name: "tabs",
-  label: "Tabs",
-  type: "object",
-  list: true,
-  _componentName: "tabs",
-  fields: [
-    { name: "name", type: "string", label: "Name", required: true },
-    { name: "image", type: "image", label: "Image" },
-    createMarkdownField("body", "Body", useVisualEditor, { required: true }),
-  ],
-});
-
-/**
- * Tabs field (legacy, uses markdown)
- * @type {CmsField}
- */
-export const TABS_FIELD = createTabsField(false);
-
-/**
  * Get body field based on visual editor configuration
  * @param {boolean} useVisualEditor - Whether to use visual editor
  * @returns {CmsField} Body field configuration

@@ -173,16 +173,6 @@ export default {
   faqs: (data) => data.faqs ?? [],
 
   /**
-   * Ensures tabs array exists and each tab has a body string (defaults to empty).
-   * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {import("#lib/types").Tab[]} Tabs array with guaranteed body strings
-   */
-  tabs: (data) =>
-    Array.isArray(data.tabs)
-      ? data.tabs.map((tab) => ({ ...tab, body: tab.body ?? "" }))
-      : [],
-
-  /**
    * Appends internal_link_suffix to navigation URLs
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {import("#lib/types").EleventyNav | false | undefined} Navigation object with optional url anchor

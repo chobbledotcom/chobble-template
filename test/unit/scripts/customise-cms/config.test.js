@@ -44,12 +44,11 @@ describe("createDefaultConfig", () => {
     expect(config.collections.length).toBeGreaterThan(10);
   });
 
-  test("enables most features but not visual editor or blocks", () => {
+  test("enables most features but not visual editor", () => {
     expect(config.features.faqs).toBe(true);
     expect(config.features.galleries).toBe(true);
     expect(config.features.permalinks).toBe(true);
     expect(config.features.use_visual_editor).toBe(false);
-    expect(config.features.use_blocks).toBe(false);
   });
 
   test("defaults to src folder and no custom home page", () => {

@@ -34,7 +34,7 @@ const validateEnum = (value, validValues, field, defaultNote) => {
 const cartModeError = (cartMode, filename, issue) =>
   `cart_mode is "${cartMode}" but src/pages/${filename} ${issue}`;
 
-const validatePageFrontmatter = (filename, layout, permalink, cartMode) => {
+const validatePageFrontmatter = (filename, permalink, cartMode) => {
   const pagePath = path.isAbsolute(filename)
     ? filename
     : path.join(PAGES_DIR, filename);
@@ -48,21 +48,15 @@ const validatePageFrontmatter = (filename, layout, permalink, cartMode) => {
     return [cartModeError(cartMode, filename, "has no frontmatter")];
   }
 
-  const layoutErrors =
-    data.layout !== layout
-      ? [cartModeError(cartMode, filename, `does not have layout: ${layout}`)]
-      : [];
-  const permalinkErrors =
-    data.permalink !== permalink
-      ? [
-          cartModeError(
-            cartMode,
-            filename,
-            `does not have permalink: ${permalink}`,
-          ),
-        ]
-      : [];
-  return [...layoutErrors, ...permalinkErrors];
+  return data.permalink === permalink
+    ? []
+    : [
+        cartModeError(
+          cartMode,
+          filename,
+          `does not have permalink: ${permalink}`,
+        ),
+      ];
 };
 
 const siteUrlProtocolErrors = !site.url
@@ -101,13 +95,11 @@ const stripeCartErrors =
             ]),
         ...validatePageFrontmatter(
           "stripe-checkout.md",
-          "stripe-checkout.html",
           "/stripe-checkout/",
           "stripe",
         ),
         ...validatePageFrontmatter(
           "order-complete.md",
-          "design-system-base.html",
           "/order-complete/",
           "stripe",
         ),
@@ -127,12 +119,7 @@ const quoteCartErrors =
           : [
               'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
             ]),
-        ...validatePageFrontmatter(
-          "checkout.md",
-          "design-system-base.html",
-          "/checkout/",
-          "quote",
-        ),
+        ...validatePageFrontmatter("checkout.md", "/checkout/", "quote"),
       ];
 
 const errors = [

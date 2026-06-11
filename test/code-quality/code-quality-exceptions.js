@@ -76,7 +76,6 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
 
   // Test files - imperative accumulation patterns for test setup/assertions
   "test/unit/build/pdf.test.js",
-  "test/unit/build/scss.variables.test.js",
   "test/unit/code-quality/array-push.test.js",
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/let-usage.test.js",

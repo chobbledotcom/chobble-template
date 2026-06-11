@@ -3,7 +3,6 @@ name: Contact
 meta_description:
 meta_title: Contact
 schema_type: organization
-layout: design-system-base.html
 eleventyNavigation:
   key: Contact
   order: 5

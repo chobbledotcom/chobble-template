@@ -7,23 +7,23 @@ import {
   getBlockTemplate,
 } from "#utils/block-schema.js";
 
-const DESIGN_SYSTEM_LAYOUT = "design-system-base.html";
+const BASE_LAYOUTS = ["base.html", "base"];
 
 /**
  * Passes through content from intermediate layouts unchanged. For pages that
- * directly specify `layout: design-system-base.html`, throws if there is body
- * content — direct users must express all content as blocks in frontmatter.
+ * use the base layout directly, throws if there is body content — direct
+ * users must express all content as blocks in frontmatter.
  *
  * @param {string} content
  * @param {string | undefined} layout
  * @param {string | undefined} inputPath
- * @returns {string} Content string, or empty string for direct design-system-base pages.
+ * @returns {string} Content string, or empty string for base layout pages.
  */
 const validatePageBodyContent = (content, layout, inputPath) => {
-  if (layout !== DESIGN_SYSTEM_LAYOUT) return content;
+  if (!BASE_LAYOUTS.includes(layout)) return content;
   if (!content || content.trim() === "") return "";
   throw new Error(
-    `${inputPath}: uses ${DESIGN_SYSTEM_LAYOUT} but has body content. Move it into a 'markdown' block in frontmatter — design-system-base pages must express all content as blocks.`,
+    `${inputPath}: uses base.html but has body content. Move it into a 'markdown' block in frontmatter — base layout pages must express all content as blocks.`,
   );
 };
 

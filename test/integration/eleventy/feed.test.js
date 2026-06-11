@@ -163,8 +163,11 @@ describe("feed", () => {
       files: [
         {
           path: "pages/about.md",
-          frontmatter: { name: "About", layout: "page" },
-          content: "# About us",
+          frontmatter: {
+            name: "About",
+            blocks: [{ type: "markdown", content: "# About us" }],
+          },
+          content: "",
         },
       ],
     });
