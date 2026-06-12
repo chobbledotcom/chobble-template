@@ -4,9 +4,11 @@ import { varPreLine } from "uwrap";
 import { onReady } from "#public/utils/on-ready.js";
 
 const GAP = 32;
+const REVIEW_GAP = 16;
 const MOBILE_BREAKPOINT = 768;
 const CARD_BORDER = 2;
 const AVATAR_SIZE = 40;
+const ITEM_PADDING_INLINE = 24;
 
 const counterCache = new Map();
 
@@ -37,34 +39,17 @@ const elTextHeight = (el, width) => {
   return h;
 };
 
-const getReviewMetrics = (card, colWidth) => {
-  const s = getComputedStyle(card);
-  const padLeft = Number.parseFloat(s.paddingLeft);
-  const padRight = Number.parseFloat(s.paddingRight);
-  const padTop = Number.parseFloat(s.paddingTop);
-  const padBottom = Number.parseFloat(s.paddingBottom);
-  const gap = Number.parseFloat(s.getPropertyValue("--item-gap"));
-  return {
-    gap,
-    padX: padLeft + padRight,
-    padY: padTop + padBottom,
-    contentWidth: colWidth - padLeft - padRight,
-  };
-};
+const createMetrics = (colWidth, gap) => ({
+  gap,
+  padX: ITEM_PADDING_INLINE * 2,
+  padY: ITEM_PADDING_INLINE * 2,
+  contentWidth: colWidth - ITEM_PADDING_INLINE * 2,
+});
 
-const getCardMetrics = (card, colWidth) => {
-  const s = getComputedStyle(card);
-  const gap = Number.parseFloat(s.getPropertyValue("--item-gap"));
-  const padding = Number.parseFloat(
-    s.getPropertyValue("--item-padding-inline"),
-  );
-  return {
-    gap,
-    padX: padding * 2,
-    padY: padding * 2,
-    contentWidth: colWidth - padding * 2,
-  };
-};
+const getReviewMetrics = (_card, colWidth) =>
+  createMetrics(colWidth, REVIEW_GAP);
+
+const getCardMetrics = (_card, colWidth) => createMetrics(colWidth, GAP);
 
 const sumWithGaps = (heights, gap, extraPadding) => {
   const valid = heights.filter((h) => h !== null);
@@ -166,7 +151,7 @@ const measureItemCard = (card, metrics, colWidth) => {
   );
 };
 
-export const placeCards = (container) => {
+const placeCards = (container) => {
   const cards = [...container.querySelectorAll(":scope > li")];
   if (cards.length === 0) return;
 
@@ -195,8 +180,19 @@ export const placeCards = (container) => {
   }
 
   const maxH = Math.max(...colHeights);
-  container.style.height = `${maxH > 0 ? maxH - GAP : 0}px`;
+  ensureValidHeight(maxH, cards.length, container);
+  container.style.height = `${maxH - GAP}px`;
   container.classList.add("masonry-ready");
+};
+
+const ensureValidHeight = (maxH, cardCount, container) => {
+  if (!maxH || maxH <= GAP) {
+    throw new Error(
+      `Masonry container has ${cardCount} cards but computed height is ${maxH}. ` +
+        "This usually means getComputedStyle returned NaN values (e.g. unresolved CSS custom properties or missing font metrics). " +
+        `Container: ${container.className}`,
+    );
+  }
 };
 
 const debounce = (fn, delay) => {
