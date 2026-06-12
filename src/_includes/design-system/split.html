@@ -38,7 +38,9 @@ Parameters (via block object):
   <figure data-reveal="{{ reveal_figure }}"{% if is_buy_options %} class="buy-option-figure" itemscope itemtype="https://schema.org/Product"{% endif %}>
     {%- case block.type -%}
       {%- when "split-image" -%}
-        {% image block.figure_src, block.figure_alt %}
+        {%- assign image = block.figure_src -%}
+        {%- capture _alt -%}{%- include "get-alt-text.html", fallback: block.figure_alt -%}{%- endcapture -%}
+        {% image block.figure_src, _alt %}
         {%- if block.figure_caption -%}
           <figcaption>{{ block.figure_caption }}</figcaption>
         {%- endif -%}
