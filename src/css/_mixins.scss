@@ -108,10 +108,10 @@
 
 // Compact section padding override
 @mixin section-compact {
-  --section-padding-y: calc(#{$space-2xl} * 0.6);
+  --section-padding-y: var(--section-padding-y-compact-sm);
 
   @include breakpoint.up("md") {
-    --section-padding-y: #{$space-2xl};
+    --section-padding-y: var(--section-padding-y-compact-md);
   }
 }
 

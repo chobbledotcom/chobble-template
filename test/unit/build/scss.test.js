@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { configureScss, createScssCompiler } from "#build/scss.js";
-import { compileScss, createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  compileScss,
+  createMockEleventyConfig,
+  path,
+  srcDir,
+} from "#test/test-utils.js";
 
 const compileExtension = async (ext, content, inputPath) => {
   const result = await ext.compile(content, inputPath)({});
@@ -200,5 +205,29 @@ describe("scss", () => {
 
     const result = await compileScss(scss, inputPath);
     expect(result).toContain("var(--does-not-exist)");
+  });
+
+  test("Design tokens expose runtime spacing and type aliases", async () => {
+    const scss = `
+      @use "variables" as *;
+
+      :root {
+        --space-md: #{$space-md-raw};
+        --font-size-base: #{$font-size-base-raw};
+      }
+
+      .test {
+        gap: $space-md;
+        font-size: $font-size-base;
+      }
+    `;
+    const inputPath = path.join(srcDir, "css", "token-test.scss");
+
+    const result = await compileScss(scss, inputPath);
+
+    expect(result).toContain("--space-md: 24px");
+    expect(result).toContain("--font-size-base: 1rem");
+    expect(result).toContain("gap: var(--space-md, 24px)");
+    expect(result).toContain("font-size: var(--font-size-base, 1rem)");
   });
 });

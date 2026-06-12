@@ -32,11 +32,11 @@
         max-width: 100%;
 
         @include breakpoint.up("md") {
-          max-width: calc(50% - #{math.div($space-lg, 2)});
+          max-width: calc(50% - #{$space-lg} / 2);
         }
 
         @include breakpoint.up("lg") {
-          max-width: calc(33.333% - #{math.div($space-lg * 2, 3)});
+          max-width: calc(33.333% - #{$space-lg} * 2 / 3);
         }
       }
     }

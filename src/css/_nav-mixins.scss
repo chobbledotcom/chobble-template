@@ -329,7 +329,7 @@
 
 @mixin nav-horizontal-layout($gap, $sub-gap) {
   justify-content: center;
-  margin-bottom: math.div($gap, 2);
+  margin-bottom: calc(#{$gap} / 2);
 
   // First-level items with children: add caret to link
   > ul > li:has(> ul) > a {
@@ -375,7 +375,7 @@
           content: "";
 
           position: absolute;
-          top: -$sub-gap;
+          top: calc(-1 * #{$sub-gap});
           right: 0;
           left: 0;
 
@@ -387,7 +387,7 @@
           position: relative;
 
           > ul {
-            top: -$sub-gap;
+            top: calc(-1 * #{$sub-gap});
             left: 100%;
 
             flex-direction: column;
@@ -396,7 +396,7 @@
             margin-left: $sub-gap;
 
             &::before {
-              inset: 0 auto 0 -$sub-gap;
+              inset: 0 auto 0 calc(-1 * #{$sub-gap});
               width: $sub-gap;
               height: auto;
             }
