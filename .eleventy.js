@@ -33,7 +33,7 @@ import { configureCollectionFilter } from "#eleventy/collection-filter.js";
 import { configureCapture } from "#eleventy/capture.js";
 import { configureFeed } from "#eleventy/feed.js";
 import { configureFileInfo } from "#eleventy/file-info.js";
-import { configureFileUtils, stripPlusPlus } from "#eleventy/file-utils.js";
+import { amendMarkdown, configureFileUtils } from "#eleventy/file-utils.js";
 import { configureFormatPrice } from "#eleventy/format-price.js";
 import { configureFormHelpers } from "#eleventy/form-helpers.js";
 import { configureGitDates } from "#eleventy/git-dates.js";
@@ -80,7 +80,7 @@ export default async function (eleventyConfig) {
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
 
-  eleventyConfig.amendLibrary("md", stripPlusPlus);
+  eleventyConfig.amendLibrary("md", amendMarkdown);
 
   // configureLayoutAliases(eleventyConfig);
 
