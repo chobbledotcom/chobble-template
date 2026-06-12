@@ -101,7 +101,7 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   // Frontend - Set used to track visible parallax elements for scroll updates
   "src/_lib/public/design-system.js:35",
   // Frontend - Map cache for uWrap font counters (one per unique computed font)
-  "src/_lib/public/masonry.js:11",
+  "src/_lib/public/masonry.js:13",
 ]);
 
 // ============================================

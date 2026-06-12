@@ -62,6 +62,38 @@ describe("right-content sidebar", () => {
     );
   });
 
+  test("renders items-array blocks inside the aside", async () => {
+    await withTestSite(
+      {
+        files: [
+          homePage([PAGE_BLOCK]),
+          {
+            path: "pages/sidebar-item.md",
+            frontmatter: {
+              name: "Sidebar Item",
+              permalink: "/sidebar-item/",
+            },
+          },
+          rightContentSnippet([
+            {
+              type: "items-array",
+              items: ["src/pages/sidebar-item.md"],
+            },
+          ]),
+        ],
+      },
+      async (site) => {
+        const doc = await site.getDoc("index.html");
+        const items = doc.querySelector("aside.right-column ul.items");
+
+        expect(items).not.toBeNull();
+        expect(items.closest("aside.right-column")).not.toBeNull();
+        expect(items.querySelectorAll("li")).toHaveLength(1);
+        expect(items.textContent).toContain("Sidebar Item");
+      },
+    );
+  });
+
   test("renders plain markdown snippet content as a prose fallback", async () => {
     const markdownSnippet = {
       path: "snippets/right-content.md",

@@ -230,4 +230,24 @@ describe("scss", () => {
     expect(result).toContain("gap: var(--space-md, 24px)");
     expect(result).toContain("font-size: var(--font-size-base, 1rem)");
   });
+
+  test("Design-system sidebar columns stretch and stack item cards", async () => {
+    const result = await compileScss(
+      '@use "design-system";',
+      path.join(srcDir, "css", "test.scss"),
+    );
+    const columnsRule =
+      result.match(
+        /\.design-system\.two-columns \.page-columns\s*\{[^}]*\}/,
+      )?.[0] ?? "";
+    const sidebarItemsRule =
+      result.match(
+        /\.design-system \.right-column ul\.items:not\(\.slider, \.masonry\) > li\s*\{[^}]*\}/,
+      )?.[0] ?? "";
+
+    expect(columnsRule).toContain("display: grid");
+    expect(columnsRule).not.toContain("align-items: start");
+    expect(sidebarItemsRule).toContain("flex-basis: 100%");
+    expect(sidebarItemsRule).toContain("max-width: 100%");
+  });
 });
