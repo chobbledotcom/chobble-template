@@ -524,7 +524,7 @@ blocks:
 name: Sidebar
 blocks:
   - type: hero
-    name: Nope
+    content: Nope
 ---`;
       await testSidebarBlocksCtx(
         "sidebar-disallowed",

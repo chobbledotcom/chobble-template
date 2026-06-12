@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { createTestSite, withTestSite } from "#test/test-site-factory.js";
+import {
+  createTestSite,
+  homePage,
+  withTestSite,
+} from "#test/test-site-factory.js";
 
 const SIDEBAR_TEXT = "Sidebar contact details";
 const PAGE_BLOCK = { type: "markdown", content: "Page body" };
@@ -8,15 +12,6 @@ const BANNER_BLOCK = {
   image: "src/images/party.jpg",
   content: "Banner text",
 };
-
-const homePage = (blocks) => ({
-  path: "pages/index.md",
-  frontmatter: {
-    name: "Home",
-    permalink: "/",
-    blocks,
-  },
-});
 
 const rightContentSnippet = (blocks) => ({
   path: "snippets/right-content.md",
@@ -98,7 +93,7 @@ describe("right-content sidebar", () => {
     const site = await createTestSite({
       files: [
         homePage([PAGE_BLOCK]),
-        rightContentSnippet([{ type: "hero", name: "Nope" }]),
+        rightContentSnippet([{ type: "hero", content: "Nope" }]),
       ],
     });
     try {

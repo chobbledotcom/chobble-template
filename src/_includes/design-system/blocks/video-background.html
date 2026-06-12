@@ -11,8 +11,10 @@ the video starts playing, then fades out via the youtube-video.js script.
 Parameters (via block object):
   - block.video_id: YouTube video ID (required)
   - block.video_title: Accessible title for the iframe (default: "Background video")
-  - block.content: HTML/markdown content to overlay on the video (required)
+  - block.badge / block.content / block.buttons: Optional hero-style content
+    overlaid on the video (see design-system/media-background-overlay.html)
   - block.class: Additional classes for the container (optional)
+  - block.reveal: If set, adds data-reveal animation
   - block.thumbnail_url: URL of a thumbnail image to display while the video loads (optional,
     auto-generated for YouTube videos)
 
@@ -29,18 +31,14 @@ Usage:
   {%- assign _thumbnail = block.video_id | youtube_thumbnail -%}
 {%- endif -%}
 
-<div class="video-background{% if block.class %} {{ block.class }}{% endif %}"{% if _is_youtube and _thumbnail %} data-youtube-video{% endif %}>
+<div class="video-background{% if block.class %} {{ block.class }}{% endif %}"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}{% if _is_youtube and _thumbnail %} data-youtube-video{% endif %}>
   {%- if _thumbnail -%}
   <div class="video-background__thumbnail">
     {% image _thumbnail, _video_title, "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
   </div>
   {%- endif -%}
   {%- include "design-system/video-iframe.html", video_id: block.video_id, name: _video_title, background: true -%}
-  <figure>
-    <figcaption class="prose">
-      {{ block.content | renderContent: "md" }}
-    </figcaption>
-  </figure>
+  {%- include "design-system/media-background-overlay.html", block: block -%}
 </div>
 
 {%- if _is_youtube and _thumbnail -%}

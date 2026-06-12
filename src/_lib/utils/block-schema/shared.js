@@ -167,14 +167,37 @@ export const imageCardGridFields = (itemsField) => ({
   intro_content: INTRO_CONTENT_FIELD,
 });
 
+/**
+ * Hero-style content fields shared by `hero` and the `*-background` blocks:
+ * optional badge, markdown content rendered in `.prose`, and action buttons.
+ * Rendered by `design-system/hero-content.html`.
+ */
+export const HERO_CONTENT_FIELDS = {
+  badge: {
+    ...str("Badge Text"),
+    description:
+      'Small pill label above the content. Renders as `<span class="badge">`.',
+  },
+  content: {
+    ...md("Content"),
+    description: "Markdown content rendered in `.prose`.",
+  },
+  buttons: {
+    ...objectList("Buttons", BUTTON_FIELDS_WITH_SIZE),
+    description:
+      'Action buttons below the content. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default.',
+  },
+  reveal: REVEAL_STRING_FIELD,
+};
+
 /** Overlay content + class fields shared between background blocks. */
 export const OVERLAY_CONTENT_FIELDS = {
   class: { ...str("CSS Class"), description: "Extra CSS classes." },
+  ...HERO_CONTENT_FIELDS,
   content: {
-    ...md("Overlay Content"),
-    required: true,
+    ...HERO_CONTENT_FIELDS.content,
     description:
-      'Overlay content. Rendered as markdown in `<figcaption class="prose">`.',
+      "Markdown overlay content rendered in `.prose` inside the `<figcaption>`.",
   },
 };
 

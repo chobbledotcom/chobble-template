@@ -13,15 +13,16 @@
 
     text-align: center;
 
-    h1 {
+    .prose {
+      align-items: center;
       max-width: $width-default;
-    }
 
-    .lead {
-      @include body-lg;
+      p {
+        @include body-lg;
 
-      max-width: $width-narrow;
-      color: var(--color-text-muted);
+        max-width: $width-narrow;
+        color: var(--color-text-muted);
+      }
     }
   }
 
