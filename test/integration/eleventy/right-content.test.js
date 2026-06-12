@@ -26,7 +26,10 @@ const rightContentSnippet = (blocks) => ({
 const sidebarSnippet = () =>
   rightContentSnippet([{ type: "markdown", content: SIDEBAR_TEXT }]);
 
-const bannerSiteOptions = (files) => ({ images: ["party.jpg"], files });
+const bannerSiteOptions = (files) => ({
+  images: [{ src: "test/fixtures/images/party.jpg", dest: "party.jpg" }],
+  files,
+});
 
 /** Load the built homepage and locate its image-background banner */
 const getRenderedBanner = async (site) => {
