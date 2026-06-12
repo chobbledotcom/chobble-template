@@ -36,9 +36,25 @@ const stripPlusPlus = (md) => {
   md.core.ruler.after("inline", "strip_plus_plus", stripPlusPlusRule);
 };
 
+/**
+ * Disable indented code blocks so HTML emitted by Liquid includes inside
+ * markdown content is never escaped into a code block. Fenced ``` blocks
+ * still work for intentional code samples.
+ * @param {any} md
+ */
+const disableIndentedCode = (md) => {
+  md.disable("code");
+};
+
+/** @param {any} md */
+const amendMarkdown = (md) => {
+  stripPlusPlus(md);
+  disableIndentedCode(md);
+};
+
 const createMarkdownRenderer = () => {
   const md = new markdownIt({ html: true });
-  stripPlusPlus(md);
+  amendMarkdown(md);
   return md;
 };
 
@@ -261,4 +277,4 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addShortcode("read_file", readFileShortcode);
 };
 
-export { configureFileUtils, ensureDir, stripPlusPlus };
+export { amendMarkdown, configureFileUtils, ensureDir };
