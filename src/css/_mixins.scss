@@ -657,6 +657,7 @@
 
   figcaption {
     @include container($width-default);
+    @include flex-col($space-lg, center, center);
 
     max-width: 100%;
     text-align: center;

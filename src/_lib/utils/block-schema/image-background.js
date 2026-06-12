@@ -36,7 +36,7 @@ export const fields = {
 
 export const docs = {
   summary:
-    "Full-width image background with overlaid text and optional parallax.",
+    "Full-width image background with hero-style overlay content (badge, markdown content, buttons) and optional parallax.",
   scss: "src/css/design-system/_image-background.scss",
   htmlRoot: '<div class="image-background">',
   notes:

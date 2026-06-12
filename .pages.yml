@@ -32,10 +32,17 @@ components:
       - { name: thumbnail_url, type: string, label: Thumbnail URL }
       - { name: video_title, type: string, label: Video Title }
       - { name: class, type: string, label: CSS Class }
-      - name: content
-        type: rich-text
-        label: Overlay Content
-        required: true
+      - { name: badge, type: string, label: Badge Text }
+      - { name: content, type: rich-text, label: Content }
+      - name: buttons
+        type: object
+        label: Buttons
+        list: true
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
   block_buy_options:
     label: Buy Options
     type: object
@@ -216,8 +223,7 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: badge, type: string, label: Badge Text }
-      - { name: name, type: string, label: Name, required: true }
-      - { name: lead, type: string, label: Lead Text }
+      - { name: content, type: rich-text, label: Content, required: true }
       - name: buttons
         type: object
         label: Buttons
@@ -281,10 +287,17 @@ components:
       - { name: image, type: image, label: Background Image, required: true }
       - { name: image_alt, type: string, label: Image Alt Text }
       - { name: class, type: string, label: CSS Class }
-      - name: content
-        type: rich-text
-        label: Overlay Content
-        required: true
+      - { name: badge, type: string, label: Badge Text }
+      - { name: content, type: rich-text, label: Content }
+      - name: buttons
+        type: object
+        label: Buttons
+        list: true
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
       - { name: parallax, type: boolean, label: Parallax }
       - { name: tint, type: boolean, label: Tint }
   block_image_cards:
@@ -723,10 +736,17 @@ components:
       - { name: thumbnail_url, type: string, label: Thumbnail URL }
       - { name: video_title, type: string, label: Video Title }
       - { name: class, type: string, label: CSS Class }
-      - name: content
-        type: rich-text
-        label: Overlay Content
-        required: true
+      - { name: badge, type: string, label: Badge Text }
+      - { name: content, type: rich-text, label: Content }
+      - name: buttons
+        type: object
+        label: Buttons
+        list: true
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
   block_video_cards:
     label: Video Cards
     type: object

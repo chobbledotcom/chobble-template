@@ -11,8 +11,9 @@ blocks:
   - type: hero
     class: gradient
     badge: Opinionated & Complete
-    name: A Free Eleventy Template for Small Business Websites
-    lead: >-
+    content: |
+      # A Free Eleventy Template for Small Business Websites
+
       With loads of stuff included that your business might need - collections, layouts, themes, and integrations.
       It builds to static HTML. You host it wherever you like. Hosting from £10/month, or £5/month for charities — or self-host for free.
     buttons:
@@ -416,8 +417,13 @@ blocks:
     parallax: true
     image: src/images/city-traffic-night.jpg
     image_alt: Long exposure of the traffic in a city at night
+    badge: Parallax
     content: |
       ## Image Blocks
 
       [Thanks to Yam Daisy on Pexels for this photo](https://www.pexels.com/photo/long-exposure-of-the-traffic-in-a-city-at-night-25208706/)
+    buttons:
+      - text: View the template on GitHub
+        href: https://github.com/chobbledotcom/chobble-template
+        variant: primary
 ---
