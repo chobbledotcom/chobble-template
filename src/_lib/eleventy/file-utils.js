@@ -6,6 +6,7 @@ import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { processLiquidStrings } from "#utils/liquid-render.js";
+import { validateSidebarBlocks } from "#utils/sidebar-blocks.js";
 
 /**
  * @typedef {{ type: string, content: string }} MarkdownToken
@@ -170,9 +171,36 @@ const snippetDataFilter = (name) => readSnippetData(name);
  * @param {string} name
  */
 async function snippetBlocksFilter(name) {
+  return resolveSnippetBlocks(name, this.context.environments);
+}
+
+/**
+ * Reads a snippet's blocks, optionally validates them, and resolves Liquid
+ * expressions against the page context.
+ *
+ * @param {string} name
+ * @param {Record<string, unknown>} context
+ * @param {(blocks: Record<string, unknown>[]) => Record<string, unknown>[]} [validate]
+ */
+const resolveSnippetBlocks = (name, context, validate = (blocks) => blocks) => {
   const data = readSnippetData(name);
   if (!data?.blocks) return [];
-  return processLiquidStrings(data.blocks, this.context.environments);
+  return processLiquidStrings(validate(data.blocks), context);
+};
+
+/**
+ * Like snippet_blocks, but enforces that every block type is safe inside the
+ * narrow right-content sidebar column.
+ *
+ * @this {LiquidFilterContext}
+ * @param {string} name
+ */
+async function sidebarBlocksFilter(name) {
+  return resolveSnippetBlocks(
+    name,
+    this.context.environments,
+    validateSidebarBlocks,
+  );
 }
 
 /**
@@ -213,6 +241,7 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addFilter("file_missing", fileMissingFilter);
   eleventyConfig.addFilter("snippet_data", snippetDataFilter);
   eleventyConfig.addAsyncFilter("snippet_blocks", snippetBlocksFilter);
+  eleventyConfig.addAsyncFilter("sidebar_blocks", sidebarBlocksFilter);
   eleventyConfig.addAsyncFilter("render_block_liquid", renderBlockLiquidFilter);
   eleventyConfig.addFilter("escape_html", escapeHtmlFilter);
   eleventyConfig.addFilter("markdown", (str) =>
