@@ -13,7 +13,6 @@
     &.two-columns .page-columns {
       display: grid;
       grid-template-columns: 1fr var(--right-column-width, 16rem);
-      align-items: start;
 
       > main {
         // Without this, any wide child (slider, 1200px .container-wide) sets
@@ -29,14 +28,20 @@
 
     // Sliders don't make sense in a narrow column: stack them.
     .slider-container .items.slider {
+      overflow: visible;
       display: flex;
       flex-direction: column;
-      overflow: visible;
 
       > li {
         width: 100%;
         min-width: 0;
       }
+    }
+
+    // Main-column item card sizing is too wide for the narrow sidebar.
+    ul.items:not(.slider, .masonry) > li {
+      flex-basis: 100%;
+      max-width: 100%;
     }
   }
 }
