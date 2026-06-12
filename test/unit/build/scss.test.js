@@ -237,8 +237,9 @@ describe("scss", () => {
   test("Design-system sidebar columns stretch and stack item cards", async () => {
     const result = await compileDesignSystemCss();
     const columnsRule =
-      result.match(/\.design-system\.two-columns \.page-columns\s*\{[^}]*\}/)
-        ?.[0] ?? "";
+      result.match(
+        /\.design-system\.two-columns \.page-columns\s*\{[^}]*\}/,
+      )?.[0] ?? "";
     const sidebarItemsRule =
       result.match(
         /\.design-system \.right-column ul\.items:not\(\.slider, \.masonry\) > li\s*\{[^}]*\}/,
