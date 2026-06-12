@@ -1,10 +1,9 @@
 {%- comment -%}
-Hero section with badge, name, lead text, and action buttons.
+Hero section with optional badge, markdown content, and action buttons.
 
 Parameters (via block object):
-  - block.badge: Optional badge text above name
-  - block.name: Main heading (required)
-  - block.lead: Subtitle/description text
+  - block.badge: Optional badge text above the content
+  - block.content: Markdown content rendered in .prose (required)
   - block.buttons: Array of button objects with:
     - text: Button label
     - href: Link URL
@@ -14,11 +13,10 @@ Parameters (via block object):
   - block.reveal: If set, adds data-reveal animation
 
 Usage:
-  {% include "design-system/hero.html",
+  {% include "design-system/blocks/hero.html",
      block: {
        badge: "New Release",
-       name: "Welcome to Our Site",
-       lead: "A short description here",
+       content: "# Welcome to Our Site\n\nA short description here",
        buttons: page.hero_buttons,
        class: "gradient"
      }
@@ -26,23 +24,5 @@ Usage:
 {%- endcomment -%}
 
 <header class="hero{% if block.class %} {{ block.class }}{% endif %}"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
-  {%- if block.badge -%}
-    <span class="badge">{{ block.badge }}</span>
-  {%- endif -%}
-  <h1>{{ block.name }}</h1>
-  {%- if block.lead -%}
-    <p class="lead">{{ block.lead }}</p>
-  {%- endif -%}
-  {%- if block.buttons.size > 0 -%}
-    <div class="actions">
-      {%- for button in block.buttons -%}
-        {%- assign variant = button.variant | default: "primary" -%}
-        {%- assign btnClass = "btn btn--" | append: variant -%}
-        {%- if button.size -%}
-          {%- assign btnClass = btnClass | append: " btn--" | append: button.size -%}
-        {%- endif -%}
-        <a href="{{ button.href }}" class="{{ btnClass }}">{{ button.text }}</a>
-      {%- endfor -%}
-    </div>
-  {%- endif -%}
+  {%- include "design-system/hero-content.html", block: block -%}
 </header>

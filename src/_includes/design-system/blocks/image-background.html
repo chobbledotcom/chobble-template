@@ -6,8 +6,10 @@ The image uses the {% image %} shortcode for responsive srcsets and is cropped t
 Parameters (via block object):
   - block.image: Image path (required)
   - block.image_alt: Alt text for the image (default: "Background image")
-  - block.content: HTML/markdown content to overlay on the image (required)
+  - block.badge / block.content / block.buttons: Optional hero-style content
+    overlaid on the image (see design-system/media-background-overlay.html)
   - block.class: Additional classes for the container (optional)
+  - block.reveal: If set, adds data-reveal animation
   - block.parallax: Enable parallax scrolling effect on the image (optional, default: false)
   - block.tint: Enable dark gradient overlay for legibility over white text (optional, default: false)
 
@@ -17,13 +19,9 @@ Usage:
 
 {%- assign _image_alt = block.image_alt | default: "Background image" -%}
 
-<div class="image-background{% if block.tint %} tinted{% endif %}{% if block.parallax %} parallax{% endif %}{% if block.class %} {{ block.class }}{% endif %}">
+<div class="image-background{% if block.tint %} tinted{% endif %}{% if block.parallax %} parallax{% endif %}{% if block.class %} {{ block.class }}{% endif %}"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
   <div>
     {% image block.image, _image_alt, "2560,1920,1280,960,640", "", "100vw", "8/3", "", false, true %}
   </div>
-  <figure>
-    <figcaption class="prose">
-      {{ block.content | renderContent: "md" }}
-    </figcaption>
-  </figure>
+  {%- include "design-system/media-background-overlay.html", block: block -%}
 </div>

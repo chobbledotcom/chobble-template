@@ -167,7 +167,7 @@ Terminal-style code display with macOS-like toolbar header.
 
 ### `hero`
 
-Full-width hero banner with optional badge, name, lead text, and action buttons.
+Full-width hero banner with optional badge, markdown content, and action buttons.
 
 **Component:** `block_hero`
 **Template:** `src/_includes/design-system/blocks/hero.html`
@@ -176,12 +176,11 @@ Full-width hero banner with optional badge, name, lead text, and action buttons.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `badge` | string | — | Small pill label above the name. Renders as `<span class="badge">`. |
-| `name` | string | **required** | Main `<h1>` heading. |
-| `lead` | string | — | Subtitle paragraph. `body-lg` size, muted color, max-width `$width-narrow` (680px). |
-| `buttons` | array | — | Action buttons. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default. |
-| `class` | string | — | Extra CSS classes on the `<header>`. Use `"gradient"` for gradient bg. |
+| `badge` | string | — | Small pill label above the content. Renders as `<span class="badge">`. |
+| `content` | string | **required** | Markdown content rendered in `.prose`. Start with a `# Heading`; paragraphs get `body-lg` size, muted color, max-width `$width-narrow` (680px). |
+| `buttons` | array | — | Action buttons below the content. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default. |
 | `reveal` | string | — | `data-reveal` value. |
+| `class` | string | — | Extra CSS classes on the `<header>`. Use `"gradient"` for gradient bg. |
 
 ---
 
@@ -412,7 +411,7 @@ One-column callout/note with icon, name, and short content — for content warni
 
 ### `video-background`
 
-Auto-playing video background with overlaid text content.
+Auto-playing video background with hero-style overlay content (badge, markdown content, buttons).
 
 **Component:** `block_video_background`
 **Template:** `src/_includes/design-system/blocks/video-background.html`
@@ -425,7 +424,10 @@ Auto-playing video background with overlaid text content.
 | `thumbnail_url` | string | — | URL of a thumbnail image displayed behind the iframe while the video loads. |
 | `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
 | `class` | string | — | Extra CSS classes. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
+| `badge` | string | — | Small pill label above the content. Renders as `<span class="badge">`. |
+| `content` | string | — | Markdown overlay content rendered in `.prose` inside the `<figcaption>`. |
+| `buttons` | array | — | Action buttons below the content. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default. |
+| `reveal` | string | — | `data-reveal` value. |
 
 YouTube IDs get `youtube-nocookie.com` embed URLs with `autoplay=1&mute=1&loop=1&controls=0`. Custom URLs (starting with `http`) are used directly.
 
@@ -446,7 +448,10 @@ Bunny CDN video background with player.js-powered thumbnail that fades when play
 | `thumbnail_url` | string | — | Thumbnail image URL. Displayed as a placeholder until video playback begins. |
 | `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
 | `class` | string | — | Extra CSS classes. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
+| `badge` | string | — | Small pill label above the content. Renders as `<span class="badge">`. |
+| `content` | string | — | Markdown overlay content rendered in `.prose` inside the `<figcaption>`. |
+| `buttons` | array | — | Action buttons below the content. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default. |
+| `reveal` | string | — | `data-reveal` value. |
 
 Uses player.js to detect when the video starts playing, then fades out the thumbnail. The player.js library is bundled into bunny-video.js and only loaded when this block is used.
 
@@ -454,7 +459,7 @@ Uses player.js to detect when the video starts playing, then fades out the thumb
 
 ### `image-background`
 
-Full-width image background with overlaid text and optional parallax.
+Full-width image background with hero-style overlay content (badge, markdown content, buttons) and optional parallax.
 
 **Component:** `block_image_background`
 **Template:** `src/_includes/design-system/blocks/image-background.html`
@@ -466,7 +471,10 @@ Full-width image background with overlaid text and optional parallax.
 | `image` | string | **required** | Image path. |
 | `image_alt` | string | `"Background image"` | Alt text. |
 | `class` | string | — | Extra CSS classes. |
-| `content` | string | **required** | Overlay content. Rendered as markdown in `<figcaption class="prose">`. |
+| `badge` | string | — | Small pill label above the content. Renders as `<span class="badge">`. |
+| `content` | string | — | Markdown overlay content rendered in `.prose` inside the `<figcaption>`. |
+| `buttons` | array | — | Action buttons below the content. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default. |
+| `reveal` | string | — | `data-reveal` value. |
 | `parallax` | boolean | `false` | Enables CSS `animation-timeline: scroll()` parallax effect. |
 | `tint` | boolean | `false` | Applies a dark gradient overlay for text legibility over the background image. |
 

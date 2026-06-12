@@ -1,0 +1,41 @@
+{%- comment -%}
+Hero-style content: optional badge, markdown content wrapped in .prose, and
+action buttons below. Shared by the hero block and the *-background blocks.
+
+Parameters:
+  - block.badge: Optional badge text above the content
+  - block.content: Markdown content rendered in .prose
+  - block.buttons: Array of button objects with:
+    - text: Button label
+    - href: Link URL
+    - variant: "primary", "secondary", or "ghost" (default: "primary")
+    - size: "sm", "lg", or omit for default
+
+Usage:
+  {% include "design-system/hero-content.html", block: block %}
+{%- endcomment -%}
+
+{%- if block.badge -%}
+  <span class="badge">{{ block.badge }}</span>
+{%- endif -%}
+{%- if block.content -%}
+  <div class="prose">
+    {{ block.content | renderContent: "md" }}
+  </div>
+{%- endif -%}
+{%- if block.buttons.size > 0 -%}
+  <div class="actions">
+    {%- for button in block.buttons -%}
+      {%- assign variant = button.variant | default: "primary" -%}
+      {%- assign btnClass = "btn btn--" | append: variant -%}
+      {%- comment -%}
+        Liquid's `.size` falls back to the object's key count when the button
+        has no `size` key, so only append the class for known size values.
+      {%- endcomment -%}
+      {%- if button.size == "sm" or button.size == "lg" -%}
+        {%- assign btnClass = btnClass | append: " btn--" | append: button.size -%}
+      {%- endif -%}
+      <a href="{{ button.href }}" class="{{ btnClass }}">{{ button.text }}</a>
+    {%- endfor -%}
+  </div>
+{%- endif -%}

@@ -19,7 +19,8 @@ export const fields = {
 };
 
 export const docs = {
-  summary: "Auto-playing video background with overlaid text content.",
+  summary:
+    "Auto-playing video background with hero-style overlay content (badge, markdown content, buttons).",
   scss: "src/css/design-system/_video-background.scss",
   htmlRoot: '<div class="video-background">',
   notes:
