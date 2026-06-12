@@ -23,8 +23,10 @@ Parameters (passed directly via include):
 {%- assign _currency = currency | default: "GBP" -%}
 {%- assign _button_text = button_text | default: "Buy now" -%}
 {%- if image -%}
+  {%- assign image = image -%}
+  {%- capture _alt -%}{%- include "get-alt-text.html", fallback: name -%}{%- endcapture -%}
   <a class="image-link" href="{{ link }}">
-    {%- image image, name, "", "", "", image_aspect_ratio -%}
+    {%- image image, _alt, "", "", "", image_aspect_ratio -%}
     <meta itemprop="image" content="{{ image }}">
   </a>
 {%- endif -%}

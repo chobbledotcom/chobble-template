@@ -28,7 +28,7 @@ Parameters (via block object):
     <div class="marquee-images__track">
       {%- for item in block.items -%}
         {%- assign image = item.image -%}
-        {%- capture alt_text -%}{%- if item.alt -%}{{ item.alt }}{%- else -%}{%- include "get-alt-text.html" -%}{%- endif -%}{%- endcapture -%}
+        {%- capture alt_text -%}{%- include "get-alt-text.html", fallback: item.alt -%}{%- endcapture -%}
         {%- if item.link_url -%}
         <a href="{{ item.link_url }}" class="marquee-images__link">{%- image item.image, alt_text, "", "", "", "", "", true -%}</a>
         {%- else -%}
