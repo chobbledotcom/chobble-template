@@ -651,8 +651,11 @@
 
 @mixin media-background-content {
   > figure {
-    --color-text: var(--color-contrast-text);
-    --color-text-muted: var(--color-contrast-text-muted);
+    // Remap the tint to the link color so tint-bg components (badges) pair
+    // it with the remapped contrast text instead of white-on-light.
+    --color-tint: var(--color-link);
+
+    @include contrast-text-vars;
 
     // In flow (not absolute) so tall content grows the container instead
     // of being clipped by the aspect-ratio height.
@@ -660,7 +663,6 @@
     z-index: 1;
     margin: 0;
     padding: $space-lg;
-    color: var(--color-contrast-text);
 
     @include flex-center;
   }
@@ -691,22 +693,29 @@
       text-shadow: var(--shadow-sm);
     }
 
+    // Buttons sit on arbitrary imagery, so pair --color-link with
+    // --color-contrast-text(-muted) — themes define these as a contrasting
+    // pair (same approach as .cta).
     .btn, a.btn {
       border-color: transparent;
-      color: var(--color-text);
+      color: var(--color-link);
       background: var(--color-contrast-text-muted);
 
       &:hover {
+        color: var(--color-link);
         background: var(--color-contrast-text);
       }
     }
 
-    .btn--primary {
+    // a.btn--primary keeps specificity above the a.btn rule, which would
+    // otherwise win on element count and turn primary into the pale pill.
+    .btn--primary, a.btn--primary {
       border-color: transparent;
       color: var(--color-contrast-text);
       background: var(--color-link);
 
       &:hover {
+        color: var(--color-contrast-text);
         background: var(--color-link-hover);
       }
     }
