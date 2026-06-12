@@ -2,35 +2,42 @@
 
 /**
  * Full test suite runner.
- * Runs lint, typecheck, cpd, build, and tests (with coverage) in sequence.
+ * Runs lint, typecheck, cpd, knip, build, and tests in parallel lanes:
+ * lanes execute concurrently, steps within a lane execute sequentially.
+ * Lane notes:
+ * - typecheck and typecheck:strict share a lane so the two tsc processes
+ *   don't compete for the same cores at once
+ * - the jscpd scans share a lane because both write .jscpd-report
+ * - unit tests carry the coverage thresholds; integration tests spawn
+ *   uninstrumented child builds so coverage would add nothing there
  * Use --verbose flag to see full output from all checks.
  */
 
 import {
   COMMON_STEPS,
-  coverageStep,
+  integrationTestsStep,
   isMainModule,
-  runSteps,
+  runLanes,
+  unitTestsStep,
   verbose,
 } from "#test/test-runner-utils.js";
 
-// Full test suite uses lint (not fix), includes build, and coverage
-const steps = [
-  COMMON_STEPS.lint,
-  COMMON_STEPS.lintScss,
-  COMMON_STEPS.typecheck,
-  COMMON_STEPS.typecheckStrict,
-  COMMON_STEPS.cpdDesignSystem,
-  COMMON_STEPS.cpd,
-  COMMON_STEPS.build,
-  coverageStep(verbose),
+const lanes = [
+  [COMMON_STEPS.lint],
+  [COMMON_STEPS.lintScss],
+  [COMMON_STEPS.knip],
+  [COMMON_STEPS.typecheck, COMMON_STEPS.typecheckStrict],
+  [COMMON_STEPS.cpdDesignSystem, COMMON_STEPS.cpd],
+  [COMMON_STEPS.build],
+  [unitTestsStep(verbose)],
+  [integrationTestsStep],
 ];
 
-// Run all steps (only when executed directly, not when imported)
+// Run all lanes (only when executed directly, not when imported)
 if (isMainModule(import.meta.url)) {
   console.log(
     verbose ? "Running full test suite (verbose)...\n" : "Running tests...",
   );
 
-  runSteps({ steps, verbose, title: "TEST SUMMARY" });
+  await runLanes({ lanes, verbose, title: "TEST SUMMARY" });
 }

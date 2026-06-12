@@ -22,6 +22,30 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
+      - name: Cache bun install cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-${{ runner.os }}-
+
+      # .image-cache: processed images for the site build (keyed on sources)
+      # *.tsbuildinfo: incremental tsc state for typecheck + typecheck:strict
+      # pages-cms cache: schema clone used by pages-yml-validation.test.js,
+      # so CI runs don't depend on a live git clone of an external repo
+      - name: Cache build and typecheck state
+        uses: actions/cache@v4
+        with:
+          path: |
+            .image-cache
+            tsconfig.tsbuildinfo
+            tsconfig.strict.tsbuildinfo
+            /tmp/pages-cms-validation-cache
+          key: test-state-${{ runner.os }}-${{ hashFiles('bun.lock', 'tsconfig.json', 'src/images/**') }}
+          restore-keys: |
+            test-state-${{ runner.os }}-
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 

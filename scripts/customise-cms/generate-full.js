@@ -10,6 +10,7 @@
  * Usage: bun run generate-pages-yml
  */
 
+import { writeFile } from "node:fs/promises";
 import siteConfig from "#data/config.json" with { type: "json" };
 import { createDefaultConfig } from "#scripts/customise-cms/config.js";
 import {
@@ -17,6 +18,10 @@ import {
   runWithErrorHandling,
   writePagesYaml,
 } from "#scripts/customise-cms/writer.js";
+
+// Freshness tests set PAGES_YML_OUTPUT_PATH to compare regenerated output
+// without overwriting the committed .pages.yml mid-run.
+const outputOverride = process.env.PAGES_YML_OUTPUT_PATH;
 
 /**
  * Main entry point for the non-interactive .pages.yml generator
@@ -34,7 +39,11 @@ const main = async () => {
     config.features.use_visual_editor = siteConfig.use_visual_editor;
   }
 
-  await writePagesYaml(generateCompactYaml(config));
+  if (outputOverride) {
+    await writeFile(outputOverride, generateCompactYaml(config), "utf-8");
+  } else {
+    await writePagesYaml(generateCompactYaml(config));
+  }
 
   console.log(".pages.yml has been generated with:");
   console.log(`  - ${config.collections.length} collections`);

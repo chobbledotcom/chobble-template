@@ -112,7 +112,16 @@ const STRICT_CLEAN_FILES = [
 
 const result = spawnSync(
   "bun",
-  ["run", "tsc", "--noEmit", "-p", "tsconfig.strict.json"],
+  [
+    "run",
+    "tsc",
+    "--noEmit",
+    "-p",
+    "tsconfig.strict.json",
+    "--incremental",
+    "--tsBuildInfoFile",
+    "tsconfig.strict.tsbuildinfo",
+  ],
   {
     cwd: ROOT_DIR,
     stdio: ["inherit", "pipe", "pipe"],

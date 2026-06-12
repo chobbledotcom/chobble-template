@@ -2,7 +2,7 @@
  * Shared utilities for test runners (precommit.js and run-tests.js)
  */
 
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
@@ -251,6 +251,7 @@ export const COMMON_STEPS = {
   },
   cpd: { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
   cpdRatchet: { name: "cpd:ratchet", cmd: "bun", args: ["run", "cpd:ratchet"] },
+  knip: { name: "knip", cmd: "bun", args: ["run", "knip"] },
   test: { name: "test", cmd: "bun", args: ["test", "--timeout", "30000"] },
   build: {
     name: "build",
@@ -260,15 +261,19 @@ export const COMMON_STEPS = {
 };
 
 /**
- * Create a tests step with coverage and optional verbose flag
+ * Create the unit tests step with coverage and optional verbose flag.
+ * Unit tests alone satisfy the 100% coverage thresholds; integration tests
+ * run their Eleventy builds in child processes that coverage never sees,
+ * so instrumenting them adds time without adding signal.
  * @param {boolean} verbose - Whether to include verbose flag
- * @returns {Object} Tests step configuration
+ * @returns {Object} Unit tests step configuration
  */
-export const coverageStep = (verbose) => ({
-  name: "tests",
+export const unitTestsStep = (verbose) => ({
+  name: "tests:unit",
   cmd: "bun",
   args: [
     "test",
+    "test/unit",
     "--coverage",
     "--coverage-reporter=lcov",
     "--coverage-reporter=text",
@@ -278,6 +283,16 @@ export const coverageStep = (verbose) => ({
     ...(verbose ? ["--verbose"] : []),
   ],
 });
+
+/**
+ * Integration tests step (no coverage - see unitTestsStep).
+ * @type {Object}
+ */
+export const integrationTestsStep = {
+  name: "tests:integration",
+  cmd: "bun",
+  args: ["test", "test/integration", "--concurrent", "--timeout", "30000"],
+};
 
 /**
  * Run a single test step
@@ -300,18 +315,83 @@ export function runStep(step, verbose) {
   const stdout = result.stdout?.toString() || "";
   const stderr = result.stderr?.toString() || "";
 
-  // In verbose mode, print captured output to console
+  return finishStepResult(result.status, stdout, stderr, verbose);
+}
+
+/** Drain a step's output stream into a string */
+const drainStepOutput = async (stream) =>
+  Buffer.concat(await Array.fromAsync(stream)).toString();
+
+/** Print captured output in verbose mode and shape the step result */
+const finishStepResult = (status, stdout, stderr, verbose) => {
   if (verbose) {
     if (stdout) process.stdout.write(stdout);
     if (stderr) process.stderr.write(stderr);
   }
+  return { status, stdout, stderr };
+};
 
-  return {
-    status: result.status,
-    stdout,
-    stderr,
-  };
-}
+/**
+ * Run a single step asynchronously so independent steps can overlap.
+ * Same result shape as runStep.
+ * @param {Object} step - Step configuration
+ * @param {boolean} verbose - Whether to show full output
+ * @returns {Promise<Object>} Result with status and output
+ */
+export const runStepAsync = async (step, verbose) => {
+  const child = spawn(step.cmd, step.args, {
+    cwd: rootDir,
+    stdio: ["ignore", "pipe", "pipe"],
+    env: {
+      ...process.env,
+      VERBOSE: verbose ? "1" : "0",
+    },
+  });
+
+  const [stdout, stderr, status] = await Promise.all([
+    drainStepOutput(child.stdout),
+    drainStepOutput(child.stderr),
+    new Promise((resolve) => child.on("close", resolve)),
+  ]);
+
+  return finishStepResult(status, stdout, stderr, verbose);
+};
+
+/**
+ * Run one lane's steps sequentially, recording results by step name.
+ * Stops the lane at the first failure; other lanes are unaffected.
+ * @param {Object[]} lane - Steps to run in order
+ * @param {boolean} verbose - Whether to show full output
+ * @param {Object} results - Shared results map, mutated per step
+ */
+const runLane = async (lane, verbose, results) => {
+  for (const step of lane) {
+    const startedAt = Date.now();
+    const result = await runStepAsync(step, verbose);
+    results[step.name] = result;
+    const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
+    const mark = result.status === 0 ? "✓" : "✗";
+    console.log(`${mark} ${step.name} (${seconds}s)`);
+    if (result.status !== 0) return;
+  }
+};
+
+/**
+ * Run lanes of steps: lanes execute in parallel, steps within a lane
+ * execute sequentially. All lanes run to completion (or first failure
+ * within the lane) so the summary reports every failure at once.
+ * @param {Object} options - Runner options
+ * @param {Object[][]} options.lanes - Arrays of step configurations
+ * @param {boolean} options.verbose - Whether to show full output
+ * @param {string} options.title - Title for summary output
+ * @returns {Promise<Object>} Results map from step names to results
+ */
+export const runLanes = async ({ lanes, verbose, title }) => {
+  const results = {};
+  await Promise.all(lanes.map((lane) => runLane(lane, verbose, results)));
+  printSummary(lanes.flat(), results, title);
+  return results;
+};
 
 /**
  * Extract error messages from test output
