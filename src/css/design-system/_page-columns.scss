@@ -1,0 +1,42 @@
+@use "../breakpoints" as breakpoint;
+
+// =============================================================================
+// PAGE COLUMNS (right-content sidebar)
+// =============================================================================
+// base.html always wraps <main> in .page-columns; the grid only activates
+// when body has .two-columns (i.e. src/snippets/right-content.md exists) at
+// the lg breakpoint and up. Below that the aside stacks under main.
+// Width is themable via --right-column-width (declared in _base.scss :root).
+
+.design-system {
+  @include breakpoint.up("lg") {
+    &.two-columns .page-columns {
+      display: grid;
+      grid-template-columns: 1fr var(--right-column-width, 16rem);
+      align-items: start;
+
+      > main {
+        // Without this, any wide child (slider, 1200px .container-wide) sets
+        // the 1fr track's min-content size and blows the grid out past its
+        // container, shoving the sidebar.
+        min-width: 0;
+      }
+    }
+  }
+
+  .right-column {
+    padding: var(--space-md) var(--space-sm);
+
+    // Sliders don't make sense in a narrow column: stack them.
+    .slider-container .items.slider {
+      display: flex;
+      flex-direction: column;
+      overflow: visible;
+
+      > li {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+  }
+}

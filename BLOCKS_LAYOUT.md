@@ -1283,6 +1283,25 @@ These block types are rejected at build time if listed inside any column (they n
 
 ---
 
+## Right column (site-wide sidebar)
+
+Create `src/snippets/right-content.md` to render a sidebar `<aside class="right-column">` beside `<main>` on every page that uses `base.html`. Presence of the file is the switch — no frontmatter flags or config. The body element gets a `two-columns` class (otherwise `one-column`), and the grid activates at the `lg` breakpoint; below it the sidebar stacks under the main content.
+
+Two content modes:
+
+- **Blocks** — give the snippet a `blocks:` frontmatter array. Blocks render directly (via `render-block.html`), without the full-width section wrappers and background striping that page blocks get, since those don't make sense in a narrow column. Only column-safe block types are allowed: the same types disallowed inside `blockLayouts.json` columns (see "Disallowed block types" above) fail the build with `Block type "X" is not supported inside the right-content sidebar.`
+- **Markdown** — plain snippet body content renders inside a `.prose` wrapper, with `{% opening_times %}` and `{% recurring_events %}` support like other snippets.
+
+The aside is a sibling of `<main>`, not a child, so sidebar text never enters the Pagefind search index (`data-pagefind-body` lives on `<main>`). Sidebar width is themable via the `--right-column-width` token (default `16rem`), declared at `:root` like the other sizing tokens.
+
+Relationship to `blockLayouts.json` columns: that system splits a page's own blocks into columns per collection; the right column is shared site-wide furniture. They compose — the `.page-columns` grid wraps whatever `main` renders, including block-columns layouts.
+
+### Banner hoisting
+
+When the sidebar is active and a page's **first** block is `image-background`, that block is hoisted above the `.page-columns` grid so the banner spans the full width (content + sidebar) instead of being squeezed into the main column. All remaining blocks render inside `<main>` as usual. Without the sidebar, no hoisting happens.
+
+---
+
 ## Supporting Components
 
 These are not blocks themselves but are used by multiple blocks.

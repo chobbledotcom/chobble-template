@@ -21,19 +21,24 @@
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
   {%- endunless -%}
-  <main{% if pagefind_body %} data-pagefind-body{% endif %}>
-    {%- if config.show_breadcrumbs and page.url != "/" -%}
-      {%- include "breadcrumbs-nav.html" -%}
-    {%- endif -%}
-    {{- content | validatePageBodyContent: layout, page.inputPath -}}
-    {%- if blocks -%}
-      {%- include "design-system/blocks.html", blocks: blocks -%}
-    {%- endif -%}
-    {%- assign footer_snippet_data = "footer-content" | snippet_data -%}
-    {%- if footer_snippet_data.blocks -%}
-      {%- include "design-system/blocks.html", blocks: footer_snippet_data.blocks -%}
-    {%- endif -%}
-  </main>
+  {%- assign banner_split = blocks | splitHoistedBanner: has_right_content -%}
+  {%- include "design-system/hoisted-banner.html", banner: banner_split.banner -%}
+  <div class="page-columns">
+    <main{% if pagefind_body %} data-pagefind-body{% endif %}>
+      {%- if config.show_breadcrumbs and page.url != "/" -%}
+        {%- include "breadcrumbs-nav.html" -%}
+      {%- endif -%}
+      {{- content | validatePageBodyContent: layout, page.inputPath -}}
+      {%- if banner_split.rest.size > 0 -%}
+        {%- include "design-system/blocks.html", blocks: banner_split.rest -%}
+      {%- endif -%}
+      {%- assign footer_snippet_data = "footer-content" | snippet_data -%}
+      {%- if footer_snippet_data.blocks -%}
+        {%- include "design-system/blocks.html", blocks: footer_snippet_data.blocks -%}
+      {%- endif -%}
+    </main>
+    {%- include "design-system/right-column.html" -%}
+  </div>
   {%- include "design-system/footer.html" -%}
   {%- include "image-popup.html" -%}
   {%- include "client-templates.html" -%}

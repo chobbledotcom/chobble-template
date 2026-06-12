@@ -68,6 +68,20 @@ const testSnippet = (testName, snippetName, content, callback) =>
     await callback(result);
   });
 
+/**
+ * Run a snippet-reading async filter against a temp snippet with a page
+ * context. The callback receives a runner so tests can also assert throws.
+ */
+const testSnippetFilterCtx = (filterName) => {
+  return (testName, snippetName, content, pageContext, callback) =>
+    withSnippetSetup(testName, snippetName, content, async (mockConfig) => {
+      const filter = mockConfig.asyncFilters[filterName];
+      await callback(() =>
+        filter.call({ context: { environments: pageContext } }, snippetName),
+      );
+    });
+};
+
 const testSnippetData = (testName, snippetName, content, callback) =>
   withSnippetSetup(testName, snippetName, content, (mockConfig) => {
     callback(mockConfig.filters.snippet_data(snippetName));
@@ -328,6 +342,7 @@ Unicode: café résumé naïve`;
   });
 
   describe("snippet_blocks filter", () => {
+    const runSnippetBlocks = testSnippetFilterCtx("snippet_blocks");
     const testSnippetBlocksCtx = (
       testName,
       snippetName,
@@ -335,14 +350,13 @@ Unicode: café résumé naïve`;
       pageContext,
       callback,
     ) =>
-      withSnippetSetup(testName, snippetName, content, async (mockConfig) => {
-        const filter = mockConfig.asyncFilters.snippet_blocks;
-        const result = await filter.call(
-          { context: { environments: pageContext } },
-          snippetName,
-        );
-        await callback(result);
-      });
+      runSnippetBlocks(
+        testName,
+        snippetName,
+        content,
+        pageContext,
+        async (run) => callback(await run()),
+      );
 
     test("Registers as an async filter", () => {
       const mockConfig = createMockEleventyConfig();
@@ -460,6 +474,67 @@ blocks:
           expect(result[0].columns).toBe(3);
           expect(result[0].items[0].value).toBe("Gizmo");
           expect(result[0].items[0].label).toBe("Name");
+        },
+      );
+    });
+  });
+
+  describe("sidebar_blocks filter", () => {
+    const testSidebarBlocksCtx = testSnippetFilterCtx("sidebar_blocks");
+
+    test("Registers as an async filter", () => {
+      const mockConfig = createConfiguredMock();
+      expect(typeof mockConfig.asyncFilters.sidebar_blocks).toBe("function");
+    });
+
+    test("Returns empty array for missing snippet", async () => {
+      await testSidebarBlocksCtx(
+        "sidebar-missing",
+        "sidebar-nonexistent",
+        null,
+        {},
+        async (run) => {
+          expect(await run()).toEqual([]);
+        },
+      );
+    });
+
+    test("Resolves Liquid in column-safe blocks with page context", async () => {
+      const content = `---
+name: Sidebar
+blocks:
+  - type: cta
+    title: "Contact {{ title }}"
+---`;
+      await testSidebarBlocksCtx(
+        "sidebar-safe",
+        "sidebar-safe",
+        content,
+        { title: "Us" },
+        async (run) => {
+          const result = await run();
+          expect(result.length).toBe(1);
+          expect(result[0].title).toBe("Contact Us");
+        },
+      );
+    });
+
+    test("Throws for a column-disallowed block type", async () => {
+      const content = `---
+name: Sidebar
+blocks:
+  - type: hero
+    name: Nope
+---`;
+      await testSidebarBlocksCtx(
+        "sidebar-disallowed",
+        "sidebar-disallowed",
+        content,
+        {},
+        async (run) => {
+          expect(run).toThrow(
+            'Block type "hero" is not supported inside the right-content sidebar.',
+          );
         },
       );
     });

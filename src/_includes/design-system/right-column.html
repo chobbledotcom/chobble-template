@@ -1,0 +1,18 @@
+{%- comment -%}
+The right-content sidebar. Renders nothing unless src/snippets/right-content.md
+exists (has_right_content global data). Snippet `blocks:` frontmatter renders
+per-block without the full-width section wrappers; plain markdown body content
+falls back to a prose wrapper.
+{%- endcomment -%}
+{%- if has_right_content -%}
+  <aside class="right-column design-system">
+    {%- assign right_blocks = "right-content" | sidebar_blocks -%}
+    {%- if right_blocks.size > 0 -%}
+      {%- for block in right_blocks -%}
+        {%- include "design-system/render-block.html", block: block -%}
+      {%- endfor -%}
+    {%- else -%}
+      <div class="prose">{% render_snippet "right-content", "" %}</div>
+    {%- endif -%}
+  </aside>
+{%- endif -%}
