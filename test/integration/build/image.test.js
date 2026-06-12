@@ -208,6 +208,7 @@ describe("image", () => {
             imageTestPage('{% image "test-image.jpg", "A test image" %}'),
           ],
           images: [{ src: "src/images/party.jpg", dest: "test-image.jpg" }],
+          processImages: true,
         },
         async (site) => {
           const html = site.getOutput("/test/index.html");
@@ -416,6 +417,7 @@ describe("image", () => {
         {
           files: [imageTestPage("![A test scene](/images/scene.jpg)")],
           images: [{ src: "src/images/party.jpg", dest: "scene.jpg" }],
+          processImages: true,
         },
         (site) => {
           const html = site.getOutput("/test/index.html");

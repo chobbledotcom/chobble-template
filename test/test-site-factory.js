@@ -8,14 +8,15 @@
  *       { path: 'pages/test.md', frontmatter: { title: 'Test', permalink: '/test/' } }
  *     ],
  *     config: { site_name: 'Test Site' },
- *     images: ['party.jpg']  // optional: copies from src/images/
+ *     images: ['party.jpg'],  // optional: copies from src/images/
+ *     processImages: true  // optional: real sharp processing instead of placeholders
  *   }, (site) => {
  *     const html = site.getOutput('/events/my-event/index.html');
  *     expectTrue(html.includes('Test'), 'Should contain test content');
  *   });
  */
 
-import { spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
@@ -43,6 +44,10 @@ const getCachedDirList = memoize((dir) =>
         isFile: fs.statSync(path.join(dir, name)).isFile(),
       })),
 );
+
+/** Drain a child process stream into a string */
+const collectStream = async (stream) =>
+  Buffer.concat(await Array.fromAsync(stream)).toString();
 
 // -----------------------------------------------------------------------------
 // Curried File Operations - Enable composition and partial application
@@ -289,7 +294,7 @@ const createTestSite = async (options = {}) => {
               : [relativePath];
           }),
         )();
-  const createSiteObject = (siteId, siteDir, srcDir, outputDir) => {
+  const createSiteObject = (siteId, siteDir, srcDir, outputDir, options) => {
     // Curried helper bound to output directory
     const getOutputPath = inDir(outputDir);
 
@@ -300,22 +305,34 @@ const createTestSite = async (options = {}) => {
       outputDir,
 
       async build() {
-        const result = spawnSync(
+        // Async spawn so concurrent tests can overlap builds. Sites skip
+        // sharp image processing unless the test opts in via processImages.
+        const child = spawn(
           "bun",
           ["./node_modules/@11ty/eleventy/cmd.cjs", "--quiet"],
-          { cwd: siteDir, stdio: "pipe", encoding: "utf-8" },
+          {
+            cwd: siteDir,
+            stdio: ["ignore", "pipe", "pipe"],
+            env: {
+              ...process.env,
+              PLACEHOLDER_IMAGES: options.processImages ? "0" : "1",
+            },
+          },
         );
+        const [stdout, stderr, status] = await Promise.all([
+          collectStream(child.stdout),
+          collectStream(child.stderr),
+          new Promise((resolve) => child.on("close", resolve)),
+        ]);
 
-        if (result.status !== 0) {
-          const error = new Error(
-            `Eleventy build failed: ${result.stderr || result.stdout}`,
-          );
-          error.stdout = result.stdout;
-          error.stderr = result.stderr;
+        if (status !== 0) {
+          const error = new Error(`Eleventy build failed: ${stderr || stdout}`);
+          error.stdout = stdout;
+          error.stderr = stderr;
           throw error;
         }
 
-        return result.stdout;
+        return stdout;
       },
 
       getOutput(filePath) {
@@ -355,7 +372,7 @@ const createTestSite = async (options = {}) => {
     });
   };
 
-  return createSiteObject(siteId, siteDir, srcDir, outputDir);
+  return createSiteObject(siteId, siteDir, srcDir, outputDir, options);
 };
 
 /**

@@ -16,7 +16,12 @@ import YAML from "yaml";
 import { ROOT_DIR } from "#lib/paths.js";
 
 const PAGES_YML = join(ROOT_DIR, ".pages.yml");
-const OUTPUT_FILE = join(ROOT_DIR, "src/_lib/types/pages-cms-generated.d.ts");
+
+// Freshness tests set PAGES_CMS_TYPES_OUTPUT_PATH to compare regenerated
+// output without overwriting the committed file while tsc may be reading it.
+const OUTPUT_FILE = process.env.PAGES_CMS_TYPES_OUTPUT_PATH
+  ? process.env.PAGES_CMS_TYPES_OUTPUT_PATH
+  : join(ROOT_DIR, "src/_lib/types/pages-cms-generated.d.ts");
 
 /**
  * Map PagesCMS field types to TypeScript types
