@@ -609,10 +609,17 @@
   list-style: none;
 }
 
-@mixin media-background-container($aspect-ratio, $overflow: hidden) {
+@mixin media-background-container($aspect-ratio) {
   position: relative;
 
-  overflow: $overflow;
+  // Grid (not flex) so the in-flow overlay figure stretches to fill the
+  // box while still growing it when content is taller than the ratio.
+  display: grid;
+
+  // `clip` (unlike `hidden`) doesn't create a scroll container, so the
+  // aspect ratio acts as a minimum height: in-flow overlay content taller
+  // than the ratio grows the box instead of being cut off.
+  overflow: clip;
 
   aspect-ratio: $aspect-ratio;
   width: 100%;
@@ -647,8 +654,11 @@
     --color-text: var(--color-contrast-text);
     --color-text-muted: var(--color-contrast-text-muted);
 
-    position: absolute;
-    inset: 0;
+    // In flow (not absolute) so tall content grows the container instead
+    // of being clipped by the aspect-ratio height.
+    position: relative;
+    z-index: 1;
+    margin: 0;
     padding: $space-lg;
     color: var(--color-contrast-text);
 
@@ -661,6 +671,15 @@
 
     max-width: 100%;
     text-align: center;
+
+    .prose {
+      align-items: center;
+      max-width: $width-default;
+
+      p {
+        max-width: $width-narrow;
+      }
+    }
 
     h1, h2, h3, h4, h5, h6 {
       color: var(--color-contrast-text);
