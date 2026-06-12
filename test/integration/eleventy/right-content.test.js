@@ -26,6 +26,14 @@ const rightContentSnippet = (blocks) => ({
 const sidebarSnippet = () =>
   rightContentSnippet([{ type: "markdown", content: SIDEBAR_TEXT }]);
 
+const sidebarItemPage = () => ({
+  path: "pages/sidebar-item.md",
+  frontmatter: {
+    name: "Sidebar Item",
+    permalink: "/sidebar-item/",
+  },
+});
+
 const bannerSiteOptions = (files) => ({
   images: [{ src: "test/fixtures/images/party.jpg", dest: "party.jpg" }],
   files,
@@ -63,6 +71,32 @@ describe("right-content sidebar", () => {
           true,
         );
         expect(main.parentElement).toBe(aside.parentElement);
+      },
+    );
+  });
+
+  test("renders items-array blocks inside the aside", async () => {
+    await withTestSite(
+      {
+        files: [
+          homePage([PAGE_BLOCK]),
+          sidebarItemPage(),
+          rightContentSnippet([
+            {
+              type: "items-array",
+              items: ["src/pages/sidebar-item.md"],
+            },
+          ]),
+        ],
+      },
+      async (site) => {
+        const doc = await site.getDoc("index.html");
+        const items = doc.querySelector("aside.right-column ul.items");
+
+        expect(items).not.toBeNull();
+        expect(items.closest("aside.right-column")).not.toBeNull();
+        expect(items.querySelectorAll("li")).toHaveLength(1);
+        expect(items.textContent).toContain("Sidebar Item");
       },
     );
   });
