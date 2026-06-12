@@ -19,19 +19,17 @@ const MINIMAL_PAGE = {
   content: "",
 };
 
-/** Basic test page file with common defaults */
-const factoryTestPage = (options = {}) => ({
-  path: options.path || "pages/test.md",
-  frontmatter: {
-    name: options.name || "Test",
-    blocks: [{ type: "markdown", content: options.content || "Test" }],
-    ...options.frontmatter,
-  },
-  content: "",
-});
-
 /** Common test file configuration */
-const defaultTestFiles = [factoryTestPage()];
+const defaultTestFiles = [
+  {
+    path: "pages/test.md",
+    frontmatter: {
+      name: "Factory Test Page",
+      blocks: [{ type: "markdown", content: "Factory test page" }],
+    },
+    content: "",
+  },
+];
 
 describe("test-site-factory", () => {
   // Clean up any leftover test sites after all tests
@@ -259,29 +257,8 @@ describe("test-site-factory", () => {
     });
   });
 
-  // =========================================================================
-  // Cleanup functionality
-  // =========================================================================
-  describe("cleanupAllTestSites", () => {
-    test("removes all test site directories", async () => {
-      // Create a couple of test sites with different pages
-      const site1 = await createTestSite({ files: defaultTestFiles });
-      const site2 = await createTestSite({
-        files: [factoryTestPage({ path: "pages/test2.md", name: "Test 2" })],
-      });
-
-      // Get the test sites directory
-      const testSitesDir = path.dirname(site1.dir);
-
-      // Verify sites exist
-      expect(fs.existsSync(site1.dir)).toBe(true);
-      expect(fs.existsSync(site2.dir)).toBe(true);
-
-      // Clean up all test sites
-      cleanupAllTestSites();
-
-      // Verify the entire .test-sites directory was removed
-      expect(fs.existsSync(testSitesDir)).toBe(false);
-    });
-  });
+  // NOTE: cleanupAllTestSites has no in-suite test. It removes the shared
+  // .test-sites root, so exercising it mid-run would delete sites belonging
+  // to concurrently running tests. It runs in afterAll above, after every
+  // test in this file has finished.
 });

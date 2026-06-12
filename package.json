@@ -25,7 +25,7 @@
 		"test": "bun ./test/run-tests.js",
 		"test:unit": "bun test test/unit",
 		"test:integration": "bun test test/integration",
-		"typecheck": "tsc --noEmit",
+		"typecheck": "tsc --noEmit --incremental --tsBuildInfoFile tsconfig.tsbuildinfo",
 		"typecheck:strict": "bun scripts/strict-typecheck-ratchet.js",
 		"cpd:fp": "jscpd packages/js-toolkit/fp --min-tokens 12",
 		"cpd:design-system": "jscpd src/css/design-system --min-tokens 17",

@@ -3,33 +3,10 @@
  * Shared helpers for code quality tests
  */
 
-import { spawnSync } from "node:child_process";
+import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { rootDir } from "#test/test-utils.js";
-
-/**
- * Run a package.json script as a test assertion.
- * Captures stdout/stderr; on non-zero exit, prints the output and asserts.
- *
- * @param {string} scriptName - The npm script name to run
- * @param {string} failureLabel - Header shown when the script fails
- * @param {number} [timeoutMs=25000] - Timeout in milliseconds
- * @returns {number} The script's exit status
- */
-const runScriptCheck = (scriptName, failureLabel, timeoutMs = 25000) => {
-  const result = spawnSync("bun", ["run", scriptName], {
-    cwd: rootDir,
-    encoding: "utf-8",
-    stdio: ["pipe", "pipe", "pipe"],
-    timeout: timeoutMs,
-  });
-
-  if (result.status !== 0) {
-    console.log(`\n  ${failureLabel}:\n`);
-    console.log(result.stdout || result.stderr);
-  }
-
-  return result.status;
-};
 
 /**
  * Log allowed items with optional reason field
@@ -54,4 +31,24 @@ const logAllowedItems = (items, label, showReason = false) => {
   }
 };
 
-export { logAllowedItems, runScriptCheck };
+/**
+ * Run a generator script with its output redirected to a temp path and
+ * return the generated content. Freshness tests use this so committed
+ * files are never rewritten while parallel pipeline steps may read them.
+ *
+ * @param {string} script - Absolute path to the generator script
+ * @param {string} envVar - Env var the script reads as its output override
+ * @param {string} tempDir - Temp directory to write into
+ * @returns {string} The generated file content
+ */
+const regenerateToTemp = (script, envVar, tempDir) => {
+  const outputPath = join(tempDir, "generated-output");
+  execSync(`bun ${script}`, {
+    cwd: rootDir,
+    stdio: "pipe",
+    env: { ...process.env, [envVar]: outputPath },
+  });
+  return readFileSync(outputPath, "utf-8");
+};
+
+export { logAllowedItems, regenerateToTemp };

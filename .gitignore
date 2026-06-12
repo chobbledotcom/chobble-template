@@ -151,6 +151,7 @@ _site
 
 # ---> Test artifacts
 test/.test-sites/
+test/temp-*
 screenshots/
 lighthouse-reports/
 src/assets/icons/iconify/test/
