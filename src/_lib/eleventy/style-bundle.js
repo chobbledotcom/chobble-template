@@ -71,4 +71,5 @@ const getBodyClasses = (
 
 export const configureStyleBundle = (eleventyConfig) => {
   eleventyConfig.addFilter("getBodyClasses", getBodyClasses);
+  eleventyConfig.addGlobalData("has_right_content", detectRightContent);
 };

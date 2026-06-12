@@ -41,8 +41,28 @@ export const COLUMN_DISALLOWED_TYPES = [
 ];
 
 /** @param {string} type */
-const isSafeInColumn = (type) =>
+export const isColumnSafeType = (type) =>
   !COLUMN_DISALLOWED_TYPES.includes(type) && !type.startsWith("split-");
+
+/**
+ * @param {unknown} blocks
+ * @returns {Array<{ type: string } & Record<string, unknown>>}
+ */
+export const toBlockArray = (blocks) => (Array.isArray(blocks) ? blocks : []);
+
+/**
+ * Throws if any type is not safe inside a narrow column.
+ * @param {string[]} types
+ * @param {string} where - Location description for the error message
+ */
+export const assertColumnSafeTypes = (types, where) => {
+  const disallowed = types.find((type) => !isColumnSafeType(type));
+  if (disallowed) {
+    throw new Error(
+      `Block type "${disallowed}" is not supported inside ${where}.`,
+    );
+  }
+};
 
 /**
  * @typedef {{
@@ -95,14 +115,11 @@ const collectLayoutSlots = (layoutCols) =>
 /**
  * @param {Array<{ type: string, ci: number }>} slots
  */
-const validateLayoutSlots = (slots) => {
-  const disallowed = slots.find(({ type }) => !isSafeInColumn(type));
-  if (disallowed) {
-    throw new Error(
-      `Block type "${disallowed.type}" is not supported inside a block-columns layout.`,
-    );
-  }
-};
+const validateLayoutSlots = (slots) =>
+  assertColumnSafeTypes(
+    slots.map(({ type }) => type),
+    "a block-columns layout",
+  );
 
 /**
  * @typedef {{ type: string } & Record<string, unknown>} Block
@@ -173,7 +190,7 @@ const buildColumns = (safeBlocks, layoutCols, usedBefore) => {
  * @returns {{ before: Block[], columns: Block[][] | null, rest: Block[] }}
  */
 export const splitBlocksForColumns = (blocks, layout) => {
-  const safeBlocks = Array.isArray(blocks) ? blocks : [];
+  const safeBlocks = toBlockArray(blocks);
   const beforeSlots = collectBeforeSlots(layout?.before);
   const layoutCols = Array.isArray(layout?.columns) ? layout.columns : null;
   if (beforeSlots.length === 0 && !layoutCols) {

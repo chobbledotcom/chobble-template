@@ -6,6 +6,10 @@ import {
   getBlockContainerWidth,
   getBlockTemplate,
 } from "#utils/block-schema.js";
+import {
+  splitHoistedBanner,
+  validateSidebarBlocks,
+} from "#utils/sidebar-blocks.js";
 
 const BASE_LAYOUTS = ["base.html", "base"];
 
@@ -42,4 +46,6 @@ export const configureBlocks = (eleventyConfig) => {
       splitBlocksForColumns(blocks, getLayoutForTags(tags, layouts)),
   );
   eleventyConfig.addFilter("validatePageBodyContent", validatePageBodyContent);
+  eleventyConfig.addFilter("validateSidebarBlocks", validateSidebarBlocks);
+  eleventyConfig.addFilter("splitHoistedBanner", splitHoistedBanner);
 };

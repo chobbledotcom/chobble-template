@@ -21,19 +21,41 @@
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
   {%- endunless -%}
-  <main{% if pagefind_body %} data-pagefind-body{% endif %}>
-    {%- if config.show_breadcrumbs and page.url != "/" -%}
-      {%- include "breadcrumbs-nav.html" -%}
+  {%- assign banner_split = blocks | splitHoistedBanner: has_right_content -%}
+  {%- if banner_split.banner.size > 0 -%}
+    {%- assign hoisted_banner_blocks = banner_split.banner | render_block_liquid -%}
+    {%- for block in hoisted_banner_blocks -%}
+      {%- include "design-system/render-full-width-block.html", block: block -%}
+    {%- endfor -%}
+  {%- endif -%}
+  <div class="page-columns">
+    <main{% if pagefind_body %} data-pagefind-body{% endif %}>
+      {%- if config.show_breadcrumbs and page.url != "/" -%}
+        {%- include "breadcrumbs-nav.html" -%}
+      {%- endif -%}
+      {{- content | validatePageBodyContent: layout, page.inputPath -}}
+      {%- if banner_split.rest.size > 0 -%}
+        {%- include "design-system/blocks.html", blocks: banner_split.rest -%}
+      {%- endif -%}
+      {%- assign footer_snippet_data = "footer-content" | snippet_data -%}
+      {%- if footer_snippet_data.blocks -%}
+        {%- include "design-system/blocks.html", blocks: footer_snippet_data.blocks -%}
+      {%- endif -%}
+    </main>
+    {%- if has_right_content -%}
+      <aside class="right-column design-system">
+        {%- assign right_snippet_data = "right-content" | snippet_data -%}
+        {%- if right_snippet_data.blocks -%}
+          {%- assign right_blocks = right_snippet_data.blocks | validateSidebarBlocks | render_block_liquid -%}
+          {%- for block in right_blocks -%}
+            {%- include "design-system/render-block.html", block: block -%}
+          {%- endfor -%}
+        {%- else -%}
+          <div class="prose">{% render_snippet "right-content", "" %}</div>
+        {%- endif -%}
+      </aside>
     {%- endif -%}
-    {{- content | validatePageBodyContent: layout, page.inputPath -}}
-    {%- if blocks -%}
-      {%- include "design-system/blocks.html", blocks: blocks -%}
-    {%- endif -%}
-    {%- assign footer_snippet_data = "footer-content" | snippet_data -%}
-    {%- if footer_snippet_data.blocks -%}
-      {%- include "design-system/blocks.html", blocks: footer_snippet_data.blocks -%}
-    {%- endif -%}
-  </main>
+  </div>
   {%- include "design-system/footer.html" -%}
   {%- include "image-popup.html" -%}
   {%- include "client-templates.html" -%}
