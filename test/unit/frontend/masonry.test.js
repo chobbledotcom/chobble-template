@@ -106,7 +106,7 @@ afterEach(() => {
 });
 
 describe("textHeight", () => {
-  test("measures text using a cached font counter", () => {
+  test.serial("measures text using a cached font counter", () => {
     const font = "400 16px Arial";
 
     expect(masonry.textHeight("Title", font, 20, 200)).toBe(20);
@@ -116,13 +116,13 @@ describe("textHeight", () => {
 });
 
 describe("masonry layout", () => {
-  test("returns early when no masonry containers exist", () => {
+  test.serial("returns early when no masonry containers exist", () => {
     runReady();
 
     expect(resizeHandlers).toHaveLength(0);
   });
 
-  test("returns early for an empty masonry container", () => {
+  test.serial("returns early for an empty masonry container", () => {
     const grid = mountGrid("items masonry", "", 904);
 
     runReady();
@@ -132,10 +132,12 @@ describe("masonry layout", () => {
     expect(resizeHandlers).toHaveLength(1);
   });
 
-  test("places regular item cards and reflows them after a debounced resize", async () => {
-    const grid = mountGrid(
-      "items masonry",
-      `
+  test.serial(
+    "places regular item cards and reflows them after a debounced resize",
+    async () => {
+      const grid = mountGrid(
+        "items masonry",
+        `
         <li>
           <a class="image-link">
             <span class="image-wrapper" style="aspect-ratio: 4 / 3"></span>
@@ -165,41 +167,44 @@ describe("masonry layout", () => {
           </a>
         </li>
       `,
-      904,
-    );
+        904,
+      );
 
-    runReady();
+      runReady();
 
-    const cards = expectReadyGrid(grid, "280px", {
-      gap: 32,
-      padX: 48,
-      padY: 48,
-      contentWidth: 230,
-    });
-    expect(grid.style.height.endsWith("px")).toBe(true);
-    expect(resizeHandlers).toHaveLength(1);
-    expect(cards[1].style.transform).toBe("translate(312px, 0px)");
-    expect(cards[2].style.transform).toBe("translate(624px, 0px)");
-    expect(JSON.parse(cards[0].dataset.heights)).toEqual([20, 20]);
-    expect(cards[0].querySelector(".image-wrapper").dataset.height).toBe("210");
-    expect(cards[1].querySelector(".image-wrapper").dataset.height).toBe(
-      "null",
-    );
-    expect(cards[2].querySelector(".image-wrapper").dataset.height).toBe(
-      "null",
-    );
-    expect(JSON.parse(cards[2].dataset.heights)).toEqual([]);
+      const cards = expectReadyGrid(grid, "280px", {
+        gap: 32,
+        padX: 48,
+        padY: 48,
+        contentWidth: 230,
+      });
+      expect(grid.style.height.endsWith("px")).toBe(true);
+      expect(resizeHandlers).toHaveLength(1);
+      expect(cards[1].style.transform).toBe("translate(312px, 0px)");
+      expect(cards[2].style.transform).toBe("translate(624px, 0px)");
+      expect(JSON.parse(cards[0].dataset.heights)).toEqual([20, 20]);
+      expect(cards[0].querySelector(".image-wrapper").dataset.height).toBe(
+        "210",
+      );
+      expect(cards[1].querySelector(".image-wrapper").dataset.height).toBe(
+        "null",
+      );
+      expect(cards[2].querySelector(".image-wrapper").dataset.height).toBe(
+        "null",
+      );
+      expect(JSON.parse(cards[2].dataset.heights)).toEqual([]);
 
-    setOffsetWidth(grid, 500);
-    resizeHandlers[0]();
-    resizeHandlers[0]();
-    await new Promise((resolve) => setTimeout(resolve, 120));
+      setOffsetWidth(grid, 500);
+      resizeHandlers[0]();
+      resizeHandlers[0]();
+      await new Promise((resolve) => setTimeout(resolve, 120));
 
-    expect(cards[0].style.width).toBe("500px");
-    expect(cards[1].style.transform.startsWith("translate(0px, ")).toBe(true);
-  });
+      expect(cards[0].style.width).toBe("500px");
+      expect(cards[1].style.transform.startsWith("translate(0px, ")).toBe(true);
+    },
+  );
 
-  test("places review cards with review-specific metrics", () => {
+  test.serial("places review cards with review-specific metrics", () => {
     const grid = mountGrid(
       "items masonry reviews-grid",
       `
@@ -241,20 +246,23 @@ describe("masonry layout", () => {
     expect(Number.parseFloat(cards[2].dataset.height)).toBeGreaterThan(32);
   });
 
-  test("throws when computed metrics cannot produce a valid height", () => {
-    installComputedStyleStub("normal");
-    mountGrid(
-      "items masonry",
-      `
+  test.serial(
+    "throws when computed metrics cannot produce a valid height",
+    () => {
+      installComputedStyleStub("normal");
+      mountGrid(
+        "items masonry",
+        `
         <li>
           <p>Cannot measure this line height</p>
         </li>
       `,
-      500,
-    );
+        500,
+      );
 
-    expect(() => runReady()).toThrow(
-      "Masonry container has 1 cards but computed height is NaN",
-    );
-  });
+      expect(() => runReady()).toThrow(
+        "Masonry container has 1 cards but computed height is NaN",
+      );
+    },
+  );
 });

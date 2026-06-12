@@ -14,9 +14,6 @@ const compileExtension = async (ext, content, inputPath) => {
   return result;
 };
 
-const compileDesignSystemCss = () =>
-  compileScss('@use "design-system";', path.join(srcDir, "css", "test.scss"));
-
 describe("scss", () => {
   test("Creates SCSS compiler function for given input path", async () => {
     const inputPath = "/test/styles.scss";
@@ -235,7 +232,10 @@ describe("scss", () => {
   });
 
   test("Design-system sidebar columns stretch and stack item cards", async () => {
-    const result = await compileDesignSystemCss();
+    const result = await compileScss(
+      '@use "design-system";',
+      path.join(srcDir, "css", "test.scss"),
+    );
     const columnsRule =
       result.match(
         /\.design-system\.two-columns \.page-columns\s*\{[^}]*\}/,

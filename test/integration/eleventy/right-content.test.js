@@ -21,14 +21,6 @@ const rightContentSnippet = (blocks) => ({
 const sidebarSnippet = () =>
   rightContentSnippet([{ type: "markdown", content: SIDEBAR_TEXT }]);
 
-const sidebarItemPage = () => ({
-  path: "pages/sidebar-item.md",
-  frontmatter: {
-    name: "Sidebar Item",
-    permalink: "/sidebar-item/",
-  },
-});
-
 const bannerSiteOptions = (files) => ({
   images: [{ src: "test/fixtures/images/party.jpg", dest: "party.jpg" }],
   files,
@@ -75,7 +67,13 @@ describe("right-content sidebar", () => {
       {
         files: [
           homePage([PAGE_BLOCK]),
-          sidebarItemPage(),
+          {
+            path: "pages/sidebar-item.md",
+            frontmatter: {
+              name: "Sidebar Item",
+              permalink: "/sidebar-item/",
+            },
+          },
           rightContentSnippet([
             {
               type: "items-array",
