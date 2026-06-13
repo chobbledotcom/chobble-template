@@ -29,6 +29,13 @@
 
     @include media-background-content;
 
+    // Keep the overlay content above the optional tint gradient (z-index 2).
+    // The shared mixin sets this figure to z-index 1, which would otherwise
+    // sit *under* a tint, so raise it here at the base level.
+    > figure {
+      z-index: 3;
+    }
+
     &.tinted {
       isolation: isolate;
       position: relative;
@@ -47,10 +54,6 @@
           rgb(10 8 6 / 35%) 0%,
           rgb(10 8 6 / 55%) 100%
         );
-      }
-
-      > figure {
-        z-index: 3;
       }
     }
 
