@@ -1,3 +1,4 @@
+@use "sass:math";
 @use "variables" as *;
 @use "breakpoints" as breakpoint;
 
@@ -609,25 +610,45 @@
   list-style: none;
 }
 
-@mixin media-background-container($aspect-ratio) {
+@mixin media-background-container($ratio-w, $ratio-h) {
   position: relative;
 
-  // Grid (not flex) so the in-flow overlay figure stretches to fill the
-  // box while still growing it when content is taller than the ratio.
-  display: grid;
-
   // `clip` (unlike `hidden`) doesn't create a scroll container, so the
-  // aspect ratio acts as a minimum height: in-flow overlay content taller
-  // than the ratio grows the box instead of being cut off.
+  // absolutely-positioned media (and parallax overflow) is trimmed to the box.
   overflow: clip;
 
-  aspect-ratio: $aspect-ratio;
+  // Single stacking cell: the overlay figure and the aspect-ratio spacer
+  // (::before) both occupy 1/1, so the row grows to whichever is taller.
+  display: grid;
+  grid-template-columns: 1fr;
+
   width: 100%;
 
   background: $color-dark-bg;
 
-  @include breakpoint.down("md") {
-    aspect-ratio: 4/3;
+  // Enforce the aspect ratio as a *minimum* height via a spacer rather than
+  // the `aspect-ratio` property on this box. WebKit/Safari treats
+  // `aspect-ratio` combined with a non-visible `overflow` (clip or hidden) as
+  // a hard height and clips overlay content taller than the ratio, where
+  // Chrome and Firefox grow the box. A padding spacer sharing the overlay's
+  // grid cell lets the box grow in every engine while still falling back to
+  // the ratio when content is short. (Verified against WebKit 26 / Safari 26.)
+  //
+  // Uses ::after, not ::before — the `.image-background.tinted` overlay owns
+  // ::before, and a shared pseudo-element would inherit its `position:
+  // absolute` and stop reserving grid height.
+  &::after {
+    content: "";
+    grid-area: 1 / 1;
+
+    // Width-only contribution; percentage padding resolves against the grid
+    // area's width, so this stays 0-wide but reserves height = width * h/w.
+    width: 0;
+    padding-top: math.percentage(math.div($ratio-h, $ratio-w));
+
+    @include breakpoint.down("md") {
+      padding-top: math.percentage(math.div(3, 4));
+    }
   }
 }
 
@@ -657,10 +678,14 @@
 
     @include contrast-text-vars;
 
-    // In flow (not absolute) so tall content grows the container instead
-    // of being clipped by the aspect-ratio height.
     position: relative;
     z-index: 1;
+
+    // Share the single grid cell with the ::before spacer (1/1) so the row
+    // sizes to the taller of the two. In flow (not absolute) so tall content
+    // grows the container instead of being clipped by the minimum height.
+    grid-area: 1 / 1;
+
     margin: 0;
     padding: $space-lg;
 
