@@ -17,7 +17,7 @@
   }
 
   .video-background {
-    @include media-background-container(16/9);
+    @include media-background-container(16, 9);
 
     // Thumbnail image shown while video loads
     &__thumbnail {

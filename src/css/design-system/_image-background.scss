@@ -17,7 +17,7 @@
   }
 
   .image-background {
-    @include media-background-container(8/3);
+    @include media-background-container(8, 3);
 
     // The image covers the entire container
     > div {
