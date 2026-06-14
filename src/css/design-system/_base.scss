@@ -364,10 +364,10 @@
   // BLOCK LAYOUT
   // ===========================================================================
   // When .design-system is used as a content wrapper (not on body/section),
-  // it becomes a flex column with consistent gap between blocks.
+  // it becomes a flex column.
 
   &:not(body, section) {
-    @include flex-col($space-2xl);
+    @include flex-col(0);
   }
 
   // ===========================================================================

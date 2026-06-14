@@ -46,7 +46,6 @@ describe("right-content sidebar", () => {
         const aside = doc.querySelector("aside.right-column");
         expect(aside).not.toBeNull();
         expect(aside.textContent).toContain(SIDEBAR_TEXT);
-        expect(aside.classList.contains("design-system")).toBe(true);
 
         // Sibling of main inside the columns wrapper, never inside main —
         // keeps sidebar text out of the Pagefind index (data-pagefind-body

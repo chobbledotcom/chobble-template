@@ -5,7 +5,7 @@ per-block without the full-width section wrappers; plain markdown body content
 falls back to a prose wrapper.
 {%- endcomment -%}
 {%- if has_right_content -%}
-  <aside class="right-column design-system">
+  <aside class="right-column">
     {%- assign right_blocks = "right-content" | sidebar_blocks -%}
     {%- if right_blocks.size > 0 -%}
       {%- for block in right_blocks -%}
