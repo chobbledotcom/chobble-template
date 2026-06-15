@@ -46,10 +46,42 @@ const disableIndentedCode = (md) => {
   md.disable("code");
 };
 
+/**
+ * Require a blank line before a list. Front matter content is hard-wrapped at
+ * 80 chars, so a wrapped prose sentence often continues on a line that starts
+ * with a dash (e.g. "- and then..."). CommonMark normally lets such a line
+ * interrupt a paragraph and turn into a bullet list. We refuse that
+ * interruption, so a marker only starts a list when it follows a blank line.
+ *
+ * The guard fires only for top-level paragraphs (`listIndent < 0`): inside a
+ * list, the same paragraph-terminator mechanism is what separates one item
+ * from the next, so list items, nested lists and blank-line-separated lists
+ * all keep working.
+ * @param {any} md
+ */
+const requireBlankLineBeforeLists = (md) => {
+  const { ruler } = md.block;
+  // Capture the original rule before ruler.at() replaces it in place;
+  // ruler.at() mutates the rule object, so reading `.fn` afterwards would
+  // point back at this wrapper and recurse forever.
+  const { fn: listRule, alt } = ruler.__rules__[ruler.__find__("list")];
+  ruler.at(
+    "list",
+    (state, startLine, endLine, silent) => {
+      if (silent && state.parentType === "paragraph" && state.listIndent < 0) {
+        return false;
+      }
+      return listRule(state, startLine, endLine, silent);
+    },
+    { alt: alt.slice() },
+  );
+};
+
 /** @param {any} md */
 const amendMarkdown = (md) => {
   stripPlusPlus(md);
   disableIndentedCode(md);
+  requireBlankLineBeforeLists(md);
 };
 
 const createMarkdownRenderer = () => {
