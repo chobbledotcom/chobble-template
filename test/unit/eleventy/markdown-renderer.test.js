@@ -31,4 +31,35 @@ describe("amendMarkdown", () => {
     expect(html).toContain("Hello world");
     expect(html).not.toContain("++");
   });
+
+  test("a dash on a wrapped prose line does not start a list", () => {
+    const html = createRenderer().render(
+      "here's the first line and i want to add\n- that dash as part of the sentence but\nit is interpreted as a bullet",
+    );
+    expect(html).not.toContain("<ul>");
+    expect(html).not.toContain("<li>");
+    expect(html).toContain("- that dash as part of the sentence but");
+  });
+
+  test("a list still renders when preceded by a blank line", () => {
+    const html = createRenderer().render(
+      "intro paragraph\n\n- one\n- two\n- three",
+    );
+    expect(html).toContain("<li>one</li>");
+    expect(html).toContain("<li>two</li>");
+    expect(html).toContain("<li>three</li>");
+  });
+
+  test("a list at the very start of the content still renders", () => {
+    const html = createRenderer().render("- one\n- two");
+    expect(html).toContain("<li>one</li>");
+    expect(html).toContain("<li>two</li>");
+  });
+
+  test("nested lists without a blank line still render", () => {
+    const html = createRenderer().render("- outer\n  - inner\n- outer2");
+    expect(html).toContain("<li>inner</li>");
+    expect(html).toContain("<li>outer2</li>");
+    expect(html).toContain("<ul>\n<li>inner</li>");
+  });
 });
