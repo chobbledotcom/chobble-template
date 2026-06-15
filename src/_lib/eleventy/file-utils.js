@@ -60,9 +60,11 @@ const disableIndentedCode = (md) => {
  * @param {any} md
  */
 const requireBlankLineBeforeLists = (md) => {
-  const ruler = md.block.ruler;
-  const rule = ruler.__rules__[ruler.__find__("list")];
-  const listRule = rule.fn;
+  const { ruler } = md.block;
+  // Capture the original rule before ruler.at() replaces it in place;
+  // ruler.at() mutates the rule object, so reading `.fn` afterwards would
+  // point back at this wrapper and recurse forever.
+  const { fn: listRule, alt } = ruler.__rules__[ruler.__find__("list")];
   ruler.at(
     "list",
     (state, startLine, endLine, silent) => {
@@ -71,7 +73,7 @@ const requireBlankLineBeforeLists = (md) => {
       }
       return listRule(state, startLine, endLine, silent);
     },
-    { alt: rule.alt.slice() },
+    { alt: alt.slice() },
   );
 };
 
