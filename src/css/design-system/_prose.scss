@@ -27,6 +27,17 @@
     }
 
     // Tables — Markdown tables with alternating rows and themed header
+    .scrollable-table {
+      overflow-x: auto;
+      max-width: 100%;
+      margin: $space-md 0;
+
+      > table {
+        min-width: 100%;
+        margin: 0;
+      }
+    }
+
     table {
       overflow: hidden;
       border-spacing: 0;
