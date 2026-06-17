@@ -3,6 +3,7 @@ import { configureScss, createScssCompiler } from "#build/scss.js";
 import {
   compileScss,
   createMockEleventyConfig,
+  fs,
   path,
   srcDir,
 } from "#test/test-utils.js";
@@ -249,5 +250,25 @@ describe("scss", () => {
     expect(columnsRule).not.toContain("align-items: start");
     expect(sidebarItemsRule).toContain("flex-basis: 100%");
     expect(sidebarItemsRule).toContain("max-width: 100%");
+  });
+
+  test("Design-system bundle includes scrollable table wrapper styles", async () => {
+    const bundlePath = path.join(srcDir, "css", "design-system-bundle.scss");
+    const result = await compileScss(
+      fs.readFileSync(bundlePath, "utf-8"),
+      bundlePath,
+    );
+    const wrapperRule =
+      result.match(/\.design-system \.prose \.scrollable-table\s*\{[^}]*\}/)?.[0] ??
+      "";
+    const tableRule =
+      result.match(
+        /\.design-system \.prose \.scrollable-table > table\s*\{[^}]*\}/,
+      )?.[0] ?? "";
+
+    expect(wrapperRule).toContain("overflow-x: auto");
+    expect(wrapperRule).toContain("max-width: 100%");
+    expect(tableRule).toContain("min-width: 100%");
+    expect(tableRule).toContain("margin: 0");
   });
 });
