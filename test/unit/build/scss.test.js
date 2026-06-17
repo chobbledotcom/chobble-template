@@ -259,8 +259,9 @@ describe("scss", () => {
       bundlePath,
     );
     const wrapperRule =
-      result.match(/\.design-system \.prose \.scrollable-table\s*\{[^}]*\}/)?.[0] ??
-      "";
+      result.match(
+        /\.design-system \.prose \.scrollable-table\s*\{[^}]*\}/,
+      )?.[0] ?? "";
     const tableRule =
       result.match(
         /\.design-system \.prose \.scrollable-table > table\s*\{[^}]*\}/,
