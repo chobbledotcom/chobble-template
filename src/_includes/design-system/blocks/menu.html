@@ -42,6 +42,13 @@ filtered against `page.fileSlug`.
                 {{ item.data.description }}
               </p>
             {%- endif -%}
+            {%- if config.cart_mode == "quote" and item.data.cart_attributes -%}
+              {%- include "templates/add-to-cart-button.html",
+                  cart_attributes: item.data.cart_attributes,
+                  btn_text: item.data.cart_btn_text,
+                  show_quantity: true,
+                  max_quantity: config.default_max_quantity -%}
+            {%- endif -%}
           </li>
         {%- endfor -%}
       </ul>

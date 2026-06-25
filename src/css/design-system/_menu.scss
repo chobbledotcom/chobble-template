@@ -13,6 +13,7 @@
 //       <span class="name"><strong>Item</strong> <span>(V)</span></span>
 //       <span class="price">£8</span>
 //       <p class="description">…</p>
+//       <div class="list-item-cart-controls">…</div>
 //     </li>
 //   </ul>
 
@@ -60,6 +61,23 @@
       color: var(--color-text-muted);
 
       @include body-sm;
+    }
+
+    .list-item-cart-controls {
+      display: flex;
+      grid-column: 1 / -1;
+      flex-wrap: wrap;
+      gap: $space-sm;
+      align-items: center;
+      margin-block-start: $space-xs;
+
+      .add-to-cart {
+        @include button-primary;
+      }
+
+      .item-quantity {
+        margin: 0;
+      }
     }
   }
 }
