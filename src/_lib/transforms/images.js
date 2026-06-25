@@ -16,6 +16,8 @@ import { availableParallelism } from "node:os";
 
 const ASPECT_RATIO_ATTRIBUTE = "eleventy:aspectRatio";
 const IGNORE_ATTRIBUTE = "eleventy:ignore";
+const WIDTHS_ATTRIBUTE = "eleventy:widths";
+const LEGACY_WIDTHS_ATTRIBUTE = "widths";
 const NO_LQIP_ATTRIBUTE = "chobble:no-lqip";
 const IMAGE_PROCESSING_PARALLELISM = availableParallelism();
 
@@ -49,13 +51,17 @@ const extractImageOptions = (img, document) => {
   const imageName = img.getAttribute("src");
   if (!imageName) throw new Error("img element missing src attribute");
 
+  const widths =
+    img.getAttribute(WIDTHS_ATTRIBUTE) ??
+    img.getAttribute(LEGACY_WIDTHS_ATTRIBUTE);
+
   return {
     logName: `transformImages: ${img}`,
     imageName,
     alt: img.getAttribute("alt"),
     classes: img.getAttribute("class"),
     sizes: img.getAttribute("sizes"),
-    widths: img.getAttribute("widths"),
+    widths,
     aspectRatio,
     loading: null,
     noLqip,
@@ -115,7 +121,9 @@ export {
   extractImageOptions,
   fixDivsInParagraphs,
   IGNORE_ATTRIBUTE,
+  LEGACY_WIDTHS_ATTRIBUTE,
   NO_LQIP_ATTRIBUTE,
   processImageElement,
   processImages,
+  WIDTHS_ATTRIBUTE,
 };

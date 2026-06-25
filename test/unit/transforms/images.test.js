@@ -4,8 +4,10 @@ import {
   extractImageOptions,
   fixDivsInParagraphs,
   IGNORE_ATTRIBUTE,
+  LEGACY_WIDTHS_ATTRIBUTE,
   NO_LQIP_ATTRIBUTE,
   processImages,
+  WIDTHS_ATTRIBUTE,
 } from "#transforms/images.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
@@ -71,12 +73,26 @@ describe("images transform", () => {
       expect(img.hasAttribute(ASPECT_RATIO_ATTRIBUTE)).toBe(false);
     });
 
-    test("extracts sizes and widths attributes", async () => {
+    test("extracts sizes and eleventy widths attributes", async () => {
       const { options } = await getImageOptions(
-        '<html><body><img src="/images/test.jpg" sizes="100vw" widths="300,600,900"></body></html>',
+        '<html><body><img src="/images/test.jpg" sizes="100vw" eleventy:widths="300,600,900"></body></html>',
       );
       expect(options.sizes).toBe("100vw");
       expect(options.widths).toBe("300,600,900");
+    });
+
+    test("falls back to legacy widths attributes", async () => {
+      const { options } = await getImageOptions(
+        '<html><body><img src="/images/test.jpg" widths="300,600,900"></body></html>',
+      );
+      expect(options.widths).toBe("300,600,900");
+    });
+
+    test("prefers eleventy widths over legacy widths attributes", async () => {
+      const { options } = await getImageOptions(
+        '<html><body><img src="/images/test.jpg" eleventy:widths="320,640" widths="300,600,900"></body></html>',
+      );
+      expect(options.widths).toBe("320,640");
     });
 
     test("returns null for missing attributes", async () => {
@@ -228,6 +244,8 @@ describe("images transform", () => {
 
     test("IGNORE_ATTRIBUTE is correct", () => {
       expect(IGNORE_ATTRIBUTE).toBe("eleventy:ignore");
+      expect(WIDTHS_ATTRIBUTE).toBe("eleventy:widths");
+      expect(LEGACY_WIDTHS_ATTRIBUTE).toBe("widths");
     });
   });
 });
