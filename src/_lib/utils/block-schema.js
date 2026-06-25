@@ -314,9 +314,10 @@ const FIELD_TYPE_CHECKS = {
 
 const LIST_CHECK = { label: "an array", check: Array.isArray };
 
-/** Field types for wrapper keys (e.g. `dark`) accepted on every block. */
+/** Field types for wrapper keys (e.g. `dark`, `compact`) accepted on every block. */
 const COMMON_FIELD_TYPES = {
   dark: { type: "boolean" },
+  compact: { type: "boolean" },
 };
 
 /**

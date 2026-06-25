@@ -8,14 +8,12 @@ and `ical_url` from the page data; the event-detail include is a no-op when
 those fields are absent.
 {%- endcomment -%}
 
-<section class="compact">
-  <div class="container-wide">
-    <header>
-      <h1>{{ name }}</h1>
-      {%- if subtitle -%}
-        <h2>{{ subtitle }}</h2>
-      {%- endif -%}
-      {%- include "item-event-details.html" -%}
-    </header>
-  </div>
-</section>
+<div class="container-wide">
+  <header>
+    <h1>{{ name }}</h1>
+    {%- if subtitle -%}
+      <h2>{{ subtitle }}</h2>
+    {%- endif -%}
+    {%- include "item-event-details.html" -%}
+  </header>
+</div>

@@ -7,9 +7,7 @@ Property-only block. No block-level parameters.
 {%- endcomment -%}
 
 {%- if gallery and gallery.size > 0 -%}
-<section class="compact">
-  <div class="container-wide">
-    {%- include "property-gallery.html" -%}
-  </div>
-</section>
+<div class="container-wide">
+  {%- include "property-gallery.html" -%}
+</div>
 {%- endif -%}

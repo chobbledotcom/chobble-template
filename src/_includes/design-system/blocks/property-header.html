@@ -6,16 +6,14 @@ Property-only block. No block-level parameters. Reads `name`, `subtitle`,
 and `price_per_night` from the property page data.
 {%- endcomment -%}
 
-<section class="compact">
-  <div class="container-wide">
-    <header class="property-header">
-      <h1>{{ name }}</h1>
-      {%- if subtitle -%}
-        <h2>{{ subtitle }}</h2>
-      {%- endif -%}
-      {%- if price_per_night -%}
-        <p class="property-price">From {{ price_per_night | to_price }} per night</p>
-      {%- endif -%}
-    </header>
-  </div>
-</section>
+<div class="container-wide">
+  <header class="property-header">
+    <h1>{{ name }}</h1>
+    {%- if subtitle -%}
+      <h2>{{ subtitle }}</h2>
+    {%- endif -%}
+    {%- if price_per_night -%}
+      <p class="property-price">From {{ price_per_night | to_price }} per night</p>
+    {%- endif -%}
+  </header>
+</div>

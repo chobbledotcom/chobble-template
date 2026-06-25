@@ -9,9 +9,7 @@ Event-only block. No block-level parameters.
 
 {%- assign eventProducts = collections.products | getProductsByEvent: page.fileSlug, products -%}
 {%- if eventProducts.size > 0 -%}
-<section class="compact">
-  <div class="container-wide">
-    {%- include "items.html", items: eventProducts -%}
-  </div>
-</section>
+<div class="container-wide">
+  {%- include "items.html", items: eventProducts -%}
+</div>
 {%- endif -%}

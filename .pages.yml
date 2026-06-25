@@ -25,6 +25,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: video_url
         type: string
         label: Bunny Stream Embed URL
@@ -48,6 +49,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: items
         type: object
         label: Products
@@ -74,6 +76,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: variant
         type: string
         label: Variant (info | warning | success | danger)
@@ -87,6 +90,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: filename, type: string, label: Filename, required: true }
       - { name: code, type: string, label: Code, required: true }
       - { name: language, type: string, label: Language }
@@ -95,6 +99,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: content, type: rich-text, label: Content }
       - name: intro_content
         type: rich-text
@@ -104,6 +109,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: content, type: rich-text, label: Content, required: true }
       - name: button
         type: object
@@ -118,6 +124,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: content, type: rich-text, label: Intro Content }
       - name: fields
         type: object
@@ -143,6 +150,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: intro_content
         type: rich-text
         label: Intro Content (Markdown)
@@ -162,6 +170,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: items
         type: object
         label: FAQs
@@ -178,6 +187,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: items
         type: object
         label: Features
@@ -199,6 +209,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: items
         type: object
         label: Gallery Images
@@ -217,11 +228,13 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_hero:
     label: Hero
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: badge, type: string, label: Badge Text }
       - { name: content, type: rich-text, label: Content, required: true }
       - name: buttons
@@ -239,12 +252,14 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: content, type: string, label: Raw HTML, required: true }
   block_icon_links:
     label: Icon Links
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: intro_content
         type: rich-text
         label: Intro Content (Markdown)
@@ -265,6 +280,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: src, type: string, label: Iframe URL, required: true }
       - { name: name, type: string, label: Accessible Name, required: true }
       - { name: width, type: number, label: Width (px) }
@@ -284,6 +300,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: image, type: image, label: Background Image, required: true }
       - { name: image_alt, type: string, label: Image Alt Text }
       - { name: class, type: string, label: CSS Class }
@@ -305,6 +322,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: items
         type: object
         label: Cards
@@ -324,12 +342,14 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: file, type: string, label: Template File Path, required: true }
   block_items:
     label: Items
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: collection
         type: string
         label: Collection Name
@@ -357,6 +377,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: items, type: string, label: Items, list: true }
       - name: intro_content
         type: rich-text
@@ -378,6 +399,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: collection
         type: string
         label: Collection Name
@@ -390,6 +412,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: text, type: string, label: Button Text, required: true }
       - { name: href, type: string, label: URL, required: true }
       - { name: variant, type: string, label: Variant }
@@ -400,6 +423,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: collection
         type: string
         label: Collection Name
@@ -422,12 +446,14 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: content, type: rich-text, label: Markdown, required: true }
   block_marquee_images:
     label: Marquee Images
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: items
         type: object
         label: Images
@@ -447,21 +473,25 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_quote_cart:
     label: Quote Cart
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_quote_checkout:
     label: Quote Checkout
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_reviews:
     label: Reviews
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: current_item, type: boolean, label: Filter to Current Item }
       - { name: minimum_rating, type: number, label: Minimum Rating }
       - { name: horizontal, type: boolean, label: Horizontal Slider }
@@ -471,6 +501,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: intro
         type: rich-text
         label: Section Header Intro
@@ -480,6 +511,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: reference
         label: Snippet
         type: reference
@@ -493,6 +525,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: directory, type: string, label: Directory, required: true }
       - name: intro_content
         type: rich-text
@@ -513,6 +546,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -548,6 +582,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -572,6 +607,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -593,6 +629,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: variant, type: string, label: Variant }
       - { name: left_content, type: rich-text, label: Left Content }
       - name: left_button
@@ -617,6 +654,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -639,6 +677,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -669,6 +708,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -690,6 +730,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: content, type: rich-text, label: Content }
       - { name: reverse, type: boolean, label: Reverse Layout }
@@ -716,6 +757,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: items
         type: object
         label: Statistics
@@ -732,6 +774,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: video_id, type: string, label: Video Embed URL, required: true }
       - { name: thumbnail_url, type: string, label: Thumbnail URL }
       - { name: video_title, type: string, label: Video Title }
@@ -752,6 +795,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: videos
         type: object
         label: Videos
@@ -782,51 +826,61 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_hire_pricing:
     label: Hire Pricing
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_product_add_ons:
     label: Product Add Ons
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_product_contact_section:
     label: Product Contact Section
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_product_features:
     label: Product Features
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_product_gallery:
     label: Product Gallery
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_product_header:
     label: Product Header
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_product_meta:
     label: Product Meta
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_purchase_link:
     label: Purchase Link
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_category_products:
     label: Category Products
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: intro_content
         type: rich-text
         label: Intro Content (Markdown)
@@ -838,6 +892,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - name: intro_content
         type: rich-text
         label: Intro Content (Markdown)
@@ -849,6 +904,7 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   products_list:
     label: Products
     type: object
@@ -867,96 +923,115 @@ components:
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_event_gallery:
     label: Event Gallery
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_event_header:
     label: Event Header
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_event_map:
     label: Event Map
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_event_meta:
     label: Event Meta
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_event_products:
     label: Event Products
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_freetobook:
     label: Freetobook
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_property_contact_section:
     label: Property Contact Section
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_property_content:
     label: Property Content
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_property_features:
     label: Property Features
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_property_gallery:
     label: Property Gallery
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_property_guides:
     label: Property Guides
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_property_header:
     label: Property Header
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_property_map:
     label: Property Map
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_guide_header:
     label: Guide Header
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_guide_pages_list:
     label: Guide Pages List
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_guide_navigation:
     label: Guide Navigation
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_menu:
     label: Menu
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
   block_menu_pdf_download:
     label: Menu Pdf Download
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
       - { name: text, type: string, label: Button Text }
       - { name: variant, type: string, label: Variant }
       - { name: size, type: string, label: Size }

@@ -18,13 +18,11 @@ Shared template for product-meta, event-meta, and property-content.
 {%- endif -%}
 {%- assign meta_html = rating_html | append: categories_html | strip -%}
 {%- if show_about or meta_html != "" -%}
-<section>
-  <div class="container">
-    {{ rating_html }}
-    {%- if show_about -%}
-      <h2>{{ strings.item_about_heading }}</h2>
-    {%- endif -%}
-    {{ categories_html }}
-  </div>
-</section>
+<div class="container">
+  {{ rating_html }}
+  {%- if show_about -%}
+    <h2>{{ strings.item_about_heading }}</h2>
+  {%- endif -%}
+  {{ categories_html }}
+</div>
 {%- endif -%}

@@ -5,13 +5,11 @@ Used on guide-pages and guide-categories. No block-level parameters. Reads
 `name` and `subtitle` from the page data.
 {%- endcomment -%}
 
-<section class="compact">
-  <div class="container-wide">
-    <header class="guide-header">
-      <h1>{{ name }}</h1>
-      {%- if subtitle -%}
-        <h2>{{ subtitle }}</h2>
-      {%- endif -%}
-    </header>
-  </div>
-</section>
+<div class="container-wide">
+  <header class="guide-header">
+    <h1>{{ name }}</h1>
+    {%- if subtitle -%}
+      <h2>{{ subtitle }}</h2>
+    {%- endif -%}
+  </header>
+</div>
