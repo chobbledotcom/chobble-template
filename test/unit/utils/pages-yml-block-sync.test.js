@@ -13,7 +13,7 @@ const componentNameToBlockType = (componentName) =>
 
 /** Auto-injected wrapper fields that the generator prepends to every block
  *  component. Mirrors CONTAINER_FIELDS in src/_lib/utils/block-schema/shared.js. */
-const CONTAINER_FIELD_NAMES = ["dark"];
+const CONTAINER_FIELD_NAMES = ["dark", "compact"];
 
 const PAGES_YML_PATH = join(rootDir, ".pages.yml");
 const parsedPagesYml = YAML.parse(readFileSync(PAGES_YML_PATH, "utf-8"));
