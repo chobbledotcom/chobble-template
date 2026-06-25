@@ -31,7 +31,10 @@ export const objectField = (label, fields) => ({
 });
 
 /** Container wrapper fields common to every CMS block. */
-export const CONTAINER_FIELDS = { dark: bool("Dark"), compact: bool("Compact") };
+export const CONTAINER_FIELDS = {
+  dark: bool("Dark"),
+  compact: bool("Compact"),
+};
 
 /** Button fields shared between hero, split, and cta blocks. */
 export const BUTTON_FIELDS_BASE = {
