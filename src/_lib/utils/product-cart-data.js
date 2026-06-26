@@ -67,7 +67,7 @@ const normalizeOption = (opt, defaultMaxQuantity) => ({
  * @returns {number | null} Resolved max quantity
  */
 export const getDefaultMaxQuantity = (data) =>
-  data?.max_quantity != null
+  data.max_quantity != null
     ? data.max_quantity
     : getConfig().default_max_quantity;
 

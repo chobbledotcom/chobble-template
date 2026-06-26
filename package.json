@@ -37,7 +37,7 @@
 		"lint:fix": "node scripts/biome.js check --write .",
 		"lint:scss": "bunx stylelint \"src/css/**/*.scss\"",
 		"lint:scss:fix": "bunx stylelint --fix \"src/css/**/*.scss\"",
-		"precommit": "node test/precommit.js",
+		"precommit": "bun test/precommit.js",
 		"customise-cms": "bun scripts/customise-cms/index.js",
 		"generate-pages-yml": "bun scripts/customise-cms/generate-full.js",
 		"generate-cms-types": "bun scripts/generate-pages-cms-types.js",

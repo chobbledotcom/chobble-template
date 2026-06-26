@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import getConfig from "#data/config.js";
 import {
   buildCartAttributes,
   computeOptions,
+  getDefaultMaxQuantity,
 } from "#utils/product-cart-data.js";
 
 describe("product-cart-data", () => {
@@ -183,6 +185,16 @@ describe("product-cart-data", () => {
           mode: "hire",
         }),
       ).toThrow('Product "Dupe Hire" has duplicate options for days=3');
+    });
+  });
+
+  describe("getDefaultMaxQuantity", () => {
+    test("returns the item-level max_quantity override when set", () => {
+      expect(getDefaultMaxQuantity({ max_quantity: 7 })).toBe(7);
+    });
+
+    test("falls back to the configured default when max_quantity is not set", () => {
+      expect(getDefaultMaxQuantity({})).toBe(getConfig().default_max_quantity);
     });
   });
 });
