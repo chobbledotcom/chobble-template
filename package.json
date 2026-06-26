@@ -17,6 +17,7 @@
 		"#public/*": "./src/_lib/public/*",
 		"#test/*": "./test/*",
 		"#scripts/*": "./scripts/*",
+		"#bin/*": "./bin/*",
 		"#toolkit/*": "./packages/js-toolkit/*"
 	},
 	"scripts": {

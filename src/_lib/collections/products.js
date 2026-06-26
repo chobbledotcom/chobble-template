@@ -8,6 +8,7 @@
 /** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
 /** @typedef {import("#lib/types").ProductItemData} ProductItemData */
 /** @typedef {import("#lib/types").ProductOption} ProductOption */
+/** @typedef {import("#lib/types").MenuItemCollectionItem} MenuItemCollectionItem */
 
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import config from "#data/config.js";
@@ -26,6 +27,8 @@ import {
   featuredCollection,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
+import { isAmbiguousPrice, parsePrice } from "#utils/price-utils.js";
+import { getDefaultMaxQuantity } from "#utils/product-cart-data.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -213,17 +216,52 @@ const extractSkuEntries = (product) => {
 };
 
 /**
+ * Whether a menu item exposes a buyable, SKU-backed single price for the
+ * pricing API: it has a top-level `sku` and a price that is present,
+ * parseable, and a single numeric amount (not ambiguous like "£10 / £12").
+ * @param {MenuItemCollectionItem} menuItem
+ * @returns {boolean}
+ */
+const hasBuyableMenuSku = (menuItem) =>
+  Boolean(menuItem.data.sku) &&
+  !isAmbiguousPrice(menuItem.data.price) &&
+  parsePrice(null)(menuItem.data.price) != null;
+
+/**
+ * Convert a buyable menu item into a SKU entry for the pricing API.
+ * @param {MenuItemCollectionItem} menuItem
+ * @returns {SkuEntry}
+ */
+const toMenuSkuEntry = (menuItem) => [
+  menuItem.data.sku,
+  {
+    name: menuItem.data.name,
+    unit_price: parsePrice(null)(menuItem.data.price),
+    max_quantity: getDefaultMaxQuantity(menuItem.data),
+  },
+];
+
+/** Extract SKU entries from buyable, SKU-backed menu items. */
+const extractMenuSkuEntries = filterMap(hasBuyableMenuSku, toMenuSkuEntry);
+
+/**
  * Creates a collection of all SKUs with their pricing data for the API.
+ * Indexes product option SKUs and buyable menu-item SKUs, with duplicate
+ * detection across the combined set.
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @returns {Record<string, { name: string, unit_price: string | number, max_quantity: number | null }>}
  */
 const createApiSkusCollection = (collectionApi) => {
   const products = getProductsFromApi(collectionApi);
-  const allSkuEntries = products.flatMap(extractSkuEntries);
+  const menuItems = collectionApi.getFilteredByTag("menu-items");
+  const allSkuEntries = [
+    ...products.flatMap(extractSkuEntries),
+    ...extractMenuSkuEntries(menuItems),
+  ];
   const duplicate = findDuplicate(allSkuEntries, ([sku]) => sku);
   if (duplicate)
     throw new Error(
-      `Duplicate SKU "${duplicate[0]}" found in product "${duplicate[1].name}"`,
+      `Duplicate SKU "${duplicate[0]}" found in "${duplicate[1].name}"`,
     );
   return Object.fromEntries(allSkuEntries);
 };
