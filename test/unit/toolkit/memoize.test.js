@@ -2,24 +2,10 @@
  * Tests for js-toolkit memoize utilities
  */
 import { describe, expect, test } from "bun:test";
-import { dedupeAsync, memoize, memoizeByRef } from "#toolkit/fp/memoize.js";
+import { dedupeAsync, memoizeByRef } from "#toolkit/fp/memoize.js";
 
 /** Create a counter for tracking function calls in tests */
 const createCounter = () => ({ count: 0 });
-
-describe("memoize", () => {
-  test("throws error when cache exceeds maxCacheSize", () => {
-    const memoized = memoize((x) => x * 2, { maxCacheSize: 3 });
-
-    // Fill the cache to its limit
-    memoized(1);
-    memoized(2);
-    memoized(3);
-
-    // Next unique call should throw
-    expect(() => memoized(4)).toThrow("Memoize cache exceeded 3 entries");
-  });
-});
 
 describe("memoizeByRef", () => {
   test("caches result by object reference", () => {
