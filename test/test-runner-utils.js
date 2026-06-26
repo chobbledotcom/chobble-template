@@ -498,31 +498,6 @@ export function extractErrorsFromOutput(output) {
 }
 
 /**
- * Run all steps in sequence, stopping on first failure
- * @param {Object} options - Runner options
- * @param {Object[]} options.steps - Array of step configurations
- * @param {boolean} options.verbose - Whether to show full output
- * @param {string} options.title - Title for summary output
- * @returns {Object} Results map from step names to results
- */
-export function runSteps({ steps, verbose, title }) {
-  const results = {};
-
-  for (const step of steps) {
-    const result = runStep(step, verbose);
-    results[step.name] = result;
-
-    if (result.status !== 0) {
-      printSummary(steps, results, title);
-      process.exit(1);
-    }
-  }
-
-  printSummary(steps, results, title);
-  return results;
-}
-
-/**
  * Print the coverage-failure diagnostic block when the failed step output
  * matches the "tests passed + coverage table present" heuristic.
  */

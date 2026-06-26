@@ -5,6 +5,7 @@ import { linkableContent } from "#utils/linkable-content.js";
 import {
   buildCartAttributes,
   computeOptions,
+  getDefaultMaxQuantity,
 } from "#utils/product-cart-data.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
@@ -12,15 +13,6 @@ import { normaliseSlug } from "#utils/slug-utils.js";
 const getProductMode = (data) => {
   const config = getConfig();
   return data.product_mode || config.product_mode;
-};
-
-/** @param {*} data */
-const getDefaultMaxQuantity = (data) => {
-  if (data.max_quantity != null) {
-    return data.max_quantity;
-  }
-  const config = getConfig();
-  return config.default_max_quantity;
 };
 
 export default {

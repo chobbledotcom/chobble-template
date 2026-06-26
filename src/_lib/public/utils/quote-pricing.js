@@ -2,15 +2,9 @@
 // Shared day-aware pricing and name formatting for quote flows
 
 import { isHireItem } from "#public/cart/hire-calculator.js";
+import { parsePrice } from "#utils/price-utils.js";
 
 const HIRE_DAY_SUFFIX = /\s-\s\d+\sday(?:s)?$/i;
-
-const parsePrice = (priceStr) => {
-  if (typeof priceStr === "number") return priceStr;
-  if (!priceStr) return 0;
-  const matches = String(priceStr).match(/[\d.]+/);
-  return matches ? Number.parseFloat(matches[0]) : 0;
-};
 
 // Returns null if hire item lacks price for that day count
 const getPriceForDays = (days) => (item) => {
@@ -18,7 +12,7 @@ const getPriceForDays = (days) => (item) => {
     return item.unit_price * item.quantity;
   }
   const price = item.hire_prices[days];
-  return price ? parsePrice(price) * item.quantity : null;
+  return price ? parsePrice(0)(price) * item.quantity : null;
 };
 
 const sanitizeItemName = (item) =>

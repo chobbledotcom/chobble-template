@@ -4,6 +4,7 @@
  * Functions for computing product options and cart attributes,
  * extracted from products.11tydata.js for testability and reuse.
  */
+import getConfig from "#data/config.js";
 import { filterMap, findDuplicate, pipe, sortBy } from "#toolkit/fp/array.js";
 import { toObject } from "#toolkit/fp/object.js";
 
@@ -55,6 +56,20 @@ const normalizeOption = (opt, defaultMaxQuantity) => ({
         ? defaultMaxQuantity
         : null,
 });
+
+/**
+ * Resolve the default max quantity for a cart line item.
+ *
+ * Falls back to the site-wide `default_max_quantity` when the item doesn't
+ * override it. Shared by product and menu-item data so hire/buy flows agree.
+ *
+ * @param {{ max_quantity?: number | null }} data - Item data with optional override
+ * @returns {number | null} Resolved max quantity
+ */
+export const getDefaultMaxQuantity = (data) =>
+  data.max_quantity != null
+    ? data.max_quantity
+    : getConfig().default_max_quantity;
 
 /**
  * Compute processed options for a product.
