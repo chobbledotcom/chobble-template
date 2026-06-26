@@ -51,9 +51,11 @@ const extractImageOptions = (img, document) => {
   const imageName = img.getAttribute("src");
   if (!imageName) throw new Error("img element missing src attribute");
 
+  const eleventyWidths = img.getAttribute(WIDTHS_ATTRIBUTE);
   const widths =
-    img.getAttribute(WIDTHS_ATTRIBUTE) ??
-    img.getAttribute(LEGACY_WIDTHS_ATTRIBUTE);
+    eleventyWidths !== null
+      ? eleventyWidths
+      : img.getAttribute(LEGACY_WIDTHS_ATTRIBUTE);
 
   return {
     logName: `transformImages: ${img}`,
