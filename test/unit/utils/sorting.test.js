@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { data } from "#test/test-utils.js";
-import { compareBy, descending } from "#toolkit/fp/sorting.js";
+import {
+  compareBy,
+  compareStrings,
+  descending,
+  orderThenString,
+} from "#toolkit/fp/sorting.js";
 import {
   sortByDateDescending,
   sortItems,
@@ -143,6 +148,36 @@ describe("sorting", () => {
     const items = ["a", "aaa", "aa"];
     const sorted = [...items].sort(byLengthDesc);
     expect(sorted).toEqual(["aaa", "aa", "a"]);
+  });
+
+  test("compareStrings sorts strings alphabetically", () => {
+    expect(["cherry", "apple", "banana"].sort(compareStrings)).toEqual([
+      "apple",
+      "banana",
+      "cherry",
+    ]);
+  });
+
+  test("orderThenString sorts by numeric key then string key", () => {
+    const items = [
+      { priority: 2, label: "zeta" },
+      { priority: 1, label: "beta" },
+      { priority: 1, label: "alpha" },
+      { priority: 3, label: "omega" },
+    ];
+
+    const sorted = [...items].sort(
+      orderThenString(
+        (x) => x.priority,
+        (x) => x.label,
+      ),
+    );
+    expect(sorted).toEqual([
+      { priority: 1, label: "alpha" },
+      { priority: 1, label: "beta" },
+      { priority: 2, label: "zeta" },
+      { priority: 3, label: "omega" },
+    ]);
   });
 
   // ============================================

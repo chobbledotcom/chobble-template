@@ -1,0 +1,13 @@
+{%- comment -%}
+Menu item cart controls: guards the add-to-cart button include behind the
+cart-mode + cart_attributes check shared by the no-link menu card partial
+and the classic menu block, so the guard and include arguments stay in sync.
+Expects `item` and `config` in scope.
+{%- endcomment -%}
+{%- if config.cart_mode and item.data.cart_attributes -%}
+  {%- include "templates/add-to-cart-button.html",
+      cart_attributes: item.data.cart_attributes,
+      btn_text: item.data.cart_btn_text,
+      show_quantity: true,
+      max_quantity: item.data.cart_max_quantity -%}
+{%- endif -%}

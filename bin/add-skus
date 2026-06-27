@@ -1,7 +1,15 @@
 #!/usr/bin/env node
 /**
- * Script to add unique SKUs to product options that are missing them.
- * SKUs are 6-character random alphanumeric strings.
+ * Add unique SKUs to product options and buyable menu items that are missing them.
+ *
+ * SKUs are 6-character random alphanumeric strings. Uniqueness is global
+ * across products (option-level `sku`) and menu items (top-level `sku`), so
+ * existing SKUs from both collections are collected before generating any
+ * new ones.
+ *
+ * Menu items only receive a SKU when they are "buyable": a safe, parseable,
+ * single-amount price. Ambiguous price strings (e.g. "£10 / £12") are skipped
+ * because they cannot resolve to a single unit price for checkout.
  *
  * Usage: node bin/add-skus [--dry-run]
  */
@@ -9,19 +17,41 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { isAmbiguousPrice, parsePrice } from "#utils/price-utils.js";
 import { error as logError, log } from "#utils/console.js";
 
-const readProductFile = (filePath) => {
-  const { data, content: body } = matter.read(filePath);
-  return { data, body, filePath };
-};
-
 const PRODUCTS_DIR = "src/products";
+const MENU_ITEMS_DIR = "src/menu-items";
 const SKU_LENGTH = 6;
 const SKU_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 /**
+ * Read a markdown file's frontmatter and body.
+ * @param {string} filePath
+ * @returns {{ data: Record<string, *>, body: string, filePath: string }}
+ */
+const readFrontmatterFile = (filePath) => {
+  const { data, content: body } = matter.read(filePath);
+  return { data, body, filePath };
+};
+
+/**
+ * List markdown files in a directory.
+ * @param {string} dir
+ * @returns {string[]}
+ */
+const getMarkdownFiles = (dir) =>
+  fs.existsSync(dir)
+    ? fs
+        .readdirSync(dir)
+        .filter((f) => f.endsWith(".md"))
+        .map((file) => path.join(dir, file))
+    : [];
+
+/**
  * Generate a random SKU of specified length
+ * @param {number} [length]
+ * @returns {string}
  */
 const generateSku = (length = SKU_LENGTH) =>
   Array.from(
@@ -30,16 +60,9 @@ const generateSku = (length = SKU_LENGTH) =>
   ).join("");
 
 /**
- * Get all product files from a directory
- */
-const getProductFiles = (productsDir) =>
-  fs
-    .readdirSync(productsDir)
-    .filter((f) => f.endsWith(".md"))
-    .map((file) => path.join(productsDir, file));
-
-/**
- * Extract SKUs from a product's options
+ * Extract option-level SKUs from a product.
+ * @param {{ data: { options?: Array<{ sku?: string }> } }} product
+ * @returns {string[]}
  */
 const extractSkusFromProduct = (product) =>
   (product.data.options || [])
@@ -47,17 +70,36 @@ const extractSkusFromProduct = (product) =>
     .map((option) => option.sku);
 
 /**
- * Collect all existing SKUs from all products
+ * Extract the top-level SKU from a menu item (if present).
+ * @param {{ data: { sku?: string } }} menuItem
+ * @returns {string[]}
  */
-const collectExistingSkus = (productsDir) => {
-  const products = getProductFiles(productsDir).map(readProductFile);
-  const allSkus = products.flatMap(extractSkusFromProduct);
-  return new Set(allSkus);
+const extractSkuFromMenuItem = (menuItem) =>
+  menuItem.data.sku ? [menuItem.data.sku] : [];
+
+/**
+ * Collect all existing SKUs from products (option-level) and menu items
+ * (top-level) so generated SKUs are globally unique across both collections.
+ * @param {string} productsDir
+ * @param {string} menuItemsDir
+ * @returns {Set<string>}
+ */
+const collectExistingSkus = (productsDir, menuItemsDir) => {
+  const productSkus = getMarkdownFiles(productsDir)
+    .map(readFrontmatterFile)
+    .flatMap(extractSkusFromProduct);
+  const menuItemSkus = getMarkdownFiles(menuItemsDir)
+    .map(readFrontmatterFile)
+    .flatMap(extractSkuFromMenuItem);
+  return new Set([...productSkus, ...menuItemSkus]);
 };
 
 /**
- * Generate a unique SKU that doesn't exist in the set
- * Returns { sku, updatedSkus } to avoid mutation
+ * Generate a unique SKU that doesn't exist in the set.
+ * Returns { sku, updatedSkus } to avoid mutation.
+ * @param {Set<string>} existingSkus
+ * @param {number} [maxAttempts=1000]
+ * @returns {{ sku: string, updatedSkus: Set<string> }}
  */
 const generateUniqueSku = (existingSkus, maxAttempts = 1000) => {
   const attempt = (attemptsLeft) => {
@@ -73,8 +115,11 @@ const generateUniqueSku = (existingSkus, maxAttempts = 1000) => {
 };
 
 /**
- * Add SKUs to options that are missing them (recursive implementation)
- * Returns { options, skusAdded, updatedSkus }
+ * Add SKUs to a product's options that are missing them (recursive).
+ * Returns { options, skusAdded, updatedSkus }.
+ * @param {Array<{ sku?: string }>} options
+ * @param {Set<string>} existingSkus
+ * @returns {{ options: Array<{ sku?: string }>, skusAdded: number, updatedSkus: Set<string> }}
  */
 const addSkusToOptions = (options, existingSkus) => {
   const processOptions = (remaining, processed, skusAdded, currentSkus) => {
@@ -85,12 +130,7 @@ const addSkusToOptions = (options, existingSkus) => {
     const [option, ...rest] = remaining;
 
     if (option.sku) {
-      return processOptions(
-        rest,
-        [...processed, option],
-        skusAdded,
-        currentSkus,
-      );
+      return processOptions(rest, [...processed, option], skusAdded, currentSkus);
     }
 
     const { sku, updatedSkus } = generateUniqueSku(currentSkus);
@@ -106,8 +146,20 @@ const addSkusToOptions = (options, existingSkus) => {
 };
 
 /**
- * Process a single product file and add SKUs to options missing them
- * Returns { modified, skusAdded, updatedSkus, filePath, newContent }
+ * Whether a menu item is buyable: it has a price that is present, parseable,
+ * and a single numeric amount (not ambiguous like "£10 / £12").
+ * @param {{ price?: string | number | null }} data
+ * @returns {boolean}
+ */
+const isBuyableMenuItem = (data) =>
+  !isAmbiguousPrice(data.price) && parsePrice(null)(data.price) != null;
+
+/**
+ * Process a single product file and add SKUs to options missing them.
+ * Returns { modified, skusAdded, updatedSkus, filePath, newContent }.
+ * @param {{ data: { options?: Array<{ sku?: string }> }, body: string, filePath: string }} product
+ * @param {Set<string>} existingSkus
+ * @returns {{ modified: boolean, skusAdded: number, updatedSkus: Set<string>, filePath: string, newContent: string | null }}
  */
 const processProductFile = (product, existingSkus) => {
   const { data, body, filePath } = product;
@@ -136,7 +188,58 @@ const processProductFile = (product, existingSkus) => {
 };
 
 /**
- * Write modified files to disk
+ * Process a single menu-item file and add a top-level SKU when the item is
+ * buyable and missing one.
+ * Returns { modified, skusAdded, updatedSkus, filePath, newContent }.
+ * @param {{ data: { sku?: string, price?: string | number | null }, body: string, filePath: string }} menuItem
+ * @param {Set<string>} existingSkus
+ * @returns {{ modified: boolean, skusAdded: number, updatedSkus: Set<string>, filePath: string, newContent: string | null }}
+ */
+const processMenuItemFile = (menuItem, existingSkus) => {
+  const { data, body, filePath } = menuItem;
+
+  if (data.sku || !isBuyableMenuItem(data)) {
+    return {
+      modified: false,
+      skusAdded: 0,
+      updatedSkus: existingSkus,
+      filePath,
+      newContent: null,
+    };
+  }
+
+  const { sku, updatedSkus } = generateUniqueSku(existingSkus);
+  const newContent = matter.stringify(body, { ...data, sku });
+
+  return { modified: true, skusAdded: 1, updatedSkus, filePath, newContent };
+};
+
+/**
+ * Recursively process a list of files, threading the global SKU set through
+ * so newly added SKUs are visible to later files.
+ * @template T
+ * @param {Array<T>} files
+ * @param {Set<string>} existingSkus
+ * @param {(file: T, skus: Set<string>) => { modified: boolean, skusAdded: number, updatedSkus: Set<string>, filePath: string, newContent: string | null }} processFile
+ * @returns {{ results: Array<{ modified: boolean, skusAdded: number, updatedSkus: Set<string>, filePath: string, newContent: string | null }>, currentSkus: Set<string> }}
+ */
+const processFiles = (files, existingSkus, processFile) => {
+  const processAll = (remaining, processed, currentSkus) => {
+    if (remaining.length === 0) {
+      return { results: processed, currentSkus };
+    }
+
+    const [file, ...rest] = remaining;
+    const result = processFile(file, currentSkus);
+    return processAll(rest, [...processed, result], result.updatedSkus);
+  };
+
+  return processAll(files, [], existingSkus);
+};
+
+/**
+ * Write modified files to disk.
+ * @param {Array<{ modified: boolean, newContent: string | null, filePath: string }>} results
  */
 const writeModifiedFiles = (results) => {
   results
@@ -147,78 +250,129 @@ const writeModifiedFiles = (results) => {
 };
 
 /**
- * Process all product files and collect results (recursive implementation)
+ * Process all product and menu-item files, threading the global SKU set
+ * through both so uniqueness is global. Does not write unless dryRun is false.
+ *
+ * @param {object} [options]
+ * @param {boolean} [options.dryRun=false]
+ * @param {string} [options.productsDir]
+ * @param {string} [options.menuItemsDir]
+ * @returns {{ productResults: Array, menuItemResults: Array, totals: { products: { files: number, skus: number }, menuItems: { files: number, skus: number } } }}
  */
-const processAllProducts = (productsDir, existingSkus) => {
-  const products = getProductFiles(productsDir).map(readProductFile);
-
-  const processProducts = (remaining, processed, currentSkus) => {
-    if (remaining.length === 0) {
-      return { results: processed, currentSkus };
-    }
-
-    const [product, ...rest] = remaining;
-    const result = processProductFile(product, currentSkus);
-
-    return processProducts(rest, [...processed, result], result.updatedSkus);
-  };
-
-  return processProducts(products, [], existingSkus);
-};
-
-/**
- * Log processing results
- */
-const logResults = (results, dryRun) => {
-  const modifiedResults = results.filter((r) => r.modified);
-
-  modifiedResults.forEach((result) => {
-    const fileName = path.basename(result.filePath);
-    const prefix = dryRun ? "[DRY RUN] Would update" : "Updated";
-    log(`${prefix} ${fileName}: added ${result.skusAdded} SKU(s)`);
-  });
-
-  const totalModified = modifiedResults.length;
-  const totalSkusAdded = modifiedResults.reduce(
-    (sum, r) => sum + r.skusAdded,
-    0,
-  );
-
-  const prefix = dryRun ? "[DRY RUN] Would modify" : "Modified";
-  log(`\n${prefix} ${totalModified} file(s), added ${totalSkusAdded} SKU(s)`);
-
-  return { totalModified, totalSkusAdded };
-};
-
-/**
- * Main function to process all product files
- */
-const addSkusToProducts = (dryRun = false) => {
-  const productsDir = path.join(process.cwd(), PRODUCTS_DIR);
-
+const addSkusToAll = ({
+  dryRun = false,
+  productsDir = path.join(process.cwd(), PRODUCTS_DIR),
+  menuItemsDir = path.join(process.cwd(), MENU_ITEMS_DIR),
+} = {}) => {
   if (!fs.existsSync(productsDir)) {
     logError(`Products directory not found: ${productsDir}`);
     process.exit(1);
   }
 
-  const existingSkus = collectExistingSkus(productsDir);
-  log(`Found ${existingSkus.size} existing SKUs`);
+  const existingSkus = collectExistingSkus(productsDir, menuItemsDir);
+  log(`Found ${existingSkus.size} existing SKU(s)`);
 
-  const { results } = processAllProducts(productsDir, existingSkus);
+  const products = getMarkdownFiles(productsDir).map(readFrontmatterFile);
+  const { results: productResults, currentSkus: afterProducts } = processFiles(
+    products,
+    existingSkus,
+    processProductFile,
+  );
+
+  const menuItems = getMarkdownFiles(menuItemsDir).map(readFrontmatterFile);
+  const { results: menuItemResults } = processFiles(
+    menuItems,
+    afterProducts,
+    processMenuItemFile,
+  );
 
   if (!dryRun) {
-    writeModifiedFiles(results);
+    writeModifiedFiles(productResults);
+    writeModifiedFiles(menuItemResults);
   }
 
+  const sumSkus = (results) =>
+    results.reduce((sum, r) => sum + r.skusAdded, 0);
+  const countModified = (results) => results.filter((r) => r.modified).length;
+
+  return {
+    productResults,
+    menuItemResults,
+    totals: {
+      products: {
+        files: countModified(productResults),
+        skus: sumSkus(productResults),
+      },
+      menuItems: {
+        files: countModified(menuItemResults),
+        skus: sumSkus(menuItemResults),
+      },
+    },
+  };
+};
+
+/**
+ * Log processing results for products and menu items.
+ * @param {{ productResults: Array, menuItemResults: Array, totals: { products: { files: number, skus: number }, menuItems: { files: number, skus: number } } }} results
+ * @param {boolean} dryRun
+ */
+const logResults = ({ productResults, menuItemResults, totals }, dryRun) => {
+  const prefix = dryRun ? "[DRY RUN] Would update" : "Updated";
+  const filePrefix = dryRun ? "[DRY RUN] Would modify" : "Modified";
+
+  for (const result of productResults.filter((r) => r.modified)) {
+    log(
+      `${prefix} ${path.basename(result.filePath)}: added ${result.skusAdded} product option SKU(s)`,
+    );
+  }
+  for (const result of menuItemResults.filter((r) => r.modified)) {
+    log(
+      `${prefix} ${path.basename(result.filePath)}: added menu item SKU`,
+    );
+  }
+
+  log(
+    `\n${filePrefix} ${totals.products.files} product file(s), added ${totals.products.skus} option SKU(s)`,
+  );
+  log(
+    `${filePrefix} ${totals.menuItems.files} menu item file(s), added ${totals.menuItems.skus} SKU(s)`,
+  );
+
+  return totals;
+};
+
+/**
+ * CLI entry point. Parses args, runs the SKU-addition flow, and logs results.
+ * Extracted from the import.meta.main guard so it is unit-testable.
+ * @param {string[]} args
+ * @returns {{ productResults: Array, menuItemResults: Array, totals: object }}
+ */
+const runCli = (args) => {
+  const dryRun = args.includes("--dry-run");
+
+  if (dryRun) {
+    log("Running in dry-run mode (no files will be modified)\n");
+  }
+
+  const results = addSkusToAll({ dryRun });
   return logResults(results, dryRun);
 };
 
-// CLI handling
-const args = process.argv.slice(2);
-const dryRun = args.includes("--dry-run");
+// Exported for unit tests. The CLI entry below is guarded so importing this
+// module does not execute the script.
+export {
+  addSkusToAll,
+  collectExistingSkus,
+  extractSkuFromMenuItem,
+  extractSkuFromProduct,
+  generateUniqueSku,
+  isBuyableMenuItem,
+  logResults,
+  processMenuItemFile,
+  processProductFile,
+  readFrontmatterFile,
+  runCli,
+};
 
-if (dryRun) {
-  log("Running in dry-run mode (no files will be modified)\n");
-}
-
-addSkusToProducts(dryRun);
+// CLI entry — only runs when executed directly (`bun bin/add-skus`).
+if (import.meta.main) runCli(process.argv.slice(2));

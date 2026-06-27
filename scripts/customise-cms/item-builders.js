@@ -172,6 +172,7 @@ export const buildMenuItemsFields = (config, fields) =>
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
     { name: "price", type: "string", label: "Price" },
+    { name: "sku", type: "string", label: "SKU" },
     { name: "is_vegan", type: "boolean", label: "Is Vegan" },
     { name: "is_gluten_free", type: "boolean", label: "Is Gluten Free" },
     enabled("menu-categories") &&

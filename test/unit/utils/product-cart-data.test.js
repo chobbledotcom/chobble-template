@@ -193,6 +193,16 @@ describe("product-cart-data", () => {
       expect(getDefaultMaxQuantity({ max_quantity: 7 })).toBe(7);
     });
 
+    test("returns explicit zero override when set", () => {
+      expect(getDefaultMaxQuantity({ max_quantity: 0 })).toBe(0);
+    });
+
+    test("falls back when max_quantity is explicitly null", () => {
+      expect(getDefaultMaxQuantity({ max_quantity: null })).toBe(
+        getConfig().default_max_quantity,
+      );
+    });
+
     test("falls back to the configured default when max_quantity is not set", () => {
       expect(getDefaultMaxQuantity({})).toBe(getConfig().default_max_quantity);
     });

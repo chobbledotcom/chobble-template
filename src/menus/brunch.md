@@ -16,6 +16,7 @@ blocks:
 
       Our relaxed atmosphere is perfect for catching up with friends or enjoying a lazy weekend morning with the papers. Bookings recommended for groups of 4 or more.
   - type: menu
+    cards: true
   - type: menu-pdf-download
     variant: secondary
 ---

@@ -5,6 +5,7 @@ import {
   getFormTarget,
   getProducts,
 } from "#config/helpers.js";
+import getConfig from "#data/config.js";
 import { expectObjectProps } from "#test/test-utils.js";
 import { pickNonNull } from "#toolkit/fp/object.js";
 
@@ -136,12 +137,28 @@ describe("config", () => {
     expect(result).toBe(null);
   });
 
+  test("prefers formspark id when contact_form_target is empty", () => {
+    expect(
+      getFormTarget({
+        contact_form_target: "",
+        formspark_id: "abc123",
+      }),
+    ).toBe("https://submit-form.com/abc123");
+  });
+
   test("config.js data file exports a default function for Eleventy", async () => {
     const configModule = await import("#data/config.js");
     expect(typeof configModule.default).toBe("function");
     const exportNames = Object.keys(configModule);
     expect(exportNames).toHaveLength(1);
     expect(exportNames[0]).toBe("default");
+  });
+
+  test("config() returns resolved configuration from config.json", () => {
+    const config = getConfig();
+
+    expect(config.form_target).toBeNull();
+    expect(config.internal_link_suffix).toBe("");
   });
 
   test("config.js returns computed form_target when formspark_id is set", () => {

@@ -393,6 +393,83 @@ export const runLanes = async ({ lanes, verbose, title }) => {
   return results;
 };
 
+const isCpdCloneBlockEnd = (blockIndex, startIndex, line) =>
+  blockIndex > startIndex &&
+  (!line ||
+    line === "jscpd found duplicated code." ||
+    line.startsWith("Do not use "));
+
+const extractCpdCloneBlocks = (lines) => {
+  const cloneBlocks = [];
+  const consumedLines = new Set();
+
+  for (let index = 0; index < lines.length; index++) {
+    const trimmed = lines[index].trim();
+    if (!trimmed.startsWith("❌ Clone found")) continue;
+
+    const block = [];
+    for (let blockIndex = index; blockIndex < lines.length; blockIndex++) {
+      const blockLine = lines[blockIndex];
+      const blockTrimmed = blockLine.trim();
+
+      if (isCpdCloneBlockEnd(blockIndex, index, blockTrimmed)) break;
+
+      consumedLines.add(blockIndex);
+      block.push(blockLine.trimEnd());
+    }
+
+    if (block.length > 0) cloneBlocks.push(block.join("\n"));
+  }
+
+  return { cloneBlocks, consumedLines };
+};
+
+const isSkippableErrorLine = (line) =>
+  !line ||
+  line.startsWith("$") ||
+  line.startsWith("/") ||
+  line.endsWith(".jpg") ||
+  line.endsWith(".png") ||
+  line.endsWith(".gif") ||
+  line.startsWith("node -e") ||
+  line.startsWith("(pass)");
+
+const hasErrorIndicator = (line) =>
+  line.startsWith("❌") ||
+  line.startsWith("error:") ||
+  line.startsWith("Error:") ||
+  line.startsWith("AssertionError:") ||
+  line.includes("FAIL") ||
+  (line.toLowerCase().includes("fail") && line !== "0 fail") ||
+  line.includes("below threshold") ||
+  line.includes("must have test coverage") ||
+  /Uncovered lines?:/i.test(line);
+
+const hasToolPattern = (line) =>
+  /^Unused (files|exports|dependencies|types)/i.test(line) ||
+  /^Unlisted dependencies/i.test(line) ||
+  /^(Clone found|Duplication detected|Total duplicates)/i.test(line) ||
+  /\d+ (tests?|errors?) (failed|found)/i.test(line) ||
+  /coverage.*\d+%/i.test(line);
+
+const hasCoverageTableViolation = (line) => {
+  const coverageTableMatch = line.match(
+    /^(.+?)\s*\|\s*(\d+\.?\d*)\s*\|\s*(\d+\.?\d*)\s*\|\s*(.*)$/,
+  );
+  if (!coverageTableMatch) return false;
+
+  const [, , , , uncoveredLines] = coverageTableMatch;
+  return Boolean(uncoveredLines?.trim());
+};
+
+const isCoverageViolationDetail = (line) =>
+  /^[\w./-]+\.\w+:\s*.+$/.test(line) &&
+  !line.includes("instance(s)") &&
+  !line.includes("usage(s)") &&
+  !/:\s*lines\s+\d/.test(line);
+
+const isStackTraceLine = (line) => /^at .+\(.+:\d+:\d+\)/.test(line);
+
 /**
  * Extract error messages from test output
  * @param {string} output - Raw output text
@@ -400,72 +477,23 @@ export const runLanes = async ({ lanes, verbose, title }) => {
  */
 export function extractErrorsFromOutput(output) {
   const lines = output.split("\n");
-  const errors = [];
+  const { cloneBlocks, consumedLines } = extractCpdCloneBlocks(lines);
+  const errors = [...cloneBlocks];
 
-  for (const line of lines) {
+  for (const [index, line] of lines.entries()) {
+    if (consumedLines.has(index)) continue;
+
     const trimmed = line.trim();
 
     // Skip empty lines and cruft
-    if (!trimmed) continue;
+    if (isSkippableErrorLine(trimmed)) continue;
 
-    // Skip command outputs and file paths at the start
-    if (trimmed.startsWith("$") || trimmed.startsWith("/")) continue;
-
-    // Skip image filenames and other generic file paths
-    if (
-      trimmed.endsWith(".jpg") ||
-      trimmed.endsWith(".png") ||
-      trimmed.endsWith(".gif")
-    ) {
+    if (hasCoverageTableViolation(trimmed)) {
+      errors.push(trimmed);
       continue;
     }
 
-    // Skip long command lines that start with "node -e"
-    if (trimmed.startsWith("node -e")) continue;
-
-    // Skip Bun's passing test output lines (they may contain words like "error" or "FAIL" in test names)
-    if (trimmed.startsWith("(pass)")) continue;
-
-    // Look for error indicators
-    const hasErrorIndicator =
-      trimmed.startsWith("❌") ||
-      trimmed.startsWith("error:") ||
-      trimmed.startsWith("Error:") ||
-      trimmed.startsWith("AssertionError:") ||
-      trimmed.includes("FAIL") ||
-      (trimmed.toLowerCase().includes("fail") && trimmed !== "0 fail") ||
-      trimmed.includes("below threshold") ||
-      trimmed.includes("must have test coverage") ||
-      // Coverage errors like "Uncovered lines: 10-15" but not table header "Uncovered Line #s"
-      /Uncovered lines?:/i.test(trimmed);
-
-    // Detect coverage table rows with uncovered lines (Bun coverage output format)
-    // Format: " src/file.js | 95.00 | 90.00 | 21-22,41" or "All files | 99.00 | 98.00 |"
-    const coverageTableMatch = trimmed.match(
-      /^(.+?)\s*\|\s*(\d+\.?\d*)\s*\|\s*(\d+\.?\d*)\s*\|\s*(.*)$/,
-    );
-    if (coverageTableMatch) {
-      const [, , , , uncoveredLines] = coverageTableMatch;
-      // Include rows that have uncovered lines listed
-      if (uncoveredLines?.trim()) {
-        errors.push(trimmed);
-        continue;
-      }
-    }
-
-    // Look for tool-specific error patterns
-    const hasToolPattern =
-      // Knip outputs: "Unused files (3)", "Unused exports (5)", etc.
-      /^Unused (files|exports|dependencies|types)/i.test(trimmed) ||
-      /^Unlisted dependencies/i.test(trimmed) ||
-      // Duplication/jscpd: "Clone found", "Duplication detected"
-      /^(Clone found|Duplication detected|Total duplicates)/i.test(trimmed) ||
-      // Test counts: "2 tests failed", "15 errors found"
-      /\d+ (tests?|errors?) (failed|found)/i.test(trimmed) ||
-      // Coverage patterns
-      /coverage.*\d+%/i.test(trimmed);
-
-    if (hasErrorIndicator || hasToolPattern) {
+    if (hasErrorIndicator(trimmed) || hasToolPattern(trimmed)) {
       errors.push(trimmed);
     }
 
@@ -477,10 +505,7 @@ export function extractErrorsFromOutput(output) {
     //   - try-catch allowlist: "file.js: lines N, N, N"
     //   - let/const allowlist: "file.js: N usage(s)"
     if (
-      /^[\w./-]+\.\w+:\s*.+$/.test(trimmed) &&
-      !trimmed.includes("instance(s)") &&
-      !trimmed.includes("usage(s)") &&
-      !/:\s*lines\s+\d/.test(trimmed) // Skip "file.js: lines 12, 28" pattern
+      isCoverageViolationDetail(trimmed) // Skip "file.js: lines 12, 28" pattern
     ) {
       errors.push(trimmed);
     }
@@ -488,7 +513,7 @@ export function extractErrorsFromOutput(output) {
     // Include stack trace lines that provide context (but not all of them)
     // Match lines like "at Object.<anonymous> (src/index.js:5:15)"
     // Note: trimmed already has leading whitespace removed
-    if (/^at .+\(.+:\d+:\d+\)/.test(trimmed)) {
+    if (isStackTraceLine(trimmed)) {
       // Only include the first few stack frames (limit added when displaying)
       errors.push(trimmed);
     }

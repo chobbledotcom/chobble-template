@@ -3,6 +3,9 @@ name: Green Power Smoothie
 price: £7.00
 is_vegan: true
 is_gluten_free: true
-menu_categories: [beverages]
-description: Kale, banana, mango, coconut water.
+menu_categories:
+  - beverages
+description: 'Kale, banana, mango, coconut water.'
+sku: R22H2D
 ---
+

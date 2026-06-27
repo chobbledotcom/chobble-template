@@ -1,0 +1,38 @@
+{%- comment -%}
+Menu card item - a product-style card for a single menu item that does NOT
+link to a detail page (menu items have `permalink: false`).
+
+Rendered by `design-system/blocks/menu.html` when `block.cards` is true, once
+per item inside `<ul class="items menu-card-items">`. Content order mirrors
+product cards: thumbnail, heading, price, description, cart controls.
+
+Shares the card layout from `_items.scss` via `ul.items`; only menu-specific
+spacing and the no-link image wrapper live in `_menu.scss`.
+{%- endcomment -%}
+<li class="menu-card-item">
+  {%- if item.data.thumbnail -%}
+    {%- assign menu_card_aspect = config.products.item_list_aspect_ratio -%}
+    <div class="menu-card-image">
+      {%- image item.data.thumbnail, item.data.name, "", "", "", menu_card_aspect -%}
+    </div>
+  {%- endif -%}
+
+  {%- if item.data.name and item.data.name != "" -%}
+    <h3>
+      {{ item.data.name }}
+      {%- for key in item.data.dietaryKeys %}
+        <span class="dietary-key">({{ key.symbol }})</span>
+      {%- endfor -%}
+    </h3>
+  {%- endif -%}
+
+  {%- if item.data.price -%}
+    <p class="price">{{ item.data.price }}</p>
+  {%- endif -%}
+
+  {%- if item.data.description -%}
+    <p>{{ item.data.description }}</p>
+  {%- endif -%}
+
+  {%- include "design-system/menu-cart-button.html", item: item -%}
+</li>
