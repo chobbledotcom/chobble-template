@@ -1,11 +1,37 @@
 import { describe, expect, test } from "bun:test";
-import { extractSlowTests, extractTestTotal } from "#test/precommit/output.js";
+import {
+  createDotsProgress,
+  extractSlowTests,
+  extractTestTotal,
+} from "#test/precommit/output.js";
 
 describe("precommit output helpers", () => {
+  test("createDotsProgress ignores non-dot chunks until dots pass", () => {
+    const progress = createDotsProgress();
+
+    expect(progress("bun test v1.3.13")).toBeUndefined();
+    expect(progress("test/unit/example.test.js")).toBeUndefined();
+    expect(progress(".\n.")).toBe("(2 passed)");
+    expect(progress("failure in test/unit/example.test.js")).toBe("(2 passed)");
+  });
+
+  test("createDotsProgress includes total when provided", () => {
+    const progress = createDotsProgress(4);
+
+    expect(progress("..")).toBe("(2/4 passed)");
+  });
+
   test("extractTestTotal reads bun test summary totals", () => {
     expect(
       extractTestTotal("Ran 4200 tests across 200 files. [45000.00ms]"),
     ).toBe(4200);
+  });
+
+  test("extractTestTotal ignores missing and zero totals", () => {
+    expect(extractTestTotal("suite crashed")).toBeUndefined();
+    expect(
+      extractTestTotal("Ran 0 tests across 0 files. [1.00ms]"),
+    ).toBeUndefined();
   });
 
   test("extractSlowTests returns tests over the threshold", () => {
