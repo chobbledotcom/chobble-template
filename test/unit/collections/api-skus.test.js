@@ -61,6 +61,7 @@ describe("apiSkus menu-item entries", () => {
       menuEntry("No SKU", { price: "£8.00" }),
       menuEntry("Ambiguous", { sku: "AMB1", price: "£10 / £12" }),
       menuEntry("Unparseable", { sku: "UNP1", price: "Market price" }),
+      menuEntry("Punctuation", { sku: "POA1", price: "P.O.A." }),
       menuEntry("Buyable", { sku: "BUY1", price: "£9.00" }),
     ];
 

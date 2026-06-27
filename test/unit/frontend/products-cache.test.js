@@ -30,6 +30,14 @@ const cartBuyItem = (overrides = {}) => ({
   ...overrides,
 });
 
+const cartMenuBuyItem = (overrides = {}) =>
+  cartBuyItem({
+    item_name: "Menu Burger",
+    sku: "MENUBG",
+    cart_source: "menu-item",
+    ...overrides,
+  });
+
 const cartHireItem = (overrides = {}) => ({
   item_name: "Hire Item",
   unit_price: 30,
@@ -112,6 +120,12 @@ describe("validateBuyItems", () => {
     expect(mockShowNotification).not.toHaveBeenCalled();
   });
 
+  test("returns false and leaves menu buy items untouched", () => {
+    const cart = [cartMenuBuyItem({ unit_price: 12 })];
+    saveAndExpectUnchanged(cart);
+    expect(mockShowNotification).not.toHaveBeenCalled();
+  });
+
   test("removes item with unmatched SKU and notifies user", () => {
     const cart = [cartBuyItem({ item_name: "Unknown", sku: "DOESNT_EXIST" })];
     saveAndValidate(cart);
@@ -190,6 +204,12 @@ describe("validateCartWithCache", () => {
     expect(fetchState.mock).not.toHaveBeenCalled();
   });
 
+  test("does not fetch for menu-only buy-mode items", async () => {
+    saveCart([cartMenuBuyItem()]);
+    await validateCartWithCache();
+    expect(fetchState.mock).not.toHaveBeenCalled();
+  });
+
   test("fetches and caches products when cache is empty", async () => {
     fetchState.mock = installFetchMock(MOCK_PRODUCTS);
     saveCart([cartBuyItem({ unit_price: 0.5 })]);
@@ -263,6 +283,12 @@ describe("refreshCacheIfNeeded", () => {
 
   test("does nothing for a cart with only hire items", () => {
     saveCart([cartHireItem()]);
+    refreshCacheIfNeeded();
+    expect(fetchState.mock).not.toHaveBeenCalled();
+  });
+
+  test("does nothing for a cart with only menu buy items", () => {
+    saveCart([cartMenuBuyItem()]);
     refreshCacheIfNeeded();
     expect(fetchState.mock).not.toHaveBeenCalled();
   });

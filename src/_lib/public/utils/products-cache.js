@@ -10,6 +10,8 @@ import { sendNtfyNotification } from "#public/utils/ntfy.js";
 
 const CACHE_KEY = "products_cache";
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const isProductBuyItem = (item) =>
+  item.product_mode === "buy" && item.cart_source !== "menu-item";
 
 const getCachedProducts = () => {
   const raw = localStorage.getItem(CACHE_KEY);
@@ -31,7 +33,7 @@ const validateBuyItems = (cart, products) => {
   );
 
   const classified = cart.map((item) => {
-    if (item.product_mode !== "buy") return { valid: item };
+    if (!isProductBuyItem(item)) return { valid: item };
     const product = productBySku[item.sku];
     if (!product?.in_stock) return { removed: item.item_name };
     return { valid: { ...item, unit_price: product.unit_price / 100 } };
@@ -70,7 +72,7 @@ const validateBuyItems = (cart, products) => {
  */
 const validateCartWithCache = async () => {
   const cart = getCart();
-  const hasBuyItems = cart.some((item) => item.product_mode === "buy");
+  const hasBuyItems = cart.some(isProductBuyItem);
   if (!hasBuyItems) return;
 
   if (!Config.ecommerce_api_host) return;
@@ -109,7 +111,7 @@ const validateCartWithCache = async () => {
  */
 const refreshCacheIfNeeded = () => {
   if (!Config.ecommerce_api_host) return;
-  if (!getCart().some((item) => item.product_mode === "buy")) return;
+  if (!getCart().some(isProductBuyItem)) return;
   validateCartWithCache();
 };
 

@@ -73,4 +73,5 @@ export type CartAttributesParams = {
   subtitle?: string;
   options: NormalizedProductOption[];
   mode: string;
+  source?: string;
 };

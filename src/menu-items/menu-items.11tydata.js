@@ -23,7 +23,7 @@ import { normaliseSlug } from "#utils/slug-utils.js";
 const resolveMenuCartOption = (data) => {
   if (isAmbiguousPrice(data.price)) return null;
   const unitPrice = parsePrice(null)(data.price);
-  if (unitPrice == null) return null;
+  if (!Number.isFinite(unitPrice)) return null;
 
   const mode = getConfig().cart_mode;
   if (!mode) return null;
@@ -63,6 +63,7 @@ export default {
         subtitle: data.description,
         options: [option],
         mode: "buy",
+        source: "menu-item",
       });
     },
     show_cart_quantity_selector: (data) => resolveMenuCartOption(data) !== null,

@@ -46,7 +46,8 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add src/products/ src/menu-items/
+          if [ -d src/products ]; then git add src/products/; fi
+          if [ -d src/menu-items ]; then git add src/menu-items/; fi
           git commit -m "Add SKUs to product options and menu items"
           git push
 

@@ -225,7 +225,7 @@ const extractSkuEntries = (product) => {
 const hasBuyableMenuSku = (menuItem) =>
   Boolean(menuItem.data.sku) &&
   !isAmbiguousPrice(menuItem.data.price) &&
-  parsePrice(null)(menuItem.data.price) != null;
+  Number.isFinite(parsePrice(null)(menuItem.data.price));
 
 /**
  * Convert a buyable menu item into a SKU entry for the pricing API.

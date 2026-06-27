@@ -264,8 +264,10 @@ const addSkusToAll = ({
   productsDir = path.join(process.cwd(), PRODUCTS_DIR),
   menuItemsDir = path.join(process.cwd(), MENU_ITEMS_DIR),
 } = {}) => {
-  if (!fs.existsSync(productsDir)) {
-    logError(`Products directory not found: ${productsDir}`);
+  if (!fs.existsSync(productsDir) && !fs.existsSync(menuItemsDir)) {
+    logError(
+      `No SKU collections found. Expected ${productsDir} or ${menuItemsDir}`,
+    );
     process.exit(1);
   }
 
@@ -364,7 +366,7 @@ export {
   addSkusToAll,
   collectExistingSkus,
   extractSkuFromMenuItem,
-  extractSkuFromProduct,
+  extractSkusFromProduct,
   generateUniqueSku,
   isBuyableMenuItem,
   logResults,

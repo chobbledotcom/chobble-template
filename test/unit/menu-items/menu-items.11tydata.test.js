@@ -35,6 +35,7 @@ describe("menu-items cart_attributes", () => {
     expect(attrs.options[0].sku).toBe("MENUMENU1");
     expect(attrs.options[0].unit_price).toBe(15);
     expect(attrs.product_mode).toBe("buy");
+    expect(attrs.cart_source).toBe("menu-item");
   });
 
   test("returns null in stripe mode when the menu item has no sku", () => {
@@ -69,6 +70,11 @@ describe("menu-items cart_attributes", () => {
     mockConfig.cart_mode = "quote";
     expect(
       eleventyComputed.cart_attributes(menuItemData({ price: "Market price" })),
+    ).toBeNull();
+    expect(
+      eleventyComputed.cart_attributes(
+        menuItemData({ price: "P.O.A.", sku: "ABC" }),
+      ),
     ).toBeNull();
   });
 

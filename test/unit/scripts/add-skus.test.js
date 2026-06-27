@@ -3,6 +3,7 @@ import matter from "gray-matter";
 import {
   addSkusToAll,
   extractSkuFromMenuItem,
+  extractSkusFromProduct,
   generateUniqueSku,
   isBuyableMenuItem,
   logResults,
@@ -88,6 +89,19 @@ describe("isBuyableMenuItem", () => {
     expect(isBuyableMenuItem({ price: "£10 / £12" })).toBe(false);
     expect(isBuyableMenuItem({ price: undefined })).toBe(false);
     expect(isBuyableMenuItem({ price: "Market price" })).toBe(false);
+    expect(isBuyableMenuItem({ price: "P.O.A." })).toBe(false);
+  });
+});
+
+describe("extractSkusFromProduct", () => {
+  test("returns option-level skus", () => {
+    expect(
+      extractSkusFromProduct({
+        data: {
+          options: [{ sku: "ABC123" }, { name: "Missing" }, { sku: "DEF456" }],
+        },
+      }),
+    ).toEqual(["ABC123", "DEF456"]);
   });
 });
 
@@ -179,8 +193,8 @@ describe("processProductFile", () => {
   });
 });
 
-describe("addSkusToAll missing products dir", () => {
-  test("logs an error and exits when the products directory does not exist", () => {
+describe("addSkusToAll missing collection dirs", () => {
+  test("logs an error and exits when neither collection directory exists", () => {
     const errorSpy = spyOn(console, "error").mockImplementation(() => {
       // suppress: logError output is not under test here
     });
@@ -196,7 +210,7 @@ describe("addSkusToAll missing products dir", () => {
       ).toThrow("process.exit called");
       expect(
         errorSpy.mock.calls.some((args) =>
-          args.join(" ").includes("Products directory not found"),
+          args.join(" ").includes("No SKU collections found"),
         ),
       ).toBe(true);
       expect(exitSpy).toHaveBeenCalledWith(1);
@@ -205,6 +219,41 @@ describe("addSkusToAll missing products dir", () => {
       errorSpy.mockRestore();
     }
   });
+
+  test("supports menu-only sites without a products directory", () =>
+    withTempDir("add-skus-menu-only", (tempDir) => {
+      const productsDir = path.join(tempDir, "missing-products");
+      const menuItemsDir = path.join(tempDir, "menu-items");
+      fs.mkdirSync(menuItemsDir, { recursive: true });
+      writeProduct(menuItemsDir, "burger.md", {
+        name: "Burger",
+        price: "£15.00",
+      });
+
+      const { totals } = addSkusToAll({ productsDir, menuItemsDir });
+
+      expect(totals.products.files).toBe(0);
+      expect(totals.menuItems.files).toBe(1);
+      expect(readFrontmatter(menuItemsDir, "burger.md").sku).toMatch(
+        SKU_PATTERN,
+      );
+    }));
+
+  test("supports product-only sites without a menu-items directory", () =>
+    withTempDir("add-skus-product-only", (tempDir) => {
+      const productsDir = path.join(tempDir, "products");
+      const menuItemsDir = path.join(tempDir, "missing-menu-items");
+      fs.mkdirSync(productsDir, { recursive: true });
+      writeWidget(productsDir, [{ name: "Small", unit_price: 10 }]);
+
+      const { totals } = addSkusToAll({ productsDir, menuItemsDir });
+
+      expect(totals.products.files).toBe(1);
+      expect(totals.menuItems.files).toBe(0);
+      expect(readFrontmatter(productsDir, "widget.md").options[0].sku).toMatch(
+        SKU_PATTERN,
+      );
+    }));
 });
 
 const resultsFixture = () => ({

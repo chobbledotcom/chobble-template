@@ -108,7 +108,13 @@ const hasDays = (opt) => opt.days != null;
  * @param {CartAttributesParams} params - Parameters
  * @returns {string | null} HTML-escaped JSON string for data attribute, or null
  */
-export const buildCartAttributes = ({ name, subtitle, options, mode }) => {
+export const buildCartAttributes = ({
+  name,
+  subtitle,
+  options,
+  mode,
+  source,
+}) => {
   if (options.length === 0) return null;
 
   if (mode === "hire") validateHireOptions(options, name);
@@ -128,5 +134,6 @@ export const buildCartAttributes = ({ name, subtitle, options, mode }) => {
         ? toObject(options.filter(hasDays), (opt) => [opt.days, opt.unit_price])
         : {},
     product_mode: mode,
+    cart_source: source,
   }).replace(/"/g, "&quot;");
 };

@@ -99,6 +99,7 @@ const addItem = (item, quantity = 1) => {
     sku: item.sku,
     hire_prices: item.hirePrices,
     product_mode: item.productMode,
+    cart_source: item.cartSource,
     subtitle: item.subtitle,
   };
 
@@ -193,6 +194,7 @@ const extractItemFromButton = (button) => {
     sku: option.sku,
     hirePrices: itemData.hire_prices,
     productMode: itemData.product_mode,
+    cartSource: itemData.cart_source,
     subtitle: itemData.subtitle,
   };
 };
