@@ -50,7 +50,7 @@ export const getSteps = () => {
     { name: "cpd:ratchet", cmd: ["bun", "run", "cpd:ratchet"] },
     {
       name: "tests",
-      cmd: ["bun", "test", "--dots", "--timeout", "30000"],
+      cmd: ["bun", "test", "--dots", "--timeout", "1500"],
       progress: createDotsProgress(
         Number.isFinite(cachedTotal) && cachedTotal > 0
           ? cachedTotal

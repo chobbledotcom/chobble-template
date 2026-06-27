@@ -8,8 +8,8 @@ root = "./test"
 # Parallel execution (default behavior in Bun)
 # Bun automatically runs tests in parallel
 
-# Timeout for individual tests (30 seconds)
-timeout = 30000
+# Timeout for individual tests (1.5 seconds)
+timeout = 1500
 
 # Always enable coverage reporting
 coverage = true

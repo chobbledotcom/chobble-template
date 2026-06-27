@@ -252,7 +252,7 @@ export const COMMON_STEPS = {
   cpd: { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
   cpdRatchet: { name: "cpd:ratchet", cmd: "bun", args: ["run", "cpd:ratchet"] },
   knip: { name: "knip", cmd: "bun", args: ["run", "knip"] },
-  test: { name: "test", cmd: "bun", args: ["test", "--timeout", "30000"] },
+  test: { name: "test", cmd: "bun", args: ["test", "--timeout", "1500"] },
   build: {
     name: "build",
     cmd: "bun",
@@ -279,7 +279,7 @@ export const unitTestsStep = (verbose) => ({
     "--coverage-reporter=text",
     "--concurrent",
     "--timeout",
-    "30000",
+    "1500",
     ...(verbose ? ["--verbose"] : []),
   ],
 });
@@ -291,7 +291,7 @@ export const unitTestsStep = (verbose) => ({
 export const integrationTestsStep = {
   name: "tests:integration",
   cmd: "bun",
-  args: ["test", "test/integration", "--concurrent", "--timeout", "30000"],
+  args: ["test", "test/integration", "--concurrent", "--timeout", "1500"],
 };
 
 /**

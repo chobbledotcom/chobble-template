@@ -7,8 +7,8 @@ root = "./test"
 # Parallel execution (default behavior in Bun)
 # Bun automatically runs tests in parallel
 
-# Timeout for individual tests (30 seconds)
-timeout = 30000
+# Timeout for individual tests (1.5 seconds)
+timeout = 1500
 
 # Coverage is NOT enabled by default - only the full test suite (bun run test)
 # passes --coverage explicitly. This prevents ad-hoc test runs (bun test:unit,

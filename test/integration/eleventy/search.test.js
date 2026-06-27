@@ -12,40 +12,17 @@ const contentFile = (collection, slug, name, extras = {}) => ({
 });
 
 describe("search", () => {
-  test("collection and static pages get data-pagefind-body, no_index pages do not", async () => {
+  test("search pages and indexing rules render correctly", async () => {
     const files = [
-      contentFile("products", "widget", "Widget"),
+      contentFile("products", "widget", "Widget", {
+        redirect_from: ["/old-widget/"],
+      }),
       contentFile("categories", "tools", "Tools"),
       contentFile("pages", "about", "About Us", { permalink: "/about/" }),
       contentFile("pages", "checkout", "Checkout", {
         permalink: "/checkout/",
         no_index: true,
       }),
-    ];
-
-    await withTestSite({ files }, async (site) => {
-      const productDoc = await site.getDoc("products/widget/index.html");
-      expect(productDoc.querySelector("[data-pagefind-body]") !== null).toBe(
-        true,
-      );
-
-      const categoryDoc = await site.getDoc("categories/tools/index.html");
-      expect(categoryDoc.querySelector("[data-pagefind-body]") !== null).toBe(
-        true,
-      );
-
-      const aboutDoc = await site.getDoc("about/index.html");
-      expect(aboutDoc.querySelector("[data-pagefind-body]") !== null).toBe(
-        true,
-      );
-
-      const checkoutDoc = await site.getDoc("checkout/index.html");
-      expect(checkoutDoc.querySelector("[data-pagefind-body]")).toBe(null);
-    });
-  });
-
-  test("search page renders with search-box and results container", async () => {
-    const files = [
       {
         path: "pages/search.md",
         frontmatter: {
@@ -73,28 +50,33 @@ describe("search", () => {
     ];
 
     await withTestSite({ files }, async (site) => {
-      const doc = await site.getDoc("search/index.html");
+      const productDoc = await site.getDoc("products/widget/index.html");
+      expect(productDoc.querySelector("[data-pagefind-body]") !== null).toBe(
+        true,
+      );
 
-      expect(doc.querySelector(".search-box") !== null).toBe(true);
-      expect(doc.querySelector("#search-results") !== null).toBe(true);
-      expect(doc.querySelector(".search-results-list") !== null).toBe(true);
-      expect(doc.querySelector(".search-load-more") !== null).toBe(true);
-      expect(doc.querySelector("[data-pagefind-ignore]") !== null).toBe(true);
-    });
-  });
+      const categoryDoc = await site.getDoc("categories/tools/index.html");
+      expect(categoryDoc.querySelector("[data-pagefind-body]") !== null).toBe(
+        true,
+      );
 
-  test("redirect stubs are not indexable and match the site language", async () => {
-    const files = [
-      contentFile("products", "widget", "Widget", {
-        redirect_from: ["/old-widget/"],
-      }),
-    ];
+      const aboutDoc = await site.getDoc("about/index.html");
+      expect(aboutDoc.querySelector("[data-pagefind-body]") !== null).toBe(
+        true,
+      );
 
-    await withTestSite({ files }, async (site) => {
+      const checkoutDoc = await site.getDoc("checkout/index.html");
+      expect(checkoutDoc.querySelector("[data-pagefind-body]")).toBe(null);
+
+      const searchDoc = await site.getDoc("search/index.html");
+      expect(searchDoc.querySelector(".search-box") !== null).toBe(true);
+      expect(searchDoc.querySelector("#search-results") !== null).toBe(true);
+      expect(searchDoc.querySelector(".search-results-list") !== null).toBe(true);
+      expect(searchDoc.querySelector(".search-load-more") !== null).toBe(true);
+      expect(searchDoc.querySelector("[data-pagefind-ignore]") !== null).toBe(true);
+
       const stubDoc = await site.getDoc("old-widget/index.html");
       expect(stubDoc.querySelector("[data-pagefind-body]")).toBe(null);
-
-      const productDoc = await site.getDoc("products/widget/index.html");
       expect(stubDoc.documentElement.getAttribute("lang")).toBe(
         productDoc.documentElement.getAttribute("lang"),
       );
