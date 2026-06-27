@@ -745,7 +745,7 @@ Failed to compile
       test("throws when the array block is missing from an existing file", () =>
         withTempDir("ignore-patterns-missing", (tempDir) => {
           const bunfigPath = path.join(tempDir, "bunfig.toml");
-          fs.writeFileSync(bunfigPath, "[test]\ntimeout = 30000\n");
+          fs.writeFileSync(bunfigPath, "[test]\ntimeout = 1500\n");
 
           expect(() => readCoverageIgnorePatterns(bunfigPath)).toThrow(
             /coveragePathIgnorePatterns/,

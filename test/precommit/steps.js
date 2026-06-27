@@ -94,6 +94,7 @@ export const getSteps = () => {
     { name: "cpd:ratchet", cmd: ["bun", "run", "cpd:ratchet"] },
     {
       name: "tests",
+<<<<<<< HEAD
       cmd: [
         "bun",
         "test",
@@ -101,7 +102,7 @@ export const getSteps = () => {
         "--reporter=junit",
         `--reporter-outfile=${TEST_REPORT_FILE}`,
         "--timeout",
-        "30000",
+        "1500",
       ],
       preRun: resetTestReport,
       progress: createDotsProgress(

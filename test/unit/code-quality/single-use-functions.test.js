@@ -158,27 +158,31 @@ const countReferences = (source, functionName) => {
 
 /**
  * Build a global reference count map for all function names across all files.
- * This replaces O(n³) nested loops with a single O(n*m) pass.
+ *
+ * Rather than running one regular expression per function name per file, tokenize
+ * each source file once and increment counts for identifiers that are known
+ * function names. This preserves countReferences() semantics for identifier word
+ * boundaries while avoiding thousands of full-source rescans.
  */
-const buildReferenceCountMap = (fileData) => {
-  const refCounts = new Map();
+const IDENTIFIER_PATTERN = /\b[a-zA-Z_$][a-zA-Z0-9_$]*\b/g;
 
-  // Collect all unique function names first
+const buildReferenceCountMap = (fileData) => {
+  const functionNames = new Set();
+
   for (const [, data] of fileData) {
     for (const func of data.functions) {
-      if (!refCounts.has(func.name)) {
-        refCounts.set(func.name, 0);
-      }
+      functionNames.add(func.name);
     }
   }
 
-  // Count references to each function name across all files in one pass
+  const refCounts = new Map([...functionNames].map((name) => [name, 0]));
+
   for (const [, data] of fileData) {
-    for (const funcName of refCounts.keys()) {
-      refCounts.set(
-        funcName,
-        refCounts.get(funcName) + countReferences(data.source, funcName),
-      );
+    for (const match of data.source.matchAll(IDENTIFIER_PATTERN)) {
+      const identifier = match[0];
+      if (functionNames.has(identifier)) {
+        refCounts.set(identifier, refCounts.get(identifier) + 1);
+      }
     }
   }
 
@@ -203,7 +207,7 @@ const analyzeSingleUseFunctions = () => {
     });
   }
 
-  // Second pass: build reference count map (O(n*m) instead of O(n³))
+  // Second pass: build reference count map with one identifier scan per file
   const refCounts = buildReferenceCountMap(fileData);
 
   // Third pass: identify violations using functional composition
