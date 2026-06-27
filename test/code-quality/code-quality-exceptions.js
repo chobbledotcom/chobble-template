@@ -44,6 +44,10 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
   "test/ensure-deps.js:16",
+
+  // test/integration/pages-yml-validation.test.js - Git clone may fail in offline environments
+  // Needed: gracefully skips validation when GitHub is not reachable
+  "test/integration/pages-yml-validation.test.js:30",
 ]);
 
 // ============================================

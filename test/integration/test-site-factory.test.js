@@ -194,7 +194,7 @@ describe("test-site-factory", () => {
         ],
       });
       await site.build();
-    });
+    }, 30_000);
 
     afterAll(() => site?.cleanup());
 

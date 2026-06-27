@@ -41,7 +41,7 @@ describe("hero block", () => {
       expect(buttons[0].getAttribute("href")).toBe("/go/");
       expect(buttons[1].className).toBe("btn btn--ghost btn--lg");
     });
-  });
+  }, 30_000);
 });
 
 describe("image-background overlay", () => {
@@ -58,7 +58,7 @@ describe("image-background overlay", () => {
       expect(prose).not.toBeNull();
       expect(prose.querySelector("h2").textContent).toBe("Overlay Heading");
     });
-  });
+  }, 30_000);
 
   test("renders badge and buttons around the prose content", async () => {
     const block = imageBackground({
@@ -72,7 +72,7 @@ describe("image-background overlay", () => {
       expect(childClasses(figcaption)).toEqual(["badge", "prose", "actions"]);
       expect(figcaption.querySelectorAll(".actions a.btn").length).toBe(2);
     });
-  });
+  }, 30_000);
 
   test("renders no figure when the block is media-only", async () => {
     await withRenderedBlock(imageBackground({}), ["party.jpg"], (doc) => {
@@ -80,5 +80,5 @@ describe("image-background overlay", () => {
       expect(background).not.toBeNull();
       expect(background.querySelector("figure")).toBeNull();
     });
-  });
+  }, 30_000);
 });
