@@ -13,6 +13,7 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
+import { throwIfSpawnFailed } from "#scripts/cpd.js";
 
 // Read current threshold from package.json cpd script (single source of truth)
 const pkg = JSON.parse(readFileSync(join(ROOT_DIR, "package.json"), "utf-8"));
@@ -28,12 +29,10 @@ const RATCHET_MIN_TOKENS = CURRENT_MIN_TOKENS - 1;
 const paths = ["src/_lib", "src/_data", "scripts", "packages"];
 const ignorePatterns = ["**/index.js", "**/customise-cms/**"];
 
-// Resolve jscpd from node_modules (not in system PATH)
-const jscpdBin = join(ROOT_DIR, "node_modules", ".bin", "jscpd");
-
 const result = spawnSync(
-  jscpdBin,
+  "bunx",
   [
+    "jscpd",
     ...paths,
     "--min-tokens",
     String(RATCHET_MIN_TOKENS),
@@ -46,9 +45,7 @@ const result = spawnSync(
   },
 );
 
-if (result.error) {
-  throw new Error(`Failed to run jscpd: ${result.error.message}`);
-}
+throwIfSpawnFailed(result, "jscpd");
 
 if (result.status === 0) {
   // jscpd passed with lower threshold - threshold can be tightened!

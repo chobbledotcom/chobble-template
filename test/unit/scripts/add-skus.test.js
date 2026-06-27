@@ -1,12 +1,23 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import matter from "gray-matter";
 import {
   addSkusToAll,
   extractSkuFromMenuItem,
+  generateUniqueSku,
   isBuyableMenuItem,
+  logResults,
   processMenuItemFile,
+  processProductFile,
+  runCli,
 } from "#bin/add-skus";
-import { createFrontmatter, fs, path, withTempDir } from "#test/test-utils.js";
+import {
+  captureConsole,
+  createFrontmatter,
+  fs,
+  path,
+  withMockedCwd,
+  withTempDir,
+} from "#test/test-utils.js";
 
 const SKU_PATTERN = /^[A-Z0-9]{6}$/;
 
@@ -19,6 +30,8 @@ const readFrontmatter = (dir, file) =>
 
 const menuItemInput = (data) => ({ data, body: "", filePath: "/x.md" });
 
+const productInput = (data) => ({ data, body: "", filePath: "/x.md" });
+
 const makeSkuDirs = (tempDir) => {
   const productsDir = path.join(tempDir, "products");
   const menuItemsDir = path.join(tempDir, "menu-items");
@@ -30,12 +43,40 @@ const makeSkuDirs = (tempDir) => {
 const writeWidget = (productsDir, options) =>
   writeProduct(productsDir, "widget.md", { name: "Widget", options });
 
-const expectMenuItemUnchanged = (data) => {
-  const result = processMenuItemFile(menuItemInput(data), new Set());
+// Universal factory: compose an input shaper + process function + result
+// assertion into a single checker. Plugging in different assertions
+// (assertUnchanged, assertOneSkuAdded, …) reuses the same plumbing for
+// every "process then inspect" test helper.
+const expectProcessed =
+  (processFile, toInput, assert) =>
+  (data, existingSkus = new Set()) => {
+    const result = processFile(toInput(data), existingSkus);
+    assert(result);
+    return result;
+  };
+
+const assertUnchanged = (result) => {
   expect(result.modified).toBe(false);
   expect(result.skusAdded).toBe(0);
+};
+
+const assertOneSkuAdded = (result, preservedSku) => {
+  expect(result.modified).toBe(true);
+  expect(result.skusAdded).toBe(1);
+  expect(result.updatedSkus.has(preservedSku)).toBe(true);
   return result;
 };
+
+const expectMenuItemUnchanged = expectProcessed(
+  processMenuItemFile,
+  menuItemInput,
+  assertUnchanged,
+);
+const expectProductUnchanged = expectProcessed(
+  processProductFile,
+  productInput,
+  assertUnchanged,
+);
 
 describe("isBuyableMenuItem", () => {
   test("buyable when price is a single parseable amount", () => {
@@ -68,9 +109,7 @@ describe("processMenuItemFile", () => {
       menuItemInput({ name: "Burger", price: "£15.00" }),
       new Set(["TAKEN"]),
     );
-    expect(result.modified).toBe(true);
-    expect(result.skusAdded).toBe(1);
-    expect(result.updatedSkus.has("TAKEN")).toBe(true);
+    assertOneSkuAdded(result, "TAKEN");
 
     const sku = matter(result.newContent).data.sku;
     expect(sku).toMatch(SKU_PATTERN);
@@ -89,6 +128,203 @@ describe("processMenuItemFile", () => {
   test("skips non-buyable menu items (ambiguous price)", () => {
     expectMenuItemUnchanged({ name: "Burger", price: "£10 / £12" });
   });
+});
+
+describe("generateUniqueSku", () => {
+  test("throws when the attempt budget is exhausted before finding a unique SKU", () => {
+    // maxAttempts of 0 means the guard fires on the first call without ever
+    // generating a candidate, exercising the exhaustion branch deterministically.
+    expect(() => generateUniqueSku(new Set(), 0)).toThrow(
+      "Could not generate unique SKU after maximum attempts",
+    );
+  });
+});
+
+describe("processProductFile", () => {
+  test("leaves a product unchanged when it has no options field", () => {
+    const result = expectProductUnchanged(
+      { name: "NoOptions" },
+      new Set(["KEEP"]),
+    );
+    expect(result.newContent).toBeNull();
+    // The early return threads the input SKU set through unchanged, so the
+    // existing SKU is still present on the returned set.
+    expect(result.updatedSkus.has("KEEP")).toBe(true);
+  });
+
+  test("leaves a product unchanged when options is not an array", () => {
+    const result = expectProductUnchanged({
+      name: "BadOptions",
+      options: "nope",
+    });
+    expect(result.newContent).toBeNull();
+  });
+
+  test("adds SKUs to options that are missing them", () => {
+    const result = processProductFile(
+      productInput({
+        name: "Widget",
+        options: [
+          { name: "Small", unit_price: 10, sku: "WIDGETS" },
+          { name: "Large", unit_price: 15 },
+        ],
+      }),
+      new Set(["WIDGETS"]),
+    );
+    assertOneSkuAdded(result, "WIDGETS");
+
+    const { options } = matter(result.newContent).data;
+    expect(options[0].sku).toBe("WIDGETS");
+    expect(options[1].sku).toMatch(SKU_PATTERN);
+  });
+});
+
+describe("addSkusToAll missing products dir", () => {
+  test("logs an error and exits when the products directory does not exist", () => {
+    const errorSpy = spyOn(console, "error").mockImplementation(() => {
+      // suppress: logError output is not under test here
+    });
+    const exitSpy = spyOn(process, "exit").mockImplementation(() => {
+      throw new Error("process.exit called");
+    });
+    try {
+      expect(() =>
+        addSkusToAll({
+          productsDir: "/nonexistent/add-skus/products",
+          menuItemsDir: "/nonexistent/add-skus/menu-items",
+        }),
+      ).toThrow("process.exit called");
+      expect(
+        errorSpy.mock.calls.some((args) =>
+          args.join(" ").includes("Products directory not found"),
+        ),
+      ).toBe(true);
+      expect(exitSpy).toHaveBeenCalledWith(1);
+    } finally {
+      exitSpy.mockRestore();
+      errorSpy.mockRestore();
+    }
+  });
+});
+
+const resultsFixture = () => ({
+  productResults: [
+    {
+      modified: true,
+      skusAdded: 2,
+      filePath: "/tmp/widget.md",
+      newContent: "---\n---",
+      updatedSkus: new Set(["AAA111"]),
+    },
+    {
+      modified: false,
+      skusAdded: 0,
+      filePath: "/tmp/untouched.md",
+      newContent: null,
+      updatedSkus: new Set(),
+    },
+  ],
+  menuItemResults: [
+    {
+      modified: true,
+      skusAdded: 1,
+      filePath: "/tmp/burger.md",
+      newContent: "---\n---",
+      updatedSkus: new Set(["BBB222"]),
+    },
+    {
+      modified: false,
+      skusAdded: 0,
+      filePath: "/tmp/combo.md",
+      newContent: null,
+      updatedSkus: new Set(),
+    },
+  ],
+  totals: { products: { files: 1, skus: 2 }, menuItems: { files: 1, skus: 1 } },
+});
+
+describe("logResults", () => {
+  test("logs modified files and totals in write mode, returning totals", () => {
+    const fixture = resultsFixture();
+    const logs = captureConsole(() => {
+      const returned = logResults(fixture, false);
+      expect(returned).toBe(fixture.totals);
+    });
+    expect(
+      logs.some((l) =>
+        l.includes("Updated widget.md: added 2 product option SKU(s)"),
+      ),
+    ).toBe(true);
+    expect(
+      logs.some((l) => l.includes("Updated burger.md: added menu item SKU")),
+    ).toBe(true);
+    expect(
+      logs.some((l) =>
+        l.includes("Modified 1 product file(s), added 2 option SKU(s)"),
+      ),
+    ).toBe(true);
+    expect(
+      logs.some((l) =>
+        l.includes("Modified 1 menu item file(s), added 1 SKU(s)"),
+      ),
+    ).toBe(true);
+  });
+
+  test("uses dry-run prefixes in dry-run mode", () => {
+    const logs = captureConsole(() => logResults(resultsFixture(), true));
+    expect(
+      logs.some((l) => l.includes("[DRY RUN] Would update widget.md")),
+    ).toBe(true);
+    expect(
+      logs.some((l) => l.includes("[DRY RUN] Would update burger.md")),
+    ).toBe(true);
+    expect(
+      logs.some((l) => l.includes("[DRY RUN] Would modify 1 product file(s)")),
+    ).toBe(true);
+  });
+});
+
+describe("runCli", () => {
+  test("logs a dry-run banner and summary without writing files", () =>
+    withTempDir("add-skus-cli-dry", (tempDir) => {
+      fs.mkdirSync(path.join(tempDir, "src/products"), { recursive: true });
+      fs.mkdirSync(path.join(tempDir, "src/menu-items"), { recursive: true });
+
+      const logs = withMockedCwd(tempDir, () =>
+        captureConsole(() => runCli(["--dry-run"])),
+      );
+
+      expect(logs.some((l) => l.includes("Running in dry-run mode"))).toBe(
+        true,
+      );
+      expect(logs.some((l) => l.includes("[DRY RUN] Would modify"))).toBe(true);
+    }));
+
+  test("writes SKUs and logs results in normal mode", () =>
+    withTempDir("add-skus-cli-write", (tempDir) => {
+      const productsDir = path.join(tempDir, "src/products");
+      const menuItemsDir = path.join(tempDir, "src/menu-items");
+      fs.mkdirSync(productsDir, { recursive: true });
+      fs.mkdirSync(menuItemsDir, { recursive: true });
+      writeWidget(productsDir, [{ name: "Small", unit_price: 10 }]);
+      writeProduct(menuItemsDir, "burger.md", {
+        name: "Burger",
+        price: "£15.00",
+      });
+
+      const logs = withMockedCwd(tempDir, () =>
+        captureConsole(() => runCli([])),
+      );
+
+      expect(logs.some((l) => l.includes("Updated widget.md"))).toBe(true);
+      expect(logs.some((l) => l.includes("Updated burger.md"))).toBe(true);
+      expect(readFrontmatter(productsDir, "widget.md").options[0].sku).toMatch(
+        SKU_PATTERN,
+      );
+      expect(readFrontmatter(menuItemsDir, "burger.md").sku).toMatch(
+        SKU_PATTERN,
+      );
+    }));
 });
 
 describe("addSkusToAll end-to-end", () => {

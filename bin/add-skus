@@ -341,23 +341,13 @@ const logResults = ({ productResults, menuItemResults, totals }, dryRun) => {
   return totals;
 };
 
-// Exported for unit tests. The CLI entry below is guarded so importing this
-// module does not execute the script.
-export {
-  addSkusToAll,
-  collectExistingSkus,
-  extractSkuFromMenuItem,
-  extractSkusFromProduct,
-  generateUniqueSku,
-  isBuyableMenuItem,
-  processMenuItemFile,
-  processProductFile,
-  readFrontmatterFile,
-};
-
-// CLI entry — only runs when executed directly (`bun bin/add-skus`).
-if (import.meta.main) {
-  const args = process.argv.slice(2);
+/**
+ * CLI entry point. Parses args, runs the SKU-addition flow, and logs results.
+ * Extracted from the import.meta.main guard so it is unit-testable.
+ * @param {string[]} args
+ * @returns {{ productResults: Array, menuItemResults: Array, totals: object }}
+ */
+const runCli = (args) => {
   const dryRun = args.includes("--dry-run");
 
   if (dryRun) {
@@ -365,5 +355,24 @@ if (import.meta.main) {
   }
 
   const results = addSkusToAll({ dryRun });
-  logResults(results, dryRun);
-}
+  return logResults(results, dryRun);
+};
+
+// Exported for unit tests. The CLI entry below is guarded so importing this
+// module does not execute the script.
+export {
+  addSkusToAll,
+  collectExistingSkus,
+  extractSkuFromMenuItem,
+  extractSkuFromProduct,
+  generateUniqueSku,
+  isBuyableMenuItem,
+  logResults,
+  processMenuItemFile,
+  processProductFile,
+  readFrontmatterFile,
+  runCli,
+};
+
+// CLI entry — only runs when executed directly (`bun bin/add-skus`).
+if (import.meta.main) runCli(process.argv.slice(2));

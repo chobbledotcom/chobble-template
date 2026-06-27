@@ -141,3 +141,51 @@ describe("menu-items show_cart_quantity_selector", () => {
     ).toBe(false);
   });
 });
+
+describe("menu-items dietaryKeys", () => {
+  test("returns empty when no dietaryIndicators are configured", () => {
+    expect(eleventyComputed.dietaryKeys(menuItemData())).toEqual([]);
+  });
+
+  test("returns symbol and label only for indicators whose field is truthy", () => {
+    const result = eleventyComputed.dietaryKeys(
+      menuItemData({
+        vegan: true,
+        gluten_free: true,
+        dairy_free: false,
+        dietaryIndicators: {
+          vegan: { field: "vegan", symbol: "🌱", label: "Vegan" },
+          glutenFree: {
+            field: "gluten_free",
+            symbol: "🌾",
+            label: "Gluten-Free",
+          },
+          dairyFree: {
+            field: "dairy_free",
+            symbol: "🥛",
+            label: "Dairy-Free",
+          },
+        },
+      }),
+    );
+    expect(result).toEqual([
+      { symbol: "🌱", label: "Vegan" },
+      { symbol: "🌾", label: "Gluten-Free" },
+    ]);
+  });
+});
+
+describe("menu-items menu_categories", () => {
+  test("returns empty when no menu_categories are set", () => {
+    expect(eleventyComputed.menu_categories(menuItemData())).toEqual([]);
+  });
+
+  test("normalises each PagesCMS reference to its filename slug", () => {
+    const result = eleventyComputed.menu_categories(
+      menuItemData({
+        menu_categories: ["categories/lunch.md", "categories/hot-drinks.md"],
+      }),
+    );
+    expect(result).toEqual(["lunch", "hot-drinks"]);
+  });
+});

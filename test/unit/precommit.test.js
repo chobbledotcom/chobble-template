@@ -82,7 +82,10 @@ Unlisted dependencies (1)
     // Simulate real jscpd error output
     const jscpdOutput = `
 $ jscpd
+❌ jscpd found duplicated code
 Clone found (src/components/Form.js[15:45] - src/components/ContactForm.js[20:50])
+  src/components/Form.js: 15-45
+  src/components/ContactForm.js: 20-50
 
 Duplication detected: 25.5% > 25% threshold
 ❌ Duplication threshold exceeded
@@ -94,6 +97,42 @@ Total duplicates: 1250 lines across 15 files
 
     // Should capture error indicators
     expectErrorsInclude("❌", ["threshold", "Duplication"])(errors);
+    expect(
+      errors.some((e) => e.includes("src/components/Form.js: 15-45")),
+    ).toBe(true);
+    expect(
+      errors.some((e) => e.includes("src/components/ContactForm.js: 20-50")),
+    ).toBe(true);
+  });
+
+  test("extractErrorsFromOutput preserves cpd clone excerpts as one item", () => {
+    const jscpdOutput = `
+❌ jscpd found duplicated code
+❌ Clone found (javascript, 7 lines)
+  scripts/cpd-ratchet.js: 45-51
+  Duplicated lines:
+     45 | if (result.error) {
+     46 |   throw new Error(\`Failed to run jscpd: \${result.error.message}\`);
+     47 | }
+  scripts/cpd.js: 95-101
+  Duplicated lines:
+     95 | if (result.error) {
+     96 |   throw new Error(\`Failed to run jscpd: \${result.error.message}\`);
+     97 | }
+
+jscpd found duplicated code.
+`;
+
+    const errors = extractErrorsFromOutput(jscpdOutput);
+    const clone = errors.find((error) => error.includes("❌ Clone found"));
+
+    expect(clone).toContain("scripts/cpd-ratchet.js: 45-51");
+    expect(clone).toContain("45 | if (result.error) {");
+    expect(clone).toContain("scripts/cpd.js: 95-101");
+    expect(clone).toContain("96 |   throw new Error");
+    expect(
+      errors.filter((error) => error.includes("Clone found")),
+    ).toHaveLength(1);
   });
 
   test("extractErrorsFromOutput correctly parses test failures", () => {
