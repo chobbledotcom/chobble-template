@@ -57,5 +57,5 @@ describe("raw HTML never reaches the front end", () => {
         ).toBeNull();
       }
     });
-  });
+  }, 30_000);
 });

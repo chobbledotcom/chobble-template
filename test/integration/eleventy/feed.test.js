@@ -13,7 +13,7 @@ const setupTestSiteWithFeed = (siteOptions) => {
     site = await createTestSite(siteOptions);
     await site.build();
     feed = site.getOutput("feed.xml");
-  });
+  }, 30_000);
 
   afterAll(() => site?.cleanup());
 

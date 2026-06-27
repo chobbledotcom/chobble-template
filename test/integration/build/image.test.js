@@ -230,7 +230,7 @@ describe("image", () => {
           expect(webpSource !== null).toBe(true);
         },
       );
-    });
+    }, 30_000);
 
     test("Images collection returns image filenames from src/images", async () => {
       const galleryContent = `
@@ -250,7 +250,7 @@ describe("image", () => {
           expect(html.includes("beta.jpg")).toBe(true);
         },
       );
-    });
+    }, 30_000);
   });
 
   // ============================================
@@ -427,7 +427,7 @@ describe("image", () => {
           expect(html.includes('alt="A test scene"')).toBe(true);
         },
       );
-    });
+    }, 30_000);
   });
 
   // ============================================

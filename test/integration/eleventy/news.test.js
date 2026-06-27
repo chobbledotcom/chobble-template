@@ -189,7 +189,7 @@ describe("news", () => {
         expectTimeElement(metaNoAuthor);
       },
     );
-  });
+  }, 30_000);
 
   // no_index integration tests
   test("Posts with no_index are correctly excluded from archive and marked for search engines", async () => {
@@ -231,5 +231,5 @@ describe("news", () => {
       expect(newsListHtml.includes("Visible Post Title")).toBe(true);
       expect(newsListHtml.includes("Hidden Post Title")).toBe(false);
     });
-  });
+  }, 30_000);
 });

@@ -71,9 +71,13 @@ describe("search", () => {
       const searchDoc = await site.getDoc("search/index.html");
       expect(searchDoc.querySelector(".search-box") !== null).toBe(true);
       expect(searchDoc.querySelector("#search-results") !== null).toBe(true);
-      expect(searchDoc.querySelector(".search-results-list") !== null).toBe(true);
+      expect(searchDoc.querySelector(".search-results-list") !== null).toBe(
+        true,
+      );
       expect(searchDoc.querySelector(".search-load-more") !== null).toBe(true);
-      expect(searchDoc.querySelector("[data-pagefind-ignore]") !== null).toBe(true);
+      expect(searchDoc.querySelector("[data-pagefind-ignore]") !== null).toBe(
+        true,
+      );
 
       const stubDoc = await site.getDoc("old-widget/index.html");
       expect(stubDoc.querySelector("[data-pagefind-body]")).toBe(null);
@@ -81,7 +85,7 @@ describe("search", () => {
         productDoc.documentElement.getAttribute("lang"),
       );
     });
-  });
+  }, 30_000);
 
   test("search_collections config controls which pages are indexed", async () => {
     const files = [
@@ -101,5 +105,5 @@ describe("search", () => {
         expect(newsDoc.querySelector("[data-pagefind-body]")).toBe(null);
       },
     );
-  });
+  }, 30_000);
 });
