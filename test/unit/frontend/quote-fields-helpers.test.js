@@ -164,5 +164,18 @@ describe("quote-fields-helpers", () => {
 
       expect(firstHeading.fieldIndex).toBe(0);
     });
+
+    test("quote-fields.js includes every declared field from quote-fields.json", async () => {
+      const quoteFieldsModule = await import("#data/quote-fields.js");
+      const quoteFields = quoteFieldsModule.default();
+
+      const fieldNames = quoteFields.sections.flatMap((s) =>
+        s.fields.map((f) => f.name),
+      );
+
+      expect(fieldNames).toContain("start_time");
+      expect(fieldNames).toContain("event_type");
+      expect(fieldNames).toContain("name");
+    });
   });
 });

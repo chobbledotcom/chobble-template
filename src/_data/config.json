@@ -16,6 +16,7 @@
   "template_repo_url": null,
   "homepage_footer_markdown": "[template](https://github.com/chobbledotcom/chobble-template) by [chobble](https://chobble.com)",
   "cart_mode": "stripe",
+  "quote_type": null,
   "ecommerce_api_host": "ecom.chobble.com",
   "currency": "GBP",
   "default_image_widths": null,

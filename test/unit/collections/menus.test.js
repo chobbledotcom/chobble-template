@@ -152,6 +152,19 @@ describe("menus", () => {
     expectResultTitles(result, ["Has Category"]);
   });
 
+  test("Skips items with missing menu_categories field", () => {
+    // An item without a `menu_categories` field (e.g., frontmatter omitted it)
+    // should be silently excluded from every category, not crash the indexer.
+    const items = [
+      ...menuItem(["Has Category", ["appetizers"]]),
+      { data: { name: "No Categories Field" } },
+    ];
+
+    const result = getItemsByCategory(items, "appetizers");
+
+    expectResultTitles(result, ["Has Category"]);
+  });
+
   // configureMenus tests
   test("Configures menu filters in Eleventy", () => {
     const mockConfig = createMockEleventyConfig();

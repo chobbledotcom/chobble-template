@@ -15,6 +15,7 @@ const DEFAULTS = frozenObject({
   homepage_footer_markdown: null,
   map_embed_src: null,
   cart_mode: null,
+  quote_type: null,
   ecommerce_api_host: null,
   product_mode: null,
   has_products_filter: false,

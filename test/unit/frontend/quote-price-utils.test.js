@@ -26,7 +26,10 @@ const renderQuotePriceTemplates = async () => {
     "src/_includes/templates/quote-price.html",
   );
   const template = fs.readFileSync(templatePath, "utf-8");
-  return liquid.parseAndRender(template, { selectors: { IDS } });
+  return liquid.parseAndRender(template, {
+    selectors: { IDS },
+    config: { quote_type: "hire" },
+  });
 };
 
 // Cart item factory - creates hire or buy items with sensible defaults

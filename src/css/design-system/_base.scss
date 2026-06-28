@@ -23,6 +23,9 @@
   --color-text-muted: #{$color-text-muted};
   --color-link: #{$color-primary};
   --color-link-hover: #{$color-primary-dark};
+  --link-decoration: none;
+  --link-decoration-hover: underline;
+  --link-decoration-style: solid;
   --color-tint: #{$color-tint};
   --color-secondary: #{$color-secondary};
   --color-accent: #{$color-accent};
@@ -152,11 +155,12 @@
   // Links - exclude buttons
   a:not(.btn) {
     color: var(--color-link);
-    text-decoration: underline;
+    text-decoration: var(--link-decoration);
+    text-decoration-style: var(--link-decoration-style);
     transition: color $transition-fast;
 
     &:hover {
-      text-decoration: underline;
+      text-decoration: var(--link-decoration-hover);
     }
   }
 

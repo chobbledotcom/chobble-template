@@ -5,6 +5,7 @@ import { toObject } from "#toolkit/fp/object.js";
 
 const JS_CONFIG_KEYS = [
   "cart_mode",
+  "quote_type",
   "ecommerce_api_host",
   "currency",
   "product_mode",

@@ -10,6 +10,7 @@
 
 import { buildReverseIndex } from "#toolkit/fp/grouping.js";
 import { memoizeByRef } from "#toolkit/fp/memoize.js";
+import { createArrayFieldIndexer } from "#utils/collection-utils.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -26,13 +27,7 @@ const buildMenuCategoryMap = memoizeByRef(
 );
 
 /** Memoized index of category slugs → menu items, cached per array ref via WeakMap. */
-const buildCategoryItemMap = memoizeByRef(
-  /** @param {MenuItemCollectionItem[]} items */
-  (items) =>
-    buildReverseIndex(items, (item) =>
-      item.data.menu_categories.map(normaliseSlug),
-    ),
-);
+const itemsByCategorySlug = createArrayFieldIndexer("menu_categories");
 
 /**
  * Get categories belonging to a specific menu.
@@ -57,7 +52,7 @@ const getCategoriesByMenu = (categories, menuSlug) => {
  */
 const getItemsByCategory = (items, categorySlug) => {
   if (!items) return [];
-  return buildCategoryItemMap(items).get(categorySlug) ?? [];
+  return itemsByCategorySlug(items)[categorySlug] ?? [];
 };
 
 const configureMenus = (eleventyConfig) => {

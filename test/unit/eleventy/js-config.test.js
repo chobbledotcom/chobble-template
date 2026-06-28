@@ -62,6 +62,22 @@ describe("js-config", () => {
     );
   });
 
+  test("Includes quote_type when set", () => {
+    const jsConfigJson = getJsConfigFilter();
+    const config = { cart_mode: "quote", quote_type: "hire" };
+    const result = jsConfigJson(config);
+    const parsed = JSON.parse(result);
+    expect(parsed.quote_type).toBe("hire");
+  });
+
+  test("Excludes quote_type when null", () => {
+    const jsConfigJson = getJsConfigFilter();
+    const config = { cart_mode: "quote", quote_type: null };
+    const result = jsConfigJson(config);
+    const parsed = JSON.parse(result);
+    expect(parsed.quote_type).toBeUndefined();
+  });
+
   test("Only includes specified config keys", () => {
     const jsConfigJson = getJsConfigFilter();
     const config = {

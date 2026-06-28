@@ -162,6 +162,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
   "src/_lib/utils/block-columns.js", // Validation and distribution helpers kept separate for complexity
   "src/_lib/utils/validate-item.js", // collectNestedNameErrors kept separate for clarity
+  "src/_lib/config/quote-fields-helpers.js", // Field filters extracted to avoid nested array lookups
   "src/_data/eleventyComputed.js", // applyBlockDefaults/enrichVideoCards extracted for function length
   "src/_lib/public/design-system.js", // initVideoFacades kept separate to manage complexity
   "src/_lib/public/utils/cart-utils.js",
