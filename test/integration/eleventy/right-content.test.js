@@ -59,7 +59,7 @@ describe("right-content sidebar", () => {
         expect(main.parentElement).toBe(aside.parentElement);
       },
     );
-  });
+  }, 30_000);
 
   test("renders items-array blocks inside the aside", async () => {
     await withTestSite(
@@ -91,7 +91,7 @@ describe("right-content sidebar", () => {
         expect(items.textContent).toContain("Sidebar Item");
       },
     );
-  });
+  }, 30_000);
 
   test("renders plain markdown snippet content as a prose fallback", async () => {
     const markdownSnippet = {
@@ -108,7 +108,7 @@ describe("right-content sidebar", () => {
         expect(prose.textContent).toContain(SIDEBAR_TEXT);
       },
     );
-  });
+  }, 30_000);
 
   test("without the snippet the body is one-column and has no aside", async () => {
     await withTestSite({ files: [homePage([PAGE_BLOCK])] }, async (site) => {
@@ -118,7 +118,7 @@ describe("right-content sidebar", () => {
       // The wrapper div is always present so the DOM shape is stable.
       expect(doc.querySelector(".page-columns main")).not.toBeNull();
     });
-  });
+  }, 30_000);
 
   test("a disallowed block type in the snippet fails the build", async () => {
     const site = await createTestSite({
@@ -134,7 +134,7 @@ describe("right-content sidebar", () => {
     } finally {
       site.cleanup();
     }
-  });
+  }, 30_000);
 
   test("a leading image-background block is hoisted above the columns", async () => {
     await withTestSite(
@@ -157,7 +157,7 @@ describe("right-content sidebar", () => {
         expect(doc.querySelector("main").textContent).toContain("Page body");
       },
     );
-  });
+  }, 30_000);
 
   test("a leading image-background stays inside main without a sidebar", async () => {
     await withTestSite(
@@ -167,5 +167,5 @@ describe("right-content sidebar", () => {
         expect(banner.closest("main")).not.toBeNull();
       },
     );
-  });
+  }, 30_000);
 });

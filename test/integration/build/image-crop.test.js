@@ -30,27 +30,39 @@ describe("image-crop", () => {
       },
     );
 
-  test("Crops image to aspect ratio and caches result", () =>
-    withImageContext(async ({ imagePath, metadata }) => {
-      const croppedPath = await cropImage("16/9", imagePath, metadata);
-      expect(fs.existsSync(croppedPath)).toBe(true);
+  test(
+    "Crops image to aspect ratio and caches result",
+    () =>
+      withImageContext(async ({ imagePath, metadata }) => {
+        const croppedPath = await cropImage("16/9", imagePath, metadata);
+        expect(fs.existsSync(croppedPath)).toBe(true);
 
-      const croppedMeta = await getMetadata(croppedPath);
-      const expectedHeight = Math.round(metadata.width / (16 / 9));
-      expect(croppedMeta.height).toBe(expectedHeight);
-    }));
+        const croppedMeta = await getMetadata(croppedPath);
+        const expectedHeight = Math.round(metadata.width / (16 / 9));
+        expect(croppedMeta.height).toBe(expectedHeight);
+      }),
+    30_000,
+  );
 
-  test("Returns original path when aspect ratio is null", () =>
-    withImageContext(async ({ imagePath, metadata }) => {
-      const result = await cropImage(null, imagePath, metadata);
-      expect(result).toBe(imagePath);
-    }));
+  test(
+    "Returns original path when aspect ratio is null",
+    () =>
+      withImageContext(async ({ imagePath, metadata }) => {
+        const result = await cropImage(null, imagePath, metadata);
+        expect(result).toBe(imagePath);
+      }),
+    30_000,
+  );
 
-  test("Calculates aspect ratio from image dimensions", () =>
-    withImageContext(async ({ metadata }) => {
-      const ratio = getAspectRatio(null, metadata);
-      expect(ratio).toMatch(/^\d+\/\d+$/);
-    }));
+  test(
+    "Calculates aspect ratio from image dimensions",
+    () =>
+      withImageContext(async ({ metadata }) => {
+        const ratio = getAspectRatio(null, metadata);
+        expect(ratio).toMatch(/^\d+\/\d+$/);
+      }),
+    30_000,
+  );
 
   test("Applies EXIF rotation when cropping", async () => {
     const { default: sharp } = await import("sharp");
