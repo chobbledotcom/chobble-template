@@ -21,7 +21,9 @@
         <span data-field="price"></span>
       </li>
       <li class="quote-cart-item-actions">
-        {% include "templates/quantity-controls.html" %}
+        <div class="item-quantity">
+          {% include "templates/quantity-controls.html" %}
+        </div>
         <button data-action="remove" data-name="">Remove</button>
       </li>
       <li class="quote-cart-item-subtitle" data-field="subtitle"></li>

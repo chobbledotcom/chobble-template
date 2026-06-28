@@ -95,9 +95,9 @@
   }
 
   .quote-cart-actions {
-    justify-content: end;
+    display: flex;
+    justify-content: flex-end;
     margin-top: $space-md;
-    text-align: center;
     animation: quoteCartSlideIn 0.4s ease-out forwards;
   }
 
