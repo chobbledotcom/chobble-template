@@ -5,7 +5,7 @@ import {
   imageShortcode,
   processAndWrapImage,
 } from "#media/image.js";
-import { useSharedSite, withTestSite } from "#test/test-site-factory.js";
+import { useSharedSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig, wrapHtml } from "#test/test-utils.js";
 import { map } from "#toolkit/fp/array.js";
 
@@ -202,10 +202,15 @@ describe("image", () => {
   // Integration tests using test-site-factory
   // ============================================
   describe("Integration tests", () => {
-    // The shortcode build and the markdown-transform build both need real
-    // sharp processing (processImages), so they share one site with a page
-    // each. The gallery test uses a different image set and placeholder mode,
-    // so it keeps its own build below.
+    // The shortcode build, the markdown-transform build and the images
+    // collection listing all share one site — each test inspects its own page.
+    // The gallery only prints collections.images filenames (no image
+    // processing), so it is unaffected by processImages.
+    const galleryContent = `
+{% for img in collections.images %}
+<div class="gallery-item">{{ img }}</div>
+{% endfor %}
+`;
     const getProcessedSite = useSharedSite({
       files: [
         imageTestPage(
@@ -213,10 +218,12 @@ describe("image", () => {
           '{% image "test-image.jpg", "A test image" %}',
         ),
         imageTestPage("markdown", "![A test scene](/images/scene.jpg)"),
+        imageTestPage("gallery", galleryContent, "Gallery"),
       ],
       images: [
         { src: "src/images/party.jpg", dest: "test-image.jpg" },
         { src: "src/images/party.jpg", dest: "scene.jpg" },
+        ...imageFiles(["alpha.jpg", "beta.jpg"]),
       ],
       processImages: true,
     });
@@ -248,25 +255,12 @@ describe("image", () => {
       expect(html.includes('alt="A test scene"')).toBe(true);
     });
 
-    test("Images collection returns image filenames from src/images", async () => {
-      const galleryContent = `
-{% for img in collections.images %}
-<div class="gallery-item">{{ img }}</div>
-{% endfor %}
-`;
-      await withTestSite(
-        {
-          files: [imageTestPage("gallery", galleryContent, "Gallery")],
-          images: imageFiles(["alpha.jpg", "beta.jpg"]),
-        },
-        (site) => {
-          const html = site.getOutput("/gallery/index.html");
+    test("Images collection returns image filenames from src/images", () => {
+      const html = getProcessedSite().getOutput("/gallery/index.html");
 
-          expect(html.includes("alpha.jpg")).toBe(true);
-          expect(html.includes("beta.jpg")).toBe(true);
-        },
-      );
-    }, 30_000);
+      expect(html.includes("alpha.jpg")).toBe(true);
+      expect(html.includes("beta.jpg")).toBe(true);
+    });
   });
 
   // ============================================

@@ -16,11 +16,12 @@ import { createMockEleventyConfig, expectHtmlList } from "#test/test-utils.js";
  * @param {string} recurring - Recurring date string
  * @param {Object} options - Additional options (url, location)
  */
-const event = (name, recurring, { url, location } = {}) => ({
+const event = (name, recurring, { url, location, time } = {}) => ({
   ...(url && { url }),
   data: {
     name,
     recurring_date: recurring,
+    ...(time && { event_time: time }),
     ...(location && { event_location: location }),
   },
 });
@@ -80,6 +81,19 @@ describe("recurring-events", () => {
     document.body.innerHTML = html;
     expect(
       document.querySelector("li").textContent.includes("Community Center"),
+    ).toBe(true);
+  });
+
+  test("Renders event_time when provided", async () => {
+    const doc = await renderAndParse([
+      event("Yoga Class", "Every Wednesday", {
+        url: "/events/yoga/",
+        time: "6:30pm – 7:30pm",
+      }),
+    ]);
+
+    expect(
+      doc.querySelector("li").textContent.includes("6:30pm – 7:30pm"),
     ).toBe(true);
   });
 
@@ -233,26 +247,6 @@ describe("recurring-events", () => {
           expect(doc.querySelectorAll("ul li a[href*='/events/']").length).toBe(
             2,
           );
-        },
-      ),
-    30_000,
-  );
-
-  test(
-    "Recurring events render event_time when provided",
-    () =>
-      withTestSite(
-        {
-          files: [
-            eventFile("yoga-class", "Yoga Class", "Every Wednesday", {
-              event_time: "6:30pm – 7:30pm",
-            }),
-            eventsTestPage(),
-          ],
-        },
-        async (site) => {
-          const html = site.getOutput("/test/index.html");
-          expect(html.includes("6:30pm – 7:30pm")).toBe(true);
         },
       ),
     30_000,
