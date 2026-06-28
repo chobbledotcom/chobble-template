@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { withTestSite } from "#test/test-site-factory.js";
+import { useSharedSite } from "#test/test-site-factory.js";
 import { filter, pipe } from "#toolkit/fp/array.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
@@ -125,8 +125,10 @@ describe("news", () => {
     );
   });
 
-  // Integration tests with test site
-  test("Post meta renders correctly with various author and image combinations", async () => {
+  // Integration tests with test site. Author/image rendering and no_index
+  // archive behaviour are independent, so one shared build with all the post
+  // fixtures covers both — the extra posts don't affect either assertion set.
+  describe("built site", () => {
     const files = [
       // Post with author + image
       newsPostFile("with-author-image", "Post With Author and Image", {
@@ -144,60 +146,9 @@ describe("news", () => {
 
       // Post without author
       newsPostFile("no-author", "Post Without Author"),
-    ];
 
-    await withTestSite(
-      { files, images: extractImages(files) },
-      async (site) => {
-        // Test 1: Post with author + image renders thumbnail layout with semantic HTML
-        const metaWithImage = await getPostMeta(site, "with-author-image");
-        expectMetaStructure(metaWithImage, {
-          hasThumbnail: true,
-          hasFigure: true,
-        });
-        expect(metaWithImage.querySelector("figure a") !== null).toBe(true);
-        expectAuthorElements(metaWithImage);
-        expectTimeElement(metaWithImage);
-        expect(metaWithImage.tagName.toLowerCase()).toBe("div");
-        expect(metaWithImage.getAttribute("role")).toBe("doc-subtitle");
-
-        // Test 2: Post with author link renders in HTML content
-        const htmlWithAuthor = await getContentHtml(site, "with-author-image");
-        expect(htmlWithAuthor.includes('href="/team/jane-doe/"')).toBe(true);
-        expect(htmlWithAuthor.includes("Jane Doe")).toBe(true);
-
-        // Test 3: Post with author but no image renders without thumbnail
-        const metaNoImage = await getPostMeta(site, "with-author-no-image");
-        expectMetaStructure(metaNoImage, {
-          hasThumbnail: false,
-          hasFigure: false,
-        });
-        expectAuthorElements(metaNoImage);
-        expectTimeElement(metaNoImage);
-
-        // Test 4: Post without author does not render author section
-        const htmlNoAuthor = await getContentHtml(site, "no-author");
-        expect(htmlNoAuthor.includes('href="/team/')).toBe(false);
-
-        // Test 5: Post without author renders simple date-only layout
-        const metaNoAuthor = await getPostMeta(site, "no-author");
-        expectMetaStructure(metaNoAuthor, {
-          hasThumbnail: false,
-          hasFigure: false,
-        });
-        expect(metaNoAuthor.querySelector("address")).toBe(null);
-        expectTimeElement(metaNoAuthor);
-      },
-    );
-  }, 30_000);
-
-  // no_index integration tests
-  test("Posts with no_index are correctly excluded from archive and marked for search engines", async () => {
-    const files = [
-      // Visible post
+      // Visible and no_index posts for the archive assertions
       newsPostFile("visible-post", "Visible Post Title"),
-
-      // Hidden post with no_index
       newsPostFile("hidden-post", "Hidden Post Title", { no_index: true }),
 
       // News archive page
@@ -214,8 +165,54 @@ describe("news", () => {
         content: "",
       },
     ];
+    const getSite = useSharedSite({ files, images: extractImages(files) });
 
-    await withTestSite({ files }, async (site) => {
+    test("Post meta renders correctly with various author and image combinations", async () => {
+      const site = getSite();
+
+      // Test 1: Post with author + image renders thumbnail layout with semantic HTML
+      const metaWithImage = await getPostMeta(site, "with-author-image");
+      expectMetaStructure(metaWithImage, {
+        hasThumbnail: true,
+        hasFigure: true,
+      });
+      expect(metaWithImage.querySelector("figure a") !== null).toBe(true);
+      expectAuthorElements(metaWithImage);
+      expectTimeElement(metaWithImage);
+      expect(metaWithImage.tagName.toLowerCase()).toBe("div");
+      expect(metaWithImage.getAttribute("role")).toBe("doc-subtitle");
+
+      // Test 2: Post with author link renders in HTML content
+      const htmlWithAuthor = await getContentHtml(site, "with-author-image");
+      expect(htmlWithAuthor.includes('href="/team/jane-doe/"')).toBe(true);
+      expect(htmlWithAuthor.includes("Jane Doe")).toBe(true);
+
+      // Test 3: Post with author but no image renders without thumbnail
+      const metaNoImage = await getPostMeta(site, "with-author-no-image");
+      expectMetaStructure(metaNoImage, {
+        hasThumbnail: false,
+        hasFigure: false,
+      });
+      expectAuthorElements(metaNoImage);
+      expectTimeElement(metaNoImage);
+
+      // Test 4: Post without author does not render author section
+      const htmlNoAuthor = await getContentHtml(site, "no-author");
+      expect(htmlNoAuthor.includes('href="/team/')).toBe(false);
+
+      // Test 5: Post without author renders simple date-only layout
+      const metaNoAuthor = await getPostMeta(site, "no-author");
+      expectMetaStructure(metaNoAuthor, {
+        hasThumbnail: false,
+        hasFigure: false,
+      });
+      expect(metaNoAuthor.querySelector("address")).toBe(null);
+      expectTimeElement(metaNoAuthor);
+    });
+
+    test("Posts with no_index are correctly excluded from archive and marked for search engines", async () => {
+      const site = getSite();
+
       // Test 1: no_index post renders as standalone page
       expect(site.hasOutput("/news/hidden-post/index.html")).toBe(true);
       const hiddenHtml = await getContentHtml(site, "hidden-post");
@@ -231,5 +228,5 @@ describe("news", () => {
       expect(newsListHtml.includes("Visible Post Title")).toBe(true);
       expect(newsListHtml.includes("Hidden Post Title")).toBe(false);
     });
-  }, 30_000);
+  });
 });

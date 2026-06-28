@@ -4,7 +4,11 @@
  * Measures and profiles build times for minimal test sites
  * to identify optimization opportunities for faster integration tests.
  *
- * Run with: node test/build-profiling.js
+ * Run with: bun test/build-profiling.js
+ *
+ * The outer script runs under Bun (the project runtime); the per-module and
+ * Node-startup measurements below spawn their own `node` subprocesses, so those
+ * figures stay Node-based regardless of what runs this orchestration.
  */
 
 import { spawnSync } from "node:child_process";

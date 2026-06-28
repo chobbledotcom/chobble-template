@@ -16,6 +16,7 @@
  *   });
  */
 
+import { afterAll, beforeAll } from "bun:test";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -401,6 +402,22 @@ const withSetupTestSite = async (options, fn) => {
   }
 };
 
+/**
+ * Build one shared test site for an entire describe block. Registers the
+ * build in `beforeAll` and cleanup in `afterAll`, and returns a getter for
+ * the built site. Use when several tests inspect different outputs of the
+ * same site, so the (expensive) Eleventy build runs once instead of per test.
+ */
+const useSharedSite = (options) => {
+  let site = null;
+  beforeAll(async () => {
+    site = await createTestSite(options);
+    await site.build();
+  }, 30_000);
+  afterAll(() => site?.cleanup());
+  return () => site;
+};
+
 const cleanupAllTestSites = () => {
   const testSitesDir = path.join(import.meta.dirname, ".test-sites");
   if (fs.existsSync(testSitesDir)) {
@@ -408,20 +425,10 @@ const cleanupAllTestSites = () => {
   }
 };
 
-/** A minimal `pages/index.md` home page with the given design-system blocks. */
-const homePage = (blocks) => ({
-  path: "pages/index.md",
-  frontmatter: {
-    name: "Home",
-    permalink: "/",
-    blocks,
-  },
-});
-
 export {
   cleanupAllTestSites,
   createTestSite,
-  homePage,
+  useSharedSite,
   withSetupTestSite,
   withTestSite,
 };

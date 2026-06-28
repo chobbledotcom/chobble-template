@@ -5,7 +5,7 @@ import {
   imageShortcode,
   processAndWrapImage,
 } from "#media/image.js";
-import { withTestSite } from "#test/test-site-factory.js";
+import { useSharedSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig, wrapHtml } from "#test/test-utils.js";
 import { map } from "#toolkit/fp/array.js";
 
@@ -14,11 +14,12 @@ import { map } from "#toolkit/fp/array.js";
 // ============================================
 
 /**
- * Create a test page file for test site
+ * Create a test page file for test site, hosted at /{slug}/ so several pages
+ * can coexist in one shared build.
  */
-const imageTestPage = (content, permalink = "/test/", name = "Test") => ({
-  path: "pages/test.md",
-  frontmatter: { name, layout: "", permalink },
+const imageTestPage = (slug, content, name = slug) => ({
+  path: `pages/${slug}.md`,
+  frontmatter: { name, layout: "", permalink: `/${slug}/` },
   content,
 });
 
@@ -201,56 +202,65 @@ describe("image", () => {
   // Integration tests using test-site-factory
   // ============================================
   describe("Integration tests", () => {
-    test("Image shortcode processes local images in full Eleventy build", async () => {
-      await withTestSite(
-        {
-          files: [
-            imageTestPage('{% image "test-image.jpg", "A test image" %}'),
-          ],
-          images: [{ src: "src/images/party.jpg", dest: "test-image.jpg" }],
-          processImages: true,
-        },
-        async (site) => {
-          const html = site.getOutput("/test/index.html");
-          const doc = await site.getDoc("/test/index.html");
-
-          // Verify image was processed into picture element
-          expect(html.includes("<picture")).toBe(true);
-          expect(html.includes('alt="A test image"')).toBe(true);
-          expect(html.includes("image-wrapper")).toBe(true);
-
-          // Verify responsive images were generated
-          const sources = doc.querySelectorAll("picture source");
-          expect(sources.length > 0).toBe(true);
-
-          // Verify webp format was generated
-          const webpSource = doc.querySelector(
-            'picture source[type="image/webp"]',
-          );
-          expect(webpSource !== null).toBe(true);
-        },
-      );
-    }, 30_000);
-
-    test("Images collection returns image filenames from src/images", async () => {
-      const galleryContent = `
+    // The shortcode build, the markdown-transform build and the images
+    // collection listing all share one site — each test inspects its own page.
+    // The gallery only prints collections.images filenames (no image
+    // processing), so it is unaffected by processImages.
+    const galleryContent = `
 {% for img in collections.images %}
 <div class="gallery-item">{{ img }}</div>
 {% endfor %}
 `;
-      await withTestSite(
-        {
-          files: [imageTestPage(galleryContent, "/gallery/", "Gallery")],
-          images: imageFiles(["alpha.jpg", "beta.jpg"]),
-        },
-        (site) => {
-          const html = site.getOutput("/gallery/index.html");
+    const getProcessedSite = useSharedSite({
+      files: [
+        imageTestPage(
+          "shortcode",
+          '{% image "test-image.jpg", "A test image" %}',
+        ),
+        imageTestPage("markdown", "![A test scene](/images/scene.jpg)"),
+        imageTestPage("gallery", galleryContent, "Gallery"),
+      ],
+      images: [
+        { src: "src/images/party.jpg", dest: "test-image.jpg" },
+        { src: "src/images/party.jpg", dest: "scene.jpg" },
+        ...imageFiles(["alpha.jpg", "beta.jpg"]),
+      ],
+      processImages: true,
+    });
 
-          expect(html.includes("alpha.jpg")).toBe(true);
-          expect(html.includes("beta.jpg")).toBe(true);
-        },
-      );
-    }, 30_000);
+    test("Image shortcode processes local images in full Eleventy build", async () => {
+      const site = getProcessedSite();
+      const html = site.getOutput("/shortcode/index.html");
+      const doc = await site.getDoc("/shortcode/index.html");
+
+      // Verify image was processed into picture element
+      expect(html.includes("<picture")).toBe(true);
+      expect(html.includes('alt="A test image"')).toBe(true);
+      expect(html.includes("image-wrapper")).toBe(true);
+
+      // Verify responsive images were generated
+      const sources = doc.querySelectorAll("picture source");
+      expect(sources.length > 0).toBe(true);
+
+      // Verify webp format was generated
+      const webpSource = doc.querySelector('picture source[type="image/webp"]');
+      expect(webpSource !== null).toBe(true);
+    });
+
+    test("Standard markdown images with /images/ path are transformed in build", () => {
+      const html = getProcessedSite().getOutput("/markdown/index.html");
+
+      expect(html.includes("image-wrapper")).toBe(true);
+      expect(html.includes("<picture")).toBe(true);
+      expect(html.includes('alt="A test scene"')).toBe(true);
+    });
+
+    test("Images collection returns image filenames from src/images", () => {
+      const html = getProcessedSite().getOutput("/gallery/index.html");
+
+      expect(html.includes("alpha.jpg")).toBe(true);
+      expect(html.includes("beta.jpg")).toBe(true);
+    });
   });
 
   // ============================================
@@ -406,28 +416,6 @@ describe("image", () => {
 
       expect(countPictures(result)).toBe(2);
     });
-  });
-
-  // ============================================
-  // Integration tests - transform in full build
-  // ============================================
-  describe("Integration - transform in build", () => {
-    test("Standard markdown images with /images/ path are transformed in build", async () => {
-      await withTestSite(
-        {
-          files: [imageTestPage("![A test scene](/images/scene.jpg)")],
-          images: [{ src: "src/images/party.jpg", dest: "scene.jpg" }],
-          processImages: true,
-        },
-        (site) => {
-          const html = site.getOutput("/test/index.html");
-
-          expect(html.includes("image-wrapper")).toBe(true);
-          expect(html.includes("<picture")).toBe(true);
-          expect(html.includes('alt="A test scene"')).toBe(true);
-        },
-      );
-    }, 30_000);
   });
 
   // ============================================

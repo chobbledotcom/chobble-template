@@ -87,23 +87,10 @@ describe("search", () => {
     });
   }, 30_000);
 
-  test("search_collections config controls which pages are indexed", async () => {
-    const files = [
-      contentFile("products", "gadget", "Gadget"),
-      contentFile("news", "2024-01-01-update", "Update"),
-    ];
-
-    await withTestSite(
-      { files, config: { search_collections: ["products"] } },
-      async (site) => {
-        const productDoc = await site.getDoc("products/gadget/index.html");
-        expect(productDoc.querySelector("[data-pagefind-body]") !== null).toBe(
-          true,
-        );
-
-        const newsDoc = await site.getDoc("news/update/index.html");
-        expect(newsDoc.querySelector("[data-pagefind-body]")).toBe(null);
-      },
-    );
-  }, 30_000);
+  // How `search_collections` decides which pages are indexed is pure logic
+  // owned by eleventyComputed.pagefind_body and covered by its unit tests in
+  // test/unit/data/eleventy-computed/search-nav.test.js (including the
+  // tag-not-in-collections and no_index cases). The test above already proves
+  // that computed value is wired into the rendered output, so a second full
+  // build that only varies the config adds no coverage.
 });
