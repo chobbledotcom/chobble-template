@@ -1,0 +1,14 @@
+# Known-equivalent mutants — survivors that NO test could ever kill because the
+# mutated code is behaviourally identical to the original. Recording one here
+# suppresses it from the survivor count so CI can gate on genuinely new gaps.
+#
+# Format (mirrors a survivor line from the report), one per line:
+#
+#   path:line:col  from → to   # why it is equivalent
+#
+# Example:
+#   src/_lib/utils/foo.js:42:7  ?? → ||   # x is only ever "" when falsy
+#
+# Entries are validated each run: an entry that no longer points at a real
+# surviving mutant (code moved, a test now kills it, or a duplicate) fails the
+# run, so this list cannot silently rot.

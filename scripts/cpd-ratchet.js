@@ -27,7 +27,7 @@ const RATCHET_MIN_TOKENS = CURRENT_MIN_TOKENS - 1;
 
 // Paths matching the cpd script in package.json
 const paths = ["src/_lib", "src/_data", "scripts", "packages"];
-const ignorePatterns = ["**/index.js", "**/customise-cms/**"];
+const ignorePatterns = ["**/index.js", "**/customise-cms/**", "**/mutation/**"];
 
 const result = spawnSync(
   "bunx",
