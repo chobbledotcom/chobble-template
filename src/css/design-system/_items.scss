@@ -109,18 +109,7 @@
       // =======================================================================
 
       .image-link {
-        overflow: hidden;
-        display: block;
-
-        .image-wrapper {
-          @include image-wrapper($border-radius: 0);
-        }
-
-        img {
-          width: 100%;
-          height: auto;
-          object-fit: cover;
-        }
+        @include edge-to-edge-media;
       }
 
       @include video-media;

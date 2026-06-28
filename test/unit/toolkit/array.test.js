@@ -2,7 +2,15 @@
  * Tests for js-toolkit array utilities
  */
 import { describe, expect, test } from "bun:test";
-import { mapAsync } from "#toolkit/fp/array.js";
+import {
+  exclude,
+  mapAsync,
+  memberOf,
+  notMemberOf,
+  pick,
+  pluralize,
+  uniqueBy,
+} from "#toolkit/fp/array.js";
 
 describe("mapAsync", () => {
   test("maps async function over array and awaits all results", async () => {
@@ -51,5 +59,50 @@ describe("mapAsync", () => {
     // Total time should be ~10ms (parallel), not ~30ms (sequential)
     // If run sequentially, would take 30ms+. With concurrency, ~10ms.
     expect(elapsed).toBeLessThan(100);
+  });
+
+  test("filters and picks unique objects by key", () => {
+    const items = [
+      { id: 1, name: "first" },
+      { id: 1, name: "duplicate" },
+      { id: 2, name: "second" },
+    ];
+    const result = uniqueBy((item) => item.id)(items);
+
+    expect(result).toEqual([
+      { id: 1, name: "duplicate" },
+      { id: 2, name: "second" },
+    ]);
+  });
+
+  test("picks an object subset and ignores missing keys", () => {
+    const pickMeta = pick(["id", "name", "missing"]);
+    expect(pickMeta({ id: 1, name: "Widget", sku: "X" })).toEqual({
+      id: 1,
+      name: "Widget",
+    });
+  });
+
+  test("membership helpers include and exclude values", () => {
+    const isWeekend = memberOf(["sat", "sun"]);
+    const isNotWeekend = notMemberOf(["sat", "sun"]);
+
+    expect(isWeekend("sat")).toBe(true);
+    expect(isNotWeekend("sat")).toBe(false);
+    expect(exclude(["blocked", "forbidden"])(["allowed", "blocked"])).toEqual([
+      "allowed",
+    ]);
+  });
+
+  test("pluralize handles singular/plural and custom endings", () => {
+    const format = pluralize("class");
+    expect(format(1)).toBe("1 class");
+    expect(format(3)).toBe("3 classes");
+  });
+
+  test("pluralize uses custom form when provided", () => {
+    const format = pluralize("item in basket", "items in basket");
+    expect(format(1)).toBe("1 item in basket");
+    expect(format(2)).toBe("2 items in basket");
   });
 });

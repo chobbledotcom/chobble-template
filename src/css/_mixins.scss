@@ -542,6 +542,24 @@
   }
 }
 
+// Edge-to-edge media wrapper: a block container framing an image to fill its
+// width. Shared by .image-link (items cards) and .menu-card-image (menu
+// cards) so the look can't drift between link and non-link media.
+@mixin edge-to-edge-media($border-radius: 0) {
+  overflow: hidden;
+  display: block;
+
+  .image-wrapper {
+    @include image-wrapper($border-radius: $border-radius);
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+}
+
 // Truncate text
 @mixin truncate($lines: 1) {
   @if $lines == 1 {

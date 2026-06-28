@@ -2,7 +2,14 @@
  * Tests for js-toolkit frozen object utilities
  */
 import { describe, expect, test } from "bun:test";
-import { frozenObject } from "#toolkit/fp/object.js";
+import {
+  fromPairs,
+  frozenObject,
+  mapEntries,
+  mapObject,
+  pickNonNull,
+  toObject,
+} from "#toolkit/fp/object.js";
 
 describe("frozenObject", () => {
   test("allows reading properties", () => {
@@ -34,5 +41,50 @@ describe("frozenObject", () => {
     expect(() => {
       Object.defineProperty(obj, "b", { value: 2 });
     }).toThrow("Cannot define property 'b' on a frozen object");
+  });
+
+  test("maps object entries with separate key/value args", () => {
+    const entries = mapEntries((k, v) => `${k}:${v}`)({
+      a: 1,
+      b: 2,
+    });
+
+    expect(entries).toEqual(["a:1", "b:2"]);
+  });
+
+  test("maps object entries to a new object", () => {
+    const result = mapObject((k, v) => [`${k}_mapped`, v * 2])({
+      a: 1,
+      b: 2,
+    });
+
+    expect(result).toEqual({ a_mapped: 2, b_mapped: 4 });
+  });
+
+  test("builds objects from pairs and toObject", () => {
+    expect(
+      fromPairs([
+        ["a", 1],
+        ["b", 2],
+      ]),
+    ).toEqual({ a: 1, b: 2 });
+
+    const payload = toObject(
+      [
+        { key: "k1", value: "v1" },
+        { key: "k2", value: "v2" },
+      ],
+      (item) => [item.key, item.value],
+    );
+    expect(payload).toEqual({ k1: "v1", k2: "v2" });
+  });
+
+  test("removes nulls and keeps falsey values with pickNonNull", () => {
+    expect(pickNonNull({ a: 1, b: null, c: false, d: "", e: 0 })).toEqual({
+      a: 1,
+      c: false,
+      d: "",
+      e: 0,
+    });
   });
 });

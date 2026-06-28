@@ -24,3 +24,30 @@ export const parsePrice = (fallback) => (price) => {
   const matches = String(price).match(/[\d.]+/);
   return matches ? Number.parseFloat(matches[0]) : fallback;
 };
+
+/**
+ * Detect an "ambiguous" authored price string.
+ *
+ * A price is ambiguous when it contains more than one numeric run, e.g.
+ * `"£10 / £12"`, `"from £8 to £14"`, or `"2 for £15"`. Such strings cannot
+ * be resolved to a single unit price for cart data, so callers should render
+ * the authored string verbatim but skip cart controls.
+ *
+ * Non-string prices (numbers, null, undefined) are never ambiguous; their
+ * parseability is handled by `parsePrice`.
+ *
+ * @param {string | number | null | undefined} price
+ * @returns {boolean}
+ *
+ * @example
+ * isAmbiguousPrice("£10 / £12"); // true
+ * isAmbiguousPrice("from £8 to £14"); // true
+ * isAmbiguousPrice("£15.00"); // false
+ * isAmbiguousPrice(15); // false
+ * isAmbiguousPrice(null); // false
+ */
+export const isAmbiguousPrice = (price) => {
+  if (typeof price !== "string") return false;
+  const matches = price.match(/[\d.]+/g);
+  return matches != null && matches.length > 1;
+};

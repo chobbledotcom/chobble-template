@@ -1026,6 +1026,7 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: compact, type: boolean, label: Compact }
+      - { name: cards, type: boolean, label: Cards }
   block_menu_pdf_download:
     label: Menu Pdf Download
     type: object
@@ -2038,6 +2039,7 @@ content:
       - { name: name, type: string, label: Name }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: price, type: string, label: Price }
+      - { name: sku, type: string, label: SKU }
       - { name: is_vegan, type: boolean, label: Is Vegan }
       - { name: is_gluten_free, type: boolean, label: Is Gluten Free }
       - name: menu_categories

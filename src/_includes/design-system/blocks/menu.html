@@ -2,9 +2,12 @@
 Menu block - renders the current menu page's categories, items, and
 dietary key legend.
 
-No block-level parameters. Reads from page data (`allDietaryKeys`)
-and `collections.menu-categories` / `collections.menu-items`,
-filtered against `page.fileSlug`.
+Reads from page data (`allDietaryKeys`) and `collections.menu-categories` /
+`collections.menu-items`, filtered against `page.fileSlug`.
+
+`block.cards` (default false) switches each category's items between compact
+name/price rows (`ul.menu-items`, the default) and a no-link product-style
+card grid (`ul.items.menu-card-items`).
 {%- endcomment -%}
 
 {%- assign menu_categories = collections.menu-categories | getCategoriesByMenu: page.fileSlug -%}
@@ -25,33 +28,35 @@ filtered against `page.fileSlug`.
 
     {%- assign items = collections.menu-items | getItemsByCategory: category.fileSlug -%}
     {%- if items.size > 0 -%}
-      <ul class="menu-items">
-        {%- for item in items -%}
-          <li>
-            <span class="name">
-              <strong>{{ item.data.name }}</strong>
-              {%- for key in item.data.dietaryKeys %}
-                <span>({{ key.symbol }})</span>
-              {%- endfor -%}
-            </span>
-            <span class="price">
-              {{ item.data.price }}
-            </span>
-            {%- if item.data.description -%}
-              <p class="description">
-                {{ item.data.description }}
-              </p>
-            {%- endif -%}
-            {%- if config.cart_mode == "quote" and item.data.cart_attributes -%}
-              {%- include "templates/add-to-cart-button.html",
-                  cart_attributes: item.data.cart_attributes,
-                  btn_text: item.data.cart_btn_text,
-                  show_quantity: true,
-                  max_quantity: config.default_max_quantity -%}
-            {%- endif -%}
-          </li>
-        {%- endfor -%}
-      </ul>
+      {%- if block.cards -%}
+        <ul class="items menu-card-items" role="list">
+          {%- for item in items -%}
+            {%- include "design-system/menu-card-item.html", item: item -%}
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <ul class="menu-items">
+          {%- for item in items -%}
+            <li>
+              <span class="name">
+                <strong>{{ item.data.name }}</strong>
+                {%- for key in item.data.dietaryKeys %}
+                  <span>({{ key.symbol }})</span>
+                {%- endfor -%}
+              </span>
+              <span class="price">
+                {{ item.data.price }}
+              </span>
+              {%- if item.data.description -%}
+                <p class="description">
+                  {{ item.data.description }}
+                </p>
+              {%- endif -%}
+              {%- include "design-system/menu-cart-button.html", item: item -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
     {%- endif -%}
   {%- endfor -%}
 {%- endif -%}

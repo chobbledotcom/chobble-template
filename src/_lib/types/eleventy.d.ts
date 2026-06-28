@@ -190,6 +190,14 @@ export type NewsItemData = BaseItemData & {
 export type MenuItemData = BaseItemData & {
   /** Menu categories this item belongs to */
   menu_categories?: string[];
+  /** Stock keeping unit for cart/checkout integration */
+  sku?: string;
+  /** Display price (may contain currency symbols, e.g. "£14.50") */
+  price?: string | number;
+  /** Description shown alongside the item */
+  description?: string;
+  /** Per-item override for the cart's maximum line quantity */
+  max_quantity?: number | null;
 };
 
 /**

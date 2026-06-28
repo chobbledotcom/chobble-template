@@ -81,4 +81,58 @@
       }
     }
   }
+
+  // ===========================================================================
+  // MENU CARDS (cards: true on the `menu` block)
+  // ===========================================================================
+  // Reuses the shared `ul.items` card layout from `_items.scss` (border,
+  // radius, grid, typography, cart controls). Only menu-only adjustments
+  // live here: no-link image wrapper, text-only card top padding, spacing
+  // between consecutive categories, dietary-key formatting, and suppressing
+  // the shared card hover lift (these cards never link anywhere).
+  //
+  // Markup:
+  //   <ul class="items menu-card-items" role="list">
+  //     <li class="menu-card-item">
+  //       <div class="menu-card-image">…</div>
+  //       <h3>Item <span class="dietary-key">(V)</span></h3>
+  //       <p class="price">£8</p>
+  //       <p>Description…</p>
+  //       <div class="list-item-cart-controls">…</div>
+  //     </li>
+  //   </ul>
+
+  ul.items.menu-card-items {
+    // Match the readable separation between categories that classic
+    // .menu-items provides.
+    margin-block-end: $space-2xl;
+
+    > li.menu-card-item {
+      // Cards are not clickable (menu items have permalink: false), so
+      // suppress the shared hover lift that would imply interactivity.
+      &:hover {
+        transform: none;
+      }
+
+      // Text-only cards (no thumbnail) need top padding: the shared .items
+      // card styles only apply inline padding to text and bottom padding to
+      // the card itself.
+      &:not(:has(> .menu-card-image)) {
+        padding-block-start: var(--item-padding-inline);
+      }
+    }
+
+    // No-link image wrapper. Shares the edge-to-edge media styling via the
+    // edge-to-edge-media mixin so it matches .image-link without the
+    // misleading link class on a non-link.
+    .menu-card-image {
+      @include edge-to-edge-media;
+    }
+
+    .dietary-key {
+      @include body-sm;
+
+      color: var(--color-text-muted);
+    }
+  }
 }

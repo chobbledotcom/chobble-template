@@ -35,6 +35,12 @@ import {
 
 const isVerbose = () => process.argv.includes("--verbose");
 
+const finishStep = ({ step, stdout, stderr, status, elapsed }) => {
+  const mark = status === 0 ? green("✓") : red("✗");
+  write(`${mark} ${dim(`${elapsed}s`)}\n`);
+  if (step.postRun) step.postRun(`${stdout}\n${stderr}`, status);
+};
+
 /** Drain a child stdout/stderr stream, calling onChunk per raw decoded chunk
  * and onLine per complete newline-terminated line. Resolves to full text. */
 const readStream = (stream, { onChunk, onLine }) =>
@@ -71,6 +77,8 @@ const runStep = async (step, showProgress) => {
   const [command, ...args] = step.cmd;
   if (!command) throw new Error(`No command configured for ${step.name}`);
 
+  if (step.preRun) step.preRun();
+
   const child = spawn(command, args, {
     cwd: ROOT_DIR,
     stdio: ["ignore", "pipe", "pipe"],
@@ -95,11 +103,10 @@ const runStep = async (step, showProgress) => {
   ]);
   const elapsed = ((performance.now() - start) / 1000).toFixed(1);
   if (progress.value) write(`\r\x1b[2K${prefix}`);
-
-  if (step.postRun) step.postRun(`${stdout}\n${stderr}`);
+  const result = { step, stdout, stderr, status, elapsed };
 
   if (status === 0) {
-    write(`${green("✓")} ${dim(`${elapsed}s`)}\n`);
+    finishStep(result);
     if (isVerbose() && (stdout || stderr)) {
       if (stdout) process.stdout.write(stdout);
       if (stderr) process.stderr.write(stderr);
@@ -107,7 +114,7 @@ const runStep = async (step, showProgress) => {
     return true;
   }
 
-  write(`${red("✗")} ${dim(`${elapsed}s`)}\n`);
+  finishStep(result);
 
   const errors = [
     ...extractErrorsFromOutput(stdout),

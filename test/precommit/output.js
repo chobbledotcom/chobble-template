@@ -36,3 +36,60 @@ export const extractTestTotal = (output) => {
   const n = Number.parseInt(match[1], 10);
   return Number.isFinite(n) && n > 0 ? n : undefined;
 };
+
+const xmlEntities = {
+  amp: "&",
+  apos: "'",
+  gt: ">",
+  lt: "<",
+  quot: '"',
+};
+
+/** Read one XML attribute from a testcase tag. */
+const readAttribute = (tag, name) => {
+  const match = tag.match(new RegExp(`${name}="([^"]*)"`));
+  return match
+    ? match[1].replace(
+        /&([a-z]+);/g,
+        (entity, key) => xmlEntities[key] ?? entity,
+      )
+    : undefined;
+};
+
+/**
+ * Extract test cases slower than thresholdMs from Bun's JUnit reporter output.
+ * JUnit times are seconds, so the returned duration is rounded milliseconds.
+ *
+ * @param {string} junitXml
+ * @param {number} [thresholdMs=500]
+ * @returns {{ name: string, file?: string, line?: number, durationMs: number }[]}
+ */
+export const extractSlowTests = (junitXml, thresholdMs = 500) => {
+  const testCases = junitXml.matchAll(/<testcase\b[^>]*\/?>/g);
+
+  const slowTests = Array.from(testCases).flatMap((match) => {
+    const tag = match[0];
+    const seconds = Number.parseFloat(readAttribute(tag, "time") ?? "");
+    if (!Number.isFinite(seconds)) return [];
+
+    const durationMs = Math.round(seconds * 1000);
+    if (durationMs <= thresholdMs) return [];
+
+    const name = readAttribute(tag, "name") ?? "(unnamed test)";
+    const classname = readAttribute(tag, "classname");
+    const file = readAttribute(tag, "file");
+    const lineText = readAttribute(tag, "line");
+    const line = lineText ? Number.parseInt(lineText, 10) : undefined;
+
+    return [
+      {
+        name: classname ? `${classname} > ${name}` : name,
+        file,
+        line: Number.isFinite(line) ? line : undefined,
+        durationMs,
+      },
+    ];
+  });
+
+  return slowTests.sort((a, b) => b.durationMs - a.durationMs);
+};
