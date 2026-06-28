@@ -130,6 +130,7 @@ describe("properties", () => {
     configureProperties(mockConfig);
 
     expect(typeof mockConfig.collections.properties).toBe("function");
+    expect(typeof mockConfig.collections.featuredProperties).toBe("function");
     expect(typeof mockConfig.collections.propertiesWithReviewsPage).toBe(
       "function",
     );

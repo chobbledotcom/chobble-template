@@ -37,6 +37,21 @@ scripts/mutation/generate.js:200:45  ?? → ||   # a real file path's basename i
 packages/js-toolkit/fp/array.js:388:11  ?? → ||   # pluralize's `plural` is undefined or a real word, never a falsy-defined value
 packages/js-toolkit/fp/memoize.js:167:32  ?? → ||   # a pending entry is always a Promise (truthy) or undefined, so ?? and || agree
 
+# --- collections: indexer/Map lookups that return an array or undefined, so
+#     `x ?? []` and `x || []` agree; plus a couple of other safe defaults ---
+src/_lib/collections/products.js:154:31  ?? → ||   # bidirectional indexer[slug] is an array or undefined
+src/_lib/collections/products.js:204:38  ?? → ||   # max_quantity is a positive number or undefined, never the falsy-defined 0
+src/_lib/collections/properties.js:30:52  ?? → ||   # indexByLocation[slug] is an array or undefined
+src/_lib/collections/reviews.js:86:33  ?? → ||   # indexer[slug] is an array or undefined
+src/_lib/collections/reviews.js:176:19  ?? → ||   # any falsy reviewer name collapses to "" under both ?? and ||
+src/_lib/collections/menus.js:42:57  ?? → ||   # category map .get(slug) is an array or undefined
+src/_lib/collections/menus.js:55:50  ?? → ||   # itemsByCategorySlug[slug] is an array or undefined
+src/_lib/collections/guides.js:16:49  ?? → ||   # indexByGuideCategory[slug] is an array or undefined
+src/_lib/collections/guides.js:24:49  ?? → ||   # indexByProperty[slug] is an array or undefined
+src/_lib/collections/events.js:23:29  ?? → ||   # event_date is a date string or undefined, never a falsy-defined value
+src/_lib/collections/events.js:35:3  date.setHours(0, 0, 0, 0); → (removed)   # `today` is already midnight, so zeroing the event's time never changes the day-boundary compare
+src/_lib/collections/navigation.js:52:25  ?? → ||   # entry.url is a real path or undefined, never the falsy-defined ""
+
 # --- summary.js: safe fallbacks and cosmetics ---
 scripts/mutation/summary.js:23:53  ?? → ||   # groupBy never yields empty groups, so length is never the defined-falsy 0
 scripts/mutation/summary.js:37:33  ?? → ||   # byStatus.survived is undefined or a non-empty array
