@@ -425,20 +425,9 @@ const cleanupAllTestSites = () => {
   }
 };
 
-/** A minimal `pages/index.md` home page with the given design-system blocks. */
-const homePage = (blocks) => ({
-  path: "pages/index.md",
-  frontmatter: {
-    name: "Home",
-    permalink: "/",
-    blocks,
-  },
-});
-
 export {
   cleanupAllTestSites,
   createTestSite,
-  homePage,
   useSharedSite,
   withSetupTestSite,
   withTestSite,
