@@ -406,6 +406,13 @@ describe("quote-price-utils", () => {
       const getDetailPrice = (detail) =>
         detail.querySelector('[data-field="price"]')?.textContent ?? "";
 
+      const assertSingleDetailPrice = (expectedPrice) => {
+        updateQuotePrice(1);
+        const details = getDetails();
+        expect(details).toHaveLength(1);
+        expect(getDetailPrice(details[0])).toBe(expectedPrice);
+      };
+
       test("shows price for selected option with data-price", async () => {
         await setupDOM(
           [buyItem()],
@@ -414,10 +421,7 @@ describe("quote-price-utils", () => {
              <option value="Wedding" data-price="200" selected>Wedding</option>
            </select>`,
         );
-        updateQuotePrice(1);
-        const details = getDetails();
-        expect(details).toHaveLength(1);
-        expect(getDetailPrice(details[0])).toBe("+£200");
+        assertSingleDetailPrice("+£200");
       });
 
       test("adds select option price to the total", async () => {
@@ -439,10 +443,7 @@ describe("quote-price-utils", () => {
           `<input type="radio" name="contact" value="Email" data-price="25" checked />
            <input type="radio" name="contact" value="Phone" data-price="50" />`,
         );
-        updateQuotePrice(1);
-        const details = getDetails();
-        expect(details).toHaveLength(1);
-        expect(getDetailPrice(details[0])).toBe("+£25");
+        assertSingleDetailPrice("+£25");
       });
 
       test("adds radio option price to the total", async () => {
@@ -464,10 +465,7 @@ describe("quote-price-utils", () => {
              <option value="Wedding" selected>Wedding</option>
            </select>`,
         );
-        updateQuotePrice(1);
-        const details = getDetails();
-        expect(details).toHaveLength(1);
-        expect(getDetailPrice(details[0])).toBe("");
+        assertSingleDetailPrice("");
       });
 
       test("sums multiple priced answers into the total", async () => {
