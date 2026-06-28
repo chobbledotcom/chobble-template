@@ -33,6 +33,10 @@ scripts/mutation/generate.js:191:12  || → &&   # walkChild already filters non
 scripts/mutation/generate.js:194:35  || → &&   # a TS type carries no runtime-mutable operators, so flagging a top-level type field changes nothing
 scripts/mutation/generate.js:200:45  ?? → ||   # a real file path's basename is never "", so the fallback is unreachable
 
+# --- core libraries (packages/js-toolkit/fp) ---
+packages/js-toolkit/fp/array.js:388:11  ?? → ||   # pluralize's `plural` is undefined or a real word, never a falsy-defined value
+packages/js-toolkit/fp/memoize.js:167:32  ?? → ||   # a pending entry is always a Promise (truthy) or undefined, so ?? and || agree
+
 # --- summary.js: safe fallbacks and cosmetics ---
 scripts/mutation/summary.js:23:53  ?? → ||   # groupBy never yields empty groups, so length is never the defined-falsy 0
 scripts/mutation/summary.js:37:33  ?? → ||   # byStatus.survived is undefined or a non-empty array

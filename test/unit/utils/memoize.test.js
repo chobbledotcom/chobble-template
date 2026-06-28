@@ -1,5 +1,45 @@
 import { describe, expect, test } from "bun:test";
-import { groupByWithCache, indexBy } from "#toolkit/fp/memoize.js";
+import { groupByWithCache, indexBy, memoize } from "#toolkit/fp/memoize.js";
+
+describe("memoize", () => {
+  test("runs the underlying fn once per key and reuses the result", () => {
+    let calls = 0;
+    const double = memoize((n) => {
+      calls += 1;
+      return n * 2;
+    });
+    expect(double(5)).toBe(10);
+    expect(double(5)).toBe(10);
+    expect(calls).toBe(1); // cached: the second call must not re-run the fn
+  });
+
+  test("recomputes for a different key", () => {
+    let calls = 0;
+    const double = memoize((n) => {
+      calls += 1;
+      return n * 2;
+    });
+    double(5);
+    double(6);
+    expect(calls).toBe(2);
+  });
+
+  test("honours a custom cacheKey when deciding hits", () => {
+    let calls = 0;
+    // Key on the second arg, so a different first arg is still a cache hit —
+    // the default key (first arg) would miss and recompute.
+    const add = memoize(
+      (a, b) => {
+        calls += 1;
+        return a + b;
+      },
+      { cacheKey: (args) => args[1] },
+    );
+    expect(add(2, 3)).toBe(5);
+    expect(add(40, 3)).toBe(5); // same cacheKey (3) → cached 5, not 43
+    expect(calls).toBe(1);
+  });
+});
 
 describe("indexBy", () => {
   test("Creates lookup object from array using key function", () => {
