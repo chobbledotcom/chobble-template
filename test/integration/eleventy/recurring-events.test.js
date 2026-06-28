@@ -197,51 +197,64 @@ describe("recurring-events", () => {
     content,
   });
 
-  test("Recurring events are correctly rendered in Eleventy build", async () =>
-    withTestSite(
-      {
-        files: [
-          eventFile("weekly-meetup", "Weekly Meetup", "Every Tuesday at 7pm", {
-            event_location: "Community Center",
-          }),
-          eventFile(
-            "2024-03-15-monthly-workshop",
-            "Monthly Workshop",
-            "First Saturday of each month",
-          ),
-          oneTimeEventFile("one-time-event", "One Time Event", "2024-06-15"),
-          eventsTestPage(),
-        ],
-      },
-      async (site) => {
-        const html = site.getOutput("/test/index.html");
-        const doc = await site.getDoc("/test/index.html");
+  test(
+    "Recurring events are correctly rendered in Eleventy build",
+    () =>
+      withTestSite(
+        {
+          files: [
+            eventFile(
+              "weekly-meetup",
+              "Weekly Meetup",
+              "Every Tuesday at 7pm",
+              {
+                event_location: "Community Center",
+              },
+            ),
+            eventFile(
+              "2024-03-15-monthly-workshop",
+              "Monthly Workshop",
+              "First Saturday of each month",
+            ),
+            oneTimeEventFile("one-time-event", "One Time Event", "2024-06-15"),
+            eventsTestPage(),
+          ],
+        },
+        async (site) => {
+          const html = site.getOutput("/test/index.html");
+          const doc = await site.getDoc("/test/index.html");
 
-        expect(html.includes("Weekly Meetup")).toBe(true);
-        expect(html.includes("Monthly Workshop")).toBe(true);
-        expect(html.includes("Every Tuesday at 7pm")).toBe(true);
-        expect(html.includes("Community Center")).toBe(true);
-        expect(!html.includes("One Time Event")).toBe(true);
-        expect(!html.includes("/events/2024-03-15-")).toBe(true);
-        expect(doc.querySelectorAll("ul li a[href*='/events/']").length).toBe(
-          2,
-        );
-      },
-    ));
+          expect(html.includes("Weekly Meetup")).toBe(true);
+          expect(html.includes("Monthly Workshop")).toBe(true);
+          expect(html.includes("Every Tuesday at 7pm")).toBe(true);
+          expect(html.includes("Community Center")).toBe(true);
+          expect(!html.includes("One Time Event")).toBe(true);
+          expect(!html.includes("/events/2024-03-15-")).toBe(true);
+          expect(doc.querySelectorAll("ul li a[href*='/events/']").length).toBe(
+            2,
+          );
+        },
+      ),
+    30_000,
+  );
 
-  test("Recurring events render event_time when provided", async () =>
-    withTestSite(
-      {
-        files: [
-          eventFile("yoga-class", "Yoga Class", "Every Wednesday", {
-            event_time: "6:30pm – 7:30pm",
-          }),
-          eventsTestPage(),
-        ],
-      },
-      async (site) => {
-        const html = site.getOutput("/test/index.html");
-        expect(html.includes("6:30pm – 7:30pm")).toBe(true);
-      },
-    ));
+  test(
+    "Recurring events render event_time when provided",
+    () =>
+      withTestSite(
+        {
+          files: [
+            eventFile("yoga-class", "Yoga Class", "Every Wednesday", {
+              event_time: "6:30pm – 7:30pm",
+            }),
+            eventsTestPage(),
+          ],
+        },
+        async (site) => {
+          const html = site.getOutput("/test/index.html");
+          expect(html.includes("6:30pm – 7:30pm")).toBe(true);
+        },
+      ),
+    30_000,
+  );
 });

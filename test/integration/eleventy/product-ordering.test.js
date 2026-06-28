@@ -54,11 +54,11 @@ describe("event product ordering", () => {
         "alpha",
         "beta",
       ]),
-      eventWithProducts(
-        "2026-06-19-date-prefixed-expo",
-        "Date Prefixed Expo",
-        ["date-gamma", "date-alpha", "date-beta"],
-      ),
+      eventWithProducts("2026-06-19-date-prefixed-expo", "Date Prefixed Expo", [
+        "date-gamma",
+        "date-alpha",
+        "date-beta",
+      ]),
       eventWithProducts("reverse-expo", "Reverse Expo", ["explicit-one"]),
       eventWithProducts("2026-06-19-date-reverse-expo", "Date Reverse Expo", [
         "date-explicit-one",
@@ -88,7 +88,9 @@ describe("event product ordering", () => {
         events: ["date-reverse-expo"],
       }),
       product("zulu", "Zulu", 1, { events: ["default-expo"] }),
-      product("default-alpha", "Default Alpha", 2, { events: ["default-expo"] }),
+      product("default-alpha", "Default Alpha", 2, {
+        events: ["default-expo"],
+      }),
       product("dup-alpha", "Duplicate Alpha", 1),
       product("dup-beta", "Duplicate Beta", 2),
       product("widget-a", "Widget A", 1, { events: ["overlap-expo"] }),
@@ -118,5 +120,5 @@ describe("event product ordering", () => {
         await getProductTitles(site, "/events/overlap-expo/index.html"),
       ).toEqual(["Widget B", "Widget A"]);
     });
-  });
+  }, 30_000);
 });

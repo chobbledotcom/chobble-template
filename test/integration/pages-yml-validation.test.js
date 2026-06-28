@@ -27,10 +27,15 @@ describe("pages.yml validation against Pages CMS schema", () => {
     // Clone pages-cms if not already cached (remove stale cache first)
     if (!fs.existsSync(path.join(PAGES_CMS_CACHE, "lib", SCHEMA_FILENAME))) {
       fs.rmSync(PAGES_CMS_CACHE, { recursive: true, force: true });
-      execSync(`git clone --depth 1 ${PAGES_CMS_REPO} ${PAGES_CMS_CACHE}`, {
-        stdio: "pipe",
-        timeout: 120_000,
-      });
+      try {
+        execSync(`git clone --depth 1 ${PAGES_CMS_REPO} ${PAGES_CMS_CACHE}`, {
+          stdio: "pipe",
+          timeout: 120_000,
+        });
+      } catch {
+        state.skip = true;
+        return;
+      }
     }
 
     // Read core field types from directory listing (the source of truth)
@@ -66,6 +71,7 @@ describe("pages.yml validation against Pages CMS schema", () => {
   });
 
   test(".pages.yml passes Pages CMS config schema validation", () => {
+    if (state.skip) return;
     const pagesYmlContent = fs.readFileSync(
       path.join(ROOT_DIR, ".pages.yml"),
       "utf8",

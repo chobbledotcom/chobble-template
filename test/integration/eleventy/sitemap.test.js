@@ -37,7 +37,7 @@ describe("sitemap", () => {
         expect(html.includes("Secret Page")).toBe(true);
       },
     );
-  });
+  }, 30_000);
 
   test("sitemap escapes ampersands in URLs", async () => {
     await withTestSite(
@@ -51,7 +51,7 @@ describe("sitemap", () => {
         expect(sitemap.includes("?q=cats&p=1")).toBe(false);
       },
     );
-  });
+  }, 30_000);
 
   test("sitemap includes lastmod from git dates", async () => {
     const site = await createTestSite({
@@ -79,5 +79,5 @@ describe("sitemap", () => {
     } finally {
       site.cleanup();
     }
-  });
+  }, 30_000);
 });

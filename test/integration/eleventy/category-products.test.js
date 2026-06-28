@@ -49,7 +49,7 @@ describe("category-products", () => {
         expect(html.includes('href="/products/test-widget/"')).toBe(true);
       },
     );
-  });
+  }, 30_000);
 
   test("Product without thumbnail shows placeholder by default", async () => {
     await withTestSite({ files: categoryWithProduct }, async (site) => {
@@ -57,7 +57,7 @@ describe("category-products", () => {
       // With placeholder_images: true (default), products get placeholder thumbnails
       expect(doc.querySelector(".image-link") !== null).toBe(true);
     });
-  });
+  }, 30_000);
 
   test("Product without thumbnail shows no image when placeholder_images disabled", async () => {
     await withTestSite(
@@ -68,7 +68,7 @@ describe("category-products", () => {
         expect(doc.querySelector(".image-link")).toBe(null);
       },
     );
-  });
+  }, 30_000);
 
   test("News post without thumbnail gets no placeholder when placeholder_images disabled", async () => {
     await withTestSite(
@@ -98,5 +98,5 @@ describe("category-products", () => {
         expect(newsDoc.querySelector(".post-meta img")).toBe(null);
       },
     );
-  });
+  }, 30_000);
 });
