@@ -6,9 +6,35 @@
 #
 #   path:line:col  from → to   # why it is equivalent
 #
-# Example:
-#   src/_lib/utils/foo.js:42:7  ?? → ||   # x is only ever "" when falsy
-#
 # Entries are validated each run: an entry that no longer points at a real
 # surviving mutant (code moved, a test now kills it, or a duplicate) fails the
 # run, so this list cannot silently rot.
+#
+# The entries below come from mutation-testing the mutation tooling itself:
+#   bun run mutation --source scripts/mutation/generate.js \
+#     --source scripts/mutation/operators.js --test test/unit/mutation/generate.test.js
+#   bun run mutation --source scripts/mutation/summary.js \
+#     --source scripts/mutation/ignore.js --test test/unit/mutation/reporting.test.js
+
+# --- generate.js: defensive guards that cannot fire for a real parsed AST ---
+scripts/mutation/generate.js:60:14  || → &&   # only Assignment/Binary/Logical nodes reach operatorMutants; all have tables/left/right/operator
+scripts/mutation/generate.js:60:23  || → &&   # (same guard)
+scripts/mutation/generate.js:60:33  || → &&   # (same guard)
+scripts/mutation/generate.js:61:47  ?? → ||   # every operator on these nodes is a table key, so the [] fallback is unreachable
+scripts/mutation/generate.js:76:16  || → &&   # every UnaryExpression has argument/operator/start
+scripts/mutation/generate.js:76:42  || → &&   # (same guard)
+scripts/mutation/generate.js:78:36  ?? → ||   # unknown unary ops give undefined; `?? []` and `|| []` both yield []
+scripts/mutation/generate.js:96:16  || → &&   # every UpdateExpression has argument & operator
+scripts/mutation/generate.js:110:29  || → &&   # node.start is always defined for a Literal
+scripts/mutation/generate.js:129:47  ?? → ||   # an ExpressionStatement's expression always has a type
+scripts/mutation/generate.js:130:24  || → &&   # node.start is always defined here
+scripts/mutation/generate.js:185:19  && → ||   # walk() ignores non-objects, so recursing into one yields nothing
+scripts/mutation/generate.js:191:12  || → &&   # walkChild already filters non-objects, so node is never null/non-object here
+scripts/mutation/generate.js:194:35  || → &&   # a TS type carries no runtime-mutable operators, so flagging a top-level type field changes nothing
+scripts/mutation/generate.js:200:45  ?? → ||   # a real file path's basename is never "", so the fallback is unreachable
+
+# --- summary.js: safe fallbacks and cosmetics ---
+scripts/mutation/summary.js:23:53  ?? → ||   # groupBy never yields empty groups, so length is never the defined-falsy 0
+scripts/mutation/summary.js:37:33  ?? → ||   # byStatus.survived is undefined or a non-empty array
+scripts/mutation/summary.js:70:53  - → /   # column-padding width only; cosmetic alignment, no behavioural contract
+scripts/mutation/summary.js:184:5  console.log(dim("Wrote Markdown summary… → (removed)   # a debug log; removing it doesn't change what is written

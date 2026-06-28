@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { ROOT_DIR } from "#lib/paths.js";
 import {
   ignoreListProblems,
   isIgnored,
@@ -10,6 +11,7 @@ import {
 } from "#scripts/mutation/ignore.js";
 import {
   formatSummaryLines,
+  rel,
   summarize,
   writeStepSummary,
 } from "#scripts/mutation/summary.js";
@@ -86,6 +88,8 @@ describe("formatSummaryLines", () => {
       .map(plain)
       .join("\n");
     expect(lines).toContain("All mutants were detected.");
+    // With nothing suppressed, the report must not mention suppression at all.
+    expect(lines).not.toContain("suppressed");
   });
 
   test("notes when all mutants are suppressed as known-equivalent", () => {
@@ -137,8 +141,18 @@ describe("writeStepSummary", () => {
     expect(md).toContain("`src/foo.js:42:7`");
   });
 
-  test("headlines a clean run as all detected", () => {
-    expect(writeFor([result("killed")])).toContain("All 1 mutants detected");
+  test("headlines a clean run as all detected, with no suppression noise", () => {
+    const md = writeFor([result("killed")]);
+    expect(md).toContain("All 1 mutants detected");
+    // Nothing ignored → no suppressed suffix and no ignored metric row.
+    expect(md).not.toContain("suppressed");
+    expect(md).not.toContain("ignored (suppressed)");
+  });
+
+  test("the survived headline reports a real score, never NaN", () => {
+    const md = writeFor([result("survived")]);
+    expect(md).toContain("mutant(s) survived");
+    expect(md).not.toContain("NaN");
   });
 
   test("does nothing when not running inside GitHub Actions", () => {
@@ -163,9 +177,9 @@ describe("loadIgnoreList", () => {
     const file = join(dir, "list.txt");
     writeFileSync(
       file,
-      ["# a comment", "", "src/foo.js:42:7 ?? → ||  # equivalent", ""].join(
-        "\n",
-      ),
+      // Real entry first so any corruption of the read (e.g. concatenating onto
+      // an undefined accumulator) breaks the parsed key, not just a comment.
+      ["src/foo.js:42:7 ?? → ||  # equivalent", "# a comment", ""].join("\n"),
     );
     const list = loadIgnoreList(file);
     rmSync(dir, { force: true, recursive: true });
@@ -177,6 +191,16 @@ describe("loadIgnoreList", () => {
     const list = loadIgnoreList(join(tmpdir(), "definitely-missing-xyz.txt"));
     expect(list.entries).toEqual([]);
     expect(list.keys.size).toBe(0);
+  });
+});
+
+describe("rel", () => {
+  test("strips the project-root prefix (and its trailing slash)", () => {
+    expect(rel(`${ROOT_DIR}/src/foo.js`)).toBe("src/foo.js");
+  });
+
+  test("leaves a path outside the project root untouched", () => {
+    expect(rel("/elsewhere/foo.js")).toBe("/elsewhere/foo.js");
   });
 });
 

@@ -54,6 +54,14 @@ describe("generateMutants", () => {
     expect(mutants[0].replacement).toBe(";");
   });
 
+  test("truncates a long removed-statement label to 40 chars with an ellipsis", () => {
+    const longCall = "doSomethingWithAnExceedinglyLongFunctionName(argument);";
+    const [mutant] = generateMutants(longCall, "sample.js", false);
+    expect(longCall.length).toBeGreaterThan(40);
+    expect(mutant.operator).toHaveLength(40);
+    expect(mutant.operator.endsWith("…")).toBe(true);
+  });
+
   test("skips operators that live inside a TypeScript type", () => {
     // The `|` here is a union type, erased at runtime — mutating it is a no-op,
     // so the walk must not emit a mutant for it.
@@ -83,5 +91,14 @@ describe("applyMutant", () => {
     const source = "doThing(x);";
     const [mutant] = generateMutants(source, "sample.js", false);
     expect(applyMutant(source, mutant).trim()).toBe(";");
+  });
+
+  test("honours an empty-string replacement (the `!x → x` guard drop)", () => {
+    // The `!`-drop mutant carries replacement "" — applyMutant must splice
+    // nothing, not fall back to the displayed "∅" sentinel.
+    const source = "const r = !a;";
+    const [mutant] = generateMutants(source, "sample.js", false);
+    expect(mutant.replacement).toBe("");
+    expect(applyMutant(source, mutant)).not.toContain("∅");
   });
 });
