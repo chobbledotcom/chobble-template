@@ -5,7 +5,7 @@ import {
   calculateDays,
   initHireCalculator,
 } from "#public/cart/hire-calculator.js";
-import { getCart } from "#public/utils/cart-utils.js";
+import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import Config from "#public/utils/config.js";
 import { onReady } from "#public/utils/on-ready.js";
 import {
@@ -14,6 +14,8 @@ import {
   sanitizeItemName,
 } from "#public/utils/quote-checkout-pricing.js";
 import {
+  collectFieldDetails,
+  getFormContainer,
   setupDetailsBlurHandlers,
   updateQuotePrice,
 } from "#public/utils/quote-price-utils.js";
@@ -35,6 +37,18 @@ const renderCheckoutItem = (item, days) => {
   return template;
 };
 
+const buildAnswerPricesText = () => {
+  const details = collectFieldDetails(getFormContainer());
+  const priced = details.filter((d) => d.price !== null);
+  if (priced.length === 0) return "";
+  return (
+    "\n" +
+    priced
+      .map((d) => `${d.key}: ${d.value} (+${formatPrice(d.price)})`)
+      .join("\n")
+  );
+};
+
 const populateForm = (days) => {
   const cart = getCart();
   const cartItemsField = document.getElementById("cart-items");
@@ -51,8 +65,7 @@ const populateForm = (days) => {
 
   // Build text representation for the hidden field
   const cartText = cart.map((item) => buildCartText(item, days)).join("\n");
-
-  cartItemsField.value = cartText;
+  cartItemsField.value = cartText + buildAnswerPricesText();
 
   // Build visual summary
   itemsEl.replaceChildren(
@@ -77,7 +90,7 @@ const init = () => {
   if (Config.quote_type === "hire") {
     initHireCalculator(updateQuoteSummary);
   }
-  setupDetailsBlurHandlers(getDays);
+  setupDetailsBlurHandlers(getDays, populateForm);
 };
 
 onReady(init);

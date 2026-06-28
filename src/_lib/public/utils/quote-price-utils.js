@@ -28,12 +28,12 @@ const formatItemName = (item) =>
 const formatItemPrice = (price) =>
   price === null ? "TBC" : formatPrice(price);
 
-const calculateTotal = (cart, days) => {
+const calculateTotal = (cart, days, answerPricesTotal = 0) => {
   const prices = map(getPriceForDays(days))(cart);
   if (prices.includes(null)) {
     return { total: 0, canCalculate: false };
   }
-  return { total: sum(prices), canCalculate: true };
+  return { total: sum(prices) + answerPricesTotal, canCalculate: true };
 };
 
 const formatHireLength = pluralize("day");
@@ -61,6 +61,29 @@ const getFieldValue = (field) => {
   return field.value;
 };
 
+const parsePriceAttr = (el) => {
+  const priceStr = el.getAttribute("data-price");
+  return priceStr !== null ? Number(priceStr) : null;
+};
+
+const getSelectPrice = (field) => {
+  const option = [...field.options].find((o) => o.selected);
+  return option ? parsePriceAttr(option) : null;
+};
+
+const getRadioPrice = (name) => {
+  const checked = document.querySelector(
+    `input[type="radio"][name="${name}"]:checked`,
+  );
+  return checked ? parsePriceAttr(checked) : null;
+};
+
+const getFieldPrice = (field) => {
+  if (isRadio(field)) return getRadioPrice(field.name);
+  if (isSelect(field)) return getSelectPrice(field);
+  return null;
+};
+
 const fieldLabel = (field) => getFieldLabels()[field.name || field.id];
 
 const getFieldId = (field) => (isRadio(field) ? field.name : field.id);
@@ -68,6 +91,7 @@ const getFieldId = (field) => (isRadio(field) ? field.name : field.id);
 const fieldToDetail = (field) => ({
   key: fieldLabel(field),
   value: getFieldValue(field),
+  price: getFieldPrice(field),
 });
 
 const collectFieldDetails = (container) => {
@@ -79,6 +103,11 @@ const collectFieldDetails = (container) => {
     map(fieldToDetail),
   )(fields);
 };
+
+const sumAnswerPrices = reduce(
+  (acc, d) => acc + (d.price !== null ? d.price : 0),
+  0,
+);
 
 const createItemElement = (item, days) => {
   const template = getTemplate(IDS.QUOTE_PRICE_ITEM, document);
@@ -101,6 +130,14 @@ const createDetailElement = (detail) => {
   const template = getTemplate(IDS.QUOTE_PRICE_DETAIL);
   template.querySelector('[data-field="key"]').textContent = detail.key;
   template.querySelector('[data-field="value"]').textContent = detail.value;
+  const priceEl = template.querySelector('[data-field="price"]');
+  if (priceEl) {
+    if (detail.price !== null) {
+      priceEl.textContent = `+${formatPrice(detail.price)}`;
+    } else {
+      priceEl.remove();
+    }
+  }
   return template;
 };
 
@@ -124,7 +161,13 @@ const renderQuotePrice = (container, days = 1) => {
   }
 
   const template = getTemplate(IDS.QUOTE_PRICE, document);
-  const { total, canCalculate } = calculateTotal(cart, days);
+
+  const details = collectFieldDetails(getFormContainer());
+  const { total, canCalculate } = calculateTotal(
+    cart,
+    days,
+    sumAnswerPrices(details),
+  );
   const itemCount = countItems(cart);
 
   template.querySelector('[data-field="item-count"]').textContent =
@@ -141,7 +184,6 @@ const renderQuotePrice = (container, days = 1) => {
   populateItems(itemsContainer, cart, days);
 
   const detailsContainer = template.querySelector('[data-field="details"]');
-  const details = collectFieldDetails(getFormContainer());
   populateDetails(detailsContainer, details);
   detailsContainer.parentElement.style.display =
     details.length === 0 ? "none" : "";
@@ -156,7 +198,7 @@ const updateQuotePrice = (days = 1) => {
   if (container) renderQuotePrice(container, days);
 };
 
-const setupDetailsBlurHandlers = (getDays = () => 1) => {
+const setupDetailsBlurHandlers = (getDays = () => 1, onFieldChange = null) => {
   const formContainer = getFormContainer();
   if (formContainer === null) return;
   const handleBlur = (event) => {
@@ -172,8 +214,14 @@ const setupDetailsBlurHandlers = (getDays = () => 1) => {
   formContainer.addEventListener("change", (event) => {
     if (event.target.matches('input[type="radio"], select')) {
       updateQuotePrice(getDays());
+      if (onFieldChange) onFieldChange(getDays());
     }
   });
 };
 
-export { setupDetailsBlurHandlers, updateQuotePrice };
+export {
+  collectFieldDetails,
+  getFormContainer,
+  setupDetailsBlurHandlers,
+  updateQuotePrice,
+};

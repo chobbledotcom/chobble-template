@@ -53,6 +53,17 @@
           "note": "Select 'Other' if your event type is not listed"
         },
         {
+          "name": "delivery_zone",
+          "type": "radio",
+          "label": "Delivery Zone",
+          "options": [
+            { "label": "Zone A (0-10 miles)", "value": "Zone A", "price": 0 },
+            { "label": "Zone B (10-20 miles)", "value": "Zone B", "price": 25 },
+            { "label": "Zone C (20-30 miles)", "value": "Zone C", "price": 50 }
+          ],
+          "note": "Distance from our base in [Your Town]"
+        },
+        {
           "name": "event_location",
           "label": "Event Location",
           "placeholder": "Venue name and address",

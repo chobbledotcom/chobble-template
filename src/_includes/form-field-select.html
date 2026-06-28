@@ -7,7 +7,9 @@
   >
     <option value="" disabled selected>Select an option</option>
     {%- for option in field.options -%}
-      <option value="{{ option }}">{{ option }}</option>
+      {%- assign optLabel = option.label | default: option -%}
+      {%- assign optValue = option.value | default: optLabel -%}
+      <option value="{{ optValue }}"{% if option.price %} data-price="{{ option.price }}"{% endif %}>{{ optLabel }}</option>
     {%- endfor -%}
   </select>
   {%- include "form-field-note.html" -%}
