@@ -2,16 +2,19 @@
   <legend>{{ field.label }}</legend>
   <div class="radio-options">
     {%- for option in field.options -%}
+      {%- assign optLabel = option.label | default: option -%}
+      {%- assign optValue = option.value | default: optLabel -%}
       {%- assign optionId = field.name | append: "_" | append: forloop.index -%}
       <label>
         <input
           type="radio"
           id="{{ optionId }}"
           name="{{ field.name }}"
-          value="{{ option }}"
+          value="{{ optValue }}"
+          {%- if option.price %} data-price="{{ option.price }}"{% endif %}
           {%- if field.required and forloop.first %} required{%- endif %}
         />
-        {{ option }}
+        {{ optLabel }}
       </label>
     {%- endfor -%}
   </div>

@@ -398,6 +398,105 @@ describe("quote-price-utils", () => {
       ).parentElement;
       expect(detailsParent.style.display).toBe("none");
     });
+
+    // ----------------------------------------
+    // Option answer price tests
+    // ----------------------------------------
+    describe("option answer prices", () => {
+      const getDetailPrice = (detail) =>
+        detail.querySelector('[data-field="price"]')?.textContent ?? "";
+
+      test("shows price for selected option with data-price", async () => {
+        await setupDOM(
+          [buyItem()],
+          `<select id="event_type" name="event_type">
+             <option value="">Choose...</option>
+             <option value="Wedding" data-price="200" selected>Wedding</option>
+           </select>`,
+        );
+        updateQuotePrice(1);
+        const details = getDetails();
+        expect(details).toHaveLength(1);
+        expect(getDetailPrice(details[0])).toBe("+£200");
+      });
+
+      test("adds select option price to the total", async () => {
+        await setupDOM(
+          [buyItem({ unit_price: 50 })],
+          `<select id="event_type" name="event_type">
+             <option value="Wedding" data-price="100" selected>Wedding</option>
+           </select>`,
+        );
+        updateQuotePrice(1);
+        expect(document.querySelector('[data-field="total"]').textContent).toBe(
+          "£150",
+        );
+      });
+
+      test("shows price for checked radio with data-price", async () => {
+        await setupDOM(
+          [buyItem()],
+          `<input type="radio" name="contact" value="Email" data-price="25" checked />
+           <input type="radio" name="contact" value="Phone" data-price="50" />`,
+        );
+        updateQuotePrice(1);
+        const details = getDetails();
+        expect(details).toHaveLength(1);
+        expect(getDetailPrice(details[0])).toBe("+£25");
+      });
+
+      test("adds radio option price to the total", async () => {
+        await setupDOM(
+          [buyItem({ unit_price: 100 })],
+          `<input type="radio" name="contact" value="Email" data-price="30" checked />
+           <input type="radio" name="contact" value="Phone" data-price="60" />`,
+        );
+        updateQuotePrice(1);
+        expect(document.querySelector('[data-field="total"]').textContent).toBe(
+          "£130",
+        );
+      });
+
+      test("omits price display for options without data-price", async () => {
+        await setupDOM(
+          [buyItem()],
+          `<select id="event_type" name="event_type">
+             <option value="Wedding" selected>Wedding</option>
+           </select>`,
+        );
+        updateQuotePrice(1);
+        const details = getDetails();
+        expect(details).toHaveLength(1);
+        expect(getDetailPrice(details[0])).toBe("");
+      });
+
+      test("sums multiple priced answers into the total", async () => {
+        await setupDOM(
+          [buyItem({ unit_price: 50 })],
+          `<select id="event_type" name="event_type">
+             <option value="Wedding" data-price="200" selected>Wedding</option>
+           </select>
+           <input type="radio" name="contact" value="Zone B" data-price="25" checked />`,
+        );
+        updateQuotePrice(1);
+        expect(document.querySelector('[data-field="total"]').textContent).toBe(
+          "£275",
+        );
+      });
+
+      test("total is TBC when cart item price unknown even with answer prices", async () => {
+        await setupDOM(
+          [cartItem({ hire_prices: { 2: "£50" } })],
+          `<select id="event_type" name="event_type">
+             <option value="Wedding" data-price="100" selected>Wedding</option>
+           </select>`,
+        );
+        updateQuotePrice(1); // No price for 1 day — cart item is TBC
+        expect(document.querySelector('[data-field="total"]').textContent).toBe(
+          "TBC",
+        );
+      });
+    });
   });
 
   // ----------------------------------------
