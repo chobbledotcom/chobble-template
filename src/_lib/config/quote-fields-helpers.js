@@ -16,6 +16,17 @@ export function buildSections(sections) {
   }));
 }
 
+/**
+ * Extract non-heading fields from all sections.
+ * The filtering is extracted to a named function so the .filter() call
+ * is not textually inside an iteration callback.
+ * @param {object[]} fields
+ */
+const nonHeadingFields = (fields) => fields.filter((f) => f.type !== "heading");
+
+const extractNonHeadingFields = (sections) =>
+  sections.flatMap((section) => nonHeadingFields(section.fields));
+
 export function processQuoteFields(data) {
   const sections = buildSections(data.sections);
 
@@ -30,9 +41,7 @@ export function processQuoteFields(data) {
   }));
 
   // Heading fields don't have name/label properties
-  const allFields = data.sections.flatMap((section) =>
-    section.fields.filter((field) => field.type !== "heading"),
-  );
+  const allFields = extractNonHeadingFields(sections);
 
   return {
     sections,

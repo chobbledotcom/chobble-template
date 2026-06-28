@@ -12,7 +12,9 @@
     <li>
       <ul data-field="details"></ul>
     </li>
+    {%- if config.quote_type == "hire" -%}
     <li>Hire length: <span data-field="hire-length"></span></li>
+    {%- endif -%}
     <li class="total">
       Estimated total: <span data-field="total"></span>
     </li>

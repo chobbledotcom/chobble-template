@@ -129,8 +129,10 @@ const renderQuotePrice = (container, days = 1) => {
 
   template.querySelector('[data-field="item-count"]').textContent =
     formatItemCount(itemCount);
-  template.querySelector('[data-field="hire-length"]').textContent =
-    formatHireLength(days);
+  const hireLengthEl = template.querySelector('[data-field="hire-length"]');
+  if (hireLengthEl) {
+    hireLengthEl.textContent = formatHireLength(days);
+  }
   template.querySelector('[data-field="total"]').textContent = canCalculate
     ? formatPrice(total)
     : "TBC";

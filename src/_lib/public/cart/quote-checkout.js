@@ -6,6 +6,7 @@ import {
   initHireCalculator,
 } from "#public/cart/hire-calculator.js";
 import { getCart } from "#public/utils/cart-utils.js";
+import Config from "#public/utils/config.js";
 import { onReady } from "#public/utils/on-ready.js";
 import {
   buildCartText,
@@ -59,8 +60,9 @@ const populateForm = (days) => {
   );
 };
 
-// Calculate days from date inputs (returns 1 if dates not set)
+// Calculate days from date inputs (returns 1 if dates not set or not hire mode)
 const getDays = () => {
+  if (Config.quote_type !== "hire") return 1;
   const start = document.querySelector('input[name="start_date"]')?.value;
   const end = document.querySelector('input[name="end_date"]')?.value;
   return start && end ? calculateDays(start, end) : 1;
@@ -72,7 +74,9 @@ const init = () => {
     updateQuotePrice(days);
   };
   updateQuoteSummary(getDays());
-  initHireCalculator(updateQuoteSummary);
+  if (Config.quote_type === "hire") {
+    initHireCalculator(updateQuoteSummary);
+  }
   setupDetailsBlurHandlers(getDays);
 };
 

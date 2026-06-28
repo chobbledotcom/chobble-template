@@ -12,6 +12,11 @@ const menuData = (overrides = {}) => ({
   ...overrides,
 });
 
+const menuCategory = (fileSlug, name, order, menus = ["lunch"]) => ({
+  fileSlug,
+  data: { name, order, menus },
+});
+
 describe("menus eleventyNavigation", () => {
   test("computes subtitle and pdf filename", () => {
     const data = menuData({
@@ -110,5 +115,55 @@ describe("menus eleventyNavigation", () => {
 
   test("handles missing menu category and item collections", () => {
     expect(eleventyComputed.allDietaryKeys(menuData())).toEqual([]);
+  });
+
+  test("includes an item's dietary keys once per category it belongs to", () => {
+    const vegan = { symbol: "VG", label: "Vegan" };
+    const dietaryKey = { symbol: "X", label: "Special" };
+    const data = menuData({
+      collections: {
+        "menu-categories": [
+          menuCategory("mains", "Mains", 1),
+          menuCategory("desserts", "Desserts", 2),
+        ],
+        "menu-items": [
+          {
+            // Belongs to BOTH categories — its dietaryKeys appear for each
+            data: {
+              menu_categories: ["mains", "desserts"],
+              dietaryKeys: [vegan, dietaryKey],
+            },
+          },
+        ],
+      },
+    });
+
+    // uniqueDietaryKeys deduplicates: each key appears only once in output,
+    // even though the item was listed under both categories.
+    expect(eleventyComputed.allDietaryKeys(data)).toEqual([vegan, dietaryKey]);
+  });
+
+  test("preserves source order of items within a category", () => {
+    const first = { symbol: "A", label: "First" };
+    const second = { symbol: "B", label: "Second" };
+    const third = { symbol: "C", label: "Third" };
+    const data = menuData({
+      collections: {
+        "menu-categories": [menuCategory("mains", "Mains", 1)],
+        "menu-items": [
+          { data: { menu_categories: ["mains"], dietaryKeys: [third] } },
+          { data: { menu_categories: ["mains"], dietaryKeys: [first] } },
+          { data: { menu_categories: ["mains"], dietaryKeys: [second] } },
+        ],
+      },
+    });
+
+    // Items appear in the order they were declared in the source collection,
+    // matching the order the original .filter() produced.
+    expect(eleventyComputed.allDietaryKeys(data)).toEqual([
+      third,
+      first,
+      second,
+    ]);
   });
 });

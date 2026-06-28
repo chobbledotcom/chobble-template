@@ -15,6 +15,11 @@ const compileExtension = async (ext, content, inputPath) => {
   return result;
 };
 
+const compileDesignSystemBundle = async () => {
+  const bundlePath = path.join(srcDir, "css", "design-system-bundle.scss");
+  return compileScss(fs.readFileSync(bundlePath, "utf-8"), bundlePath);
+};
+
 describe("scss", () => {
   test("Creates SCSS compiler function for given input path", async () => {
     const inputPath = "/test/styles.scss";
@@ -253,11 +258,7 @@ describe("scss", () => {
   });
 
   test("Design-system bundle includes scrollable table wrapper styles", async () => {
-    const bundlePath = path.join(srcDir, "css", "design-system-bundle.scss");
-    const result = await compileScss(
-      fs.readFileSync(bundlePath, "utf-8"),
-      bundlePath,
-    );
+    const result = await compileDesignSystemBundle();
     const wrapperRule =
       result.match(
         /\.design-system \.prose \.scrollable-table\s*\{[^}]*\}/,
@@ -271,5 +272,25 @@ describe("scss", () => {
     expect(wrapperRule).toContain("max-width: 100%");
     expect(tableRule).toContain("min-width: 100%");
     expect(tableRule).toContain("margin: 0");
+  });
+
+  test("Design-system bundle defines default link decoration tokens", async () => {
+    const result = await compileDesignSystemBundle();
+    const linkRule =
+      result.match(/\.design-system a:not\(\.btn\)\s*\{[^}]*\}/)?.[0] ?? "";
+    const hoverRule =
+      result.match(/\.design-system a:not\(\.btn\):hover\s*\{[^}]*\}/)?.[0] ??
+      "";
+
+    expect(result).toContain("--link-decoration: none");
+    expect(result).toContain("--link-decoration-hover: underline");
+    expect(result).toContain("--link-decoration-style: solid");
+    expect(linkRule).toContain("text-decoration: var(--link-decoration)");
+    expect(linkRule).toContain(
+      "text-decoration-style: var(--link-decoration-style)",
+    );
+    expect(hoverRule).toContain(
+      "text-decoration: var(--link-decoration-hover)",
+    );
   });
 });

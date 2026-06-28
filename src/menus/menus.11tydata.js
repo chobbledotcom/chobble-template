@@ -1,3 +1,4 @@
+import { getItemsByCategory } from "#collections/menus.js";
 import { filter, flatMap, pipe, sort } from "#toolkit/fp/array.js";
 import { uniqueDietaryKeys } from "#utils/dietary-utils.js";
 import { linkableContent } from "#utils/linkable-content.js";
@@ -26,18 +27,9 @@ export default linkableContent("menus", {
     )(data.collections["menu-categories"] || []);
 
     const menuItems = data.collections["menu-items"] || [];
-    /**
-     * @param {*} category
-     * @returns {(item: *) => boolean}
-     */
-    const itemInCategory =
-      (category) =>
-      /** @param {*} item */
-      (item) =>
-        item.data.menu_categories?.includes(category.fileSlug);
 
     return pipe(
-      flatMap((category) => menuItems.filter(itemInCategory(category))),
+      flatMap((category) => getItemsByCategory(menuItems, category.fileSlug)),
       flatMap((item) => item.data.dietaryKeys),
       uniqueDietaryKeys,
     )(menuCategories);

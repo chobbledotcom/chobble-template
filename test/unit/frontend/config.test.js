@@ -26,6 +26,7 @@ describe("config", () => {
       "homepage_footer_markdown",
       "map_embed_src",
       "cart_mode",
+      "quote_type",
       "ecommerce_api_host",
       "product_mode",
       "has_products_filter",
@@ -58,6 +59,7 @@ describe("config", () => {
     );
     expect(DEFAULTS.cart_mode).toBe(null);
     expect(DEFAULTS.product_mode).toBe(null);
+    expect(DEFAULTS.quote_type).toBe(null);
     expect(DEFAULTS.phoneNumberLength).toBe(11);
   });
 

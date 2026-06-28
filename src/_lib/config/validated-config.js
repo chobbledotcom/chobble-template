@@ -16,6 +16,7 @@ import { PAGES_DIR } from "#lib/paths.js";
 
 const VALID_CART_MODES = ["stripe", "quote"];
 const VALID_PRODUCT_MODES = ["buy", "hire"];
+const VALID_QUOTE_TYPES = ["hire"];
 
 /**
  * @param {string | null | undefined} value
@@ -136,6 +137,12 @@ const errors = [
     VALID_CART_MODES,
     "cart_mode",
     "null/omitted for no cart",
+  ),
+  ...validateEnum(
+    configData.quote_type,
+    VALID_QUOTE_TYPES,
+    "quote_type",
+    "null/omitted for default (no hire days)",
   ),
   ...stripeCartErrors,
   ...quoteCartErrors,

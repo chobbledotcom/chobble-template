@@ -33,6 +33,13 @@ export type ScreenshotConfig = {
 export type CartMode = 'stripe' | 'quote' | null;
 
 /**
+ * Quote type - determines quote form behavior
+ * 'hire' shows hire-days (date range) inputs and hire-length pricing;
+ * null/omitted uses a simpler quote form without hire-day calculations.
+ */
+export type QuoteType = 'hire' | null;
+
+/**
  * Product mode - buy or hire
  */
 export type ProductMode = 'buy' | 'hire' | null;
@@ -74,6 +81,7 @@ export type SiteConfig = {
   homepage_footer_markdown: string | null;
   map_embed_src: string | null;
   cart_mode: CartMode;
+  quote_type: QuoteType;
   ecommerce_api_host: string | null;
   product_mode: ProductMode;
   screenshots: ScreenshotConfig | null;

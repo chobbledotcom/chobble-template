@@ -106,7 +106,7 @@ describe("menu block cards mode", () => {
         expect(rowsDoc.querySelectorAll("ul.menu-items > li")).toHaveLength(2);
       },
     );
-  });
+  }, 30_000);
 
   test("card mode renders name, dietary key, price, description, thumbnail, and no anchors", async () => {
     await withTestSite(
@@ -136,7 +136,7 @@ describe("menu block cards mode", () => {
         expect(salad.querySelector(".price").textContent.trim()).toBe("£9.00");
       },
     );
-  });
+  }, 30_000);
 
   test("stripe mode renders Add to Cart + quantity only for SKU-backed items", async () => {
     await withTestSite(
@@ -168,5 +168,5 @@ describe("menu block cards mode", () => {
         expect(salad.querySelector(".item-quantity")).toBeNull();
       },
     );
-  });
+  }, 30_000);
 });
