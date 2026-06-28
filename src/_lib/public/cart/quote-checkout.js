@@ -81,16 +81,6 @@ const getDays = () => {
   return start && end ? calculateDays(start, end) : 1;
 };
 
-const setupFieldPriceHandlers = () => {
-  const formContainer = getFormContainer();
-  if (!formContainer) return;
-  formContainer.addEventListener("change", (event) => {
-    if (event.target.matches('select, input[type="radio"]')) {
-      populateForm(getDays());
-    }
-  });
-};
-
 const init = () => {
   const updateQuoteSummary = (days) => {
     populateForm(days);
@@ -100,8 +90,7 @@ const init = () => {
   if (Config.quote_type === "hire") {
     initHireCalculator(updateQuoteSummary);
   }
-  setupDetailsBlurHandlers(getDays);
-  setupFieldPriceHandlers();
+  setupDetailsBlurHandlers(getDays, populateForm);
 };
 
 onReady(init);

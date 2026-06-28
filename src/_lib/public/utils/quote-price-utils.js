@@ -61,20 +61,21 @@ const getFieldValue = (field) => {
   return field.value;
 };
 
+const parsePriceAttr = (el) => {
+  const priceStr = el.getAttribute("data-price");
+  return priceStr !== null ? Number(priceStr) : null;
+};
+
 const getSelectPrice = (field) => {
   const option = [...field.options].find((o) => o.selected);
-  if (!option) return null;
-  const priceStr = option.getAttribute("data-price");
-  return priceStr !== null ? Number(priceStr) : null;
+  return option ? parsePriceAttr(option) : null;
 };
 
 const getRadioPrice = (name) => {
   const checked = document.querySelector(
     `input[type="radio"][name="${name}"]:checked`,
   );
-  if (!checked) return null;
-  const priceStr = checked.getAttribute("data-price");
-  return priceStr !== null ? Number(priceStr) : null;
+  return checked ? parsePriceAttr(checked) : null;
 };
 
 const getFieldPrice = (field) => {
@@ -197,7 +198,7 @@ const updateQuotePrice = (days = 1) => {
   if (container) renderQuotePrice(container, days);
 };
 
-const setupDetailsBlurHandlers = (getDays = () => 1) => {
+const setupDetailsBlurHandlers = (getDays = () => 1, onFieldChange = null) => {
   const formContainer = getFormContainer();
   if (formContainer === null) return;
   const handleBlur = (event) => {
@@ -213,6 +214,7 @@ const setupDetailsBlurHandlers = (getDays = () => 1) => {
   formContainer.addEventListener("change", (event) => {
     if (event.target.matches('input[type="radio"], select')) {
       updateQuotePrice(getDays());
+      if (onFieldChange) onFieldChange(getDays());
     }
   });
 };
