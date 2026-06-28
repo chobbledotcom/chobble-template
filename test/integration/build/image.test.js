@@ -5,7 +5,7 @@ import {
   imageShortcode,
   processAndWrapImage,
 } from "#media/image.js";
-import { withTestSite } from "#test/test-site-factory.js";
+import { useSharedSite, withTestSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig, wrapHtml } from "#test/test-utils.js";
 import { map } from "#toolkit/fp/array.js";
 
@@ -14,11 +14,12 @@ import { map } from "#toolkit/fp/array.js";
 // ============================================
 
 /**
- * Create a test page file for test site
+ * Create a test page file for test site, hosted at /{slug}/ so several pages
+ * can coexist in one shared build.
  */
-const imageTestPage = (content, permalink = "/test/", name = "Test") => ({
-  path: "pages/test.md",
-  frontmatter: { name, layout: "", permalink },
+const imageTestPage = (slug, content, name = slug) => ({
+  path: `pages/${slug}.md`,
+  frontmatter: { name, layout: "", permalink: `/${slug}/` },
   content,
 });
 
@@ -201,36 +202,51 @@ describe("image", () => {
   // Integration tests using test-site-factory
   // ============================================
   describe("Integration tests", () => {
+    // The shortcode build and the markdown-transform build both need real
+    // sharp processing (processImages), so they share one site with a page
+    // each. The gallery test uses a different image set and placeholder mode,
+    // so it keeps its own build below.
+    const getProcessedSite = useSharedSite({
+      files: [
+        imageTestPage(
+          "shortcode",
+          '{% image "test-image.jpg", "A test image" %}',
+        ),
+        imageTestPage("markdown", "![A test scene](/images/scene.jpg)"),
+      ],
+      images: [
+        { src: "src/images/party.jpg", dest: "test-image.jpg" },
+        { src: "src/images/party.jpg", dest: "scene.jpg" },
+      ],
+      processImages: true,
+    });
+
     test("Image shortcode processes local images in full Eleventy build", async () => {
-      await withTestSite(
-        {
-          files: [
-            imageTestPage('{% image "test-image.jpg", "A test image" %}'),
-          ],
-          images: [{ src: "src/images/party.jpg", dest: "test-image.jpg" }],
-          processImages: true,
-        },
-        async (site) => {
-          const html = site.getOutput("/test/index.html");
-          const doc = await site.getDoc("/test/index.html");
+      const site = getProcessedSite();
+      const html = site.getOutput("/shortcode/index.html");
+      const doc = await site.getDoc("/shortcode/index.html");
 
-          // Verify image was processed into picture element
-          expect(html.includes("<picture")).toBe(true);
-          expect(html.includes('alt="A test image"')).toBe(true);
-          expect(html.includes("image-wrapper")).toBe(true);
+      // Verify image was processed into picture element
+      expect(html.includes("<picture")).toBe(true);
+      expect(html.includes('alt="A test image"')).toBe(true);
+      expect(html.includes("image-wrapper")).toBe(true);
 
-          // Verify responsive images were generated
-          const sources = doc.querySelectorAll("picture source");
-          expect(sources.length > 0).toBe(true);
+      // Verify responsive images were generated
+      const sources = doc.querySelectorAll("picture source");
+      expect(sources.length > 0).toBe(true);
 
-          // Verify webp format was generated
-          const webpSource = doc.querySelector(
-            'picture source[type="image/webp"]',
-          );
-          expect(webpSource !== null).toBe(true);
-        },
-      );
-    }, 30_000);
+      // Verify webp format was generated
+      const webpSource = doc.querySelector('picture source[type="image/webp"]');
+      expect(webpSource !== null).toBe(true);
+    });
+
+    test("Standard markdown images with /images/ path are transformed in build", () => {
+      const html = getProcessedSite().getOutput("/markdown/index.html");
+
+      expect(html.includes("image-wrapper")).toBe(true);
+      expect(html.includes("<picture")).toBe(true);
+      expect(html.includes('alt="A test scene"')).toBe(true);
+    });
 
     test("Images collection returns image filenames from src/images", async () => {
       const galleryContent = `
@@ -240,7 +256,7 @@ describe("image", () => {
 `;
       await withTestSite(
         {
-          files: [imageTestPage(galleryContent, "/gallery/", "Gallery")],
+          files: [imageTestPage("gallery", galleryContent, "Gallery")],
           images: imageFiles(["alpha.jpg", "beta.jpg"]),
         },
         (site) => {
@@ -406,28 +422,6 @@ describe("image", () => {
 
       expect(countPictures(result)).toBe(2);
     });
-  });
-
-  // ============================================
-  // Integration tests - transform in full build
-  // ============================================
-  describe("Integration - transform in build", () => {
-    test("Standard markdown images with /images/ path are transformed in build", async () => {
-      await withTestSite(
-        {
-          files: [imageTestPage("![A test scene](/images/scene.jpg)")],
-          images: [{ src: "src/images/party.jpg", dest: "scene.jpg" }],
-          processImages: true,
-        },
-        (site) => {
-          const html = site.getOutput("/test/index.html");
-
-          expect(html.includes("image-wrapper")).toBe(true);
-          expect(html.includes("<picture")).toBe(true);
-          expect(html.includes('alt="A test scene"')).toBe(true);
-        },
-      );
-    }, 30_000);
   });
 
   // ============================================

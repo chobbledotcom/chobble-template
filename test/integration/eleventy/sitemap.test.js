@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
-import { createTestSite, withTestSite } from "#test/test-site-factory.js";
+import { createTestSite, useSharedSite } from "#test/test-site-factory.js";
 
 /** Build a page file fixture whose body lives in a markdown block */
 const pageFile = (slug, name, extras = {}) => ({
@@ -14,44 +14,39 @@ const pageFile = (slug, name, extras = {}) => ({
 });
 
 describe("sitemap", () => {
-  test("sitemap is generated, includes regular pages, and excludes no_index pages", async () => {
-    await withTestSite(
-      {
-        files: [
-          pageFile("about", "About"),
-          pageFile("visible", "Visible"),
-          pageFile("hidden", "Hidden", { no_index: true }),
-          pageFile("secret", "Secret Page", { no_index: true }),
-        ],
-      },
-      (site) => {
-        expect(site.hasOutput("sitemap.xml")).toBe(true);
+  // Indexing rules and URL escaping are independent of one another, so one
+  // shared build with all the fixture pages covers both (the git-dated build
+  // below needs its own repo, so it stays separate).
+  const getSite = useSharedSite({
+    files: [
+      pageFile("about", "About"),
+      pageFile("visible", "Visible"),
+      pageFile("hidden", "Hidden", { no_index: true }),
+      pageFile("secret", "Secret Page", { no_index: true }),
+      pageFile("q", "Query", { permalink: "/search/?q=cats&p=1" }),
+    ],
+  });
 
-        const sitemap = site.getOutput("sitemap.xml");
-        expect(sitemap.includes("/about/")).toBe(true);
-        expect(sitemap.includes("/visible/")).toBe(true);
-        expect(sitemap.includes("/hidden/")).toBe(false);
+  test("sitemap is generated, includes regular pages, and excludes no_index pages", () => {
+    const site = getSite();
+    expect(site.hasOutput("sitemap.xml")).toBe(true);
 
-        expect(site.hasOutput("secret/index.html")).toBe(true);
-        const html = site.getOutput("secret/index.html");
-        expect(html.includes("Secret Page")).toBe(true);
-      },
-    );
-  }, 30_000);
+    const sitemap = site.getOutput("sitemap.xml");
+    expect(sitemap.includes("/about/")).toBe(true);
+    expect(sitemap.includes("/visible/")).toBe(true);
+    expect(sitemap.includes("/hidden/")).toBe(false);
 
-  test("sitemap escapes ampersands in URLs", async () => {
-    await withTestSite(
-      {
-        files: [pageFile("q", "Query", { permalink: "/search/?q=cats&p=1" })],
-      },
-      (site) => {
-        const sitemap = site.getOutput("sitemap.xml");
-        // Raw `&` would make the sitemap invalid XML; it must be escaped.
-        expect(sitemap.includes("?q=cats&amp;p=1")).toBe(true);
-        expect(sitemap.includes("?q=cats&p=1")).toBe(false);
-      },
-    );
-  }, 30_000);
+    expect(site.hasOutput("secret/index.html")).toBe(true);
+    const html = site.getOutput("secret/index.html");
+    expect(html.includes("Secret Page")).toBe(true);
+  });
+
+  test("sitemap escapes ampersands in URLs", () => {
+    const sitemap = getSite().getOutput("sitemap.xml");
+    // Raw `&` would make the sitemap invalid XML; it must be escaped.
+    expect(sitemap.includes("?q=cats&amp;p=1")).toBe(true);
+    expect(sitemap.includes("?q=cats&p=1")).toBe(false);
+  });
 
   test("sitemap includes lastmod from git dates", async () => {
     const site = await createTestSite({
