@@ -49,6 +49,9 @@ src/_lib/collections/events.js:23:29  ?? → ||   # event_date is a date string 
 src/_lib/collections/events.js:35:3  date.setHours(0, 0, 0, 0); → (removed)   # `today` is already midnight, so zeroing the event's time never changes the day-boundary compare
 src/_lib/collections/navigation.js:52:25  ?? → ||   # entry.url is a real path or undefined, never the falsy-defined ""
 
+# --- frontend (happy-dom harness limit) ---
+src/_lib/public/masonry.js:18:11  = → +=   # the canvas mock seeds ctx.font to "" and its measureText ignores ctx.font, so `=` and `+=` are indistinguishable; real-canvas font behaviour isn't reproducible in happy-dom
+
 # --- summary.js: safe fallbacks and cosmetics ---
 scripts/mutation/summary.js:23:53  ?? → ||   # groupBy never yields empty groups, so length is never the defined-falsy 0
 scripts/mutation/summary.js:37:33  ?? → ||   # byStatus.survived is undefined or a non-empty array
