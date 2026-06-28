@@ -85,16 +85,17 @@ describe("recurring-events", () => {
   });
 
   test("Renders event_time when provided", async () => {
-    const doc = await renderAndParse([
+    // Assert on the raw rendered HTML rather than a happy-dom textContent
+    // round-trip: the en-dash survives the string check identically across
+    // environments (mirrors how the build-level test asserted this).
+    const html = await renderRecurringEvents([
       event("Yoga Class", "Every Wednesday", {
         url: "/events/yoga/",
         time: "6:30pm – 7:30pm",
       }),
     ]);
 
-    expect(
-      doc.querySelector("li").textContent.includes("6:30pm – 7:30pm"),
-    ).toBe(true);
+    expect(html.includes("6:30pm – 7:30pm")).toBe(true);
   });
 
   test("Does not render location span when not provided", async () => {
