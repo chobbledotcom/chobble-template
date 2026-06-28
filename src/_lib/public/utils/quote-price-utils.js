@@ -63,7 +63,9 @@ const getFieldValue = (field) => {
 
 const parsePriceAttr = (el) => {
   const priceStr = el.getAttribute("data-price");
-  return priceStr !== null ? Number(priceStr) : null;
+  if (priceStr === null) return null;
+  const price = Number(priceStr);
+  return Number.isNaN(price) ? null : price;
 };
 
 const getSelectPrice = (field) => {
