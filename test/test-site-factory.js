@@ -16,9 +16,9 @@
  *   });
  */
 
+import { afterAll, beforeAll } from "bun:test";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 import matter from "gray-matter";
 import { ensureDir } from "#eleventy/file-utils.js";
@@ -409,9 +409,6 @@ const withSetupTestSite = async (options, fn) => {
  * same site, so the (expensive) Eleventy build runs once instead of per test.
  */
 const useSharedSite = (options) => {
-  // Load Bun's test hooks lazily so this module stays importable under plain
-  // Node (e.g. `node test/build-profiling.js`, which only needs createTestSite).
-  const { afterAll, beforeAll } = createRequire(import.meta.url)("bun:test");
   let site = null;
   beforeAll(async () => {
     site = await createTestSite(options);
