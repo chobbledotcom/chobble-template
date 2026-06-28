@@ -30,7 +30,7 @@ const TIMEOUT_MULTIPLIER = 3;
 
 /** Run the test files once, returning the outcome and how long it took. */
 const runTests = (testFiles, timeoutMs, abortSignal) =>
-  new Promise((resolve) => {
+  new Promise((resolve, reject) => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     let timedOut = false;
@@ -53,22 +53,30 @@ const runTests = (testFiles, timeoutMs, abortSignal) =>
       stdio: "ignore",
     });
 
-    const finish = (outcome) => {
+    const cleanup = () => {
       clearTimeout(timer);
       abortSignal?.removeEventListener("abort", onAbort);
-      resolve({ durationMs: performance.now() - startedAt, outcome });
     };
     // On abort the kill emits `error` (AbortError) *before* the process has
     // exited. Resolving here would let the caller restore the source and start
     // the next mutant while this one is still shutting down, overlapping two
-    // runs on the same file. So only a genuine spawn failure resolves from
-    // `error`; the timeout path waits for `close` so the process is truly gone.
-    child.on("error", () => {
-      if (!timedOut) finish("timed-out");
+    // runs on the same file — so the timeout path waits for `close`.
+    //
+    // A non-abort `error` is a genuine spawn failure (e.g. EMFILE/EAGAIN, or
+    // bun missing): the tests never ran, so this is NOT a detected mutant.
+    // Reject so the whole run fails loudly rather than scoring a false pass.
+    child.on("error", (err) => {
+      if (timedOut) return;
+      cleanup();
+      reject(err);
     });
-    child.on("close", (code) =>
-      finish(timedOut ? "timed-out" : code === 0 ? "passed" : "failed"),
-    );
+    child.on("close", (code) => {
+      cleanup();
+      resolve({
+        durationMs: performance.now() - startedAt,
+        outcome: timedOut ? "timed-out" : code === 0 ? "passed" : "failed",
+      });
+    });
   });
 
 const toStatus = (outcome) =>
@@ -302,6 +310,16 @@ export const runMutationTesting = async (options) => {
       testFiles,
       timeout,
     });
+  } catch (err) {
+    // A spawn failure (e.g. EMFILE/EAGAIN) means a mutant's tests never ran, so
+    // its result is unknown — fail the whole run loudly instead of scoring a
+    // false pass. Sources are already restored by mutateAllFiles's finally.
+    restoreAll();
+    console.error(red(`\nMutation run aborted: ${err.message}`));
+    console.error(
+      dim("A test process failed to spawn, so results are incomplete."),
+    );
+    return 1;
   } finally {
     for (const signal of signals) process.removeListener(signal, onSignal);
   }

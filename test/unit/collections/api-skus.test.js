@@ -55,6 +55,22 @@ describe("apiSkus menu-item entries", () => {
     });
   });
 
+  test("preserves an explicit max_quantity of 0 on a product-option SKU", () => {
+    const mockConfig = setupConfig();
+    const products = [
+      item("Mug", {
+        options: [{ sku: "ZERO1", unit_price: 999, max_quantity: 0 }],
+      }),
+    ];
+
+    const result = mockConfig.collections.apiSkus(
+      taggedCollectionApi({ products, "menu-items": [] }),
+    );
+
+    // `option.max_quantity ?? null` must keep the explicit 0, not coerce to null.
+    expect(result.ZERO1.max_quantity).toBe(0);
+  });
+
   test("skips menu items without a sku, ambiguous price, or unparseable price", () => {
     const mockConfig = setupConfig();
     const menuItems = [

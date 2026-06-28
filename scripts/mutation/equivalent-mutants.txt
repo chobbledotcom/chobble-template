@@ -30,17 +30,14 @@ scripts/mutation/generate.js:129:47  ?? → ||   # an ExpressionStatement's expr
 scripts/mutation/generate.js:130:24  || → &&   # node.start is always defined here
 scripts/mutation/generate.js:185:19  && → ||   # walk() ignores non-objects, so recursing into one yields nothing
 scripts/mutation/generate.js:191:12  || → &&   # walkChild already filters non-objects, so node is never null/non-object here
-scripts/mutation/generate.js:194:35  || → &&   # a TS type carries no runtime-mutable operators, so flagging a top-level type field changes nothing
 scripts/mutation/generate.js:200:45  ?? → ||   # a real file path's basename is never "", so the fallback is unreachable
 
 # --- core libraries (packages/js-toolkit/fp) ---
-packages/js-toolkit/fp/array.js:388:11  ?? → ||   # pluralize's `plural` is undefined or a real word, never a falsy-defined value
 packages/js-toolkit/fp/memoize.js:167:32  ?? → ||   # a pending entry is always a Promise (truthy) or undefined, so ?? and || agree
 
 # --- collections: indexer/Map lookups that return an array or undefined, so
 #     `x ?? []` and `x || []` agree; plus a couple of other safe defaults ---
 src/_lib/collections/products.js:154:31  ?? → ||   # bidirectional indexer[slug] is an array or undefined
-src/_lib/collections/products.js:204:38  ?? → ||   # max_quantity is a positive number or undefined, never the falsy-defined 0
 src/_lib/collections/properties.js:30:52  ?? → ||   # indexByLocation[slug] is an array or undefined
 src/_lib/collections/reviews.js:86:33  ?? → ||   # indexer[slug] is an array or undefined
 src/_lib/collections/reviews.js:176:19  ?? → ||   # any falsy reviewer name collapses to "" under both ?? and ||

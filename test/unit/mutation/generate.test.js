@@ -68,6 +68,16 @@ describe("generateMutants", () => {
     expect(swaps("const x: A | B = a;")).toEqual([]);
   });
 
+  test("skips a boolean literal inside a top-level TS type alias", () => {
+    // `true` here is a literal *type*, erased at runtime. The walk reaches it
+    // through a TYPE_FIELD at the top level (inType starts false), so the
+    // type-context flag must be set on entering the field, not only when
+    // already inside a type — otherwise a true→false mutant leaks out.
+    expect(generateMutants("type Flag = true;", "sample.ts", false)).toEqual(
+      [],
+    );
+  });
+
   test("reports 1-based line and column for each mutant", () => {
     const [mutant] = generateMutants("\nconst r = a < b;", "sample.js", false);
     // Column points at the start of the operator span (just after the left

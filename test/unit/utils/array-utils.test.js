@@ -545,6 +545,13 @@ describe("array-utils", () => {
     expect(formatItems(3)).toBe("3 items in order");
   });
 
+  test("pluralize keeps an explicit empty plural instead of generating one", () => {
+    // An explicit "" is a deliberate (falsy) plural — `?? ` must keep it
+    // rather than fall back to the generated "items".
+    const formatItems = pluralize("item", "");
+    expect(formatItems(3)).toBe("3 ");
+  });
+
   test("pluralize handles zero", () => {
     const formatItems = pluralize("item");
     expect(formatItems(0)).toBe("0 items");
