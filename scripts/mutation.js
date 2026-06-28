@@ -13,6 +13,8 @@
  * Usage: bun run mutation <source-glob> <test-glob> [options]
  */
 
+import { existsSync, statSync } from "node:fs";
+import { isAbsolute, resolve } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
 import { runMutationTesting } from "./mutation/runner.js";
 
@@ -126,16 +128,20 @@ const parseArgs = (args) => {
   return parsed;
 };
 
+/** Resolve one glob (or plain path) to absolute file paths. */
+const matchGlob = (glob) => {
+  // A plain path (absolute or relative, no wildcard) won't match through
+  // Bun.Glob's cwd-relative scan, so take an existing file as-is first.
+  const abs = isAbsolute(glob) ? glob : resolve(ROOT_DIR, glob);
+  if (existsSync(abs) && statSync(abs).isFile()) return [abs];
+  return [...new Bun.Glob(glob).scanSync({ absolute: true, cwd: ROOT_DIR })];
+};
+
 /** Expand source/test globs to absolute, sorted, de-duplicated file paths. */
 const expand = (globs) => {
   const paths = new Set();
   for (const glob of globs) {
-    for (const path of new Bun.Glob(glob).scanSync({
-      absolute: true,
-      cwd: ROOT_DIR,
-    })) {
-      paths.add(path);
-    }
+    for (const path of matchGlob(glob)) paths.add(path);
   }
   return [...paths].sort();
 };

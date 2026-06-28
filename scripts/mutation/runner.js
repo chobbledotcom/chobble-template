@@ -42,9 +42,13 @@ const runTests = (testFiles, timeoutMs, abortSignal) =>
     else abortSignal?.addEventListener("abort", onAbort, { once: true });
 
     const startedAt = performance.now();
+    // SIGKILL (not the default SIGTERM) so an aborted run dies promptly and
+    // fires `close` quickly — a test that ignored SIGTERM could otherwise keep
+    // the process (and its open handles on the source file) alive.
     const child = spawn("bun", ["test", ...testFiles], {
       cwd: ROOT_DIR,
       env: process.env,
+      killSignal: "SIGKILL",
       signal: controller.signal,
       stdio: "ignore",
     });
@@ -54,7 +58,14 @@ const runTests = (testFiles, timeoutMs, abortSignal) =>
       abortSignal?.removeEventListener("abort", onAbort);
       resolve({ durationMs: performance.now() - startedAt, outcome });
     };
-    child.on("error", () => finish("timed-out"));
+    // On abort the kill emits `error` (AbortError) *before* the process has
+    // exited. Resolving here would let the caller restore the source and start
+    // the next mutant while this one is still shutting down, overlapping two
+    // runs on the same file. So only a genuine spawn failure resolves from
+    // `error`; the timeout path waits for `close` so the process is truly gone.
+    child.on("error", () => {
+      if (!timedOut) finish("timed-out");
+    });
     child.on("close", (code) =>
       finish(timedOut ? "timed-out" : code === 0 ? "passed" : "failed"),
     );
