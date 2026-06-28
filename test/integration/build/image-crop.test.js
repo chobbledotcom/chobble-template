@@ -1,34 +1,25 @@
 import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
+import { ROOT_DIR } from "#lib/paths.js";
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
-import { withTestSite } from "#test/test-site-factory.js";
 import { cleanupTempDir, createTempDir } from "#test/test-utils.js";
 
 describe("image-crop", () => {
-  // Composed helper: sets up test site and provides imagePath + metadata
-  const withImageContext = (testFn) =>
-    withTestSite(
-      {
-        images: ["party.jpg"],
-        files: [
-          {
-            path: "pages/index.md",
-            frontmatter: {
-              name: "Crop Fixture Home",
-              permalink: "/",
-              blocks: [{ type: "markdown", content: "Crop fixture" }],
-            },
-            content: "",
-          },
-        ],
-      },
-      async (site) => {
-        const imagePath = path.join(site.srcDir, "images/party.jpg");
-        const metadata = await getMetadata(imagePath);
-        return testFn({ imagePath, metadata });
-      },
-    );
+  // The crop helpers operate directly on a file path and its metadata; they
+  // do not need a built Eleventy site. Copy the fixture image into a temp dir
+  // and compute metadata — far cheaper than spawning a full build.
+  const withImageContext = async (testFn) => {
+    const tempDir = createTempDir("image-crop");
+    try {
+      const imagePath = path.join(tempDir, "party.jpg");
+      fs.copyFileSync(path.join(ROOT_DIR, "src/images/party.jpg"), imagePath);
+      const metadata = await getMetadata(imagePath);
+      return await testFn({ imagePath, metadata });
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  };
 
   test(
     "Crops image to aspect ratio and caches result",
