@@ -26,7 +26,7 @@ Usage:
 {%- if block.buttons.size > 0 -%}
   <div class="actions">
     {%- for button in block.buttons -%}
-      {%- include "design-system/button.html", button: button -%}
+      {%- include "design-system/button.html", text: button.text, href: button.href, variant: button.variant, btn_size: button.size -%}
     {%- endfor -%}
   </div>
 {%- endif -%}

@@ -16,8 +16,8 @@ Parameters (via block object):
     <div class="stack"{% if block.reveal_left %} data-reveal="{{ block.reveal_left }}"{% endif %}>
       <div class="prose">{{ block.left_content | renderContent: "md" }}</div>
       {%- if block.left_button -%}
-        {%- assign variant = block.left_button.variant | default: "secondary" -%}
-        <a href="{{ block.left_button.href }}" class="btn btn--{{ variant }}">{{ block.left_button.text }}</a>
+        {%- assign left_variant = block.left_button.variant | default: "secondary" -%}
+        {%- include "design-system/button.html", text: block.left_button.text, href: block.left_button.href, variant: left_variant -%}
       {%- endif -%}
     </div>
   </div>
@@ -25,8 +25,8 @@ Parameters (via block object):
     <div class="stack"{% if block.reveal_right %} data-reveal="{{ block.reveal_right }}"{% endif %}>
       <div class="prose">{{ block.right_content | renderContent: "md" }}</div>
       {%- if block.right_button -%}
-        {%- assign variant = block.right_button.variant | default: "secondary" -%}
-        <a href="{{ block.right_button.href }}" class="btn btn--{{ variant }}">{{ block.right_button.text }}</a>
+        {%- assign right_variant = block.right_button.variant | default: "secondary" -%}
+        {%- include "design-system/button.html", text: block.right_button.text, href: block.right_button.href, variant: right_variant -%}
       {%- endif -%}
     </div>
   </div>
