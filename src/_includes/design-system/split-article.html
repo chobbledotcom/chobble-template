@@ -18,6 +18,6 @@ Parameters (direct):
   <div class="prose">{{ block.content | renderContent: "md" }}</div>
   {%- if block.button -%}
     {%- assign btn_variant = block.button.variant | default: "secondary" -%}
-    <a href="{{ block.button.href }}" class="btn btn--{{ btn_variant }}">{{ block.button.text }}</a>
+    {%- include "design-system/button.html", text: block.button.text, href: block.button.href, variant: btn_variant -%}
   {%- endif -%}
 </article>

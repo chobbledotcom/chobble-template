@@ -46,6 +46,19 @@ const getSite = useSharedSite({
       }),
     ),
     pageWithBlock("overlay-media-only", imageBackground({})),
+    {
+      // Page-level `text`/`href`/`variant` data must not leak into the
+      // button partial and override each hero button's own fields.
+      path: "pages/hero-leak.md",
+      frontmatter: {
+        name: "hero-leak",
+        permalink: "/hero-leak/",
+        text: "LEAKED",
+        href: "/leaked/",
+        variant: "danger",
+        blocks: [{ type: "hero", content: "# Heading", buttons: BUTTONS }],
+      },
+    },
   ],
 });
 
@@ -67,6 +80,19 @@ describe("hero block", () => {
     expect(buttons.length).toBe(2);
     expect(buttons[0].className).toBe("btn btn--primary");
     expect(buttons[0].getAttribute("href")).toBe("/go/");
+    expect(buttons[1].className).toBe("btn btn--ghost btn--lg");
+  });
+
+  test("hero buttons ignore page-level text/href/variant data", async () => {
+    const doc = await getSite().getDoc("hero-leak/index.html");
+    const buttons = doc.querySelectorAll("header.hero .actions a.btn");
+    expect(buttons.length).toBe(2);
+    // Each button keeps its own fields despite the page exposing top-level
+    // `text` ("LEAKED"), `href` ("/leaked/"), and `variant` ("danger").
+    expect(buttons[0].textContent).toBe("Primary Action");
+    expect(buttons[0].getAttribute("href")).toBe("/go/");
+    expect(buttons[0].className).toBe("btn btn--primary");
+    expect(buttons[1].textContent).toBe("Ghost Action");
     expect(buttons[1].className).toBe("btn btn--ghost btn--lg");
   });
 });

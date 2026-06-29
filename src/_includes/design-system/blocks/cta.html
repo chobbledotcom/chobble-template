@@ -14,8 +14,11 @@ Parameters (via block object):
 <aside class="cta"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
   <div class="prose">{{ block.content | renderContent: "md" }}</div>
   {%- if block.button -%}
-    {%- assign variant = block.button.variant | default: "secondary" -%}
-    {%- assign size = block.button.size | default: "lg" -%}
-    <a href="{{ block.button.href }}" class="btn btn--{{ variant }} btn--{{ size }}">{{ block.button.text }}</a>
+    {%- assign cta_variant = block.button.variant | default: "secondary" -%}
+    {%- assign cta_size = "lg" -%}
+    {%- if block.button.size == "sm" -%}
+      {%- assign cta_size = "sm" -%}
+    {%- endif -%}
+    {%- include "design-system/button.html", text: block.button.text, href: block.button.href, variant: cta_variant, btn_size: cta_size -%}
   {%- endif -%}
 </aside>
