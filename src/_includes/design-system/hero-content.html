@@ -26,16 +26,7 @@ Usage:
 {%- if block.buttons.size > 0 -%}
   <div class="actions">
     {%- for button in block.buttons -%}
-      {%- assign variant = button.variant | default: "primary" -%}
-      {%- assign btnClass = "btn btn--" | append: variant -%}
-      {%- comment -%}
-        Liquid's `.size` falls back to the object's key count when the button
-        has no `size` key, so only append the class for known size values.
-      {%- endcomment -%}
-      {%- if button.size == "sm" or button.size == "lg" -%}
-        {%- assign btnClass = btnClass | append: " btn--" | append: button.size -%}
-      {%- endif -%}
-      <a href="{{ button.href }}" class="{{ btnClass }}">{{ button.text }}</a>
+      {%- include "design-system/button.html", button: button -%}
     {%- endfor -%}
   </div>
 {%- endif -%}

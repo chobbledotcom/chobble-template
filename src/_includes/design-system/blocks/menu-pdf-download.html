@@ -5,9 +5,7 @@ auto-derived from the menu page's computed `pdfFilename` data.
 
 {%- if pdfFilename -%}
   {%- assign menu_pdf_text = block.text | default: "Download PDF" -%}
-  {%- assign menu_pdf_variant = block.variant | default: "primary" -%}
-  {%- capture menu_pdf_class -%}btn btn--{{ menu_pdf_variant }}{%- if block.size %} btn--{{ block.size }}{%- endif -%}{%- endcapture -%}
   <div class="link-button"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
-    <a href="{{ pdfFilename }}" class="{{ menu_pdf_class }}" download>{{ menu_pdf_text }}</a>
+    {%- include "design-system/button.html", text: menu_pdf_text, href: pdfFilename, variant: block.variant, btn_size: block.size, download: true -%}
   </div>
 {%- endif -%}

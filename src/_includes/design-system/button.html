@@ -1,0 +1,28 @@
+{%- comment -%}
+Button - the canonical `<a class="btn">` used across the design system.
+Every button-rendering block delegates here, so overriding this single file
+in a client template restyles (or re-markups) every button at once.
+
+Parameters (pass directly via include, or nest under a `button` object):
+  - text / button.text: Button label (required)
+  - href / button.href: Link URL or anchor (required)
+  - variant / button.variant: "primary", "secondary", or "ghost" (default: "primary")
+  - btn_size / button.size: "sm", "lg", or omit for default
+  - download / button.download: If truthy, adds the `download` attribute
+
+The direct size parameter is `btn_size`, not `size`: a bare Liquid variable
+named `size` collides with the magic `.size` (collection length) property and
+resolves to a number. For the same reason `.size` falls back to an object's
+key count when it has no `size` key, so only the known size values ("sm"/"lg")
+emit a size class.
+{%- endcomment -%}
+
+{%- assign _text = text | default: button.text -%}
+{%- assign _href = href | default: button.href -%}
+{%- assign _variant = variant | default: button.variant | default: "primary" -%}
+{%- assign _size = btn_size | default: button.size -%}
+{%- assign _download = download | default: button.download -%}
+{%- if _text and _href -%}
+  {%- capture _class -%}btn btn--{{ _variant }}{%- if _size == "sm" or _size == "lg" %} btn--{{ _size }}{%- endif -%}{%- endcapture -%}
+  <a href="{{ _href }}" class="{{ _class }}"{% if _download %} download{% endif %}>{{ _text }}</a>
+{%- endif -%}
