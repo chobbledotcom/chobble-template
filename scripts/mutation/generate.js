@@ -197,14 +197,25 @@ function* walk(node, inType = false) {
   }
 }
 
+/** Whether the source still parses — a mutant that breaks parsing is stillborn. */
+const parses = (fileName, source) =>
+  parseSync(fileName, source).errors.length === 0;
+
 /** Generate every mutant for a source file's contents. */
 export const generateMutants = (content, filePath, exhaustive) => {
   const fileName = filePath.split("/").pop() ?? filePath;
   const { program } = parseSync(fileName, content);
   const mutate = mutantsForNode(content, exhaustive);
-  return flatMap((entry) => (entry.inType ? [] : mutate(entry.node)))([
-    ...walk(program),
-  ]);
+  const candidates = flatMap((entry) =>
+    entry.inType ? [] : mutate(entry.node),
+  )([...walk(program)]);
+  // Drop stillborn mutants whose mutated source no longer parses (e.g.
+  // `[a] += arr` from a destructuring `=`, or dropping `!` from a leading-`!`
+  // IIFE). They can never run, so `bun test` would fail to compile and miscount
+  // them as killed — inflating the score rather than measuring test quality.
+  return candidates.filter((mutant) =>
+    parses(fileName, applyMutant(content, mutant)),
+  );
 };
 
 /** Apply a mutant to the original source, returning the mutated source. */

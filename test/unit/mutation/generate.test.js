@@ -64,6 +64,15 @@ describe("generateMutants", () => {
     expect(mutant.newOperator).toBe("(removed)");
   });
 
+  test("drops stillborn mutants whose mutated source no longer parses", () => {
+    // `[a] = arr` → `[a] += arr` is a syntax error: the `=` mutant must be
+    // dropped, not emitted (it would falsely count as killed at compile time).
+    expect(swaps("[a] = arr;")).toEqual([]);
+    // A leading-`!` IIFE: dropping `!` leaves an illegal anonymous function
+    // declaration, so the `!`-drop mutant is dropped too.
+    expect(swaps("!function () { side(); }();")).not.toContain("!→∅");
+  });
+
   test("skips operators that live inside a TypeScript type", () => {
     // The `|` here is a union type, erased at runtime — mutating it is a no-op,
     // so the walk must not emit a mutant for it.

@@ -68,9 +68,9 @@ export const binaryOperatorsExhaustive = {
  * `&&`/`||`/`??` are `LogicalExpression` nodes (not `BinaryExpression`), so the
  * walk in `generate.js` routes them here. `&&`↔`||` is always syntactically
  * valid; `??` cannot be mixed with `&&`/`||` without parentheses, so a `??`
- * mutation on a *chained* `a ?? b ?? c` produces a stillborn mutant that simply
- * fails to compile and is counted as killed — conservative (never a false
- * survivor), and standalone `a ?? b` (the common case) mutates cleanly.
+ * mutation on a *chained* `a ?? b ?? c` produces a stillborn mutant that no
+ * longer parses — `generate.js` drops those, so the score isn't inflated, and
+ * standalone `a ?? b` (the common case) mutates cleanly.
  */
 export const logicalOperators = {
   "??": ["||"],
