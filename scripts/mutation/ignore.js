@@ -34,12 +34,17 @@ export const mutantKey = (file, mutant) => keyFor(rel(file), mutant);
 
 /** Parse one ignore-file line into a canonical key, or null when blank/comment. */
 const parseLine = (line) => {
-  // Strip only a trailing, whitespace-preceded `# reason` comment — a `#` glued
-  // inside the mutant text (e.g. `querySelector("#nav")`) must be preserved.
-  const body = line.replace(/\s+#.*$/, "").trim();
-  if (body === "") return null;
-  const match = body.match(/^(.+:\d+:\d+)\s+(.+?)\s*→\s*(.+?)$/);
-  return match ? `${match[1]} ${match[2]}→${match[3]}` : null;
+  const trimmed = line.trim();
+  if (trimmed === "" || trimmed.startsWith("#")) return null;
+  // Split on the `→` separator (which never appears in JS source) rather than
+  // stripping at the first `#`: the mutant text (left of `→`) may legitimately
+  // contain `#`, e.g. `querySelector("body #nav")`. The replacement (right of
+  // `→`) is always an operator or `(removed)` and never contains `#`, so the
+  // optional `# reason` comment can be stripped from that side only.
+  const match = trimmed.match(/^(.+:\d+:\d+)\s+(.+?)\s*→\s*(.+?)$/);
+  if (!match) return null;
+  const to = match[3].replace(/\s+#.*$/, "").trim();
+  return `${match[1]} ${match[2]}→${to}`;
 };
 
 /** Load the ignore-list (empty when the file is absent). */

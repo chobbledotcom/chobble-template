@@ -194,18 +194,26 @@ describe("loadIgnoreList", () => {
     expect(list.keys.has("src/foo.js:42:7 ??→||")).toBe(true);
   });
 
+  test("ignores a commented-out entry line", () => {
+    // A `#`-prefixed line that otherwise looks like an entry must not be parsed.
+    const list = loadIgnoreFrom("# src/x.js:1:1 ?? → ||\n");
+    expect(list.entries).toEqual([]);
+  });
+
   test("returns an empty list when the file is absent", () => {
     const list = loadIgnoreList(join(tmpdir(), "definitely-missing-xyz.txt"));
     expect(list.entries).toEqual([]);
     expect(list.keys.size).toBe(0);
   });
 
-  test("keeps a # inside the mutant text, stripping only a trailing comment", () => {
+  test("keeps a # inside the mutant text, even after a space, stripping only the trailing comment", () => {
+    // The mutant text contains both a glued `#` and a space-preceded ` #`; only
+    // the trailing ` # reason` (on the replacement side of `→`) is a comment.
     const list = loadIgnoreFrom(
-      'src/x.js:5:3  document.querySelector("#nav"); → (removed)   # equivalent\n',
+      'src/x.js:5:3  document.querySelector("body #nav"); → (removed)   # equivalent\n',
     );
     expect(list.entries).toEqual([
-      'src/x.js:5:3 document.querySelector("#nav");→(removed)',
+      'src/x.js:5:3 document.querySelector("body #nav");→(removed)',
     ]);
   });
 });
