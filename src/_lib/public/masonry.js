@@ -29,6 +29,12 @@ const getFont = (el) => {
 const getLineHeight = (el) =>
   Number.parseFloat(getComputedStyle(el).lineHeight);
 
+/** The element's CSS max-height in px, or Infinity when it is unset ("none"). */
+const capHeight = (el) => {
+  const max = Number.parseFloat(getComputedStyle(el).maxHeight);
+  return Number.isFinite(max) ? max : Number.POSITIVE_INFINITY;
+};
+
 export const textHeight = (text, font, lineHeight, width) =>
   getCounter(font)(text, width) * lineHeight;
 
@@ -84,7 +90,14 @@ const measureReviewCard = (card, metrics) => {
     : 0;
 
   const ratingSectionHeight = Math.max(dateHeight, ratingHeight) || null;
-  const reviewHeight = measureOrNull(card, ".review p", metrics.contentWidth);
+  // The review body scrolls past a CSS max-height, so cap the predicted height
+  // there — otherwise a long review over-reserves space and the column below it
+  // ends up with a too-large vertical gap.
+  const reviewText = measureOrNull(card, ".review p", metrics.contentWidth);
+  const reviewHeight =
+    reviewText === null
+      ? null
+      : Math.min(reviewText, capHeight(card.querySelector(".review")));
   const productsHeight = measureOrNull(card, ".products", metrics.contentWidth);
   const nameHeight = measureOrNull(card, ".name", authorWidth);
   const reviewLinkHeight = measureOrNull(card, ".review-link", authorWidth);

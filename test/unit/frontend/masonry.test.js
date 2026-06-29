@@ -36,6 +36,7 @@ const installComputedStyleStub = (lineHeight = "20px") => {
     fontFamily: el.dataset.fontFamily || "Arial",
     lineHeight: el.dataset.lineHeight || lineHeight,
     height: el.dataset.cssHeight || "44px",
+    maxHeight: el.dataset.cssMaxHeight || "none",
   });
 
   globalThis.getComputedStyle = getStyle;
@@ -375,6 +376,27 @@ describe("masonry layout", () => {
     // Card 1 has only a date (drives the rating section) and a review:
     //   sumWithGaps([20, 20], 16, 48) = 2 + 40 + 16 + 48 = 106
     expect(cards[1].dataset.height).toBe("106.0");
+  });
+
+  test.serial("caps the review body height at the element's max-height", () => {
+    // The review body has `max-height: 160px; overflow-y: auto`, so a long
+    // review must not reserve more than 160px (otherwise the column gap below
+    // it is too large). The card is review-only:
+    //   sumWithGaps([null, 160, null, null], 16, padY 48) = 2 + 160 + 48 = 210
+    const longReview = "word ".repeat(150).trim(); // far taller than 160px
+    const grid = mountGrid(
+      "items masonry reviews-grid",
+      `<li><div class="review" data-css-max-height="160px"><p>${longReview}</p></div></li>`,
+      640,
+    );
+
+    runReady();
+
+    const card = grid.children[0];
+    // Sanity: the unbounded text really is taller than the cap.
+    const measured = Number.parseFloat(card.querySelector("p").dataset.height);
+    expect(measured).toBeGreaterThan(160);
+    expect(card.dataset.height).toBe("210.0");
   });
 
   test.serial(
