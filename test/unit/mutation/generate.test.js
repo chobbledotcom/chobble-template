@@ -54,12 +54,14 @@ describe("generateMutants", () => {
     expect(mutants[0].replacement).toBe(";");
   });
 
-  test("truncates a long removed-statement label to 40 chars with an ellipsis", () => {
+  test("keeps the full statement text as the mutant operator (no truncation)", () => {
+    // The full text is the mutant's identity/key, so it must not be truncated —
+    // a long statement is preserved verbatim (whitespace-normalised).
     const longCall = "doSomethingWithAnExceedinglyLongFunctionName(argument);";
     const [mutant] = generateMutants(longCall, "sample.js", false);
     expect(longCall.length).toBeGreaterThan(40);
-    expect(mutant.operator).toHaveLength(40);
-    expect(mutant.operator.endsWith("…")).toBe(true);
+    expect(mutant.operator).toBe(longCall);
+    expect(mutant.newOperator).toBe("(removed)");
   });
 
   test("skips operators that live inside a TypeScript type", () => {

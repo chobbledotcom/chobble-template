@@ -42,17 +42,19 @@ const installComputedStyleStub = (lineHeight = "20px") => {
   window.getComputedStyle = getStyle;
 };
 
-const installCreateElement = (onCanvas) => {
+const installCreateElement = (onCanvas, makeContext) => {
   documentPrototype.createElement = function createElement(...args) {
     const el = originalCreateElement.apply(this, args);
     if (String(args[0]).toLowerCase() === "canvas") {
       onCanvas?.();
-      el.getContext = () => ({
-        font: "",
-        letterSpacing: "0px",
-        wordSpacing: "0px",
-        measureText: (text) => ({ width: String(text).length * 8 }),
-      });
+      el.getContext =
+        makeContext ??
+        (() => ({
+          font: "",
+          letterSpacing: "0px",
+          wordSpacing: "0px",
+          measureText: (text) => ({ width: String(text).length * 8 }),
+        }));
     }
     return el;
   };
@@ -128,6 +130,29 @@ describe("textHeight", () => {
     masonry.textHeight("hello", font, 20, 200);
     masonry.textHeight("world", font, 20, 200);
     expect(onCanvas).toHaveBeenCalledTimes(1);
+  });
+
+  test.serial("measures with the assigned font, not the canvas default", () => {
+    // Font-aware mock: character width scales with the px size in ctx.font, and
+    // the context starts at the real canvas default ("10px …"). If the assigned
+    // font were appended instead of set, measurement would use 10px not 16px.
+    installCreateElement(undefined, () => {
+      const ctx = {
+        font: "10px sans-serif",
+        letterSpacing: "0px",
+        wordSpacing: "0px",
+      };
+      ctx.measureText = (text) => {
+        const px = Number(ctx.font.match(/(\d+)px/)?.[1] ?? 10);
+        return { width: String(text).length * px };
+      };
+      return ctx;
+    });
+    // Unique font so the module cache is cold. At 16px/char, "abcd efgh ijk"
+    // (13 chars) wraps to two lines in 160px (10 chars/line); at the default
+    // 10px it would fit on one (16 chars/line).
+    const font = "400 16px FontApplyProbe";
+    expect(masonry.textHeight("abcd efgh ijk", font, 20, 160)).toBe(40);
   });
 });
 

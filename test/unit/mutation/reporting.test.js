@@ -172,17 +172,24 @@ describe("writeStepSummary", () => {
 });
 
 describe("loadIgnoreList", () => {
-  test("parses entries, skipping blanks and comments", () => {
+  // Write `content` to a throwaway ignore file, load it, and clean up.
+  const loadIgnoreFrom = (content) => {
     const dir = mkdtempSync(join(tmpdir(), "mutation-ignore-"));
     const file = join(dir, "list.txt");
-    writeFileSync(
-      file,
-      // Real entry first so any corruption of the read (e.g. concatenating onto
-      // an undefined accumulator) breaks the parsed key, not just a comment.
+    writeFileSync(file, content);
+    try {
+      return loadIgnoreList(file);
+    } finally {
+      rmSync(dir, { force: true, recursive: true });
+    }
+  };
+
+  test("parses entries, skipping blanks and comments", () => {
+    // Real entry first so any corruption of the read (e.g. concatenating onto
+    // an undefined accumulator) breaks the parsed key, not just a comment.
+    const list = loadIgnoreFrom(
       ["src/foo.js:42:7 ?? → ||  # equivalent", "# a comment", ""].join("\n"),
     );
-    const list = loadIgnoreList(file);
-    rmSync(dir, { force: true, recursive: true });
     expect(list.entries).toEqual(["src/foo.js:42:7 ??→||"]);
     expect(list.keys.has("src/foo.js:42:7 ??→||")).toBe(true);
   });
@@ -191,6 +198,15 @@ describe("loadIgnoreList", () => {
     const list = loadIgnoreList(join(tmpdir(), "definitely-missing-xyz.txt"));
     expect(list.entries).toEqual([]);
     expect(list.keys.size).toBe(0);
+  });
+
+  test("keeps a # inside the mutant text, stripping only a trailing comment", () => {
+    const list = loadIgnoreFrom(
+      'src/x.js:5:3  document.querySelector("#nav"); → (removed)   # equivalent\n',
+    );
+    expect(list.entries).toEqual([
+      'src/x.js:5:3 document.querySelector("#nav");→(removed)',
+    ]);
   });
 });
 

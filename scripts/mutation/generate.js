@@ -132,10 +132,12 @@ const statementRemovalMutants = (node, content) => {
   ) {
     return [];
   }
+  // Use the full statement text as the operator so each removed-statement
+  // mutant has a unique, stable key (truncating it could collide distinct
+  // statements at the same position or let a stale ignore entry keep matching).
   const text = content.slice(start, end).replace(/\s+/g, " ").trim();
-  const label = text.length > 40 ? `${text.slice(0, 39)}…` : text;
   // Replace with an empty statement — valid even as a braceless if/for/while body.
-  return [spanMutant(content, start, end, label, "(removed)", ";")];
+  return [spanMutant(content, start, end, text, "(removed)", ";")];
 };
 
 // --- Dispatch + entry point ----------------------------------------------

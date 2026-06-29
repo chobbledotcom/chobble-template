@@ -34,7 +34,9 @@ export const mutantKey = (file, mutant) => keyFor(rel(file), mutant);
 
 /** Parse one ignore-file line into a canonical key, or null when blank/comment. */
 const parseLine = (line) => {
-  const body = line.replace(/#.*$/, "").trim();
+  // Strip only a trailing, whitespace-preceded `# reason` comment — a `#` glued
+  // inside the mutant text (e.g. `querySelector("#nav")`) must be preserved.
+  const body = line.replace(/\s+#.*$/, "").trim();
   if (body === "") return null;
   const match = body.match(/^(.+:\d+:\d+)\s+(.+?)\s*→\s*(.+?)$/);
   return match ? `${match[1]} ${match[2]}→${match[3]}` : null;
