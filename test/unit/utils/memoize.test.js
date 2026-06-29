@@ -1,5 +1,27 @@
 import { describe, expect, test } from "bun:test";
-import { groupByWithCache, indexBy } from "#toolkit/fp/memoize.js";
+import { groupByWithCache, indexBy, memoize } from "#toolkit/fp/memoize.js";
+
+describe("memoize", () => {
+  test("caches by default key: a repeated call returns the same result object", () => {
+    // The fn builds a fresh object each run, so an identical reference on the
+    // second call proves the result was cached, not recomputed.
+    const build = memoize((n) => ({ doubled: n * 2 }));
+    const first = build(5);
+    const second = build(5);
+    expect(second).toBe(first);
+    expect(first.doubled).toBe(10);
+  });
+
+  test("honours a custom cacheKey when deciding hits", () => {
+    // Key on the second arg, so a different first arg is still a hit — the
+    // default key (first arg) would miss and recompute a different sum.
+    const build = memoize((a, b) => ({ sum: a + b }), {
+      cacheKey: (args) => args[1],
+    });
+    build(2, 3);
+    expect(build(40, 3).sum).toBe(5); // cached 2+3, not a recomputed 43
+  });
+});
 
 describe("indexBy", () => {
   test("Creates lookup object from array using key function", () => {

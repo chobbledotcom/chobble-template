@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { configureFileUtils } from "#eleventy/file-utils.js";
+import { configureFileUtils, ensureDir } from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
   createMockEleventyConfig,
@@ -576,5 +576,21 @@ blocks:
       const result = await callRenderBlockLiquid(blocks, { title: "Unused" });
       expect(result[0].content).toBe("No templates here");
     });
+  });
+
+  describe("ensureDir", () => {
+    test("creates a missing nested directory and returns its path", () =>
+      withTempDir("ensureDir-nested", (tempDir) => {
+        // A nested path with missing parents: only a recursive mkdir of a
+        // genuinely-absent directory makes this pass — which pins the guard,
+        // the mkdir call, and `recursive: true` all at once.
+        const nested = `${tempDir}/a/b/c`;
+        expect(fs.existsSync(nested)).toBe(false);
+
+        const returned = ensureDir(nested);
+
+        expect(fs.existsSync(nested)).toBe(true);
+        expect(returned).toBe(nested);
+      }));
   });
 });

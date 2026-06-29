@@ -171,12 +171,28 @@ describe("configureNavigation wiring", () => {
     const mockConfig = await configureWithMock();
     expect(await mockConfig.asyncFilters.toNavigation([])).toBe("");
   });
+
+  test("registers the eleventy-navigation plugin", async () => {
+    const mockConfig = await configureWithMock();
+    expect(mockConfig.pluginCalls).toBeDefined();
+    expect(mockConfig.pluginCalls.length).toBeGreaterThan(0);
+  });
 });
 
 describe("toNavigation", () => {
   test("returns empty string for empty pages", async () => {
     expect(await toNavigation([])).toBe("");
   });
+
+  test("renders the search form with a search input and submit button", () =>
+    withIconMock(async () => {
+      // search.md exists, so toNavigation appends the search item. The form's
+      // body is `searchInput + searchButton`; assert both ended up inside it.
+      const html = await toNavigation([navEntry("Home", { url: "/" })], "");
+      expect(html).toContain('class="search-box"');
+      expect(html).toContain('type="search"');
+      expect(html).toContain("<button");
+    }));
 
   test("throws when input is missing the eleventyNavigation pluginType", async () => {
     const bare = [{ key: "Home", title: "Home" }];

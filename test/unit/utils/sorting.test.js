@@ -111,6 +111,13 @@ describe("sorting", () => {
     expect(byValue(a, b)).toBe(0);
   });
 
+  test("compareBy compares numerically unless BOTH keys are strings", () => {
+    const byKey = compareBy((item) => item.k);
+    // "10" (string) vs 9 (number): not both strings → numeric, so 10 > 9.
+    // A string comparison would order "10" before "9" and return negative.
+    expect(byKey({ k: "10" }, { k: 9 })).toBeGreaterThan(0);
+  });
+
   test("compareBy works with Date.getTime for date sorting", () => {
     const items = [
       { created: new Date("2024-03-01") },

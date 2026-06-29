@@ -61,6 +61,7 @@ describe("products", () => {
       const mockConfig = setupProductsConfig();
 
       expect(typeof mockConfig.collections.products).toBe("function");
+      expect(typeof mockConfig.collections.featuredProducts).toBe("function");
       expect(typeof mockConfig.collections.apiSkus).toBe("function");
       expect(typeof mockConfig.collections.productsWithReviewsPage).toBe(
         "function",
@@ -114,6 +115,18 @@ describe("products", () => {
         "/images/image2.jpg",
         "/images/image3.jpg",
       ]);
+    });
+
+    test("normalises category references to bare slugs", () => {
+      const testProducts = [
+        item("Product", { categories: ["categories/foo.md", "bar.md"] }),
+      ];
+
+      const result = runProductsCollection(testProducts);
+
+      // normaliseSlug strips the path and .md extension, replacing the array
+      // in place — a `+=` would corrupt it into a concatenated string.
+      expect(result[0].data.categories).toEqual(["foo", "bar"]);
     });
   });
 

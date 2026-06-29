@@ -40,6 +40,13 @@ describe("categories", () => {
       configureCategories(mockConfig);
       expect(typeof mockConfig.collections.categories).toBe("function");
     });
+
+    test("registers the featuredCategories collection and getSubcategories filter", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureCategories(mockConfig);
+      expect(typeof mockConfig.collections.featuredCategories).toBe("function");
+      expect(mockConfig.filters.getSubcategories).toBe(getSubcategories);
+    });
   });
 
   describe("categories collection", () => {

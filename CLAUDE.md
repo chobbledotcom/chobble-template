@@ -22,10 +22,24 @@ bun run build        # Build the site to _site/
 bun run serve        # Development server with hot reload
 bun test             # Full test suite (lint + build + tests + coverage)
 bun run test:unit    # Unit tests only
+bun run mutation <src-glob> <test-glob>  # Mutation test ("tests for your tests")
 bun run lint         # Check code with Biome
 bun run lint:fix     # Auto-fix lint issues
 bun run precommit    # Pre-commit checks
 ```
+
+### Mutation Testing
+`bun run mutation` proves your tests actually catch bugs: it mutates operators in
+the source file(s), runs the mapped test file(s), and reports which mutants
+**survived** (changes no test noticed). The tooling lives in `scripts/mutation/`.
+
+```bash
+bun run mutation src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
+bun run mutation 'src/_lib/filters/*.js' 'test/unit/filters/*.test.js' --exhaustive
+```
+
+Confirmed-equivalent survivors (no input can distinguish them) go in
+`scripts/mutation/equivalent-mutants.txt` to keep CI gating on *new* gaps.
 
 ### Directory Structure
 ```

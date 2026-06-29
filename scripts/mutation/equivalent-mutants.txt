@@ -1,0 +1,56 @@
+# Known-equivalent mutants — survivors that NO test could ever kill because the
+# mutated code is behaviourally identical to the original. Recording one here
+# suppresses it from the survivor count so CI can gate on genuinely new gaps.
+#
+# Format (mirrors a survivor line from the report), one per line:
+#
+#   path:line:col  from → to   # why it is equivalent
+#
+# Entries are validated each run: an entry that no longer points at a real
+# surviving mutant (code moved, a test now kills it, or a duplicate) fails the
+# run, so this list cannot silently rot.
+#
+# The entries below come from mutation-testing the mutation tooling itself:
+#   bun run mutation --source scripts/mutation/generate.js \
+#     --source scripts/mutation/operators.js --test test/unit/mutation/generate.test.js
+#   bun run mutation --source scripts/mutation/summary.js \
+#     --source scripts/mutation/ignore.js --test test/unit/mutation/reporting.test.js
+
+# --- generate.js: defensive guards that cannot fire for a real parsed AST ---
+scripts/mutation/generate.js:60:14  || → &&   # only Assignment/Binary/Logical nodes reach operatorMutants; all have tables/left/right/operator
+scripts/mutation/generate.js:60:23  || → &&   # (same guard)
+scripts/mutation/generate.js:60:33  || → &&   # (same guard)
+scripts/mutation/generate.js:61:47  ?? → ||   # every operator on these nodes is a table key, so the [] fallback is unreachable
+scripts/mutation/generate.js:76:16  || → &&   # every UnaryExpression has argument/operator/start
+scripts/mutation/generate.js:76:42  || → &&   # (same guard)
+scripts/mutation/generate.js:78:36  ?? → ||   # unknown unary ops give undefined; `?? []` and `|| []` both yield []
+scripts/mutation/generate.js:96:16  || → &&   # every UpdateExpression has argument & operator
+scripts/mutation/generate.js:110:29  || → &&   # node.start is always defined for a Literal
+scripts/mutation/generate.js:129:47  ?? → ||   # an ExpressionStatement's expression always has a type
+scripts/mutation/generate.js:130:24  || → &&   # node.start is always defined here
+scripts/mutation/generate.js:187:19  && → ||   # walk() ignores non-objects, so recursing into one yields nothing
+scripts/mutation/generate.js:193:12  || → &&   # walkChild already filters non-objects, so node is never null/non-object here
+scripts/mutation/generate.js:206:45  ?? → ||   # a real file path's basename is never "", so the fallback is unreachable
+
+# --- core libraries (packages/js-toolkit/fp) ---
+packages/js-toolkit/fp/memoize.js:167:32  ?? → ||   # a pending entry is always a Promise (truthy) or undefined, so ?? and || agree
+
+# --- collections: indexer/Map lookups that return an array or undefined, so
+#     `x ?? []` and `x || []` agree; plus a couple of other safe defaults ---
+src/_lib/collections/products.js:154:31  ?? → ||   # bidirectional indexer[slug] is an array or undefined
+src/_lib/collections/properties.js:30:52  ?? → ||   # indexByLocation[slug] is an array or undefined
+src/_lib/collections/reviews.js:86:33  ?? → ||   # indexer[slug] is an array or undefined
+src/_lib/collections/reviews.js:176:19  ?? → ||   # any falsy reviewer name collapses to "" under both ?? and ||
+src/_lib/collections/menus.js:42:57  ?? → ||   # category map .get(slug) is an array or undefined
+src/_lib/collections/menus.js:55:50  ?? → ||   # itemsByCategorySlug[slug] is an array or undefined
+src/_lib/collections/guides.js:16:49  ?? → ||   # indexByGuideCategory[slug] is an array or undefined
+src/_lib/collections/guides.js:24:49  ?? → ||   # indexByProperty[slug] is an array or undefined
+src/_lib/collections/events.js:23:29  ?? → ||   # event_date is a date string or undefined, never a falsy-defined value
+src/_lib/collections/events.js:35:3  date.setHours(0, 0, 0, 0); → (removed)   # `today` is already midnight, so zeroing the event's time never changes the day-boundary compare
+src/_lib/collections/navigation.js:52:25  ?? → ||   # entry.url is a real path or undefined, never the falsy-defined ""
+
+# --- summary.js: safe fallbacks and cosmetics ---
+scripts/mutation/summary.js:23:53  ?? → ||   # groupBy never yields empty groups, so length is never the defined-falsy 0
+scripts/mutation/summary.js:37:33  ?? → ||   # byStatus.survived is undefined or a non-empty array
+scripts/mutation/summary.js:70:53  - → /   # column-padding width only; cosmetic alignment, no behavioural contract
+scripts/mutation/summary.js:184:5  console.log(dim("Wrote Markdown summary to $GITHUB_STEP_SUMMARY.")); → (removed)   # a debug log; removing it doesn't change what is written

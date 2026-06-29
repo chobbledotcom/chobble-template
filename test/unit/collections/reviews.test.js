@@ -255,6 +255,14 @@ describe("reviews", () => {
     expect(hasInitials(reviewerAvatar("john smith"), "JS")).toBe(true);
   });
 
+  test("Avatar embeds a palette colour (hash index stays in range)", () => {
+    // The colour index is `hash % palette.length`; a `+` there would run off
+    // the end of the array and splice `undefined` into the SVG fill.
+    const svg = decodeURIComponent(reviewerAvatar("John Smith").split(",")[1]);
+    expect(svg).toMatch(/#[0-9A-Fa-f]{6}/);
+    expect(svg).not.toContain("undefined");
+  });
+
   test("Returns a valid SVG data URI via filter", () => {
     const result = reviewerAvatar("John Smith");
     expect(result.startsWith("data:image/svg+xml,")).toBe(true);
