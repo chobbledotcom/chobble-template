@@ -1,4 +1,7 @@
 <footer>
   {%- include "footer-socials.html" -%}
   {%- render_snippet "footer-content" -%}
+  {%- if page.url == "/" and config.homepage_footer_markdown -%}
+    {{ config.homepage_footer_markdown | markdown }}
+  {%- endif -%}
 </footer>
