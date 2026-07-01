@@ -1,0 +1,22 @@
+// =============================================================================
+// VIEW TRANSITIONS
+// =============================================================================
+// Opt in to native cross-document view transitions so page navigations animate
+// automatically in supporting browsers (a no-op where unsupported).
+//
+// Lives in the design system rather than the client-overridable theme.scss so
+// every site built on this template inherits the behaviour.
+
+@view-transition {
+  navigation: auto;
+}
+
+// Respect the user's motion preference: keep the instant snapshot swap but drop
+// the animation, matching the reduced-motion overrides elsewhere in the base.
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}
