@@ -857,12 +857,6 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: compact, type: boolean, label: Compact }
-  block_product_header:
-    label: Product Header
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: compact, type: boolean, label: Compact }
   block_product_meta:
     label: Product Meta
     type: object
@@ -986,12 +980,6 @@ components:
       - { name: compact, type: boolean, label: Compact }
   block_property_guides:
     label: Property Guides
-    type: object
-    fields:
-      - { name: dark, type: boolean, label: Dark }
-      - { name: compact, type: boolean, label: Compact }
-  block_property_header:
-    label: Property Header
     type: object
     fields:
       - { name: dark, type: boolean, label: Dark }
@@ -1231,7 +1219,6 @@ content:
             component: block_product_contact_section
           - { name: product-features, component: block_product_features }
           - { name: product-gallery, component: block_product_gallery }
-          - { name: product-header, component: block_product_header }
           - { name: product-meta, component: block_product_meta }
           - { name: purchase-link, component: block_purchase_link }
           - { name: reviews, component: block_reviews }
@@ -1725,7 +1712,6 @@ content:
           - { name: property-features, component: block_property_features }
           - { name: property-gallery, component: block_property_gallery }
           - { name: property-guides, component: block_property_guides }
-          - { name: property-header, component: block_property_header }
           - { name: property-map, component: block_property_map }
           - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }

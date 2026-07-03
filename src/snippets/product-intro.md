@@ -1,7 +1,6 @@
 ---
 name: Product Intro
 blocks:
-  - type: product-header
   - type: product-gallery
   - type: product-meta
   - type: hire-pricing

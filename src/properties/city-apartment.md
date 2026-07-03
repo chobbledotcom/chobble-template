@@ -34,7 +34,6 @@ faqs:
     order: 2
 
 blocks:
-  - type: property-header
   - type: freetobook
   - type: property-gallery
   - type: property-content
