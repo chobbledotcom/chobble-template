@@ -86,7 +86,7 @@ const hasNestedLookupInParens = (cleaned) => {
 const KNOWN_VIOLATIONS = frozenSet([
   "src/_lib/eleventy/pdf.js:61",
   "src/_lib/utils/block-columns.js:181",
-  "src/_lib/utils/block-schema.js:362",
+  "src/_lib/utils/block-schema.js:358",
 ]);
 
 /**

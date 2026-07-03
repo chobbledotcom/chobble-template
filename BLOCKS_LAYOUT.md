@@ -779,17 +779,6 @@ News-only block. No parameters. Reads `authorSlug` from the page data and looks 
 
 ---
 
-### `product-header`
-
-Renders a product page's heading: title and optional subtitle.
-
-**Component:** `block_product_header`
-**Template:** `src/_includes/design-system/blocks/item-header.html`
-
-Product-only block. No parameters. Reads `title` and `subtitle` from the product page data.
-
----
-
 ### `product-gallery`
 
 Renders the product page's gallery (current image + thumbnails + slider).
@@ -872,7 +861,7 @@ Product-only block. No parameters. Honours the page's `formspark_id` override an
 Renders an event page's heading: title, optional subtitle, and event details (date, schedule, location, iCal download).
 
 **Component:** `block_event_header`
-**Template:** `src/_includes/design-system/blocks/item-header.html`
+**Template:** `src/_includes/design-system/blocks/event-header.html`
 
 Event-only block. No parameters. Reads `title`, `subtitle`, `event_date`, `recurring_date`, `event_location`, and `ical_url` from the page.
 
@@ -930,17 +919,6 @@ Renders the inline contact section on an event page, delegating to the shared `i
 **Template:** `src/_includes/design-system/blocks/item-contact-section.html`
 
 Event-only block. No parameters. Honours the page's `formspark_id` override and falls back to `config.form_target`.
-
----
-
-### `property-header`
-
-Renders a property page's heading: title, optional subtitle, and optional price-per-night.
-
-**Component:** `block_property_header`
-**Template:** `src/_includes/design-system/blocks/property-header.html`
-
-Property-only block. No parameters. Reads `title`, `subtitle`, and `price_per_night` from the property page data.
 
 ---
 
