@@ -35,6 +35,13 @@ faqs:
     order: 2
 
 blocks:
+  - type: markdown
+    content: |
+      # Mountain Lodge
+
+      ## Spacious 4-bedroom lodge with stunning mountain views
+
+      From £280 per night
   - type: freetobook
   - type: property-gallery
   - type: property-content

@@ -36,6 +36,11 @@ categories:
   - src/categories/compact-doodahs.md
 
 blocks:
+  - type: markdown
+    content: |
+      # Mini Gizmo with Local Image
+
+      ## This gizmo uses a local image file path
   - type: snippet
     reference: product-intro
   - type: markdown

@@ -33,6 +33,11 @@ features:
   - Includes presentation box
 
 blocks:
+  - type: markdown
+    content: |
+      # Heritage Thingy Deluxe
+
+      ## Handcrafted classic thingy with timeless appeal
   - type: snippet
     reference: product-intro
   - type: markdown

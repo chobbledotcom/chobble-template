@@ -42,6 +42,11 @@ features:
   - Automatic software updates
 
 blocks:
+  - type: markdown
+    content: |
+      # SmarThingy AI Plus
+
+      ## Next-generation AI-powered thingy with cloud connectivity
   - type: snippet
     reference: product-intro
   - type: markdown

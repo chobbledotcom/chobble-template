@@ -26,6 +26,11 @@ features:
   - Collector's manual included
 
 blocks:
+  - type: markdown
+    content: |
+      # Thingy Classic Original
+
+      ## The original thingy design that started it all
   - type: snippet
     reference: product-intro
   - type: markdown

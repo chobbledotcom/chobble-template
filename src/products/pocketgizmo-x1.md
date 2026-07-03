@@ -26,6 +26,11 @@ features:
   - Identity recognition
 
 blocks:
+  - type: markdown
+    content: |
+      # PocketGizmo X1
+
+      ## Premium pocket gizmo with advanced vision system
   - type: snippet
     reference: product-intro
   - type: markdown

@@ -13,6 +13,11 @@ features:
   - Support for all content types (pages, products, categories, etc.)
 
 blocks:
+  - type: markdown
+    content: |
+      # PagesCMS Integration
+
+      ## Integrates with the free and customisable PagesCMS editor
   - type: snippet
     reference: product-intro
   - type: markdown
