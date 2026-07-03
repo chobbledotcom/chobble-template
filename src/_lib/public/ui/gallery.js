@@ -1,19 +1,28 @@
-import { getTemplate, IDS, onReady } from "#public/utils/ui-deps.js";
+// In-page gallery behaviour.
+//
+// Galleries are marked with [data-popup-scope] and contain a hidden
+// .gallery-full-size-images block (one .full-image-{n} per image, 1-indexed).
+// Two kinds of clicks are handled, both delegated from document so any
+// number of galleries can coexist on a page:
+//
+//   - [data-popup-trigger] elements (the hero image link, gallery-block
+//     images) open the fullscreen popup with every full-size image in
+//     their scope, starting from the trigger's data-index.
+//   - .image-link[data-index] thumbnails swap their scope's hero image
+//     in place (product/property galleries).
+//
+// All links keep real hrefs, so without JavaScript they fall back to
+// linking the image file directly.
+import { openImagePopup } from "#public/ui/image-popup.js";
+import { onReady } from "#public/utils/on-ready.js";
 
-const NAV_PREV = '[data-nav="prev"]';
-const NAV_NEXT = '[data-nav="next"]';
-
-const state = {
-  gallery: null,
-  currentImage: null,
-  imagePopup: null,
-  currentPopupIndex: 1,
-};
-
-const getTotalImages = () =>
-  document.querySelectorAll('[class^="full-image-"]').length;
+const SCOPE = "[data-popup-scope]";
+const TRIGGER = "[data-popup-trigger]";
+const THUMB_LINK = ".image-link[data-index]";
+const HERO_LINK = ".current-image-link";
 
 const NEIGHBOR_REVEAL_RATIO = 0.5;
+const HERO_SCROLL_THRESHOLD = 50;
 
 const getNeighborOffset = (li, sliderRect) => {
   if (li.nextElementSibling) {
@@ -70,140 +79,69 @@ const scrollThumbnailIntoView = (imageLink) => {
   slider.scrollBy({ left: offset, behavior: "smooth" });
 };
 
-const loadImage = (event) => {
-  const imageLink = event.target.closest(".image-link");
-  if (!imageLink) return;
+const getFullImageWrappers = (scope) => [
+  ...scope.querySelectorAll(".gallery-full-size-images .image-wrapper"),
+];
+
+// data-index is 1-based in templates; the popup works with 0-based indexes.
+export const resolveStartIndex = (trigger) => {
+  const index = Number.parseInt(trigger.dataset.index, 10);
+  if (Number.isNaN(index)) {
+    throw new Error("[data-popup-trigger] requires a numeric data-index");
+  }
+  return index - 1;
+};
+
+const openFromTrigger = (event, trigger) => {
+  const scope = trigger.closest(SCOPE);
+  if (!scope) return;
+
+  const wrappers = getFullImageWrappers(scope);
+  if (wrappers.length === 0) return;
 
   event.preventDefault();
-
-  const index = imageLink.getAttribute("data-index");
-  showImageByIndex(Number.parseInt(index, 10));
-  scrollThumbnailIntoView(imageLink);
+  openImagePopup({ wrappers, startIndex: resolveStartIndex(trigger), trigger });
 };
 
-const showImageByIndex = (index) => {
-  const fullImage = document.querySelector(`.full-image-${index}`);
-  if (!fullImage) return;
-
-  state.currentImage.innerHTML = fullImage.outerHTML;
-  state.currentPopupIndex = index;
-
-  const rect = state.currentImage.getBoundingClientRect();
-  if (Math.abs(rect.top) > 50) {
-    state.currentImage.scrollIntoView({ behavior: "smooth" });
+const scrollHeroIntoView = (heroLink) => {
+  const rect = heroLink.getBoundingClientRect();
+  if (Math.abs(rect.top) > HERO_SCROLL_THRESHOLD) {
+    heroLink.scrollIntoView({ behavior: "smooth" });
   }
 };
 
-const getPopupContent = (index) => {
-  const imageWrapper = document.querySelector(
-    `.full-image-${index} .image-wrapper`,
-  );
-  if (!imageWrapper) return "";
-  return imageWrapper.outerHTML;
+const swapCurrentImage = (event, thumbLink, scope) => {
+  const heroLink = scope.querySelector(HERO_LINK);
+  if (!heroLink) return;
+
+  const index = Number.parseInt(thumbLink.dataset.index, 10);
+  const wrapper = scope.querySelector(`.full-image-${index} .image-wrapper`);
+  if (!wrapper) return;
+
+  event.preventDefault();
+  heroLink.replaceChildren(wrapper.cloneNode(true));
+  heroLink.dataset.index = String(index);
+  heroLink.href = thumbLink.href;
+
+  scrollHeroIntoView(heroLink);
+  scrollThumbnailIntoView(thumbLink);
 };
 
-const setNavVisibility = (selector, isHidden) => {
-  const el = state.imagePopup.querySelector(selector);
-  if (el) el.style.visibility = isHidden ? "hidden" : "visible";
-};
-
-const updatePopupImage = (index) => {
-  const content = getPopupContent(index);
-  if (!content) return;
-
-  state.currentPopupIndex = index;
-  state.imagePopup.querySelector(".image-wrapper").outerHTML = content;
-  for (const el of state.imagePopup.querySelectorAll("[sizes]"))
-    el.sizes = "100vw";
-  setNavVisibility(NAV_PREV, index <= 1);
-  setNavVisibility(NAV_NEXT, index >= getTotalImages());
-};
-
-const navigatePopup = (direction) => {
-  const newIndex = state.currentPopupIndex + direction;
-  if (newIndex >= 1 && newIndex <= getTotalImages()) {
-    updatePopupImage(newIndex);
-  }
-};
-
-const appendNavButton = (templateId, shouldHide) => {
-  const btn = getTemplate(templateId, document);
-  if (shouldHide) btn.firstElementChild.style.visibility = "hidden";
-  state.imagePopup.appendChild(btn);
-};
-
-const openPopup = () => {
-  const image = state.currentImage.querySelector(".image-wrapper");
-  const totalImages = getTotalImages();
-  const hasNav = totalImages > 1;
-
-  state.imagePopup.innerHTML = "";
-  if (hasNav)
-    appendNavButton(IDS.GALLERY_NAV_PREV, state.currentPopupIndex <= 1);
-  state.imagePopup.appendChild(image.cloneNode(true));
-  if (hasNav)
-    appendNavButton(
-      IDS.GALLERY_NAV_NEXT,
-      state.currentPopupIndex >= totalImages,
-    );
-
-  for (const el of state.imagePopup.querySelectorAll("[sizes]")) {
-    el.sizes = "100vw";
-  }
-  state.imagePopup.showModal();
-};
-
-const handlePopupClick = (event) => {
-  // Handle navigation button clicks
-  if (event.target.closest(NAV_PREV)) {
-    event.stopPropagation();
-    navigatePopup(-1);
-    return;
-  }
-  if (event.target.closest(NAV_NEXT)) {
-    event.stopPropagation();
-    navigatePopup(1);
+const handleDocumentClick = (event) => {
+  const trigger = event.target.closest(TRIGGER);
+  if (trigger) {
+    openFromTrigger(event, trigger);
     return;
   }
 
-  // Close popup when clicking elsewhere (image or backdrop)
-  state.imagePopup.close();
+  const thumbLink = event.target.closest(THUMB_LINK);
+  const scope = thumbLink?.closest(SCOPE);
+  if (scope) swapCurrentImage(event, thumbLink, scope);
 };
 
-const handleKeydown = (event) => {
-  if (!state.imagePopup.open || getTotalImages() <= 1) return;
-
-  if (event.key === "ArrowLeft") {
-    event.preventDefault();
-    navigatePopup(-1);
-  } else if (event.key === "ArrowRight") {
-    event.preventDefault();
-    navigatePopup(1);
-  }
-};
-
-const initGallery = () => {
-  state.gallery = document.getElementById("gallery");
-  state.currentImage = document.querySelector(".current-image");
-  state.imagePopup = document.getElementById("image-popup");
-
-  // Thumbnail gallery switching (only if multiple images)
-  if (state.gallery && state.currentImage) {
-    state.gallery.removeEventListener("click", loadImage);
-    state.gallery.addEventListener("click", loadImage);
-  }
-
-  // Image popup (works even with single image)
-  if (state.currentImage && state.imagePopup) {
-    state.currentImage.removeEventListener("click", openPopup);
-    state.currentImage.addEventListener("click", openPopup);
-
-    state.imagePopup.removeEventListener("click", handlePopupClick);
-    state.imagePopup.addEventListener("click", handlePopupClick);
-
-    document.removeEventListener("keydown", handleKeydown);
-    document.addEventListener("keydown", handleKeydown);
-  }
+export const initGallery = () => {
+  document.removeEventListener("click", handleDocumentClick);
+  document.addEventListener("click", handleDocumentClick);
 };
 
 onReady(initGallery);

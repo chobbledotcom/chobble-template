@@ -188,6 +188,25 @@ const compileScss = async (inputContent, inputPath) => {
 // HTML wrapper for creating complete documents in transform tests
 const wrapHtml = (body) => `<html><body>${body}</body></html>`;
 
+// Static image popup dialog skeleton (mirrors src/_includes/image-popup.html)
+// for tests that exercise the fullscreen gallery
+const imagePopupDialogHtml = `
+<dialog id="image-popup" class="image-popup" aria-label="Image gallery">
+  <button type="button" class="popup-close" data-popup-close aria-label="Close gallery">x</button>
+  <div class="popup-stage">
+    <button type="button" class="popup-nav" data-nav="prev" aria-label="Previous image"><span class="popup-nav-icon"></span></button>
+    <div class="popup-track" data-popup-track tabindex="0" role="group" aria-label="Images"></div>
+    <button type="button" class="popup-nav" data-nav="next" aria-label="Next image"><span class="popup-nav-icon"></span></button>
+  </div>
+  <ul class="popup-thumbs" data-popup-thumbs hidden></ul>
+  <p class="popup-status" data-popup-status aria-live="polite"></p>
+</dialog>
+`;
+
+// Alt text of each slide currently in the image popup, in order
+const popupSlideAlts = (dialog) =>
+  [...dialog.querySelectorAll(".popup-slide img")].map((img) => img.alt);
+
 // ============================================
 // Curried Factory Functions for Mock Config
 // ============================================
@@ -414,6 +433,8 @@ export {
   getCollectionFrom,
   // File discovery
   getFiles,
+  // Image popup fixtures
+  imagePopupDialogHtml,
   // Fixture factories
   item,
   items,
@@ -421,6 +442,7 @@ export {
   mockModule,
   omit,
   path,
+  popupSlideAlts,
   rootDir,
   SCRIPT_JS_FILES,
   SRC_HTML_FILES,

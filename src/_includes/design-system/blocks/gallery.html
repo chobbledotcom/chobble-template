@@ -1,6 +1,9 @@
 {%- comment -%}
 Gallery block - displays a grid of images with optional aspect ratio cropping and captions.
 
+Clicking an image opens the fullscreen image popup (see image-popup.html);
+without JavaScript the links fall back to the image files themselves.
+
 Parameters (via block object):
   - block.items: Array of image objects with properties:
     - image: Image path (required)
@@ -12,20 +15,29 @@ Parameters (via block object):
 
 {%- if block.items.size > 0 -%}
   {%- include "design-system/block-intro.html" -%}
-  <ul class="items{% if block.masonry %} masonry{% endif %}" role="list">
-    {%- for item in block.items -%}
-      <li>
-        {%- assign image = item.image -%}
-        {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-        <a class="image-link" href="{{ item.image | normalizeImageUrl }}">
-          {%- image item.image, alt_text, "", "", "", block.aspect_ratio -%}
-        </a>
-        {%- if item.caption -%}
-          <p>{{ item.caption }}</p>
-        {%- endif -%}
-      </li>
-    {%- endfor -%}
-  </ul>
+  <div data-popup-scope>
+    <ul class="items{% if block.masonry %} masonry{% endif %}" role="list">
+      {%- for item in block.items -%}
+        <li>
+          {%- assign image = item.image -%}
+          {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+          <a
+            class="image-link"
+            href="{{ item.image | normalizeImageUrl }}"
+            data-popup-trigger
+            data-index="{{ forloop.index }}"
+          >
+            {%- image item.image, alt_text, "", "", "", block.aspect_ratio -%}
+          </a>
+          {%- if item.caption -%}
+            <p>{{ item.caption }}</p>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+    {%- assign gallery_block_images = block.items | map: "image" -%}
+    {% include "gallery-full-size-images.html", gallery: gallery_block_images %}
+  </div>
   {%- if block.masonry -%}
   <script type="module" src="{{ '/assets/js/masonry.js' | cacheBust }}"></script>
   {%- endif -%}
