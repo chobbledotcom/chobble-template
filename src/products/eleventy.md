@@ -22,6 +22,11 @@ features:
   - Low resource hosting requirements
 
 blocks:
+  - type: markdown
+    content: |
+      # Eleventy
+
+      ## The Chobble Template is built with the Eleventy static site generator
   - type: snippet
     reference: product-intro
   - type: markdown

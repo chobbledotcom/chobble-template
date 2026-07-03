@@ -27,6 +27,11 @@ features:
 stripe_url: 'https://buy.stripe.com/example'
 
 blocks:
+  - type: markdown
+    content: |
+      # Doodah Pro Enterprise Edition
+
+      ## Industrial-grade doodah for commercial applications
   - type: snippet
     reference: product-intro
   - type: markdown

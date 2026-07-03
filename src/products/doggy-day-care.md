@@ -42,6 +42,11 @@ categories:
   - compact-doodahs
 
 blocks:
+  - type: markdown
+    content: |
+      # Doggy Day Care
+
+      ## Professional pet care while you're away
   - type: snippet
     reference: product-intro
   - type: markdown

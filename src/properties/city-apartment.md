@@ -34,6 +34,13 @@ faqs:
     order: 2
 
 blocks:
+  - type: markdown
+    content: |
+      # City Centre Apartment
+
+      ## Modern 1-bedroom apartment in the heart of town
+
+      From £95 per night
   - type: freetobook
   - type: property-gallery
   - type: property-content

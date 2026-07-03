@@ -32,6 +32,11 @@ features:
   - Multi-function indicator lights
 
 blocks:
+  - type: markdown
+    content: |
+      # Ultra Compact Doodah X5
+
+      ## Pocket-sized doodah with maximum efficiency
   - type: snippet
     reference: product-intro
   - type: markdown

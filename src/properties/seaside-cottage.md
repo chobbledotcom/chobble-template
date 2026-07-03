@@ -35,6 +35,13 @@ faqs:
     order: 2
 
 blocks:
+  - type: markdown
+    content: |
+      # Seaside Cottage
+
+      ## Charming 2-bedroom retreat with ocean views
+
+      From £150 per night
   - type: freetobook
   - type: property-gallery
   - type: property-content

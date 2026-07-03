@@ -35,6 +35,11 @@ features:
 stripe_url: 'https://buy.stripe.com/example'
 
 blocks:
+  - type: markdown
+    content: |
+      # SmarThingy Home Hub
+
+      ## Central command center for your smart thingy ecosystem
   - type: snippet
     reference: product-intro
   - type: markdown

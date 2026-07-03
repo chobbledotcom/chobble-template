@@ -49,6 +49,11 @@ add_ons:
     - name: Wireless Charging Pad
       price: 49.99
 blocks:
+  - type: markdown
+    content: |
+      # UltraWidget Pro
+
+      ## Lightweight, powerful widget for professionals
   - type: snippet
     reference: product-intro
   - type: markdown

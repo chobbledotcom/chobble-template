@@ -31,6 +31,11 @@ features:
   - "Available in azure, obsidian, and silver"
 
 blocks:
+  - type: markdown
+    content: |
+      # Classic Wotzit Wrapper
+
+      ## Timeless structured wrapper for formal occasions
   - type: snippet
     reference: product-intro
   - type: markdown

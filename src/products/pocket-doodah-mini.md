@@ -32,6 +32,11 @@ features:
   - IPX4 water resistance
 
 blocks:
+  - type: markdown
+    content: |
+      # Pocket Doodah Mini
+
+      ## Ultra-portable doodah for everyday carry
   - type: snippet
     reference: product-intro
   - type: markdown
