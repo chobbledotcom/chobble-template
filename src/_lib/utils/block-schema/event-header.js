@@ -1,5 +1,4 @@
 export const type = "event-header";
-export const template = "design-system/blocks/item-header.html";
 
 /* jscpd:ignore-start */
 export const containerWidth = "full";

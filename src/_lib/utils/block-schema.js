@@ -62,7 +62,6 @@ import * as productAddOns from "#utils/block-schema/product-add-ons.js";
 import * as productContactSection from "#utils/block-schema/product-contact-section.js";
 import * as productFeatures from "#utils/block-schema/product-features.js";
 import * as productGallery from "#utils/block-schema/product-gallery.js";
-import * as productHeader from "#utils/block-schema/product-header.js";
 import * as productMeta from "#utils/block-schema/product-meta.js";
 import * as propertyContact from "#utils/block-schema/property-contact.js";
 import * as propertyContactSection from "#utils/block-schema/property-contact-section.js";
@@ -70,7 +69,6 @@ import * as propertyContent from "#utils/block-schema/property-content.js";
 import * as propertyFeatures from "#utils/block-schema/property-features.js";
 import * as propertyGallery from "#utils/block-schema/property-gallery.js";
 import * as propertyGuides from "#utils/block-schema/property-guides.js";
-import * as propertyHeader from "#utils/block-schema/property-header.js";
 import * as propertyMap from "#utils/block-schema/property-map.js";
 import * as purchaseLink from "#utils/block-schema/purchase-link.js";
 import * as quoteCart from "#utils/block-schema/quote-cart.js";
@@ -136,7 +134,6 @@ const BLOCK_MODULES = [
   iframeEmbed,
   include,
   newsMeta,
-  productHeader,
   productGallery,
   productMeta,
   hirePricing,
@@ -150,7 +147,6 @@ const BLOCK_MODULES = [
   eventProducts,
   eventMap,
   eventContactSection,
-  propertyHeader,
   freetobook,
   propertyGallery,
   propertyContent,

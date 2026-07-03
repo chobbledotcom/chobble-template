@@ -1,0 +1,18 @@
+{%- comment -%}
+Event-header block - renders the page's title, optional subtitle, and event
+date / recurring schedule / location / iCal-download details.
+
+Event-only block. No block-level parameters. Reads `name`, `subtitle`,
+`event_date`, `recurring_date`, `event_location`, and `ical_url` from the page
+data; the event-detail include is a no-op when those fields are absent.
+{%- endcomment -%}
+
+<div class="container-wide">
+  <header>
+    <h1>{{ name }}</h1>
+    {%- if subtitle -%}
+      <h2>{{ subtitle }}</h2>
+    {%- endif -%}
+    {%- include "item-event-details.html" -%}
+  </header>
+</div>
