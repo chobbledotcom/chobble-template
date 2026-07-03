@@ -1,93 +1,240 @@
-// Image Popup Styles
-// Fullscreen lightbox for gallery images
+// Fullscreen image gallery popup
+//
+// Static skeleton lives in src/_includes/image-popup.html; slides and
+// thumbnails are cloned into it by src/_lib/public/ui/image-popup.js.
+//
+// Layout: a scroll-snap slide track fills the viewport, quarter-width
+// prev/next hotspots overlay its left and right edges (arrows fade in on
+// hover), and a dimmed thumbnail strip sits along the bottom with the
+// current image highlighted and kept centered.
 
 @use "breakpoints";
+@use "dialog";
+@use "mixins";
+@use "variables" as *;
 
 dialog.image-popup {
-  width: calc(100% - 1rem);
-  max-width: none;
-  height: calc(100% - 1rem);
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   max-height: none;
-  margin: auto;
+  margin: 0;
   padding: 0;
   border: none;
 
   background: transparent;
   outline: none;
 
-  @include breakpoints.up("md") {
-    width: calc(100% - 2rem);
-    height: calc(100% - 2rem);
+  &::backdrop {
+    background: rgb(0 0 0 / 88%);
+    animation: image-popup-fade-in $transition-normal;
   }
 
   &[open] {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+
+    animation: image-popup-fade-in $transition-normal;
   }
 
-  .popup-image {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: center;
+  @include breakpoints.reduced-motion {
+    &,
+    &::backdrop {
+      animation: none;
+    }
+  }
+}
 
-    min-width: 0;
-    max-height: 100%;
+@keyframes image-popup-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+dialog.image-popup .popup-close {
+  cursor: pointer;
+
+  position: absolute;
+  z-index: 2;
+  top: $space-xs;
+  right: $space-xs;
+
+  @include mixins.flex-center;
+
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  border-radius: $radius-full;
+
+  color: $color-white;
+
+  background: rgb(0 0 0 / 55%);
+
+  transition: background-color $transition-fast;
+
+  &:hover {
+    background: rgb(0 0 0 / 80%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-white;
+    outline-offset: 2px;
+  }
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+dialog.image-popup .popup-stage {
+  position: relative;
+
+  display: flex;
+  flex: 1;
+
+  min-height: 0;
+}
+
+dialog.image-popup .popup-track {
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  display: flex;
+  flex: 1;
+
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-white;
+    outline-offset: -2px;
+  }
+
+  @include breakpoints.reduced-motion {
+    scroll-behavior: auto;
+  }
+}
+
+dialog.image-popup .popup-slide {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+
+  display: flex;
+  flex: 0 0 100%;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 0;
+  padding: $space-sm;
+
+  @include breakpoints.up("md") {
+    padding: $space-md;
   }
 
   .image-wrapper {
-    cursor: pointer;
-
     width: 100%;
-    width: -webkit-fill-availble;
-    width: -moz-available;
-    width: stretch;
     height: 100%;
-    height: -webkit-fill-availble;
-    height: -moz-available;
-    height: stretch;
+
+    // The LQIP placeholder is the wrapper's background-image; letterbox it
+    // exactly like the object-fit image it sits behind.
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
   }
 
   img {
     width: 100%;
-    max-width: 100%;
     height: 100%;
-    max-height: 100%;
 
     object-fit: contain;
   }
+}
 
-  .popup-nav {
-    cursor: pointer;
+dialog.image-popup .popup-nav {
+  cursor: pointer;
 
-    position: relative;
-    z-index: 1;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
 
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
 
-    width: 2.5rem;
-    height: 2.5rem;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
+  width: 25%;
+  padding: 0 $space-sm;
+  border: none;
 
-    color: white;
+  color: $color-white;
 
-    background: rgb(0 0 0 / 50%);
+  background: transparent;
 
-    transition: background-color 0.2s;
+  opacity: 0;
+
+  transition: opacity $transition-fast;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: none;
+
+    .popup-nav-icon {
+      outline: 2px solid $color-white;
+      outline-offset: 2px;
+    }
+  }
+
+  &[data-nav="prev"] {
+    left: 0;
+    justify-content: flex-start;
+  }
+
+  &[data-nav="next"] {
+    right: 0;
+    justify-content: flex-end;
+  }
+
+  &[aria-disabled="true"] {
+    cursor: default;
+
+    .popup-nav-icon {
+      opacity: 0.35;
+    }
+  }
+
+  &[hidden] {
+    display: none;
+  }
+
+  // On touch screens swiping the track and tapping thumbnails do the
+  // navigating; the hover hotspots would only steal taps.
+  @media (hover: none) and (pointer: coarse) {
+    display: none;
+  }
+
+  .popup-nav-icon {
+    @include mixins.flex-center;
+
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: $radius-full;
+
+    background: rgb(0 0 0 / 55%);
 
     @include breakpoints.up("md") {
-      width: 3rem;
-      height: 3rem;
-    }
-
-    &:hover {
-      background: rgb(0 0 0 / 70%);
+      width: 3.25rem;
+      height: 3.25rem;
     }
 
     svg {
@@ -100,31 +247,113 @@ dialog.image-popup {
       }
     }
   }
+}
 
-  [data-nav="prev"] {
-    margin-right: 0.5rem;
+dialog.image-popup .popup-thumbs {
+  scroll-behavior: smooth;
+  scrollbar-width: none;
 
-    @include breakpoints.up("md") {
-      margin-right: 1rem;
-    }
+  display: flex;
+  gap: $space-xs;
+
+  margin: 0;
+  padding: $space-xs $space-sm;
+  padding-bottom: calc(#{$space-xs} + env(safe-area-inset-bottom));
+
+  overflow-x: auto;
+  list-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 
-  [data-nav="next"] {
-    margin-left: 0.5rem;
+  &[hidden] {
+    display: none;
+  }
 
-    @include breakpoints.up("md") {
-      margin-left: 1rem;
-    }
+  @include breakpoints.reduced-motion {
+    scroll-behavior: auto;
+  }
+
+  > li {
+    flex: 0 0 auto;
+  }
+
+  // Center the strip when it fits; scroll off both edges when it overflows.
+  > li:first-child {
+    margin-inline-start: auto;
+  }
+
+  > li:last-child {
+    margin-inline-end: auto;
   }
 }
 
-// Scroll lock when popup is open
-html:has(dialog.image-popup[open]) {
-  scrollbar-gutter: stable;
-  overflow: hidden;
+dialog.image-popup .popup-thumb {
+  cursor: pointer;
+
+  display: block;
+
+  padding: 0;
+  border: none;
+  border-radius: $radius-sm;
+
+  background: none;
+
+  opacity: 0.45;
+
+  transition: opacity $transition-fast;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 0.8;
+  }
+
+  &[aria-current="true"] {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-white;
+    outline-offset: 2px;
+  }
+
+  .image-wrapper {
+    overflow: hidden;
+
+    width: auto;
+    height: 3.5rem;
+    border-radius: $radius-sm;
+
+    @include breakpoints.up("md") {
+      height: 4.5rem;
+    }
+  }
+
+  img {
+    display: block;
+
+    width: auto;
+    height: 100%;
+  }
 }
 
-// Make current image clickable
-.current-image {
+dialog.image-popup .popup-status {
+  @include mixins.sr-only;
+}
+
+// Scroll lock while the popup is open
+@include dialog.dialog-scroll-lock("dialog.image-popup");
+
+// Gallery source images stay hidden in the page; the popup clones them.
+.gallery-full-size-images {
+  display: none;
+}
+
+// The hero image link opens the popup.
+.current-image-link {
   cursor: zoom-in;
+  display: block;
+
+  @include mixins.focus-ring;
 }

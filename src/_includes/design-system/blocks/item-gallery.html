@@ -7,6 +7,6 @@ Shared by `product-gallery` and `event-gallery`. No block-level parameters.
 
 {%- if gallery.size > 0 -%}
   <div class="container-wide">
-    <div class="gallery">{%- include "gallery.html" -%}</div>
+    <div class="gallery" data-popup-scope>{%- include "gallery.html" -%}</div>
   </div>
 {%- endif -%}

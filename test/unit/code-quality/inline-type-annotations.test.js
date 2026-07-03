@@ -176,5 +176,7 @@ const second = () => {
       fixHint:
         "Move type to a .d.ts file, use @param/@returns in function JSDoc, or annotate at module level",
     });
-  });
+    // Scanning every source file can exceed the runner's 1500ms default
+    // under a fully parallel suite, so this test gets its own timeout.
+  }, 5000);
 });

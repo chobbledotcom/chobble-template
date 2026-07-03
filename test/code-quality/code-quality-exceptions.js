@@ -168,6 +168,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
   "src/_lib/public/ui/gallery.js",
+  "src/_lib/public/ui/image-popup.js", // Popup state updaters split to stay under complexity limit
   "src/_lib/public/cart/hire-calculator.js",
   "src/_lib/public/cart/quote-checkout.js",
   "src/_lib/public/utils/quote-price-utils.js",
@@ -233,6 +234,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/public/ui/search.js:handleSubmit",
   "src/_lib/public/ui/nav-dropdown.js:initNavDropdown",
   "src/_lib/public/ui/freetobook.js:initFreetobook",
+  "src/_lib/public/ui/gallery.js:initGallery",
+  "src/_lib/public/ui/gallery.js:resolveStartIndex", // Throwing guard tested directly (happy-dom swallows listener errors)
+  "src/_lib/public/ui/image-popup.js:initImagePopup",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",

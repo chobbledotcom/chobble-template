@@ -111,5 +111,7 @@ const secondViolation = () => {
       fixHint:
         "Move memoized functions to module level so the cache persists across calls",
     });
-  });
+    // Scanning every source file can exceed the runner's 1500ms default
+    // under a fully parallel suite, so this test gets its own timeout.
+  }, 5000);
 });

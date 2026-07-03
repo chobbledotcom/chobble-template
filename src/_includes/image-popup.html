@@ -1,3 +1,28 @@
-{%- if gallery.size > 0 -%}
-<dialog id="image-popup" class="image-popup"></dialog>
-{%- endif -%}
+{%- comment -%}
+Fullscreen image gallery dialog. Static skeleton populated at runtime by
+src/_lib/public/ui/image-popup.js with slides and thumbnails cloned from a
+[data-popup-scope] gallery's hidden full-size images. Rendered on every page
+so product, property, and gallery-block galleries can all open it.
+{%- endcomment -%}
+<dialog id="image-popup" class="image-popup" aria-label="Image gallery">
+  <button type="button" class="popup-close" data-popup-close aria-label="Close gallery">
+    {{- "hugeicons:cancel-01" | icon -}}
+  </button>
+  <div class="popup-stage">
+    <button type="button" class="popup-nav" data-nav="prev" aria-label="Previous image">
+      <span class="popup-nav-icon">{{- "hugeicons:arrow-left-01" | icon -}}</span>
+    </button>
+    <div
+      class="popup-track"
+      data-popup-track
+      tabindex="0"
+      role="group"
+      aria-label="Images"
+    ></div>
+    <button type="button" class="popup-nav" data-nav="next" aria-label="Next image">
+      <span class="popup-nav-icon">{{- "hugeicons:arrow-right-01" | icon -}}</span>
+    </button>
+  </div>
+  <ul class="popup-thumbs" data-popup-thumbs hidden></ul>
+  <p class="popup-status" data-popup-status aria-live="polite"></p>
+</dialog>

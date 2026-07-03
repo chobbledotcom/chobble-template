@@ -1,5 +1,13 @@
 <div class="current-image">
   {% assign image = gallery[0] %}
   {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-  {% image image, alt_text, "", "", "", "", "", false, true %}
+  <a
+    href="{{ image | normalizeImageUrl }}"
+    class="current-image-link"
+    data-popup-trigger
+    data-index="1"
+    aria-label="Open image gallery"
+  >
+    {% image image, alt_text, "", "", "", "", "", false, true %}
+  </a>
 </div>
