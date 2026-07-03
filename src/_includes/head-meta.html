@@ -6,7 +6,7 @@
 >
 
 <title>
-  {{- meta_title | default: title | escape -}}
+  {{- meta_title | default: name | default: title | escape -}}
 </title>
 
 {%- if meta_description -%}
