@@ -11,6 +11,35 @@
   navigation: auto;
 }
 
+// Name the persistent structural elements so each animates as its own group
+// instead of being folded into the single full-page root snapshot. Because the
+// site chrome (nav, footer, floating controls) is identical either side of a
+// navigation, its snapshots line up and it appears to hold steady while only the
+// <main> content cross-fades — a far calmer transition than the whole viewport
+// fading at once.
+//
+// Each name must be unique per document; every element below renders at most
+// once per page, so plain element/id selectors are safe here.
+nav {
+  view-transition-name: site-nav;
+}
+
+main {
+  view-transition-name: page-main;
+}
+
+footer {
+  view-transition-name: site-footer;
+}
+
+.cart-icon {
+  view-transition-name: cart-icon;
+}
+
+#theme-switcher-button {
+  view-transition-name: theme-switcher;
+}
+
 // Respect the user's motion preference: keep the instant snapshot swap but drop
 // the animation, matching the reduced-motion overrides elsewhere in the base.
 @media (prefers-reduced-motion: reduce) {
