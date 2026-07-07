@@ -18,9 +18,13 @@
 // <main> content cross-fades — a far calmer transition than the whole viewport
 // fading at once.
 //
-// Each name must be unique per document; every element below renders at most
-// once per page, so plain element/id selectors are safe here.
-nav {
+// Each name must be unique per document, so the selectors target only the
+// single top-level instance of each element. The site nav and footer are
+// direct children of <body>; a bare `nav`/`footer` would also catch the nested
+// guide-navigation <nav> and the cart overlay's <footer class="cart-footer">,
+// and duplicate names make browsers skip the transition entirely. <main> is
+// unique per page, so it needs no narrowing.
+body > nav {
   view-transition-name: site-nav;
 }
 
@@ -28,7 +32,7 @@ main {
   view-transition-name: page-main;
 }
 
-footer {
+body > footer {
   view-transition-name: site-footer;
 }
 
