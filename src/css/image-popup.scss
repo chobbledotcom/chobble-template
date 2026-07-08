@@ -71,6 +71,7 @@ dialog.image-popup .popup-close {
   color: $color-white;
 
   background: rgb(0 0 0 / 55%);
+  box-shadow: none;
 
   transition: background-color $transition-fast;
 
@@ -176,6 +177,7 @@ dialog.image-popup .popup-nav {
   color: $color-white;
 
   background: transparent;
+  box-shadow: none;
 
   opacity: 0;
 
@@ -231,6 +233,7 @@ dialog.image-popup .popup-nav {
     border-radius: $radius-full;
 
     background: rgb(0 0 0 / 55%);
+    box-shadow: none;
 
     @include breakpoints.up("md") {
       width: 3.25rem;
