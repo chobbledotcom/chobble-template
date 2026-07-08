@@ -3,8 +3,13 @@
 
 @use "breakpoints";
 
-// Apply initial hidden state and transition to all configured selectors
-.items > li {
+// Apply initial hidden state and transition to all configured selectors.
+// Scoped under `.design-system` so the rule matches the specificity of the
+// card-hover declaration in `_items.scss` (`.design-system ul.items > li`).
+// Because `scroll-fade` is imported after `design-system` in the bundle, equal
+// specificity is enough for this `transition` to win — otherwise the card-hover
+// transition (which omits `opacity`) would replace it and the fade would pop.
+.design-system .items > li {
   transform: translateY(20px);
   opacity: 0;
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
@@ -17,7 +22,7 @@
 
 // Respect reduced motion preferences
 @include breakpoints.reduced-motion {
-  .items > li {
+  .design-system .items > li {
     transform: none;
     opacity: 1;
     transition: none;
