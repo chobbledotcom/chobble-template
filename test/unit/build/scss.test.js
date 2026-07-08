@@ -274,6 +274,22 @@ describe("scss", () => {
     expect(tableRule).toContain("margin: 0");
   });
 
+  test("Design-system mobile navigation panel supports scrolling overflow", async () => {
+    const result = await compileDesignSystemBundle();
+    const menuRule =
+      result.match(
+        /\.design-system\.sticky-mobile-nav nav > ul\s*\{[^}]*\}/,
+      )?.[0] ?? "";
+
+    expect(menuRule).toContain("bottom: 0");
+    expect(menuRule).toContain("overflow-y: auto");
+    expect(menuRule).toContain("overscroll-behavior-y: contain");
+    expect(menuRule).toContain("box-sizing: border-box");
+    expect(menuRule).toContain("height: auto");
+    expect(menuRule).toContain("max-height: calc(100dvh - 3rem)");
+    expect(menuRule).toContain("-webkit-overflow-scrolling: touch");
+  });
+
   test("Design-system bundle defines default link decoration tokens", async () => {
     const result = await compileDesignSystemBundle();
     const linkRule =

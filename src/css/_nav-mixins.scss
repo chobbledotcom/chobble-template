@@ -214,23 +214,31 @@
   position: fixed;
   top: 3rem;
   right: -100%;
+  bottom: 0;
 
-  overflow-y: scroll;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
   display: flex;
   flex-direction: column;
   gap: $gap;
 
+  box-sizing: border-box;
   width: 70%;
   max-width: 300px;
-  height: calc(100vh - 3rem);
+  height: auto;
+  max-height: calc(100vh - 3rem);
+  max-height: calc(100dvh - 3rem);
   margin: 0;
   padding: $gap;
+  padding-bottom: calc(#{$gap} + env(safe-area-inset-bottom));
 
   list-style: none;
 
   background: var(--color-bg);
 
   transition: right $transition;
+
+  -webkit-overflow-scrolling: touch;
 
   .toggle-label {
     display: block;
