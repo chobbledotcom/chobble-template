@@ -21,11 +21,7 @@ const isRedirectDocument = (tokens) =>
   );
 
 const shouldSkipHref = (href) =>
-  !href ||
-  href.includes("?") ||
-  href.includes("#") ||
-  href.startsWith("//") ||
-  URI_SCHEME.test(href);
+  !href || href.startsWith("//") || URI_SCHEME.test(href);
 
 const getInternalHrefs = (tokens) => {
   return tokens.flatMap((token) => {
@@ -37,7 +33,7 @@ const getInternalHrefs = (tokens) => {
 
 const resolveTarget = (source, href) => {
   const url = new URL(href, `${INTERNAL_ORIGIN}/${source}`);
-  return decodeURIComponent(url.pathname).replace(/^\/+/, "");
+  return url.pathname.replace(/^\/+/, "");
 };
 
 const targetExists = (files, target) =>
@@ -56,10 +52,13 @@ export const findBrokenInternalLinks = (outputDir) => {
   if (!existsSync(outputDir)) {
     throw new Error(`Generated site directory does not exist: ${outputDir}`);
   }
-  const files = new Set(listFiles(outputDir));
-  return [...files]
+  const outputFiles = listFiles(outputDir);
+  const targets = new Set(
+    outputFiles.flatMap((file) => [file, encodeURI(file)]),
+  );
+  return outputFiles
     .filter((file) => file.endsWith(".html"))
-    .flatMap((source) => checkHtmlFile(outputDir, files, source))
+    .flatMap((source) => checkHtmlFile(outputDir, targets, source))
     .sort(
       (first, second) =>
         first.source.localeCompare(second.source) ||

@@ -212,6 +212,12 @@ describe("buildProductMeta", () => {
     expect(productMeta({ price: 0 }).offers).toBeUndefined();
   });
 
+  test("does not turn negative string prices into positive offers", () => {
+    expect(productMeta({ price: "-10" }).offers).toBeUndefined();
+    expect(productMeta({ price: "From -£10" }).offers).toBeUndefined();
+    expect(productMeta({ price: "GBP -10" }).offers).toBeUndefined();
+  });
+
   test("uses the lowest product option when no page-level price exists", () => {
     expect(
       productMeta({

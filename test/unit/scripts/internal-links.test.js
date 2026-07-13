@@ -35,12 +35,18 @@ describe("internal link validation", () => {
           <a href="mailto:test@example.com">Email</a>
           <a href="tel:+44123456789">Phone</a>
           <a href="data:text/plain,test">Data</a>
-          <a href="/missing?preview=true">Preview</a>
-          <a href="/missing#section">Section</a>
+          <a href="/about/?preview=true">Preview</a>
+          <a href="/about/#section">Section</a>
+          <a href="?preview=true">Current query</a>
+          <a href="#section">Current section</a>
+          <a href="/encoded%20page/">Encoded path</a>
+          <a href="/literal%20path/">Literal encoded path</a>
           <a>No href</a>
         `,
       );
       writeOutput(outputDir, "about/index.html");
+      writeOutput(outputDir, "encoded page/index.html");
+      writeOutput(outputDir, "literal%20path/index.html");
       writeOutput(outputDir, "products/index.html");
       writeOutput(outputDir, "feed.xml");
       writeOutput(outputDir, "legacy/index.html");
@@ -67,12 +73,42 @@ describe("internal link validation", () => {
         "a/index.html",
         '<link rel="stylesheet" href="/missing.css">',
       );
+      writeOutput(
+        outputDir,
+        "b/index.html",
+        '<a href="/bad%ZZ">Malformed path</a>',
+      );
+      writeOutput(
+        outputDir,
+        "f/index.html",
+        '<a href="/missing-fragment/#section">Missing fragment path</a>',
+      );
+      writeOutput(
+        outputDir,
+        "q/index.html",
+        '<a href="/missing-query/?preview=true">Missing query path</a>',
+      );
 
       expect(findBrokenInternalLinks(outputDir)).toEqual([
         {
           source: "a/index.html",
           href: "/missing.css",
           target: "missing.css",
+        },
+        {
+          source: "b/index.html",
+          href: "/bad%ZZ",
+          target: "bad%ZZ",
+        },
+        {
+          source: "f/index.html",
+          href: "/missing-fragment/#section",
+          target: "missing-fragment/",
+        },
+        {
+          source: "q/index.html",
+          href: "/missing-query/?preview=true",
+          target: "missing-query/",
         },
         {
           source: "z/index.html",

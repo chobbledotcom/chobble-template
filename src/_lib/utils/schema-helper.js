@@ -178,6 +178,11 @@ const parseOfferPrice = (price) => {
     typeof price === "string" ? price.replaceAll(",", "") : price;
   if (isAmbiguousPrice(normalized)) return null;
   if (typeof price === "number") return positiveFinitePrice(price);
+  if (
+    typeof normalized === "string" &&
+    /[-−]\s*(?:[A-Z]{3}\s*)?[£€$]?\s*\d/i.test(normalized)
+  )
+    return null;
   const match = price ? String(normalized).match(/\d+(?:\.\d+)?/) : null;
   return positiveFinitePrice(match ? Number(match[0]) : Number.NaN);
 };
