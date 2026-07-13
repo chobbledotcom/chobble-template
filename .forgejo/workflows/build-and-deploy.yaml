@@ -22,7 +22,7 @@ jobs:
       - name: Build with Bun
         run: |
           bun install
-          bun ./node_modules/@11ty/eleventy/cmd.cjs
+          bun run build
 
       - name: Deploy to neocities
         # uses: bcomnes/deploy-to-neocities@v3

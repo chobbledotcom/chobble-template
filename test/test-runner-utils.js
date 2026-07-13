@@ -256,7 +256,7 @@ export const COMMON_STEPS = {
   build: {
     name: "build",
     cmd: "bun",
-    args: ["./node_modules/@11ty/eleventy/cmd.cjs", "--quiet"],
+    args: ["run", "build"],
   },
 };
 

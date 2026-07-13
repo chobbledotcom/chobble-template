@@ -22,7 +22,7 @@
 		"#toolkit/*": "./packages/js-toolkit/*"
 	},
 	"scripts": {
-		"build": "rm -rf _site && bun scripts/eleventy-build.js",
+		"build": "rm -rf _site && bun scripts/eleventy-build.js && bun run check:links",
 		"serve": "rm -rf _site && bun scripts/eleventy-build.js --serve --incremental",
 		"test": "bun ./test/run-tests.js",
 		"test:unit": "bun test test/unit",
@@ -46,7 +46,8 @@
 		"generate-cms-types": "bun scripts/generate-pages-cms-types.js",
 		"generate-blocks-reference": "bun scripts/generate-blocks-reference.js",
 		"screenshot": "bun scripts/screenshot.js",
-		"lighthouse": "bun scripts/lighthouse.js"
+		"lighthouse": "bun scripts/lighthouse.js",
+		"check:links": "bun scripts/check-internal-links.js _site"
 	},
 	"devDependencies": {
 		"11ty.ts": "^0.0.7",

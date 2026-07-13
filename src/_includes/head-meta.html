@@ -6,13 +6,13 @@
 >
 
 <title>
-  {{- meta_title | default: name | default: title | escape -}}
+  {{- socialMeta.title | escape -}}
 </title>
 
-{%- if meta_description -%}
+{%- if socialMeta.description -%}
   <meta
     name="description"
-    content="{{ meta_description }}"
+    content="{{ socialMeta.description | escape }}"
   >
 {%- endif -%}
 
@@ -24,11 +24,33 @@
 {%- if no_index -%}
   <meta
     name="robots"
-    value="noindex,nofollow"
+    content="noindex,nofollow"
   >
 {%- else -%}
   <link
     rel="canonical"
-    href="{{ page.url | canonicalUrl }}"
+    href="{{ socialMeta.url | escape }}"
   >
+{%- endif -%}
+
+<meta property="og:type" content="{{ socialMeta.type | escape }}">
+<meta property="og:title" content="{{ socialMeta.title | escape }}">
+{%- if socialMeta.description -%}
+  <meta property="og:description" content="{{ socialMeta.description | escape }}">
+{%- endif -%}
+<meta property="og:url" content="{{ socialMeta.url | escape }}">
+{%- if socialMeta.image -%}
+  <meta property="og:image" content="{{ socialMeta.image | escape }}">
+{%- endif -%}
+
+<meta
+  name="twitter:card"
+  content="{% if socialMeta.image %}summary_large_image{% else %}summary{% endif %}"
+>
+<meta name="twitter:title" content="{{ socialMeta.title | escape }}">
+{%- if socialMeta.description -%}
+  <meta name="twitter:description" content="{{ socialMeta.description | escape }}">
+{%- endif -%}
+{%- if socialMeta.image -%}
+  <meta name="twitter:image" content="{{ socialMeta.image | escape }}">
 {%- endif -%}

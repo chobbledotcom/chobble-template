@@ -23,8 +23,7 @@ describe("eleventyComputed.meta", () => {
       page: { url: "/news/test-post/", date: new Date("2024-01-15") },
     });
     expect(result.author.name).toBe("Test Site");
-    expect(result.publisher.name).toBe("Test Site");
-    expect(result.datePublished).toBe("2024-01-15");
+    expect(result.published).toBe("2024-01-15");
   });
 
   test("returns organization-shaped meta when schema_type is 'organization'", () => {
@@ -79,5 +78,24 @@ describe("eleventyComputed.metaComputed", () => {
         metaComputed: { customField: "leaky" },
       }),
     ).toEqual({});
+  });
+});
+
+describe("eleventyComputed.socialMeta", () => {
+  test("returns shared head metadata", () => {
+    expect(
+      eleventyComputed.socialMeta({
+        name: "News item",
+        meta_title: "SEO news title",
+        meta_description: "News description",
+        tags: ["news"],
+        site,
+        page: { url: "/news/item/" },
+      }),
+    ).toMatchObject({
+      title: "SEO news title",
+      description: "News description",
+      type: "article",
+    });
   });
 });

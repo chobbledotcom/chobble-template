@@ -11,6 +11,7 @@ import {
   buildOrganizationMeta,
   buildPostMeta,
   buildProductMeta,
+  buildSocialMeta,
 } from "#utils/schema-helper.js";
 
 // ----------------------------------------
@@ -34,7 +35,7 @@ const orgMeta = (overrides = {}) =>
     createSchemaData({ pageUrl: "/", name: "Home", ...overrides }),
   );
 
-/** Curried: (price input) => stripped price string from offers */
+/** Curried: (price input) => numeric price from offers */
 const strippedPrice = (price) => productMeta({ price }).offers.price;
 
 /** Build productMeta with mock reviews from specs */
@@ -69,6 +70,27 @@ describe("buildBaseMeta", () => {
     const result = baseMeta({ image: "fallback-image.jpg" });
     expect(result.image).toBeTruthy();
     expect(result.image.src.includes("fallback-image.jpg")).toBe(true);
+  });
+
+  test("uses computed thumbnail before a hero image", () => {
+    const result = baseMeta({
+      thumbnail: "thumbnail.jpg",
+      blocks: [{ type: "image-background", image: "hero.jpg" }],
+    });
+    expect(result.image.src).toBe("https://example.com/images/thumbnail.jpg");
+  });
+
+  test("uses a hero image when the page has no image or thumbnail", () => {
+    const result = baseMeta({
+      blocks: [{ type: "hero", image: "hero.jpg" }],
+    });
+    expect(result.image.src).toBe("https://example.com/images/hero.jpg");
+  });
+
+  test("ignores data images in metadata", () => {
+    expect(
+      baseMeta({ image: "data:image/png;base64,abc" }).image,
+    ).toBeUndefined();
   });
 
   test("handles absolute URL images (http://)", () => {
@@ -107,6 +129,26 @@ describe("buildBaseMeta", () => {
     expect(baseMeta({ faqs }).faq).toEqual(faqs);
   });
 
+  test("uses FAQ block items instead of page-level fallback content", () => {
+    const blockFaqs = [{ question: "Block question", answer: "Block answer" }];
+    expect(
+      baseMeta({
+        faqs: [{ question: "Page question", answer: "Page answer" }],
+        blocks: [{ type: "faqs", items: blockFaqs }],
+      }).faq,
+    ).toEqual(blockFaqs);
+  });
+
+  test("uses and deduplicates page FAQs for FAQ blocks without items", () => {
+    const faqs = [{ question: "Question", answer: "Answer" }];
+    expect(
+      baseMeta({
+        faqs,
+        blocks: [{ type: "faqs" }, { type: "faqs" }],
+      }).faq,
+    ).toEqual(faqs);
+  });
+
   test("does not include empty FAQs array", () => {
     expect(baseMeta({ faqs: [] }).faq).toBeUndefined();
   });
@@ -134,30 +176,54 @@ describe("buildProductMeta", () => {
   test("includes offers when price is provided", () => {
     const result = productMeta({ price: "29.99" });
     expect(result.offers).toBeTruthy();
-    expect(result.offers.price).toBe("29.99");
+    expect(result.offers.price).toBe(29.99);
     expect(result.offers.priceCurrency).toBe("GBP");
     expect(result.offers.availability).toBe("https://schema.org/InStock");
     expect(result.offers.priceValidUntil).toBeTruthy();
   });
 
   test("strips currency symbols from price", () => {
-    expect(strippedPrice("£29.99")).toBe("29.99");
+    expect(strippedPrice("£29.99")).toBe(29.99);
   });
 
   test("strips dollar sign from price", () => {
-    expect(strippedPrice("$49.99")).toBe("49.99");
+    expect(strippedPrice("$49.99")).toBe(49.99);
   });
 
   test("strips euro sign from price", () => {
-    expect(strippedPrice("€39.99")).toBe("39.99");
+    expect(strippedPrice("€39.99")).toBe(39.99);
   });
 
   test("strips commas from price", () => {
-    expect(strippedPrice("1,299.99")).toBe("1299.99");
+    expect(strippedPrice("1,299.99")).toBe(1299.99);
+  });
+
+  test("parses a prefixed price", () => {
+    expect(strippedPrice("From £495")).toBe(495);
   });
 
   test("does not include offers when price is not provided", () => {
     expect(productMeta().offers).toBeUndefined();
+  });
+
+  test("does not include offers for POA, ambiguous, or non-positive prices", () => {
+    expect(productMeta({ price: "POA" }).offers).toBeUndefined();
+    expect(productMeta({ price: "£10 / £12" }).offers).toBeUndefined();
+    expect(productMeta({ price: 0 }).offers).toBeUndefined();
+  });
+
+  test("does not turn negative string prices into positive offers", () => {
+    expect(productMeta({ price: "-10" }).offers).toBeUndefined();
+    expect(productMeta({ price: "From -£10" }).offers).toBeUndefined();
+    expect(productMeta({ price: "GBP -10" }).offers).toBeUndefined();
+  });
+
+  test("uses the lowest product option when no page-level price exists", () => {
+    expect(
+      productMeta({
+        options: [{ unit_price: 20 }, { unit_price: 15 }],
+      }).offers.price,
+    ).toBe(15);
   });
 
   test("includes reviews and rating when tags and collections.reviews are provided", () => {
@@ -226,28 +292,53 @@ describe("buildPostMeta", () => {
     expect(postMeta().author.name).toBe("Test Site");
   });
 
-  test("includes datePublished from page.date", () => {
-    expect(postMeta().datePublished).toBe("2024-03-15");
+  test("includes published from page.date", () => {
+    expect(postMeta().published).toBe("2024-03-15");
   });
 
-  test("includes publisher with name and logo", () => {
-    const result = postMeta({ siteLogo: "/custom-logo.png" });
-    expect(result.publisher).toBeTruthy();
-    expect(result.publisher.name).toBe("Test Site");
-    expect(result.publisher.logo).toBeTruthy();
-    expect(result.publisher.logo.src.includes("custom-logo.png")).toBe(true);
-    expect(result.publisher.logo.width).toBe(512);
-    expect(result.publisher.logo.height).toBe(512);
+  test("does not include published when page.date is not provided", () => {
+    expect(postMeta({ date: null }).published).toBeUndefined();
+  });
+});
+
+describe("buildSocialMeta", () => {
+  test("uses SEO title, canonical URL, description, image, and news type", () => {
+    expect(
+      buildSocialMeta(
+        createSchemaData({
+          name: "Page name",
+          meta_title: "SEO title",
+          meta_description: "Description",
+          thumbnail: "/images/social.jpg",
+          tags: ["news"],
+        }),
+      ),
+    ).toEqual({
+      title: "SEO title",
+      description: "Description",
+      url: "https://example.chobble.com/page/",
+      image: "https://example.com/images/social.jpg",
+      type: "article",
+    });
   });
 
-  test("uses default logo path when site.logo not provided", () => {
-    expect(postMeta().publisher.logo.src.includes("/images/logo.png")).toBe(
-      true,
+  test("falls back to page title and ordinary website type", () => {
+    expect(
+      buildSocialMeta(
+        createSchemaData({ name: undefined, title: "Legacy title" }),
+      ),
+    ).toEqual({
+      title: "Legacy title",
+      description: undefined,
+      url: "https://example.chobble.com/page/",
+      type: "website",
+    });
+  });
+
+  test("uses product type for product pages", () => {
+    expect(buildSocialMeta(createSchemaData({ tags: ["products"] })).type).toBe(
+      "product",
     );
-  });
-
-  test("does not include datePublished when page.date is not provided", () => {
-    expect(postMeta({ date: null }).datePublished).toBeUndefined();
   });
 });
 

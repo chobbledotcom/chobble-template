@@ -12,5 +12,9 @@
 {%- endif -%}
 
 {%- unless no_index -%}
-  {% jsonLdScript metaComputed, schemaType, tags %}
+  {%- assign schemaMeta = meta | withSchemaBreadcrumbs: config.show_breadcrumbs, page, name, navigationParent, parent, categories, collections, property, parentGuideCategory -%}
+  {%- if schemaType == "post" and author -%}
+    {%- assign schemaMeta = schemaMeta | withSchemaAuthor: author, collections.team -%}
+  {%- endif -%}
+  {% jsonLdScript schemaMeta, schemaType, tags %}
 {%- endunless -%}

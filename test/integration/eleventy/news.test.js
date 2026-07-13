@@ -220,8 +220,10 @@ describe("news", () => {
 
       // Test 2: no_index post has noindex meta tag
       const hiddenOutput = site.getOutput("/news/hidden-post/index.html");
-      expect(hiddenOutput.includes('name="robots"')).toBe(true);
-      expect(hiddenOutput.includes("noindex")).toBe(true);
+      expect(hiddenOutput).toContain(
+        '<meta name="robots" content="noindex,nofollow">',
+      );
+      expect(hiddenOutput).not.toContain('name="robots" value=');
 
       // Test 3: no_index post does not appear in news list
       const newsListHtml = site.getOutput("/news/index.html");
