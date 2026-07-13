@@ -8,7 +8,7 @@ blocks:
       Get in touch for a fast, free quote. We cover discos, roller derbies and dog agility contests across the UK.
     button:
       text: Get In Touch
-      href: /contact-us/
+      href: /contact/
       variant: secondary
       size: lg
 ---

@@ -15,13 +15,13 @@ export type SchemaOrgMeta = {
   description?: string;
   image?: { src: string };
   faq?: Faq[];
+  breadcrumbs?: Array<{ name: string; url: string; position: number }>;
   name?: string;
   brand?: string;
   offers?: Record<string, unknown>;
   reviews?: Record<string, unknown>[];
   rating?: Record<string, unknown>;
-  datePublished?: string;
+  published?: string;
   author?: Record<string, unknown>;
-  publisher?: Record<string, unknown>;
   organization?: Record<string, unknown>;
 };

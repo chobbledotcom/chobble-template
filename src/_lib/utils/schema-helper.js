@@ -1,6 +1,8 @@
 import { getReviewsFor } from "#collections/reviews.js";
+import getConfig from "#data/config.js";
+import { normalizeImageUrl } from "#media/image-utils.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
-import { isExternalUrl } from "#utils/url-utils.js";
+import { isAmbiguousPrice } from "#utils/price-utils.js";
 
 /**
  * @typedef {Object} SiteInfo
@@ -24,13 +26,21 @@ import { isExternalUrl } from "#utils/url-utils.js";
 
 /**
  * @typedef {Object} BasePageData
- * @property {string} [image] - Image path
+ * @property {string | {src: string}} [image] - Image path
+ * @property {string} [thumbnail] - Computed thumbnail path
+ * @property {string[]} [gallery] - Gallery image paths
  * @property {SiteInfo} site - Site information
  * @property {PageInfo} page - Page information
  * @property {string} name - Page name (required - computed for pages, explicit for collections)
+ * @property {string} [title] - Legacy page title
+ * @property {string} [meta_title] - Search/social title
+ * @property {string} [description] - Page description
  * @property {string} [meta_description] - Meta description
  * @property {string} [subtitle] - Page subtitle
  * @property {FAQ[]} [faqs] - FAQ items
+ * @property {string[]} [tags] - Collection tags
+ * @property {Array<{type: string, image?: string, items?: FAQ[]}>} [blocks] - Content blocks
+ * @property {Record<string, import("#lib/types").EleventyCollectionItem[]>} [collections] - Collections data
  * @property {Record<string, unknown>} [metaComputed] - Computed metadata
  */
 
@@ -41,7 +51,7 @@ import { isExternalUrl } from "#utils/url-utils.js";
  * @property {SiteInfo} site - Site information
  * @property {PageInfo} page - Page information
  * @property {string[]} [tags] - Item tags (used to derive reviews field)
- * @property {{ reviews: import("#lib/types").EleventyCollectionItem[] }} [collections] - Collections data
+ * @property {Array<{unit_price: string | number}>} [options] - Product options
  */
 
 /**
@@ -69,9 +79,8 @@ import { isExternalUrl } from "#utils/url-utils.js";
  * @property {Record<string, unknown>} [offers] - Offer data
  * @property {Record<string, unknown>[]} [reviews] - Review data
  * @property {Record<string, unknown>} [rating] - Rating data
- * @property {string} [datePublished] - Published date
+ * @property {string} [published] - Published date
  * @property {Record<string, unknown>} [author] - Author info
- * @property {Record<string, unknown>} [publisher] - Publisher info
  * @property {Record<string, unknown>} [organization] - Organization info
  */
 
@@ -82,23 +91,47 @@ import { isExternalUrl } from "#utils/url-utils.js";
  */
 const toDateString = (date) => date.toISOString().split("T")[0];
 
+/** @param {BasePageData} data */
+const getPageImageUrl = (data) => {
+  const getHeroImage = () => {
+    if (!Array.isArray(data.blocks)) return null;
+    const hero = data.blocks.find(
+      (block) =>
+        ["hero", "image-background"].includes(block.type) && block.image,
+    );
+    return hero ? hero.image : null;
+  };
+  const image =
+    data.image || data.thumbnail || data.gallery?.[0] || getHeroImage();
+  if (!image) return null;
+  const src = typeof image === "string" ? image : image.src;
+  if (src.startsWith("data:")) return null;
+  return new URL(normalizeImageUrl(src), `${data.site.url}/`).href;
+};
+
+/** @param {BasePageData} data */
+const getDescription = (data) =>
+  data.meta_description || data.subtitle || data.description;
+
 /**
- * Build a full image URL from a path
- * @param {string} imageInput - Image path or URL
- * @param {{ url: string }} site - Site object with url property
- * @returns {string} Full image URL
+ * Build metadata used by the shared HTML head.
+ * @param {BasePageData & {tags?: string[]}} data - Page data
+ * @returns {{title: string|undefined, description?: string, url: string, image?: string, type: string}}
  */
-function buildImageUrl(imageInput, { url }) {
-  if (isExternalUrl(imageInput)) {
-    return imageInput;
-  }
-
-  if (imageInput.startsWith("/")) {
-    return `${url}${imageInput}`;
-  }
-
-  return `${url}/images/${imageInput}`;
-}
+const buildSocialMeta = (data) => {
+  const image = getPageImageUrl(data);
+  return {
+    title: data.meta_title || data.name || data.title,
+    description: getDescription(data),
+    url: canonicalUrl(data.page.url),
+    ...(image && { image }),
+    type: data.tags?.includes("news")
+      ? "article"
+      : data.tags?.includes("products")
+        ? "product"
+        : "website",
+  };
+};
 
 /**
  * Builds base schema.org metadata from page data.
@@ -106,17 +139,48 @@ function buildImageUrl(imageInput, { url }) {
  * @returns {SchemaOrgMeta} Schema.org metadata object
  */
 function buildBaseMeta(data) {
-  const imageUrl = data.image ? buildImageUrl(data.image, data.site) : null;
+  const getFaqs = () => {
+    const pageFaqs = Array.isArray(data.faqs) ? data.faqs : [];
+    if (!Array.isArray(data.blocks)) return pageFaqs;
+    const faqBlocks = data.blocks.filter((block) => block.type === "faqs");
+    if (faqBlocks.length === 0) return pageFaqs;
+    const faqs = faqBlocks.flatMap((block) =>
+      Array.isArray(block.items) && block.items.length > 0
+        ? block.items
+        : pageFaqs,
+    );
+    return [
+      ...new Map(
+        faqs.map((faq) => [`${faq.question}\0${faq.answer}`, faq]),
+      ).values(),
+    ];
+  };
+  const imageUrl = getPageImageUrl(data);
+  const faqs = getFaqs();
 
   return {
     ...data.metaComputed,
     url: canonicalUrl(data.page.url),
-    title: data.name,
-    description: data.meta_description || data.subtitle,
+    title: data.name || data.title || data.meta_title,
+    description: getDescription(data),
     ...(imageUrl && { image: { src: imageUrl } }),
-    ...(data.faqs?.length > 0 && { faq: data.faqs }),
+    ...(faqs.length > 0 && { faq: faqs }),
   };
 }
+
+/** @param {number} price */
+const positiveFinitePrice = (price) =>
+  Number.isFinite(price) && price > 0 ? price : null;
+
+/** @param {string | number | null | undefined} price */
+const parseOfferPrice = (price) => {
+  const normalized =
+    typeof price === "string" ? price.replaceAll(",", "") : price;
+  if (isAmbiguousPrice(normalized)) return null;
+  if (typeof price === "number") return positiveFinitePrice(price);
+  const match = price ? String(normalized).match(/\d+(?:\.\d+)?/) : null;
+  return positiveFinitePrice(match ? Number(match[0]) : Number.NaN);
+};
 
 /**
  * Build schema.org metadata for a product page
@@ -124,6 +188,15 @@ function buildBaseMeta(data) {
  * @returns {SchemaOrgMeta} Schema.org product metadata
  */
 const buildProductMeta = (data) => {
+  const getOfferPrice = () => {
+    if (data.price !== undefined && data.price !== null && data.price !== "")
+      return parseOfferPrice(data.price);
+    if (!Array.isArray(data.options)) return null;
+    const prices = data.options
+      .map((option) => parseOfferPrice(option.unit_price))
+      .filter((price) => price !== null);
+    return prices.length > 0 ? Math.min(...prices) : null;
+  };
   const buildPriceValidUntil = () => {
     const date = new Date();
     date.setFullYear(date.getFullYear() + 1);
@@ -131,8 +204,8 @@ const buildProductMeta = (data) => {
   };
 
   const buildOffers = (price) => ({
-    price: price.toString().replace(/[£€$,]/g, ""),
-    priceCurrency: "GBP",
+    price,
+    priceCurrency: getConfig().currency,
     availability: "https://schema.org/InStock",
     priceValidUntil: buildPriceValidUntil(),
   });
@@ -171,11 +244,12 @@ const buildProductMeta = (data) => {
     };
   };
 
+  const price = getOfferPrice();
   return {
     ...buildBaseMeta(data),
     name: data.name,
     brand: data.site.name,
-    ...(data.price && { offers: buildOffers(data.price) }),
+    ...(price !== null && { offers: buildOffers(price) }),
     ...buildReviewsMeta(),
   };
 };
@@ -186,20 +260,10 @@ const buildProductMeta = (data) => {
  * @returns {SchemaOrgMeta} Schema.org post metadata
  */
 const buildPostMeta = (data) => {
-  const buildPublisher = (site) => ({
-    name: site.name,
-    logo: {
-      src: buildImageUrl(site.logo || "/images/logo.png", site),
-      width: 512,
-      height: 512,
-    },
-  });
-
   return {
     ...buildBaseMeta(data),
-    ...(data.page.date && { datePublished: toDateString(data.page.date) }),
+    ...(data.page.date && { published: toDateString(data.page.date) }),
     author: { name: data.author || data.site.name },
-    publisher: buildPublisher(data.site),
   };
 };
 
@@ -220,4 +284,5 @@ export {
   buildOrganizationMeta,
   buildPostMeta,
   buildProductMeta,
+  buildSocialMeta,
 };

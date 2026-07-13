@@ -70,6 +70,18 @@ export const getBySlug = (collection, slug) => {
 };
 
 /**
+ * @param {Record<string, unknown>} meta
+ * @param {string | null | undefined} authorReference
+ * @param {EleventyCollectionItem[]} team
+ * @returns {Record<string, unknown>}
+ */
+export const withSchemaAuthor = (meta, authorReference, team) => {
+  if (!authorReference) return meta;
+  const author = getBySlug(team, authorReference);
+  return { ...meta, author: { name: author.data.name } };
+};
+
+/**
  * Resolve an array of file or directory paths to collection items.
  * Skips paths that don't match any item (e.g. deleted content).
  * Preserves the order of the input paths array; directory paths are
@@ -133,4 +145,5 @@ export const getItemsByPath = (collection, paths) => {
 export const configureCollectionLookup = (eleventyConfig) => {
   eleventyConfig.addFilter("getBySlug", getBySlug);
   eleventyConfig.addFilter("getItemsByPath", getItemsByPath);
+  eleventyConfig.addFilter("withSchemaAuthor", withSchemaAuthor);
 };

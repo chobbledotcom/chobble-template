@@ -11,6 +11,7 @@
 
 import strings from "#data/strings.js";
 import { getBySlug } from "#eleventy/collection-lookup.js";
+import { canonicalUrl } from "#utils/canonical-url.js";
 
 /** Mapping from navigation parent names to their index URLs */
 const PARENT_URL_MAP = {
@@ -224,14 +225,37 @@ const breadcrumbsFilter = (
 };
 
 /**
+ * @param {Record<string, unknown>} meta
+ * @param {boolean} showBreadcrumbs
+ * @param {...any} breadcrumbArgs - Arguments forwarded to breadcrumbsFilter
+ * @returns {Record<string, unknown>}
+ */
+const withSchemaBreadcrumbs = (meta, showBreadcrumbs, ...breadcrumbArgs) => {
+  if (!showBreadcrumbs) return meta;
+  const page = breadcrumbArgs[0];
+  const breadcrumbs = Reflect.apply(
+    breadcrumbsFilter,
+    null,
+    breadcrumbArgs,
+  ).map((crumb, index) => ({
+    name: crumb.label,
+    url: canonicalUrl(crumb.url ? crumb.url : page.url),
+    position: index + 1,
+  }));
+  return breadcrumbs.length > 0 ? { ...meta, breadcrumbs } : meta;
+};
+
+/**
  * Configure breadcrumbs in Eleventy
  * @param {import('@11ty/eleventy').UserConfig} eleventyConfig
  */
 const configureBreadcrumbs = (eleventyConfig) => {
   eleventyConfig.addFilter("breadcrumbsFilter", breadcrumbsFilter);
+  eleventyConfig.addFilter("withSchemaBreadcrumbs", withSchemaBreadcrumbs);
 };
 
 export {
+  breadcrumbsFilter,
   buildCategoryCrumbs,
   buildParentCrumbs,
   buildPropertyCrumbs,
@@ -240,4 +264,5 @@ export {
   findParent,
   getIndexUrl,
   resolvePropertySlug,
+  withSchemaBreadcrumbs,
 };

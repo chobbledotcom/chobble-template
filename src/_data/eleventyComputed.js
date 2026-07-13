@@ -12,6 +12,7 @@ import {
   buildOrganizationMeta,
   buildPostMeta,
   buildProductMeta,
+  buildSocialMeta,
 } from "#utils/schema-helper.js";
 import { collectItemErrors } from "#utils/validate-item.js";
 import { getVideoThumbnailUrl } from "#utils/video.js";
@@ -190,6 +191,12 @@ export default {
     if (data.no_index) return {};
     return data.metaComputed ?? {};
   },
+
+  /**
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {Record<string, unknown>} Open Graph and Twitter metadata
+   */
+  socialMeta: (data) => buildSocialMeta(data),
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data

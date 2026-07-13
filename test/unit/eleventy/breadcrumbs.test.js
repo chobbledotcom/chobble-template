@@ -3,11 +3,57 @@ import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("configureBreadcrumbs", () => {
-  test("registers breadcrumbsFilter", () => {
+  test("registers breadcrumb filters", () => {
     const mockConfig = createMockEleventyConfig();
     configureBreadcrumbs(mockConfig);
 
     expect(typeof mockConfig.filters.breadcrumbsFilter).toBe("function");
+    expect(typeof mockConfig.filters.withSchemaBreadcrumbs).toBe("function");
+  });
+});
+
+describe("withSchemaBreadcrumbs", () => {
+  const setupFilter = () => {
+    const mockConfig = createMockEleventyConfig();
+    configureBreadcrumbs(mockConfig);
+    return mockConfig.filters.withSchemaBreadcrumbs;
+  };
+
+  test("returns metadata unchanged when breadcrumbs are hidden or empty", () => {
+    const filter = setupFilter();
+    const meta = { title: "Home" };
+    expect(filter(meta, false, { url: "/page/" })).toBe(meta);
+    expect(
+      filter(meta, true, { url: "/" }, "Home", "Home", null, null, {}),
+    ).toBe(meta);
+  });
+
+  test("maps rendered crumbs to absolute schema URLs", () => {
+    const filter = setupFilter();
+    expect(
+      filter(
+        { title: "Widget" },
+        true,
+        { url: "/products/widget/" },
+        "Widget",
+        "Products",
+        undefined,
+        undefined,
+        {},
+      ).breadcrumbs,
+    ).toEqual([
+      { name: "Home", url: "https://example.chobble.com", position: 1 },
+      {
+        name: "Products",
+        url: "https://example.chobble.com/products/",
+        position: 2,
+      },
+      {
+        name: "Widget",
+        url: "https://example.chobble.com/products/widget/",
+        position: 3,
+      },
+    ]);
   });
 });
 
