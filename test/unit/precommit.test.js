@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { getStepEnvironment } from "#test/precommit/runner.js";
+import { getStepEnvironment } from "#test/precommit/environment.js";
 import { extractErrorsFromOutput } from "#test/test-runner-utils.js";
 import { expectErrorsInclude, rootDir } from "#test/test-utils.js";
 
