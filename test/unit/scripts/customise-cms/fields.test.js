@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  COMMON_FIELDS,
   createAddOnsField,
   createBodyField,
   createMarkdownField,
@@ -75,13 +76,24 @@ describe("createReferenceField", () => {
 
     expect(field.type).toBe("reference");
     expect(field.list).toBe(true);
-    expect(field.options.collection).toBe("categories");
+    expect(field.options).toEqual({
+      collection: "categories",
+      search: "fields.name",
+      value: "{path}",
+      label: "{fields.name}",
+    });
   });
 
   test("creates single reference when multiple is false", () => {
     const field = createReferenceField("author", "Author", "team", false);
 
     expect(field.list).toBeUndefined();
+  });
+});
+
+describe("COMMON_FIELDS", () => {
+  test("requires collection names", () => {
+    expect(COMMON_FIELDS.name.required).toBe(true);
   });
 });
 

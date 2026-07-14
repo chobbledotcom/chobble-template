@@ -107,7 +107,6 @@ export const createDefaultConfig = () => ({
     "events",
     "team",
     "reviews",
-    "locations",
     "properties",
     "guide-categories",
     "guide-pages",

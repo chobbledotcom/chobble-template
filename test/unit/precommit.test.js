@@ -1,10 +1,27 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
+import { getStepEnvironment } from "#test/precommit/environment.js";
 import { extractErrorsFromOutput } from "#test/test-runner-utils.js";
 import { expectErrorsInclude, rootDir } from "#test/test-utils.js";
 
 const precommitPath = join(rootDir, "test", "precommit.js");
 const testRunnerUtilsPath = join(rootDir, "test", "test-runner-utils.js");
+
+describe("precommit step environment", () => {
+  test("removes parent repository state from child processes", () => {
+    const environment = getStepEnvironment(
+      {
+        PATH: "/bin",
+        GIT_CONFIG_PARAMETERS: "'user.name=Test'",
+        GIT_DIR: "/repo/.git",
+        GIT_INDEX_FILE: "/repo/.git/worktrees/feature/index",
+      },
+      true,
+    );
+
+    expect(environment).toEqual({ PATH: "/bin", VERBOSE: "1" });
+  });
+});
 
 /** Read the test-runner-utils.js file content */
 const readTestRunnerUtils = () =>

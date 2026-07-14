@@ -80,7 +80,7 @@ const generateCustomBlocksCollectionConfig = (name, config, fieldContext) => {
     label: slugToLabel(name),
     path,
     type: "collection",
-    filename: "{primary}.md",
+    filename: "{name}.md",
     fields: compact([
       COMMON_FIELDS.name,
       COMMON_FIELDS.subtitle,

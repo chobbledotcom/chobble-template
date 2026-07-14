@@ -19,6 +19,7 @@ import {
   write,
   yellow,
 } from "#test/precommit/colors.js";
+import { getStepEnvironment } from "#test/precommit/environment.js";
 import { getMergeConflictWarning } from "#test/precommit/merge-warning.js";
 import { promptToPushCheckedInChanges } from "#test/precommit/push.js";
 import { getSteps } from "#test/precommit/steps.js";
@@ -82,7 +83,7 @@ const runStep = async (step, showProgress) => {
   const child = spawn(command, args, {
     cwd: ROOT_DIR,
     stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, VERBOSE: isVerbose() ? "1" : "0" },
+    env: getStepEnvironment(process.env, isVerbose()),
   });
 
   const progress = { value: "" };

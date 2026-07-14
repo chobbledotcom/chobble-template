@@ -2,6 +2,10 @@ import { describe, expect, test } from "bun:test";
 import YAML from "yaml";
 import { createDefaultConfig } from "#scripts/customise-cms/config.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
+import {
+  collectReferenceFields,
+  getCollectionMap,
+} from "#test/unit/utils/pages-yml-helpers.js";
 
 /**
  * @type {import('#scripts/customise-cms/config.js').CmsFeatures}
@@ -72,6 +76,41 @@ describe("generatePagesYaml output validity", () => {
     expect(collectionNames).toContain("homepage");
     expect(collectionNames).toContain("site");
   });
+
+  test("uses required names in every collection filename", () => {
+    const config = createDefaultConfig();
+    config.customBlocksCollections = ["clients"];
+    const parsed = YAML.parse(generatePagesYaml(config));
+    const collections = parsed.content.filter(
+      (entry) => entry.type === "collection",
+    );
+
+    for (const collection of collections) {
+      expect(collection.filename).toContain("{name}");
+      expect(collection.fields).toContainEqual(
+        expect.objectContaining({ name: "name", required: true }),
+      );
+    }
+  });
+
+  test("does not generate primary placeholders", () => {
+    expect(generatePagesYaml(createDefaultConfig())).not.toContain("{primary}");
+  });
+
+  test("references existing collections by required frontmatter name", () => {
+    const parsed = YAML.parse(generatePagesYaml(createDefaultConfig()));
+    const collections = getCollectionMap(parsed);
+
+    for (const reference of collectReferenceFields(parsed)) {
+      const target = collections.get(reference.options.collection);
+      expect(target).toBeDefined();
+      expect(target.fields).toContainEqual(
+        expect.objectContaining({ name: "name", required: true }),
+      );
+      expect(reference.options.search).toBe("fields.name");
+      expect(reference.options.label).toBe("{fields.name}");
+    }
+  });
 });
 
 describe("generatePagesYaml collections", () => {
@@ -89,6 +128,7 @@ describe("generatePagesYaml collections", () => {
 
     expect(yaml).toContain("name: snippets");
     expect(yaml).toContain("path: src/snippets");
+    expect(getSection("snippets")(yaml)).toContain("- README.md");
   });
 
   test("excludes snippets when not in collections list", () => {
@@ -207,6 +247,22 @@ describe("generatePagesYaml reference fields", () => {
     const section = getSection("guide-categories")(yaml);
 
     expect(section).not.toContain("collection: properties");
+  });
+
+  test("keeps property location slugs editable without a dangling reference", () => {
+    const parsed = YAML.parse(
+      generatePagesYaml(
+        createTestConfig({ collections: ["pages", "properties"] }),
+      ),
+    );
+    const properties = parsed.content.find(
+      (entry) => entry.name === "properties",
+    );
+    const locations = properties.fields.find(
+      (field) => field.name === "locations",
+    );
+
+    expect(locations).toMatchObject({ type: "string", list: true });
   });
 });
 

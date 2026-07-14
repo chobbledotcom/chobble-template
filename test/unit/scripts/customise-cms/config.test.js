@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { getRequiredCollections } from "#scripts/customise-cms/collections.js";
+import {
+  getCollection,
+  getRequiredCollections,
+} from "#scripts/customise-cms/collections.js";
 import {
   createDefaultConfig,
   loadCmsConfig,
@@ -42,6 +45,10 @@ describe("createDefaultConfig", () => {
     expect(config.collections).toContain("news");
     expect(config.collections).toContain("snippets");
     expect(config.collections.length).toBeGreaterThan(10);
+  });
+
+  test("only includes registered collections", () => {
+    expect(config.collections.every((name) => getCollection(name))).toBe(true);
   });
 
   test("enables most features but not visual editor", () => {
