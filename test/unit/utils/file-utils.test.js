@@ -376,6 +376,32 @@ Unicode: café résumé naïve`;
       );
     });
 
+    test("Resolves a snippet path saved by Pages CMS", async () => {
+      const content = `---
+name: CMS Snippet
+blocks:
+  - type: markdown
+    content: CMS content
+---`;
+
+      await withSnippetSetup(
+        "ctx-cms-path",
+        "cms-snippet",
+        content,
+        async (mockConfig) => {
+          const filter = mockConfig.asyncFilters.snippet_blocks;
+          const result = await filter.call(
+            { context: { environments: {} } },
+            "src/snippets/cms-snippet.md",
+          );
+
+          expect(result).toEqual([
+            { type: "markdown", content: "CMS content" },
+          ]);
+        },
+      );
+    });
+
     test("Resolves Liquid expressions in block strings with page context", async () => {
       const content = `---
 name: Test CTA

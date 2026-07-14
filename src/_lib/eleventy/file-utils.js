@@ -146,7 +146,8 @@ const readFileContent = memoize(
  * @param {string} [baseDir]
  */
 const loadSnippet = (name, baseDir = process.cwd()) => {
-  const snippetPath = path.join(baseDir, "src/snippets", `${name}.md`);
+  const snippetName = path.basename(name, path.extname(name));
+  const snippetPath = path.join(baseDir, "src/snippets", `${snippetName}.md`);
   return fs.existsSync(snippetPath) ? matter.read(snippetPath) : null;
 };
 
