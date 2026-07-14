@@ -3,9 +3,11 @@ Renders form fields from contactForm.fields
 Parameters:
   - skipShowOn: if true, skip fields with showOn (for quote checkout)
   - fields: optional override for fields array (defaults to tag-resolved contact form fields)
+  - pageTitle: optional value for fields populated from the current page
 {%- endcomment -%}
 {%- assign _resolvedFields = contactForm | contactFormFieldsForPage: tags, skipShowOn -%}
 {%- assign fieldsToRender = fields | default: _resolvedFields -%}
+{%- assign _formPageTitle = pageTitle | default: name | default: title -%}
 {%- for field in fieldsToRender -%}
-  {%- include field.template, field: field, pageTitle: title -%}
+  {%- include field.template, field: field, pageTitle: _formPageTitle -%}
 {%- endfor -%}

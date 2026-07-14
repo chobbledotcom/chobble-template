@@ -4,8 +4,8 @@
     type="{% if field.type %}{{ field.type }}{% else %}text{% endif %}"
     id="{{ field.name }}"
     name="{{ field.name }}"
-    placeholder="{% if field.defaultFromPageTitle %}{{ pageTitle }}{% else %}{{ field.placeholder }}{% endif %}"
-    {%- if field.defaultFromPageTitle %} value="{{ pageTitle }}"{% endif %}
+    placeholder="{% if field.defaultFromPageTitle %}{{ pageTitle | escape }}{% else %}{{ field.placeholder | escape }}{% endif %}"
+    {%- if field.defaultFromPageTitle %} value="{{ pageTitle | escape }}"{% endif %}
     {%- if field.required %} required{%- endif %}
   />
   {%- include "form-field-note.html" -%}

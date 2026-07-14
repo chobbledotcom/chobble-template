@@ -6,3 +6,4 @@
     data-botpoison-public-key="{{ config.botpoison_public_key }}"
   {%- endif -%}
 >
+  <input type="hidden" name="source_page" value="{{ page.url | canonicalUrl | escape }}" />

@@ -10,7 +10,7 @@ pagination, overrides the contact-form target with the property's
 <div class="container">
   <h1>Contact {{ item.data.name }}</h1>
   {%- assign form_target_override = "https://submit-form.com/" | append: item.data.formspark_id -%}
-  {%- include "contact-form.html" -%}
+  {%- include "contact-form.html", pageTitle: item.data.name, tags: item.data.tags -%}
   {%- assign form_target_override = nil -%}
   <a href="/{{ strings.property_permalink_dir }}/{{ item.fileSlug }}/" class="btn btn--primary">Back to {{ item.data.name }}</a>
 </div>
