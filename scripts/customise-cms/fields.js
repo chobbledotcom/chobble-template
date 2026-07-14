@@ -32,7 +32,7 @@
  * @type {Record<string, CmsField>}
  */
 export const COMMON_FIELDS = {
-  name: { name: "name", type: "string", label: "Name" },
+  name: { name: "name", type: "string", label: "Name", required: true },
   thumbnail: { name: "thumbnail", type: "image", label: "Thumbnail" },
   subtitle: { name: "subtitle", type: "string", label: "Subtitle" },
   body: {
@@ -196,9 +196,9 @@ export const createReferenceField = (
   ...(multiple && { list: true }),
   options: {
     collection,
-    search: "primary",
+    search: "fields.name",
     value: "{path}",
-    label: "{primary}",
+    label: "{fields.name}",
   },
 });
 

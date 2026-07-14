@@ -63,6 +63,7 @@ export const productsRefList = (enabled) =>
 export const getCollectionFieldBuilders = (config, fields) => ({
   pages: () =>
     compact([
+      COMMON_FIELDS.name,
       COMMON_FIELDS.subtitle,
       fields.body,
       COMMON_FIELDS.meta_title,

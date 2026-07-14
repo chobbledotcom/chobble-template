@@ -134,10 +134,9 @@ export const buildEventsFields = (config, fields) =>
  * @returns {CmsField[]} Properties collection fields
  */
 export const buildPropertiesFields = (config, fields) =>
-  buildItem((enabled) => [
+  buildItem(() => [
     COMMON_FIELDS.featured,
-    enabled("locations") &&
-      createReferenceField("locations", "Locations", "locations"),
+    { name: "locations", type: "string", label: "Locations", list: true },
     { name: "bedrooms", type: "number", label: "Bedrooms" },
     { name: "bathrooms", type: "number", label: "Bathrooms" },
     { name: "sleeps", type: "number", label: "Sleeps" },

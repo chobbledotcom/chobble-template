@@ -86,6 +86,22 @@ describe("generateBlocksField list field conversion", () => {
   });
 });
 
+describe("generateBlocksField reference conversion", () => {
+  test("preserves the snippet target and required scalar shape", () => {
+    const field = generateBlocksField(["snippet"], false);
+    const reference = field.blocks[0].fields.find(
+      (candidate) => candidate.name === "reference",
+    );
+
+    expect(reference).toMatchObject({
+      type: "reference",
+      required: true,
+      options: { collection: "snippets", label: "{fields.name}" },
+    });
+    expect(reference.list).toBeUndefined();
+  });
+});
+
 describe("generateBlocksField generic field conversion", () => {
   test("passes primitive type strings through verbatim", () => {
     // split-image covers string, boolean, and image in one block.

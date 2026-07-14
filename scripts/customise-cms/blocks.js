@@ -56,12 +56,15 @@ const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
   }
 
   if (fieldSchema.type === "reference") {
-    return createReferenceField(
-      name,
-      fieldSchema.label || name,
-      fieldSchema.collection,
-      fieldSchema.multiple !== false,
-    );
+    return {
+      ...createReferenceField(
+        name,
+        fieldSchema.label || name,
+        fieldSchema.options.collection,
+        fieldSchema.options.multiple === true,
+      ),
+      ...(fieldSchema.required && { required: true }),
+    };
   }
 
   return buildGenericCmsField(name, fieldSchema, useVisualEditor);

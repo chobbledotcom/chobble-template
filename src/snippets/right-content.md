@@ -1,3 +1,7 @@
+---
+name: Right Content
+---
+
 ### Opening Hours
 
 {% opening_times %}

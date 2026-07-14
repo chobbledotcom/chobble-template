@@ -215,13 +215,6 @@ const getValidatedViewConfig = (collectionName, config, fieldContext) => {
 const DATE_FILENAME_COLLECTIONS = ["news"];
 
 /**
- * Check if a collection uses filename-based primary key (all except date-based ones)
- * @param {string} name - Collection name
- * @returns {boolean}
- */
-const hasFilenameConfig = (name) => !memberOf(DATE_FILENAME_COLLECTIONS)(name);
-
-/**
  * Generate configuration for a single collection
  * @param {string} collectionName - Name of the collection (must exist in COLLECTIONS)
  * @param {CmsConfig} config - CMS configuration
@@ -241,11 +234,11 @@ export const generateCollectionConfig = (
     path: collection.path,
     type: "collection",
     subfolders: false,
+    filename: memberOf(DATE_FILENAME_COLLECTIONS)(collectionName)
+      ? "{year}-{month}-{day}-{name}.md"
+      : "{name}.md",
+    ...(collectionName === "snippets" && { exclude: ["README.md"] }),
   };
-
-  if (hasFilenameConfig(collectionName)) {
-    collectionConfig.filename = "{primary}.md";
-  }
 
   const viewConfig = getValidatedViewConfig(
     collectionName,

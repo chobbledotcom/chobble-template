@@ -515,11 +515,12 @@ components:
       - name: reference
         label: Snippet
         type: reference
-        list: true
         options:
-          search: primary
+          collection: snippets
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
+        required: true
   block_socials:
     label: Socials
     type: object
@@ -909,9 +910,9 @@ components:
         type: reference
         options:
           collection: products
-          search: primary
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
   block_event_contact_section:
     label: Event Contact Section
     type: object
@@ -1031,7 +1032,7 @@ content:
     path: src/pages
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     view:
       fields:
         - permalink
@@ -1040,6 +1041,7 @@ content:
       sort:
         - meta_title
     fields:
+      - { name: name, type: string, label: Name, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Body }
       - { name: meta_title, component: meta_title }
@@ -1112,9 +1114,9 @@ content:
     path: src/products
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -1124,18 +1126,18 @@ content:
         list: true
         options:
           collection: categories
-          search: primary
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
       - name: events
         label: Events
         type: reference
         list: true
         options:
           collection: events
-          search: primary
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
       - name: options
         label: Product Options
         type: object
@@ -1241,18 +1243,18 @@ content:
     path: src/categories
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: thumbnail, type: image, label: Thumbnail }
       - name: parent
         label: Parent Category
         type: reference
         options:
           collection: categories
-          search: primary
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
       - { name: featured, type: boolean, label: Featured }
       - { name: keywords, type: string, label: Search Keywords, list: true }
       - { name: meta_title, component: meta_title }
@@ -1317,6 +1319,7 @@ content:
     path: src/news
     type: collection
     subfolders: false
+    filename: "{year}-{month}-{day}-{name}.md"
     view:
       fields:
         - name
@@ -1325,16 +1328,16 @@ content:
       sort:
         - date
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: date, label: Date, type: date }
       - name: author
         label: Author
         type: reference
         options:
           collection: team
-          search: primary
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, type: rich-text, label: Body }
       - { name: meta_title, component: meta_title }
@@ -1398,7 +1401,7 @@ content:
     path: src/events
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     view:
       fields:
         - thumbnail
@@ -1410,7 +1413,7 @@ content:
       sort:
         - name
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -1497,9 +1500,9 @@ content:
     path: src/team
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
       - { name: subtitle, type: string, label: Subtitle }
@@ -1561,9 +1564,9 @@ content:
     path: src/reviews
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: url, type: string, label: URL }
       - { name: rating, type: number, label: Rating }
       - { name: thumbnail, type: image, label: Reviewer Photo }
@@ -1574,9 +1577,9 @@ content:
         list: true
         options:
           collection: products
-          search: primary
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
@@ -1633,7 +1636,7 @@ content:
     path: src/properties
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     view:
       fields:
         - thumbnail
@@ -1645,20 +1648,12 @@ content:
       sort:
         - name
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
       - { name: featured, type: boolean, label: Featured }
-      - name: locations
-        label: Locations
-        type: reference
-        list: true
-        options:
-          collection: locations
-          search: primary
-          value: "{path}"
-          label: "{primary}"
+      - { name: locations, type: string, label: Locations, list: true }
       - { name: bedrooms, type: number, label: Bedrooms }
       - { name: bathrooms, type: number, label: Bathrooms }
       - { name: sleeps, type: number, label: Sleeps }
@@ -1733,9 +1728,9 @@ content:
     path: src/guide-categories
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: order, type: number, label: Order }
       - { name: icon, type: image, label: Icon }
@@ -1744,9 +1739,9 @@ content:
         type: reference
         options:
           collection: properties
-          search: primary
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
@@ -1807,18 +1802,18 @@ content:
     path: src/guide-pages
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - name: guide-category
         label: Guide Category
         type: reference
         options:
           collection: guide-categories
-          search: primary
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
       - { name: order, type: number, label: Order }
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
@@ -1880,9 +1875,9 @@ content:
     path: src/menus
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -1948,9 +1943,9 @@ content:
     path: src/menu-categories
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
       - name: menus
@@ -1959,9 +1954,9 @@ content:
         list: true
         options:
           collection: menus
-          search: primary
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
@@ -2020,9 +2015,9 @@ content:
     path: src/menu-items
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: price, type: string, label: Price }
       - { name: sku, type: string, label: SKU }
@@ -2034,9 +2029,9 @@ content:
         list: true
         options:
           collection: menu-categories
-          search: primary
+          search: fields.name
           value: "{path}"
-          label: "{primary}"
+          label: "{fields.name}"
       - { name: description, type: string, label: Description }
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
@@ -2096,9 +2091,11 @@ content:
     path: src/snippets
     type: collection
     subfolders: false
-    filename: "{primary}.md"
+    filename: "{name}.md"
+    exclude:
+      - README.md
     fields:
-      - { name: name, type: string, label: Name }
+      - { name: name, type: string, label: Name, required: true }
       - { name: body, type: rich-text, label: Body }
   - name: homepage
     label: Homepage Settings
