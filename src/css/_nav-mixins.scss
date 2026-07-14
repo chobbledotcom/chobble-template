@@ -214,7 +214,6 @@
   position: fixed;
   top: 3rem;
   right: -100%;
-  bottom: 0;
 
   overflow-y: auto;
   overscroll-behavior-y: contain;
@@ -225,9 +224,14 @@
   box-sizing: border-box;
   width: 70%;
   max-width: 300px;
-  height: auto;
-  max-height: calc(100vh - 3rem);
-  max-height: calc(100dvh - 3rem);
+  // Fill the viewport below the 3rem bar with an explicit height rather than
+  // `bottom: 0`. If an ancestor (e.g. a nav with `backdrop-filter`, `filter`,
+  // `transform`, `perspective`, or `will-change`) becomes the containing block
+  // for this `position: fixed` element, `bottom: 0` would resolve against the
+  // 3rem bar and collapse the menu to a sliver. A definite height renders
+  // identically in the normal case and stays full-height regardless.
+  height: calc(100vh - 3rem);
+  height: calc(100dvh - 3rem);
   margin: 0;
   padding: $gap;
   padding-bottom: calc(#{$gap} + env(safe-area-inset-bottom));

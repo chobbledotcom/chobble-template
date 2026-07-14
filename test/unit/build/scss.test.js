@@ -281,12 +281,11 @@ describe("scss", () => {
         /\.design-system\.sticky-mobile-nav nav > ul\s*\{[^}]*\}/,
       )?.[0] ?? "";
 
-    expect(menuRule).toContain("bottom: 0");
     expect(menuRule).toContain("overflow-y: auto");
     expect(menuRule).toContain("overscroll-behavior-y: contain");
     expect(menuRule).toContain("box-sizing: border-box");
-    expect(menuRule).toContain("height: auto");
-    expect(menuRule).toContain("max-height: calc(100dvh - 3rem)");
+    expect(menuRule).toContain("height: calc(100vh - 3rem)");
+    expect(menuRule).toContain("height: calc(100dvh - 3rem)");
     expect(menuRule).toContain("-webkit-overflow-scrolling: touch");
   });
 
