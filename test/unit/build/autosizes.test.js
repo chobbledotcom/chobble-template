@@ -195,9 +195,23 @@ describe("autosizes", () => {
       expect(img.hasAttribute("data-auto-sizes-src")).toBe(true);
     });
 
-    test("Runs polyfill for non-Chrome browsers (Firefox, Safari)", async () => {
+    test("Does not run polyfill for Firefox 150+", async () => {
       const { window, img } = await createAutosizesTestEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+        userAgent: "Mozilla/5.0 Firefox/150",
+      });
+      runAndExpectSrc(window, img, true);
+    });
+
+    test("Runs polyfill for Firefox 149 (older than 150)", async () => {
+      const { window, img } = await createAutosizesTestEnv({
+        userAgent: "Mozilla/5.0 Firefox/149",
+      });
+      runAndExpectSrc(window, img, false);
+    });
+
+    test("Runs polyfill for Safari", async () => {
+      const { window, img } = await createAutosizesTestEnv({
+        userAgent: "Mozilla/5.0 Version/18.5 Safari/605.1.15",
       });
       runAndExpectSrc(window, img, false);
     });
@@ -236,7 +250,11 @@ describe("autosizes", () => {
 
     test("Processes local images with relative paths", async () => {
       const { window, img } = await createAutosizesTestEnv({
-        imgAttrs: { src: "/images/photo.jpg", sizes: "auto", loading: "lazy" },
+        imgAttrs: {
+          src: "/images/photo.jpg",
+          sizes: "auto",
+          loading: "lazy",
+        },
       });
       runAndCheckDeferred(window, img, "/images/photo.jpg");
     });
