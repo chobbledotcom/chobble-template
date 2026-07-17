@@ -24,7 +24,7 @@
  * SOFTWARE.
  *
  * Algorithm:
- * 1. polyfillAutoSizes(): Uses UA sniffing to detect Chrome < 126 (no native support).
+ * 1. polyfillAutoSizes(): Uses UA sniffing to detect browsers without native support.
  *    Avoids polyfilling if browser is too old (no PerformanceObserver/paint timing).
  * 2. Before FCP: Store src/srcset in data attributes and remove originals to prevent loading.
  *    Also strips srcset from <source> elements inside <picture> to prevent bypass.
@@ -43,12 +43,19 @@
 
     const chromeMatch = navigator.userAgent.match(/Chrome\/(\d+)/);
 
-    if (!chromeMatch) {
+    if (chromeMatch) {
+      const chromeVersion = Number.parseInt(chromeMatch[1], 10);
+      return chromeVersion < 126;
+    }
+
+    const firefoxMatch = navigator.userAgent.match(/Firefox\/(\d+)/);
+
+    if (!firefoxMatch) {
       return true;
     }
 
-    const chromeVersion = Number.parseInt(chromeMatch[1], 10);
-    return chromeVersion < 126;
+    const firefoxVersion = Number.parseInt(firefoxMatch[1], 10);
+    return firefoxVersion < 150;
   };
 
   if (!polyfillAutoSizes()) {
