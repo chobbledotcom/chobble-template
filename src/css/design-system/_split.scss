@@ -38,6 +38,13 @@
         height: auto;
       }
 
+      figcaption {
+        padding: $space-xs $space-sm;
+        font-size: $font-size-sm;
+        font-style: italic;
+        background: var(--color-card-bg);
+      }
+
       @include video-media;
     }
   }
