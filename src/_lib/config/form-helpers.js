@@ -27,7 +27,7 @@
 /**
  * @typedef {object} ContactFormData
  * @property {ContactFormField[]} fields
- * @property {Record<string, string>} itemTagLabels
+ * @property {Record<string, string>} [itemTagLabels]
  */
 
 /**
@@ -45,8 +45,9 @@
  * @returns {ContactFormField[]}
  */
 export function resolveFormFields(contactForm, tags, skipShowOn = false) {
+  const { fields, itemTagLabels = {} } = contactForm;
   const tagList = Array.isArray(tags) ? tags : [];
-  const matchEntry = Object.entries(contactForm.itemTagLabels).find(([tag]) =>
+  const matchEntry = Object.entries(itemTagLabels).find(([tag]) =>
     tagList.includes(tag),
   );
   const match = matchEntry
@@ -83,7 +84,7 @@ export function resolveFormFields(contactForm, tags, skipShowOn = false) {
     return [field];
   };
 
-  return contactForm.fields.flatMap(resolveField);
+  return fields.flatMap(resolveField);
 }
 
 /**
