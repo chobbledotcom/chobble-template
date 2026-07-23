@@ -93,4 +93,10 @@ describe("resolveFormFields", () => {
     // showForItemTag field is dropped (no match), plain fields pass through
     expect(out.map((f) => f.name)).toEqual(["name", "message"]);
   });
+
+  test("treats missing item tag labels as an empty mapping", () => {
+    const contactForm = { fields: baseContactForm.fields };
+    const out = resolveFormFields(contactForm, ["products"]);
+    expect(out.map((f) => f.name)).toEqual(["name", "message"]);
+  });
 });
