@@ -1145,6 +1145,7 @@ Image grid with optional aspect ratio cropping and captions.
 | `aspect_ratio` | string | — | Aspect ratio for images (e.g. `"16/9"`, `"1/1"`, `"4/3"`). Default: no cropping. |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
+| `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 
 ---
 

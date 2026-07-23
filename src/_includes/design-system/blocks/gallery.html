@@ -11,12 +11,16 @@ Parameters (via block object):
   - block.aspect_ratio: Aspect ratio for images (e.g., "16/9", "1/1", "4/3"). Default: no cropping
   - block.intro_content: Optional markdown content rendered above the grid in `.prose`
   - block.masonry: If true, renders as a masonry grid using uWrap for zero-reflow height prediction
+  - block.horizontal: If true, renders as a horizontal slider with prev/next arrows (scrolls with snap)
 {%- endcomment -%}
 
 {%- if block.items.size > 0 -%}
   {%- include "design-system/block-intro.html" -%}
+  {%- if block.horizontal -%}
+  <div class="slider-container">
+  {%- endif -%}
   <div data-popup-scope>
-    <ul class="items{% if block.masonry %} masonry{% endif %}" role="list">
+    <ul class="items{% if block.masonry %} masonry{% endif %}{% if block.horizontal %} slider{% endif %}" role="list">
       {%- for item in block.items -%}
         <li>
           {%- assign image = item.image -%}
@@ -38,6 +42,10 @@ Parameters (via block object):
     {%- assign gallery_block_images = block.items | map: "image" -%}
     {% include "gallery-full-size-images.html", gallery: gallery_block_images %}
   </div>
+  {%- if block.horizontal -%}
+    {% include "slider-nav.html" %}
+  </div>
+  {%- endif -%}
   {%- if block.masonry -%}
   <script type="module" src="{{ '/assets/js/masonry.js' | cacheBust }}"></script>
   {%- endif -%}
