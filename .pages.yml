@@ -223,6 +223,7 @@ components:
         type: rich-text
         label: Intro Content (Markdown)
       - { name: masonry, type: boolean, label: Masonry Grid }
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
   block_guide_categories:
     label: Guide Categories
     type: object

@@ -1,4 +1,5 @@
 import {
+  HORIZONTAL_FIELD,
   INTRO_CONTENT_FIELD,
   ITEMS_GRID_META,
   img,
@@ -26,6 +27,7 @@ export const fields = {
   },
   intro_content: INTRO_CONTENT_FIELD,
   masonry: MASONRY_FIELD,
+  horizontal: HORIZONTAL_FIELD,
 };
 
 export const docs = {
