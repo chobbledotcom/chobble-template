@@ -20,7 +20,7 @@ Parameters (via block object):
   <div class="slider-container">
   {%- endif -%}
   <div data-popup-scope>
-    <ul class="items{% if block.masonry %} masonry{% endif %}{% if block.horizontal %} slider{% endif %}" role="list">
+    <ul class="items{% if block.masonry and block.horizontal != true %} masonry{% endif %}{% if block.horizontal %} slider{% endif %}" role="list">
       {%- for item in block.items -%}
         <li>
           {%- assign image = item.image -%}
@@ -46,7 +46,7 @@ Parameters (via block object):
     {% include "slider-nav.html" %}
   </div>
   {%- endif -%}
-  {%- if block.masonry -%}
+  {%- if block.masonry and block.horizontal != true -%}
   <script type="module" src="{{ '/assets/js/masonry.js' | cacheBust }}"></script>
   {%- endif -%}
 {%- endif -%}
