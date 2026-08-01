@@ -176,11 +176,16 @@ export const getPathAwareBasename = (src) => {
  * @param {string} src - Source path
  * @param {number} width - Output width
  * @param {string} format - Output format
+ * @param {{manualCacheKey?: string | number}} [options] - Eleventy Image options
  * @returns {string} Generated filename
  */
-export const filenameFormat = (_id, src, width, format) => {
+export const filenameFormat = (_id, src, width, format, options = {}) => {
   const basename = getPathAwareBasename(src);
-  return `${basename}-${width}.${format}`;
+  const extension = src.slice(src.lastIndexOf(".") + 1).toLowerCase();
+  const cropSuffix = options.manualCacheKey
+    ? `-${extension}-crop-${String(options.manualCacheKey).replaceAll("/", "x")}`
+    : "";
+  return `${basename}${cropSuffix}-${width}.${format}`;
 };
 
 // JPEG fallback width - only generate one JPEG size since nearly all browsers support webp

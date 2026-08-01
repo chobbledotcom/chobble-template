@@ -284,6 +284,17 @@ export const unitTestsStep = (verbose) => ({
   ],
 });
 
+export const getNonCodeQualityTestFiles = (pattern) =>
+  [...new Bun.Glob(pattern).scanSync(rootDir)].filter(
+    (file) => !file.startsWith("test/unit/code-quality/"),
+  );
+
+export const codeQualityTestsStep = {
+  name: "tests:code-quality",
+  cmd: "bun",
+  args: ["test", "test/unit/code-quality", "--concurrent", "--timeout", "1500"],
+};
+
 /**
  * Integration tests step (no coverage - see unitTestsStep).
  * @type {Object}

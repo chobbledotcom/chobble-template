@@ -18,7 +18,13 @@ import fs from "node:fs";
 /** @typedef {import("#lib/types").ImageProps} ImageProps */
 /** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
 import { PLACEHOLDER_MODE } from "#build/build-mode.js";
-import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
+import {
+  getAspectRatio,
+  getCropImageOptions,
+  getCropMaxWidth,
+  getMetadata,
+  sanitizeCropWidths,
+} from "#media/image-crop.js";
 import { processExternalImage } from "#media/image-external.js";
 import {
   getEleventyImg,
@@ -36,6 +42,7 @@ import {
   buildWrapperStyles,
   filenameFormat,
   isExternalUrl,
+  JPEG_FALLBACK_WIDTH,
   normalizeImagePath,
   normalizeImageUrl,
   parseWidths,
@@ -73,25 +80,39 @@ const processImageData = dedupeAsync(
   }) => {
     const imagePath = normalizeImagePath(imageName);
     const metadata = await getMetadata(imagePath);
-    const finalPath = await cropImage(aspectRatio, imagePath, metadata);
 
     const { default: Image } = await getEleventyImg();
 
     // Check if LQIP should be generated (skip for SVGs, transparent images, small files, or if noLqip is set)
     const generateLqip =
-      !noLqip && (await shouldGenerateLqip(finalPath, metadata));
+      !noLqip && (await shouldGenerateLqip(imagePath, metadata));
 
     // Include LQIP width in the webp widths for single-pass processing
     const requestedWidths = parseWidths(widths);
-    const webpWidths = generateLqip
+    const requestedWebpWidths = generateLqip
       ? [LQIP_WIDTH, ...requestedWidths]
       : requestedWidths;
+    const webpWidths = sanitizeCropWidths(
+      requestedWebpWidths,
+      aspectRatio,
+      metadata,
+    );
+    const jpegWidths = sanitizeCropWidths(
+      [JPEG_FALLBACK_WIDTH],
+      aspectRatio,
+      metadata,
+    );
 
     const imageMetadata = await processFormats(
       Image,
-      finalPath,
-      { ...DEFAULT_OPTIONS, fixOrientation: true },
+      imagePath,
+      {
+        ...DEFAULT_OPTIONS,
+        fixOrientation: true,
+        ...getCropImageOptions(aspectRatio),
+      },
       webpWidths,
+      jpegWidths,
     );
 
     const { bgImage, htmlMetadata } = await prepareLqipMetadata(
@@ -102,7 +123,7 @@ const processImageData = dedupeAsync(
     const style = buildWrapperStyles(
       bgImage,
       aspectRatio,
-      metadata,
+      { ...metadata, width: getCropMaxWidth(aspectRatio, metadata) },
       getAspectRatio,
       skipMaxWidth,
     );

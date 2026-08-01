@@ -5,6 +5,7 @@ import {
   imageShortcode,
   processAndWrapImage,
 } from "#media/image.js";
+import { getCropMaxWidth, getMetadata } from "#media/image-crop.js";
 import { useSharedSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig, wrapHtml } from "#test/test-utils.js";
 import { map } from "#toolkit/fp/array.js";
@@ -153,6 +154,21 @@ describe("image", () => {
         "(max-width: 600px) 100vw",
         "aspect-ratio: 16/9",
       ]);
+    });
+
+    test("Caps cropped wrapper width at the largest generated crop", async () => {
+      const metadata = await getMetadata("./src/images/party.jpg");
+      const maxWidth = getCropMaxWidth("1/1", metadata);
+      const result = await imageShortcode(
+        "party.jpg",
+        "Square party",
+        "240,2000",
+        null,
+        null,
+        "1/1",
+      );
+
+      expect(result).toContain(`max-width: min(${maxWidth}px, 100%)`);
     });
   });
 

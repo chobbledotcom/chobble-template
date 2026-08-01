@@ -12,6 +12,7 @@ import {
   extractSlowTests,
   extractTestTotal,
 } from "#test/precommit/output.js";
+import { getNonCodeQualityTestFiles } from "#test/test-runner-utils.js";
 
 const CACHE_DIR = join(ROOT_DIR, ".cache");
 const TEST_COUNT_CACHE = join(CACHE_DIR, "precommit-test-count");
@@ -83,6 +84,17 @@ export const getSteps = () => {
       name: "generate-types",
       cmd: ["bun", "scripts/generate-pages-cms-types.js"],
     },
+    {
+      name: "tests:code-quality",
+      cmd: [
+        "bun",
+        "test",
+        "test/unit/code-quality",
+        "--concurrent",
+        "--timeout",
+        "1500",
+      ],
+    },
     { name: "lint", cmd: ["bun", "run", "lint"] },
     { name: "lint:scss", cmd: ["bun", "run", "lint:scss"] },
     { name: "knip", cmd: ["bun", "run", "knip"] },
@@ -97,6 +109,7 @@ export const getSteps = () => {
       cmd: [
         "bun",
         "test",
+        ...getNonCodeQualityTestFiles("test/**/*.test.js"),
         "--dots",
         "--reporter=junit",
         `--reporter-outfile=${TEST_REPORT_FILE}`,

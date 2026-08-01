@@ -11,6 +11,11 @@
  */
 import { spawn, spawnSync } from "node:child_process";
 import { parseArgs } from "node:util";
+import {
+  calculateAverageCpuUsage,
+  formatAverageCpuUsage,
+  getCpuSnapshot,
+} from "#scripts/build-metrics.js";
 
 const ERROR_PATTERNS = [
   "[11ty] Problem writing Eleventy templates:",
@@ -33,6 +38,8 @@ const args = [];
 if (values.serve) args.push("--serve");
 if (values.incremental) args.push("--incremental");
 args.push(...positionals);
+
+const cpuStart = getCpuSnapshot();
 
 const eleventy = spawn(
   "bun",
@@ -132,6 +139,8 @@ eleventy.on("close", (code) => {
     if (!runPagefind()) {
       process.exit(1);
     }
+    const cpuUsage = calculateAverageCpuUsage(cpuStart, getCpuSnapshot());
+    console.log(formatAverageCpuUsage(cpuUsage));
   }
   process.exit(0);
 });

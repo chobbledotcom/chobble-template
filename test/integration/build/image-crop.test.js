@@ -1,68 +1,68 @@
 import { describe, expect, test } from "bun:test";
-import fs from "node:fs";
 import path from "node:path";
-import { ROOT_DIR } from "#lib/paths.js";
-import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
+import {
+  getCropImageOptions,
+  getMetadata,
+  sanitizeCropWidths,
+} from "#media/image-crop.js";
 import { cleanupTempDir, createTempDir } from "#test/test-utils.js";
 
 describe("image-crop", () => {
-  // The crop helpers operate directly on a file path and its metadata; they
-  // do not need a built Eleventy site. Copy the fixture image into a temp dir
-  // and compute metadata — far cheaper than spawning a full build.
-  const withImageContext = async (testFn) => {
-    const tempDir = createTempDir("image-crop");
-    try {
-      const imagePath = path.join(tempDir, "party.jpg");
-      fs.copyFileSync(path.join(ROOT_DIR, "src/images/party.jpg"), imagePath);
-      const metadata = await getMetadata(imagePath);
-      return await testFn({ imagePath, metadata });
-    } finally {
-      cleanupTempDir(tempDir);
-    }
-  };
-
-  test(
-    "Crops image to aspect ratio and caches result",
-    () =>
-      withImageContext(async ({ imagePath, metadata }) => {
-        const croppedPath = await cropImage("16/9", imagePath, metadata);
-        expect(fs.existsSync(croppedPath)).toBe(true);
-
-        const croppedMeta = await getMetadata(croppedPath);
-        const expectedHeight = Math.round(metadata.width / (16 / 9));
-        expect(croppedMeta.height).toBe(expectedHeight);
+  test("clamps and deduplicates crop widths", () => {
+    expect(
+      sanitizeCropWidths([32, 240, 480, "auto"], "1/1", {
+        width: 600,
+        height: 200,
       }),
-    30_000,
-  );
+    ).toEqual([32, 200]);
+  });
 
-  test(
-    "Returns original path when aspect ratio is null",
-    () =>
-      withImageContext(async ({ imagePath, metadata }) => {
-        const result = await cropImage(null, imagePath, metadata);
-        expect(result).toBe(imagePath);
+  test("preserves source width when the crop fits without upscaling", () => {
+    expect(
+      sanitizeCropWidths([240, "auto"], "16/9", {
+        width: 600,
+        height: 600,
       }),
-    30_000,
-  );
+    ).toEqual([240, 600]);
+  });
 
-  test(
-    "Calculates aspect ratio from image dimensions",
-    () =>
-      withImageContext(async ({ metadata }) => {
-        const ratio = getAspectRatio(null, metadata);
-        expect(ratio).toMatch(/^\d+\/\d+$/);
-      }),
-    30_000,
-  );
+  test("leaves uncropped widths unchanged", () => {
+    const widths = [32, 240, "auto"];
+    expect(sanitizeCropWidths(widths, null, { width: 600, height: 200 })).toBe(
+      widths,
+    );
+  });
 
-  test("Applies EXIF rotation when cropping", async () => {
+  test("uses the aspect ratio as the manual cache key", () => {
+    expect(getCropImageOptions("16/9").manualCacheKey).toBe("16/9");
+    expect(getCropImageOptions(null)).toEqual({});
+  });
+
+  test("transforms each target width to the crop ratio", async () => {
+    const { default: sharp } = await import("sharp");
+    const transform = getCropImageOptions("16/9").transform;
+    const image = sharp({
+      create: {
+        width: 600,
+        height: 600,
+        channels: 3,
+        background: { r: 255, g: 0, b: 0 },
+      },
+    }).png();
+
+    transform(image, { width: 320 });
+    const buffer = await image.toBuffer();
+    const metadata = await sharp(buffer).metadata();
+
+    expect(metadata.width).toBe(320);
+    expect(metadata.height).toBe(180);
+  });
+
+  test("applies EXIF rotation when transforming a crop", async () => {
     const { default: sharp } = await import("sharp");
     const tempDir = createTempDir("exif-crop");
 
     try {
-      // Create a 600x200 image: left half red, right half green.
-      // EXIF orientation 6 (90° CW to display correctly).
-      // After rotation: 200x600, top 300 rows red, bottom 300 rows green.
       const greenOverlay = await sharp({
         create: {
           width: 300,
@@ -89,25 +89,17 @@ describe("image-crop", () => {
         .toFile(imagePath);
 
       const metadata = await getMetadata(imagePath);
-      // getMetadata swaps dimensions for orientation 6
       expect(metadata.width).toBe(200);
       expect(metadata.height).toBe(600);
 
-      // Crop to 16/9. cropHeight = round(200 / (16/9)) = 113.
-      // Center crop from rotated 200x600: rows ~244-356.
-      // Row 300 is the red/green boundary, so bottom of crop is in the green zone.
-      // Without .rotate(), sharp crops from raw 600x200 — center columns are all red.
-      const croppedPath = await cropImage("16/9", imagePath, metadata);
-      const expectedHeight = Math.round(200 / (16 / 9));
-
-      // Extract pixel near the bottom of the crop: should be green if rotated.
-      const { data } = await sharp(croppedPath)
-        .extract({ left: 100, top: expectedHeight - 1, width: 1, height: 1 })
+      const image = sharp(imagePath);
+      getCropImageOptions("16/9").transform(image, { width: 200 });
+      const buffer = await image.rotate().jpeg().toBuffer();
+      const { data } = await sharp(buffer)
+        .extract({ left: 100, top: 111, width: 1, height: 1 })
         .raw()
         .toBuffer({ resolveWithObject: true });
 
-      // Green channel should dominate (rotation placed the green half at the bottom).
-      // Without rotation this pixel would be red.
       expect(data[1]).toBeGreaterThan(100);
       expect(data[0]).toBeLessThan(100);
     } finally {
