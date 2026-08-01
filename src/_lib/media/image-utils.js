@@ -181,8 +181,9 @@ export const getPathAwareBasename = (src) => {
  */
 export const filenameFormat = (_id, src, width, format, options = {}) => {
   const basename = getPathAwareBasename(src);
+  const extension = src.slice(src.lastIndexOf(".") + 1).toLowerCase();
   const cropSuffix = options.manualCacheKey
-    ? `-crop-${String(options.manualCacheKey).replaceAll("/", "x")}`
+    ? `-${extension}-crop-${String(options.manualCacheKey).replaceAll("/", "x")}`
     : "";
   return `${basename}${cropSuffix}-${width}.${format}`;
 };

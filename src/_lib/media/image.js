@@ -21,6 +21,7 @@ import { PLACEHOLDER_MODE } from "#build/build-mode.js";
 import {
   getAspectRatio,
   getCropImageOptions,
+  getCropMaxWidth,
   getMetadata,
   sanitizeCropWidths,
 } from "#media/image-crop.js";
@@ -122,7 +123,7 @@ const processImageData = dedupeAsync(
     const style = buildWrapperStyles(
       bgImage,
       aspectRatio,
-      metadata,
+      { ...metadata, width: getCropMaxWidth(aspectRatio, metadata) },
       getAspectRatio,
       skipMaxWidth,
     );

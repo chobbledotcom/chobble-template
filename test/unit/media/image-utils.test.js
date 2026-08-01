@@ -415,7 +415,7 @@ describe("image-utils", () => {
         filenameFormat("id", "./src/images/photo.jpg", 240, "webp", {
           manualCacheKey: "16/9",
         }),
-      ).toBe("photo-crop-16x9-240.webp");
+      ).toBe("photo-jpg-crop-16x9-240.webp");
     });
 
     test("different crop ratios produce different filenames", () => {
@@ -435,6 +435,17 @@ describe("image-utils", () => {
       );
 
       expect(square).not.toBe(widescreen);
+    });
+
+    test("different source extensions produce different crop filenames", () => {
+      const jpeg = filenameFormat("id", "./src/images/photo.jpg", 240, "webp", {
+        manualCacheKey: "16/9",
+      });
+      const png = filenameFormat("id", "./src/images/photo.png", 240, "webp", {
+        manualCacheKey: "16/9",
+      });
+
+      expect(jpeg).not.toBe(png);
     });
   });
 });

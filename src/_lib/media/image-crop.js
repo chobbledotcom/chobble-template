@@ -26,6 +26,19 @@ const parseCropAspectRatio = (aspectRatio) => {
 };
 
 /**
+ * @param {string | null} aspectRatio
+ * @param {Metadata} metadata
+ * @returns {number}
+ */
+const getCropMaxWidth = (aspectRatio, metadata) =>
+  aspectRatio
+    ? Math.min(
+        metadata.width,
+        Math.floor(metadata.height * parseCropAspectRatio(aspectRatio)),
+      )
+    : metadata.width;
+
+/**
  * @param {(number | string)[]} widths
  * @param {string | null} aspectRatio
  * @param {Metadata} metadata
@@ -34,10 +47,7 @@ const parseCropAspectRatio = (aspectRatio) => {
 const sanitizeCropWidths = (widths, aspectRatio, metadata) => {
   if (!aspectRatio) return widths;
 
-  const maxWidth = Math.min(
-    metadata.width,
-    Math.floor(metadata.height * parseCropAspectRatio(aspectRatio)),
-  );
+  const maxWidth = getCropMaxWidth(aspectRatio, metadata);
   return [
     ...new Set(
       widths.map((width) =>
@@ -86,6 +96,7 @@ const getMetadata = memoize(async (imagePath) => {
 export {
   getAspectRatio,
   getCropImageOptions,
+  getCropMaxWidth,
   getMetadata,
   getSharp,
   sanitizeCropWidths,
