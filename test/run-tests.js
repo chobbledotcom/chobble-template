@@ -15,6 +15,7 @@
 
 import {
   COMMON_STEPS,
+  codeQualityTestsStep,
   integrationTestsStep,
   isMainModule,
   runLanes,
@@ -22,7 +23,7 @@ import {
   verbose,
 } from "#test/test-runner-utils.js";
 
-const lanes = [
+const mainLanes = [
   [COMMON_STEPS.lint],
   [COMMON_STEPS.lintScss],
   [COMMON_STEPS.knip],
@@ -39,5 +40,10 @@ if (isMainModule(import.meta.url)) {
     verbose ? "Running full test suite (verbose)...\n" : "Running tests...",
   );
 
-  await runLanes({ lanes, verbose, title: "TEST SUMMARY" });
+  await runLanes({
+    lanes: [[codeQualityTestsStep]],
+    verbose,
+    title: "CODE QUALITY TEST SUMMARY",
+  });
+  await runLanes({ lanes: mainLanes, verbose, title: "TEST SUMMARY" });
 }

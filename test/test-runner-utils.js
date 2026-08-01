@@ -274,6 +274,7 @@ export const unitTestsStep = (verbose) => ({
   args: [
     "test",
     "test/unit",
+    "--path-ignore-patterns=test/unit/code-quality/**",
     "--coverage",
     "--coverage-reporter=lcov",
     "--coverage-reporter=text",
@@ -283,6 +284,12 @@ export const unitTestsStep = (verbose) => ({
     ...(verbose ? ["--verbose"] : []),
   ],
 });
+
+export const codeQualityTestsStep = {
+  name: "tests:code-quality",
+  cmd: "bun",
+  args: ["test", "test/unit/code-quality", "--concurrent", "--timeout", "1500"],
+};
 
 /**
  * Integration tests step (no coverage - see unitTestsStep).
