@@ -12,6 +12,7 @@ import {
   extractSlowTests,
   extractTestTotal,
 } from "#test/precommit/output.js";
+import { getNonCodeQualityTestFiles } from "#test/test-runner-utils.js";
 
 const CACHE_DIR = join(ROOT_DIR, ".cache");
 const TEST_COUNT_CACHE = join(CACHE_DIR, "precommit-test-count");
@@ -108,12 +109,12 @@ export const getSteps = () => {
       cmd: [
         "bun",
         "test",
+        ...getNonCodeQualityTestFiles("test/**/*.test.js"),
         "--dots",
         "--reporter=junit",
         `--reporter-outfile=${TEST_REPORT_FILE}`,
         "--timeout",
         "1500",
-        "--path-ignore-patterns=test/unit/code-quality/**",
       ],
       preRun: resetTestReport,
       progress: createDotsProgress(

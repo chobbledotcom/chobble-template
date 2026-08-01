@@ -56,4 +56,8 @@ describe("build metrics", () => {
       ),
     ).toThrow("invalid CPU time delta");
   });
+
+  test("rejects snapshots when no logical CPUs are reported", () => {
+    expect(() => getCpuSnapshot([])).toThrow("no logical CPUs were reported");
+  });
 });

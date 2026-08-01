@@ -274,7 +274,6 @@ export const unitTestsStep = (verbose) => ({
   args: [
     "test",
     "test/unit",
-    "--path-ignore-patterns=test/unit/code-quality/**",
     "--coverage",
     "--coverage-reporter=lcov",
     "--coverage-reporter=text",
@@ -284,6 +283,11 @@ export const unitTestsStep = (verbose) => ({
     ...(verbose ? ["--verbose"] : []),
   ],
 });
+
+export const getNonCodeQualityTestFiles = (pattern) =>
+  [...new Bun.Glob(pattern).scanSync(rootDir)].filter(
+    (file) => !file.startsWith("test/unit/code-quality/"),
+  );
 
 export const codeQualityTestsStep = {
   name: "tests:code-quality",
