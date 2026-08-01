@@ -11,13 +11,14 @@
  * - computeWrappedImageHtml(): Generates wrapped picture element with LQIP
  *
  * PLACEHOLDER_MODE (env PLACEHOLDER_IMAGES=1): Skip processing for faster builds.
- * Image cache is copied to _site/img/ after Eleventy build completes.
+ * Image cache is materialized in _site/img/ after Eleventy build completes.
  */
 import fs from "node:fs";
 
 /** @typedef {import("#lib/types").ImageProps} ImageProps */
 /** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
 import { PLACEHOLDER_MODE } from "#build/build-mode.js";
+import { materializeImageCache } from "#media/image-cache-output.js";
 import {
   getAspectRatio,
   getCropImageOptions,
@@ -50,6 +51,7 @@ import {
 } from "#media/image-utils.js";
 import { dedupeAsync } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
+import { log } from "#utils/console.js";
 
 const DEFAULT_OPTIONS = frozenObject({
   outputDir: ".image-cache",
@@ -258,7 +260,13 @@ const configureImages = async (eleventyConfig) => {
   );
   eleventyConfig.on("eleventy.after", () => {
     if (fs.existsSync(".image-cache/")) {
-      fs.cpSync(".image-cache/", "_site/img/", { recursive: true });
+      const { copied, durationMs, linked, total } = materializeImageCache();
+      log(
+        `Image cache output: ${(durationMs / 1000).toFixed(2)}s wall, ` +
+          `${total.toLocaleString("en-GB")} files ` +
+          `(${linked.toLocaleString("en-GB")} linked, ` +
+          `${copied.toLocaleString("en-GB")} copied)`,
+      );
     }
   });
 };
