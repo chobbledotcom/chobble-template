@@ -1,59 +1,76 @@
 /**
  * Image cropping utilities for aspect ratio manipulation.
- *
- * Caches cropped images in .image-cache/ using MD5 hash of source+ratio.
- * Handles EXIF orientation by swapping width/height for rotated images.
- *
- * cropImage uses dedupeAsync to prevent concurrent writes to the same file.
- * Without this, concurrent calls could both see fs.existsSync()=false and
- * race to write the same file, corrupting it ("Input Buffer is empty" error).
+ * Handles EXIF orientation, width clamping, and Eleventy Image transforms.
  */
-import crypto from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
-import { dedupeAsync, memoize } from "#toolkit/fp/memoize.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 import { simplifyRatio } from "#utils/math-utils.js";
+
+/** @typedef {import("sharp").Metadata} Metadata */
+/** @typedef {import("sharp").Sharp} Sharp */
 
 const getSharp = async () => (await import("sharp")).default;
 
-const CROP_CACHE_DIR = ".image-cache";
-
+/**
+ * @param {string | null} aspectRatio
+ * @param {Metadata} metadata
+ */
 const getAspectRatio = (aspectRatio, metadata) =>
   aspectRatio || simplifyRatio(metadata);
 
-const cropImage = dedupeAsync(
-  async (aspectRatio, sourcePath, metadata) => {
-    if (!aspectRatio) return sourcePath;
+/** @param {string} aspectRatio */
+const parseCropAspectRatio = (aspectRatio) => {
+  const [ratioWidth, ratioHeight] = aspectRatio
+    .split("/")
+    .map(Number.parseFloat);
+  return ratioWidth / ratioHeight;
+};
 
-    const cacheHash = crypto
-      .createHash("md5")
-      .update(`${sourcePath}:${aspectRatio}`)
-      .digest("hex")
-      .slice(0, 8);
-    const basename = path.basename(sourcePath, path.extname(sourcePath));
-    const cachedPath = path.join(
-      CROP_CACHE_DIR,
-      `${basename}-crop-${cacheHash}.jpeg`,
-    );
-    if (fs.existsSync(cachedPath)) return cachedPath;
+/**
+ * @param {(number | string)[]} widths
+ * @param {string | null} aspectRatio
+ * @param {Metadata} metadata
+ * @returns {(number | string)[]}
+ */
+const sanitizeCropWidths = (widths, aspectRatio, metadata) => {
+  if (!aspectRatio) return widths;
 
-    const [ratioWidth, ratioHeight] = aspectRatio
-      .split("/")
-      .map(Number.parseFloat);
-    const cropHeight = Math.round(metadata.width / (ratioWidth / ratioHeight));
-    fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
+  const maxWidth = Math.min(
+    metadata.width,
+    Math.floor(metadata.height * parseCropAspectRatio(aspectRatio)),
+  );
+  return [
+    ...new Set(
+      widths.map((width) =>
+        Math.min(
+          width === "auto" ? maxWidth : Number.parseInt(String(width), 10),
+          maxWidth,
+        ),
+      ),
+    ),
+  ];
+};
 
-    const sharp = await getSharp();
-    await sharp(sourcePath)
-      .rotate()
-      .resize(metadata.width, cropHeight, { fit: "cover" })
-      .toFile(cachedPath);
+/**
+ * @param {string | null} aspectRatio
+ * @returns {{manualCacheKey?: string, transform?: (sharp: Sharp, stats: {width: number}) => Sharp}}
+ */
+const getCropImageOptions = (aspectRatio) => {
+  if (!aspectRatio) return {};
 
-    return cachedPath;
-  },
-  { cacheKey: (args) => `${args[0]}:${args[1]}` },
-);
+  const cropRatio = parseCropAspectRatio(aspectRatio);
+  return {
+    manualCacheKey: aspectRatio,
+    transform: (sharp, stats) =>
+      sharp.resize({
+        width: stats.width,
+        height: Math.floor(stats.width / cropRatio),
+        fit: "cover",
+        position: "centre",
+      }),
+  };
+};
 
+/** @param {string} imagePath */
 const getMetadata = memoize(async (imagePath) => {
   const sharp = await getSharp();
   const metadata = await sharp(imagePath).metadata();
@@ -66,4 +83,10 @@ const getMetadata = memoize(async (imagePath) => {
   return metadata;
 });
 
-export { cropImage, getAspectRatio, getMetadata, getSharp };
+export {
+  getAspectRatio,
+  getCropImageOptions,
+  getMetadata,
+  getSharp,
+  sanitizeCropWidths,
+};

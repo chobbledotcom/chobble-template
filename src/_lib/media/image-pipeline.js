@@ -22,6 +22,7 @@ import { parseHtml } from "#utils/dom-builder.js";
  * @param {string} path - Image path or URL
  * @param {Object} baseOptions - Base options (outputDir, filenameFormat, etc.)
  * @param {(number | string)[]} webpWidths - Widths for webp format (includes "auto" for original)
+ * @param {(number | string)[]} [jpegWidths] - Widths for the JPEG fallback
  * @returns {Promise<Object>} Combined webp + jpeg image metadata
  */
 export const processFormats = async (
@@ -29,13 +30,14 @@ export const processFormats = async (
   path,
   baseOptions,
   webpWidths,
+  jpegWidths = [JPEG_FALLBACK_WIDTH],
 ) => {
   const [webpMetadata, jpegMetadata] = await Promise.all([
     imageFn(path, { ...baseOptions, formats: ["webp"], widths: webpWidths }),
     imageFn(path, {
       ...baseOptions,
       formats: ["jpeg"],
-      widths: [JPEG_FALLBACK_WIDTH],
+      widths: jpegWidths,
     }),
   ]);
   return { ...webpMetadata, ...jpegMetadata };

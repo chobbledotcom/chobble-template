@@ -409,5 +409,32 @@ describe("image-utils", () => {
         ),
       ).toBe("photo-crop-abc123-240.webp");
     });
+
+    test("includes a readable crop ratio in transformed image filenames", () => {
+      expect(
+        filenameFormat("id", "./src/images/photo.jpg", 240, "webp", {
+          manualCacheKey: "16/9",
+        }),
+      ).toBe("photo-crop-16x9-240.webp");
+    });
+
+    test("different crop ratios produce different filenames", () => {
+      const square = filenameFormat(
+        "id",
+        "./src/images/photo.jpg",
+        240,
+        "webp",
+        { manualCacheKey: "1/1" },
+      );
+      const widescreen = filenameFormat(
+        "id",
+        "./src/images/photo.jpg",
+        240,
+        "webp",
+        { manualCacheKey: "16/9" },
+      );
+
+      expect(square).not.toBe(widescreen);
+    });
   });
 });
