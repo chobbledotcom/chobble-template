@@ -19,10 +19,10 @@ describe("eleventyComputed.pageLanguage", () => {
     expect(eleventyComputed.pageLanguage(data)).toBe(EN);
   });
 
-  test("refuses a site that declares no languages", () => {
-    expect(() =>
+  test("has no language for a site that declares none", () => {
+    expect(
       eleventyComputed.pageLanguage({ page: { url: "/about/" } }),
-    ).toThrow("must declare one language with is_default: true");
+    ).toBeUndefined();
   });
 });
 

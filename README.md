@@ -97,6 +97,15 @@ counterpart in a language links that language's home page from the footer.
 The template ships one language and no translations, which renders exactly as
 it did before this existed: no hreflang tags and no switcher.
 
+What is translated is pages. Collection items (products, events, categories,
+properties, guide categories) have no language of their own: they are looked up
+by slug across the whole collection, and their labels come from
+`_data/strings.json`, which has no language dimension. A translated page that
+sits under a collection gets its index URL from the translation groups where a
+site has paired one, but the crumb's label, and any category or property crumb
+below it, still come from the base language. Translating a collection needs a
+language on its items and per-language strings, which is its own change.
+
 ## Navigation & Layout
 
 - Horizontal or left sidebar navigation

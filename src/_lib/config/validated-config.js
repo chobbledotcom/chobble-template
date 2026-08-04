@@ -11,8 +11,10 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import configData from "#data/config.json" with { type: "json" };
+import languages from "#data/languages.json" with { type: "json" };
 import site from "#data/site.json" with { type: "json" };
 import { PAGES_DIR } from "#lib/paths.js";
+import { baseLanguageErrors } from "#utils/i18n.js";
 
 const VALID_CART_MODES = ["stripe", "quote"];
 const VALID_PRODUCT_MODES = ["buy", "hire"];
@@ -124,6 +126,7 @@ const quoteCartErrors =
       ];
 
 const errors = [
+  ...baseLanguageErrors(languages),
   ...siteUrlErrors,
   ...currencyErrors,
   ...validateEnum(

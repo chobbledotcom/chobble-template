@@ -10,7 +10,11 @@ import { describe, expect, test } from "bun:test";
 import languages from "#data/languages.json" with { type: "json" };
 import translations from "#data/translations.json" with { type: "json" };
 import { DE, DE_AT, EN } from "#test/fixtures/languages.js";
-import { languageForUrl, translationForUrl } from "#utils/i18n.js";
+import {
+  baseLanguageErrors,
+  languageForUrl,
+  translationForUrl,
+} from "#utils/i18n.js";
 
 const REQUIRED_FIELDS = [
   "code",
@@ -35,6 +39,30 @@ describe("the language data the template ships", () => {
 
   test("pairs no pages until a site says so", () => {
     expect(translations).toEqual([]);
+  });
+});
+
+describe("baseLanguageErrors", () => {
+  test("accepts one base language", () => {
+    expect(baseLanguageErrors([EN, DE])).toEqual([]);
+  });
+
+  test("rejects a site that marks none", () => {
+    expect(baseLanguageErrors([{ ...EN, is_default: false }, DE])).toEqual([
+      "_data/languages.json marks 0 languages with is_default: true, and must mark exactly one.",
+    ]);
+  });
+
+  test("rejects a site that marks two", () => {
+    // head-hreflang.html writes an x-default per marked language, so two would
+    // publish a set with two x-defaults in it.
+    expect(baseLanguageErrors([EN, { ...DE, is_default: true }])).toEqual([
+      "_data/languages.json marks 2 languages with is_default: true, and must mark exactly one.",
+    ]);
+  });
+
+  test("accepts what the template ships", () => {
+    expect(baseLanguageErrors(languages)).toEqual([]);
   });
 });
 
@@ -63,23 +91,20 @@ describe("languageForUrl", () => {
     expect(languageForUrl("/de/preise/", [EN, DE, DE_AT])).toBe(DE);
   });
 
-  test("refuses a site that marks no base language", () => {
-    // x-default is written from the same flag, so guessing a base here would
-    // publish a language set with no x-default in it.
+  test("takes the first language when a probe object marks none", () => {
+    // validated-config.js rejects a site that marks no base language, so the
+    // only caller that reaches this is Eleventy probing computed data with a
+    // placeholder before it builds the dependency map.
     const unmarked = { ...EN, is_default: false };
-    expect(() => languageForUrl("/about/", [unmarked, DE])).toThrow(
-      "must declare one language with is_default: true",
-    );
+    expect(languageForUrl("/about/", [unmarked, DE])).toBe(unmarked);
   });
 
   test("falls back to the base language without a URL", () => {
     expect(languageForUrl(undefined, [EN, DE])).toBe(EN);
   });
 
-  test("refuses a site that declares no languages at all", () => {
-    expect(() => languageForUrl("/about/", [])).toThrow(
-      "must declare one language with is_default: true",
-    );
+  test("has no language to give when none are declared", () => {
+    expect(languageForUrl("/about/", [])).toBeUndefined();
   });
 });
 
