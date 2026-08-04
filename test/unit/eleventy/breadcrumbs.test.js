@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
+import { DE, EN } from "#test/fixtures/languages.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("configureBreadcrumbs", () => {
@@ -24,7 +25,19 @@ describe("withSchemaBreadcrumbs", () => {
     const meta = { title: "Home" };
     expect(filter(meta, false, { url: "/page/" })).toBe(meta);
     expect(
-      filter(meta, true, { url: "/" }, "Home", "Home", null, null, {}),
+      filter(
+        meta,
+        true,
+        { url: "/" },
+        "Home",
+        "Home",
+        null,
+        null,
+        {},
+        undefined,
+        undefined,
+        EN,
+      ),
     ).toBe(meta);
   });
 
@@ -40,6 +53,9 @@ describe("withSchemaBreadcrumbs", () => {
         undefined,
         undefined,
         {},
+        undefined,
+        undefined,
+        EN,
       ).breadcrumbs,
     ).toEqual([
       { name: "Home", url: "https://example.chobble.com", position: 1 },
@@ -74,6 +90,7 @@ describe("breadcrumbsFilter", () => {
     collections = {},
     parentProperty = undefined,
     parentGuideCategory = undefined,
+    pageLanguage = EN,
   ) =>
     mockConfig.filters.breadcrumbsFilter(
       page,
@@ -84,11 +101,49 @@ describe("breadcrumbsFilter", () => {
       collections,
       parentProperty,
       parentGuideCategory,
+      pageLanguage,
     );
 
   test("returns empty array for home page", () => {
     const mockConfig = setupFilter();
     const crumbs = callFilter(mockConfig, { url: "/" }, "Home", "Home", null);
+    expect(crumbs).toEqual([]);
+  });
+
+  test("starts a trail at the page's own language home page", () => {
+    const mockConfig = setupFilter();
+    const crumbs = callFilter(
+      mockConfig,
+      { url: "/de/ueber-uns/" },
+      "Über uns",
+      null,
+      undefined,
+      undefined,
+      {},
+      undefined,
+      undefined,
+      DE,
+    );
+    expect(crumbs).toEqual([
+      { label: "Startseite", url: "/de/" },
+      { label: "Über uns", url: null },
+    ]);
+  });
+
+  test("returns empty array for a language's own home page", () => {
+    const mockConfig = setupFilter();
+    const crumbs = callFilter(
+      mockConfig,
+      { url: "/de/" },
+      "Startseite",
+      null,
+      undefined,
+      undefined,
+      {},
+      undefined,
+      undefined,
+      DE,
+    );
     expect(crumbs).toEqual([]);
   });
 

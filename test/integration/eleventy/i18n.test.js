@@ -125,4 +125,22 @@ describe("a site publishing two languages", () => {
     expect(first.getAttribute("href")).toBe("/de/");
     expect(first.textContent.trim()).toBe("Startseite");
   });
+
+  test("says the same thing in the breadcrumb schema", async () => {
+    // The visible trail and the BreadcrumbList come from one filter, so a
+    // German page cannot show one trail and publish another.
+    const doc = await getSite().getDoc("/de/ueber-uns/index.html");
+    const schema = JSON.parse(
+      doc.querySelector('script[type="application/ld+json"]').textContent,
+    );
+    const list = schema["@graph"].find(
+      (item) => item["@type"] === "BreadcrumbList",
+    );
+    expect(
+      list.itemListElement.map((entry) => [entry.item.name, entry.item["@id"]]),
+    ).toEqual([
+      ["Startseite", "https://example.chobble.com/de/"],
+      ["Über uns", "https://example.chobble.com/de/ueber-uns/"],
+    ]);
+  });
 });

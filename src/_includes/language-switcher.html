@@ -7,8 +7,8 @@
   from a page nobody has translated.
 {%- endcomment -%}
 {%- for alternate in languages -%}
-  {%- unless alternate.code == language.code -%}
-    {%- assign alternate_url = translation[alternate.code] | default: alternate.home_url -%}
+  {%- unless alternate.code == pageLanguage.code -%}
+    {%- assign alternate_url = pageTranslation[alternate.code] | default: alternate.home_url -%}
     <li>
       <a
         href="{{ alternate_url }}{{ config.internal_link_suffix }}"

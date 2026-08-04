@@ -8,9 +8,9 @@
 
   A site with one language has no translation groups, so this writes nothing.
 {%- endcomment -%}
-{%- if translation -%}
+{%- if pageTranslation -%}
   {%- for alternate in languages -%}
-    {%- assign alternate_url = translation[alternate.code] -%}
+    {%- assign alternate_url = pageTranslation[alternate.code] -%}
     {%- if alternate_url -%}
       <link
         rel="alternate"

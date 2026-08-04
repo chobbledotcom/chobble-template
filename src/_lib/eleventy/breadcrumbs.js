@@ -108,15 +108,21 @@ const resolvePropertySlug = (
 /**
  * Build property-based breadcrumbs for guide categories/pages.
  * Replaces the collection index crumb with the linked property.
+ * @param {string} title - Page title
+ * @param {string} propertySlug - Property slug the page belongs to
+ * @param {Record<string, any>} collections - Eleventy collections object
+ * @param {string|undefined} parentGuideCategory - Guide category slug
+ * @param {{label: string, url: string}} home - The page's language home crumb
  */
 const buildPropertyCrumbs = (
   title,
   propertySlug,
   collections,
   parentGuideCategory,
+  home,
 ) => {
   const property = getBySlug(collections.properties, propertySlug);
-  const baseCrumbs = [{ label: "Home", url: "/" }, makeCrumb(property, false)];
+  const baseCrumbs = [home, makeCrumb(property, false)];
 
   if (parentGuideCategory && collections["guide-categories"]) {
     const guideCat = getBySlug(
@@ -132,6 +138,13 @@ const buildPropertyCrumbs = (
 /**
  * Build standard breadcrumbs (no property override).
  * Extracted to keep cognitive complexity of main filter low.
+ * @param {{url: string}} page - Current page
+ * @param {string} title - Page title
+ * @param {string|undefined} navigationParent - Navigation parent name
+ * @param {string|undefined} parentCategory - Explicit parent category slug
+ * @param {string[]|undefined} itemCategories - Item's category slugs
+ * @param {Record<string, any>} collections - Eleventy collections object
+ * @param {{label: string, url: string}} home - The page's language home crumb
  */
 const buildStandardCrumbs = (
   page,
@@ -140,23 +153,18 @@ const buildStandardCrumbs = (
   parentCategory,
   itemCategories,
   collections,
+  home,
 ) => {
   const indexUrl = getIndexUrl(navigationParent, page.url);
   const isAtIndex = page.url === indexUrl;
 
   if (isAtIndex) {
-    return [
-      { label: "Home", url: "/" },
-      { label: navigationParent || title, url: null },
-    ];
+    return [home, { label: navigationParent || title, url: null }];
   }
 
   const baseCrumbs = navigationParent
-    ? [
-        { label: "Home", url: "/" },
-        { label: navigationParent, url: indexUrl },
-      ]
-    : [{ label: "Home", url: "/" }];
+    ? [home, { label: navigationParent, url: indexUrl }]
+    : [home];
 
   if (itemCategories?.[0] && collections.categories) {
     return buildCategoryCrumbs(
@@ -186,6 +194,9 @@ const buildStandardCrumbs = (
  * @param {Object} collections - Eleventy collections object
  * @param {string|undefined} parentProperty - Property slug (guide categories)
  * @param {string|undefined} parentGuideCategory - Guide category slug (guide pages)
+ * @param {import("#lib/types").Language} pageLanguage - The language this page
+ *   is written in. Its home page is the first crumb, so a trail never sends a
+ *   reader from one language to another.
  */
 const breadcrumbsFilter = (
   page,
@@ -196,8 +207,10 @@ const breadcrumbsFilter = (
   collections,
   parentProperty,
   parentGuideCategory,
+  pageLanguage,
 ) => {
-  if (page.url === "/") return [];
+  const home = { label: pageLanguage.home_label, url: pageLanguage.home_url };
+  if (page.url === home.url) return [];
 
   // Property-linked guide categories/pages: replace index crumb with property
   const propertySlug = resolvePropertySlug(
@@ -211,6 +224,7 @@ const breadcrumbsFilter = (
       propertySlug,
       collections,
       parentGuideCategory,
+      home,
     );
   }
 
@@ -221,6 +235,7 @@ const breadcrumbsFilter = (
     parentCategory,
     itemCategories,
     collections,
+    home,
   );
 };
 

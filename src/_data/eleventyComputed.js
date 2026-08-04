@@ -140,13 +140,17 @@ export default {
 
   /**
    * The language this page is written in, read from its URL prefix. The layout,
-   * the head tags and the language switcher read it, so a site with one
-   * language gets that language on every page and nothing has to ask whether
-   * the site is translated at all.
+   * the head tags, the breadcrumbs and the language switcher read it, so a
+   * site with one language gets that language on every page and nothing has to
+   * ask whether the site is translated at all.
+   *
+   * Named `pageLanguage` rather than `language` because a global named
+   * `language` shadows the `language` parameter that code-block.html and any
+   * other include may take.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {import("#lib/types").Language|undefined}
    */
-  language: (data) => languageForUrl(data.page?.url, data.languages || []),
+  pageLanguage: (data) => languageForUrl(data.page?.url, data.languages || []),
 
   /**
    * The URLs of this page in every language it has been written in, keyed by
@@ -154,7 +158,7 @@ export default {
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {Record<string, string>|null}
    */
-  translation: (data) =>
+  pageTranslation: (data) =>
     translationForUrl(data.page?.url, data.translations || []),
 
   contactForm: () => contactFormFn(),

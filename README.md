@@ -87,7 +87,9 @@ template names a language.
   language code, e.g. `[{ "en": "/about/", "de": "/de/ueber-uns/" }]`.
 
 A page's language comes from its URL prefix, and the layout, the head tags, the
-footer switcher and the breadcrumbs read it. To add a language, add its entry,
+footer switcher and the breadcrumbs read it as `pageLanguage`. Exactly one
+language must be marked `is_default`, and a site that marks none fails the
+build. To add a language, add its entry,
 put its pages under its `home_url`, list them in `translations.json`, and
 translate `_includes/footer.html` and the navigation for it. A page with no
 counterpart in a language links that language's home page from the footer.

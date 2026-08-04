@@ -63,19 +63,23 @@ describe("languageForUrl", () => {
     expect(languageForUrl("/de/preise/", [EN, DE, DE_AT])).toBe(DE);
   });
 
-  test("treats the first language as the base when none is marked", () => {
+  test("refuses a site that marks no base language", () => {
+    // x-default is written from the same flag, so guessing a base here would
+    // publish a language set with no x-default in it.
     const unmarked = { ...EN, is_default: false };
-    expect(languageForUrl("/about/", [unmarked, DE])).toBe(unmarked);
+    expect(() => languageForUrl("/about/", [unmarked, DE])).toThrow(
+      "must declare one language with is_default: true",
+    );
   });
 
   test("falls back to the base language without a URL", () => {
     expect(languageForUrl(undefined, [EN, DE])).toBe(EN);
   });
 
-  test("has no language to give when none are declared", () => {
-    // The data layer defaults the list, so an empty one means a site with no
-    // languages.json at all rather than a missing argument.
-    expect(languageForUrl("/about/", [])).toBeUndefined();
+  test("refuses a site that declares no languages at all", () => {
+    expect(() => languageForUrl("/about/", [])).toThrow(
+      "must declare one language with is_default: true",
+    );
   });
 });
 

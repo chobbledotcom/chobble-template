@@ -34,10 +34,10 @@
   {%- include "head-hreflang.html" -%}
 {%- endif -%}
 
-<meta property="og:locale" content="{{ language.og_locale }}">
+<meta property="og:locale" content="{{ pageLanguage.og_locale }}">
 {%- for alternate in languages -%}
-  {%- unless alternate.code == language.code -%}
-    {%- if translation[alternate.code] -%}
+  {%- unless alternate.code == pageLanguage.code -%}
+    {%- if pageTranslation[alternate.code] -%}
       <meta property="og:locale:alternate" content="{{ alternate.og_locale }}">
     {%- endif -%}
   {%- endunless -%}

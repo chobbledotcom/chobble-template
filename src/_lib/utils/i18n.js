@@ -17,17 +17,25 @@
 /**
  * The language of one URL, read from the URL prefix each language is published
  * under. Anything outside every other language's prefix, including the sitemap
- * and the feeds, is in the base language, which is the language marked
- * `is_default` or, failing that, the first one declared.
+ * and the feeds, is in the base language.
+ *
+ * Exactly one language must be marked `is_default`, and a site that marks none
+ * fails the build here rather than at whichever page first needs a base
+ * language. `hreflang="x-default"` is written from the same flag, so a guessed
+ * base would publish a language set with no x-default in it.
  * @param {string|undefined} url
  * @param {import("#lib/types").Language[]} languages - Every language the site
  *   publishes, defaulted in the data layer rather than here
- * @returns {import("#lib/types").Language|undefined}
+ * @returns {import("#lib/types").Language}
+ * @throws {Error} When no language is marked `is_default`
  */
 export const languageForUrl = (url, languages) => {
-  if (languages.length === 0) return undefined;
-  const base =
-    languages.find((language) => language.is_default) || languages[0];
+  const base = languages.find((language) => language.is_default);
+  if (!base) {
+    throw new Error(
+      "_data/languages.json must declare one language with is_default: true",
+    );
+  }
   if (typeof url !== "string") return base;
   // Longest prefix first, so a page under /de/at/ is Austrian German rather
   // than German when a site publishes both.
