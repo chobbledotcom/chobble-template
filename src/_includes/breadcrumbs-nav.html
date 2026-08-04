@@ -1,4 +1,4 @@
-{%- assign crumbs = page | breadcrumbsFilter: name, navigationParent, parent, categories, collections, property, parentGuideCategory, pageLanguage -%}
+{%- assign crumbs = page | breadcrumbsFilter: name, navigationParent, parent, categories, collections, property, parentGuideCategory, pageLanguage, translations -%}
 {%- if crumbs.size > 0 -%}
 <ol class="breadcrumbs" aria-label="{{ pageLanguage.breadcrumb_label }}">
   {%- for crumb in crumbs -%}

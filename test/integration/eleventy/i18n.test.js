@@ -20,6 +20,11 @@ const alternatesOf = (doc) =>
     link.getAttribute("href"),
   ]);
 
+const schemaOf = (doc) =>
+  JSON.parse(
+    doc.querySelector('script[type="application/ld+json"]').textContent,
+  );
+
 const languageLinksOf = (doc) =>
   [...doc.querySelectorAll("footer .language-links a")].map((link) => [
     link.getAttribute("hreflang"),
@@ -126,13 +131,21 @@ describe("a site publishing two languages", () => {
     expect(first.textContent.trim()).toBe("Startseite");
   });
 
+  test("publishes the page's own language in its schema", async () => {
+    // meta.json carries one site-wide language, so without an override a German
+    // page claimed English in its JSON-LD while its html element said German.
+    const schema = schemaOf(await getSite().getDoc("/de/ueber-uns/index.html"));
+    const languages = schema["@graph"]
+      .map((item) => item.inLanguage)
+      .filter(Boolean);
+    expect(languages).not.toBeEmpty();
+    expect([...new Set(languages)]).toEqual(["de"]);
+  });
+
   test("says the same thing in the breadcrumb schema", async () => {
     // The visible trail and the BreadcrumbList come from one filter, so a
     // German page cannot show one trail and publish another.
-    const doc = await getSite().getDoc("/de/ueber-uns/index.html");
-    const schema = JSON.parse(
-      doc.querySelector('script[type="application/ld+json"]').textContent,
-    );
+    const schema = schemaOf(await getSite().getDoc("/de/ueber-uns/index.html"));
     const list = schema["@graph"].find(
       (item) => item["@type"] === "BreadcrumbList",
     );

@@ -12,7 +12,7 @@
 {%- endif -%}
 
 {%- unless no_index -%}
-  {%- assign schemaMeta = meta | withSchemaBreadcrumbs: config.show_breadcrumbs, page, name, navigationParent, parent, categories, collections, property, parentGuideCategory, pageLanguage -%}
+  {%- assign schemaMeta = meta | withSchemaLanguage: pageLanguage | withSchemaBreadcrumbs: config.show_breadcrumbs, page, name, navigationParent, parent, categories, collections, property, parentGuideCategory, pageLanguage, translations -%}
   {%- if schemaType == "post" and author -%}
     {%- assign schemaMeta = schemaMeta | withSchemaAuthor: author, collections.team -%}
   {%- endif -%}

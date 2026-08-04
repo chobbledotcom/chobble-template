@@ -10,6 +10,7 @@ describe("configureBreadcrumbs", () => {
 
     expect(typeof mockConfig.filters.breadcrumbsFilter).toBe("function");
     expect(typeof mockConfig.filters.withSchemaBreadcrumbs).toBe("function");
+    expect(typeof mockConfig.filters.withSchemaLanguage).toBe("function");
   });
 });
 
@@ -37,6 +38,7 @@ describe("withSchemaBreadcrumbs", () => {
         undefined,
         undefined,
         EN,
+        [],
       ),
     ).toBe(meta);
   });
@@ -56,6 +58,7 @@ describe("withSchemaBreadcrumbs", () => {
         undefined,
         undefined,
         EN,
+        [],
       ).breadcrumbs,
     ).toEqual([
       { name: "Home", url: "https://example.chobble.com", position: 1 },
@@ -91,6 +94,7 @@ describe("breadcrumbsFilter", () => {
     parentProperty = undefined,
     parentGuideCategory = undefined,
     pageLanguage = EN,
+    translations = [],
   ) =>
     mockConfig.filters.breadcrumbsFilter(
       page,
@@ -102,6 +106,7 @@ describe("breadcrumbsFilter", () => {
       parentProperty,
       parentGuideCategory,
       pageLanguage,
+      translations,
     );
 
   test("returns empty array for home page", () => {
@@ -471,5 +476,84 @@ describe("breadcrumbsFilter", () => {
         { label: "Some Category", url: null },
       ]);
     });
+  });
+});
+
+describe("withSchemaLanguage", () => {
+  const setupFilter = () => {
+    const mockConfig = createMockEleventyConfig();
+    configureBreadcrumbs(mockConfig);
+    return mockConfig.filters.withSchemaLanguage;
+  };
+
+  test("replaces the site-wide language with the page's own", () => {
+    const filter = setupFilter();
+    expect(filter({ language: "en-GB", title: "Über uns" }, DE)).toEqual({
+      language: "de",
+      title: "Über uns",
+    });
+  });
+});
+
+describe("the collection index crumb of a translated page", () => {
+  const setupFilter = () => {
+    const mockConfig = createMockEleventyConfig();
+    configureBreadcrumbs(mockConfig);
+    return mockConfig.filters.breadcrumbsFilter;
+  };
+
+  const indexCrumb = (filter, page, navigationParent, language, translations) =>
+    filter(
+      page,
+      "A Thing",
+      navigationParent,
+      undefined,
+      undefined,
+      {},
+      undefined,
+      undefined,
+      language,
+      translations,
+    )[1];
+
+  test("points at the index in the page's own language where one is paired", () => {
+    const crumb = indexCrumb(
+      setupFilter(),
+      { url: "/de/produkte/thing/" },
+      "Products",
+      DE,
+      [{ en: "/products/", de: "/de/produkte/" }],
+    );
+    expect(crumb).toEqual({ label: "Products", url: "/de/produkte/" });
+  });
+
+  test("keeps the base-language index when the site pairs none", () => {
+    // Better a crumb that exists in another language than one that 404s.
+    const crumb = indexCrumb(
+      setupFilter(),
+      { url: "/de/produkte/thing/" },
+      "Products",
+      DE,
+      [],
+    );
+    expect(crumb.url).toBe("/products/");
+  });
+
+  test("derives an unnamed parent's index under the language prefix", () => {
+    const crumb = indexCrumb(
+      setupFilter(),
+      { url: "/de/leitfaden/thing/" },
+      undefined,
+      DE,
+      [],
+    );
+    expect(crumb).toEqual({ label: "A Thing", url: null });
+  });
+
+  test("leaves a base-language page's index exactly as it was", () => {
+    const filter = setupFilter();
+    expect(
+      indexCrumb(filter, { url: "/products/thing/" }, "Products", EN, []).url,
+    ).toBe("/products/");
   });
 });

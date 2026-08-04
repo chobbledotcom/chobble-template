@@ -12,6 +12,7 @@
 import strings from "#data/strings.js";
 import { getBySlug } from "#eleventy/collection-lookup.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
+import { translationForUrl } from "#utils/i18n.js";
 
 /** Mapping from navigation parent names to their index URLs */
 const PARENT_URL_MAP = {
@@ -39,9 +40,31 @@ const withTitleCrumb = (crumbs, title) => [
 ];
 
 /** Get index URL for a navigation parent, falling back to first path segment */
-const getIndexUrl = (navigationParent, pageUrl) =>
-  PARENT_URL_MAP[navigationParent] ||
-  `/${pageUrl.split("/").filter(Boolean)[0]}/`;
+/**
+ * The URL of the collection index a page sits under, in the page's own
+ * language. A named parent has a base-language index whose counterpart, if the
+ * site has paired one, comes from the translation groups; anything else is the
+ * page's own first path segment under its language prefix. For the base
+ * language, whose prefix is "/", both read exactly as they did before any of
+ * this existed.
+ * @param {string|undefined} navigationParent - Navigation parent name
+ * @param {string} pageUrl - The current page's URL
+ * @param {import("#lib/types").Language} pageLanguage - The page's language
+ * @param {Array<Record<string, string>>} translations - Pages that say the same
+ *   thing, keyed by language code
+ * @returns {string}
+ */
+const getIndexUrl = (navigationParent, pageUrl, pageLanguage, translations) => {
+  const baseIndex = PARENT_URL_MAP[navigationParent];
+  if (baseIndex) {
+    const group = translationForUrl(baseIndex, translations);
+    const translated = group ? group[pageLanguage.code] : undefined;
+    return translated === undefined ? baseIndex : translated;
+  }
+  const withinLanguage = pageUrl.slice(pageLanguage.home_url.length);
+  const [segment] = withinLanguage.split("/").filter(Boolean);
+  return `${pageLanguage.home_url}${segment}/`;
+};
 
 /** Build crumbs with a parent item (category or location) */
 const buildParentCrumbs = (page, baseCrumbs, title, parent) => {
@@ -136,51 +159,62 @@ const buildPropertyCrumbs = (
 };
 
 /**
+ * @typedef {object} StandardCrumbContext
+ * @property {{url: string}} page - Current page
+ * @property {string} title - Page title
+ * @property {string|undefined} navigationParent - Navigation parent name
+ * @property {string|undefined} parentCategory - Explicit parent category slug
+ * @property {string[]|undefined} itemCategories - Item's category slugs
+ * @property {Record<string, any>} collections - Eleventy collections object
+ * @property {{label: string, url: string}} home - The page's language home crumb
+ * @property {import("#lib/types").Language} pageLanguage - The page's language
+ * @property {Array<Record<string, string>>} translations - Pages that say the
+ *   same thing, keyed by language code
+ */
+
+/**
  * Build standard breadcrumbs (no property override).
  * Extracted to keep cognitive complexity of main filter low.
- * @param {{url: string}} page - Current page
- * @param {string} title - Page title
- * @param {string|undefined} navigationParent - Navigation parent name
- * @param {string|undefined} parentCategory - Explicit parent category slug
- * @param {string[]|undefined} itemCategories - Item's category slugs
- * @param {Record<string, any>} collections - Eleventy collections object
- * @param {{label: string, url: string}} home - The page's language home crumb
+ * @param {StandardCrumbContext} context - Everything the trail is built from
  */
-const buildStandardCrumbs = (
-  page,
-  title,
-  navigationParent,
-  parentCategory,
-  itemCategories,
-  collections,
-  home,
-) => {
-  const indexUrl = getIndexUrl(navigationParent, page.url);
-  const isAtIndex = page.url === indexUrl;
+const buildStandardCrumbs = (context) => {
+  const indexUrl = getIndexUrl(
+    context.navigationParent,
+    context.page.url,
+    context.pageLanguage,
+    context.translations,
+  );
 
-  if (isAtIndex) {
-    return [home, { label: navigationParent || title, url: null }];
+  if (context.page.url === indexUrl) {
+    return [
+      context.home,
+      { label: context.navigationParent || context.title, url: null },
+    ];
   }
 
-  const baseCrumbs = navigationParent
-    ? [home, { label: navigationParent, url: indexUrl }]
-    : [home];
+  const baseCrumbs = context.navigationParent
+    ? [context.home, { label: context.navigationParent, url: indexUrl }]
+    : [context.home];
 
-  if (itemCategories?.[0] && collections.categories) {
+  if (context.itemCategories?.[0] && context.collections.categories) {
     return buildCategoryCrumbs(
-      page,
+      context.page,
       baseCrumbs,
-      title,
-      itemCategories[0],
-      collections.categories,
+      context.title,
+      context.itemCategories[0],
+      context.collections.categories,
     );
   }
 
-  const parent = findParent(parentCategory, collections.categories);
+  const parent = findParent(
+    context.parentCategory,
+    context.collections.categories,
+  );
 
-  if (parent) return buildParentCrumbs(page, baseCrumbs, title, parent);
+  if (parent)
+    return buildParentCrumbs(context.page, baseCrumbs, context.title, parent);
 
-  return withTitleCrumb(baseCrumbs, title);
+  return withTitleCrumb(baseCrumbs, context.title);
 };
 
 /**
@@ -197,6 +231,9 @@ const buildStandardCrumbs = (
  * @param {import("#lib/types").Language} pageLanguage - The language this page
  *   is written in. Its home page is the first crumb, so a trail never sends a
  *   reader from one language to another.
+ * @param {Array<Record<string, string>>} translations - Pages that say the same
+ *   thing, keyed by language code, so a collection index crumb points at the
+ *   index in the page's own language where the site publishes one.
  */
 const breadcrumbsFilter = (
   page,
@@ -208,6 +245,7 @@ const breadcrumbsFilter = (
   parentProperty,
   parentGuideCategory,
   pageLanguage,
+  translations,
 ) => {
   const home = { label: pageLanguage.home_label, url: pageLanguage.home_url };
   if (page.url === home.url) return [];
@@ -228,7 +266,7 @@ const breadcrumbsFilter = (
     );
   }
 
-  return buildStandardCrumbs(
+  return buildStandardCrumbs({
     page,
     title,
     navigationParent,
@@ -236,7 +274,9 @@ const breadcrumbsFilter = (
     itemCategories,
     collections,
     home,
-  );
+    pageLanguage,
+    translations,
+  });
 };
 
 /**
@@ -261,12 +301,27 @@ const withSchemaBreadcrumbs = (meta, showBreadcrumbs, ...breadcrumbArgs) => {
 };
 
 /**
+ * The schema metadata with the page's own language on it. `meta.language` is
+ * one site-wide value from `_data/meta.json`, so without this a German page
+ * published `inLanguage: "en-GB"` in its JSON-LD while its html element and its
+ * og:locale said German.
+ * @param {Record<string, unknown>} meta
+ * @param {import("#lib/types").Language} pageLanguage - The page's language
+ * @returns {Record<string, unknown>}
+ */
+const withSchemaLanguage = (meta, pageLanguage) => ({
+  ...meta,
+  language: pageLanguage.hreflang,
+});
+
+/**
  * Configure breadcrumbs in Eleventy
  * @param {import('@11ty/eleventy').UserConfig} eleventyConfig
  */
 const configureBreadcrumbs = (eleventyConfig) => {
   eleventyConfig.addFilter("breadcrumbsFilter", breadcrumbsFilter);
   eleventyConfig.addFilter("withSchemaBreadcrumbs", withSchemaBreadcrumbs);
+  eleventyConfig.addFilter("withSchemaLanguage", withSchemaLanguage);
 };
 
 export {
@@ -280,4 +335,5 @@ export {
   getIndexUrl,
   resolvePropertySlug,
   withSchemaBreadcrumbs,
+  withSchemaLanguage,
 };
