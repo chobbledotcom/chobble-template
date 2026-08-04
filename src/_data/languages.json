@@ -1,0 +1,12 @@
+[
+	{
+		"code": "en",
+		"hreflang": "en",
+		"og_locale": "en_GB",
+		"label": "English",
+		"home_url": "/",
+		"home_label": "Home",
+		"breadcrumb_label": "Breadcrumb",
+		"is_default": true
+	}
+]

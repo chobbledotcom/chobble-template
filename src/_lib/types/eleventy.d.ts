@@ -380,4 +380,8 @@ export type EleventyComputedData = EleventyCollectionItemData & {
   metaComputed?: Record<string, unknown>;
   /** Design system blocks for block-based content */
   blocks?: Array<{ type: string; [key: string]: unknown }>;
+  /** Every language the site publishes, from `_data/languages.json` */
+  languages?: import('./utils.d.ts').Language[];
+  /** Pages that say the same thing, from `_data/translations.json` */
+  translations?: Array<Record<string, string>>;
 };

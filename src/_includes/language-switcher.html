@@ -1,0 +1,20 @@
+{%- comment -%}
+  List items linking this page in every other language the site publishes.
+  Nothing is written for a site with one language.
+
+  A page with no counterpart in a language links that language's home page
+  instead of being left out, which is what makes another language reachable
+  from a page nobody has translated.
+{%- endcomment -%}
+{%- for alternate in languages -%}
+  {%- unless alternate.code == language.code -%}
+    {%- assign alternate_url = translation[alternate.code] | default: alternate.home_url -%}
+    <li>
+      <a
+        href="{{ alternate_url }}{{ config.internal_link_suffix }}"
+        lang="{{ alternate.code }}"
+        hreflang="{{ alternate.hreflang }}"
+      >{{ alternate.label }}</a>
+    </li>
+  {%- endunless -%}
+{%- endfor -%}

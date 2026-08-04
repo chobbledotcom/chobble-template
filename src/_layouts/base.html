@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ language.code }}">
 <head>
   {%- include "head-meta.html" -%}
 
@@ -25,8 +25,12 @@
   {%- include "design-system/hoisted-banner.html", banner: banner_split.banner -%}
   <div class="page-columns">
     <main{% if pagefind_body %} data-pagefind-body{% endif %}>
-      {%- if config.show_breadcrumbs and page.url != "/" -%}
-        {%- include "breadcrumbs-nav.html" -%}
+      {%- if config.show_breadcrumbs and page.url != language.home_url -%}
+        {%- if language.is_default -%}
+          {%- include "breadcrumbs-nav.html" -%}
+        {%- else -%}
+          {%- include "breadcrumbs-translated.html" -%}
+        {%- endif -%}
       {%- endif -%}
       {{- content | validatePageBodyContent: layout, page.inputPath -}}
       {%- if banner_split.rest.size > 0 -%}
