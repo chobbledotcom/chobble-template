@@ -71,6 +71,40 @@ An Eleventy starter for business websites. The GitHub action deploys to both Neo
 - Sitemap
 - Atom feed with XSL stylesheet
 - Meta descriptions, noindex support
+- hreflang tags and `og:locale` for sites published in more than one language
+
+## Languages
+
+A site is written in one language until it says otherwise, and nothing in the
+template names a language.
+
+- `_data/languages.json` lists every language the site publishes, each with a
+  `code`, `hreflang`, `og_locale`, `label`, `home_url` prefix, `home_label` and
+  `breadcrumb_label`. Exactly one entry has `is_default: true`, which is the
+  base language: the one every URL outside another language's prefix is written
+  in, and the one `hreflang="x-default"` points at.
+- `_data/translations.json` pairs the pages that say the same thing, keyed by
+  language code, e.g. `[{ "en": "/about/", "de": "/de/ueber-uns/" }]`.
+
+A page's language comes from its URL prefix, and the layout, the head tags, the
+footer switcher and the breadcrumbs read it as `pageLanguage`. Exactly one
+language must be marked `is_default`, and a site that marks none fails the
+build. To add a language, add its entry,
+put its pages under its `home_url`, list them in `translations.json`, and
+translate `_includes/footer.html` and the navigation for it. A page with no
+counterpart in a language links that language's home page from the footer.
+
+The template ships one language and no translations, which renders exactly as
+it did before this existed: no hreflang tags and no switcher.
+
+What is translated is pages. Collection items (products, events, categories,
+properties, guide categories) have no language of their own: they are looked up
+by slug across the whole collection, and their labels come from
+`_data/strings.json`, which has no language dimension. A translated page that
+sits under a collection gets its index URL from the translation groups where a
+site has paired one, but the crumb's label, and any category or property crumb
+below it, still come from the base language. Translating a collection needs a
+language on its items and per-language strings, which is its own change.
 
 ## Navigation & Layout
 
@@ -103,6 +137,8 @@ An Eleventy starter for business websites. The GitHub action deploys to both Neo
 - `_data/config.json` - Formspark, Botpoison, ecommerce checkout, map embed, nav options
 - `_data/site.json` - name, URL, description, social links (14 platforms), opening hours
 - `_data/meta.json` - language, organisation details for schema.org
+- `_data/languages.json` - languages the site publishes, and which is the base
+- `_data/translations.json` - pages that say the same thing in each language
 - `_data/strings.json` - customisable labels and permalink directories
 
 **Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**

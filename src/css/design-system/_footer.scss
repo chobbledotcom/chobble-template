@@ -27,6 +27,17 @@
       margin: 0 0 $space-sm;
     }
 
+    .language-links {
+      @include flex-row($space-md, center, center);
+
+      flex-wrap: wrap;
+
+      margin: 0 0 $space-md;
+      padding: 0;
+
+      list-style: none;
+    }
+
     .socials {
       @include flex-row($space-lg, center, center);
 

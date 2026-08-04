@@ -5,6 +5,7 @@ import { slugifyAttr } from "#filters/filter-core.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
 import { collectBlockErrors } from "#utils/block-schema.js";
+import { languageForUrl, translationForUrl } from "#utils/i18n.js";
 import { getFilterAttributes } from "#utils/mock-filter-attributes.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
@@ -136,6 +137,29 @@ export default {
       ),
     };
   },
+
+  /**
+   * The language this page is written in, read from its URL prefix. The layout,
+   * the head tags, the breadcrumbs and the language switcher read it, so a
+   * site with one language gets that language on every page and nothing has to
+   * ask whether the site is translated at all.
+   *
+   * Named `pageLanguage` rather than `language` because a global named
+   * `language` shadows the `language` parameter that code-block.html and any
+   * other include may take.
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {import("#lib/types").Language|undefined}
+   */
+  pageLanguage: (data) => languageForUrl(data.page?.url, data.languages || []),
+
+  /**
+   * The URLs of this page in every language it has been written in, keyed by
+   * language code, or null when it exists in one language only.
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {Record<string, string>|null}
+   */
+  pageTranslation: (data) =>
+    translationForUrl(data.page?.url, data.translations || []),
 
   contactForm: () => contactFormFn(),
   quoteFields: () => quoteFieldsFn(),

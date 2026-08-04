@@ -130,7 +130,7 @@ export type { SchemaOrgMeta } from './schema.d.ts';
 // =============================================================================
 // Utility Types
 // =============================================================================
-export type { MemoizeOptions } from './utils.d.ts';
+export type { Language, MemoizeOptions } from './utils.d.ts';
 
 // =============================================================================
 // HTML Tokenizer Types

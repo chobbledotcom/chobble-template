@@ -1,4 +1,9 @@
 <footer>
+  {%- if languages.size > 1 -%}
+    <ul class="language-links" role="list">
+      {%- include "language-switcher.html" -%}
+    </ul>
+  {%- endif -%}
   {%- include "footer-socials.html" -%}
   {%- render_snippet "footer-content" -%}
   {%- if page.url == "/" and config.homepage_footer_markdown -%}

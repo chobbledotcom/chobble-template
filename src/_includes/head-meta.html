@@ -31,8 +31,17 @@
     rel="canonical"
     href="{{ socialMeta.url | escape }}"
   >
+  {%- include "head-hreflang.html" -%}
 {%- endif -%}
 
+<meta property="og:locale" content="{{ pageLanguage.og_locale }}">
+{%- for alternate in languages -%}
+  {%- unless alternate.code == pageLanguage.code -%}
+    {%- if pageTranslation[alternate.code] -%}
+      <meta property="og:locale:alternate" content="{{ alternate.og_locale }}">
+    {%- endif -%}
+  {%- endunless -%}
+{%- endfor -%}
 <meta property="og:type" content="{{ socialMeta.type | escape }}">
 <meta property="og:title" content="{{ socialMeta.title | escape }}">
 {%- if socialMeta.description -%}

@@ -1,0 +1,29 @@
+{%- comment -%}
+  hreflang tags for a page that exists in more than one language, built from
+  the site's languages and its translation pairs. Search engines expect every
+  page in a set to list the whole set, itself included, with absolute URLs, so
+  the loop runs over every language and does not skip the current one.
+  x-default points at the site's base language, which is what a reader whose
+  own language has no version of the page is served.
+
+  A site with one language has no translation groups, so this writes nothing.
+{%- endcomment -%}
+{%- if pageTranslation -%}
+  {%- for alternate in languages -%}
+    {%- assign alternate_url = pageTranslation[alternate.code] -%}
+    {%- if alternate_url -%}
+      <link
+        rel="alternate"
+        hreflang="{{ alternate.hreflang }}"
+        href="{{ alternate_url | canonicalUrl }}"
+      >
+      {%- if alternate.is_default -%}
+        <link
+          rel="alternate"
+          hreflang="x-default"
+          href="{{ alternate_url | canonicalUrl }}"
+        >
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
