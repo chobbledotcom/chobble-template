@@ -29,7 +29,7 @@ export const languageForUrl = (url, languages) => {
   const base =
     languages.find((language) => language.is_default) || languages[0];
   if (typeof url !== "string") return base;
-  // Longest prefix first, so a page under /de-at/ is Austrian German rather
+  // Longest prefix first, so a page under /de/at/ is Austrian German rather
   // than German when a site publishes both.
   const [longest] = languages
     .filter((language) => language !== base)
