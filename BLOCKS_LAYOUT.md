@@ -1028,12 +1028,12 @@ Define FAQs inline via `items`, or omit to fall back to the page-level `faqs` ar
 
 ### `guide-categories`
 
-Displays guide categories collection.
+Displays the site-wide guide categories.
 
 **Component:** `block_guide_categories`
 **Template:** `src/_includes/design-system/blocks/guide-categories.html`
 
-No block-level parameters. Uses the global `collections.guide-categories`.
+No block-level parameters. Uses the global `collections.guide-categories`, minus any category with a `property` — those belong to a single property's guide and are listed by the `property-guides` block on the property page instead.
 
 ---
 
@@ -1066,7 +1066,7 @@ Lists the guide pages that belong to the current guide category (filtered via `g
 **Component:** `block_guide_pages_list`
 **Template:** `src/_includes/design-system/blocks/guide-pages-list.html`
 
-Guide-category-only block. No parameters. Renders nothing when there are no pages in the category.
+Guide-category-only block. No parameters. A guide page with a `property` is only listed when the category carries the same `property`. Renders nothing when there are no pages left to show.
 
 ---
 
