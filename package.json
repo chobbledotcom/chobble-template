@@ -16,6 +16,7 @@
 		"#utils/*": "./src/_lib/utils/*",
 		"#public/*": "./src/_lib/public/*",
 		"#menus/*": "./src/menus/*",
+		"#guide-categories/*": "./src/guide-categories/*",
 		"#test/*": "./test/*",
 		"#scripts/*": "./scripts/*",
 		"#bin/*": "./bin/*",

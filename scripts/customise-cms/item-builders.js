@@ -201,6 +201,8 @@ export const buildGuidePagesFields = (config, fields) =>
         "guide-categories",
         false,
       ),
+    enabled("properties") &&
+      createReferenceField("property", "Property", "properties", false),
     COMMON_FIELDS.order,
     fields.body,
   ])(config);

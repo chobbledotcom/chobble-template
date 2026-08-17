@@ -7,6 +7,8 @@ export default linkableContent("guide", {
     data["guide-category"] ? normaliseSlug(data["guide-category"]) : undefined,
   parentGuideCategory: (data) =>
     data["guide-category"] ? normaliseSlug(data["guide-category"]) : undefined,
+  property: (data) =>
+    data.property ? normaliseSlug(data.property) : undefined,
   permalink: (data) => {
     if (data.permalink) return normalisePermalink(data.permalink);
     const category = data["guide-category"]

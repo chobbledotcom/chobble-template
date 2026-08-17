@@ -1815,6 +1815,14 @@ content:
           search: fields.name
           value: "{path}"
           label: "{fields.name}"
+      - name: property
+        label: Property
+        type: reference
+        options:
+          collection: properties
+          search: fields.name
+          value: "{path}"
+          label: "{fields.name}"
       - { name: order, type: number, label: Order }
       - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
