@@ -25,20 +25,14 @@ const guideCategoriesByProperty = (guideCategories, propertySlug) =>
   indexByProperty(guideCategories)[propertySlug] ?? [];
 
 /**
- * Does this guide category or page apply to every property?
- * @param {import("#lib/types").EleventyCollectionItem} guide
- * @returns {boolean}
- */
-const isGeneralGuide = (guide) => !guide.data.property;
-
-/**
  * Guide categories or pages with no property of their own, i.e. the ones that
  * belong in a site-wide guide listing rather than a single property's guide.
  *
  * @param {import("#lib/types").EleventyCollectionItem[]} guides
  * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
-const generalGuides = (guides) => guides.filter(isGeneralGuide);
+const generalGuides = (guides) =>
+  guides.filter((guide) => !guide.data.property);
 
 /**
  * Guide categories or pages to show within one property's guide: the ones
@@ -54,8 +48,8 @@ const guidesForProperty = (guides, propertySlug) => {
   if (!propertySlug) return generalGuides(guides);
   const slug = normaliseSlug(propertySlug);
   return guides.filter((guide) => {
-    const guideProperty = guide.data.property;
-    return !guideProperty || normaliseSlug(guideProperty) === slug;
+    const { property } = guide.data;
+    return !property || normaliseSlug(property) === slug;
   });
 };
 
