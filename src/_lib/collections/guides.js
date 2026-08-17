@@ -53,10 +53,10 @@ const generalGuides = (guides) => guides.filter(isGeneralGuide);
 const guidesForProperty = (guides, propertySlug) => {
   if (!propertySlug) return generalGuides(guides);
   const slug = normaliseSlug(propertySlug);
-  return guides.filter(
-    (guide) =>
-      isGeneralGuide(guide) || normaliseSlug(guide.data.property) === slug,
-  );
+  return guides.filter((guide) => {
+    const guideProperty = guide.data.property;
+    return !guideProperty || normaliseSlug(guideProperty) === slug;
+  });
 };
 
 /** @param {*} eleventyConfig */
