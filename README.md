@@ -142,3 +142,7 @@ language on its items and per-language strings, which is its own change.
 - `_data/strings.json` - customisable labels and permalink directories
 
 **Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**
+
+## License
+
+[MIT](LICENSE). Releases before August 2026 were published under AGPLv3.

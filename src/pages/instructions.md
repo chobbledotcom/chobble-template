@@ -193,11 +193,7 @@ blocks:
 
       ### License
 
-      This template is licensed under AGPLv3. You're free to use, modify, and distribute it, but you must:
-
-      - Keep the same license
-      - Provide source code if you distribute
-      - State your changes
+      This template is licensed under MIT. You're free to use, modify, and distribute it, commercially or otherwise - just keep the copyright and license notice with any copies of the code.
 
       ### Hire Me
 
