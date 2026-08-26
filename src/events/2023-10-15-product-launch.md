@@ -15,7 +15,7 @@ blocks:
 
       Attendees can expect an action-packed day involving thrilling Github Actions, PagesCMS editing, and the meticulous checking-over of text for typos.
 
-      **If you'd like a Chobble Template website for your business, you can clone this site using the instructions [here](/instructions/), or [contact me (Chobble)](https://chobble.com/contact/) and I can build a site for you!**
+      **If you'd like a Chobble Template website for your business, you can clone this site using the instructions [here](/instructions/), or [contact me (Chobble)](https://www.chobble.com/contact/) and I can build a site for you!**
   - type: snippet
     reference: event-outro
 ---

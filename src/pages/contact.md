@@ -17,7 +17,7 @@ blocks:
 
       Some fields can show only on some pages. For example, you can have one message box on product pages and a different one on event pages. The opening hours above come from site.json.
 
-      **If you're looking for my real contact details check out my site at [chobble.com/contact](https://chobble.com/contact/)**
+      **If you're looking for my real contact details check out my site at [chobble.com/contact](https://www.chobble.com/contact/)**
   - type: include
     file: faq.html
   - type: include

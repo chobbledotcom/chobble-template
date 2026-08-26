@@ -181,7 +181,7 @@ blocks:
 
       To add analytics, override the `src/_includes/head-scripts.html` file with your tracking code.
 
-      [Chobble customers](https://chobble.com) get Goatcounter included as standard.
+      [Chobble customers](https://www.chobble.com) get Goatcounter included as standard.
 
       ### Support & Resources
 
@@ -201,5 +201,5 @@ blocks:
 
       ### Hire Me
 
-      **Does this all sound like hard work? [Hire me](https://chobble.com) and I'll make a website for you based on the Chobble Template, with 100% transparent hourly pricing for all jobs.**
+      **Does this all sound like hard work? [Hire me](https://www.chobble.com) and I'll make a website for you based on the Chobble Template, with 100% transparent hourly pricing for all jobs.**
 ---
