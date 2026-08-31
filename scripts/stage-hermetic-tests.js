@@ -80,6 +80,12 @@ const REQUIRED_FIXTURE_ENTRIES = [
   ...REQUIRED_FIXTURE_DIRECTORIES,
   ...REQUIRED_FIXTURE_FILES,
 ];
+const WORKSPACE_FIXTURE_ENTRIES = [
+  "test",
+  "src/_data",
+  "src/images",
+  "packages/js-toolkit/test-utils",
+];
 
 const hasRequiredFixtureType = (dir, entry, typeCheck) => {
   const entryPath = path.join(dir, entry);
@@ -101,7 +107,7 @@ const findTestStarEntries = (templateDir) =>
 
 /** Entries a downstream checkout is missing that the template can supply. Pure (given a real dir). */
 const resolveStagingEntries = (templateDir) => [
-  ...REQUIRED_FIXTURE_ENTRIES,
+  ...WORKSPACE_FIXTURE_ENTRIES,
   ...findTestStarEntries(templateDir),
 ];
 
@@ -121,11 +127,16 @@ const WORKSPACE_IGNORED_ROOT_ENTRIES = new Set([
 
 const isClientFixturePath = (relativePath) => {
   const segments = relativePath.split(path.sep);
+  const extension = path.extname(relativePath);
   return (
-    path.extname(relativePath) === ".md" ||
+    extension === ".md" ||
     (segments[0] === "src" &&
-      TEMPLATE_SOURCE_FIXTURE_DIRECTORIES.includes(segments[1])) ||
-    segments.some((segment) => segment.startsWith("test-"))
+      (segments[1] === "images" ||
+        (segments[1] === "_data" && extension === ".json"))) ||
+    segments[0]?.startsWith("test-") ||
+    (segments[0] === "packages" &&
+      segments[1] === "js-toolkit" &&
+      segments[2] === "test-utils")
   );
 };
 

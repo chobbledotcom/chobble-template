@@ -7,7 +7,11 @@ import {
   FIXTURES_ROOT_ENV,
   withSetupTestSite,
 } from "#test/test-site-factory.js";
-import { expectAsyncThrows, rootDir, withTempDir } from "#test/test-utils.js";
+import {
+  expectAsyncThrows,
+  rootDir,
+  withTempDirAsync,
+} from "#test/test-utils.js";
 
 /** Minimal page file for tests that just need a valid site */
 const MINIMAL_PAGE = {
@@ -31,6 +35,20 @@ const defaultTestFiles = [
     content: "",
   },
 ];
+
+const withFixtureRoot = async (fixturesRoot, fn) => {
+  const previousValue = process.env[FIXTURES_ROOT_ENV];
+  process.env[FIXTURES_ROOT_ENV] = fixturesRoot;
+  try {
+    await fn();
+  } finally {
+    if (previousValue === undefined) {
+      delete process.env[FIXTURES_ROOT_ENV];
+    } else {
+      process.env[FIXTURES_ROOT_ENV] = previousValue;
+    }
+  }
+};
 
 describe("test-site-factory", () => {
   // Clean up any leftover test sites after all tests
@@ -60,7 +78,7 @@ describe("test-site-factory", () => {
     });
 
     test(`sources template defaults from ${FIXTURES_ROOT_ENV} when set, not the live checkout`, async () => {
-      await withTempDir("fixtures-root-override", async (fixturesRoot) => {
+      await withTempDirAsync("fixtures-root-override", async (fixturesRoot) => {
         for (const entry of ["_data", "images"]) {
           fs.cpSync(
             path.join(rootDir, "src", entry),
@@ -74,9 +92,7 @@ describe("test-site-factory", () => {
         config.hermetic_fixture_marker = "pristine-template-fixture";
         fs.writeFileSync(configPath, JSON.stringify(config));
 
-        const previousValue = process.env[FIXTURES_ROOT_ENV];
-        process.env[FIXTURES_ROOT_ENV] = fixturesRoot;
-        try {
+        await withFixtureRoot(fixturesRoot, async () => {
           await withSetupTestSite({ files: defaultTestFiles }, (site) => {
             const generatedConfig = JSON.parse(
               fs.readFileSync(
@@ -91,14 +107,47 @@ describe("test-site-factory", () => {
               path.join(rootDir, "src/_lib"),
             );
           });
-        } finally {
-          if (previousValue === undefined) {
-            delete process.env[FIXTURES_ROOT_ENV];
-          } else {
-            process.env[FIXTURES_ROOT_ENV] = previousValue;
-          }
-        }
+        });
       });
+    });
+
+    test(`sources collection and index data from ${FIXTURES_ROOT_ENV}`, async () => {
+      await withTempDirAsync(
+        "fixture-collection-data",
+        async (fixturesRoot) => {
+          for (const collection of ["pages", "products"]) {
+            const runtimeDir = path.join(rootDir, "src", collection);
+            const fixtureDir = path.join(fixturesRoot, "src", collection);
+            fs.cpSync(runtimeDir, fixtureDir, { recursive: true });
+
+            const fixtureDataPath = path.join(fixtureDir, `${collection}.json`);
+            const fixtureData = JSON.parse(
+              fs.readFileSync(fixtureDataPath, "utf-8"),
+            );
+            fixtureData.hermetic_fixture_marker = `pristine-${collection}`;
+            fs.writeFileSync(fixtureDataPath, JSON.stringify(fixtureData));
+          }
+
+          await withFixtureRoot(fixturesRoot, async () => {
+            const productFiles = [
+              { ...defaultTestFiles[0], path: "products/test.md" },
+            ];
+            await withSetupTestSite({ files: productFiles }, (site) => {
+              for (const collection of ["pages", "products"]) {
+                const generatedData = JSON.parse(
+                  fs.readFileSync(
+                    path.join(site.srcDir, collection, `${collection}.json`),
+                    "utf-8",
+                  ),
+                );
+                expect(generatedData.hermetic_fixture_marker).toBe(
+                  `pristine-${collection}`,
+                );
+              }
+            });
+          });
+        },
+      );
     });
 
     test("creates test site with custom strings", async () => {

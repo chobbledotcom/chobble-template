@@ -80,7 +80,7 @@ describe("parseArgs", () => {
 });
 
 describe("runMainWhenDirect", () => {
-  test("skips imports and forwards direct invocation status", async () => {
+  test("skips execution when imported", async () => {
     const exitFn = mock(() => undefined);
 
     expect(
@@ -91,6 +91,10 @@ describe("runMainWhenDirect", () => {
       ),
     ).toBe(false);
     expect(exitFn).not.toHaveBeenCalled();
+  });
+
+  test("forwards direct invocation status from paths with special characters", async () => {
+    const exitFn = mock(() => undefined);
 
     expect(
       await runMainWhenDirect(
@@ -176,15 +180,8 @@ describe("resolveStagingEntries", () => {
       expect(resolveStagingEntries(dir)).toEqual([
         "test",
         "src/_data",
-        "src/_includes",
-        "src/_layouts",
-        "src/assets",
-        "src/css",
         "src/images",
-        "src/utils",
         "packages/js-toolkit/test-utils",
-        "src/src.11tydata.js",
-        "BLOCKS_LAYOUT.md",
         "test-extra",
       ]);
     }));
@@ -195,30 +192,47 @@ describe("workspace fixture filtering", () => {
     expect(isClientFixturePath("src/pages/about.md")).toBe(true);
     expect(isClientFixturePath("src/images/party.jpg")).toBe(true);
     expect(isClientFixturePath("src/_data/site.json")).toBe(true);
-    expect(isClientFixturePath("src/_includes/footer.html")).toBe(true);
     expect(isClientFixturePath("packages/js-toolkit/test-utils/index.js")).toBe(
       true,
     );
+    expect(isClientFixturePath("test-fixtures-images/photo.jpg")).toBe(true);
+    expect(isClientFixturePath("src/_data/custom.js")).toBe(false);
+    expect(isClientFixturePath("src/_includes/footer.html")).toBe(false);
+    expect(isClientFixturePath("src/_lib/test-helpers/module.js")).toBe(false);
     expect(isClientFixturePath("src/_lib/filters.js")).toBe(false);
   });
 
-  test("copies downstream code while omitting client fixtures", () =>
+  test("copies downstream runtime code while omitting client fixtures", () =>
     withTempDir("stage-hermetic-tests-copy-root", (rootDir) =>
       withTempDir("stage-hermetic-tests-copy-workspace", (workspaceDir) => {
-        fs.mkdirSync(path.join(rootDir, "src/_lib"), { recursive: true });
+        const runtimeFiles = [
+          "src/_data/custom.js",
+          "src/_includes/footer.html",
+          "src/_layouts/base.html",
+          "src/assets/app.js",
+          "src/css/style.scss",
+          "src/utils/slug.js",
+          "src/_lib/test-helpers/module.js",
+        ];
+        for (const file of runtimeFiles) {
+          const filePath = path.join(rootDir, file);
+          fs.mkdirSync(path.dirname(filePath), { recursive: true });
+          fs.writeFileSync(filePath, "runtime code");
+        }
         fs.mkdirSync(path.join(rootDir, "src/_data"), { recursive: true });
         fs.mkdirSync(path.join(rootDir, "src/images"), { recursive: true });
-        fs.writeFileSync(path.join(rootDir, "src/_lib/code.js"), "code");
         fs.writeFileSync(path.join(rootDir, "src/_data/site.json"), "{}");
         fs.writeFileSync(path.join(rootDir, "src/images/client.jpg"), "client");
         fs.writeFileSync(path.join(rootDir, "README.md"), "client readme");
 
         copyDownstreamCode(rootDir, workspaceDir);
 
-        expect(fs.existsSync(path.join(workspaceDir, "src/_lib/code.js"))).toBe(
-          true,
-        );
-        expect(fs.existsSync(path.join(workspaceDir, "src/_data"))).toBe(false);
+        for (const file of runtimeFiles) {
+          expect(fs.existsSync(path.join(workspaceDir, file))).toBe(true);
+        }
+        expect(
+          fs.existsSync(path.join(workspaceDir, "src/_data/site.json")),
+        ).toBe(false);
         expect(fs.existsSync(path.join(workspaceDir, "src/images"))).toBe(
           false,
         );
@@ -265,7 +279,7 @@ describe("workspace fixture filtering", () => {
 });
 
 describe("stageMissingEntries", () => {
-  test("copies missing trees and merges image fixtures without symlinks", () =>
+  test("copies missing test infrastructure without symlinks", () =>
     withTempDir("stage-hermetic-tests-stage-root", (rootDir) =>
       withTempDir("stage-hermetic-tests-stage-template", (templateDir) => {
         createFixtureCheckout(templateDir);
@@ -279,7 +293,6 @@ describe("stageMissingEntries", () => {
         );
 
         expect(staged).toContain(path.join(rootDir, "test"));
-        expect(staged).toContain(path.join(rootDir, "src/images/fixture.jpg"));
         expect(staged).toContain(
           path.join(rootDir, "packages/js-toolkit/test-utils"),
         );
@@ -289,6 +302,26 @@ describe("stageMissingEntries", () => {
         expect(
           fs.readFileSync(path.join(rootDir, "test/marker.txt"), "utf-8"),
         ).toBe("pristine");
+      }),
+    ));
+
+  test("merges missing image fixtures into an existing directory", () =>
+    withTempDir("stage-hermetic-tests-images-root", (rootDir) =>
+      withTempDir("stage-hermetic-tests-images-template", (templateDir) => {
+        createFixtureCheckout(templateDir);
+        createDownstreamSkeleton(rootDir);
+
+        const staged = stageMissingEntries(rootDir, templateDir, [
+          "src/images",
+        ]);
+
+        expect(staged).toContain(path.join(rootDir, "src/images/fixture.jpg"));
+        expect(
+          fs.readFileSync(
+            path.join(rootDir, "src/images/fixture.jpg"),
+            "utf-8",
+          ),
+        ).toBe("fixture");
         expect(
           fs.readFileSync(path.join(rootDir, "src/images/client.jpg"), "utf-8"),
         ).toBe("client");
@@ -371,6 +404,15 @@ describe("buildHermeticEnv", () => {
   });
 });
 
+const withRunnableCheckouts = (name, fn) =>
+  withTempDirAsync(`${name}-root`, async (rootDir) =>
+    withTempDirAsync(`${name}-template`, async (templateDir) => {
+      createFixtureCheckout(templateDir);
+      createDownstreamSkeleton(rootDir);
+      await fn({ rootDir, templateDir });
+    }),
+  );
+
 describe("runHermeticTests", () => {
   test("fails fast when --template is missing", async () => {
     const status = await runHermeticTests({ template: null, forward: [] });
@@ -385,42 +427,66 @@ describe("runHermeticTests", () => {
       expect(status).toBe(1);
     }));
 
-  test("stages before spawning, forwards status, and cleans up", () =>
-    withTempDirAsync("stage-hermetic-tests-run-root", async (rootDir) =>
-      withTempDirAsync(
-        "stage-hermetic-tests-run-template",
-        async (templateDir) => {
-          createFixtureCheckout(templateDir);
-          createDownstreamSkeleton(rootDir);
+  test("stages fixtures before spawning", () =>
+    withRunnableCheckouts(
+      "stage-hermetic-tests-run-stage",
+      async ({ rootDir, templateDir }) => {
+        const spawnSyncFn = mock((_command, _args, options) => {
+          expect(fs.existsSync(path.join(options.cwd, "test"))).toBe(true);
+          expect(
+            fs.existsSync(
+              path.join(options.cwd, "packages/js-toolkit/test-utils"),
+            ),
+          ).toBe(true);
+          expect(
+            fs.existsSync(path.join(options.cwd, "src/images/fixture.jpg")),
+          ).toBe(true);
+          return { status: 0 };
+        });
 
-          const spawnSyncFn = mock((_command, _args, options) => {
-            expect(fs.existsSync(path.join(options.cwd, "test"))).toBe(true);
-            expect(
-              fs.existsSync(
-                path.join(options.cwd, "packages/js-toolkit/test-utils"),
-              ),
-            ).toBe(true);
-            expect(
-              fs.existsSync(path.join(options.cwd, "src/images/fixture.jpg")),
-            ).toBe(true);
-            return { status: 42 };
-          });
+        await runHermeticTests(
+          { template: templateDir, forward: [] },
+          { rootDir, spawnSyncFn },
+        );
 
-          const status = await runHermeticTests(
-            { template: templateDir, forward: ["test/integration"] },
-            { rootDir, spawnSyncFn },
-          );
+        expect(spawnSyncFn).toHaveBeenCalledTimes(1);
+      },
+    ));
 
-          expect(status).toBe(42);
-          const [command, args, options] = spawnSyncFn.mock.calls[0];
-          const workspaceDir = options.cwd;
-          expect(command).toBe("bun");
-          expect(args).toEqual(["test", "test/integration"]);
-          expect(options.env[FIXTURES_ROOT_ENV]).toBe(templateDir);
-          expect(fs.existsSync(workspaceDir)).toBe(false);
-          expectClientCheckoutUntouched(rootDir);
-        },
-      ),
+  test("forwards test arguments, fixture env, and exit status", () =>
+    withRunnableCheckouts(
+      "stage-hermetic-tests-run-forward",
+      async ({ rootDir, templateDir }) => {
+        const spawnSyncFn = mock(() => ({ status: 42 }));
+
+        const status = await runHermeticTests(
+          { template: templateDir, forward: ["test/integration"] },
+          { rootDir, spawnSyncFn },
+        );
+
+        const [command, args, options] = spawnSyncFn.mock.calls[0];
+        expect(status).toBe(42);
+        expect(command).toBe("bun");
+        expect(args).toEqual(["test", "test/integration"]);
+        expect(options.env[FIXTURES_ROOT_ENV]).toBe(templateDir);
+      },
+    ));
+
+  test("removes the workspace without touching the client checkout", () =>
+    withRunnableCheckouts(
+      "stage-hermetic-tests-run-cleanup",
+      async ({ rootDir, templateDir }) => {
+        const spawnSyncFn = mock(() => ({ status: 0 }));
+
+        await runHermeticTests(
+          { template: templateDir, forward: [] },
+          { rootDir, spawnSyncFn },
+        );
+
+        const [, , options] = spawnSyncFn.mock.calls[0];
+        expect(fs.existsSync(options.cwd)).toBe(false);
+        expectClientCheckoutUntouched(rootDir);
+      },
     ));
 
   test("returns 1 when the test process has no status", () =>
@@ -507,7 +573,7 @@ test("runs downstream code with pristine fixtures", () => {
     );
   };
 
-  test("runs copied tests against downstream code and cleans staged fixtures", () =>
+  test("runs copied tests against downstream code", () =>
     withTempDirAsync("stage-hermetic-tests-e2e-root", async (rootDir) =>
       withTempDirAsync(
         "stage-hermetic-tests-e2e-template",
@@ -526,16 +592,6 @@ test("runs downstream code with pristine fixtures", () => {
           );
 
           expect(status).toBe(0);
-          expectClientCheckoutUntouched(rootDir);
-          expect(
-            fs.existsSync(path.join(rootDir, "packages/js-toolkit/test-utils")),
-          ).toBe(false);
-          expect(
-            fs.readFileSync(
-              path.join(rootDir, "src/_lib/hermetic-marker.js"),
-              "utf-8",
-            ),
-          ).toContain("downstream");
         },
       ),
     ));

@@ -231,7 +231,7 @@ const createTestSite = async (options = {}) => {
 
     return collections;
   };
-  const collections = createContentFiles(runtimeSrc, srcDir, options.files);
+  const collections = createContentFiles(fixturesSrc, srcDir, options.files);
 
   // Ensure an index page exists
   const ensureIndexPage = (templateSrc, srcDir, files = [], collections) => {
@@ -253,7 +253,7 @@ const createTestSite = async (options = {}) => {
       },
     });
   };
-  ensureIndexPage(runtimeSrc, srcDir, options.files, collections);
+  ensureIndexPage(fixturesSrc, srcDir, options.files, collections);
 
   // Copy test images
   const normalizeImageSpec = (img) =>
