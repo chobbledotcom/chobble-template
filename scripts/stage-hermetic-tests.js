@@ -40,10 +40,10 @@ import fs from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { FIXTURES_ROOT_ENV } from "#scripts/hermetic-test-config.js";
 
 const USAGE =
   "Usage: bun scripts/stage-hermetic-tests.js --template <path-to-pristine-chobble-template-checkout> [-- <bun test args>]";
-const FIXTURES_ROOT_ENV = "CHOBBLE_TEMPLATE_FIXTURES_DIR";
 const TEMPLATE_SOURCE_FIXTURE_DIRECTORIES = [
   "_data",
   "_includes",

@@ -23,6 +23,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
+import { FIXTURES_ROOT_ENV } from "#scripts/hermetic-test-config.js";
 import { filter, flatMap, map, pipe, unique } from "#toolkit/fp/array.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { loadDOM } from "#utils/lazy-dom.js";
@@ -38,7 +39,6 @@ const rootDir = ROOT_DIR;
  * a pristine chobble-template checkout (see scripts/stage-hermetic-tests.js)
  * makes the factory source template-owned fixtures from there instead.
  */
-const FIXTURES_ROOT_ENV = "CHOBBLE_TEMPLATE_FIXTURES_DIR";
 /** Read lazily (not cached at module load) so tests can toggle the env var per-case. */
 const getFixturesRoot = () =>
   process.env[FIXTURES_ROOT_ENV]

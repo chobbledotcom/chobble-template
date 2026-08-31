@@ -18,7 +18,6 @@ import {
   stageMissingEntries,
   stageTemplateMarkdown,
 } from "#scripts/stage-hermetic-tests.js";
-import { FIXTURES_ROOT_ENV as FACTORY_FIXTURES_ROOT_ENV } from "#test/test-site-factory.js";
 import { withTempDir, withTempDirAsync } from "#test/test-utils.js";
 
 const createFixtureCheckout = (dir) => {
@@ -353,10 +352,6 @@ describe("cleanupStagedEntries", () => {
 });
 
 describe("buildHermeticEnv", () => {
-  test("uses the same fixture env name as the test site factory", () => {
-    expect(FIXTURES_ROOT_ENV).toBe(FACTORY_FIXTURES_ROOT_ENV);
-  });
-
   test("sets the fixtures root without mutating the base env", () => {
     const baseEnv = Object.freeze({ PATH: "/usr/bin" });
 
