@@ -4,9 +4,10 @@ import path from "node:path";
 import {
   cleanupAllTestSites,
   createTestSite,
+  FIXTURES_ROOT_ENV,
   withSetupTestSite,
 } from "#test/test-site-factory.js";
-import { expectAsyncThrows, rootDir } from "#test/test-utils.js";
+import { expectAsyncThrows, rootDir, withTempDir } from "#test/test-utils.js";
 
 /** Minimal page file for tests that just need a valid site */
 const MINIMAL_PAGE = {
@@ -55,6 +56,41 @@ describe("test-site-factory", () => {
         expect(config.custom_field).toBe("test-value");
         // Should also have fields from the source config.json
         expect(config).toBeTruthy();
+      });
+    });
+
+    test(`sources template defaults from ${FIXTURES_ROOT_ENV} when set, not the live checkout`, async () => {
+      await withTempDir("fixtures-root-override", async (fixturesRoot) => {
+        fs.cpSync(path.join(rootDir, "src"), path.join(fixturesRoot, "src"), {
+          recursive: true,
+        });
+
+        const configPath = path.join(fixturesRoot, "src/_data/config.json");
+        const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+        config.hermetic_fixture_marker = "pristine-template-fixture";
+        fs.writeFileSync(configPath, JSON.stringify(config));
+
+        const previousValue = process.env[FIXTURES_ROOT_ENV];
+        process.env[FIXTURES_ROOT_ENV] = fixturesRoot;
+        try {
+          await withSetupTestSite({ files: defaultTestFiles }, (site) => {
+            const generatedConfig = JSON.parse(
+              fs.readFileSync(
+                path.join(site.srcDir, "_data/config.json"),
+                "utf-8",
+              ),
+            );
+            expect(generatedConfig.hermetic_fixture_marker).toBe(
+              "pristine-template-fixture",
+            );
+          });
+        } finally {
+          if (previousValue === undefined) {
+            delete process.env[FIXTURES_ROOT_ENV];
+          } else {
+            process.env[FIXTURES_ROOT_ENV] = previousValue;
+          }
+        }
       });
     });
 

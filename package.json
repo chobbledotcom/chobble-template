@@ -26,6 +26,7 @@
 		"build": "rm -rf _site && bun scripts/eleventy-build.js && bun run check:links",
 		"serve": "rm -rf _site && bun scripts/eleventy-build.js --serve --incremental",
 		"test": "bun ./test/run-tests.js",
+		"test:hermetic": "bun scripts/stage-hermetic-tests.js",
 		"test:unit": "bun test test/unit",
 		"test:integration": "bun test test/integration",
 		"typecheck": "tsc --noEmit --incremental --tsBuildInfoFile tsconfig.tsbuildinfo",

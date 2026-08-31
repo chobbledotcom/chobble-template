@@ -29,6 +29,22 @@ import { loadDOM } from "#utils/lazy-dom.js";
 
 const rootDir = ROOT_DIR;
 
+/**
+ * Downstream clients copy this template excluding test/, test-*, images/,
+ * and markdown content, then overlay their own site content under src/.
+ * Running the fixture factory against ROOT_DIR in that checkout mixes
+ * pristine template test fixtures with the client's overridden _data/content,
+ * which breaks tests asserting on template defaults. Setting this env var to
+ * a pristine chobble-template checkout (see scripts/stage-hermetic-tests.js)
+ * makes the factory source template-owned fixtures from there instead.
+ */
+const FIXTURES_ROOT_ENV = "CHOBBLE_TEMPLATE_FIXTURES_DIR";
+/** Read lazily (not cached at module load) so tests can toggle the env var per-case. */
+const getFixturesRoot = () =>
+  process.env[FIXTURES_ROOT_ENV]
+    ? path.resolve(process.env[FIXTURES_ROOT_ENV])
+    : rootDir;
+
 // -----------------------------------------------------------------------------
 // Curried Path Utilities
 // -----------------------------------------------------------------------------
@@ -125,7 +141,7 @@ const createTestSite = async (options = {}) => {
   const siteDir = path.join(import.meta.dirname, ".test-sites", siteId);
   const srcDir = path.join(siteDir, "src");
   const outputDir = path.join(siteDir, "_site");
-  const templateSrc = path.join(rootDir, "src");
+  const templateSrc = path.join(getFixturesRoot(), "src");
 
   fs.mkdirSync(srcDir, { recursive: true });
 
@@ -241,7 +257,7 @@ const createTestSite = async (options = {}) => {
   // Copy test images
   const normalizeImageSpec = (img) =>
     typeof img === "string"
-      ? { src: path.join(rootDir, "src/images", img), dest: img }
+      ? { src: path.join(getFixturesRoot(), "src/images", img), dest: img }
       : {
           src: img.src.startsWith("/") ? img.src : path.join(rootDir, img.src),
           dest: img.dest,
@@ -428,6 +444,7 @@ const cleanupAllTestSites = () => {
 export {
   cleanupAllTestSites,
   createTestSite,
+  FIXTURES_ROOT_ENV,
   useSharedSite,
   withSetupTestSite,
   withTestSite,
