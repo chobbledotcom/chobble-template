@@ -23,11 +23,27 @@ import path from "node:path";
 import matter from "gray-matter";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
+import { FIXTURES_ROOT_ENV } from "#scripts/hermetic-test-config.js";
 import { filter, flatMap, map, pipe, unique } from "#toolkit/fp/array.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
 const rootDir = ROOT_DIR;
+
+/**
+ * Downstream clients copy this template excluding test/, test-*, images/,
+ * and markdown content, then overlay their own site content under src/.
+ * Running the fixture factory against ROOT_DIR in that checkout mixes
+ * pristine template test fixtures with the client's overridden _data/content,
+ * which breaks tests asserting on template defaults. Setting this env var to
+ * a pristine chobble-template checkout (see scripts/stage-hermetic-tests.js)
+ * makes the factory source template-owned fixtures from there instead.
+ */
+/** Read lazily (not cached at module load) so tests can toggle the env var per-case. */
+const getFixturesRoot = () =>
+  process.env[FIXTURES_ROOT_ENV]
+    ? path.resolve(process.env[FIXTURES_ROOT_ENV])
+    : rootDir;
 
 // -----------------------------------------------------------------------------
 // Curried Path Utilities
@@ -125,7 +141,8 @@ const createTestSite = async (options = {}) => {
   const siteDir = path.join(import.meta.dirname, ".test-sites", siteId);
   const srcDir = path.join(siteDir, "src");
   const outputDir = path.join(siteDir, "_site");
-  const templateSrc = path.join(rootDir, "src");
+  const fixturesSrc = path.join(getFixturesRoot(), "src");
+  const runtimeSrc = path.join(rootDir, "src");
 
   fs.mkdirSync(srcDir, { recursive: true });
 
@@ -138,7 +155,7 @@ const createTestSite = async (options = {}) => {
       fs.symlinkSync(path.join(templateSrc, dir), path.join(srcDir, dir));
     }
   };
-  symlinkDirs(templateSrc, srcDir, [
+  symlinkDirs(runtimeSrc, srcDir, [
     "_lib",
     "_includes",
     "_layouts",
@@ -148,7 +165,7 @@ const createTestSite = async (options = {}) => {
   ]);
 
   // Copy placeholder images for thumbnail fallbacks
-  const placeholdersDir = path.join(templateSrc, "images/placeholders");
+  const placeholdersDir = path.join(fixturesSrc, "images/placeholders");
   if (fs.existsSync(placeholdersDir)) {
     const destDir = ensureDir(path.join(srcDir, "images/placeholders"));
     copyDirFiles(placeholdersDir, destDir);
@@ -186,7 +203,7 @@ const createTestSite = async (options = {}) => {
       }
     }
   };
-  setupDataDir(templateSrc, srcDir, options);
+  setupDataDir(fixturesSrc, srcDir, options);
 
   // Create content files and return collections touched
   const getCollection = (filePath) => filePath.split("/")[0];
@@ -214,7 +231,7 @@ const createTestSite = async (options = {}) => {
 
     return collections;
   };
-  const collections = createContentFiles(templateSrc, srcDir, options.files);
+  const collections = createContentFiles(fixturesSrc, srcDir, options.files);
 
   // Ensure an index page exists
   const ensureIndexPage = (templateSrc, srcDir, files = [], collections) => {
@@ -236,12 +253,12 @@ const createTestSite = async (options = {}) => {
       },
     });
   };
-  ensureIndexPage(templateSrc, srcDir, options.files, collections);
+  ensureIndexPage(fixturesSrc, srcDir, options.files, collections);
 
   // Copy test images
   const normalizeImageSpec = (img) =>
     typeof img === "string"
-      ? { src: path.join(rootDir, "src/images", img), dest: img }
+      ? { src: path.join(getFixturesRoot(), "src/images", img), dest: img }
       : {
           src: img.src.startsWith("/") ? img.src : path.join(rootDir, img.src),
           dest: img.dest,
@@ -260,7 +277,7 @@ const createTestSite = async (options = {}) => {
 
   // Copy the directory data file providing the default base.html layout
   copyToDir(srcDir)(
-    path.join(templateSrc, "src.11tydata.js"),
+    path.join(runtimeSrc, "src.11tydata.js"),
     "src.11tydata.js",
   );
 
@@ -428,6 +445,7 @@ const cleanupAllTestSites = () => {
 export {
   cleanupAllTestSites,
   createTestSite,
+  FIXTURES_ROOT_ENV,
   useSharedSite,
   withSetupTestSite,
   withTestSite,

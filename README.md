@@ -125,6 +125,32 @@ language on its items and per-language strings, which is its own change.
 - 17+ test files with custom runner
 - [instant.page](https://instant.page/) for link prefetching on hover
 
+### Testing template code in a downstream client site
+
+Sites built from this template copy it excluding `test/`, `test-*`, `images/`,
+and markdown content, then overlay their own site content under `src/`. That
+missing `test/` directory means the suite can't run at all from a checkout in
+that state, and even with it copied back in by hand, fixture-driven tests
+fail, because the test fixture factory (`test/test-site-factory.js`) builds
+its "template defaults" (config, sample content) from the live checkout
+root — which is now your own site content, not the template's.
+
+`scripts/stage-hermetic-tests.js` handles both problems for you. Point it at
+a separate, pristine template checkout and it creates a temporary workspace
+containing your downstream template code plus pristine template tests, data,
+markdown, and image fixtures. It runs the suite there, removes the workspace,
+and forwards the suite's exit status without changing your checkout:
+
+```bash
+git clone --depth 1 https://github.com/chobbledotcom/chobble-template.git /tmp/chobble-template-upstream
+bun scripts/stage-hermetic-tests.js --template /tmp/chobble-template-upstream -- test/integration
+```
+
+This also points the fixture factory at the pristine checkout via the
+`CHOBBLE_TEMPLATE_FIXTURES_DIR` env var, so fixture tests build isolated sites
+from template defaults rather than your overrides. `bun run test:hermetic --
+--template <path> -- <args>` runs the same thing via the `package.json` script.
+
 ## Deployment
 
 - GitHub Actions workflow for Neocities and Bunny.net

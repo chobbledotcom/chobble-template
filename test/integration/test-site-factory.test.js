@@ -4,9 +4,14 @@ import path from "node:path";
 import {
   cleanupAllTestSites,
   createTestSite,
+  FIXTURES_ROOT_ENV,
   withSetupTestSite,
 } from "#test/test-site-factory.js";
-import { expectAsyncThrows, rootDir } from "#test/test-utils.js";
+import {
+  expectAsyncThrows,
+  rootDir,
+  withTempDirAsync,
+} from "#test/test-utils.js";
 
 /** Minimal page file for tests that just need a valid site */
 const MINIMAL_PAGE = {
@@ -30,6 +35,20 @@ const defaultTestFiles = [
     content: "",
   },
 ];
+
+const withFixtureRoot = async (fixturesRoot, fn) => {
+  const previousValue = process.env[FIXTURES_ROOT_ENV];
+  process.env[FIXTURES_ROOT_ENV] = fixturesRoot;
+  try {
+    await fn();
+  } finally {
+    if (previousValue === undefined) {
+      delete process.env[FIXTURES_ROOT_ENV];
+    } else {
+      process.env[FIXTURES_ROOT_ENV] = previousValue;
+    }
+  }
+};
 
 describe("test-site-factory", () => {
   // Clean up any leftover test sites after all tests
@@ -56,6 +75,79 @@ describe("test-site-factory", () => {
         // Should also have fields from the source config.json
         expect(config).toBeTruthy();
       });
+    });
+
+    test(`sources template defaults from ${FIXTURES_ROOT_ENV} when set, not the live checkout`, async () => {
+      await withTempDirAsync("fixtures-root-override", async (fixturesRoot) => {
+        for (const entry of ["_data", "images"]) {
+          fs.cpSync(
+            path.join(rootDir, "src", entry),
+            path.join(fixturesRoot, "src", entry),
+            { recursive: true },
+          );
+        }
+
+        const configPath = path.join(fixturesRoot, "src/_data/config.json");
+        const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+        config.hermetic_fixture_marker = "pristine-template-fixture";
+        fs.writeFileSync(configPath, JSON.stringify(config));
+
+        await withFixtureRoot(fixturesRoot, async () => {
+          await withSetupTestSite({ files: defaultTestFiles }, (site) => {
+            const generatedConfig = JSON.parse(
+              fs.readFileSync(
+                path.join(site.srcDir, "_data/config.json"),
+                "utf-8",
+              ),
+            );
+            expect(generatedConfig.hermetic_fixture_marker).toBe(
+              "pristine-template-fixture",
+            );
+            expect(fs.realpathSync(path.join(site.srcDir, "_lib"))).toBe(
+              path.join(rootDir, "src/_lib"),
+            );
+          });
+        });
+      });
+    });
+
+    test(`sources collection and index data from ${FIXTURES_ROOT_ENV}`, async () => {
+      await withTempDirAsync(
+        "fixture-collection-data",
+        async (fixturesRoot) => {
+          for (const collection of ["pages", "products"]) {
+            const runtimeDir = path.join(rootDir, "src", collection);
+            const fixtureDir = path.join(fixturesRoot, "src", collection);
+            fs.cpSync(runtimeDir, fixtureDir, { recursive: true });
+
+            const fixtureDataPath = path.join(fixtureDir, `${collection}.json`);
+            const fixtureData = JSON.parse(
+              fs.readFileSync(fixtureDataPath, "utf-8"),
+            );
+            fixtureData.hermetic_fixture_marker = `pristine-${collection}`;
+            fs.writeFileSync(fixtureDataPath, JSON.stringify(fixtureData));
+          }
+
+          await withFixtureRoot(fixturesRoot, async () => {
+            const productFiles = [
+              { ...defaultTestFiles[0], path: "products/test.md" },
+            ];
+            await withSetupTestSite({ files: productFiles }, (site) => {
+              for (const collection of ["pages", "products"]) {
+                const generatedData = JSON.parse(
+                  fs.readFileSync(
+                    path.join(site.srcDir, collection, `${collection}.json`),
+                    "utf-8",
+                  ),
+                );
+                expect(generatedData.hermetic_fixture_marker).toBe(
+                  `pristine-${collection}`,
+                );
+              }
+            });
+          });
+        },
+      );
     });
 
     test("creates test site with custom strings", async () => {
