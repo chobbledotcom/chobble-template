@@ -128,25 +128,28 @@ language on its items and per-language strings, which is its own change.
 ### Testing template code in a downstream client site
 
 Sites built from this template copy it excluding `test/`, `test-*`, `images/`,
-and markdown content, then overlay their own site content under `src/`. If
-you copy `test/`, `src/images`, and `packages/js-toolkit/test-utils` back in
-to run the suite, most tests pass, but a handful of fixture-driven tests fail
-because the test fixture factory (`test/test-site-factory.js`) builds its
-"template defaults" (config, sample content) from the live checkout root —
-which is now your own site content, not the template's.
+and markdown content, then overlay their own site content under `src/`. That
+missing `test/` directory means the suite can't run at all from a checkout in
+that state, and even with it copied back in by hand, fixture-driven tests
+fail, because the test fixture factory (`test/test-site-factory.js`) builds
+its "template defaults" (config, sample content) from the live checkout
+root — which is now your own site content, not the template's.
 
-To run those tests hermetically against the template's own fixtures instead:
+`scripts/stage-hermetic-tests.js` handles both problems for you. Point it at
+a separate, pristine template checkout and it creates a temporary workspace
+containing your downstream template code plus pristine template tests, data,
+markdown, and image fixtures. It runs the suite there, removes the workspace,
+and forwards the suite's exit status without changing your checkout:
 
 ```bash
 git clone --depth 1 https://github.com/chobbledotcom/chobble-template.git /tmp/chobble-template-upstream
 bun scripts/stage-hermetic-tests.js --template /tmp/chobble-template-upstream -- test/integration
 ```
 
-This points the fixture factory at the pristine checkout via the
-`CHOBBLE_TEMPLATE_FIXTURES_DIR` env var and runs `bun test` in your own
-repo, so fixture tests build isolated sites from template defaults rather
-than your overrides. `bun run test:hermetic -- --template <path> -- <args>`
-runs the same thing via the `package.json` script.
+This also points the fixture factory at the pristine checkout via the
+`CHOBBLE_TEMPLATE_FIXTURES_DIR` env var, so fixture tests build isolated sites
+from template defaults rather than your overrides. `bun run test:hermetic --
+--template <path> -- <args>` runs the same thing via the `package.json` script.
 
 ## Deployment
 

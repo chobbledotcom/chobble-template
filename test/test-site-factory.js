@@ -141,7 +141,8 @@ const createTestSite = async (options = {}) => {
   const siteDir = path.join(import.meta.dirname, ".test-sites", siteId);
   const srcDir = path.join(siteDir, "src");
   const outputDir = path.join(siteDir, "_site");
-  const templateSrc = path.join(getFixturesRoot(), "src");
+  const fixturesSrc = path.join(getFixturesRoot(), "src");
+  const runtimeSrc = path.join(rootDir, "src");
 
   fs.mkdirSync(srcDir, { recursive: true });
 
@@ -154,7 +155,7 @@ const createTestSite = async (options = {}) => {
       fs.symlinkSync(path.join(templateSrc, dir), path.join(srcDir, dir));
     }
   };
-  symlinkDirs(templateSrc, srcDir, [
+  symlinkDirs(runtimeSrc, srcDir, [
     "_lib",
     "_includes",
     "_layouts",
@@ -164,7 +165,7 @@ const createTestSite = async (options = {}) => {
   ]);
 
   // Copy placeholder images for thumbnail fallbacks
-  const placeholdersDir = path.join(templateSrc, "images/placeholders");
+  const placeholdersDir = path.join(fixturesSrc, "images/placeholders");
   if (fs.existsSync(placeholdersDir)) {
     const destDir = ensureDir(path.join(srcDir, "images/placeholders"));
     copyDirFiles(placeholdersDir, destDir);
@@ -202,7 +203,7 @@ const createTestSite = async (options = {}) => {
       }
     }
   };
-  setupDataDir(templateSrc, srcDir, options);
+  setupDataDir(fixturesSrc, srcDir, options);
 
   // Create content files and return collections touched
   const getCollection = (filePath) => filePath.split("/")[0];
@@ -230,7 +231,7 @@ const createTestSite = async (options = {}) => {
 
     return collections;
   };
-  const collections = createContentFiles(templateSrc, srcDir, options.files);
+  const collections = createContentFiles(runtimeSrc, srcDir, options.files);
 
   // Ensure an index page exists
   const ensureIndexPage = (templateSrc, srcDir, files = [], collections) => {
@@ -252,7 +253,7 @@ const createTestSite = async (options = {}) => {
       },
     });
   };
-  ensureIndexPage(templateSrc, srcDir, options.files, collections);
+  ensureIndexPage(runtimeSrc, srcDir, options.files, collections);
 
   // Copy test images
   const normalizeImageSpec = (img) =>
@@ -276,7 +277,7 @@ const createTestSite = async (options = {}) => {
 
   // Copy the directory data file providing the default base.html layout
   copyToDir(srcDir)(
-    path.join(templateSrc, "src.11tydata.js"),
+    path.join(runtimeSrc, "src.11tydata.js"),
     "src.11tydata.js",
   );
 

@@ -61,9 +61,13 @@ describe("test-site-factory", () => {
 
     test(`sources template defaults from ${FIXTURES_ROOT_ENV} when set, not the live checkout`, async () => {
       await withTempDir("fixtures-root-override", async (fixturesRoot) => {
-        fs.cpSync(path.join(rootDir, "src"), path.join(fixturesRoot, "src"), {
-          recursive: true,
-        });
+        for (const entry of ["_data", "images"]) {
+          fs.cpSync(
+            path.join(rootDir, "src", entry),
+            path.join(fixturesRoot, "src", entry),
+            { recursive: true },
+          );
+        }
 
         const configPath = path.join(fixturesRoot, "src/_data/config.json");
         const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
@@ -82,6 +86,9 @@ describe("test-site-factory", () => {
             );
             expect(generatedConfig.hermetic_fixture_marker).toBe(
               "pristine-template-fixture",
+            );
+            expect(fs.realpathSync(path.join(site.srcDir, "_lib"))).toBe(
+              path.join(rootDir, "src/_lib"),
             );
           });
         } finally {
