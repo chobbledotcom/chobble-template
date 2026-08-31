@@ -367,7 +367,7 @@ blocks:
       If you'd rather skip the setup and get straight to running your business, I can build your site for you using this template — customised to your brand, your content, and your needs.
     left_button:
       text: Get in touch at chobble.com
-      href: https://chobble.com
+      href: https://www.chobble.com
       variant: secondary
     right_content: |
       - **Flat hourly rate** — no hidden fees, no surprises
@@ -388,7 +388,7 @@ blocks:
         url: https://github.com/chobbledotcom/chobble-template
       - icon: "hugeicons:global"
         text: Visit chobble.com
-        url: https://chobble.com
+        url: https://www.chobble.com
       - icon: "hugeicons:mail-01"
         text: Get in touch
         url: "#contact"

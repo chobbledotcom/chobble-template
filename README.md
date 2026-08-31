@@ -16,7 +16,7 @@
 - [medwaymascots.co.uk](https://www.medwaymascots.co.uk)
 - [funprouk.co.uk](https://www.funprouk.co.uk)
 
-**Want me to make you a website based on this template?** Hit me up at [chobble.com](https://chobble.com).
+**Want me to make you a website based on this template?** Hit me up at [chobble.com](https://www.chobble.com).
 
 **💖 Want to support the development of this template? 💖** Donate at [liberapay.com/chobble](https://liberapay.com/chobble/)
 
@@ -167,4 +167,4 @@ from template defaults rather than your overrides. `bun run test:hermetic --
 - `_data/translations.json` - pages that say the same thing in each language
 - `_data/strings.json` - customisable labels and permalink directories
 
-**Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**
+**Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://www.chobble.com).**
