@@ -112,6 +112,73 @@ describe("iconify", () => {
         }),
       ));
 
+    test("Composes SVG from CDN icon set", () =>
+      withSubDirAsync("iconify-cdn", "", async ({ tempDir }) =>
+        withMockFetch(
+          {
+            prefix: "mdi",
+            width: 24,
+            height: 24,
+            icons: {
+              star: { body: '<path d="star-path"/>' },
+            },
+          },
+          {},
+          async () => {
+            const result = await icon("mdi:star", tempDir);
+            expect(result).toBe(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path d="star-path"/></svg>',
+            );
+          },
+        ),
+      ));
+
+    test("Resolves aliases against the CDN icon set", () =>
+      withSubDirAsync("iconify-cdn-alias", "", async ({ tempDir }) =>
+        withMockFetch(
+          {
+            prefix: "lucide",
+            width: 24,
+            height: 24,
+            icons: {
+              star: { body: '<path d="star-path"/>' },
+            },
+            aliases: {
+              favourite: { parent: "star" },
+            },
+          },
+          {},
+          async () => {
+            const result = await icon("lucide:favourite", tempDir);
+            expect(result).toContain('<path d="star-path"/>');
+            expect(
+              fs.existsSync(
+                path.join(tempDir, ICONS_SUBDIR, "lucide", "favourite.svg"),
+              ),
+            ).toBe(true);
+          },
+        ),
+      ));
+
+    test("Uses icon-level sizes over set defaults from the CDN", () =>
+      withSubDirAsync("iconify-cdn-sizes", "", async ({ tempDir }) =>
+        withMockFetch(
+          {
+            prefix: "tabler",
+            width: 24,
+            height: 24,
+            icons: {
+              flag: { body: '<path d="flag-path"/>', width: 16, height: 16 },
+            },
+          },
+          {},
+          async () => {
+            const result = await icon("tabler:flag", tempDir);
+            expect(result).toContain('viewBox="0 0 16 16"');
+          },
+        ),
+      ));
+
     test("Saves fetched icon to disk", () =>
       withSubDirAsync("iconify-save", "", async ({ tempDir }) =>
         withMockFetch(SAMPLE_SVG, {}, async () => {
