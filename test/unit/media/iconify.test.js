@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { configureIconify } from "#media/iconify.js";
+import { configureIconify, getIconPath } from "#media/iconify.js";
 import {
+  bracket,
   createMockEleventyConfig,
   fs,
   path,
@@ -207,11 +208,15 @@ describe("iconify", () => {
             { star: { body: STAR_BODY } },
             {
               flipped: { parent: "star", hFlip: true },
+              tilted: { parent: "star", rotate: 2 },
             },
           ),
           {},
           async () => {
             await expect(icon("ph:flipped", tempDir)).rejects.toThrow(
+              /Invalid response/,
+            );
+            await expect(icon("ph:tilted", tempDir)).rejects.toThrow(
               /Invalid response/,
             );
             expect(
@@ -222,6 +227,31 @@ describe("iconify", () => {
           },
         ),
       ));
+
+    test("Returns null from the CDN when the icon set fetch rejects", () =>
+      withSubDirAsync("iconify-cdn-fetch-reject", "", async ({ tempDir }) => {
+        const withFailingFetch = bracket(
+          () => {
+            const original = globalThis.fetch;
+            globalThis.fetch = async () => {
+              throw new Error("network down");
+            };
+            return original;
+          },
+          (original) => {
+            globalThis.fetch = original;
+          },
+        );
+
+        await withFailingFetch(null, async () => {
+          await expect(icon("broken:rejecting", tempDir)).rejects.toThrow();
+          expect(
+            fs.existsSync(
+              path.join(tempDir, ICONS_SUBDIR, "broken", "rejecting.svg"),
+            ),
+          ).toBe(false);
+        });
+      }));
 
     test("Uses icon-level sizes over set defaults from the CDN", () =>
       withSubDirAsync("iconify-cdn-sizes", "", async ({ tempDir }) =>
@@ -361,5 +391,19 @@ describe("iconify", () => {
           expect(result).toBe(SAMPLE_SVG);
         }),
       ));
+  });
+
+  describe("getIconPath", () => {
+    test("Builds the disk cache path for an icon identifier", () => {
+      expect(getIconPath("mdi:crane", "/tmp/icons")).toBe(
+        path.join("/tmp/icons", ICONS_SUBDIR, "mdi", "crane.svg"),
+      );
+    });
+
+    test("Normalises the identifier before building the path", () => {
+      expect(getIconPath("MDI:Check_Circle", "/tmp/icons")).toBe(
+        path.join("/tmp/icons", ICONS_SUBDIR, "mdi", "check-circle.svg"),
+      );
+    });
   });
 });
