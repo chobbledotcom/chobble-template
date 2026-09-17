@@ -79,6 +79,9 @@ export const getIconPath = (iconId, baseDir = process.cwd()) =>
  * @property {number} [height]
  * @property {number} [left]
  * @property {number} [top]
+ * @property {number} [rotate]
+ * @property {boolean} [hFlip]
+ * @property {boolean} [vFlip]
  */
 
 /**
@@ -88,6 +91,9 @@ export const getIconPath = (iconId, baseDir = process.cwd()) =>
  * @property {number} [height]
  * @property {number} [left]
  * @property {number} [top]
+ * @property {number} [rotate]
+ * @property {boolean} [hFlip]
+ * @property {boolean} [vFlip]
  */
 
 /**
@@ -118,7 +124,8 @@ export const getIconSet = memoize(
 
 /**
  * Follow an alias chain to its base icon, accumulating size overrides
- * from each hop along the way.
+ * from each hop along the way. Closer hops override values from hops
+ * further up the chain, per the Iconify alias merge rules.
  * @param {IconifySet} set
  * @param {string} current
  * @param {object} props
@@ -130,7 +137,45 @@ export const resolveAlias = (set, current, props, depth) => {
   if (alias?.parent === undefined || depth > MAX_ALIAS_DEPTH) {
     return { name: current, props };
   }
-  return resolveAlias(set, alias.parent, { ...props, ...alias }, depth + 1);
+  return resolveAlias(set, alias.parent, { ...alias, ...props }, depth + 1);
+};
+
+/**
+ * Compose an icon set entry into the same SVG shape the Iconify API returns.
+ *
+ * Alias values override base icon values, and base icon values override set
+ * defaults - the reverse ordering of resolveAlias's accumulation. Returns
+ * null when the resolved icon carries transformations (rotate, hFlip or
+ * vFlip), because those need merge semantics this composer does not
+ * implement and the API should render them instead.
+ * @param {IconifySet} set
+ * @param {IconifyIcon} icon
+ * @param {object} props
+ * @returns {Promise<string|null>}
+ */
+export const composeIconSvg = async (set, icon, props) => {
+  const size = {
+    width: set.width,
+    height: set.height,
+    left: 0,
+    top: 0,
+    ...icon,
+    ...props,
+  };
+  const rotation = size.rotate === undefined ? 0 : size.rotate % 4;
+  if (rotation !== 0 || size.hFlip === true || size.vFlip === true) {
+    return null;
+  }
+  return createHtml(
+    "svg",
+    {
+      xmlns: "http://www.w3.org/2000/svg",
+      width: "1em",
+      height: "1em",
+      viewBox: `${size.left} ${size.top} ${size.width} ${size.height}`,
+    },
+    icon.body,
+  );
 };
 
 /**
@@ -150,24 +195,7 @@ export const getIconFromCdn = async (prefix, name) => {
   const icon = set.icons[resolved.name];
   if (icon === undefined || icon.body === undefined) return null;
 
-  const size = {
-    width: set.width,
-    height: set.height,
-    left: 0,
-    top: 0,
-    ...resolved.props,
-    ...icon,
-  };
-  return createHtml(
-    "svg",
-    {
-      xmlns: "http://www.w3.org/2000/svg",
-      width: "1em",
-      height: "1em",
-      viewBox: `${size.left} ${size.top} ${size.width} ${size.height}`,
-    },
-    icon.body,
-  );
+  return composeIconSvg(set, icon, resolved.props);
 };
 
 /**

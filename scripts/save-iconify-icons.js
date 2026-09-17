@@ -59,7 +59,15 @@ const collectIconRefs = (targetDir) => {
 };
 
 const saveIcon = async (iconId, results) => {
-  if (!/^[a-z0-9-]+:[a-z0-9_ -]+$/i.test(iconId)) return;
+  // Icon values without a colon are other icon types (image paths, emoji),
+  // not failed Iconify identifiers
+  if (!iconId.includes(":")) return;
+
+  if (!/^[a-z0-9-]+:[a-z0-9_ -]+$/i.test(iconId)) {
+    results.failed.push(`${iconId} (invalid icon identifier)`);
+    return;
+  }
+
   if (existsSync(getIconPath(iconId, templateRoot))) {
     results.cached.push(iconId);
     return;
