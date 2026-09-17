@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { configureIconify } from "#media/iconify.js";
+import { configureIconify, getIconPath } from "#media/iconify.js";
 import {
+  bracket,
   createMockEleventyConfig,
   fs,
   path,
@@ -12,6 +13,24 @@ import {
 const SAMPLE_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>';
 const ICONS_SUBDIR = "src/assets/icons/iconify";
+const STAR_BODY = '<path d="star-path"/>';
+
+const iconSet = (prefix, icons, aliases) => ({
+  prefix,
+  width: 24,
+  height: 24,
+  icons,
+  aliases,
+});
+
+const simpleAliasSet = (prefix) =>
+  iconSet(
+    prefix,
+    { star: { body: STAR_BODY } },
+    {
+      favourite: { parent: "star" },
+    },
+  );
 
 // Extract async filters once
 const { icon, renderIcon, socialIcon } =
@@ -110,6 +129,142 @@ describe("iconify", () => {
           const result = await icon("test:icon", tempDir);
           expect(result).toBe(SAMPLE_SVG);
         }),
+      ));
+
+    test("Composes SVG from CDN icon set", () =>
+      withSubDirAsync("iconify-cdn", "", async ({ tempDir }) =>
+        withMockFetch(
+          iconSet("mdi", { star: { body: STAR_BODY } }),
+          {},
+          async () => {
+            const result = await icon("mdi:star", tempDir);
+            expect(result).toBe(
+              `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">${STAR_BODY}</svg>`,
+            );
+          },
+        ),
+      ));
+
+    test("Resolves aliases against the CDN icon set", () =>
+      withSubDirAsync("iconify-cdn-alias", "", async ({ tempDir }) =>
+        withMockFetch(simpleAliasSet("lucide"), {}, async () => {
+          const result = await icon("lucide:favourite", tempDir);
+          expect(result).toContain(STAR_BODY);
+        }),
+      ));
+
+    test("Caches the resolved alias", () =>
+      withSubDirAsync("iconify-cdn-alias-cache", "", async ({ tempDir }) =>
+        withMockFetch(simpleAliasSet("fa"), {}, async () => {
+          await icon("fa:favourite", tempDir);
+          expect(
+            fs.existsSync(
+              path.join(tempDir, ICONS_SUBDIR, "fa", "favourite.svg"),
+            ),
+          ).toBe(true);
+        }),
+      ));
+
+    test("Alias dimensions override the base icon from the CDN", () =>
+      withSubDirAsync("iconify-cdn-alias-size", "", async ({ tempDir }) =>
+        withMockFetch(
+          iconSet(
+            "bi",
+            { star: { body: STAR_BODY, width: 20, height: 20 } },
+            { favourite: { parent: "star", width: 16, height: 16 } },
+          ),
+          {},
+          async () => {
+            const result = await icon("bi:favourite", tempDir);
+            expect(result).toContain('viewBox="0 0 16 16"');
+          },
+        ),
+      ));
+
+    test("Nested alias dimensions override the parent alias from the CDN", () =>
+      withSubDirAsync("iconify-cdn-nested-alias", "", async ({ tempDir }) =>
+        withMockFetch(
+          iconSet(
+            "cil",
+            { star: { body: STAR_BODY, width: 20, height: 20 } },
+            {
+              small: { parent: "star", width: 8, height: 8 },
+              favourite: { parent: "small", width: 16, height: 16 },
+            },
+          ),
+          {},
+          async () => {
+            const result = await icon("cil:favourite", tempDir);
+            expect(result).toContain('viewBox="0 0 16 16"');
+          },
+        ),
+      ));
+
+    test("Falls back to the API when the resolved icon is transformed", () =>
+      withSubDirAsync("iconify-cdn-transform", "", async ({ tempDir }) =>
+        withMockFetch(
+          iconSet(
+            "ph",
+            { star: { body: STAR_BODY } },
+            {
+              flipped: { parent: "star", hFlip: true },
+              tilted: { parent: "star", rotate: 2 },
+            },
+          ),
+          {},
+          async () => {
+            await expect(icon("ph:flipped", tempDir)).rejects.toThrow(
+              /Invalid response/,
+            );
+            await expect(icon("ph:tilted", tempDir)).rejects.toThrow(
+              /Invalid response/,
+            );
+            expect(
+              fs.existsSync(
+                path.join(tempDir, ICONS_SUBDIR, "ph", "flipped.svg"),
+              ),
+            ).toBe(false);
+          },
+        ),
+      ));
+
+    test("Returns null from the CDN when the icon set fetch rejects", () =>
+      withSubDirAsync("iconify-cdn-fetch-reject", "", async ({ tempDir }) => {
+        const withFailingFetch = bracket(
+          () => {
+            const original = globalThis.fetch;
+            globalThis.fetch = async () => {
+              throw new Error("network down");
+            };
+            return original;
+          },
+          (original) => {
+            globalThis.fetch = original;
+          },
+        );
+
+        await withFailingFetch(null, async () => {
+          await expect(icon("broken:rejecting", tempDir)).rejects.toThrow();
+          expect(
+            fs.existsSync(
+              path.join(tempDir, ICONS_SUBDIR, "broken", "rejecting.svg"),
+            ),
+          ).toBe(false);
+        });
+      }));
+
+    test("Uses icon-level sizes over set defaults from the CDN", () =>
+      withSubDirAsync("iconify-cdn-sizes", "", async ({ tempDir }) =>
+        withMockFetch(
+          iconSet("tabler", {
+            flag: { body: '<path d="flag-path"/>', width: 16, height: 16 },
+          }),
+          {},
+          async () => {
+            const result = await icon("tabler:flag", tempDir);
+            expect(result).toContain('viewBox="0 0 16 16"');
+          },
+        ),
       ));
 
     test("Saves fetched icon to disk", () =>
@@ -236,5 +391,19 @@ describe("iconify", () => {
           expect(result).toBe(SAMPLE_SVG);
         }),
       ));
+  });
+
+  describe("getIconPath", () => {
+    test("Builds the disk cache path for an icon identifier", () => {
+      expect(getIconPath("mdi:crane", "/tmp/icons")).toBe(
+        path.join("/tmp/icons", ICONS_SUBDIR, "mdi", "crane.svg"),
+      );
+    });
+
+    test("Normalises the identifier before building the path", () => {
+      expect(getIconPath("MDI:Check_Circle", "/tmp/icons")).toBe(
+        path.join("/tmp/icons", ICONS_SUBDIR, "mdi", "check-circle.svg"),
+      );
+    });
   });
 });
