@@ -38,13 +38,13 @@ const setImageSizes = (root, sizes) => {
   }
 };
 
-// The contain-fitted LQIP background peeks out around the loaded image's
-// edges as a blurred halo, so drop it as soon as the real pixels arrive.
+// The contain-fitted LQIP halo drops once real pixels arrive; complete alone
+// is true for never-loaded images, so require a natural size too.
 const clearLqipOnLoad = (clone) => {
   const img = clone.querySelector("img");
   if (!img) return;
   const clear = () => clone.style.setProperty("background-image", "none");
-  if (img.complete) clear();
+  if (img.complete && img.naturalWidth > 0) clear();
   else img.addEventListener("load", clear, { once: true });
 };
 
