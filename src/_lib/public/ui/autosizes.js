@@ -98,8 +98,15 @@
     return !src.startsWith("http://") && !src.startsWith("https://");
   };
 
+  // An image is "loaded" only when it actually has rendered content. happy-dom
+  // (20.11+) reports `complete` as true even for images that never loaded, so
+  // relying on `complete` alone would skip deferral entirely. naturalWidth > 0
+  // is true only once the image has content in real browsers, and always false
+  // under happy-dom, which keeps the deferral path working in both.
+  const isImageLoaded = (img) => img.complete && img.naturalWidth > 0;
+
   const shouldProcessImage = (img) =>
-    !img.complete && hasAutoSizesLazy(img) && isLocalSrc(img);
+    !isImageLoaded(img) && hasAutoSizesLazy(img) && isLocalSrc(img);
 
   const storeAttr = (el, attr) => {
     if (!el.hasAttribute(attr)) return;
