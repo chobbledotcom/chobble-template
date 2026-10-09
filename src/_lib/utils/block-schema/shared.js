@@ -156,4 +156,61 @@ export const HERO_CONTENT_FIELDS = {
   },
   reveal: REVEAL_STRING_FIELD,
 };
+/**
+ * Fields of a block that shows a form posting to the site's form service,
+ * rendered by `design-system/blocks/contact-form.html`. Each form block
+ * differs only in what it asks and where it lands.
+ * @param {{ fields: object[], fieldsSummary: string, submitText: string, redirect: string }} defaults
+ */
+export const formBlockFields = ({
+  fields,
+  fieldsSummary,
+  submitText,
+  redirect,
+}) => ({
+  content: {
+    ...md("Content"),
+    description:
+      "Text shown beside the form, rendered as markdown. Without it the form takes the full width.",
+  },
+  fields: {
+    ...objectList("Form Fields", {
+      label: str("Label", { required: true }),
+      name: {
+        ...str("Name"),
+        default: (/** @type {{ label: string }} */ field) => field.label,
+        description:
+          "Name the answer is submitted under. Defaults to the label.",
+      },
+      type: {
+        ...str("Type"),
+        default: "text",
+        description:
+          "`textarea`, `select`, `radio`, `heading` (a sub-heading between fields, with `note` as its text), or any HTML input type such as `text`, `email`, `tel`, `date`, or `number`.",
+      },
+      required: bool("Required", { default: false }),
+      placeholder: str("Placeholder"),
+      note: str("Help Note"),
+      options: {
+        ...str("Options"),
+        list: true,
+        description: "Choices of a `select` or `radio` field.",
+      },
+      rows: {
+        ...num("Rows"),
+        default: 6,
+        description: "Height of a `textarea`, in lines of text.",
+      },
+    }),
+    default: fields,
+    description: `The form's fields, in order. Defaults to ${fieldsSummary}.`,
+  },
+  submit_text: str("Submit Button Text", { default: submitText }),
+  redirect: {
+    ...str("Redirect"),
+    default: redirect,
+    description: "Page a visitor lands on after sending the form.",
+  },
+  intro_content: INTRO_CONTENT_FIELD,
+});
 /* jscpd:ignore-end */

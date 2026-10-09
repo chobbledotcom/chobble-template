@@ -13,6 +13,7 @@ import { configureScss } from "#build/scss.js";
 import { configureGuides } from "#collections/guides.js";
 import { configureNavigation } from "#collections/navigation.js";
 import { configureNews } from "#collections/news.js";
+import { configureProducts } from "#collections/products.js";
 import { configureReviews } from "#collections/reviews.js";
 import { configureBlocks } from "#eleventy/blocks.js";
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
@@ -46,6 +47,7 @@ const CONFIGURATORS = [
   configureIconify,
   configureNavigation,
   configureNews,
+  configureProducts,
   configureReviews,
   configureScreenshots,
   configureScss,

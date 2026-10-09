@@ -41,10 +41,11 @@ describe("createDefaultConfig", () => {
   test("includes all non-internal collections", () => {
     expect(config.collections).toContain("pages");
     expect(config.collections).toContain("news");
+    expect(config.collections).toContain("products");
     expect(config.collections).toContain("guide-categories");
     expect(config.collections).toContain("guide-pages");
     expect(config.collections).toContain("snippets");
-    expect(config.collections).toHaveLength(5);
+    expect(config.collections).toHaveLength(6);
   });
 
   test("only includes registered collections", () => {

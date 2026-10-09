@@ -2,5 +2,7 @@
 	"news_name": "News",
 	"news_permalink_dir": "news",
 	"guide_name": "Guide",
-	"guide_permalink_dir": "guide"
+	"guide_permalink_dir": "guide",
+	"product_name": "Products",
+	"product_permalink_dir": "products"
 }

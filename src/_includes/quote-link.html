@@ -1,0 +1,13 @@
+{%- comment -%}
+  The header's link to the visitor's quote, on a site with products. It
+  ships hidden; public/quote.js shows it, with the number of items, once
+  the quote holds something.
+{%- endcomment -%}
+{%- if collections.products.size > 0 -%}
+  <a class="quote-link" href="/quote/" hidden>
+    {{- "hugeicons:shopping-cart-01" | icon -}}
+    <span>Quote</span>
+    <span class="quote-count">0</span>
+  </a>
+  <script type="module" src="{{ '/assets/js/quote.js' | cacheBust }}"></script>
+{%- endif -%}

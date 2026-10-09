@@ -1,6 +1,7 @@
 {%- comment -%}
 Contact form block - a form that posts to the site's form service, with
-optional text beside it.
+optional text beside it. The quote-form block is this form with the
+visitor's quote beside it.
 
 Parameters (via block object):
   - block.content: Optional markdown shown beside the form
@@ -8,6 +9,8 @@ Parameters (via block object):
   - block.submit_text: Label of the submit button
   - block.redirect: Page shown after the form is sent
   - block.intro_content: Optional markdown intro rendered above the block
+Parameters (via include):
+  - quote: If true, the form sends the visitor's quote (quote-form block)
 
 The form posts to config.contact_form_target, else to the Formspark form
 named by config.formspark_id. With neither set there is nowhere to post, so
@@ -22,8 +25,10 @@ the block says so instead of rendering a form that cannot be sent.
 {%- else -%}
   {%- assign _form_target = false -%}
 {%- endif -%}
-<div class="contact-form-block">
-  {%- if block.content -%}
+<div class="contact-form-block{% if quote %} quote-form-block{% endif %}"{% if quote %} data-currency="{{ config.currency }}"{% endif %}>
+  {%- if quote -%}
+    {%- include "quote-summary.html" -%}
+  {%- elsif block.content -%}
     {%- include "design-system/blocks/markdown.html" -%}
   {%- endif -%}
   {%- if _form_target -%}
@@ -38,8 +43,16 @@ the block says so instead of rendering a form that cannot be sent.
       {%- endif -%}
       <input type="hidden" name="_redirect" value="{{ block.redirect | canonicalUrl }}">
       <input type="hidden" name="_email.template.footer" value="false">
-      <input type="hidden" name="_email.from" value="{{ site.name }} contact form">
-      <input type="hidden" name="_email.subject" value="New message from the {{ site.name }} website">
+      {%- if quote -%}
+        <input type="hidden" name="_email.from" value="{{ site.name }} quote request">
+        <input type="hidden" name="_email.subject" value="New quote request from the {{ site.name }} website">
+        <input type="hidden" name="cart_items" value="">
+        <input type="hidden" name="estimated_total" value="">
+        <input type="hidden" name="hire_days" value="">
+      {%- else -%}
+        <input type="hidden" name="_email.from" value="{{ site.name }} contact form">
+        <input type="hidden" name="_email.subject" value="New message from the {{ site.name }} website">
+      {%- endif -%}
       {%- for field in block.fields -%}
         {%- include "design-system/form-field.html", field: field -%}
       {%- endfor -%}

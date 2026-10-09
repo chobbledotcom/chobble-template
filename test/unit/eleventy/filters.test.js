@@ -14,6 +14,7 @@ const FILTER_NAMES = [
   "dateToRfc3339",
   "fileInfo",
   "filterItems",
+  "formatPrice",
   "getNewestCollectionItemDate",
   "gitDates",
   "isoDate",

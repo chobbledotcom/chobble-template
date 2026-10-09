@@ -1,0 +1,9 @@
+{%- comment -%}
+Add-to-quote block - the add-to-quote button of the product the page
+describes. Renders nothing on a page without options.
+
+Product-only block. No block-level parameters.
+{%- endcomment -%}
+{%- if quote_item -%}
+  {%- include "add-to-quote-button.html", quote: quote_item -%}
+{%- endif -%}

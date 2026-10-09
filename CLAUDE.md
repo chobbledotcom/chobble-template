@@ -3,8 +3,9 @@
 Chobble Template is an Eleventy template for informational and marketing sites, with
 schema-validated YAML content blocks, multilingual publishing, responsive media,
 themes, search, and a generated PagesCMS editing layer. It is not an e-commerce
-or user-data application: its one form, the contact form, posts to an outside
-form service.
+or user-data application: it takes no payments, a visitor's quote lives only in
+their browser, and its two forms, the contact form and the quote form, post to
+an outside form service.
 
 This is the canonical handwritten engineering policy and workflow. Consult:
 

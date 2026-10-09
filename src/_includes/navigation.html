@@ -6,7 +6,7 @@
   ui/site-menu.js reveals the buttons and collapses the menu, so without
   JavaScript the links are simply there. A site with no navigation pages gets
   no menu at all. navigation-start.html and navigation-end.html are the site's
-  own slots before and after the menu.
+  own slots before and after the menu; quote-link.html sits before the latter.
 {%- endcomment -%}
 {%- assign navItems = collections.navigationLinks | inLanguage: pageLanguage | eleventyNavigation -%}
 {%- assign activeKey = page.navigationParent | default: eleventyNavigation.key | default: navigationParent -%}
@@ -34,5 +34,6 @@
       {{- menuHtml -}}
     </div>
   {%- endif -%}
+  {%- include "quote-link.html" -%}
   {%- include "navigation-end.html" -%}
 </nav>

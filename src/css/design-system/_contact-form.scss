@@ -9,7 +9,8 @@
 // The form on its own, or beside text when the block has content.
 
 .design-system {
-  .contact-form-block:has(> .prose + .contact-form) {
+  // Anything before the form - text, or a quote - sits beside it
+  .contact-form-block:has(> * + .contact-form) {
     @include two-column-split;
 
     align-items: center;

@@ -16,6 +16,7 @@ import { translationForUrl } from "#utils/i18n.js";
 const PARENT_URL_MAP = {
   [strings.news_name]: `/${strings.news_permalink_dir}/`,
   [strings.guide_name]: `/${strings.guide_permalink_dir}/`,
+  [strings.product_name]: `/${strings.product_permalink_dir}/`,
 };
 
 /**

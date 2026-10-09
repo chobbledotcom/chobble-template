@@ -1,5 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { directoryData } from "#collections/directory-data.js";
+import { PLATTER } from "#test/fixtures/products.js";
+import { quoteItem } from "#utils/quote-item.js";
 
 const { eleventyComputed } = directoryData("guide-categories");
 
@@ -144,4 +146,21 @@ describe("guide pages directory data", () => {
 
 test("Directories that are not template collections have no directory data", () => {
   expect(directoryData("events")).toBeUndefined();
+});
+
+describe("products directory data", () => {
+  const { tags, eleventyComputed: computed } = directoryData("products");
+
+  test("Tags every product into the products collection", () => {
+    expect(tags).toEqual(["products"]);
+  });
+
+  test("Gives a product the quote data of its options", () => {
+    expect(computed.quote_item(PLATTER)).toEqual(quoteItem(PLATTER));
+  });
+
+  test("Publishes a product under the products directory", () => {
+    const data = { page: { fileSlug: "platter" }, permalink: undefined };
+    expect(computed.permalink(data)).toBe("/products/platter/");
+  });
 });

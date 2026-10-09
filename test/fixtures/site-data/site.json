@@ -10,6 +10,7 @@
 		"collections": [
 			"pages",
 			"news",
+			"products",
 			"guide-categories",
 			"guide-pages",
 			"snippets"

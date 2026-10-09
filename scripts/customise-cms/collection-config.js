@@ -102,6 +102,11 @@ const VIEW_CONFIGS = {
     primary: "name",
     sort: ["date"],
   },
+  products: {
+    fields: ["name", "order"],
+    primary: "name",
+    sort: ["order", "name"],
+  },
 };
 
 /**

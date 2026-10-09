@@ -30,6 +30,7 @@ export const configureJsBundler = (eleventyConfig) => {
       buildBundle("masonry", isDevelopment),
       buildBundle("contact-form", isDevelopment),
       buildBundle("bunny-video", isDevelopment),
+      buildBundle("quote", isDevelopment),
     ]);
 
     if (isDevelopment) {

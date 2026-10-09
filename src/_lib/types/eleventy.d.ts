@@ -11,7 +11,6 @@
 
 import type {
   PagesCMSImage,
-  PagesCMSOption,
   PagesCMSSpec,
   PagesCMSFaq,
   PagesCMSFilterAttribute,
@@ -60,28 +59,49 @@ export type BaseItemData = {
   thumbnail?: string;
   /** Main image path */
   image?: string;
+  /** Frequently asked questions */
+  faqs?: PagesCMSFaq[];
+};
+
+/**
+ * One option of a product: a size or variant to buy, or a length of hire.
+ */
+export type ProductOption = {
+  /** Option name, e.g. "Large" or "Weekend" */
+  name: string;
+  /** Price of one of this option */
+  unit_price: number;
+  /** Days of hire this option prices; set on every option of a hire product */
+  days?: number;
+};
+
+/**
+ * What a product's add-to-quote button carries. See #utils/quote-item.js.
+ */
+export type QuoteItem = {
+  name: string;
+  /** Most of the product one quote may hold */
+  max_quantity?: number;
+  /** True when the product is hired by the day */
+  hire: boolean;
+  /** Hire prices keyed by days; empty for a product that is bought */
+  hire_prices: Record<number, number>;
+  /** The choices the button offers: label, name in the quote, price */
+  options: { label: string; name: string; unit_price: number }[];
 };
 
 /**
  * Product-specific data fields
  */
 export type ProductItemData = BaseItemData & {
-  /** Product options (sizes, variants, etc.). Defaults to [] via products.json */
-  options: PagesCMSOption[];
-  /** Standalone price field (used when options is empty). May contain currency symbols. */
-  price?: string | number;
-  /** Frequently asked questions */
-  faqs?: PagesCMSFaq[];
-  /** Filter attributes for faceted search. Defaults to [] via products.json */
-  filter_attributes: PagesCMSFilterAttribute[];
-  /** Category slugs this product belongs to */
-  categories: string[];
-  /** Gallery image paths */
-  gallery: string[];
-  /** Event slugs this product is associated with */
-  events?: string[];
-  /** Search keywords for this product (guaranteed [] by 11tydata boundary) */
-  keywords: string[];
+  /** What a visitor can add to a quote */
+  options?: ProductOption[];
+  /** Most of the product one quote may hold */
+  max_quantity?: number;
+  /** Computed from options; null for a product without any */
+  quote_item: QuoteItem | null;
+  /** If true, the product is left out of the products collection */
+  hidden?: boolean;
 };
 
 /**

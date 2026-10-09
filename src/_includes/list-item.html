@@ -11,4 +11,7 @@
         {%- include "list-item-subtitle.html" -%}
     {%- endcase -%}
   {%- endfor -%}
+  {%- if item.data.quote_item -%}
+    {%- include "add-to-quote-button.html", quote: item.data.quote_item -%}
+  {%- endif -%}
 </li>

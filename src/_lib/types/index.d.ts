@@ -36,6 +36,8 @@ export type {
 
   // Specific item data types
   ProductItemData,
+  ProductOption,
+  QuoteItem,
   CategoryItemData,
   EventItemData,
   ReviewItemData,
@@ -85,11 +87,6 @@ export type {
   PagesCMSFaq,
   PagesCMSFilterAttribute,
   PagesCMSOpeningTime,
-  // Extended types
-  ProductOption,
-  NormalizedProductOption,
-  ProductData,
-  CartAttributesParams,
 } from './content.d.ts';
 
 // =============================================================================

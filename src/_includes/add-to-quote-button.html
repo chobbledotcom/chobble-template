@@ -1,0 +1,24 @@
+{%- comment -%}
+A product's add-to-quote button. public/quote.js - which the header's
+quote link loads on every page of a site with products - adds the chosen
+option to the visitor's quote, then reveals the link to it. A product with
+more than one option offers a choice of option; a hire product is added
+once and priced by the days the visitor asks for, so its button shows the
+price of one day.
+
+Parameters:
+  - quote: The product's quote_item (see #utils/quote-item.js)
+{%- endcomment -%}
+<form class="add-to-quote" data-quote-item="{{ quote | json | escape }}">
+  {%- if quote.options.size > 1 -%}
+    <select name="option" aria-label="Option">
+      {%- for option in quote.options -%}
+        <option value="{{ forloop.index0 }}">{{ option.label }} - {{ option.unit_price | formatPrice: config.currency }}</option>
+      {%- endfor -%}
+    </select>
+    <button type="submit">Add to quote</button>
+  {%- else -%}
+    <button type="submit">Add to quote - {% if quote.hire %}from {% endif %}{{ quote.options[0].unit_price | formatPrice: config.currency }}</button>
+  {%- endif -%}
+  <a class="add-to-quote-added" href="/quote/" hidden>Added - view your quote</a>
+</form>

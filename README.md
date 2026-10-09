@@ -8,8 +8,9 @@ edit pages without touching templates.
 
 This is version 2 of the Chobble Template: rebuilt from version 1,
 relicensed from AGPL to MIT by its sole author, and cut down to a static
-core: no e-commerce, no server, no user data stored — just fast, accessible,
-static pages. A contact form posts to a form service of the site's choosing.
+core: no checkout, no server, no user data stored — just fast, accessible,
+static pages. A contact form, and a quote form for the site's products, post
+to a form service of the site's choosing.
 
 ## How this repository documents itself
 

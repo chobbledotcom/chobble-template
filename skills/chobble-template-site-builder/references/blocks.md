@@ -67,6 +67,8 @@ This table covers registered types only. `No` types are rejected inside columns 
 | [`video-cards`](#video-cards) | `wide` | Yes |
 | [`reviews`](#reviews) | `wide` | Yes |
 | [`contact-form`](#contact-form) | `wide` | No |
+| [`quote-form`](#quote-form) | `wide` | No |
+| [`add-to-quote`](#add-to-quote) | `wide` | Yes |
 | [`icon-links`](#icon-links) | `narrow` | Yes |
 | [`downloads`](#downloads) | `narrow` | Yes |
 | [`snippet`](#snippet) | `wide` | Yes |
@@ -1716,6 +1718,82 @@ blocks:
         name: message
         type: textarea
         required: true
+```
+
+## `quote-form`
+
+The visitor's quote: the products they added, an estimated price, and a form that sends the request to a form service.
+
+**Schema:** `src/_lib/utils/block-schema/quote-form.js`
+
+**Component:** `block_quote_form`
+
+**Template:** `src/_includes/design-system/blocks/quote-form.html`
+
+**SCSS:** `src/css/design-system/_quote.scss`
+
+**Container width:** `wide`
+
+**CMS collection availability:** All collections with a block editor
+
+**Columns / sidebar:** No
+
+| Field | Schema type | Presence | Default | CMS label | Description |
+| --- | --- | --- | --- | --- | --- |
+| `content` | `markdown` | optional | None | Content | Text shown beside the form, rendered as markdown. Without it the form takes the full width. |
+| `fields` | `array<object>` | optional | `[{"name":"name","label":"Name","type":"text","required":true},{"name":"email","label":"Email","type":"email","required":true},{"name":"phone","label":"Phone","type":"tel","required":false},{"name":"start_date","label":"Start date","type":"date","required":true},{"name":"end_date","label":"End date","type":"date","required":true},{"name":"message","label":"Anything else we should know?","type":"textarea","required":false,"rows":4}]` | Form Fields | The form's fields, in order. Defaults to name, email, phone, start and end dates, and a message. |
+| `fields[].label` | `string` | **required** | None | Label |  |
+| `fields[].name` | `string` | optional | Derived | Name | Name the answer is submitted under. Defaults to the label. |
+| `fields[].type` | `string` | optional | `"text"` | Type | \`textarea\`, \`select\`, \`radio\`, \`heading\` (a sub-heading between fields, with \`note\` as its text), or any HTML input type such as \`text\`, \`email\`, \`tel\`, \`date\`, or \`number\`. |
+| `fields[].required` | `boolean` | optional | `false` | Required |  |
+| `fields[].placeholder` | `string` | optional | None | Placeholder |  |
+| `fields[].note` | `string` | optional | None | Help Note |  |
+| `fields[].options` | `array<string>` | optional | None | Options | Choices of a \`select\` or \`radio\` field. |
+| `fields[].rows` | `number` | optional | `6` | Rows | Height of a \`textarea\`, in lines of text. |
+| `submit_text` | `string` | optional | `"Request a Quote"` | Submit Button Text |  |
+| `redirect` | `string` | optional | `"/quote-sent/"` | Redirect | Page a visitor lands on after sending the form. |
+| `intro_content` | `markdown` | optional | None | Intro Content (Markdown) | Markdown content rendered above the block in \`.prose\`. |
+
+**Usage notes:** Products carry an add-to-quote button; this block lists what was added, kept in the visitor's browser, with a quantity for each and an estimated total. It posts like the \`contact-form\` block, to \`contact\_form\_target\` or Formspark, adding the items as \`cart\_items\`, the total as \`estimated\_total\`, and the number of hire days as \`hire\_days\`. Hire products are priced by the days between the \`start\_date\` and \`end\_date\` fields, counting both ends; a stay with no matching option is priced TBC. The quote is cleared once it is sent. Prices are shown in the \`currency\` setting.
+
+### Canonical example
+
+```yaml
+blocks:
+  - type: quote-form
+    content: |-
+      ## Your quote
+
+      Add products to see them here.
+```
+
+## `add-to-quote`
+
+An add-to-quote button for the product the page describes.
+
+**Schema:** `src/_lib/utils/block-schema/add-to-quote.js`
+
+**Component:** `block_add_to_quote`
+
+**Template:** `src/_includes/design-system/blocks/add-to-quote.html`
+
+**SCSS:** `src/css/design-system/_quote.scss`
+
+**Container width:** `wide`
+
+**CMS collection availability:** `products`
+
+**Columns / sidebar:** Yes
+
+No block-specific fields. Common fields still apply.
+
+**Usage notes:** Product-only block. No parameters. A product with more than one option gets a choice of option beside the button; a hire product is added once and priced by the days the visitor asks for. Renders nothing on a page without \`options\`.
+
+### Canonical example
+
+```yaml
+blocks:
+  - type: add-to-quote
 ```
 
 ## `icon-links`

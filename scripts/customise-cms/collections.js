@@ -43,6 +43,13 @@ export const COLLECTIONS = [
     dependencies: [],
   },
   {
+    name: "products",
+    label: "Products",
+    path: "src/products",
+    description: "Products visitors can add to a quote",
+    dependencies: [],
+  },
+  {
     name: "guide-categories",
     label: "Guide Categories",
     path: "src/guide-categories",

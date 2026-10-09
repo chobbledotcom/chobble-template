@@ -49,6 +49,7 @@ export type SiteConfig = {
   search_collections: string[];
   linkify_urls: boolean;
   disable_liquid_cache: boolean;
+  currency: string;
 
   // {} when unset; pickNonNull strips null overrides
   screenshots: ScreenshotConfig;

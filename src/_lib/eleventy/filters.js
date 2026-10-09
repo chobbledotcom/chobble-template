@@ -17,6 +17,7 @@ import { fileInfo } from "#eleventy/file-info.js";
 import { registerFilters } from "#eleventy/register.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
 import { filterItems } from "#utils/collection-filter.js";
+import { formatPrice } from "#utils/format-price.js";
 import { sort } from "#utils/fp/array.js";
 import { frozenObject } from "#utils/fp/object.js";
 import { compareBy } from "#utils/fp/sorting.js";
@@ -101,6 +102,7 @@ const FILTERS = frozenObject({
   dateToRfc3339,
   fileInfo,
   filterItems,
+  formatPrice,
   getNewestCollectionItemDate,
   gitDates: datesFor,
   isoDate: formatIso,

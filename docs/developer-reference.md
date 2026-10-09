@@ -33,6 +33,7 @@ These are available editor options, not this site's saved selection. CMS collect
 | --- | --- | --- | --- |
 | `pages` | `src/pages` | Required | None |
 | `news` | `src/news` | Optional | None |
+| `products` | `src/products` | Optional | None |
 | `guide-categories` | `src/guide-categories` | Optional | None |
 | `guide-pages` | `src/guide-pages` | Optional | `guide-categories` |
 | `snippets` | `src/snippets` | Required | None |
@@ -91,6 +92,7 @@ Every setting [config.json](../src/_data/config.json) accepts, from the [config 
 | `contact_form_target` | `string` | `null` | Any | URL the \`contact-form\` block posts to. Takes precedence over \`formspark\_id\`. |
 | `formspark_id` | `string` | `null` | Any | \[Formspark\](https://formspark.io/) form ID; the \`contact-form\` block posts to \`https://submit-form.com/\<id>\`. |
 | `botpoison_public_key` | `string` | `null` | Any | \[Botpoison\](https://botpoison.com/) public key; when set, contact forms solve a spam challenge before they submit. |
+| `currency` | `string` | `"GBP"` | Any | \[ISO 4217\](https://en.wikipedia.org/wiki/ISO\_4217) code of the currency product prices are in, e.g. \`GBP\`, \`EUR\`, \`USD\`. |
 | `review_sources` | `object` | `{}` | Any | Where \`npm run fetch-reviews\` collects reviews from: \`google\_business\_id\` (a Google Maps place ID), \`facebook\_page\_url\`, and \`trustpilot\_url\`. Leave a source out to skip it. |
 | `disable_liquid_cache` | `boolean` | `false` | Any | Turn off Liquid template caching while debugging templates. |
 

@@ -24,6 +24,7 @@
  *     authored block takes before rendering
  */
 
+import * as addToQuote from "#utils/block-schema/add-to-quote.js";
 import * as callout from "#utils/block-schema/callout.js";
 import * as codeBlock from "#utils/block-schema/code-block.js";
 import * as contactForm from "#utils/block-schema/contact-form.js";
@@ -51,6 +52,7 @@ import * as linkColumns from "#utils/block-schema/link-columns.js";
 import * as markdown from "#utils/block-schema/markdown.js";
 import * as marqueeImages from "#utils/block-schema/marquee-images.js";
 import * as newsMeta from "#utils/block-schema/news-meta.js";
+import * as quoteForm from "#utils/block-schema/quote-form.js";
 import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
 import { CONTAINER_FIELDS } from "#utils/block-schema/shared.js";
@@ -111,6 +113,8 @@ const BLOCK_MODULES = [
   videoCards,
   reviews,
   contactForm,
+  quoteForm,
+  addToQuote,
   iconLinks,
   downloads,
   snippet,

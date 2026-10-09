@@ -320,4 +320,6 @@ Repository `docs/` publish alongside the site at `/docs/` on that deployment. To
 
 This is version 2 of the Chobble Template: rebuilt from version 1, relicensed
 from AGPL to MIT by its sole author, and cut down to a static core: no
-e-commerce, no server, and no user data stored. See [LICENSE](LICENSE).
+checkout or payments, no server, and no user data stored. Products can be
+added to a quote, which posts to a form service like the contact form. See
+[LICENSE](LICENSE).

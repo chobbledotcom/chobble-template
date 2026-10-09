@@ -133,6 +133,12 @@ const CONFIG_SCHEMA = {
     description:
       "[Botpoison](https://botpoison.com/) public key; when set, contact forms solve a spam challenge before they submit.",
   },
+  currency: {
+    type: "string",
+    default: "GBP",
+    description:
+      "[ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) code of the currency product prices are in, e.g. `GBP`, `EUR`, `USD`.",
+  },
   review_sources: {
     type: "object",
     default: {},

@@ -9,6 +9,7 @@
 		"src/_lib/public/masonry.js",
 		"src/_lib/public/contact-form.js",
 		"src/_lib/public/bunny-video.js",
+		"src/_lib/public/quote.js",
 		"bin/profile-report.js",
 		"test/**/*.test.js",
 		"test/test-site-data-register.js",

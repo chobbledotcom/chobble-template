@@ -4,6 +4,7 @@ import {
   buildNavigation,
   withNavigationAnchor,
 } from "#utils/navigation-utils.js";
+import { quoteItem } from "#utils/quote-item.js";
 import {
   buildPermalink,
   normalisePermalink,
@@ -90,6 +91,12 @@ const DIRECTORY_DATA = {
             order: d.link_order || 0,
           });
         }),
+    }),
+  },
+  products: {
+    tags: ["products"],
+    ...linkableContent("product", {
+      quote_item: (data) => quoteItem(data),
     }),
   },
   reviews: {

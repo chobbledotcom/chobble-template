@@ -12,6 +12,7 @@ import {
   COMMON_FIELDS,
   createEleventyNavigationField,
   createMarkdownField,
+  createObjectListField,
 } from "#scripts/customise-cms/fields.js";
 import { compact } from "#utils/fp/array.js";
 
@@ -37,6 +38,20 @@ export const getCollectionFieldBuilders = (config) => ({
       config.features.no_index && COMMON_FIELDS.no_index,
       blocksFieldFor("pages"),
     ]),
+
+  products: () => [
+    COMMON_FIELDS.name,
+    COMMON_FIELDS.subtitle,
+    COMMON_FIELDS.thumbnail,
+    COMMON_FIELDS.order,
+    { name: "max_quantity", type: "number", label: "Most Per Quote" },
+    { name: "hidden", type: "boolean", label: "Hide from listings" },
+    createObjectListField("options", "Options", [
+      { name: "name", type: "string", label: "Name", required: true },
+      { name: "unit_price", type: "number", label: "Price", required: true },
+      { name: "days", type: "number", label: "Days of Hire" },
+    ]),
+  ],
 
   "guide-categories": () =>
     compact([
