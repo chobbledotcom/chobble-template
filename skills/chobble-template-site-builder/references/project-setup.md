@@ -169,7 +169,8 @@ per-language menus and snippets, and the checks to run.
 The bundled `build-and-deploy.yaml` workflow builds on every push and deploys
 to Bunny Sites: `main` to the production site, other branches to the staging
 site. It needs the `BUNNY_ACCESS_KEY` and `BUNNY_PRODUCTION_STORAGE_ZONE_NAME`
-repository secrets, and skips the deploy while they are missing; see the
+repository secrets, and skips the deploy while the site name is missing. Its
+steps live in chobble-client's shared workflow, which it calls; see the
 [README deployment guidance](../../../README.md#deployment).
 
 The canonical origin comes from `url` in `src/_data/site.json`. A pipeline may

@@ -27,6 +27,6 @@ blocks:
       no application server and no application-secret requirement.
 faqs:
   - question: Why did the workflow build but not deploy?
-    answer: The deploy step is skipped while `BUNNY_ACCESS_KEY` or the site name for that branch is missing, so a fresh fork builds cleanly before it has hosting. Add the secrets under **Settings → Secrets and variables → Actions**, then re-run the workflow.
+    answer: The deploy step is skipped while the site name for that branch is missing, so a fresh fork builds cleanly before it has hosting. Add the secrets under **Settings → Secrets and variables → Actions**, then re-run the workflow.
     order: 1
 ---

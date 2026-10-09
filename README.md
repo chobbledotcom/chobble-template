@@ -171,7 +171,10 @@ The repo ships a deploy workflow (`.github/workflows/build-and-deploy.yaml`)
 that builds the site on every push and deploys it to
 [Bunny Sites](https://bunny.net/) with Bunny's own deploy action. `main`
 deploys to the production site and every other branch to the staging site, so
-a branch can be checked on a real URL before it is merged.
+a branch can be checked on a real URL before it is merged. The steps
+themselves live in the
+[shared workflow](https://github.com/chobbledotcom/chobble-client/blob/main/.github/workflows/shared-build-and-deploy.yml)
+every Chobble site builds with, which this one calls.
 
 One-time setup: create the Bunny Sites, then add these repository secrets
 under **Settings → Secrets and variables → Actions**:
@@ -182,13 +185,13 @@ under **Settings → Secrets and variables → Actions**:
 | `BUNNY_PRODUCTION_STORAGE_ZONE_NAME` | Name of the Bunny Site that `main` deploys to |
 | `BUNNY_STAGING_STORAGE_ZONE_NAME` | Optional. Name of the Bunny Site other branches deploy to |
 | `INDEXNOW_KEY` | Optional. Submits the sitemap to IndexNow after a `main` deploy |
-| `NTFY_TOPIC` | Optional. [ntfy](https://ntfy.sh/) topic notified when a `main` build fails |
+| `NTFY_TOPIC` | Optional. [ntfy](https://ntfy.sh/) topic notified when a build fails |
 | `FORMSPARK_ID` | Optional. Sets the `formspark_id` setting at build time |
 | `BOTPOISON_PUBLIC_KEY` | Optional. Sets the `botpoison_public_key` setting at build time |
 | `APIFY_API_TOKEN` | Optional. [Apify](https://apify.com/) token the reviews workflow fetches reviews with |
 
-A deploy is skipped while its site name or the access key is missing, so a
-fresh fork builds cleanly before it has hosting. The workflow also merges
+A deploy is skipped while its site name is missing, so a fresh fork builds
+cleanly before it has hosting. The workflow also merges
 `docs/` into the built site, so the generated
 [Site Builder Reference](docs/developer-reference.md) is served under `/docs/`
 on the deployment's base URL.

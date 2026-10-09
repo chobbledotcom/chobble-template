@@ -53,7 +53,8 @@ jobs:
           echo "ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   # A push made with the workflow's own token starts no other workflow, so
-  # the rebuild is called directly, on the commit that holds the new reviews.
+  # the shared build is called directly, on the commit that holds the new
+  # reviews. See build-and-deploy.yaml for how it is called.
   deploy:
     name: Deploy
     needs: [fetch-reviews]
@@ -61,7 +62,16 @@ jobs:
     permissions:
       contents: read
       deployments: write
-    uses: ./.github/workflows/build-and-deploy.yaml
+    uses: chobbledotcom/chobble-client/.github/workflows/shared-build-and-deploy.yml@main
     with:
+      standalone: true
+      runs-on: ubuntu-latest
       ref: ${{ needs.fetch-reviews.outputs.ref }}
-    secrets: inherit
+    secrets:
+      BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
+      BUNNY_PRODUCTION_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_PRODUCTION_STORAGE_ZONE_NAME }}
+      BUNNY_STAGING_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_STAGING_STORAGE_ZONE_NAME }}
+      FORMSPARK_ID: ${{ secrets.FORMSPARK_ID }}
+      BOTPOISON_PUBLIC_KEY: ${{ secrets.BOTPOISON_PUBLIC_KEY }}
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
