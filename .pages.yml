@@ -596,6 +596,33 @@ components:
       - { name: figure_src, type: image, label: Figure Image, required: true }
       - { name: figure_alt, type: string, label: Figure Alt Text }
       - { name: figure_caption, type: string, label: Figure Caption }
+  block_split_video:
+    label: Split Video
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: content, type: rich-text, label: Content }
+      - { name: reverse, type: boolean, label: Reverse Layout }
+      - { name: reveal_content, type: string, label: Reveal Content Animation }
+      - { name: reveal_figure, type: string, label: Reveal Figure Animation }
+      - name: button
+        type: object
+        label: Button
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
+      - name: figure_video_id
+        type: string
+        label: Video ID or embed URL
+        required: true
+      - { name: figure_thumbnail_url, type: string, label: Thumbnail }
+      - { name: figure_alt, type: string, label: Video Name }
+      - { name: figure_caption, type: string, label: Video Caption }
+      - { name: figure_autoplay, type: boolean, label: Autoplay }
   block_stats:
     label: Stats
     type: object
@@ -769,6 +796,7 @@ content:
           - { name: split-html, component: block_split_html }
           - { name: split-icon-links, component: block_split_icon_links }
           - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: table-of-contents, component: block_table_of_contents }
           - { name: video-background, component: block_video_background }
@@ -841,6 +869,7 @@ content:
           - { name: split-html, component: block_split_html }
           - { name: split-icon-links, component: block_split_icon_links }
           - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: table-of-contents, component: block_table_of_contents }
           - { name: video-background, component: block_video_background }
@@ -900,6 +929,7 @@ content:
           - { name: split-html, component: block_split_html }
           - { name: split-icon-links, component: block_split_icon_links }
           - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: table-of-contents, component: block_table_of_contents }
           - { name: video-background, component: block_video_background }
@@ -966,6 +996,7 @@ content:
           - { name: split-html, component: block_split_html }
           - { name: split-icon-links, component: block_split_icon_links }
           - { name: split-image, component: block_split_image }
+          - { name: split-video, component: block_split_video }
           - { name: stats, component: block_stats }
           - { name: table-of-contents, component: block_table_of_contents }
           - { name: video-background, component: block_video_background }

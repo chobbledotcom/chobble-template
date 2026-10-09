@@ -8,8 +8,9 @@ Its embed URL autoplays, so the video starts as soon as it appears.
 Parameters:
   - video_id: YouTube video ID, or the embed URL of another provider (required)
   - name: Name of the video, used for its accessible labels (required)
-  - thumbnail_url: Image path or URL. Defaults to YouTube's own thumbnail
-                   for a YouTube ID; other providers show a plain panel.
+  - thumbnail_url: Image path or URL. Defaults to the provider's own
+                   thumbnail for a YouTube ID or a Vimeo URL; other
+                   providers show a plain panel.
 {%- endcomment -%}
 
 {%- assign _thumbnail = video_id | videoThumbnail: thumbnail_url -%}

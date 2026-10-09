@@ -6,8 +6,10 @@
  * become privacy-respecting youtube-nocookie.com embed URLs; Vimeo URLs gain
  * the playback parameters each mode needs; any other URL is used as written.
  */
+import { memoize } from "#utils/fp/memoize.js";
 
-const VIMEO_URL = /^https?:\/\/(?:player\.)?vimeo\.com\/(?:video\/)?\d+/;
+const VIMEO_URL = /^https?:\/\/(?:player\.)?vimeo\.com\/(?:video\/)?(\d+)/;
+const BUNNY_URL = /^https?:\/\/[a-z]+\.mediadelivery\.net\/embed\//;
 
 /**
  * How an embed starts playing.
@@ -33,18 +35,47 @@ const YOUTUBE_PARAMS = {
 export const isYouTubeId = (video) => !video.startsWith("http");
 
 /**
+ * Whether a video is a Bunny Stream embed, whose player can report when it
+ * starts playing.
+ * @param {string} video
+ * @returns {boolean}
+ */
+export const isBunnyVideo = (video) => BUNNY_URL.test(video);
+
+/**
+ * The thumbnail Vimeo publishes for a video, asked for once per build. A
+ * video Vimeo will not describe is a mistake in the content, so it fails
+ * the build rather than rendering without a thumbnail.
+ */
+const vimeoThumbnail = /** @type {(vimeoId: string) => Promise<string>} */ (
+  memoize(async (/** @type {string} */ vimeoId) => {
+    const response = await fetch(
+      `https://vimeo.com/api/oembed.json?url=https://vimeo.com/${vimeoId}&width=480`,
+    );
+    if (!response.ok) {
+      throw new Error(
+        `Vimeo returned HTTP ${response.status} for the thumbnail of video ${vimeoId}`,
+      );
+    }
+    return (await response.json()).thumbnail_url;
+  })
+);
+
+/**
  * The thumbnail to show for a video: the author's own when given, otherwise
- * the one YouTube publishes. Other providers have none unless the author
- * supplies it, which is the empty string.
+ * the one YouTube or Vimeo publishes. Other providers have none unless the
+ * author supplies it, which is the empty string.
  * @param {string} video - YouTube video ID or embed URL
  * @param {string} [thumbnail] - Image path or URL chosen by the author
- * @returns {string}
+ * @returns {Promise<string>}
  */
-export const videoThumbnail = (video, thumbnail) => {
+export const videoThumbnail = async (video, thumbnail) => {
   if (thumbnail) return thumbnail;
-  return isYouTubeId(video)
-    ? `https://img.youtube.com/vi/${video}/hqdefault.jpg`
-    : "";
+  if (isYouTubeId(video)) {
+    return `https://img.youtube.com/vi/${video}/hqdefault.jpg`;
+  }
+  const vimeo = video.match(VIMEO_URL);
+  return vimeo ? vimeoThumbnail(vimeo[1]) : "";
 };
 
 /**

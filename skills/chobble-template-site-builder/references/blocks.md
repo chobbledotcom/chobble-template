@@ -36,6 +36,7 @@ This table covers registered types only. `No` types are rejected inside columns 
 | [`code-block`](#code-block) | `wide` | Yes |
 | [`hero`](#hero) | `full` | No |
 | [`split-image`](#split-image) | `wide` | No |
+| [`split-video`](#split-video) | `wide` | No |
 | [`split-code`](#split-code) | `wide` | No |
 | [`split-icon-links`](#split-icon-links) | `wide` | No |
 | [`split-html`](#split-html) | `wide` | No |
@@ -396,6 +397,62 @@ blocks:
       columns.
     figure_src: fireworks.jpg
     figure_alt: Fireworks over a city at night
+    figure_caption: Captions are optional.
+```
+
+## `split-video`
+
+Two-column layout with text content and an embedded video.
+
+**Schema:** `src/_lib/utils/block-schema/split-video.js`
+
+**Component:** `block_split_video`
+
+**Template:** `src/_includes/design-system/split.html`
+
+**SCSS:** `src/css/design-system/_split.scss`
+
+**HTML root:** `<div class="split">`
+
+**Container width:** `wide`
+
+**CMS collection availability:** All collections with a block editor
+
+**Columns / sidebar:** No
+
+| Field | Schema type | Presence | Default | CMS label | Description |
+| --- | --- | --- | --- | --- | --- |
+| `subtitle` | `string` | optional | None | Subtitle | Subtitle with \`.text-muted\` styling. |
+| `content` | `markdown` | optional | None | Content | Main content with markdown headings (e.g. \`## Heading\`). Rendered through \`renderContent: "md"\` filter, wrapped in \`.prose\`. |
+| `reverse` | `boolean` | optional | `false` | Reverse Layout | Reverses column order (content right, figure left) on desktop. |
+| `reveal_content` | `string` | optional | Derived | Reveal Content Animation | \`data-reveal\` for the text side. Defaults to \`"left"\`, or \`"right"\` when \`reverse\` is true. |
+| `reveal_figure` | `string` | optional | `"scale"` | Reveal Figure Animation | \`data-reveal\` for the figure side. |
+| `button` | `object` | optional | None | Button | \`{text, href, variant, size}\`. Rendered below content. |
+| `button.text` | `string` | **required** | None | Button Text |  |
+| `button.href` | `string` | **required** | None | URL |  |
+| `button.variant` | `string` | optional | `"secondary"` | Variant |  |
+| `button.size` | `string` | optional | None | Size |  |
+| `figure_video_id` | `string` | **required** | None | Video ID or embed URL | Bare YouTube video ID (e.g. \`dQw4w9WgXcQ\`), or the full embed URL of another provider (Vimeo, Bunny Stream). Never an \`\<iframe>\` snippet. |
+| `figure_thumbnail_url` | `string` | optional | None | Thumbnail | Image path or URL shown behind the play button. Defaults to the provider's own thumbnail for a YouTube ID or a Vimeo URL; other providers show a plain panel. |
+| `figure_alt` | `string` | optional | `"Video"` | Video Name | Name of the video, used for the play button's label and the iframe's title. |
+| `figure_caption` | `string` | optional | None | Video Caption | Visible caption below the video. |
+| `figure_autoplay` | `boolean` | optional | `false` | Autoplay | If true, skips the play button and starts the video muted, with its controls showing, when it scrolls into view. |
+
+**Usage notes:** Without \`figure\_autoplay\` the video loads only when its play button is pressed.
+
+### Canonical example
+
+```yaml
+blocks:
+  - type: split-video
+    subtitle: Split layouts
+    content: |-
+      ## Text beside a video
+
+      The video loads when a visitor presses play.
+    figure_video_id: dQw4w9WgXcQ
+    figure_thumbnail_url: dinner.jpg
+    figure_alt: A YouTube video
     figure_caption: Captions are optional.
 ```
 
@@ -836,7 +893,7 @@ Full-width video playing silently behind hero-style overlay content (badge, mark
 | --- | --- | --- | --- | --- | --- |
 | `video_id` | `string` | **required** | None | Video ID or embed URL | Bare YouTube video ID (e.g. \`dQw4w9WgXcQ\`); the block builds the embed itself. For other providers (Vimeo, Bunny Stream), the full embed URL. Never an \`\<iframe>\` snippet. |
 | `video_title` | `string` | optional | `"Background video"` | Video Title | Accessible \`title\` on the iframe. |
-| `thumbnail_url` | `string` | optional | None | Thumbnail | Image path or URL shown behind the iframe while the video loads. Defaults to YouTube's own thumbnail for a YouTube ID; other providers show nothing until the video plays. |
+| `thumbnail_url` | `string` | optional | None | Thumbnail | Image path or URL shown over the iframe while the video loads. Defaults to the provider's own thumbnail for a YouTube ID or a Vimeo URL; other providers show nothing until the video plays. |
 | `class` | `string` | optional | None | CSS Class | Extra CSS classes. |
 | `badge` | `string` | optional | None | Badge Text | Small pill label above the content. Renders as \`\<span class="badge">\`. |
 | `content` | `markdown` | optional | None | Content | Markdown overlay content rendered in \`.prose\` inside the \`\<figcaption>\`. |
@@ -847,7 +904,7 @@ Full-width video playing silently behind hero-style overlay content (badge, mark
 | `buttons[].size` | `string` | optional | None | Size |  |
 | `reveal` | `string` | optional | None | Not exposed | \`data-reveal\` value. |
 
-**Usage notes:** YouTube IDs become \`youtube-nocookie.com\` embeds that autoplay muted, loop, and hide their controls; the thumbnail fades out once the player reports it is playing. Embed URLs of other providers are used as written, so set their autoplay and mute parameters yourself. The video is decorative: put anything a visitor must know in the overlay content.
+**Usage notes:** YouTube IDs become \`youtube-nocookie.com\` embeds that autoplay muted, loop, and hide their controls; the thumbnail fades out once the player reports it is playing. Vimeo URLs gain autoplay, loop, and mute. A Bunny Stream embed URL is used as written, so set its \`autoplay\`, \`loop\`, and \`muted\` parameters yourself; its thumbnail fades out when the player starts, through a small script loaded only on pages with a Bunny background. The video is decorative: put anything a visitor must know in the overlay content.
 
 ### Canonical example
 
@@ -1531,7 +1588,7 @@ Grid of click-to-play video thumbnails. Takes YouTube IDs and the embed URLs of 
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
-| `videos` | `array<object>` | **required** | None | Videos | Video objects. Each: \`{id, name, thumbnail\_url}\`. \`id\` is a bare YouTube video ID (e.g. \`dQw4w9WgXcQ\`) or the full embed URL of another provider (Vimeo, Bunny Stream); never an \`\<iframe>\` snippet. \`thumbnail\_url\` is an image path or URL, and defaults to YouTube's own thumbnail for a YouTube ID. |
+| `videos` | `array<object>` | **required** | None | Videos | Video objects. Each: \`{id, name, thumbnail\_url}\`. \`id\` is a bare YouTube video ID (e.g. \`dQw4w9WgXcQ\`) or the full embed URL of another provider (Vimeo, Bunny Stream); never an \`\<iframe>\` snippet. \`thumbnail\_url\` is an image path or URL, and defaults to the provider's own thumbnail for a YouTube ID or a Vimeo URL. |
 | `videos[].id` | `string` | **required** | None | Video ID or embed URL |  |
 | `videos[].name` | `string` | **required** | None | Name |  |
 | `videos[].thumbnail_url` | `string` | optional | None | Thumbnail |  |
@@ -1539,7 +1596,7 @@ Grid of click-to-play video thumbnails. Takes YouTube IDs and the embed URLs of 
 | `expand` | `boolean` | optional | `false` | Expand to Full Width | If true, videos fill the available width (1 = 100%, 2 = 50%, 3+ = 33.3%) instead of the standard card grid. |
 | `intro_content` | `markdown` | optional | None | Intro Content (Markdown) | Markdown content rendered above the block in \`.prose\`. |
 
-**Usage notes:** A video loads only when its thumbnail is pressed, so the grid costs nothing until a visitor plays one. A YouTube thumbnail with no \`thumbnail\_url\` is downloaded at build time; a video from another provider with no \`thumbnail\_url\` shows a plain panel behind the play button.
+**Usage notes:** A video loads only when its thumbnail is pressed, so the grid costs nothing until a visitor plays one. A YouTube or Vimeo thumbnail with no \`thumbnail\_url\` is downloaded at build time, so a build with one needs the network; a video from another provider with no \`thumbnail\_url\` shows a plain panel behind the play button.
 
 ### Canonical example
 
@@ -1553,7 +1610,7 @@ blocks:
       - id: https://player.vimeo.com/video/76979871
         name: A Vimeo video
         thumbnail_url: lunch.jpg
-      - id: https://player.vimeo.com/video/76979871
+      - id: https://iframe.mediadelivery.net/embed/1/example
         name: A video with no thumbnail
 ```
 

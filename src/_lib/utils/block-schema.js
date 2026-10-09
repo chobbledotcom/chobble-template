@@ -61,6 +61,7 @@ import * as splitFull from "#utils/block-schema/split-full.js";
 import * as splitHtml from "#utils/block-schema/split-html.js";
 import * as splitIconLinks from "#utils/block-schema/split-icon-links.js";
 import * as splitImage from "#utils/block-schema/split-image.js";
+import * as splitVideo from "#utils/block-schema/split-video.js";
 import * as stats from "#utils/block-schema/stats.js";
 import * as tableOfContents from "#utils/block-schema/table-of-contents.js";
 import * as videoBackground from "#utils/block-schema/video-background.js";
@@ -79,6 +80,7 @@ const BLOCK_MODULES = [
   codeBlock,
   hero,
   splitImage,
+  splitVideo,
   splitCode,
   splitIconLinks,
   splitHtml,

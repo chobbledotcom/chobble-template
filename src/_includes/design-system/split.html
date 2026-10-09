@@ -1,6 +1,6 @@
 {%- comment -%}
 Split layout with text content and a figure. Used by the figure split-* block
-types: split-image, split-code, split-icon-links, split-html. The block schema
+types: split-image, split-video, split-code, split-icon-links, split-html. The block schema
 fills defaults before rendering.
 
 The figure type is derived from the block type (e.g., "split-image" → "image").
@@ -16,6 +16,8 @@ Parameters (via block object):
 
   Figure fields per block type:
     split-image:        figure_src, figure_alt, figure_caption
+    split-video:        figure_video_id, figure_thumbnail_url, figure_alt,
+                        figure_caption, figure_autoplay
     split-code:         figure_filename, figure_code, figure_language
     split-icon-links:   figure_items (array of {icon, text, url})
     split-html:         figure_html
@@ -32,9 +34,17 @@ Parameters (via block object):
         {%- assign image = block.figure_src -%}
         {%- capture _alt -%}{%- include "get-alt-text.html", fallback: block.figure_alt -%}{%- endcapture -%}
         {% image block.figure_src, _alt %}
-        {%- if block.figure_caption -%}
-          <figcaption>{{ block.figure_caption }}</figcaption>
+        {%- include "design-system/split-figcaption.html" -%}
+      {%- when "split-video" -%}
+        {%- if block.figure_autoplay -%}
+          <div class="video-wrapper">
+            {%- include "design-system/video-iframe.html", video_id: block.figure_video_id, name: block.figure_alt, mode: "autoplay" -%}
+          </div>
         {%- endif -%}
+        {%- unless block.figure_autoplay -%}
+          {%- include "design-system/video-facade.html", video_id: block.figure_video_id, name: block.figure_alt, thumbnail_url: block.figure_thumbnail_url -%}
+        {%- endunless -%}
+        {%- include "design-system/split-figcaption.html" -%}
       {%- when "split-code" -%}
         {%- include "design-system/blocks/code-block.html", block: false, filename: block.figure_filename, code: block.figure_code, language: block.figure_language -%}
       {%- when "split-icon-links" -%}

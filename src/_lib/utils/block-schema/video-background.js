@@ -22,7 +22,7 @@ export const fields = {
   thumbnail_url: {
     ...str("Thumbnail"),
     description:
-      "Image path or URL shown behind the iframe while the video loads. Defaults to YouTube's own thumbnail for a YouTube ID; other providers show nothing until the video plays.",
+      "Image path or URL shown over the iframe while the video loads. Defaults to the provider's own thumbnail for a YouTube ID or a Vimeo URL; other providers show nothing until the video plays.",
   },
   class: { ...str("CSS Class"), description: "Extra CSS classes." },
   ...HERO_CONTENT_FIELDS,
@@ -38,7 +38,7 @@ export const docs = {
     "Full-width video playing silently behind hero-style overlay content (badge, markdown content, buttons).",
   scss: "src/css/design-system/_video-background.scss",
   notes:
-    "YouTube IDs become `youtube-nocookie.com` embeds that autoplay muted, loop, and hide their controls; the thumbnail fades out once the player reports it is playing. Embed URLs of other providers are used as written, so set their autoplay and mute parameters yourself. The video is decorative: put anything a visitor must know in the overlay content.",
+    "YouTube IDs become `youtube-nocookie.com` embeds that autoplay muted, loop, and hide their controls; the thumbnail fades out once the player reports it is playing. Vimeo URLs gain autoplay, loop, and mute. A Bunny Stream embed URL is used as written, so set its `autoplay`, `loop`, and `muted` parameters yourself; its thumbnail fades out when the player starts, through a small script loaded only on pages with a Bunny background. The video is decorative: put anything a visitor must know in the overlay content.",
 };
 
 export const example = {

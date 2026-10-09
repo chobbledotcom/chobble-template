@@ -2,7 +2,7 @@
 /**
  * Shared unified fields for all split-* block types.
  *
- * Every split variant (split-image, split-code, split-icon-links, split-html,
+ * Every split variant (split-image, split-video, split-code, split-icon-links, split-html,
  * split-callout) shares the same text-side fields. This module centralizes
  * them so each variant only adds its own figure-specific keys.
  */
