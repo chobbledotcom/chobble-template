@@ -3,6 +3,7 @@ name: Spencer Elliott
 rating: 5
 source: trustpilot
 url: 'https://trustpilot.com/reviews/6af044a3ee5333a257983004'
+avatar: /images/reviewers/2026-11-08-spencer-elliott-trustpilot.webp
 ---
 
 Ethical Dev.

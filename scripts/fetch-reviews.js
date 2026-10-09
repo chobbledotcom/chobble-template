@@ -5,7 +5,9 @@
  *
  * Reads the `review_sources` setting from src/_data/config.json, asks an
  * Apify actor for each configured source's reviews, and writes every review
- * not already stored to src/reviews/ as `YYYY-MM-DD-reviewer-source.md`.
+ * not already stored to src/reviews/ as `YYYY-MM-DD-reviewer-source.md`,
+ * with the reviewer's photo beside it in src/images/reviewers/ when the
+ * source has one.
  * Stored reviews are never rewritten or removed, so hiding one by hand
  * (`hidden: true`) survives the next run.
  *
@@ -21,6 +23,7 @@
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import sharp from "sharp";
 import getConfig from "#data/config.js";
 import { ROOT_DIR } from "#lib/paths.js";
 import { runIfMain } from "#scripts/lib/is-main-module.js";
@@ -29,6 +32,10 @@ import { slugify } from "#utils/slug-utils.js";
 const APIFY_ACTORS = "https://api.apify.com/v2/acts";
 const MAX_REVIEWS = 9999;
 const TWENTY_MINUTES = 20 * 60 * 1000;
+const THIRTY_SECONDS = 30 * 1000;
+/** Avatars show at 48px at most; storing twice that keeps them sharp. */
+const AVATAR_SIZE = 96;
+const AVATAR_URL = "/images/reviewers";
 
 /**
  * A review already stored: its file, who wrote it, where, and what they said.
@@ -67,13 +74,15 @@ const textOf = (value) => (typeof value === "string" ? value.trim() : "");
  * @param {number} rating
  * @param {unknown} url - Where the review can be read, if the row says
  * @param {string} date
+ * @param {unknown} photo - URL of the reviewer's photo, if the row has one
  */
-const reviewOf = (name, content, rating, url, date) => ({
+const reviewOf = (name, content, rating, url, date, photo) => ({
   name: textOf(name) === "" ? "Anonymous" : textOf(name),
   content,
   rating,
   url: textOf(url),
   date: new Date(date),
+  photo: textOf(photo),
 });
 
 /**
@@ -109,6 +118,7 @@ const SOURCES = [
       Number.parseInt(row.ratingValue, 10),
       row.url,
       row.date,
+      row.avatar,
     ),
   ),
   {
@@ -134,6 +144,7 @@ const SOURCES = [
         row.stars,
         row.reviewerUrl,
         row.publishedAtDate,
+        row.reviewerPhotoUrl,
       ),
   },
   // Facebook has no star rating: a recommendation counts as five stars.
@@ -144,6 +155,7 @@ const SOURCES = [
       row.isRecommended ? 5 : 1,
       row.url,
       row.date,
+      row.user?.profilePic,
     ),
   ),
 ];
@@ -253,19 +265,46 @@ const sourceReviews = async (source, value, stored, token) => {
 };
 
 /**
+ * Download a review's photo as a small square avatar named after the review.
+ * A reviewer without a photo, or whose photo is no longer served as an image,
+ * simply has no avatar: the review is worth storing either way.
+ * @param {{ file: string, photo: string }} review
+ * @param {string} avatarsDir
+ * @returns {Promise<string>} Site path of the avatar, or "" without one
+ */
+const storeAvatar = async (review, avatarsDir) => {
+  if (review.photo === "") return "";
+  const response = await fetch(review.photo, {
+    signal: AbortSignal.timeout(THIRTY_SECONDS),
+  });
+  if (
+    !response.ok ||
+    !response.headers.get("content-type")?.startsWith("image/")
+  ) {
+    return "";
+  }
+  const name = review.file.replace(/\.md$/, ".webp");
+  await sharp(Buffer.from(await response.arrayBuffer()))
+    .resize(AVATAR_SIZE, AVATAR_SIZE, { fit: "cover" })
+    .webp({ quality: 80 })
+    .toFile(path.join(avatarsDir, name));
+  return `${AVATAR_URL}/${name}`;
+};
+
+/**
  * Fetch every configured source and store the reviews that are new.
  * @param {Record<string, string>} settings - The `review_sources` setting
- * @param {string} reviewsDir - Directory the reviews are stored in
+ * @param {{ reviews: string, avatars: string }} dirs - Where reviews and reviewer avatars are stored
  * @param {string} [token] - Apify API token
  * @returns {Promise<string[]>} File names of the reviews stored
  */
-export const fetchReviews = async (settings, reviewsDir, token) => {
+export const fetchReviews = async (settings, dirs, token) => {
   const configured = SOURCES.filter((source) => settings[source.setting]);
   if (configured.length === 0) return [];
   if (!token) throw new Error("Set APIFY_API_TOKEN to fetch reviews");
 
-  mkdirSync(reviewsDir, { recursive: true });
-  const stored = storedReviews(reviewsDir);
+  for (const dir of Object.values(dirs)) mkdirSync(dir, { recursive: true });
+  const stored = storedReviews(dirs.reviews);
   const fetched = await Promise.all(
     configured.map((source) =>
       sourceReviews(source, settings[source.setting], stored, token),
@@ -276,13 +315,15 @@ export const fetchReviews = async (settings, reviewsDir, token) => {
     (review, index) => unstored.findIndex(isSameReview(review)) === index,
   );
   for (const review of added) {
+    const avatar = await storeAvatar(review, dirs.avatars);
     writeFileSync(
-      path.join(reviewsDir, review.file),
+      path.join(dirs.reviews, review.file),
       matter.stringify(`\n${review.content}\n`, {
         name: review.name,
         rating: review.rating,
         source: review.source,
         ...(review.url && { url: review.url }),
+        ...(avatar && { avatar }),
       }),
     );
   }
@@ -292,15 +333,18 @@ export const fetchReviews = async (settings, reviewsDir, token) => {
 /**
  * Command-line entry: fetch the site's reviews and print what was stored.
  * @param {Record<string, string>} [settings]
- * @param {string} [reviewsDir]
+ * @param {string} [srcDir] - The site's src/ directory
  */
 export const main = async (
   settings = getConfig().review_sources,
-  reviewsDir = path.join(ROOT_DIR, "src", "reviews"),
+  srcDir = path.join(ROOT_DIR, "src"),
 ) => {
   const files = await fetchReviews(
     settings,
-    reviewsDir,
+    {
+      reviews: path.join(srcDir, "reviews"),
+      avatars: path.join(srcDir, "images", "reviewers"),
+    },
     process.env.APIFY_API_TOKEN,
   );
   console.log(`Stored ${files.length} new reviews`);

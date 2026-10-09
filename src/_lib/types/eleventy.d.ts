@@ -128,6 +128,8 @@ export type ReviewItemData = BaseItemData & {
   source?: string;
   /** Link to the review where it was written */
   url?: string;
+  /** Site path of the reviewer's photo, e.g. "/images/reviewers/x.webp" */
+  avatar?: string;
   /** If true, the review is left out of the reviews collection */
   hidden?: boolean;
 };

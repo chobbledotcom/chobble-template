@@ -29,7 +29,7 @@ export const docs = {
     "Customer reviews as cards, newest first: rating, date, the reviewer's words, and a link to where they wrote it.",
   scss: "src/css/design-system/_reviews.scss",
   notes:
-    "Renders the `reviews` collection: one markdown file per review in `src/reviews/`, named `YYYY-MM-DD-reviewer.md`, with `name`, `rating`, and optional `source` and `url` in the frontmatter and the review as the body. `npm run fetch-reviews` writes these files from Google, Facebook and Trustpilot. A review with `hidden: true` is left out. The block renders nothing when no review qualifies.",
+    "Renders the `reviews` collection: one markdown file per review in `src/reviews/`, named `YYYY-MM-DD-reviewer.md`, with `name`, `rating`, and optional `source`, `url`, and `avatar` (the reviewer's photo; their initial shows without one) in the frontmatter and the review as the body. `npm run fetch-reviews` writes these files from Google, Facebook and Trustpilot. A review with `hidden: true` is left out. The block renders nothing when no review qualifies.",
 };
 
 export const example = {

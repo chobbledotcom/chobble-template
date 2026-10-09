@@ -41,7 +41,7 @@ jobs:
       - name: Commit new reviews
         id: commit
         run: |
-          git add src/reviews
+          git add src/reviews src/images/reviewers
           if git diff --cached --quiet; then
             echo "No new reviews"
             exit 0

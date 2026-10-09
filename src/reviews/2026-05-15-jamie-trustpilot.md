@@ -3,6 +3,7 @@ name: Jamie
 rating: 5
 source: trustpilot
 url: 'https://trustpilot.com/reviews/6a0744627d11e43b9244a90d'
+avatar: /images/reviewers/2026-05-15-jamie-trustpilot.webp
 ---
 
 Brilliant work, brilliant handover — exactly what you want from a web developer.

@@ -59,6 +59,7 @@ const DELETED = [
   "src/images/lunch.jpg",
   "src/images/menu.jpg",
   "src/images/party.jpg",
+  "src/images/reviewers",
   "src/images/video-background-placeholder.jpg",
 ];
 

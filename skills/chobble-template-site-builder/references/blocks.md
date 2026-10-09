@@ -1583,7 +1583,7 @@ Customer reviews as cards, newest first: rating, date, the reviewer's words, and
 | `masonry` | `boolean` | optional | `false` | Masonry Grid | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
 | `intro_content` | `markdown` | optional | None | Intro Content (Markdown) | Markdown content rendered above the block in \`.prose\`. |
 
-**Usage notes:** Renders the \`reviews\` collection: one markdown file per review in \`src/reviews/\`, named \`YYYY-MM-DD-reviewer.md\`, with \`name\`, \`rating\`, and optional \`source\` and \`url\` in the frontmatter and the review as the body. \`npm run fetch-reviews\` writes these files from Google, Facebook and Trustpilot. A review with \`hidden: true\` is left out. The block renders nothing when no review qualifies.
+**Usage notes:** Renders the \`reviews\` collection: one markdown file per review in \`src/reviews/\`, named \`YYYY-MM-DD-reviewer.md\`, with \`name\`, \`rating\`, and optional \`source\`, \`url\`, and \`avatar\` (the reviewer's photo; their initial shows without one) in the frontmatter and the review as the body. \`npm run fetch-reviews\` writes these files from Google, Facebook and Trustpilot. A review with \`hidden: true\` is left out. The block renders nothing when no review qualifies.
 
 ### Canonical example
 

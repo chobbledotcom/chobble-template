@@ -1,4 +1,5 @@
 import matter from "gray-matter";
+import sharp from "sharp";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { fetchReviews, main } from "#scripts/fetch-reviews.js";
 import {
@@ -40,12 +41,26 @@ const facebookRow = (overrides = {}) => ({
   ...overrides,
 });
 
+const PHOTO_URL = "https://photos.example/ada.png";
+
+/** A reviewer photo as a source serves it: a wide PNG. */
+const photo = await sharp({
+  create: { width: 300, height: 200, channels: 3, background: "#c33" },
+})
+  .png()
+  .toBuffer();
+
+const servePhoto = () =>
+  new Response(photo, { headers: { "content-type": "image/png" } });
+
 /**
- * Answer Apify requests with each source's rows, recording what was asked.
+ * Answer Apify requests with each source's rows and photo requests with
+ * the photos given, recording what Apify was asked.
  * @param {{ google?: object[], facebook?: object[], trustpilot?: object[] }} rows
- * @returns {() => { url: string, input: any }[]} Lists the requests made so far
+ * @param {Record<string, () => Response>} [photos] - Responses by photo URL
+ * @returns {() => { url: string, input: any }[]} Lists the Apify requests made so far
  */
-const mockApify = (rows) => {
+const mockApify = (rows, photos = {}) => {
   const bodies = {
     nwua9Gu5YrADL7ZDj: rows.google && [
       { title: "A place with no reviews" },
@@ -57,18 +72,32 @@ const mockApify = (rows) => {
   const spy = vi
     .spyOn(globalThis, "fetch")
     .mockImplementation(async (url) =>
-      Response.json(bodies[String(url).split("/acts/")[1].split("/")[0]]),
+      String(url) in photos
+        ? photos[String(url)]()
+        : Response.json(bodies[String(url).split("/acts/")[1].split("/")[0]]),
     );
   return () =>
-    spy.mock.calls.map(([url, init]) => ({
-      url: String(url),
-      input: JSON.parse(String(init.body)),
-    }));
+    spy.mock.calls
+      .filter(([url]) => !(String(url) in photos))
+      .map(([url, init]) => ({
+        url: String(url),
+        input: JSON.parse(String(init.body)),
+      }));
 };
+
+const reviewPath = (dir, file) => path.join(dir, "reviews", file);
+
+/** Fetch reviews into the reviews/ and avatars/ folders of a directory. */
+const storeReviews = (settings, dir, token) =>
+  fetchReviews(
+    settings,
+    { reviews: path.join(dir, "reviews"), avatars: path.join(dir, "avatars") },
+    token,
+  );
 
 /** Read a stored review back as its front matter and body. */
 const readReview = (dir, file) => {
-  const parsed = matter(fs.readFileSync(path.join(dir, file), "utf8"));
+  const parsed = matter(fs.readFileSync(reviewPath(dir, file), "utf8"));
   return { data: parsed.data, content: parsed.content.trim() };
 };
 
@@ -80,13 +109,13 @@ describe("fetch-reviews", () => {
   test("stores nothing and asks nothing when no source is configured", () =>
     withTempDirAsync("fetch-reviews-unconfigured", async (dir) => {
       const requests = mockApify({});
-      expect(await fetchReviews({}, dir, "token")).toEqual([]);
+      expect(await storeReviews({}, dir, "token")).toEqual([]);
       expect(requests()).toEqual([]);
     }));
 
   test("fails without an Apify token", () =>
     withTempDirAsync("fetch-reviews-no-token", (dir) =>
-      expect(fetchReviews(GOOGLE, dir, undefined)).rejects.toThrow(
+      expect(storeReviews(GOOGLE, dir, undefined)).rejects.toThrow(
         "Set APIFY_API_TOKEN to fetch reviews",
       ),
     ));
@@ -94,7 +123,7 @@ describe("fetch-reviews", () => {
   test("stores a Google review under its date, reviewer and source", () =>
     withTempDirAsync("fetch-reviews-google", async (dir) => {
       const requests = mockApify({ google: [googleRow()] });
-      const files = await fetchReviews(GOOGLE, dir, "secret");
+      const files = await storeReviews(GOOGLE, dir, "secret");
       expect(files).toEqual(["2026-03-04-ada-lovelace-google.md"]);
       expect(readReview(dir, files[0])).toEqual({
         data: {
@@ -115,12 +144,13 @@ describe("fetch-reviews", () => {
       expect(requests()[0].input).not.toHaveProperty("reviewsStartDate");
     }));
 
-  test("creates the reviews directory when it does not exist", () =>
+  test("creates the review and avatar directories when they do not exist", () =>
     withTempDirAsync("fetch-reviews-mkdir", async (dir) => {
       mockApify({ google: [googleRow()] });
-      const reviewsDir = path.join(dir, "src", "reviews");
-      const files = await fetchReviews(GOOGLE, reviewsDir, "token");
-      expect(fs.readdirSync(reviewsDir)).toEqual(files);
+      const siteDir = path.join(dir, "not", "there", "yet");
+      const files = await storeReviews(GOOGLE, siteDir, "token");
+      expect(fs.readdirSync(path.join(siteDir, "reviews"))).toEqual(files);
+      expect(fs.readdirSync(path.join(siteDir, "avatars"))).toEqual([]);
     }));
 
   test.each([
@@ -134,7 +164,7 @@ describe("fetch-reviews", () => {
       const requests = mockApify({
         facebook: [facebookRow({ isRecommended })],
       });
-      const files = await fetchReviews(FACEBOOK, dir, "token");
+      const files = await storeReviews(FACEBOOK, dir, "token");
       expect(files).toEqual(["2026-01-15-alan-turing-facebook.md"]);
       expect(readReview(dir, files[0]).data).toEqual({
         name: "Alan Turing",
@@ -181,7 +211,7 @@ describe("fetch-reviews", () => {
   ])("a Trustpilot review $name", ({ row, content }) =>
     withTempDirAsync("fetch-reviews-trustpilot", async (dir) => {
       mockApify({ trustpilot: [trustpilotRow(row)] });
-      const files = await fetchReviews(TRUSTPILOT, dir, "token");
+      const files = await storeReviews(TRUSTPILOT, dir, "token");
       expect(files).toEqual(["2026-02-01-grace-hopper-trustpilot.md"]);
       const review = readReview(dir, files[0]);
       expect(review.content).toBe(content);
@@ -193,13 +223,84 @@ describe("fetch-reviews", () => {
       mockApify({
         google: [googleRow({ name: undefined, reviewerUrl: undefined })],
       });
-      const files = await fetchReviews(GOOGLE, dir, "token");
+      const files = await storeReviews(GOOGLE, dir, "token");
       expect(files).toEqual(["2026-03-04-anonymous-google.md"]);
       expect(readReview(dir, files[0]).data).toEqual({
         name: "Anonymous",
         rating: 5,
         source: "google",
       });
+    }));
+
+  test.each([
+    {
+      source: "google",
+      settings: GOOGLE,
+      rows: { google: [googleRow({ reviewerPhotoUrl: PHOTO_URL })] },
+      file: "2026-03-04-ada-lovelace-google",
+    },
+    {
+      source: "facebook",
+      settings: FACEBOOK,
+      rows: {
+        facebook: [
+          facebookRow({ user: { name: "Alan Turing", profilePic: PHOTO_URL } }),
+        ],
+      },
+      file: "2026-01-15-alan-turing-facebook",
+    },
+    {
+      source: "trustpilot",
+      settings: TRUSTPILOT,
+      rows: { trustpilot: [trustpilotRow({ avatar: PHOTO_URL })] },
+      file: "2026-02-01-grace-hopper-trustpilot",
+    },
+  ])("stores a $source reviewer's photo as a square avatar named after the review", ({
+    settings,
+    rows,
+    file,
+  }) =>
+    withTempDirAsync("fetch-reviews-avatar", async (dir) => {
+      mockApify(rows, { [PHOTO_URL]: servePhoto });
+      await storeReviews(settings, dir, "token");
+      expect(readReview(dir, `${file}.md`).data.avatar).toBe(
+        `/images/reviewers/${file}.webp`,
+      );
+      const avatar = await sharp(
+        path.join(dir, "avatars", `${file}.webp`),
+      ).metadata();
+      expect([avatar.format, avatar.width, avatar.height]).toEqual([
+        "webp",
+        96,
+        96,
+      ]);
+    }));
+
+  test.each([
+    {
+      name: "is no longer there",
+      response: () => new Response("Not found", { status: 404 }),
+    },
+    {
+      name: "is not served as an image",
+      response: () =>
+        new Response("<html></html>", {
+          headers: { "content-type": "text/html" },
+        }),
+    },
+    {
+      name: "is served without a content type",
+      response: () => new Response(photo),
+    },
+  ])("stores a review without an avatar when its photo $name", ({ response }) =>
+    withTempDirAsync("fetch-reviews-no-avatar", async (dir) => {
+      mockApify(
+        { google: [googleRow({ reviewerPhotoUrl: PHOTO_URL })] },
+        { [PHOTO_URL]: response },
+      );
+      const files = await storeReviews(GOOGLE, dir, "token");
+      expect(readReview(dir, files[0]).data).not.toHaveProperty("avatar");
+      expect(fs.readdirSync(path.join(dir, "avatars"))).toEqual([]);
     }));
 
   test("skips reviews with no real text or no usable date", () =>
@@ -211,8 +312,8 @@ describe("fetch-reviews", () => {
           googleRow({ publishedAtDate: "not a date" }),
         ],
       });
-      expect(await fetchReviews(GOOGLE, dir, "token")).toEqual([]);
-      expect(fs.readdirSync(dir)).toEqual([]);
+      expect(await storeReviews(GOOGLE, dir, "token")).toEqual([]);
+      expect(fs.readdirSync(path.join(dir, "reviews"))).toEqual([]);
     }));
 
   test("stores a review left on several sources once, preferring Trustpilot", () =>
@@ -223,7 +324,7 @@ describe("fetch-reviews", () => {
         facebook: [facebookRow({ user: { name: "Grace Hopper" }, text })],
         trustpilot: [trustpilotRow({ reviewTitle: undefined })],
       });
-      const files = await fetchReviews(
+      const files = await storeReviews(
         { ...GOOGLE, ...FACEBOOK, ...TRUSTPILOT },
         dir,
         "token",
@@ -234,11 +335,11 @@ describe("fetch-reviews", () => {
   test("leaves stored reviews alone and asks only for newer ones", () =>
     withTempDirAsync("fetch-reviews-stored", async (dir) => {
       mockApify({ google: [googleRow()] });
-      const [stored] = await fetchReviews(GOOGLE, dir, "token");
+      const [stored] = await storeReviews(GOOGLE, dir, "token");
       const hidden = fs
-        .readFileSync(path.join(dir, stored), "utf8")
+        .readFileSync(reviewPath(dir, stored), "utf8")
         .replace("rating: 5", "rating: 5\nhidden: true");
-      fs.writeFileSync(path.join(dir, stored), hidden);
+      fs.writeFileSync(reviewPath(dir, stored), hidden);
       vi.restoreAllMocks();
 
       const newer = googleRow({
@@ -247,21 +348,21 @@ describe("fetch-reviews", () => {
         publishedAtDate: "2026-05-06T08:00:00.000Z",
       });
       const requests = mockApify({ google: [googleRow(), newer] });
-      const files = await fetchReviews(GOOGLE, dir, "token");
+      const files = await storeReviews(GOOGLE, dir, "token");
       expect(files).toEqual(["2026-05-06-katherine-johnson-google.md"]);
       expect(requests()[0].input.reviewsStartDate).toBe("2026-03-04");
-      expect(fs.readFileSync(path.join(dir, stored), "utf8")).toBe(hidden);
+      expect(fs.readFileSync(reviewPath(dir, stored), "utf8")).toBe(hidden);
     }));
 
   test("does not store a review again when its date has shifted", () =>
     withTempDirAsync("fetch-reviews-shifted", async (dir) => {
       mockApify({ google: [googleRow()] });
-      await fetchReviews(GOOGLE, dir, "token");
+      await storeReviews(GOOGLE, dir, "token");
       vi.restoreAllMocks();
       mockApify({
         google: [googleRow({ publishedAtDate: "2026-03-05T10:00:00.000Z" })],
       });
-      expect(await fetchReviews(GOOGLE, dir, "token")).toEqual([]);
+      expect(await storeReviews(GOOGLE, dir, "token")).toEqual([]);
     }));
 
   test("fails when Apify rejects the request", () =>
@@ -269,7 +370,7 @@ describe("fetch-reviews", () => {
       vi.spyOn(globalThis, "fetch").mockResolvedValue(
         new Response("Actor not found", { status: 404 }),
       );
-      await expect(fetchReviews(GOOGLE, dir, "token")).rejects.toThrow(
+      await expect(storeReviews(GOOGLE, dir, "token")).rejects.toThrow(
         "Apify actor nwua9Gu5YrADL7ZDj failed with HTTP 404: Actor not found",
       );
     }));
@@ -279,20 +380,29 @@ describe("fetch-reviews", () => {
       vi.spyOn(globalThis, "fetch").mockResolvedValue(
         Response.json({ error: "run timed out" }),
       );
-      await expect(fetchReviews(GOOGLE, dir, "token")).rejects.toThrow(
+      await expect(storeReviews(GOOGLE, dir, "token")).rejects.toThrow(
         "Apify actor nwua9Gu5YrADL7ZDj did not return a list of items",
       );
     }));
 
-  test("prints the reviews a run stored", () =>
+  test("stores into the site's reviews and reviewer images, printing the reviews stored", () =>
     withTempDirAsync("fetch-reviews-main", async (dir) => {
-      mockApify({ google: [googleRow()] });
+      mockApify(
+        { google: [googleRow({ reviewerPhotoUrl: PHOTO_URL })] },
+        { [PHOTO_URL]: servePhoto },
+      );
       vi.stubEnv("APIFY_API_TOKEN", "token");
       const logs = await captureConsoleLogAsync(() => main(GOOGLE, dir));
       vi.unstubAllEnvs();
       expect(logs).toEqual([
         "Stored 1 new reviews",
         "  2026-03-04-ada-lovelace-google.md",
+      ]);
+      expect(fs.readdirSync(path.join(dir, "reviews"))).toEqual([
+        "2026-03-04-ada-lovelace-google.md",
+      ]);
+      expect(fs.readdirSync(path.join(dir, "images", "reviewers"))).toEqual([
+        "2026-03-04-ada-lovelace-google.webp",
       ]);
     }));
 });

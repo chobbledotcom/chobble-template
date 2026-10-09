@@ -14,7 +14,11 @@ Parameters:
   </div>
   <div class="review">{{ review.content }}</div>
   <div class="author-info">
-    <span class="reviewer-avatar" aria-hidden="true">{{ review.data.name | slice: 0 }}</span>
+    {%- if review.data.avatar -%}
+      <img class="reviewer-avatar" src="{{ review.data.avatar }}" alt="" width="40" height="40" loading="lazy">
+    {%- else -%}
+      <span class="reviewer-avatar" aria-hidden="true">{{ review.data.name | slice: 0 }}</span>
+    {%- endif -%}
     <div class="author-details">
       <span class="name">{{ review.data.name }}</span>
       {%- if review.data.url -%}

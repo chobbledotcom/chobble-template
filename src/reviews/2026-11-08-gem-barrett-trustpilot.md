@@ -3,6 +3,7 @@ name: Gem Barrett
 rating: 5
 source: trustpilot
 url: 'https://trustpilot.com/reviews/6af04ebd0de11627a78e569e'
+avatar: /images/reviewers/2026-11-08-gem-barrett-trustpilot.webp
 ---
 
 Fantastic service.

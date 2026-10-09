@@ -3,6 +3,7 @@ name: Jamie Mannan
 rating: 5
 source: google
 url: 'https://www.google.com/maps/contrib/113840271052384072993?hl=en'
+avatar: /images/reviewers/2026-05-15-jamie-mannan-google.webp
 ---
 
 We can't recommend Stefan at Chobble highly enough. He built our website using the Chobble template and the entire experience, from first conversation through to handover, has been outstanding.

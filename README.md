@@ -143,8 +143,8 @@ exist, so the IDs can stay out of the repository.
 
 ## Reviews
 
-Reviews live in `src/reviews/`, one Markdown file each, and the `reviews`
-block shows them on any page. `npm run fetch-reviews` collects new ones from
+Reviews live in `src/reviews/`, one Markdown file each, with reviewer photos
+in `src/images/reviewers/`, and the `reviews` block shows them on any page. `npm run fetch-reviews` collects new ones from
 the Google, Facebook, and Trustpilot pages named in the `review_sources`
 setting of `src/_data/config.json`:
 

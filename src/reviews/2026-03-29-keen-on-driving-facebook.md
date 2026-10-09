@@ -4,6 +4,7 @@ rating: 1
 source: facebook
 url: >-
   https://www.facebook.com/permalink.php?story_fbid=pfbid02y8DFTKBEqX6H7dgjHyMH3K1PK1gtLK2wLCD2VkCYrSFHRyMNCZznH7dUt4H2u1XLl&id=61580103030353
+avatar: /images/reviewers/2026-03-29-keen-on-driving-facebook.webp
 ---
 
 I recently qualified as a driving instructor and was hoping to get a website but had no idea where to start.

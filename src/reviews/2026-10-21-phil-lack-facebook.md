@@ -4,6 +4,7 @@ rating: 5
 source: facebook
 url: >-
   https://www.facebook.com/phil.lack.9/posts/pfbid0B8XzYtBk9eazNpTpGPTo3MgVgfRd9r4FZqyU3NF9ne2jtbmXipVSMmS6yKLeMLgul
+avatar: /images/reviewers/2026-10-21-phil-lack-facebook.webp
 ---
 
 I can’t recommend Stefan at Chobble highly enough!

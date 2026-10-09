@@ -3,6 +3,7 @@ name: joanne morris
 rating: 5
 source: google
 url: 'https://www.google.com/maps/contrib/112696622972783683088?hl=en'
+avatar: /images/reviewers/2026-10-01-joanne-morris-google.webp
 ---
 
 Fantastic work from the start. Stef at Chobble has always been really helpful and knowledgeable when it comes to websites and SEO. They handled my website migration and hosting smoothly, and the site is really easy to manage and update.
