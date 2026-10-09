@@ -1,0 +1,24 @@
+{%- comment -%}
+Video cards grid - click-to-play video thumbnails with their names.
+
+Parameters (via block object):
+  - block.videos: Array of video objects with properties:
+    - id: YouTube video ID, or the embed URL of another provider (required)
+    - name: Video name (required)
+    - thumbnail_url: Image path or URL (optional; see video-facade.html)
+  - block.reveal: If true, adds data-reveal animation
+  - block.expand: If true, videos fill the available width
+                  (1 = 100%, 2 = 50%, 3+ = 33.3%) instead of the card grid
+  - block.intro_content: Optional markdown intro rendered above the grid
+{%- endcomment -%}
+
+{%- include "design-system/block-intro.html" -%}
+
+<ul class="items video-cards{% if block.expand %} expanded{% endif %}" role="list">
+  {%- for video in block.videos -%}
+  <li{% if block.reveal %} data-reveal{% endif %}>
+    {%- include "design-system/video-facade.html", video_id: video.id, name: video.name, thumbnail_url: video.thumbnail_url -%}
+    <h3>{{ video.name }}</h3>
+  </li>
+  {%- endfor -%}
+</ul>

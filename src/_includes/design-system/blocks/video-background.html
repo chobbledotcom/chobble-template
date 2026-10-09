@@ -1,0 +1,30 @@
+{%- comment -%}
+Video background block - a full-width video playing silently behind overlaid
+text content. The video starts on its own and takes no interaction.
+
+A thumbnail covers the iframe until the video is playing. For a YouTube
+video, design-system.js listens for the player to start and fades it out.
+
+Parameters (via block object):
+  - block.video_id: YouTube video ID, or the embed URL of another provider (required)
+  - block.video_title: Accessible title for the iframe
+  - block.thumbnail_url: Image path or URL shown while the video loads.
+                         Defaults to YouTube's own thumbnail for a YouTube ID.
+  - block.class: Extra classes for the container
+  - block.reveal: Sets a data-reveal animation on the container
+  - block.badge / block.content / block.buttons: Hero-style content laid
+    over the video, rendered by design-system/media-background-overlay.html
+{%- endcomment -%}
+
+{%- assign _thumbnail = block.video_id | videoThumbnail: block.thumbnail_url -%}
+{%- assign _is_youtube = block.video_id | isYouTubeId -%}
+
+<div class="video-background{% if block.class %} {{ block.class }}{% endif %}"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}{% if _is_youtube %} data-youtube-video{% endif %}>
+  {%- if _thumbnail != "" -%}
+  <div class="video-background__thumbnail">
+    {% image _thumbnail, "", "2560,1920,1280,960,640", "", "100vw", "16/9", "", false, true %}
+  </div>
+  {%- endif -%}
+  {%- include "design-system/video-iframe.html", video_id: block.video_id, name: block.video_title, mode: "background" -%}
+  {%- include "design-system/media-background-overlay.html", block: block -%}
+</div>

@@ -39,8 +39,8 @@ describe("block-columns", () => {
 
     test("rejects a layout slot naming an unregistered type", () => {
       expect(() =>
-        splitBlocksForColumns([md("a")], withLayout(["video-background"])),
-      ).toThrow('Unknown block type "video-background"');
+        splitBlocksForColumns([md("a")], withLayout(["not-a-block"])),
+      ).toThrow('Unknown block type "not-a-block"');
     });
 
     test("allows standard flow types without throwing", () => {

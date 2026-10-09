@@ -61,6 +61,8 @@ import * as splitIconLinks from "#utils/block-schema/split-icon-links.js";
 import * as splitImage from "#utils/block-schema/split-image.js";
 import * as stats from "#utils/block-schema/stats.js";
 import * as tableOfContents from "#utils/block-schema/table-of-contents.js";
+import * as videoBackground from "#utils/block-schema/video-background.js";
+import * as videoCards from "#utils/block-schema/video-cards.js";
 
 /**
  * Iteration order determines the order that `scripts/generate-blocks-reference.js`
@@ -83,6 +85,7 @@ const BLOCK_MODULES = [
   cta,
   callout,
   imageBackground,
+  videoBackground,
   items,
   itemsArray,
   itemsTextList,
@@ -101,6 +104,7 @@ const BLOCK_MODULES = [
   linkButton,
   gallery,
   marqueeImages,
+  videoCards,
   iconLinks,
   downloads,
   snippet,

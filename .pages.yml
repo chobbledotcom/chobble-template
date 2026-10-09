@@ -583,6 +583,52 @@ components:
       - { name: compact, type: boolean, label: Compact }
       - { name: title, type: string, label: Title }
       - { name: levels, type: string, label: Heading Levels }
+  block_video_background:
+    label: Video Background
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
+      - name: video_id
+        type: string
+        label: Video ID or embed URL
+        required: true
+      - { name: video_title, type: string, label: Video Title }
+      - { name: thumbnail_url, type: string, label: Thumbnail }
+      - { name: class, type: string, label: CSS Class }
+      - { name: badge, type: string, label: Badge Text }
+      - { name: content, type: rich-text, label: Content }
+      - name: buttons
+        type: object
+        label: Buttons
+        list: true
+        fields:
+          - { name: text, type: string, label: Button Text, required: true }
+          - { name: href, type: string, label: URL, required: true }
+          - { name: variant, type: string, label: Variant }
+          - { name: size, type: string, label: Size }
+  block_video_cards:
+    label: Video Cards
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
+      - name: videos
+        type: object
+        label: Videos
+        required: true
+        list: true
+        fields:
+          - name: id
+            type: string
+            label: Video ID or embed URL
+            required: true
+          - { name: name, type: string, label: Name, required: true }
+          - { name: thumbnail_url, type: string, label: Thumbnail }
+      - { name: expand, type: boolean, label: Expand to Full Width }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   faqs:
     label: FAQs
     type: object
@@ -685,6 +731,8 @@ content:
           - { name: split-image, component: block_split_image }
           - { name: stats, component: block_stats }
           - { name: table-of-contents, component: block_table_of_contents }
+          - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
@@ -753,6 +801,8 @@ content:
           - { name: split-image, component: block_split_image }
           - { name: stats, component: block_stats }
           - { name: table-of-contents, component: block_table_of_contents }
+          - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: guide-categories
     label: Guide Categories
     path: src/guide-categories
@@ -808,6 +858,8 @@ content:
           - { name: split-image, component: block_split_image }
           - { name: stats, component: block_stats }
           - { name: table-of-contents, component: block_table_of_contents }
+          - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: guide-pages
     label: Guide Pages
     path: src/guide-pages
@@ -870,6 +922,8 @@ content:
           - { name: split-image, component: block_split_image }
           - { name: stats, component: block_stats }
           - { name: table-of-contents, component: block_table_of_contents }
+          - { name: video-background, component: block_video_background }
+          - { name: video-cards, component: block_video_cards }
   - name: snippets
     label: Snippets
     path: src/snippets

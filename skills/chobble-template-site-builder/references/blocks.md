@@ -44,6 +44,7 @@ This table covers registered types only. `No` types are rejected inside columns 
 | [`cta`](#cta) | `wide` | Yes |
 | [`callout`](#callout) | `narrow` | Yes |
 | [`image-background`](#image-background) | `full` | No |
+| [`video-background`](#video-background) | `full` | No |
 | [`items`](#items) | `wide` | Yes |
 | [`items-array`](#items-array) | `wide` | Yes |
 | [`items-text-list`](#items-text-list) | `wide` | Yes |
@@ -62,6 +63,7 @@ This table covers registered types only. `No` types are rejected inside columns 
 | [`link-button`](#link-button) | `wide` | Yes |
 | [`gallery`](#gallery) | `wide` | Yes |
 | [`marquee-images`](#marquee-images) | `full` | No |
+| [`video-cards`](#video-cards) | `wide` | Yes |
 | [`icon-links`](#icon-links) | `narrow` | Yes |
 | [`downloads`](#downloads) | `narrow` | Yes |
 | [`snippet`](#snippet) | `wide` | Yes |
@@ -810,6 +812,55 @@ blocks:
       A tint keeps the text readable.
 ```
 
+## `video-background`
+
+Full-width video playing silently behind hero-style overlay content (badge, markdown content, buttons).
+
+**Schema:** `src/_lib/utils/block-schema/video-background.js`
+
+**Component:** `block_video_background`
+
+**Template:** `src/_includes/design-system/blocks/video-background.html`
+
+**SCSS:** `src/css/design-system/_video-background.scss`
+
+**Container width:** `full`
+
+**CMS collection availability:** All collections with a block editor
+
+**Columns / sidebar:** No
+
+| Field | Schema type | Presence | Default | CMS label | Description |
+| --- | --- | --- | --- | --- | --- |
+| `video_id` | `string` | **required** | None | Video ID or embed URL | Bare YouTube video ID (e.g. \`dQw4w9WgXcQ\`); the block builds the embed itself. For other providers (Vimeo, Bunny Stream), the full embed URL. Never an \`\<iframe>\` snippet. |
+| `video_title` | `string` | optional | `"Background video"` | Video Title | Accessible \`title\` on the iframe. |
+| `thumbnail_url` | `string` | optional | None | Thumbnail | Image path or URL shown behind the iframe while the video loads. Defaults to YouTube's own thumbnail for a YouTube ID; other providers show nothing until the video plays. |
+| `class` | `string` | optional | None | CSS Class | Extra CSS classes. |
+| `badge` | `string` | optional | None | Badge Text | Small pill label above the content. Renders as \`\<span class="badge">\`. |
+| `content` | `markdown` | optional | None | Content | Markdown overlay content rendered in \`.prose\` inside the \`\<figcaption>\`. |
+| `buttons` | `array<object>` | optional | None | Buttons | Action buttons below the content. Each: \`{text, href, variant, size}\`. Variants: \`"primary"\` (filled), \`"secondary"\` (outlined), \`"ghost"\` (transparent). Sizes: \`"sm"\`, \`"lg"\`, or omit for default. |
+| `buttons[].text` | `string` | **required** | None | Button Text |  |
+| `buttons[].href` | `string` | **required** | None | URL |  |
+| `buttons[].variant` | `string` | optional | `"primary"` | Variant |  |
+| `buttons[].size` | `string` | optional | None | Size |  |
+| `reveal` | `string` | optional | None | Not exposed | \`data-reveal\` value. |
+
+**Usage notes:** YouTube IDs become \`youtube-nocookie.com\` embeds that autoplay muted, loop, and hide their controls; the thumbnail fades out once the player reports it is playing. Embed URLs of other providers are used as written, so set their autoplay and mute parameters yourself. The video is decorative: put anything a visitor must know in the overlay content.
+
+### Canonical example
+
+```yaml
+blocks:
+  - type: video-background
+    video_id: dQw4w9WgXcQ
+    thumbnail_url: city-traffic-night.jpg
+    badge: Video background
+    content: |-
+      # Content over a full-width video
+
+      The thumbnail shows until the video is playing.
+```
+
 ## `items`
 
 Displays an Eleventy collection as a card grid or horizontal slider.
@@ -1454,6 +1505,54 @@ blocks:
         alt: Dinner
       - image: fireworks.jpg
         alt: Fireworks
+```
+
+## `video-cards`
+
+Grid of click-to-play video thumbnails. Takes YouTube IDs and the embed URLs of other providers (Vimeo, Bunny Stream).
+
+**Schema:** `src/_lib/utils/block-schema/video-cards.js`
+
+**Component:** `block_video_cards`
+
+**Template:** `src/_includes/design-system/blocks/video-cards.html`
+
+**SCSS:** `src/css/design-system/_items.scss`
+
+**HTML root:** `<ul class="items" role="list">`
+
+**Container width:** `wide`
+
+**CMS collection availability:** All collections with a block editor
+
+**Columns / sidebar:** Yes
+
+| Field | Schema type | Presence | Default | CMS label | Description |
+| --- | --- | --- | --- | --- | --- |
+| `videos` | `array<object>` | **required** | None | Videos | Video objects. Each: \`{id, name, thumbnail\_url}\`. \`id\` is a bare YouTube video ID (e.g. \`dQw4w9WgXcQ\`) or the full embed URL of another provider (Vimeo, Bunny Stream); never an \`\<iframe>\` snippet. \`thumbnail\_url\` is an image path or URL, and defaults to YouTube's own thumbnail for a YouTube ID. |
+| `videos[].id` | `string` | **required** | None | Video ID or embed URL |  |
+| `videos[].name` | `string` | **required** | None | Name |  |
+| `videos[].thumbnail_url` | `string` | optional | None | Thumbnail |  |
+| `reveal` | `boolean` | optional | `true` | Not exposed | Adds \`data-reveal\` to each video. |
+| `expand` | `boolean` | optional | `false` | Expand to Full Width | If true, videos fill the available width (1 = 100%, 2 = 50%, 3+ = 33.3%) instead of the standard card grid. |
+| `intro_content` | `markdown` | optional | None | Intro Content (Markdown) | Markdown content rendered above the block in \`.prose\`. |
+
+**Usage notes:** A video loads only when its thumbnail is pressed, so the grid costs nothing until a visitor plays one. A YouTube thumbnail with no \`thumbnail\_url\` is downloaded at build time; a video from another provider with no \`thumbnail\_url\` shows a plain panel behind the play button.
+
+### Canonical example
+
+```yaml
+blocks:
+  - type: video-cards
+    videos:
+      - id: dQw4w9WgXcQ
+        name: A YouTube video
+        thumbnail_url: breakfast.jpg
+      - id: https://player.vimeo.com/video/76979871
+        name: A Vimeo video
+        thumbnail_url: lunch.jpg
+      - id: https://player.vimeo.com/video/76979871
+        name: A video with no thumbnail
 ```
 
 ## `icon-links`

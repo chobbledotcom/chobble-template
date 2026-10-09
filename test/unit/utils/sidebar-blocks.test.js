@@ -30,8 +30,8 @@ describe("validateSidebarBlocks", () => {
   });
 
   test("throws for an unregistered type", () => {
-    expect(() => validateSidebarBlocks([{ type: "video-background" }])).toThrow(
-      'Unknown block type "video-background"',
+    expect(() => validateSidebarBlocks([{ type: "not-a-block" }])).toThrow(
+      'Unknown block type "not-a-block"',
     );
   });
 

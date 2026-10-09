@@ -23,6 +23,7 @@ import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
 import { configureScreenshots } from "#eleventy/screenshots.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
 import { configureCollectionValidation } from "#eleventy/validate-collections.js";
+import { configureVideo } from "#eleventy/video.js";
 import { configureIconify } from "#media/iconify.js";
 import { configureImages, processAndWrapImage } from "#media/image.js";
 import { configureUnusedImages } from "#media/unused-images.js";
@@ -48,6 +49,7 @@ const CONFIGURATORS = [
   configureScss,
   configureStyleBundle,
   configureUnusedImages,
+  configureVideo,
   configureJsBundler,
 ];
 

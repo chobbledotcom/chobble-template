@@ -392,6 +392,148 @@ describe("smooth scroll anchors", () => {
   });
 });
 
+describe("video facades", () => {
+  test("swaps the thumbnail for the video when the facade is pressed", () => {
+    mount(`
+      <button class="video-facade">
+        <img src="thumb.jpg" alt="">
+        <template><iframe src="https://video.example/embed"></iframe></template>
+      </button>
+    `);
+    readyCallback();
+
+    document.querySelector(".video-facade").click();
+
+    expect(document.querySelector(".video-facade")).toBeNull();
+    const iframe = document.querySelector(".video-wrapper > iframe");
+    expect(iframe.getAttribute("src")).toBe("https://video.example/embed");
+  });
+
+  test("loads no video until a facade is pressed", () => {
+    mount(`
+      <button class="video-facade">
+        <template><iframe src="https://video.example/embed"></iframe></template>
+      </button>
+    `);
+    readyCallback();
+
+    expect(document.querySelector(".video-wrapper")).toBeNull();
+    expect(
+      document.querySelector(".design-system > button > iframe"),
+    ).toBeNull();
+  });
+});
+
+describe("video backgrounds", () => {
+  const LISTENING = '{"event":"listening","id":"1","channel":"widget"}';
+
+  /** Mount YouTube backgrounds whose iframes have stand-in player windows. */
+  const mountPlayers = (count) => {
+    mount(
+      Array.from(
+        { length: count },
+        () => `
+          <div class="video-background" data-youtube-video>
+            <div class="video-background__thumbnail"></div>
+            <iframe></iframe>
+          </div>`,
+      ).join(""),
+    );
+    return Array.from(document.querySelectorAll("iframe"), (iframe) => {
+      const player = { postMessage: vi.fn() };
+      Object.defineProperty(iframe, "contentWindow", { value: player });
+      return {
+        iframe,
+        player,
+        thumbnail: iframe.parentElement.querySelector(
+          ".video-background__thumbnail",
+        ),
+      };
+    });
+  };
+
+  const playerSays = (player, data) =>
+    window.dispatchEvent(
+      Object.assign(new Event("message"), { data, source: player }),
+    );
+
+  const isHidden = (thumbnail) => thumbnail.classList.contains("is-hidden");
+
+  test("asks each player to report its state, again once the iframe loads", () => {
+    const [first] = mountPlayers(1);
+    readyCallback();
+    expect(first.player.postMessage).toHaveBeenCalledExactlyOnceWith(
+      LISTENING,
+      "*",
+    );
+
+    first.iframe.dispatchEvent(new Event("load"));
+    expect(first.player.postMessage).toHaveBeenCalledTimes(2);
+  });
+
+  test("hides the thumbnail when the player reports a change to playing", () => {
+    const [first] = mountPlayers(1);
+    readyCallback();
+
+    playerSays(first.player, '{"event":"onStateChange","info":1}');
+
+    expect(isHidden(first.thumbnail)).toBe(true);
+  });
+
+  test("hides the thumbnail when periodic info shows the player playing", () => {
+    const [first] = mountPlayers(1);
+    readyCallback();
+
+    playerSays(
+      first.player,
+      '{"event":"infoDelivery","info":{"playerState":1}}',
+    );
+
+    expect(isHidden(first.thumbnail)).toBe(true);
+  });
+
+  test("hides only the thumbnail of the player that started", () => {
+    const [first, second] = mountPlayers(2);
+    readyCallback();
+
+    playerSays(second.player, '{"event":"onStateChange","info":1}');
+
+    expect(isHidden(first.thumbnail)).toBe(false);
+    expect(isHidden(second.thumbnail)).toBe(true);
+  });
+
+  test("keeps the thumbnail while the player is not playing", () => {
+    const [first] = mountPlayers(1);
+    readyCallback();
+
+    playerSays(first.player, '{"event":"onStateChange","info":3}');
+    playerSays(first.player, '{"event":"infoDelivery","info":{}}');
+    playerSays(first.player, '{"event":"infoDelivery"}');
+
+    expect(isHidden(first.thumbnail)).toBe(false);
+  });
+
+  test("ignores messages that are not player state reports", () => {
+    const [first] = mountPlayers(1);
+    readyCallback();
+
+    playerSays(first.player, { event: "onStateChange", info: 1 });
+    playerSays(first.player, '{"event":"onReady","info":1}');
+    playerSays(first.player, "not json");
+
+    expect(isHidden(first.thumbnail)).toBe(false);
+  });
+
+  test("listens for nothing on a page with no YouTube background", () => {
+    const listen = vi.spyOn(window, "addEventListener");
+    mount('<div class="video-background"><iframe></iframe></div>');
+
+    readyCallback();
+
+    expect(listen).not.toHaveBeenCalledWith("message", expect.anything());
+  });
+});
+
 describe("init wiring", () => {
   test("initialises the design-system sliders", () => {
     mount("<div></div>");

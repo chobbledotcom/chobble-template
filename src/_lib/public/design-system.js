@@ -1,5 +1,5 @@
 // Design System JavaScript
-// Scroll animations, slider functionality, and marquees
+// Scroll animations, slider functionality, marquees, and video playback
 // All functionality is scoped to elements within .design-system containers
 
 import { onReady } from "#public/utils/on-ready.js";
@@ -114,6 +114,65 @@ const init = () => {
     }
   };
 
+  const initVideoFacades = () => {
+    for (const button of document.querySelectorAll(`${SCOPE} .video-facade`)) {
+      button.addEventListener("click", () => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "video-wrapper";
+        wrapper.appendChild(
+          button.querySelector("template").content.cloneNode(true),
+        );
+        button.replaceWith(wrapper);
+      });
+    }
+  };
+
+  /**
+   * Whether a message from a YouTube player says the video is playing.
+   * State 1 is "playing"; it arrives either as a state change or inside
+   * the player's periodic info delivery.
+   * @param {unknown} raw
+   */
+  const isPlayingMessage = (raw) => {
+    if (typeof raw !== "string") return false;
+    const isStateChange = raw.includes('"onStateChange"');
+    if (!isStateChange && !raw.includes('"infoDelivery"')) return false;
+    const info = JSON.parse(raw).info;
+    return (isStateChange ? info : info?.playerState) === 1;
+  };
+
+  /**
+   * Fade out a YouTube background's thumbnail once its video is playing.
+   * A player only reports its state to a window that asked to listen.
+   */
+  const initVideoBackgrounds = () => {
+    const players = Array.from(
+      document.querySelectorAll(`${SCOPE} [data-youtube-video]`),
+      (container) => ({
+        iframe: container.querySelector("iframe"),
+        thumbnail: container.querySelector(".video-background__thumbnail"),
+      }),
+    );
+    if (players.length === 0) return;
+
+    window.addEventListener("message", (event) => {
+      if (!isPlayingMessage(event.data)) return;
+      players
+        .find((player) => player.iframe.contentWindow === event.source)
+        ?.thumbnail.classList.add("is-hidden");
+    });
+
+    for (const player of players) {
+      const subscribe = () =>
+        player.iframe.contentWindow.postMessage(
+          '{"event":"listening","id":"1","channel":"widget"}',
+          "*",
+        );
+      player.iframe.addEventListener("load", subscribe);
+      subscribe();
+    }
+  };
+
   // Scroll reveal - animate elements as they enter viewport
   revealOnIntersect(`${SCOPE} [data-reveal]`, "is-visible");
 
@@ -142,6 +201,9 @@ const init = () => {
   });
 
   initMarquees();
+
+  initVideoFacades();
+  initVideoBackgrounds();
 };
 
 onReady(init);
