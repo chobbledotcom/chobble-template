@@ -1,39 +1,39 @@
 ---
-name: cfa-static-site-builder
+name: chobble-template-site-builder
 description: >-
   Use this skill to create, redesign, migrate, or edit a website built with
-  CfA Static: site identity, information architecture, pages, news, guides,
+  Chobble Template: site identity, information architecture, pages, news, guides,
   schema-validated content blocks, navigation, branding, themes, languages,
   search, PagesCMS setup, deployment, and launch checks. Use it for generic
-  website requests when the current workspace is a CfA Static fork, even if
+  website requests when the current workspace is a Chobble Template fork, even if
   the user does not name the template. Also use it to handle requests for
-  forms, ecommerce, accounts, databases, or server-side processing on a CfA
-  Static site without crossing the template's static boundary. Do not use it
+  forms, ecommerce, accounts, databases, or server-side processing on a
+  Chobble Template site without crossing the template's static boundary. Do not use it
   for unrelated Eleventy projects.
 license: MIT
-compatibility: Requires git, npm, the Node.js version declared by the checkout's package.json, a POSIX-compatible shell, and a CfA Static fork or checkout. Network access may be needed to clone, install dependencies, fetch an uncached icon or remote asset, or deploy.
+compatibility: Requires git, npm, the Node.js version declared by the checkout's package.json, a POSIX-compatible shell, and a Chobble Template fork or checkout. Network access may be needed to clone, install dependencies, fetch an uncached icon or remote asset, or deploy.
 metadata:
   author: chobbledotcom
   version: "1.1.0"
-  repository: https://github.com/codeforamerica/cfa-static
+  repository: https://github.com/chobbledotcom/chobble-template
 ---
 
-# CfA Static Site Builder
+# Chobble Template Site Builder
 
-Build small informational and marketing sites by editing a fork of CfA Static.
-Run project commands from the CfA Static repository root, not from this skill's
+Build small informational and marketing sites by editing a fork of Chobble Template.
+Run project commands from the Chobble Template repository root, not from this skill's
 directory.
 
 ## Scope
 
-CfA Static produces a static `_site/` artifact. It has no form backend,
+Chobble Template produces a static `_site/` artifact. It has no form backend,
 ecommerce, accounts, database, or user-data handling. If a request needs those
 capabilities, explain the boundary and offer a static alternative such as a
 link to an external service. Do not quietly add a server-side subsystem.
 
 ## Operating Rules
 
-- Treat the site as a fork of CfA Static, never as an npm dependency.
+- Treat the site as a fork of Chobble Template, never as an npm dependency.
 - Use supplied facts and assets. Never invent contact details, people,
   addresses, testimonials, statistics, legal claims, or organization history.
 - Prefer the existing block vocabulary. Read the generated
@@ -72,12 +72,12 @@ link.
 
 ### 1. Establish Context
 
-1. Locate the repository root. Confirm `package.json` names `cfa-static` and
+1. Locate the repository root. Confirm `package.json` names `chobble-template` and
    that `src/_data/site.json`, `src/pages/`, and `BLOCKS_LAYOUT.md` exist.
 2. Read `CLAUDE.md`, `README.md`, `src/_data/site.json`,
    `src/_data/config.json`, and the relevant existing content files.
 3. Inspect git status before editing. Do not discard unrelated changes.
-4. If there is no CfA Static checkout, read
+4. If there is no Chobble Template checkout, read
    [project setup](references/project-setup.md) and establish a fork before
    authoring the site.
 
@@ -94,7 +94,7 @@ for facts or decisions that block implementation:
 
 If factual content is missing, omit the optional section or ask for it. Do not
 publish plausible-looking filler. For a migration, inventory the source pages,
-assets, redirects, and metadata before mapping them into CfA Static.
+assets, redirects, and metadata before mapping them into Chobble Template.
 
 ### 3. Plan Before Editing
 

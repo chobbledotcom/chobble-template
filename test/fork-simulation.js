@@ -45,7 +45,6 @@ const DELETED = [
   "src/pages/how-it-works.md",
   "src/pages/news.md",
   "src/pages/search.md",
-  "src/pages/deploying-sharedservices.md",
   "src/pages/theme-editor.md",
   "src/snippets/demo.md",
   "src/snippets/footer-content.md",
@@ -78,7 +77,7 @@ const language = (code, overrides) => ({
 const DATA = {
   "site.json": {
     name: "Forked Site",
-    url: "https://forked-site.cfa.codes",
+    url: "https://forked-site.chobble.com",
     description: "A site forked from the template, with its demo removed.",
     cms_config: {
       collections: ["pages", "snippets"],
@@ -157,7 +156,7 @@ const npmRun = (target, script, stdio) =>
   spawnSync("npm", ["run", script], { cwd: target, stdio }).status === 0;
 
 const main = () => {
-  const target = mkdtempSync(join(tmpdir(), "cfa-fork-simulation-"));
+  const target = mkdtempSync(join(tmpdir(), "chobble-fork-simulation-"));
   const inTarget = (file) => join(target, file);
   const workingTree = execFileSync(
     "git",

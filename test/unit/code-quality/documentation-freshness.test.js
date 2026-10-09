@@ -6,7 +6,7 @@ import { rootDir } from "#test/test-utils.js";
 test("committed documentation matches source inputs without rewriting references", async () => {
   // Snapshot both files before either renderer or CLI can have import effects.
   const committed = [
-    "skills/cfa-static-site-builder/references/blocks.md",
+    "skills/chobble-template-site-builder/references/blocks.md",
     "docs/developer-reference.md",
   ].map((target) => {
     const path = join(rootDir, target);

@@ -5,7 +5,7 @@ layout: ""
 
 # Library Map
 
-This directory contains build-time and browser JavaScript for CfA Static.
+This directory contains build-time and browser JavaScript for Chobble Template.
 
 The [architecture walkthrough](../../ARCHITECTURE.md) covers how these
 directories fit the whole system; this map stays at the directory level.
@@ -50,7 +50,7 @@ Pages declare a `blocks:` array in YAML frontmatter. The registry in
 block types or top-level fields fail build validation. Nested required fields
 are checked, but nested types and unknown keys are not all validated. Templates live in
 `src/_includes/design-system/blocks/` and styles in `src/css/design-system/`.
-Use the [block reference](../../skills/cfa-static-site-builder/references/blocks.md) and the root guide's generated
+Use the [block reference](../../skills/chobble-template-site-builder/references/blocks.md) and the root guide's generated
 artifact workflow when extending the block system. Reusable snippets live in
 `src/snippets/`; page, news, and guide content live in their corresponding
 directories under `src/`.

@@ -3,7 +3,7 @@ import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 import getConfig from "#data/config.js";
 
 // Path prefix for deployments that serve the site from a subdirectory
-// (e.g. a static host serving it at /cfa-static/). The HTML base plugin
+// (e.g. a static host serving it at /chobble-template/). The HTML base plugin
 // rewrites rendered URLs; templates and frontend code read `pathPrefix`.
 const PATH_PREFIX = process.env.PATH_PREFIX || "/";
 

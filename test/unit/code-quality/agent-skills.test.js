@@ -8,7 +8,7 @@ import {
   rootDir,
 } from "#test/test-utils.js";
 
-const SKILL_NAME = "cfa-static-site-builder";
+const SKILL_NAME = "chobble-template-site-builder";
 const SKILL_DIR = join(rootDir, "skills", SKILL_NAME);
 const SKILL_FILE = join(SKILL_DIR, "SKILL.md");
 const EVALS_FILE = join(SKILL_DIR, "evals", "evals.json");
@@ -28,10 +28,10 @@ const packageJson = JSON.parse(
   readFileSync(join(rootDir, "package.json"), "utf8"),
 );
 const references = getDocumentationFiles().filter((file) =>
-  /^skills\/cfa-static-site-builder\/references\/[^/]+\.md$/.test(file),
+  /^skills\/chobble-template-site-builder\/references\/[^/]+\.md$/.test(file),
 );
 
-describe("CfA Static Agent Skill", () => {
+describe("Chobble Template Agent Skill", () => {
   test("frontmatter follows the Agent Skills specification", () => {
     const unexpectedFields = Object.keys(skill.data).filter(
       (field) => !ALLOWED_FIELDS.includes(field),

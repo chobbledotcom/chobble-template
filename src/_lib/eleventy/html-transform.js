@@ -177,7 +177,7 @@ const configureHtmlTransform = (eleventyConfig, processAndWrapImage) => {
   eleventyConfig.htmlTransformer.addPosthtmlPlugin(
     "html",
     createPosthtmlPlugin(processAndWrapImage),
-    { name: "cfa/html-transform" },
+    { name: "chobble/html-transform" },
   );
 };
 

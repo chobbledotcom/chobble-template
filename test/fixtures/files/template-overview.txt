@@ -1,4 +1,4 @@
-CfA Static - template overview
+Chobble Template - template overview
 
 A static-site template for informational sites: pages are YAML lists of
 typed content blocks, validated at build time and rendered by Eleventy

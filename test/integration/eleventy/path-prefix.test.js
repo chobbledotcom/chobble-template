@@ -99,7 +99,7 @@ describe("project-site path prefix", () => {
     expect(html).toContain(`content="${SITE_URL}/about/"`);
     expect(html).toContain(`${SITE_URL}/images/party.jpg`);
     expect(html).toContain(`"url": "${SITE_URL}"`);
-    expect(html).not.toContain("cfa-static.example.com");
+    expect(html).not.toContain("chobble-template.example.com");
   });
 
   test("prefixes every redirect target exactly once", () => {

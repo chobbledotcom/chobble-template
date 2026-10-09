@@ -10,7 +10,7 @@ import { existsSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 
 /** Where repository files that publish no route are linked. */
-export const GITHUB_BASE = "https://github.com/codeforamerica/cfa-static";
+export const GITHUB_BASE = "https://github.com/chobbledotcom/chobble-template";
 
 /** External URLs, protocol-relative URLs, site routes, and fragments. */
 const UNRESOLVED = /^([a-z][a-z0-9+.-]*:|\/\/|\/|#)/i;

@@ -1,4 +1,4 @@
-# CfA Static
+# Chobble Template
 
 A static-site template for small informational and marketing sites, built on
 [Eleventy](https://www.11ty.dev/) and Node.js. Pages are
@@ -6,8 +6,8 @@ assembled from composable, schema-validated content blocks written in YAML
 frontmatter, so engineering-adjacent authors (and AI assistants) can build and
 edit pages without touching templates.
 
-Derived from the [Chobble Template](https://github.com/chobbledotcom/chobble-template),
-relicensed to MIT here by its sole author, and cut down to an informational
+This is version 2 of the Chobble Template: rebuilt from version 1,
+relicensed from AGPL to MIT by its sole author, and cut down to an informational
 core: no e-commerce, no forms, no user data handling — just fast, accessible,
 static pages.
 
@@ -23,7 +23,7 @@ because a fork replaces this README but keeps the walkthrough.
 
 The reference documents also publish as pages on this template's own
 deployed site — the
-[reference category](https://codeforamerica.github.io/cfa-static/guide/reference/)
+[reference category](https://example.chobble.com/guide/reference/)
 of its guide section — so the documentation is browsable as a website while
 staying plain markdown in the repository for agents and forks.
 
@@ -32,8 +32,8 @@ staying plain markdown in the repository for agents and forks.
 - **Content blocks** — heroes, FAQs, callouts, image cards,
   split layouts, galleries, and stats declared in frontmatter and validated at
   build time with loud, file-specific errors. See the generated
-  [block reference](skills/cfa-static-site-builder/references/blocks.md)
-  and [layout reference](skills/cfa-static-site-builder/references/layouts.md),
+  [block reference](skills/chobble-template-site-builder/references/blocks.md)
+  and [layout reference](skills/chobble-template-site-builder/references/layouts.md),
   or the deployed site's `/blocks/` page,
   where standalone-previewable types render next to YAML from the same tested
   fixtures. Collection-restricted contextual blocks show usage guidance
@@ -43,7 +43,7 @@ staying plain markdown in the repository for agents and forks.
 - **Multi-language** — publish the same page in more than one language with
   `hreflang` tags, an `x-default`, a header or footer language switcher, and
   per-language menus, snippets, and interface labels. See the
-  [languages reference](skills/cfa-static-site-builder/references/i18n.md).
+  [languages reference](skills/chobble-template-site-builder/references/i18n.md).
 - **Theming** — CSS custom properties throughout, prebuilt themes, a
   visual theme editor at `/theme-editor/` with export.
 - **Images** — responsive `srcset` via eleventy-img, base64 LQIP placeholders,
@@ -74,7 +74,7 @@ npm run build        # build to _site/ (includes internal link check)
 ```
 
 See the Site Builder Reference for selected site-building commands and the
-[verification guide](skills/cfa-static-site-builder/references/verification.md) for checks.
+[verification guide](skills/chobble-template-site-builder/references/verification.md) for checks.
 
 The build needs no application secrets or server-side services. Dependency
 installation, uncached Iconify icons, and configured remote source images may
@@ -83,7 +83,7 @@ publish it with any static host or pipeline.
 
 ## Agent Skill
 
-[`skills/cfa-static-site-builder/`](skills/cfa-static-site-builder/) is a
+[`skills/chobble-template-site-builder/`](skills/chobble-template-site-builder/) is a
 portable [Agent Skill](https://agentskills.io/) for building and maintaining a
 site from this template. Configure a compatible agent client to load that
 directory according to the client's skill-discovery instructions. The package
@@ -104,16 +104,16 @@ Replace this README too. Once the fork is the site, a README describing the
 template misleads everyone who lands on the repository and hides the choices
 the site made. Say what the site is, how it departs from the template's
 defaults, and where its schemas and checks live — while keeping the pointers to
-the [block reference](skills/cfa-static-site-builder/references/blocks.md),
+the [block reference](skills/chobble-template-site-builder/references/blocks.md),
 [Site Builder Reference](docs/developer-reference.md), `CLAUDE.md`, and the
 `/blocks/` gallery that anyone editing the site will need. The skill's
-[project setup reference](skills/cfa-static-site-builder/references/project-setup.md#site-readme)
+[project setup reference](skills/chobble-template-site-builder/references/project-setup.md#site-readme)
 lists what to cover, including provenance and how the site deploys.
 
 Updates flow one way and only when a site asks for them:
 
 ```bash
-git remote add upstream https://github.com/codeforamerica/cfa-static.git
+git remote add upstream https://github.com/chobbledotcom/chobble-template.git
 git fetch upstream
 git merge upstream/main      # deliberate, reviewed, and never automatic
 ```
@@ -126,46 +126,15 @@ immediately whether the update broke anything it publishes.
 
 ## Deployment
 
-The default deployment is SharedServices, CfA's Okta-protected internal
-hosting. The `sharedservices-deploy.yaml` workflow builds `_site/` with the
-selected environment's `SITE_URL`, then passes its artifact to the platform's
-[shared static deployment workflow](https://github.com/codeforamerica/shared-services-infra/blob/main/.github/workflows/shared-deploy-static.yaml).
-The shared workflow handles AWS authentication, S3 sync, and CloudFront
-invalidation. Okta SSO is enforced at the edge, so the site itself never
-handles authentication. Deployment is manual: under **Actions**, run
-**Deploy to SharedServices** on `main` and pick an environment; a dispatch
-queues behind an in-flight deploy rather than cancelling it mid-sync.
-
-One-time setup is a DevOps task:
-
-1. Register the app by adding a spec to
-   `shared-services-infra/tofu/configs/static-app/specs/` and applying it.
-2. Have DevOps configure the `development` environment through Doppler with the variables
-   `AWS_REGION`, `STATIC_BUCKET`, `STATIC_PREFIX` (set to `cfa-static`),
-   `CLOUDFRONT_DISTRIBUTION_ID` (for cache invalidation), and `SITE_URL` (the app's
-   endpoint URL, with no trailing slash), plus the `AWS_ROLE_ARN` secret.
-
-`app.yaml` at the repo root declares the platform registration. SharedServices
-serves each app at the root of its own subdomain
-(`https://<name>.apps.<domain>`), so builds involve no path prefix. For a
-step-by-step walkthrough of the one-time
-setup — written for a DevOps engineer and whoever coordinates them — see the
-[SharedServices setup guide](https://github.com/codeforamerica/cfa-static/blob/main/src/pages/deploying-sharedservices.md), which
-publishes unlisted at `/deploying-sharedservices/` on this template's own
-deployments. Both deploy workflows also merge `docs/` into the built site, so
-the generated [Site Builder Reference](docs/developer-reference.md) is served
-under `/docs/` on each deployment's base URL.
-
-### Public deployment to GitHub Pages
-
-The repo also ships a public deploy workflow (`.github/workflows/pages.yml`)
+The repo ships a deploy workflow (`.github/workflows/pages.yml`)
 that builds and publishes to GitHub Pages on every push to `main`. One-time
 setup: under the repository's **Settings → Pages**, set **Source** to
 **GitHub Actions**. On a project site (`https://<owner>.github.io/<repo>/`)
 the build uses the `/<repo>/` path prefix and rewrites internal URLs to
 match; with a custom domain or a user/organization site it builds with no
-prefix. Both deployments build `_site/` from the same commit and differ only
-in `SITE_URL`.
+prefix. The workflow also merges `docs/` into the built site, so the generated
+[Site Builder Reference](docs/developer-reference.md) is served under `/docs/`
+on the deployment's base URL.
 
 To host elsewhere instead, `npm run build` produces a self-contained `_site/`
 directory with no application server and no application-secret requirement;

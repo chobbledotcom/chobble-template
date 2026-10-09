@@ -15,7 +15,7 @@ import { publishMarkdown, stripTitleHeading } from "#utils/docs-transform.js";
 
 const ROUTES = {
   "skills/references/example.md": "/guide/reference/example/",
-  "https://github.com/codeforamerica/cfa-static/blob/main/skills/references/example.md":
+  "https://github.com/chobbledotcom/chobble-template/blob/main/skills/references/example.md":
     "/guide/reference/example/",
 };
 
@@ -60,7 +60,7 @@ describe("publishMarkdown link targets", () => {
   test("localizes a mapped template URL to its published route", () => {
     expect(
       publish(
-        "[setup](https://github.com/codeforamerica/cfa-static/blob/main/skills/references/example.md)",
+        "[setup](https://github.com/chobbledotcom/chobble-template/blob/main/skills/references/example.md)",
         "ARCHITECTURE.md",
         "/",
       ),
@@ -74,7 +74,7 @@ describe("publishMarkdown link targets", () => {
       expect(
         publish("[theme](../src/css/theme.scss)", "docs/example.md", root),
       ).toBe(
-        "[theme](https://github.com/codeforamerica/cfa-static/blob/src/css/theme.scss)",
+        "[theme](https://github.com/chobbledotcom/chobble-template/blob/src/css/theme.scss)",
       );
     });
   });
@@ -83,7 +83,7 @@ describe("publishMarkdown link targets", () => {
     withTempDir("docs-transform-tree", (root) => {
       mkdirSync(join(root, "src/utils/fp"), { recursive: true });
       expect(publish("[helpers](src/utils/fp)", "ARCHITECTURE.md", root)).toBe(
-        "[helpers](https://github.com/codeforamerica/cfa-static/tree/src/utils/fp)",
+        "[helpers](https://github.com/chobbledotcom/chobble-template/tree/src/utils/fp)",
       );
     });
   });

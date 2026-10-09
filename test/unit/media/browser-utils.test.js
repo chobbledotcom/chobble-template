@@ -174,7 +174,7 @@ describe("startServer", () => {
       const server = await utils.startServer("/tmp/site-dir", 8471);
 
       expect(getServer).toHaveBeenCalledWith(
-        "cfa-static-tools",
+        "chobble-template-tools",
         "/tmp/site-dir",
         expect.objectContaining({ liveReload: false }),
       );
