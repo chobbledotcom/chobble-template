@@ -6,6 +6,14 @@ import { buildReverseIndex } from "#toolkit/fp/grouping.js";
 const HISTORY_TIMEOUT_MS = 120_000;
 const HISTORY_MAX_BUFFER_BYTES = 64 * 1024 * 1024;
 const TEMPLATE_PATHS = ["*.html", "*.liquid", "*.md"];
+const HISTORY_SCAN_ARGS = [
+  "--reverse",
+  "--format=%x1e%aI",
+  "--raw",
+  "--no-abbrev",
+  "--find-renames",
+  "-z",
+];
 
 /** @typedef {import("node:child_process").SpawnSyncReturns<string>} GitResult */
 /** @typedef {{ published: string, updated: string, blob: string }} IndexedGitDates */
@@ -32,12 +40,14 @@ const TEMPLATE_PATHS = ["*.html", "*.liquid", "*.md"];
  * @property {(index: GitDateIndex, change: RawChange, paths: string[], date: string) => void} applyHistoryChange
  * @property {(rawChange: string | undefined) => RawChange | null} parseRawChange
  * @property {(change: RawChange) => number} pathsConsumedBy
+ * @property {(record: string) => { date: string, tokens: string[] }} splitHistoryRecord
  * @property {(record: string) => TransferRecord[]} recordTransfers
  * @property {() => ParseState} initialState
  * @property {(state: ParseState, token: string) => ParseState} startChange
  * @property {(state: ParseState, token: string, index: GitDateIndex, date: string) => ParseState} consumePath
  * @property {(state: ParseState, token: string, index: GitDateIndex, date: string) => ParseState} parseHistoryToken
  * @property {(record: string, index: GitDateIndex) => void} parseHistoryRecord
+ * @property {(repo: string, args: string[]) => { dates: GitDateIndex, renames: TransferRecord[] }} scanHistory
  * @property {(repo: string) => { dates: GitDateIndex, renames: TransferRecord[] }} buildRepoIndex
  * @property {(repo: string) => TransferRecord[]} copyRecords
  * @property {(index: GitDateIndex, renames: TransferRecord[], copies: TransferRecord[]) => void} applyCopyOrigins
@@ -149,10 +159,14 @@ const history = Object.freeze({
     if (path) history.applyPathChange(index, status, path, date, blob);
   },
 
-  recordTransfers(record) {
+  splitHistoryRecord(record) {
     const [rawDate, ...tokens] = record.split("\0");
-    const date = rawDate.trim();
-    if (!date) return [];
+    return { date: rawDate.trim(), tokens };
+  },
+
+  recordTransfers(record) {
+    const { date, tokens } = history.splitHistoryRecord(record);
+    if (tokens.length === 0) return [];
     return tokens.flatMap((token, position) => {
       const change = history.parseRawChange(token);
       if (!change || history.pathsConsumedBy(change) === 1) return [];
@@ -200,8 +214,7 @@ const history = Object.freeze({
   },
 
   parseHistoryRecord(record, index) {
-    const [rawDate, ...tokens] = record.split("\0");
-    const date = rawDate.trim();
+    const { date, tokens } = history.splitHistoryRecord(record);
     if (!date) return;
     tokens.reduce(
       (state, token) => history.parseHistoryToken(state, token, index, date),
@@ -209,15 +222,11 @@ const history = Object.freeze({
     );
   },
 
-  buildRepoIndex(repo) {
+  scanHistory(repo, args) {
     const output = history.gitOutput(repo, [
       "log",
-      "--reverse",
-      "--format=%x1e%aI",
-      "--raw",
-      "--no-abbrev",
-      "--find-renames",
-      "-z",
+      ...HISTORY_SCAN_ARGS,
+      ...args,
     ]);
     const records = output ? output.split("\x1e") : [];
     const dates = records.reduce((index, record) => {
@@ -230,22 +239,20 @@ const history = Object.freeze({
     return { dates, renames };
   },
 
+  buildRepoIndex(repo) {
+    // Full history with rename detection: cheap without copy detection, and
+    // it indexes every path, so a rename's source always carries true dates.
+    return history.scanHistory(repo, []);
+  },
+
   copyRecords(repo) {
-    const output = history.gitOutput(repo, [
-      "log",
-      "--reverse",
-      "--format=%x1e%aI",
-      "--raw",
-      "--no-abbrev",
-      "--find-renames",
+    const { renames } = history.scanHistory(repo, [
       "--find-copies-harder",
       "--diff-filter=C",
-      "-z",
       "--",
       ...TEMPLATE_PATHS,
     ]);
-    const records = output ? output.split("\x1e") : [];
-    return records.flatMap((record) => history.recordTransfers(record));
+    return renames;
   },
 
   applyCopyOrigins(index, renames, copies) {

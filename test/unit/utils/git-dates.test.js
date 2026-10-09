@@ -224,6 +224,40 @@ describe("git-dates", () => {
         },
       ));
 
+    test("propagates the original publish date through a copy followed by a rename", () =>
+      withGitRepo("git-dates-copy-rename-chain", { fileName: "base.md" })(
+        ({ tempDir, filePath }) => {
+          fs.copyFileSync(filePath, path.join(tempDir, "dup.md"));
+          gitCommit(tempDir, "copy page", "2025-02-01T10:00:00Z");
+          fs.renameSync(
+            path.join(tempDir, "dup.md"),
+            path.join(tempDir, "dup2.md"),
+          );
+          gitCommit(tempDir, "rename copy", "2025-03-01T10:00:00Z");
+
+          const lookup = createLookup(tempDir);
+          expect(lookup.datesFor("dup.md")).toEqual({
+            published: "2025-01-01T10:00:00Z",
+            updated: "2025-03-01T10:00:00Z",
+          });
+          expect(lookup.datesFor("dup2.md")).toEqual({
+            published: "2025-01-01T10:00:00Z",
+            updated: "2025-03-01T10:00:00Z",
+          });
+        },
+      ));
+
+    test("fails fast when the git history command fails", () =>
+      withGitRepo("git-dates-failing-history", { fileName: "page.md" })(
+        ({ tempDir }) => {
+          fs.writeFileSync(
+            path.join(tempDir, ".git", "HEAD"),
+            "ref: refs/heads/nope",
+          );
+          expect(() => createLookup(tempDir)).toThrow();
+        },
+      ));
+
     test("preserves the first published date when a file is re-added", () =>
       withGitRepo("git-dates-readded", { fileName: "page.md" })(
         ({ tempDir, filePath }) => {
