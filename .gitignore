@@ -148,6 +148,7 @@ _site
 
 # ---> Direnv
 .direnv
+.devenv
 
 # ---> Test artifacts
 test/.test-sites/
