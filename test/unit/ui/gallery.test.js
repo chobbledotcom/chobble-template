@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, mock, test } from "bun:test";
-import { initGallery, resolveStartIndex } from "#public/ui/gallery.js";
+import { afterEach, describe, expect, test, vi } from "vitest";
+import { initGallery } from "#public/ui/gallery.js";
 import { imagePopupDialogHtml, popupSlideAlts } from "#test/test-utils.js";
 
 const setUpGallery = (names = ["one", "two", "three"]) => {
@@ -79,18 +79,12 @@ describe("popup triggers", () => {
     expect(dialog().dataset.index).toBe("2");
   });
 
-  test("converts the 1-based data-index to a 0-based start index", () => {
-    setUpGallery();
-
-    expect(resolveStartIndex(heroLink())).toBe(0);
-    expect(resolveStartIndex(thumbLink(3))).toBe(2);
-  });
-
-  test("throws when a trigger has no numeric data-index", () => {
+  test("leaves the popup closed when a trigger has no numeric data-index", () => {
     setUpGallery();
     heroLink().removeAttribute("data-index");
 
-    expect(() => resolveStartIndex(heroLink())).toThrow("data-index");
+    expect(() => clickFollowsLink(heroLink())).toThrow("data-index");
+    expect(dialog().open).toBe(false);
   });
 
   test("swallows the click so the browser does not follow the link", () => {
@@ -141,7 +135,7 @@ describe("thumbnail hero swapping", () => {
 
   test("scrolls the page to the hero image when it is off-screen", () => {
     setUpGallery();
-    const scrollIntoView = mock();
+    const scrollIntoView = vi.fn();
     heroLink().getBoundingClientRect = () => ({ top: 200 });
     heroLink().scrollIntoView = scrollIntoView;
 
@@ -176,7 +170,7 @@ describe("slider thumbnail centering", () => {
     for (const li of items) {
       Object.defineProperty(li, "offsetWidth", { value: 100 });
     }
-    const scrollBy = mock();
+    const scrollBy = vi.fn();
     slider.scrollBy = scrollBy;
     return { items, scrollBy };
   };

@@ -1,55 +1,60 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
+/* jscpd:ignore-start -- import block; deliberately mirrors lighthouse.js */
 import {
   getViewports,
   screenshot,
   screenshotAllViewports,
   screenshotMultiple,
 } from "#media/screenshot.js";
-import { buildCommonOptions, logErrors, runCli } from "#scripts/cli-utils.js";
+import {
+  COMMON_OPTIONS_HELP,
+  logErrors,
+  optionsBuilder,
+  runCliWhenMain,
+  usageError,
+} from "#scripts/cli-utils.js";
+
+/* jscpd:ignore-end */
 
 const USAGE = `
 Screenshot Tool - Capture screenshots of rendered pages
 
 Usage:
-  bun scripts/screenshot.js [options] <page-path>
-  bun scripts/screenshot.js [options] --pages <path1> <path2> ...
-  bun scripts/screenshot.js --all-viewports <page-path>
-  bun scripts/screenshot.js --serve <site-dir> [options] <page-path>
+  node scripts/screenshot.js [options] <page-path>
+  node scripts/screenshot.js [options] --pages <path1> <path2> ...
+  node scripts/screenshot.js --all-viewports <page-path>
+  node scripts/screenshot.js --serve <site-dir> [options] <page-path>
 
 Options:
-  -h, --help              Show this help message
+${COMMON_OPTIONS_HELP}
   -v, --viewport <name>   Viewport: mobile, tablet, desktop, full-page (default: desktop)
-  -o, --output <path>     Output file path (auto-generated if not specified)
   -d, --output-dir <dir>  Output directory (default: screenshots/)
-  -u, --base-url <url>    Base URL (default: http://localhost:8080)
-  -t, --timeout <ms>      Timeout in milliseconds (default: 10000)
   -p, --pages             Take screenshots of multiple pages
   -a, --all-viewports     Take screenshots in all viewports
-  -s, --serve <dir>       Start a server for the given directory
-  --port <port>           Port for the server (default: 8080)
   --list-viewports        List available viewports
 
 Examples:
   # Screenshot homepage (server must be running)
-  bun scripts/screenshot.js /
+  node scripts/screenshot.js /
 
   # Screenshot a specific page with mobile viewport
-  bun scripts/screenshot.js -v mobile /products/
+  node scripts/screenshot.js -v mobile /news/
 
   # Screenshot multiple pages
-  bun scripts/screenshot.js -p / /about/ /products/
+  node scripts/screenshot.js -p / /news/ /guide/
 
   # Screenshot in all viewports
-  bun scripts/screenshot.js -a /
+  node scripts/screenshot.js -a /
 
   # Start server and take screenshot
-  bun scripts/screenshot.js -s _site /
+  node scripts/screenshot.js -s _site /
 
   # Custom output path
-  bun scripts/screenshot.js -o my-screenshot.png /
+  node scripts/screenshot.js -o my-screenshot.png /
 `;
 
+/** @type {import("node:util").ParseArgsConfig["options"]} */
 const PARSE_OPTIONS = {
   viewport: { type: "string", short: "v", default: "desktop" },
   "output-dir": { type: "string", short: "d", default: "screenshots" },
@@ -65,19 +70,30 @@ const showViewports = () => {
   process.exit(0);
 };
 
-const logResults = (results, getKey) => {
+/**
+ * @param {any[]} results
+ * @param {(result: any) => string} getKey
+ */
+const logCaptureResults = (results, getKey) => {
   for (const result of results) {
     console.log(`  ${getKey(result)}: ${result.path}`);
   }
 };
 
+/**
+ * @param {(input: any, options: object) => Promise<{ results: any[], errors: any[] }>} screenshotFn
+ * @param {(input: any) => string} getDescription
+ * @param {(result: any) => string} resultKey
+ * @param {(err: any) => string} errorKey
+ * @returns {(input: any, options: object) => Promise<boolean>}
+ */
 const createBatchHandler =
   (screenshotFn, getDescription, resultKey, errorKey) =>
   async (input, options) => {
     console.log(`\nTaking screenshots of ${getDescription(input)}...`);
     const { results, errors } = await screenshotFn(input, options);
     console.log(`\nCompleted: ${results.length} screenshots`);
-    logResults(results, resultKey);
+    logCaptureResults(results, resultKey);
     return logErrors(errors, errorKey);
   };
 
@@ -95,34 +111,45 @@ const handleMultiplePages = createBatchHandler(
   (e) => e.pagePath,
 );
 
-const handleSinglePage = async (pagePath, options) => {
+/**
+ * @param {string} pagePath
+ * @param {object} options
+ */
+const captureSinglePage = async (pagePath, options) => {
   const result = await screenshot(pagePath, options);
   console.log(`\nScreenshot saved: ${result.path}`);
   return false;
 };
 
-const selectHandler = (isAllViewports, isMultiplePages) => {
-  if (isAllViewports) return handleAllViewports;
-  if (isMultiplePages) return handleMultiplePages;
-  return handleSinglePage;
+/** @param {{ isMultiple: boolean, values: Record<string, unknown> }} parsed */
+export const selectHandler = ({ isMultiple, values }) => {
+  if (values["all-viewports"]) return handleAllViewports;
+  if (isMultiple) return handleMultiplePages;
+  return captureSinglePage;
 };
 
-const buildOptions = (values) => ({
-  ...buildCommonOptions(values, "screenshots"),
+export const buildOptions = optionsBuilder((values) => ({
   viewport: values.viewport,
-});
+}));
 
-const extraExitChecks = (v) => {
-  if (v["list-viewports"]) showViewports();
+/** @param {{ positionals: string[], isMultiple: boolean, values: Record<string, unknown> }} parsed */
+export const getInput = ({ positionals, isMultiple, values }) => {
+  if (values["all-viewports"]) {
+    // -a captures one page across every viewport; extra paths would be
+    // silently dropped, so reject them instead.
+    if (positionals.length > 1) {
+      usageError("--all-viewports takes exactly one page path", USAGE);
+    }
+    return positionals[0];
+  }
+  return isMultiple ? positionals : positionals[0];
 };
 
-const getInput = ({ positionals, isMultiple, values }) =>
-  isMultiple && !values["all-viewports"] ? positionals : positionals[0];
-
-runCli(PARSE_OPTIONS, USAGE, {
+await runCliWhenMain(import.meta.url, PARSE_OPTIONS, USAGE, {
   getInput,
   buildOptions,
-  extraExitChecks,
-  selectHandler: ({ isMultiple, values }) =>
-    selectHandler(values["all-viewports"], isMultiple),
+  extraExitChecks: (values) => {
+    if (values["list-viewports"]) showViewports();
+  },
+  selectHandler,
 });

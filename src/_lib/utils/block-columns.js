@@ -25,24 +25,12 @@
  *   - Unclaimed blocks fall through to `rest`, preserving original order.
  *   - If no blocks match any column, columns mode is disabled (returns
  *     columns: null so the template falls back to the default layout).
- *   - Full-width types (hero, *-background, marquee-images) and split-* types
- *     are allowed inside `before` but disallowed inside `columns`.
+ *   - Block types whose schema module declares `columnSafe = false` (full-bleed
+ *     and split-* types) are allowed inside `before` but disallowed inside
+ *     `columns`.
  */
 
-// Block types that must not be placed inside a column layout, either because
-// they need full viewport width or because they already use a two-pane layout.
-// Additionally, every `split-*` block type is disallowed (checked dynamically).
-export const COLUMN_DISALLOWED_TYPES = [
-  "hero",
-  "video-background",
-  "bunny-video-background",
-  "image-background",
-  "marquee-images",
-];
-
-/** @param {string} type */
-export const isColumnSafeType = (type) =>
-  !COLUMN_DISALLOWED_TYPES.includes(type) && !type.startsWith("split-");
+import { isColumnSafeBlock } from "#utils/block-schema.js";
 
 /**
  * @param {unknown} blocks
@@ -56,7 +44,7 @@ export const toBlockArray = (blocks) => (Array.isArray(blocks) ? blocks : []);
  * @param {string} where - Location description for the error message
  */
 export const assertColumnSafeTypes = (types, where) => {
-  const disallowed = types.find((type) => !isColumnSafeType(type));
+  const disallowed = types.find((type) => !isColumnSafeBlock(type));
   if (disallowed) {
     throw new Error(
       `Block type "${disallowed}" is not supported inside ${where}.`,
@@ -72,17 +60,6 @@ export const assertColumnSafeTypes = (types, where) => {
  */
 
 /**
- * @param {unknown} entry
- * @returns {entry is ColumnLayout}
- */
-const isColumnLayout = (entry) => {
-  if (!entry || typeof entry !== "object") return false;
-  const hasColumns = "columns" in entry && Array.isArray(entry.columns);
-  const hasBefore = "before" in entry && Array.isArray(entry.before);
-  return hasColumns || hasBefore;
-};
-
-/**
  * Finds the first layout config that matches one of the page's tags.
  * Tags are checked in order; first match wins.
  *
@@ -91,6 +68,16 @@ const isColumnLayout = (entry) => {
  * @returns {ColumnLayout | null}
  */
 export const getLayoutForTags = (tags, allLayouts) => {
+  /**
+   * @param {unknown} entry
+   * @returns {entry is ColumnLayout}
+   */
+  const isColumnLayout = (entry) => {
+    if (!entry || typeof entry !== "object") return false;
+    const hasColumns = "columns" in entry && Array.isArray(entry.columns);
+    const hasBefore = "before" in entry && Array.isArray(entry.before);
+    return hasColumns || hasBefore;
+  };
   if (!Array.isArray(tags) || !allLayouts) return null;
   for (const tag of tags) {
     const entry = allLayouts[tag];
@@ -98,28 +85,6 @@ export const getLayoutForTags = (tags, allLayouts) => {
   }
   return null;
 };
-
-/**
- * Flattens a layout config into an ordered sequence of (type, columnIndex)
- * slots. Each entry in a column's `types` list becomes one slot.
- *
- * @param {Array<{ types?: string[] }>} layoutCols
- * @returns {Array<{ type: string, ci: number }>}
- */
-const collectLayoutSlots = (layoutCols) =>
-  layoutCols.flatMap((col, ci) => {
-    const types = Array.isArray(col?.types) ? col.types : [];
-    return types.map((type) => ({ type, ci }));
-  });
-
-/**
- * @param {Array<{ type: string, ci: number }>} slots
- */
-const validateLayoutSlots = (slots) =>
-  assertColumnSafeTypes(
-    slots.map(({ type }) => type),
-    "a block-columns layout",
-  );
 
 /**
  * @typedef {{ type: string } & Record<string, unknown>} Block
@@ -154,42 +119,66 @@ const matchSlotsToBlocks = (blocks, slots, usedIndices = []) =>
   );
 
 /**
- * @param {string[] | undefined} beforeTypes
- * @returns {Array<{ type: string, ci: number }>}
- */
-const collectBeforeSlots = (beforeTypes) =>
-  Array.isArray(beforeTypes)
-    ? beforeTypes.map((type) => ({ type, ci: 0 }))
-    : [];
-
-/**
- * @param {Block[]} safeBlocks
- * @param {Array<{ types: string[] }> | null} layoutCols
- * @param {number[]} usedBefore
- * @returns {{ columns: Block[][] | null, used: number[] }}
- */
-const buildColumns = (safeBlocks, layoutCols, usedBefore) => {
-  /** @type {{ columns: Block[][] | null, used: number[] }} */
-  const fallback = { columns: null, used: usedBefore };
-  if (!layoutCols || layoutCols.length === 0) return fallback;
-  const columnSlots = collectLayoutSlots(layoutCols);
-  validateLayoutSlots(columnSlots);
-  const columnState = matchSlotsToBlocks(safeBlocks, columnSlots, usedBefore);
-  if (columnState.claims.length === 0) return fallback;
-  const columns = layoutCols.map((_, ci) =>
-    columnState.claims
-      .filter((c) => c.ci === ci)
-      .map((c) => safeBlocks[c.blockIndex]),
-  );
-  return { columns, used: columnState.used };
-};
-
-/**
  * @param {Block[] | undefined} blocks
  * @param {ColumnLayout | null} layout
  * @returns {{ before: Block[], columns: Block[][] | null, rest: Block[] }}
  */
 export const splitBlocksForColumns = (blocks, layout) => {
+  /**
+   * @param {string[] | undefined} beforeTypes
+   * @returns {Array<{ type: string, ci: number }>}
+   */
+  const collectBeforeSlots = (beforeTypes) =>
+    Array.isArray(beforeTypes)
+      ? beforeTypes.map((type) => ({ type, ci: 0 }))
+      : [];
+
+  /**
+   * @param {Block[]} safeBlocks
+   * @param {Array<{ types: string[] }> | null} layoutCols
+   * @param {number[]} usedBefore
+   * @returns {{ columns: Block[][] | null, used: number[] }}
+   */
+  const buildColumns = (safeBlocks, layoutCols, usedBefore) => {
+    /**
+     * Flattens a layout config into ordered (type, columnIndex) slots; each
+     * entry in a column's `types` list becomes one slot.
+     * @param {Array<{ types?: string[] }>} layoutCols
+     * @returns {Array<{ type: string, ci: number }>}
+     */
+    const collectLayoutSlots = (layoutCols) => {
+      return layoutCols.flatMap((col, ci) => {
+        const types = Array.isArray(col?.types) ? col.types : [];
+        return types.map((type) => ({ type, ci }));
+      });
+    };
+
+    /** @param {Array<{ type: string, ci: number }>} slots */
+    const validateLayoutSlots = (slots) => {
+      return assertColumnSafeTypes(
+        slots.map(({ type }) => type),
+        "a block-columns layout",
+      );
+    };
+
+    /** @type {{ columns: Block[][] | null, used: number[] }} */
+    const fallback = { columns: null, used: usedBefore };
+    if (!layoutCols || layoutCols.length === 0) return fallback;
+    const columnSlots = collectLayoutSlots(layoutCols);
+    validateLayoutSlots(columnSlots);
+    const columnState = matchSlotsToBlocks(safeBlocks, columnSlots, usedBefore);
+    if (columnState.claims.length === 0) return fallback;
+    const columns = columnState.claims.reduce(
+      /**
+       * @param {Block[][]} cols
+       * @param {Claim} claim
+       */
+      (cols, { blockIndex, ci }) =>
+        cols.with(ci, [...cols[ci], safeBlocks[blockIndex]]),
+      layoutCols.map(() => []),
+    );
+    return { columns, used: columnState.used };
+  };
   const safeBlocks = toBlockArray(blocks);
   const beforeSlots = collectBeforeSlots(layout?.before);
   const layoutCols = Array.isArray(layout?.columns) ? layout.columns : null;

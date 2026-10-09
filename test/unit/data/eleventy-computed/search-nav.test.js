@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import eleventyComputed from "#data/eleventyComputed.js";
 
 describe("eleventyComputed.pagefind_body", () => {
@@ -55,26 +55,5 @@ describe("eleventyComputed.eleventyNavigation", () => {
 
   test("returns undefined when eleventyNavigation is not set", () => {
     expect(eleventyComputed.eleventyNavigation({})).toBeUndefined();
-  });
-});
-
-describe("eleventyComputed.filter_attributes", () => {
-  const page = { inputPath: "/products/test.md" };
-
-  test("returns an empty array when filter_attributes is not set", () => {
-    expect(eleventyComputed.filter_attributes({ page })).toEqual([]);
-  });
-
-  test("passes filter_attributes through unchanged in normal build mode", () => {
-    const filterAttrs = [
-      { name: "Color", value: "Red" },
-      { name: "Size", value: "Large" },
-    ];
-    expect(
-      eleventyComputed.filter_attributes({
-        filter_attributes: filterAttrs,
-        page,
-      }),
-    ).toBe(filterAttrs);
   });
 });

@@ -1,3 +1,4 @@
+/* jscpd:ignore-start -- block schema declaration data */
 import { INTRO_CONTENT_FIELD, num, str } from "#utils/block-schema/shared.js";
 
 export const type = "iframe-embed";
@@ -6,8 +7,7 @@ export const fields = {
   src: {
     ...str("Iframe URL"),
     required: true,
-    description:
-      "Just the embed URL (e.g. `https://www.youtube.com/embed/dQw4w9WgXcQ`), not the whole `<iframe>` snippet; the block renders the iframe element itself.",
+    description: "Full URL of the iframe to embed.",
   },
   name: {
     ...str("Accessible Name"),
@@ -57,3 +57,12 @@ export const docs = {
   notes:
     "Provide either `height` for a fixed-height embed or `aspect_ratio` (e.g. `16/9`) for a responsive one. Use `max_width` to cap the embed width within the container.",
 };
+
+export const example = {
+  type: "iframe-embed",
+  src: "/search/",
+  name: "The search page, embedded",
+  aspect_ratio: "16/9",
+  max_width: "560px",
+};
+/* jscpd:ignore-end */

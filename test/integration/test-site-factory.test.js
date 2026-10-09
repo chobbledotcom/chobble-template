@@ -1,17 +1,8 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
-import {
-  cleanupAllTestSites,
-  createTestSite,
-  FIXTURES_ROOT_ENV,
-  withSetupTestSite,
-} from "#test/test-site-factory.js";
-import {
-  expectAsyncThrows,
-  rootDir,
-  withTempDirAsync,
-} from "#test/test-utils.js";
+import { describe, expect, test } from "vitest";
+import { useSharedSite, withSetupTestSite } from "#test/test-site-factory.js";
+import { createTempDir, expectAsyncThrows } from "#test/test-utils.js";
 
 /** Minimal page file for tests that just need a valid site */
 const MINIMAL_PAGE = {
@@ -36,26 +27,7 @@ const defaultTestFiles = [
   },
 ];
 
-const withFixtureRoot = async (fixturesRoot, fn) => {
-  const previousValue = process.env[FIXTURES_ROOT_ENV];
-  process.env[FIXTURES_ROOT_ENV] = fixturesRoot;
-  try {
-    await fn();
-  } finally {
-    if (previousValue === undefined) {
-      delete process.env[FIXTURES_ROOT_ENV];
-    } else {
-      process.env[FIXTURES_ROOT_ENV] = previousValue;
-    }
-  }
-};
-
 describe("test-site-factory", () => {
-  // Clean up any leftover test sites after all tests
-  afterAll(() => {
-    cleanupAllTestSites();
-  });
-
   // =========================================================================
   // Tests that verify site SETUP (no build required)
   // =========================================================================
@@ -75,79 +47,6 @@ describe("test-site-factory", () => {
         // Should also have fields from the source config.json
         expect(config).toBeTruthy();
       });
-    });
-
-    test(`sources template defaults from ${FIXTURES_ROOT_ENV} when set, not the live checkout`, async () => {
-      await withTempDirAsync("fixtures-root-override", async (fixturesRoot) => {
-        for (const entry of ["_data", "images"]) {
-          fs.cpSync(
-            path.join(rootDir, "src", entry),
-            path.join(fixturesRoot, "src", entry),
-            { recursive: true },
-          );
-        }
-
-        const configPath = path.join(fixturesRoot, "src/_data/config.json");
-        const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-        config.hermetic_fixture_marker = "pristine-template-fixture";
-        fs.writeFileSync(configPath, JSON.stringify(config));
-
-        await withFixtureRoot(fixturesRoot, async () => {
-          await withSetupTestSite({ files: defaultTestFiles }, (site) => {
-            const generatedConfig = JSON.parse(
-              fs.readFileSync(
-                path.join(site.srcDir, "_data/config.json"),
-                "utf-8",
-              ),
-            );
-            expect(generatedConfig.hermetic_fixture_marker).toBe(
-              "pristine-template-fixture",
-            );
-            expect(fs.realpathSync(path.join(site.srcDir, "_lib"))).toBe(
-              path.join(rootDir, "src/_lib"),
-            );
-          });
-        });
-      });
-    });
-
-    test(`sources collection and index data from ${FIXTURES_ROOT_ENV}`, async () => {
-      await withTempDirAsync(
-        "fixture-collection-data",
-        async (fixturesRoot) => {
-          for (const collection of ["pages", "products"]) {
-            const runtimeDir = path.join(rootDir, "src", collection);
-            const fixtureDir = path.join(fixturesRoot, "src", collection);
-            fs.cpSync(runtimeDir, fixtureDir, { recursive: true });
-
-            const fixtureDataPath = path.join(fixtureDir, `${collection}.json`);
-            const fixtureData = JSON.parse(
-              fs.readFileSync(fixtureDataPath, "utf-8"),
-            );
-            fixtureData.hermetic_fixture_marker = `pristine-${collection}`;
-            fs.writeFileSync(fixtureDataPath, JSON.stringify(fixtureData));
-          }
-
-          await withFixtureRoot(fixturesRoot, async () => {
-            const productFiles = [
-              { ...defaultTestFiles[0], path: "products/test.md" },
-            ];
-            await withSetupTestSite({ files: productFiles }, (site) => {
-              for (const collection of ["pages", "products"]) {
-                const generatedData = JSON.parse(
-                  fs.readFileSync(
-                    path.join(site.srcDir, collection, `${collection}.json`),
-                    "utf-8",
-                  ),
-                );
-                expect(generatedData.hermetic_fixture_marker).toBe(
-                  `pristine-${collection}`,
-                );
-              }
-            });
-          });
-        },
-      );
     });
 
     test("creates test site with custom strings", async () => {
@@ -190,8 +89,27 @@ describe("test-site-factory", () => {
       );
     });
 
+    test("adds no home page when a page redirects from /", async () => {
+      // A site whose default language lives under /en/ redirects / instead
+      const home = {
+        path: "pages/en/index.md",
+        frontmatter: { name: "Home", permalink: "/en/", redirect_from: ["/"] },
+      };
+      await withSetupTestSite({ files: [home] }, (site) => {
+        expect(fs.existsSync(path.join(site.srcDir, "pages/index.md"))).toBe(
+          false,
+        );
+      });
+    });
+
     const withTempTestImage = async (filename, dest, fn) => {
-      const testImagePath = path.join(rootDir, filename);
+      // Keep the source image in a temp dir, never the repo root: the
+      // findFiles walker stats every root entry from parallel workers, so a
+      // transient root-level file causes collection-time ENOENT races.
+      const testImagePath = path.join(
+        createTempDir("site-factory-image"),
+        filename,
+      );
       fs.writeFileSync(testImagePath, "fake image content");
       try {
         await withSetupTestSite(
@@ -199,7 +117,10 @@ describe("test-site-factory", () => {
           fn,
         );
       } finally {
-        fs.unlinkSync(testImagePath);
+        fs.rmSync(path.dirname(testImagePath), {
+          recursive: true,
+          force: true,
+        });
       }
     };
 
@@ -224,34 +145,30 @@ describe("test-site-factory", () => {
   // Tests that verify file manipulation (no build required)
   // =========================================================================
   describe("file manipulation methods", () => {
-    let site;
+    test("addFile adds a new file to the site", async () => {
+      await withSetupTestSite({ files: [MINIMAL_PAGE] }, (site) => {
+        site.addFile("test-file.txt", "Test content");
 
-    beforeAll(async () => {
-      site = await createTestSite({ files: [MINIMAL_PAGE] });
-    });
-
-    afterAll(() => site?.cleanup());
-
-    test("addFile adds a new file to the site", () => {
-      site.addFile("test-file.txt", "Test content");
-
-      const filePath = path.join(site.srcDir, "test-file.txt");
-      expect(fs.existsSync(filePath)).toBe(true);
-      expect(fs.readFileSync(filePath, "utf-8")).toBe("Test content");
-    });
-
-    test("addMarkdown adds a markdown file with frontmatter", () => {
-      site.addMarkdown("pages/added.md", {
-        frontmatter: { name: "Added Page" },
-        content: "# Added Content",
+        const filePath = path.join(site.srcDir, "test-file.txt");
+        expect(fs.existsSync(filePath)).toBe(true);
+        expect(fs.readFileSync(filePath, "utf-8")).toBe("Test content");
       });
+    });
 
-      const filePath = path.join(site.srcDir, "pages/added.md");
-      expect(fs.existsSync(filePath)).toBe(true);
+    test("addMarkdown adds a markdown file with frontmatter", async () => {
+      await withSetupTestSite({ files: [MINIMAL_PAGE] }, (site) => {
+        site.addMarkdown("pages/added.md", {
+          frontmatter: { name: "Added Page" },
+          content: "# Added Content",
+        });
 
-      const fileContent = fs.readFileSync(filePath, "utf-8");
-      expect(fileContent).toContain("name: Added Page");
-      expect(fileContent).toContain("# Added Content");
+        const filePath = path.join(site.srcDir, "pages/added.md");
+        expect(fs.existsSync(filePath)).toBe(true);
+
+        const fileContent = fs.readFileSync(filePath, "utf-8");
+        expect(fileContent).toContain("name: Added Page");
+        expect(fileContent).toContain("# Added Content");
+      });
     });
   });
 
@@ -259,47 +176,40 @@ describe("test-site-factory", () => {
   // Tests that verify site OUTPUT (shared build for efficiency)
   // =========================================================================
   describe("site output methods", () => {
-    let site;
-
-    beforeAll(async () => {
-      site = await createTestSite({
-        files: [
-          MINIMAL_PAGE,
-          {
-            path: "pages/test.md",
-            frontmatter: {
-              name: "Test Page",
-              permalink: "/test/",
-              blocks: [{ type: "markdown", content: "# Hello World" }],
-            },
-            content: "",
+    const getSite = useSharedSite({
+      files: [
+        MINIMAL_PAGE,
+        {
+          path: "pages/test.md",
+          frontmatter: {
+            name: "Test Page",
+            permalink: "/test/",
+            blocks: [{ type: "markdown", content: "# Hello World" }],
           },
-          {
-            path: "pages/about.md",
-            frontmatter: {
-              name: "About",
-              permalink: "/about/",
-              blocks: [{ type: "markdown", content: "About" }],
-            },
-            content: "",
+          content: "",
+        },
+        {
+          path: "pages/about.md",
+          frontmatter: {
+            name: "About",
+            permalink: "/about/",
+            blocks: [{ type: "markdown", content: "About" }],
           },
-        ],
-      });
-      await site.build();
-    }, 30_000);
-
-    afterAll(() => site?.cleanup());
+          content: "",
+        },
+      ],
+    });
 
     test("hasOutput returns true for existing files", () => {
-      expect(site.hasOutput("test/index.html")).toBe(true);
+      expect(getSite().hasOutput("test/index.html")).toBe(true);
     });
 
     test("hasOutput returns false for non-existing files", () => {
-      expect(site.hasOutput("nonexistent/file.html")).toBe(false);
+      expect(getSite().hasOutput("nonexistent/file.html")).toBe(false);
     });
 
     test("getDoc returns a DOM document for querying HTML", async () => {
-      const doc = await site.getDoc("test/index.html");
+      const doc = await getSite().getDoc("test/index.html");
 
       // Should return a document we can query
       expect(doc.querySelector("h1")).toBeTruthy();
@@ -308,7 +218,7 @@ describe("test-site-factory", () => {
     });
 
     test("listOutputFiles returns all output files recursively", () => {
-      const files = site.listOutputFiles();
+      const files = getSite().listOutputFiles();
 
       // Should list HTML files from the build
       expect(files.length).toBeGreaterThan(0);
@@ -317,7 +227,7 @@ describe("test-site-factory", () => {
 
     test("getOutput throws error when file does not exist", () => {
       expect(() => {
-        site.getOutput("nonexistent/file.html");
+        getSite().getOutput("nonexistent/file.html");
       }).toThrow("Output file not found: nonexistent/file.html");
     });
   });
@@ -346,11 +256,8 @@ describe("test-site-factory", () => {
         // Error should include stdout or stderr
         expect(error.stdout || error.stderr).toBeTruthy();
       });
-    });
+      // Spawns a real Eleventy build that reports its own failure; under the
+      // full suite's parallel lanes that exceeds the default timeout
+    }, 10_000);
   });
-
-  // NOTE: cleanupAllTestSites has no in-suite test. It removes the shared
-  // .test-sites root, so exercising it mid-run would delete sites belonging
-  // to concurrently running tests. It runs in afterAll above, after every
-  // test in this file has finished.
 });

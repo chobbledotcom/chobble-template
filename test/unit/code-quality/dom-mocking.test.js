@@ -1,6 +1,10 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ALLOWED_DOM_CONSTRUCTOR } from "#test/code-quality/code-quality-exceptions.js";
-import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
+import {
+  assertNoViolations,
+  createCodeChecker,
+  expectNoStaleExceptions,
+} from "#test/code-scanner.js";
 import { TEST_FILES } from "#test/test-utils.js";
 
 // Patterns that indicate incorrect DOM mocking approaches
@@ -73,6 +77,14 @@ document.createElement("div");
         "Use document directly (happy-dom provides globals via test/setup.js). " +
         "Set DOM with document.body.innerHTML = '...' instead of new DOM()",
     });
+  });
+
+  test("ALLOWED_DOM_CONSTRUCTOR entries still exist and match pattern", () => {
+    expectNoStaleExceptions(
+      ALLOWED_DOM_CONSTRUCTOR,
+      BAD_DOM_PATTERNS,
+      "ALLOWED_DOM_CONSTRUCTOR",
+    );
   });
 
   test("Reports allowlisted DOM patterns for tracking", () => {

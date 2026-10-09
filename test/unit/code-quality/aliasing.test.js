@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   analyzeWithAllowlist,
   assertNoViolations,
@@ -6,7 +6,8 @@ import {
   scanLines,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { compact } from "#utils/fp/array.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 /**
  * Detect variable aliasing patterns that add noise without value:
@@ -46,31 +47,33 @@ const BUILTIN_IDENTIFIERS = frozenSet([
  */
 const findAliases = (source) => {
   const lines = source.split("\n");
-  const localDefs = new Set(
+  const localDefs = frozenSet(
     lines.map((line) => DEF_PATTERN.exec(line)?.[1]).filter(Boolean),
   );
 
-  // Extract imported identifiers
-  const imports = new Set();
-  for (const line of lines) {
-    // Named imports: import { a, b, c as d } from '...'
-    const namedMatch = line.match(/import\s*\{([^}]+)\}\s*from/);
-    if (namedMatch) {
-      for (const name of namedMatch[1].split(",")) {
-        const parts = name.trim().split(/\s+as\s+/);
-        const importedName = parts[parts.length - 1].trim();
-        if (importedName && /^[a-zA-Z_$]\w*$/.test(importedName)) {
-          imports.add(importedName);
-        }
-      }
-    }
-    // Default imports: import name from '...'
-    const defaultMatch = line.match(/import\s+([a-zA-Z_$]\w*)\s+from/);
-    if (defaultMatch) imports.add(defaultMatch[1]);
-    // Namespace imports: import * as name from '...'
-    const namespaceMatch = line.match(/import\s+\*\s+as\s+(\w+)\s+from/);
-    if (namespaceMatch) imports.add(namespaceMatch[1]);
-  }
+  // Names the file binds from an import line: default, namespace, and
+  // named imports (keeping the local alias, not the original name)
+  const imports = frozenSet(
+    lines.flatMap((line) => {
+      const namedMatch = line.match(/import\s*\{([^}]+)\}\s*from/);
+      const fromList = namedMatch
+        ? namedMatch[1]
+            .split(",")
+            .map((name) =>
+              name
+                .trim()
+                .split(/\s+as\s+/)
+                .at(-1)
+                .trim(),
+            )
+            .filter((name) => /^[a-zA-Z_$]\w*$/.test(name))
+        : compact([
+            line.match(/import\s+([a-zA-Z_$]\w*)\s+from/)?.[1],
+            line.match(/import\s+\*\s+as\s+(\w+)\s+from/)?.[1],
+          ]);
+      return fromList;
+    }),
+  );
 
   return scanLines(source, (line, lineNum) => {
     if (isCommentLine(line)) return null;
@@ -183,9 +186,11 @@ const themes = files
     });
 
     test("ignores array and object literals", () => {
-      const source = `const items = [];
-const obj = {};
-const nums = [1, 2, 3];`;
+      const source = [
+        "const items = [];",
+        "const obj = {};",
+        "const nums = [1, 2, 3];",
+      ].join("\n");
       expect(findAliases(source).length).toBe(0);
     });
 

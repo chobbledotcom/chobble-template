@@ -1,6 +1,6 @@
 # Test Quality Criteria
 
-Every test must satisfy ALL of the following criteria. When writing a new test, explicitly verify each checkbox before submitting.
+Every test must satisfy ALL of the following criteria. When writing a new test, explicitly verify each checkbox before submitting. Tests are written with Vitest (`describe`/`test`/`expect`) — see `test/test-utils.js` for the shared factories and helpers.
 
 ## Mandatory Criteria
 
@@ -8,26 +8,20 @@ Every test must satisfy ALL of the following criteria. When writing a new test, 
 
 - [ ] The test calls actual imported production functions/classes
 - [ ] No logic from production code is copy-pasted or reimplemented in the test
-- [ ] Constants (like storage keys, URLs, thresholds) are imported, not hardcoded
+- [ ] Constants (like permalinks, type maps, thresholds) are imported, not hardcoded
 
 **Bad:**
 ```javascript
-// Reimplements addItem logic - if production has a bug, this won't catch it
-const addItem = (name, price) => {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  cart.push({ name, price });
-  localStorage.setItem("cart", JSON.stringify(cart));
-};
-addItem("Widget", 10);
-assert.strictEqual(getCart().length, 1);
+// Reimplements slugify - if production has a bug, this won't catch it
+const slugify = (text) => text.toLowerCase().replaceAll(" ", "-");
+expect(slugify("My Page")).toBe("my-page");
 ```
 
 **Good:**
 ```javascript
 // Tests the actual production function
-import { addItem, getCart } from "#assets/cart-utils.js";
-addItem("Widget", 10);
-assert.strictEqual(getCart().length, 1);
+import { slugify } from "#utils/slug-utils.js";
+expect(slugify("My Page")).toBe("my-page");
 ```
 
 ---
@@ -41,21 +35,29 @@ assert.strictEqual(getCart().length, 1);
 **Bad:**
 ```javascript
 // This tests nothing - you set it, then check you set it
-button.style.display = "none";
-assert.strictEqual(button.style.display, "none");
+const item = { data: { title: "News post" } };
+expect(item.data.title).toBe("News post");
 ```
 
 **Good:**
 ```javascript
-// This tests that updateCartDisplay hides the button when cart is empty
-saveCart([]);
-updateCartDisplay();
-assert.strictEqual(button.style.display, "none");
+import { sortByDateDescending } from "#utils/sorting.js";
+
+// Pass the production comparator to an array sort.
+const older = { date: new Date("2025-01-01") };
+const newer = { date: new Date("2025-02-01") };
+const sorted = [older, newer].toSorted(sortByDateDescending);
+expect(sorted[0]).toBe(newer);
 ```
 
 ---
 
 ### 3. Tests Behavior, Not Implementation Details
+
+Source-analysis quality gates are an intentional exception: their behavior is
+to detect prohibited source patterns or broken documentation links. Exercise
+the checker against representative valid and invalid inputs where possible;
+ordinary feature tests must still exercise production behavior.
 
 - [ ] The test verifies observable outcomes, not internal state
 - [ ] Refactoring production code shouldn't break the test (unless behavior changes)
@@ -63,16 +65,16 @@ assert.strictEqual(button.style.display, "none");
 
 **Bad:**
 ```javascript
-// Tests internal structure - breaks if we rename the class
-assert.ok(document.querySelector(".cart-items-internal-container"));
+// Tests source text - breaks on any rename or reformat
+const source = readFileSync("src/_lib/collections/news.js", "utf-8");
+expect(source).toContain("sortByDateDescending");
 ```
 
 **Good:**
 ```javascript
-// Tests behavior - adding item makes it appear in cart
-addItem("Widget", 10);
-const cartHtml = renderCart();
-assert.ok(cartHtml.includes("Widget"));
+// Tests behavior - the registered collection returns sorted items
+const collection = configureAndGetCollection(configureNews, "news", items);
+expect(collection.map((item) => item.data.title)).toEqual(["newer", "older"]);
 ```
 
 ---
@@ -85,27 +87,18 @@ assert.ok(cartHtml.includes("Widget"));
 
 **Bad:**
 ```javascript
-{
-  name: "cart-test-1",
-  test: () => {
-    // 50 lines of setup and multiple assertions
-    assert.ok(result);
-  }
-}
+test("navigation works", () => {
+  // 50 lines of setup and a dozen assertions
+  expect(result).toBeTruthy();
+});
 ```
 
 **Good:**
 ```javascript
-{
-  name: "addItem-increments-quantity-for-existing-item",
-  description: "Adding same item twice increases quantity instead of duplicating",
-  test: () => {
-    addItem("Widget", 10);
-    addItem("Widget", 10);
-    assert.strictEqual(getCart().length, 1, "Should have 1 item, not 2");
-    assert.strictEqual(getCart()[0].quantity, 2, "Quantity should be 2");
-  }
-}
+test("hides pages with no_index from the navigation", () => {
+  const nav = buildNavigation([visiblePage, hiddenPage]);
+  expect(nav.map((entry) => entry.key)).toEqual(["visible"]);
+});
 ```
 
 ---
@@ -119,22 +112,20 @@ assert.ok(cartHtml.includes("Widget"));
 **Bad:**
 ```javascript
 // Mutates global state without cleanup
-globalThis.localStorage = mockStorage;
+process.env.CHROME_PATH = "/fake/chromium";
 // ... test runs ...
-// Forgot to restore - next test is broken
+// Forgot to restore - the next test inherits the fake path
 ```
 
 **Good:**
 ```javascript
-const withMockStorage = (fn) => {
-  const original = globalThis.localStorage;
-  globalThis.localStorage = createMockStorage();
-  try {
-    return fn();
-  } finally {
-    globalThis.localStorage = original;
-  }
-};
+// Bracket helpers guarantee cleanup even when the test throws
+import { withTempDir } from "#test/test-utils.js";
+
+withTempDir("my-feature", (dir) => {
+  writeFileSync(join(dir, "input.md"), "# Hello");
+  expect(processDir(dir)).toHaveLength(1);
+});
 ```
 
 ---
@@ -147,22 +138,18 @@ const withMockStorage = (fn) => {
 
 **Bad:**
 ```javascript
-{
-  name: "cart-operations",
-  test: () => {
-    // Tests add, remove, update, and total calculation
-    // If this fails, which operation broke?
-  }
-}
+test("block validation", () => {
+  // Checks unknown types, missing fields, bad values, and container
+  // widths in one body - if this fails, which rule broke?
+});
 ```
 
 **Good:**
 ```javascript
-// Four separate tests, each with one reason to fail
-{ name: "addItem-adds-new-item", ... }
-{ name: "removeItem-removes-by-name", ... }
-{ name: "updateQuantity-caps-at-max", ... }
-{ name: "getTotal-sums-price-times-quantity", ... }
+// Separate tests, each with one reason to fail
+test("rejects a block with an unknown type", () => { /* ... */ });
+test("rejects a block missing a required field", () => { /* ... */ });
+test("defaults container width to wide", () => { /* ... */ });
 ```
 
 ---
@@ -179,15 +166,16 @@ Consider testing:
 
 ### 8. Uses Test Fixtures Appropriately
 
-- [ ] Uses factory functions from `test-utils.js` where available
+- [ ] Uses factory functions from `test-utils.js` where available (`item()`, `createMockEleventyConfig()`, …)
 - [ ] Creates minimal fixtures (only data needed for this test)
 - [ ] Doesn't share mutable state between tests
 
 ### 9. Async Tests Are Actually Async
 
-- [ ] `asyncTest` is only used when there are actual async operations
+- [ ] `async` test bodies exist only when there are real async operations
 - [ ] Awaits are meaningful, not just `await Promise.resolve()`
-- [ ] Timeouts in tests have clear justification
+- [ ] Rejection assertions are awaited: `await expect(fn()).rejects.toThrow(...)`
+- [ ] Timeouts in tests have clear justification (e.g. spawning real subprocesses)
 
 ---
 
@@ -197,6 +185,7 @@ Consider testing:
 |--------------|--------------|-------------------|
 | Reimplementing production logic | Tests the test, not the code | Import and call production code |
 | Tautological assertions | Provides false confidence | Assert on behavior after action |
+| Asserting on source text | Breaks on rename/reformat, not on bugs | Call the code and assert its output |
 | Giant inline test helpers | Unmaintainable, drifts from prod | Extract to test-utils.js or test prod directly |
 | Magic numbers/strings | Obscures intent, drifts from prod | Import constants from production |
 | Testing private internals | Brittle, breaks on refactor | Test public API behavior |
@@ -219,15 +208,3 @@ Copy this into your PR description when adding tests:
 - [ ] Tests one thing
 - [ ] Edge cases considered
 ```
-
----
-
-## Examples of Tests That Should Be Deleted or Rewritten
-
-From the codebase review, these patterns need fixing:
-
-1. **Tests that reimplement `addItem`/`updateQuantity`** - Should call the imported functions directly
-
-2. **UI state tests that set-then-assert** - Should trigger the actual UI update function and verify the result
-
-3. **Tests with 100+ lines of inline JS** - Should either test the real module or be clearly documented as integration tests with known limitations

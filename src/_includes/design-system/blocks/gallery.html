@@ -24,10 +24,21 @@ Parameters (via block object):
       {%- for item in block.items -%}
         <li>
           {%- assign image = item.image -%}
-          {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+          {%- capture alt_text -%}{%- include "get-alt-text.html", fallback: item.caption -%}{%- endcapture -%}
+          {%- comment -%}
+            The link opens the image, so it is named after the image: its alt
+            text, then its caption, and failing both the file's own name. A
+            gallery of photographs nobody described still gets links that say
+            which photograph they open.
+          {%- endcomment -%}
+          {%- assign link_name = alt_text | strip -%}
+          {%- if link_name == "" -%}
+            {%- assign link_name = item.image | split: "/" | last | split: "." | first | replace: "-", " " | replace: "_", " " -%}
+          {%- endif -%}
           <a
             class="image-link"
             href="{{ item.image | normalizeImageUrl }}"
+            aria-label="{{ link_name }}"
             data-popup-trigger
             data-index="{{ forloop.index }}"
           >

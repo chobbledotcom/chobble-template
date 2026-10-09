@@ -1,57 +1,12 @@
-import { memoize } from "#toolkit/fp/memoize.js";
-import { filterObject, mapEntries } from "#toolkit/fp/object.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { memoize } from "#utils/fp/memoize.js";
+import { filterObject, mapEntries } from "#utils/fp/object.js";
+import { VOID_ELEMENTS } from "#utils/html-elements.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
 /** @typedef {import("#lib/types").ElementAttributes} ElementAttributes */
 
-/**
- * HTML5 void elements that cannot have children and are self-closing.
- * @type {ReadonlySet<string>}
- */
-const VOID_ELEMENTS = frozenSet([
-  "area",
-  "base",
-  "br",
-  "col",
-  "embed",
-  "hr",
-  "img",
-  "input",
-  "link",
-  "meta",
-  "param",
-  "source",
-  "track",
-  "wbr",
-]);
-
-/**
- * Escape a string for use in HTML attribute values
- * @param {string} value - The value to escape
- * @returns {string} The escaped value
- */
-const escapeAttrValue = (value) =>
-  String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-
 /** Filter out null attribute values */
 const filterDefinedAttrs = filterObject((_k, v) => v != null);
-
-/**
- * Format attributes object into HTML attribute string
- * @param {ElementAttributes} attributes - Attributes to format
- * @returns {string} Formatted attribute string (with leading space if non-empty)
- */
-const formatAttributes = (attributes) => {
-  const parts = mapEntries(
-    (key, value) => `${key}="${escapeAttrValue(value)}"`,
-  )(filterDefinedAttrs(attributes));
-  return parts.length > 0 ? ` ${parts.join(" ")}` : "";
-};
 
 /**
  * Get shared DOM document instance for building elements
@@ -63,15 +18,6 @@ const getSharedDocument = memoize(async () => {
 });
 
 /**
- * Convert an element to its HTML string representation
- * @param {HTMLElement} element - The element to serialize
- * @returns {string} The outer HTML of the element
- */
-const elementToHtml = (element) => {
-  return element.outerHTML;
-};
-
-/**
  * Create an element and return its HTML string.
  * Uses fast string concatenation (no DOM loading required).
  * @param {string} tagName - The tag name
@@ -80,26 +26,20 @@ const elementToHtml = (element) => {
  * @returns {Promise<string>} The HTML string
  */
 const createHtml = async (tagName, attributes = {}, children = "") => {
-  const attrs = formatAttributes(attributes);
+  const parts = mapEntries((key, value) => {
+    const escaped = String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    return `${key}="${escaped}"`;
+  })(filterDefinedAttrs(attributes));
+  const attrs = parts.length > 0 ? ` ${parts.join(" ")}` : "";
   if (VOID_ELEMENTS.has(tagName)) {
     return `<${tagName}${attrs}>`;
   }
   return `<${tagName}${attrs}>${children}</${tagName}>`;
 };
-
-/**
- * Create a template element from a document.
- * @param {Document} doc
- * @returns {HTMLTemplateElement}
- */
-const createTemplateElement = (doc) => doc.createElement("template");
-
-/**
- * Get the first element child of template content.
- * @param {HTMLTemplateElement} template
- * @returns {Element | null}
- */
-const getTemplateContent = (template) => template.content.firstElementChild;
 
 /**
  * Parse an HTML string into a DOM element
@@ -109,16 +49,9 @@ const getTemplateContent = (template) => template.content.firstElementChild;
  */
 const parseHtml = async (html, document = null) => {
   const doc = document || (await getSharedDocument());
-  const template = createTemplateElement(doc);
+  const template = doc.createElement("template");
   template.innerHTML = html;
-  return getTemplateContent(template);
+  return template.content.firstElementChild;
 };
 
-export {
-  createHtml,
-  elementToHtml,
-  escapeAttrValue,
-  getSharedDocument,
-  parseHtml,
-  VOID_ELEMENTS,
-};
+export { createHtml, parseHtml };

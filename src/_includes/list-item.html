@@ -1,26 +1,14 @@
-{%- assign isProduct = item.data.tags contains "products" -%}
-<li
-  {%- if item.data.featured %} class="featured"{% endif -%}
-  {%- if isProduct %} data-filter-item="{{ item.data.filter_data | toFilterJsonAttr }}"{% endif -%}
->
+<li{% if item.data.featured %} class="featured"{% endif %}>
   {%- for field in listItemFields -%}
     {%- case field -%}
       {%- when "thumbnail" -%}
         {%- include "list-item-thumbnail.html", image_aspect_ratio: image_aspect_ratio -%}
       {%- when "link" -%}
         {%- include "list-item-link.html" -%}
-      {%- when "price" -%}
-        {%- include "list-item-price.html" -%}
       {%- when "date" -%}
         {%- include "list-item-date.html" -%}
       {%- when "subtitle" -%}
         {%- include "list-item-subtitle.html" -%}
-      {%- when "location" -%}
-        {%- include "list-item-location.html" -%}
-      {%- when "event-date" -%}
-        {%- include "list-item-event-date.html" -%}
-      {%- when "cart-button" -%}
-        {%- include "list-item-cart-button.html" -%}
     {%- endcase -%}
   {%- endfor -%}
 </li>

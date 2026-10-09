@@ -1,23 +1,11 @@
 {%- comment -%}
 Shared article (text side) of split-* layouts. Used by split.html and
-split-callout.html.
-
-Parameters (via block object):
-  - block.subtitle: Optional subtitle text (with text-muted styling)
-  - block.content: Main content with markdown headings (rendered as markdown)
-  - block.button: Optional button object { text, href, variant }
-
-Parameters (direct):
-  - reveal_content: data-reveal value for the article
+split-callout.html; see split.html for the full parameter documentation.
 {%- endcomment -%}
 
-<article class="stack" data-reveal="{{ reveal_content }}">
+<article class="stack" data-reveal="{{ block.reveal_content }}">
   {%- if block.subtitle -%}
     <p class="text-muted">{{ block.subtitle }}</p>
   {%- endif -%}
-  <div class="prose">{{ block.content | renderContent: "md" }}</div>
-  {%- if block.button -%}
-    {%- assign btn_variant = block.button.variant | default: "secondary" -%}
-    {%- include "design-system/button.html", text: block.button.text, href: block.button.href, variant: btn_variant -%}
-  {%- endif -%}
+  {%- include "design-system/block-content-button.html" -%}
 </article>

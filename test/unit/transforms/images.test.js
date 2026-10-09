@@ -1,13 +1,11 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test, vi } from "vitest";
 import {
   ASPECT_RATIO_ATTRIBUTE,
   extractImageOptions,
   fixDivsInParagraphs,
   IGNORE_ATTRIBUTE,
-  LEGACY_WIDTHS_ATTRIBUTE,
   NO_LQIP_ATTRIBUTE,
   processImages,
-  WIDTHS_ATTRIBUTE,
 } from "#transforms/images.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
@@ -102,6 +100,14 @@ describe("images transform", () => {
       expect(options.alt).toBeNull();
       expect(options.classes).toBeNull();
       expect(options.aspectRatio).toBeNull();
+      expect(options.loading).toBeNull();
+    });
+
+    test("keeps an authored loading attribute, such as an eager logo", async () => {
+      const { options } = await getImageOptions(
+        '<html><body><img src="/images/logo.png" loading="eager"></body></html>',
+      );
+      expect(options.loading).toBe("eager");
     });
 
     test("extracts no-lqip attribute as true", async () => {
@@ -141,26 +147,29 @@ describe("images transform", () => {
       return div;
     };
 
-    const expectSkipped = async (html) => {
+    const runWithImageSpy = async (html) => {
       const dom = await loadDOM(html);
-      let called = false;
-      await processImages(dom.window.document, {}, async () => {
-        called = true;
-        return createWrapper(dom.window.document);
-      });
-      expect(called).toBe(false);
+      const onImage = vi.fn(async () => createWrapper(dom.window.document));
+      await processImages(dom.window.document, {}, onImage);
+      return { dom, onImage };
+    };
+
+    const expectSkipped = async (html) => {
+      const { dom, onImage } = await runWithImageSpy(html);
+      expect(onImage).not.toHaveBeenCalled();
       return dom;
     };
 
     const processAndCapture = async (html) => {
       const dom = await loadDOM(html);
-      let captured = null;
-      await processImages(dom.window.document, {}, async (opts) => {
-        captured = opts;
+      const onImage = vi.fn(async (_opts) => {
         const div = createWrapper(dom.window.document);
         div.innerHTML = "<picture>processed</picture>";
         return div;
       });
+      await processImages(dom.window.document, {}, onImage);
+      expect(onImage).toHaveBeenCalledTimes(1);
+      const [[captured]] = onImage.mock.calls;
       return { captured, dom };
     };
 
@@ -208,14 +217,10 @@ describe("images transform", () => {
     });
 
     test("processes multiple images", async () => {
-      const dom = await loadDOM(
+      const { onImage } = await runWithImageSpy(
         '<html><body><img src="/images/a.jpg"><img src="/images/b.jpg"></body></html>',
       );
-      const names = [];
-      await processImages(dom.window.document, {}, async (opts) => {
-        names.push(opts.imageName);
-        return createWrapper(dom.window.document);
-      });
+      const names = onImage.mock.calls.map(([opts]) => opts.imageName);
       expect(names).toContain("/images/a.jpg");
       expect(names).toContain("/images/b.jpg");
     });
@@ -234,18 +239,6 @@ describe("images transform", () => {
         return div;
       });
       expect(dom.serialize()).not.toContain("<p><div");
-    });
-  });
-
-  describe("constants", () => {
-    test("ASPECT_RATIO_ATTRIBUTE is correct", () => {
-      expect(ASPECT_RATIO_ATTRIBUTE).toBe("eleventy:aspectRatio");
-    });
-
-    test("IGNORE_ATTRIBUTE is correct", () => {
-      expect(IGNORE_ATTRIBUTE).toBe("eleventy:ignore");
-      expect(WIDTHS_ATTRIBUTE).toBe("eleventy:widths");
-      expect(LEGACY_WIDTHS_ATTRIBUTE).toBe("widths");
     });
   });
 });

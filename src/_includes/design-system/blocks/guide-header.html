@@ -7,9 +7,6 @@ Used on guide-pages and guide-categories. No block-level parameters. Reads
 
 <div class="container-wide">
   <header class="guide-header">
-    <h1>{{ name }}</h1>
-    {%- if subtitle -%}
-      <h2>{{ subtitle }}</h2>
-    {%- endif -%}
+    {%- include "item-title.html" -%}
   </header>
 </div>

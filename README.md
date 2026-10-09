@@ -1,170 +1,203 @@
-# The Chobble Template
+# CfA Static
 
-**⚠️ Don't forget to change the Formspark and Botpoison info in `_data/config.json` or in your repository's action secrets ⚠️**
+A static-site template for small informational and marketing sites, built on
+[Eleventy](https://www.11ty.dev/) and Node.js. Pages are
+assembled from composable, schema-validated content blocks written in YAML
+frontmatter, so engineering-adjacent authors (and AI assistants) can build and
+edit pages without touching templates.
 
-**See this template in action at:**
+Derived from the [Chobble Template](https://github.com/chobbledotcom/chobble-template),
+relicensed to MIT here by its sole author, and cut down to an informational
+core: no e-commerce, no forms, no user data handling — just fast, accessible,
+static pages.
 
-- [example.chobble.com](https://example.chobble.com)
-- [tradesperson-example.chobble.com](https://tradesperson-example.chobble.com)
-- [southportorganics.co.uk](https://www.southportorganics.co.uk)
-- [house-of-desserts.co.uk](https://www.house-of-desserts.co.uk)
-- [ukegroupnorth.com](https://www.ukegroupnorth.com)
-- [myalarmsecurity.co.uk](https://www.myalarmsecurity.co.uk)
-- [c-results.uk](https://www.c-results.uk)
-- [playsafeplayinspection.co.uk](https://www.playsafeplayinspection.co.uk)
-- [garsdalecottages.co.uk](https://www.garsdalecottages.co.uk)
-- [medwaymascots.co.uk](https://www.medwaymascots.co.uk)
-- [funprouk.co.uk](https://www.funprouk.co.uk)
+## How this repository documents itself
 
-**Want me to make you a website based on this template?** Hit me up at [chobble.com](https://www.chobble.com).
+Every guide travels inside the repository, so a checkout — or a fork of it —
+is self-documenting. Start with the
+[architecture walkthrough](ARCHITECTURE.md): it explains the whole system end
+to end, and its [reading map](ARCHITECTURE.md#how-to-read-this-repository)
+names the reference that owns each task, from starting a site to changing the
+template's own code. That map lives in the walkthrough rather than here
+because a fork replaces this README but keeps the walkthrough.
 
-**💖 Want to support the development of this template? 💖** Donate at [liberapay.com/chobble](https://liberapay.com/chobble/)
+The reference documents also publish as pages on this template's own
+deployed site — the
+[reference category](https://codeforamerica.github.io/cfa-static/guide/reference/)
+of its guide section — so the documentation is browsable as a website while
+staying plain markdown in the repository for agents and forks.
 
-An Eleventy starter for business websites. The GitHub action deploys to both Neocities and Bunny.net - you'll need to edit that for your setup.
+## What's included
 
-## Content Types
+- **Content blocks** — heroes, FAQs, callouts, image cards,
+  split layouts, galleries, and stats declared in frontmatter and validated at
+  build time with loud, file-specific errors. See the generated
+  [block reference](skills/cfa-static-site-builder/references/blocks.md)
+  and [layout reference](skills/cfa-static-site-builder/references/layouts.md),
+  or the deployed site's `/blocks/` page,
+  where standalone-previewable types render next to YAML from the same tested
+  fixtures. Collection-restricted contextual blocks show usage guidance
+  instead.
+- **Content types** — Pages, News (with Atom feed), Guides (categorised
+  documentation pages), and reusable Snippets.
+- **Multi-language** — publish the same page in more than one language with
+  `hreflang` tags, an `x-default`, a header or footer language switcher, and
+  per-language menus, snippets, and interface labels. See the
+  [languages reference](skills/cfa-static-site-builder/references/i18n.md).
+- **Theming** — CSS custom properties throughout, prebuilt themes, a
+  visual theme editor at `/theme-editor/` with export.
+- **Images** — responsive `srcset` via eleventy-img, base64 LQIP placeholders,
+  aspect-ratio cropping, unused-image detection.
+- **Accessibility** — `npm test` checks every built page with axe-core's
+  automated WCAG 2.2 AA rules, including gallery coverage for blocks that
+  support standalone previews. Pages get a skip link, named landmarks, and
+  per-language chrome labels out of the box. Manual review is still required
+  for context, visual contrast, keyboard flow, and other qualities automation
+  cannot settle.
+- **Search** — static full-text search via Pagefind.
+- **SEO** — schema.org JSON-LD (WebSite, Organization, BreadcrumbList,
+  BlogPosting, FAQPage), canonical URLs, sitemap, social cards.
+- **Editing layer** — a generated [PagesCMS](https://pagescms.org/) config
+  (`.pages.yml`) wired to the block schemas, plus `npm run customise-cms`, an
+  interactive/non-interactive wizard that tailors the editor to the
+  collections a site actually uses.
 
-- **Products** - galleries, options with SKUs, FAQs, specifications, features lists, linked reviews with ratings
-- **Categories** - product groupings with inherited thumbnails
-- **Events** - one-off and recurring schedules, iCal feed generation
-- **News** - blog posts with Atom feed
-- **Menus** - categories, items, pricing, dietary indicators (vegan, gluten-free, etc.)
-- **Locations** - multi-site support with sub-locations
-- **Properties** - for holiday lets, linked to locations
-- **Reviews** - linked to products, aggregate ratings
-- **Team** - member profiles
-- **Snippets** - reusable content blocks
+## Quick start
 
-## Shopping Cart & Payments
-
-- LocalStorage-based cart with quantity limits
-- Stripe/Square checkout via external [ecommerce backend](https://github.com/chobbledotcom/ecommerce)
-- Quote/enquiry mode (submit cart as request instead of payment)
-- Auto-generated SKUs via GitHub Action
-
-## Theming
-
-- 10 pre-built themes: Default, Neon, 90s Computer, Floral, Hacker, Monochrome, Ocean, Old Mac, Rainbow, Sunset
-- Per-page theme overrides
-- Visual theme editor at `/theme-editor/` with export
-- CSS custom properties for colours, fonts, borders, layout
-- SCSS support
-- Bunny Fonts integration
-
-## Images
-
-- Responsive images with `srcset` via `eleventy-img`
-- [Base64 LQIP placeholders](https://blog.chobble.com/blog/25-04-16-adding-base64-image-backgrounds-to-eleventy-img/)
-- Gallery component with thumbnail navigation and full-size overlay
-- Custom aspect ratio cropping
-
-## Forms
-
-- [Formspark](https://formspark.io/) for delivery
-- [Botpoison](https://botpoison.com/) spam protection
-- JSON-configured fields
-
-## SEO & Structured Data
-
-- Schema.org markup for products (with reviews/ratings), events, FAQs, organisation
-- Canonical URLs
-- Sitemap
-- Atom feed with XSL stylesheet
-- Meta descriptions, noindex support
-- hreflang tags and `og:locale` for sites published in more than one language
-
-## Languages
-
-A site is written in one language until it says otherwise, and nothing in the
-template names a language.
-
-- `_data/languages.json` lists every language the site publishes, each with a
-  `code`, `hreflang`, `og_locale`, `label`, `home_url` prefix, `home_label` and
-  `breadcrumb_label`. Exactly one entry has `is_default: true`, which is the
-  base language: the one every URL outside another language's prefix is written
-  in, and the one `hreflang="x-default"` points at.
-- `_data/translations.json` pairs the pages that say the same thing, keyed by
-  language code, e.g. `[{ "en": "/about/", "de": "/de/ueber-uns/" }]`.
-
-A page's language comes from its URL prefix, and the layout, the head tags, the
-footer switcher and the breadcrumbs read it as `pageLanguage`. Exactly one
-language must be marked `is_default`, and a site that marks none fails the
-build. To add a language, add its entry,
-put its pages under its `home_url`, list them in `translations.json`, and
-translate `_includes/footer.html` and the navigation for it. A page with no
-counterpart in a language links that language's home page from the footer.
-
-The template ships one language and no translations, which renders exactly as
-it did before this existed: no hreflang tags and no switcher.
-
-What is translated is pages. Collection items (products, events, categories,
-properties, guide categories) have no language of their own: they are looked up
-by slug across the whole collection, and their labels come from
-`_data/strings.json`, which has no language dimension. A translated page that
-sits under a collection gets its index URL from the translation groups where a
-site has paired one, but the crumb's label, and any category or property crumb
-below it, still come from the base language. Translating a collection needs a
-language on its items and per-language strings, which is its own change.
-
-## Navigation & Layout
-
-- Horizontal or left sidebar navigation
-- Sticky mobile nav option
-- Two-column layout with sidebar
-- Slider component for horizontal scrolling
-- Scroll-fade animations (respects `prefers-reduced-motion`)
-
-## Development
-
-- [Nix flakes](https://nixos.wiki/wiki/Flakes) with [direnv](https://direnv.net/) support
-- `bin/lint` - format with Biome
-- `bin/screenshot` - automated screenshots
-- [Biome](https://biomejs.dev/) linting
-- [jscpd](https://github.com/kucherenko/jscpd) duplicate detection
-- [Knip](https://knip.dev/) unused code detection
-- 17+ test files with custom runner
-- [instant.page](https://instant.page/) for link prefetching on hover
-
-### Testing template code in a downstream client site
-
-Sites built from this template copy it excluding `test/`, `test-*`, `images/`,
-and markdown content, then overlay their own site content under `src/`. That
-missing `test/` directory means the suite can't run at all from a checkout in
-that state, and even with it copied back in by hand, fixture-driven tests
-fail, because the test fixture factory (`test/test-site-factory.js`) builds
-its "template defaults" (config, sample content) from the live checkout
-root — which is now your own site content, not the template's.
-
-`scripts/stage-hermetic-tests.js` handles both problems for you. Point it at
-a separate, pristine template checkout and it creates a temporary workspace
-containing your downstream template code plus pristine template tests, data,
-markdown, and image fixtures. It runs the suite there, removes the workspace,
-and forwards the suite's exit status without changing your checkout:
+Use the Node.js version specified in the
+[Site Builder Reference](docs/developer-reference.md), then:
 
 ```bash
-git clone --depth 1 https://github.com/chobbledotcom/chobble-template.git /tmp/chobble-template-upstream
-bun scripts/stage-hermetic-tests.js --template /tmp/chobble-template-upstream -- test/integration
+npm install          # install dependencies
+npm run serve        # dev server with hot reload
+npm run build        # build to _site/ (includes internal link check)
 ```
 
-This also points the fixture factory at the pristine checkout via the
-`CHOBBLE_TEMPLATE_FIXTURES_DIR` env var, so fixture tests build isolated sites
-from template defaults rather than your overrides. `bun run test:hermetic --
---template <path> -- <args>` runs the same thing via the `package.json` script.
+See the Site Builder Reference for selected site-building commands and the
+[verification guide](skills/cfa-static-site-builder/references/verification.md) for checks.
+
+The build needs no application secrets or server-side services. Dependency
+installation, uncached Iconify icons, and configured remote source images may
+require network access. The deployable artifact is the `_site/` directory —
+publish it with any static host or pipeline.
+
+## Agent Skill
+
+[`skills/cfa-static-site-builder/`](skills/cfa-static-site-builder/) is a
+portable [Agent Skill](https://agentskills.io/) for building and maintaining a
+site from this template. Configure a compatible agent client to load that
+directory according to the client's skill-discovery instructions. The package
+travels with each fork and points agents back to the fork's live schemas,
+generators, and checks rather than duplicating them.
+
+## Starting a site from this template
+
+Each site is a **fork of this repository**, not a dependency of it. A site's
+content, configuration, and theme live in the fork, and the template's own
+demo content is deleted or replaced there.
+
+After cloning the fork, replace the `name`, `url`, and `description` in
+`src/_data/site.json` before building. Missing or obvious placeholder identity
+data fails the build rather than being published.
+
+Replace this README too. Once the fork is the site, a README describing the
+template misleads everyone who lands on the repository and hides the choices
+the site made. Say what the site is, how it departs from the template's
+defaults, and where its schemas and checks live — while keeping the pointers to
+the [block reference](skills/cfa-static-site-builder/references/blocks.md),
+[Site Builder Reference](docs/developer-reference.md), `CLAUDE.md`, and the
+`/blocks/` gallery that anyone editing the site will need. The skill's
+[project setup reference](skills/cfa-static-site-builder/references/project-setup.md#site-readme)
+lists what to cover, including provenance and how the site deploys.
+
+Updates flow one way and only when a site asks for them:
+
+```bash
+git remote add upstream https://github.com/codeforamerica/cfa-static.git
+git fetch upstream
+git merge upstream/main      # deliberate, reviewed, and never automatic
+```
+
+That is the point of the arrangement. A site that has shipped keeps building
+exactly as it built yesterday; template changes reach it when someone chooses
+to merge them, reviews what changed, and re-runs the site's own checks. The
+quality gates travel with the fork, so a site that pulls an update finds out
+immediately whether the update broke anything it publishes.
 
 ## Deployment
 
-- GitHub Actions workflow for Neocities and Bunny.net
-- Forgejo Actions support
-- PagesCMS integration for no-code editing
-- External [ecommerce backend](https://github.com/chobbledotcom/ecommerce) for payment processing
+The default deployment is SharedServices, CfA's Okta-protected internal
+hosting. The `sharedservices-deploy.yaml` workflow builds `_site/` with the
+selected environment's `SITE_URL`, then passes its artifact to the platform's
+[shared static deployment workflow](https://github.com/codeforamerica/shared-services-infra/blob/main/.github/workflows/shared-deploy-static.yaml).
+The shared workflow handles AWS authentication, S3 sync, and CloudFront
+invalidation. Okta SSO is enforced at the edge, so the site itself never
+handles authentication. Deployment is manual: under **Actions**, run
+**Deploy to SharedServices** on `main` and pick an environment; a dispatch
+queues behind an in-flight deploy rather than cancelling it mid-sync.
+
+One-time setup is a DevOps task:
+
+1. Register the app by adding a spec to
+   `shared-services-infra/tofu/configs/static-app/specs/` and applying it.
+2. Have DevOps configure the `development` environment through Doppler with the variables
+   `AWS_REGION`, `STATIC_BUCKET`, `STATIC_PREFIX` (set to `cfa-static`),
+   `CLOUDFRONT_DISTRIBUTION_ID` (for cache invalidation), and `SITE_URL` (the app's
+   endpoint URL, with no trailing slash), plus the `AWS_ROLE_ARN` secret.
+
+`app.yaml` at the repo root declares the platform registration. SharedServices
+serves each app at the root of its own subdomain
+(`https://<name>.apps.<domain>`), so builds involve no path prefix. For a
+step-by-step walkthrough of the one-time
+setup — written for a DevOps engineer and whoever coordinates them — see the
+[SharedServices setup guide](https://github.com/codeforamerica/cfa-static/blob/main/src/pages/deploying-sharedservices.md), which
+publishes unlisted at `/deploying-sharedservices/` on this template's own
+deployments. Both deploy workflows also merge `docs/` into the built site, so
+the generated [Site Builder Reference](docs/developer-reference.md) is served
+under `/docs/` on each deployment's base URL.
+
+### Public deployment to GitHub Pages
+
+The repo also ships a public deploy workflow (`.github/workflows/pages.yml`)
+that builds and publishes to GitHub Pages on every push to `main`. One-time
+setup: under the repository's **Settings → Pages**, set **Source** to
+**GitHub Actions**. On a project site (`https://<owner>.github.io/<repo>/`)
+the build uses the `/<repo>/` path prefix and rewrites internal URLs to
+match; with a custom domain or a user/organization site it builds with no
+prefix. Both deployments build `_site/` from the same commit and differ only
+in `SITE_URL`.
+
+To host elsewhere instead, `npm run build` produces a self-contained `_site/`
+directory with no application server and no application-secret requirement;
+point any static host - or your own pipeline - at it.
 
 ## Configuration
 
-- `_data/config.json` - Formspark, Botpoison, ecommerce checkout, map embed, nav options
-- `_data/site.json` - name, URL, description, social links (14 platforms), opening hours
-- `_data/meta.json` - language, organisation details for schema.org
-- `_data/languages.json` - languages the site publishes, and which is the base
-- `_data/translations.json` - pages that say the same thing in each language
-- `_data/strings.json` - customisable labels and permalink directories
+Site identity lives in `src/_data/site.json`; behaviour toggles (navigation,
+breadcrumbs, search, theme switcher, link handling) in `src/_data/config.json`.
+Every field of each is declared once, with its type and meaning, in
+[the site schema](src/_lib/config/site-schema.js) and
+[the config schema](src/_lib/config/config-schema.js), and listed in the
+generated [Site Builder Reference](docs/developer-reference.md#site-identity).
+A site's `config.json` holds only what it changes, and the build fails on an
+unknown key or a value the schema does not accept.
 
-**Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://www.chobble.com).**
+## Development
+
+The [Site Builder Reference](docs/developer-reference.md) covers the Node
+requirement, installation, selected site-building commands, CMS options, and
+authoring links. The [Architecture walkthrough](ARCHITECTURE.md) explains how
+the whole system fits together, from content files to deployable artifact.
+For maintainer details, read [package.json](package.json) for scripts and
+import aliases, [biome.json](biome.json) for lint configuration, and the
+[FP source JSDoc](src/_lib/utils/fp/) for helper APIs. For how to write
+useful tests rather than just pass the checks, read the authored
+[test quality criteria](test/TEST-QUALITY-CRITERIA.md).
+
+Run `npm run generate-references` to refresh both generated references,
+`.pages.yml`, and the CMS types from their sources and saved CMS configuration.
+The individual generator commands remain available for focused updates.
+
+## License
+
+[MIT](LICENSE).

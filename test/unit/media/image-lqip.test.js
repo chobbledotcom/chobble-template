@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { statSync } from "node:fs";
+import { describe, expect, test } from "vitest";
 import {
   extractLqipFromMetadata,
   getEleventyImg,
@@ -100,7 +101,7 @@ describe("image-lqip", () => {
           const filePath = path.join(tempDir, "image.png");
           const metadata = await writeRandomPng(filePath, alpha);
           expect(metadata.hasAlpha).toBe(true);
-          expect(Bun.file(filePath).size).toBeGreaterThan(5 * 1024);
+          expect(statSync(filePath).size).toBeGreaterThan(5 * 1024);
           expect(await shouldGenerateLqip(filePath, metadata)).toBe(expected);
         }),
       );

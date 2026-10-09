@@ -1,3 +1,4 @@
+/* jscpd:ignore-start -- block schema declaration data */
 import { md } from "#utils/block-schema/shared.js";
 
 export const type = "section-header";
@@ -11,7 +12,7 @@ export const fields = {
   },
   align: {
     type: "string",
-    default: '"center"',
+    default: "center",
     description: 'Text alignment. `"center"` adds `.text-center`.',
   },
   class: { type: "string", description: "Extra CSS classes." },
@@ -22,3 +23,10 @@ export const docs = {
   scss: "src/css/design-system/_base.scss",
   htmlRoot: '<div class="section-header prose">',
 };
+
+export const example = {
+  type: "section-header",
+  intro:
+    "## Section headers introduce a page section\n\nUse one wherever a group of blocks needs a heading and a sentence of context.",
+};
+/* jscpd:ignore-end */

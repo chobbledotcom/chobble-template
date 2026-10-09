@@ -1,8 +1,8 @@
-import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import { rootDir } from "#test/test-utils.js";
-import { filter, map, pipe } from "#toolkit/fp/array.js";
+import { filter, map, pipe } from "#utils/fp/array.js";
 
 const dataDir = join(rootDir, "src/_data");
 

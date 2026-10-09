@@ -1,21 +1,4 @@
 /**
- * Resolves a dot-notation property path on an object.
- * @param {Record<string, unknown>} obj
- * @param {string} path
- * @returns {unknown}
- */
-const getNestedProperty = (obj, path) =>
-  path
-    .split(".")
-    .reduce(
-      (current, part) =>
-        current === undefined || current === null
-          ? undefined
-          : /** @type {Record<string, unknown>} */ (current)[part],
-      /** @type {unknown} */ (obj),
-    );
-
-/**
  * @typedef {object} FilterConfig
  * @property {string} property - Dot-notation path (e.g. "url", "data.title")
  * @property {string} [includes] - Value the property must contain
@@ -63,8 +46,16 @@ const filterItems = (items, filterConfig) => {
     );
   }
 
+  // Resolves the filter's dot-notation property path on an item.
+  /** @param {any} item */
+  const getNestedProperty = (item) => {
+    return filterConfig.property
+      .split(".")
+      .reduce((current, part) => current?.[part], item);
+  };
+
   return items.filter((item) => {
-    const value = getNestedProperty(item, filterConfig.property);
+    const value = getNestedProperty(item);
     if (value === undefined || value === null) return false;
     if (Array.isArray(value))
       return value.some((v) => matchesValue(v, filterConfig));
@@ -72,4 +63,4 @@ const filterItems = (items, filterConfig) => {
   });
 };
 
-export { filterItems, getNestedProperty };
+export { filterItems };

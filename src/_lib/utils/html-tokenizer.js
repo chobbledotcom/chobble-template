@@ -18,6 +18,7 @@ const TOKEN_CONVERTERS = {
   Chars: (t) => t.chars,
   Comment: (t) => `<!--${t.chars}-->`,
   StartTag: (t) => {
+    /** @param {[string, string, boolean]} attr */
     const serializeAttr = ([name, value, isQuoted]) =>
       !value ? name : isQuoted ? `${name}="${value}"` : `${name}=${value}`;
     const attrs = t.attributes.map(serializeAttr).join(" ");

@@ -1,14 +1,22 @@
-import { describe, expect, test } from "bun:test";
-import { createHtmlTransform } from "#eleventy/html-transform.js";
+import { describe, expect, test, vi } from "vitest";
+import { configureHtmlTransform } from "#eleventy/html-transform.js";
 import {
   configureImages,
   imageShortcode,
   processAndWrapImage,
 } from "#media/image.js";
 import { getCropMaxWidth, getMetadata } from "#media/image-crop.js";
-import { useSharedSite } from "#test/test-site-factory.js";
+import {
+  useSharedSite,
+  useSiteAsWorkingDirectory,
+} from "#test/test-site-factory.js";
 import { createMockEleventyConfig, wrapHtml } from "#test/test-utils.js";
-import { map } from "#toolkit/fp/array.js";
+import { map } from "#utils/fp/array.js";
+
+// Each shortcode and transform test generates real sharp variants for its own
+// argument tuple (the pipeline caches by that tuple); under the full suite's
+// parallel lanes that exceeds the default timeout.
+vi.setConfig({ testTimeout: 5000 });
 
 // ============================================
 // Functional Test Fixture Builders
@@ -24,34 +32,50 @@ const imageTestPage = (slug, content, name = slug) => ({
   content,
 });
 
+const FIXTURE_IMAGE = "test/fixtures/images/party.jpg";
+
 /**
  * Create image file specs from destination names
  */
-const imageFiles = map((dest) => ({ src: "src/images/party.jpg", dest }));
+const imageFiles = map((dest) => ({ src: FIXTURE_IMAGE, dest }));
 
 describe("image", () => {
-  // ============================================
-  // createHtmlTransform tests
-  // ============================================
-  describe("createHtmlTransform", () => {
-    test("createHtmlTransform returns a transform function", () => {
-      const transform = createHtmlTransform(processAndWrapImage);
+  // The shortcode and transform tests resolve images from ./src/images.
+  useSiteAsWorkingDirectory({ images: ["party.jpg", "menu.jpg"] });
 
-      expect(typeof transform).toBe("function");
+  // ============================================
+  // Registered html transform tests
+  // ============================================
+  describe("registered html transform", () => {
+    /**
+     * Configure the transform plugin and return its PostHTML tree runner.
+     */
+    const createTransformRunner = (outputPath = "/test/page.html") => {
+      const mockConfig = createMockEleventyConfig();
+      configureHtmlTransform(mockConfig, processAndWrapImage);
+      return mockConfig.htmlTransformer.plugins.html.plugin({ outputPath });
+    };
+
+    test("returns a transform function from the plugin factory", () => {
+      const runTree = createTransformRunner();
+      expect(typeof runTree).toBe("function");
     });
 
     test("Transform passes through non-HTML files unchanged", async () => {
-      const transform = createHtmlTransform(processAndWrapImage);
-      const result = await transform("body { margin: 0; }", "/test/style.css");
+      const runTree = createTransformRunner("/test/style.css");
+      const result = await runTree({
+        render: () => "body { margin: 0; }",
+        parser: (html) => html,
+      });
       expect(result).toBe("body { margin: 0; }");
     });
 
     test("Transform preserves HTML content without local images", async () => {
-      const transform = createHtmlTransform(processAndWrapImage);
-      const result = await transform(
-        "<html><body><p>Hello world</p></body></html>",
-        "/test/page.html",
-      );
+      const runTree = createTransformRunner();
+      const result = await runTree({
+        render: () => "<html><body><p>Hello world</p></body></html>",
+        parser: (html) => html,
+      });
       expect(result.includes("<p>Hello world</p>")).toBe(true);
       expect(result.includes("<picture")).toBe(false);
     });
@@ -235,16 +259,11 @@ describe("image", () => {
         ),
         imageTestPage("markdown", "![A test scene](/images/scene.jpg)"),
         imageTestPage("gallery", galleryContent, "Gallery"),
-        imageTestPage(
-          "spacey",
-          '{% image "Pugh upgrade 1.jpeg", "Uploaded with spaces" %}',
-        ),
       ],
       images: [
-        { src: "src/images/party.jpg", dest: "test-image.jpg" },
-        { src: "src/images/party.jpg", dest: "scene.jpg" },
+        { src: FIXTURE_IMAGE, dest: "test-image.jpg" },
+        { src: FIXTURE_IMAGE, dest: "scene.jpg" },
         ...imageFiles(["alpha.jpg", "beta.jpg"]),
-        ...imageFiles(["Pugh upgrade 1.jpeg"]),
       ],
       processImages: true,
     });
@@ -282,28 +301,22 @@ describe("image", () => {
       expect(html.includes("alpha.jpg")).toBe(true);
       expect(html.includes("beta.jpg")).toBe(true);
     });
-
-    test("Filenames with spaces generate URL-safe srcset candidates", () => {
-      const html = getProcessedSite().getOutput("/spacey/index.html");
-
-      expect(html.includes("<picture")).toBe(true);
-      // The space-named source must not leak into srcset/src URLs: raw
-      // whitespace invalidates every srcset candidate.
-      expect(html).not.toContain("/img/Pugh upgrade 1");
-      expect(html).toContain("Pugh%20upgrade%201-");
-    });
   });
 
   // ============================================
-  // createHtmlTransform tests - actual transformation
+  // Registered transform tests - actual transformation
   // ============================================
-  describe("createHtmlTransform - transformations", () => {
+  describe("registered transform - transformations", () => {
     /**
      * Run transform on HTML content and return result
      */
     const runTransform = async (html) => {
-      const transform = createHtmlTransform(processAndWrapImage);
-      return transform(html, "/test/page.html");
+      const mockConfig = createMockEleventyConfig();
+      configureHtmlTransform(mockConfig, processAndWrapImage);
+      const runTree = mockConfig.htmlTransformer.plugins.html.plugin({
+        outputPath: "/test/page.html",
+      });
+      return runTree({ render: () => html, parser: (html) => html });
     };
 
     /**

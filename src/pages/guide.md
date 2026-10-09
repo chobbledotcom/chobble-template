@@ -10,6 +10,9 @@ blocks:
     content: |
       # Guides
 
-      Welcome to our knowledge base. Browse the categories below to find helpful articles and answers to common questions.
+      Step-by-step guides and reference documentation for building and
+      running a site with CfA Static. Every page here is assembled from the
+      template's own blocks — open any page's source file to see exactly
+      how it's made.
   - type: guide-categories
 ---

@@ -1,0 +1,8 @@
+CfA Static - template overview
+
+A static-site template for informational sites: pages are YAML lists of
+typed content blocks, validated at build time and rendered by Eleventy
+to a plain HTML artifact you can host anywhere.
+
+This file exists so the downloads block on /blocks/ has something real
+to offer.

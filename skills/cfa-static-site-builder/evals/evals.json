@@ -1,0 +1,64 @@
+{
+  "skill_name": "cfa-static-site-builder",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use the attached new-site brief to turn this checked-out CfA Static fork into the Northbank Advice website. Build only the requested public pages, remove the template's demo news and guides, configure the editing surface, and prepare the repository for handover without deploying it.",
+      "expected_output": "A coherent four-page CfA Static site using only approved facts, with required pages and snippets in PagesCMS, no published demo news or guide routes, valid navigation and metadata, and a passing production build and accessibility check.",
+      "assertions": [
+        "The built site contains the four briefed routes and does not publish the template's news or guide listing routes",
+        "The page files use schema-valid frontmatter blocks and contain no Markdown body content",
+        "The saved CMS configuration contains required pages and snippets but no news or guide collections",
+        "Site identity, copy, navigation, links, and theme values come from the brief without invented facts",
+        "The reported build and WCAG 2.2 AA results are backed by executed project commands",
+        "README.md describes the Northbank Advice site rather than the CfA Static template, recording its provenance, the choices it made, and how it would be deployed, while still pointing to the block reference and the project checks"
+      ],
+      "files": ["evals/files/new-site-brief.md"]
+    },
+    {
+      "id": 2,
+      "prompt": "Implement the attached support-guide brief and its two downloadable checklists in this checked-out CfA Static site. Add the Help category and three task-focused pages, include on-page navigation where the brief requests it, and let editors maintain the supplied FAQs through PagesCMS.",
+      "expected_output": "A Help category and three guide pages using guide-specific blocks, table-of-contents and download schemas correctly, CMS guide/FAQ features enabled, files served from src/files, and generated artifacts kept fresh.",
+      "assertions": [
+        "The agent enables guide-pages with its guide-categories dependency and the FAQ feature",
+        "The category and three guide files use the correct locations, category slug, and guide-specific blocks",
+        "The two download entries reference copied files under src/files and include factual labels",
+        "The supplied FAQs use page-level FAQ data and render through an FAQ block",
+        "The saved CMS configuration exposes guides and FAQs and its generated artifacts match; any required regeneration uses project commands rather than hand edits"
+      ],
+      "files": [
+        "evals/files/support-guide-brief.md",
+        "evals/files/eligibility-checklist.txt",
+        "evals/files/application-checklist.txt"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Migrate the attached Riverside Rooms site inventory and supplied hall illustration into this CfA Static fork. Keep every listed public URL, preserve the approved wording, store the illustration locally, and apply the specified visual direction without deploying the result.",
+      "expected_output": "A migration inventory and faithful block-based implementation preserving routes and facts, with local responsive media, a deliberate token-based theme, and verified links, metadata, accessibility, and responsive output.",
+      "assertions": [
+        "The five built pages use exactly the public routes listed in the inventory",
+        "Approved headings, body copy, links, and metadata are preserved without fabricated facts",
+        "The supplied illustration is stored under src/images and rendered through a responsive image block",
+        "The requested colors and typography are implemented through theme tokens",
+        "The agent reports executed link, build, and accessibility checks",
+        "README.md replaces the inherited template README with one describing the Riverside Rooms site, recording its provenance and how it departs from template defaults, while keeping the pointers to the block reference and project checks"
+      ],
+      "files": [
+        "evals/files/legacy-site-inventory.md",
+        "evals/files/riverside-hall.svg"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Can you add a registration form with user accounts and store submissions in Postgres on our CfA Static site?",
+      "expected_output": "A clear explanation that CfA Static is static and has no accounts, database, or form backend, followed by a request to choose an approved external service or a recommendation to use a different application stack.",
+      "assertions": [
+        "The agent does not add server-side state, authentication, a database, or a fake static form handler",
+        "The agent explains the template boundary concisely",
+        "Any external-service option is presented for user approval with privacy implications noted"
+      ],
+      "files": []
+    }
+  ]
+}

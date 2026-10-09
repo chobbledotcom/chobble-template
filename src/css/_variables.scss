@@ -19,7 +19,8 @@ $color-bg: #fafafa !default;
 $body-background-alt: #f3f4f6 !default;
 $color-card-bg: #fff !default;
 $color-text: #1f2937 !default;
-$color-text-muted: #6b7280 !default;
+// Muted text keeps 4.5:1 on the alternate background (#f3f4f6) too
+$color-text-muted: #5b6270 !default;
 $color-primary: #2563eb !default;
 $color-primary-dark: #1d4ed8 !default;
 $color-tint: #dbeafe !default;
@@ -31,7 +32,8 @@ $color-hover-bg: rgb(0 0 0 / 5%) !default;
 $color-dark-bg: #1f2937 !default;
 $color-dark-bg-alt: color.scale($color-dark-bg, $lightness: -15%) !default;
 $color-dark-text: #f9fafb !default;
-$color-dark-text-muted: #9ca3af !default;
+// Keeps 4.5:1 on the dark card background (code block toolbars)
+$color-dark-text-muted: #b6bcc6 !default;
 $color-dark-card-bg: #374151 !default;
 $color-dark-link: #d1d5db !default;
 
@@ -162,6 +164,9 @@ $z-sticky: 200 !default;
 $z-overlay: 300 !default;
 $z-modal: 400 !default;
 $z-toast: 500 !default;
+// The skip link must never be covered when it takes focus, whatever a theme
+// stacks its sticky header or menu overlay at (WCAG 2.4.11).
+$z-skip-link: 10000 !default;
 
 // -----------------------------------------------------------------------------
 // BREAKPOINTS

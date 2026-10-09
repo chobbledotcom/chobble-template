@@ -1,14 +1,10 @@
-import { describe, expect, test } from "bun:test";
-import {
-  getFirstValidImage,
-  isValidImage,
-  toAbsoluteImageUrl,
-} from "#media/image-frontmatter.js";
+import { describe, expect, test } from "vitest";
+import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { createTempFile, fs, path, withTempDir } from "#test/test-utils.js";
 
 /**
  * Creates a temp directory with src/images structure and optional test files.
- * Returns srcDir to pass as baseDir to isValidImage/getFirstValidImage.
+ * Returns srcDir to pass as baseDir to getFirstValidImage.
  */
 const withImageTestDir = (name, filenames, callback) =>
   withTempDir(name, (tempDir) => {
@@ -22,84 +18,84 @@ const withImageTestDir = (name, filenames, callback) =>
   });
 
 describe("image-frontmatter", () => {
-  describe("toAbsoluteImageUrl", () => {
-    test("keeps rooted image paths unchanged", () => {
-      expect(toAbsoluteImageUrl("/images/example.jpg")).toBe(
-        "/images/example.jpg",
-      );
-    });
+  test.each([
+    null,
+    undefined,
+    "",
+    "   ",
+  ])("ignores empty candidate %j", (candidate) => {
+    expect(getFirstValidImage([candidate])).toBeUndefined();
+    expect(
+      getFirstValidImage([candidate, "https://example.com/image.jpg"]),
+    ).toBe("https://example.com/image.jpg");
+  });
 
-    test("normalizes images/ path to rooted /images/ path", () => {
-      expect(toAbsoluteImageUrl("images/example.jpg")).toBe(
-        "/images/example.jpg",
-      );
-    });
+  test.each([
+    "http://example.com/image.jpg",
+    "https://example.com/image.jpg",
+  ])("accepts external image %s", (url) => {
+    expect(getFirstValidImage([url])).toBe(url);
+  });
 
-    test("normalizes bare filename to /images/ path", () => {
-      expect(toAbsoluteImageUrl("example.jpg")).toBe("/images/example.jpg");
+  test.each([
+    "/images/photo.jpg",
+    "images/photo.jpg",
+    "src/images/photo.jpg",
+    "/src/images/photo.jpg",
+  ])("returns the original path for existing image %s", (imagePath) => {
+    withImageTestDir("image-prefix", ["photo.jpg"], (srcDir) => {
+      expect(getFirstValidImage([imagePath], srcDir)).toBe(imagePath);
     });
+  });
 
-    test("keeps external URLs unchanged", () => {
-      expect(toAbsoluteImageUrl("https://example.com/image.jpg")).toBe(
-        "https://example.com/image.jpg",
+  test("throws for a missing local candidate rather than falling back", () => {
+    withImageTestDir("image-missing", [], (srcDir) => {
+      expect(() =>
+        getFirstValidImage(
+          ["/images/missing.jpg", "https://example.com/fallback.jpg"],
+          srcDir,
+        ),
+      ).toThrow(
+        `Image file not found: ${path.join(srcDir, "images/missing.jpg")}`,
       );
     });
   });
 
-  describe("isValidImage", () => {
-    test("returns false for null", () => {
-      expect(isValidImage(null)).toBe(false);
+  test("does not validate candidates after the first valid image", () => {
+    withImageTestDir("image-short-circuit", [], (srcDir) => {
+      expect(
+        getFirstValidImage(
+          ["https://example.com/first.jpg", "/images/missing.jpg"],
+          srcDir,
+        ),
+      ).toBe("https://example.com/first.jpg");
     });
+  });
 
-    test("returns false for undefined", () => {
-      expect(isValidImage(undefined)).toBe(false);
+  test("reuses existence checks across calls and equivalent path prefixes", () => {
+    withImageTestDir("image-cache", ["photo.jpg"], (srcDir) => {
+      expect(getFirstValidImage(["/images/photo.jpg"], srcDir)).toBe(
+        "/images/photo.jpg",
+      );
+      fs.unlinkSync(path.join(srcDir, "images/photo.jpg"));
+      expect(getFirstValidImage(["src/images/photo.jpg"], srcDir)).toBe(
+        "src/images/photo.jpg",
+      );
     });
+  });
 
-    test("returns false for empty string", () => {
-      expect(isValidImage("")).toBe(false);
-    });
-
-    test("returns false for whitespace-only string", () => {
-      expect(isValidImage("   ")).toBe(false);
-    });
-
-    test("returns true for http URL", () => {
-      expect(isValidImage("http://example.com/image.jpg")).toBe(true);
-    });
-
-    test("returns true for https URL", () => {
-      expect(isValidImage("https://example.com/image.jpg")).toBe(true);
-    });
-
-    test("returns true for existing local file", () => {
-      withImageTestDir("isValidImage-existing", ["test.jpg"], (srcDir) => {
-        expect(isValidImage("/images/test.jpg", srcDir)).toBe(true);
-      });
-    });
-
-    test("returns true for existing file with src/ prefix", () => {
-      withImageTestDir("isValidImage-src-prefix", ["photo.jpg"], (srcDir) => {
-        expect(isValidImage("src/images/photo.jpg", srcDir)).toBe(true);
-      });
-    });
-
-    test("throws error for non-existent local file", () => {
-      withImageTestDir("isValidImage-nonexistent", [], (srcDir) => {
-        expect(() => isValidImage("/images/missing.jpg", srcDir)).toThrow(
-          /Image file not found/,
+  test("does not share existence results between base directories", () => {
+    withImageTestDir("image-base-existing", ["photo.jpg"], (srcDir) => {
+      expect(getFirstValidImage(["/images/photo.jpg"], srcDir)).toBe(
+        "/images/photo.jpg",
+      );
+      withImageTestDir("image-base-missing", [], (otherDir) => {
+        expect(() =>
+          getFirstValidImage(["/images/photo.jpg"], otherDir),
+        ).toThrow(
+          `Image file not found: ${path.join(otherDir, "images/photo.jpg")}`,
         );
       });
-    });
-
-    test("strips leading slash from path", () => {
-      withImageTestDir(
-        "isValidImage-leading-slash",
-        ["slash-test.jpg"],
-        (srcDir) => {
-          expect(isValidImage("/images/slash-test.jpg", srcDir)).toBe(true);
-          expect(isValidImage("images/slash-test.jpg", srcDir)).toBe(true);
-        },
-      );
     });
   });
 

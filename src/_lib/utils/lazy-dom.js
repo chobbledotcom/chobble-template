@@ -1,7 +1,7 @@
 // Happy-dom with DOM manipulation API
 // Provides a lightweight DOM implementation for server-side rendering
 
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoize } from "#utils/fp/memoize.js";
 
 /**
  * @typedef {import('happy-dom').Window} HappyDOMWindow
@@ -83,6 +83,12 @@ const loadDOM = async (html = "", options = {}) => {
  * promise on each release makes the waiter re-check after wakeup, which
  * correctly handles N waiters competing for K free slots.
  */
+/**
+ * Typed wrapper so resolve() takes no value.
+ * @returns {PromiseWithResolvers<void>}
+ */
+const createWaiters = () => Promise.withResolvers();
+
 /** @template T */
 class Semaphore {
   #limit;
@@ -92,7 +98,7 @@ class Semaphore {
   /** @param {number} limit */
   constructor(limit) {
     this.#limit = limit;
-    this.#waiters = Promise.withResolvers();
+    this.#waiters = createWaiters();
   }
 
   /**
@@ -107,7 +113,7 @@ class Semaphore {
     } finally {
       this.#busy -= 1;
       const previous = this.#waiters;
-      this.#waiters = Promise.withResolvers();
+      this.#waiters = createWaiters();
       previous.resolve();
     }
   }

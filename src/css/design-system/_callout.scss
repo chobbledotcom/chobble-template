@@ -1,5 +1,7 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+// jscpd:ignore-end
 
 // =============================================================================
 // CALLOUT
@@ -21,7 +23,9 @@
 
     &--info {
       --callout-bg: var(--color-tint);
-      --callout-fg: var(--color-link);
+      // The hover shade: the link colour itself falls just short of 4.5:1
+      // on the tint
+      --callout-fg: var(--color-link-hover);
     }
 
     &--warning {

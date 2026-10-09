@@ -332,7 +332,10 @@ export type EleventyCollectionItemData = BaseItemData &
       MenuItemData &
       MenuCategoryItemData &
       GuideCategoryItemData
-  >;
+  > & {
+    /** Any other frontmatter keys Eleventy passes through untouched. */
+    [key: string]: unknown;
+  };
 
 /**
  * Generic Eleventy collection item.
@@ -380,6 +383,9 @@ export type EleventyComputedData = EleventyCollectionItemData & {
   metaComputed?: Record<string, unknown>;
   /** Design system blocks for block-based content */
   blocks?: Array<{ type: string; [key: string]: unknown }>;
+  /** Marks the page whose blocks are generated from the canonical
+   * per-type examples - see `#utils/block-gallery.js` */
+  block_gallery?: boolean;
   /** Every language the site publishes, from `_data/languages.json` */
   languages?: import('./utils.d.ts').Language[];
   /** Pages that say the same thing, from `_data/translations.json` */

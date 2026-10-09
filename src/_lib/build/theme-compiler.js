@@ -13,6 +13,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import scss from "postcss-scss";
 import {
   exclude,
   filter,
@@ -21,8 +22,8 @@ import {
   pipe,
   sortBy,
   split,
-} from "#toolkit/fp/array.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+} from "#utils/fp/array.js";
+import { memoize } from "#utils/fp/memoize.js";
 
 /** @typedef {{ name: string, file: string, content: string }} ThemeFile */
 
@@ -56,8 +57,22 @@ const generateThemeSwitcherContent = memoize(() => {
   const themeRules = themes.map(
     /** @param {ThemeFile} theme */
     (theme) => {
-      const variables = theme.content.match(/:root\s*{([^}]+)}/)?.[1] ?? "";
-      return `html[data-theme="${theme.name}"] {${variables}}`;
+      const root = scss
+        .parse(theme.content, { from: theme.file })
+        .nodes.find(
+          (node) => node.type === "rule" && node.selector === ":root",
+        );
+      if (
+        root?.type !== "rule" ||
+        !root.nodes.some((node) => node.type !== "comment")
+      ) {
+        throw new Error(
+          `Theme file ${theme.file} must define a non-empty :root block with theme variables`,
+        );
+      }
+      return root
+        .clone({ selector: `html[data-theme="${theme.name}"]` })
+        .toString(scss.stringify);
     },
   );
 

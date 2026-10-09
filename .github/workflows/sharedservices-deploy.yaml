@@ -1,0 +1,82 @@
+name: Deploy to SharedServices
+
+# Build the internal site, then publish its artifact through the shared workflow.
+# Environment settings are managed through Doppler; see README.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy to
+        type: environment
+        required: true
+        default: development
+
+permissions:
+  contents: read
+  id-token: write
+
+# Let an in-flight deploy finish rather than cancelling it mid-sync.
+concurrency:
+  group: sharedservices-deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build internal site
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Restore image cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .image-cache
+          key: images-${{ hashFiles('src/images/**/*') }}
+          restore-keys: |
+            images-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        # PATH_PREFIX stays unset on purpose: the platform serves this app at
+        # the root of its own subdomain, and the build defaults the prefix to
+        # "/" — deriving it from STATIC_PREFIX would double-prefix every URL.
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          test -n "$SITE_URL" || { echo "SITE_URL is required in the selected environment" >&2; exit 1; }
+          npm run build
+
+      # Repository docs (the generated Site Builder Reference) publish
+      # alongside the site at /docs/ — same content as the public Pages
+      # deployment, per-commit.
+      - name: Merge docs into site output
+        run: cp -r docs _site/
+
+      - name: Upload site artifact
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sharedservices-site
+          path: _site
+          if-no-files-found: error
+
+  deploy:
+    needs: build
+    uses: codeforamerica/shared-services-infra/.github/workflows/shared-deploy-static.yaml@main
+    with:
+      artifact_ids: ${{ needs.build.outputs.artifact-id }}
+      environment: ${{ inputs.environment }}
+    secrets: inherit

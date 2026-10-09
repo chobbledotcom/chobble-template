@@ -1,15 +1,6 @@
 {
-	"product_name": "Products",
-	"product_permalink_dir": "products",
-	"menus_name": "Menus",
-	"menus_permalink_dir": "menus",
-	"event_name": "Events",
-	"event_permalink_dir": "events",
 	"news_name": "News",
 	"news_permalink_dir": "news",
-"property_name": "Properties",
-	"property_permalink_dir": "properties",
-	"item_about_heading": "About",
 	"guide_name": "Guide",
 	"guide_permalink_dir": "guide"
 }

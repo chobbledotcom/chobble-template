@@ -6,24 +6,71 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ES2022",
-    "types": ["bun-types"],
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node"
+    ],
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "#data/*": ["./src/_data/*"],
-      "#lib/*": ["./src/_lib/*"],
-      "#collections/*": ["./src/_lib/collections/*"],
-      "#config/*": ["./src/_lib/config/*"],
-      "#filters/*": ["./src/_lib/filters/*"],
-      "#eleventy/*": ["./src/_lib/eleventy/*"],
-      "#build/*": ["./src/_lib/build/*"],
-      "#media/*": ["./src/_lib/media/*"],
-      "#utils/*": ["./src/_lib/utils/*"],
-      "#public/*": ["./src/_lib/public/*"],
-      "#test/*": ["./test/*"]
-    },
-    "skipLibCheck": true,
-    "resolveJsonModule": true
+      "#data/*": [
+        "./src/_data/*"
+      ],
+      "#lib/*": [
+        "./src/_lib/*"
+      ],
+      "#collections/*": [
+        "./src/_lib/collections/*"
+      ],
+      "#config/*": [
+        "./src/_lib/config/*"
+      ],
+      "#eleventy/*": [
+        "./src/_lib/eleventy/*"
+      ],
+      "#build/*": [
+        "./src/_lib/build/*"
+      ],
+      "#media/*": [
+        "./src/_lib/media/*"
+      ],
+      "#transforms/*": [
+        "./src/_lib/transforms/*"
+      ],
+      "#utils/*": [
+        "./src/_lib/utils/*"
+      ],
+      "#public/*": [
+        "./src/_lib/public/*"
+      ],
+      "#test/*": [
+        "./test/*"
+      ],
+      "#scripts/*": [
+        "./scripts/*"
+      ],
+      "#bin/*": [
+        "./bin/*"
+      ]
+    }
   },
-  "include": ["src/**/*.js", "src/_lib/types/**/*.d.ts", ".eleventy.js"],
-  "exclude": ["node_modules", "_site", "coverage", "src/_lib/public/**/*.js", "src/assets/**/*.js"]
+  "include": [
+    "src/**/*.js",
+    "src/_lib/types/**/*.d.ts",
+    ".eleventy.js",
+    "scripts/**/*.js",
+    "bin/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "_site",
+    "coverage",
+    "src/_lib/public/**/*.js",
+    "src/assets/**/*.js"
+  ]
 }

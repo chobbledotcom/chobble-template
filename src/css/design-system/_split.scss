@@ -1,12 +1,24 @@
+// jscpd:ignore-start -- shared @use import block
+@use "sass:list";
+@use "sass:map";
 @use "../variables" as *;
 @use "../mixins" as *;
 @use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
 
 // =============================================================================
 // SPLIT SECTIONS (contained width)
 // =============================================================================
 
 .design-system {
+  // Colored panel button tokens: the base color doubles as the hover
+  // background for both the dark and primary panel variants.
+  @mixin split-btn-colors($base, $hover-color) {
+    --split-btn-color: #{$base};
+    --split-btn-hover-bg: #{$base};
+    --split-btn-hover-color: #{$hover-color};
+  }
+
   .split,
   .split-callout {
     @include two-column-split;
@@ -40,9 +52,12 @@
 
       figcaption {
         padding: $space-xs $space-sm;
-        font-size: $font-size-sm;
+
+        @include body-sm;
+
         font-style: italic;
-        background: var(--color-card-bg);
+
+        @include card-bg;
       }
 
       @include video-media;
@@ -54,12 +69,32 @@
   // ===========================================================================
 
   .split-full {
+
+    // Side-anchored inner padding for a split-full panel at md+.
+    @mixin split-panel-inset($side) {
+      > * {
+        @include breakpoint.up("md") {
+          padding-#{$side}: $space-2xl;
+        }
+      }
+    }
+
+    // The two panels of a colored split-full variant, built here once so the
+    // dark and primary selectors share this one source. Pass $cross: true
+    // for the transparent opposite panels.
+    @mixin split-variant-panels($variant, $cross: false) {
+      $pair: map.get((false: (left, right), true: (right, left)), $cross);
+      $left-panel: list.nth($pair, 1);
+      $right-panel: list.nth($pair, 2);
+
+      &.#{$variant}-left .#{$left-panel},
+      &.#{$variant}-right .#{$right-panel} {
+        @content;
+      }
+    }
+
     display: flex;
     flex-direction: column;
-
-    @include breakpoint.up("md") {
-      flex-direction: row;
-    }
 
     // Child panels
     .left,
@@ -80,46 +115,30 @@
       justify-content: flex-end;
       background: var(--body-background-alt);
 
-      > * {
-        @include breakpoint.up("md") {
-          padding-right: $space-2xl;
-        }
-      }
+      @include split-panel-inset(right);
     }
 
     .right {
       justify-content: flex-start;
-      background: var(--color-card-bg);
 
-      > * {
-        @include breakpoint.up("md") {
-          padding-left: $space-2xl;
-        }
-      }
+      @include card-bg;
+      @include split-panel-inset(left);
     }
 
     // Color variants — opposite panel transparent to show section background
-    &.dark-left .right,
-    &.dark-right .left {
+    @include split-variant-panels(dark, true) {
       background: transparent;
     }
 
     // Dark colored panels
-    &.dark-left .left,
-    &.dark-right .right {
+    @include split-variant-panels(dark) {
       @include dark-section-vars;
-
-      --split-btn-color: #{$color-dark-text};
-      --split-btn-hover-bg: #{$color-dark-text};
-      --split-btn-hover-color: #{$color-dark-bg};
+      @include split-btn-colors($color-dark-text, $color-dark-bg);
     }
 
     // Primary colored panels
-    &.primary-left .left,
-    &.primary-right .right {
-      --split-btn-color: var(--color-contrast-text);
-      --split-btn-hover-bg: var(--color-contrast-text);
-      --split-btn-hover-color: #{$color-text};
+    @include split-variant-panels(primary) {
+      @include split-btn-colors(var(--color-contrast-text), $color-text);
 
       background: var(--color-link);
 
@@ -140,6 +159,10 @@
           background: var(--split-btn-hover-bg);
         }
       }
+    }
+
+    @include breakpoint.up("md") {
+      flex-direction: row;
     }
   }
 }

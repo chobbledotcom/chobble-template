@@ -7,12 +7,14 @@
  * checked here against a built site.
  */
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
+import siteData from "#data/site.json" with { type: "json" };
 import { ABOUT_GROUP, DE, EN } from "#test/fixtures/languages.js";
 import { useSharedSite } from "#test/test-site-factory.js";
 
 const LANGUAGES = [EN, DE];
 const TRANSLATIONS = [ABOUT_GROUP];
+const SITE_URL = siteData.url;
 
 const alternatesOf = (doc) =>
   [...doc.querySelectorAll('link[rel="alternate"]')].map((link) => [
@@ -79,9 +81,9 @@ describe("a site publishing two languages", () => {
 
   test("gives both pages the same reciprocal hreflang set", async () => {
     const expected = [
-      ["en-GB", "https://example.chobble.com/about/"],
-      ["x-default", "https://example.chobble.com/about/"],
-      ["de", "https://example.chobble.com/de/ueber-uns/"],
+      ["en-GB", `${SITE_URL}/about/`],
+      ["x-default", `${SITE_URL}/about/`],
+      ["de", `${SITE_URL}/de/ueber-uns/`],
     ];
     expect(alternatesOf(await getSite().getDoc("/about/index.html"))).toEqual(
       expected,
@@ -124,9 +126,10 @@ describe("a site publishing two languages", () => {
 
   test("keeps a translated page's breadcrumbs in its own language", async () => {
     const doc = await getSite().getDoc("/de/ueber-uns/index.html");
-    const crumbs = doc.querySelector("ol.breadcrumbs");
-    expect(crumbs.getAttribute("aria-label")).toBe("Brotkrumennavigation");
-    const first = crumbs.querySelector("a");
+    // The trail is a navigation landmark, and the landmark carries the name.
+    const landmark = doc.querySelector("nav:has(> ol.breadcrumbs)");
+    expect(landmark.getAttribute("aria-label")).toBe("Brotkrumennavigation");
+    const first = landmark.querySelector("a");
     expect(first.getAttribute("href")).toBe("/de/");
     expect(first.textContent.trim()).toBe("Startseite");
   });
@@ -138,7 +141,7 @@ describe("a site publishing two languages", () => {
     const languages = schema["@graph"]
       .map((item) => item.inLanguage)
       .filter(Boolean);
-    expect(languages).not.toBeEmpty();
+    expect(languages.length).toBeGreaterThan(0);
     expect([...new Set(languages)]).toEqual(["de"]);
   });
 
@@ -152,8 +155,150 @@ describe("a site publishing two languages", () => {
     expect(
       list.itemListElement.map((entry) => [entry.item.name, entry.item["@id"]]),
     ).toEqual([
-      ["Startseite", "https://example.chobble.com/de/"],
-      ["Über uns", "https://example.chobble.com/de/ueber-uns/"],
+      ["Startseite", `${SITE_URL}/de/`],
+      ["Über uns", `${SITE_URL}/de/ueber-uns/`],
     ]);
+  });
+});
+
+const navPage = (path, permalink, key, extra = {}) => ({
+  path,
+  frontmatter: {
+    name: key,
+    permalink,
+    eleventyNavigation: { key },
+    blocks: [{ type: "markdown", content: `# ${key}` }],
+    ...extra,
+  },
+});
+
+const footerSnippet = (path, text) => ({
+  path,
+  frontmatter: { name: "Footer" },
+  content: text,
+});
+
+describe("a translated site's header and footer", () => {
+  const getSite = useSharedSite({
+    config: {
+      placeholder_images: false,
+      collapse_menu: "always",
+      language_switcher: "header",
+    },
+    dataFiles: [
+      { filename: "languages.json", data: LANGUAGES },
+      { filename: "translations.json", data: TRANSLATIONS },
+      {
+        filename: "site.json",
+        data: { ...siteData, logo: "/images/party.jpg" },
+      },
+    ],
+    images: ["party.jpg"],
+    files: [
+      navPage("pages/en/index.md", "/", "Home"),
+      navPage("pages/en/about.md", "/about/", "About"),
+      navPage("pages/de/index.md", "/de/", "Startseite"),
+      navPage("pages/de/ueber-uns.md", "/de/ueber-uns/", "Über uns"),
+      // A menu entry linking elsewhere has no URL or layout of its own; its
+      // language comes from where the file sits
+      navPage("pages/de/kontakt.md", false, "Kontakt", {
+        layout: false,
+        eleventyNavigation: { key: "Kontakt", url: "https://kontakt.test/" },
+      }),
+      footerSnippet("snippets/footer-content.md", "Shared footer"),
+      footerSnippet("snippets/de/footer-content.md", "Deutsche Fußzeile"),
+    ],
+  });
+
+  const doc = (path) => getSite().getDoc(path);
+  const menuOf = (page) =>
+    [...page.querySelectorAll(".site-menu a")].map((link) =>
+      link.textContent.trim(),
+    );
+
+  test("gives each language its own menu", async () => {
+    expect(menuOf(await doc("/about/index.html"))).toEqual(["About", "Home"]);
+    expect(menuOf(await doc("/de/ueber-uns/index.html"))).toEqual([
+      "Kontakt",
+      "Startseite",
+      "Über uns",
+    ]);
+  });
+
+  test("marks the current page in the menu", async () => {
+    const current = (await doc("/de/ueber-uns/index.html")).querySelector(
+      '.site-menu [aria-current="page"]',
+    );
+    expect(current.getAttribute("href")).toBe("/de/ueber-uns/");
+  });
+
+  test("names the header and its menu buttons in the page's language", async () => {
+    const nav = (await doc("/de/ueber-uns/index.html")).querySelector(
+      "nav.site-nav",
+    );
+    expect(nav.getAttribute("aria-label")).toBe(DE.navigation_label);
+    expect(nav.querySelector(".menu-toggle").textContent.trim()).toBe(
+      DE.menu_label,
+    );
+    expect(nav.querySelector(".menu-close").getAttribute("aria-label")).toBe(
+      DE.close_menu_label,
+    );
+    expect(nav.dataset.submenuLabel).toBe(DE.submenu_label);
+  });
+
+  test("names the image gallery controls in the page's language", async () => {
+    const popup = (await doc("/de/ueber-uns/index.html")).querySelector(
+      "#image-popup",
+    );
+    expect(popup.getAttribute("aria-label")).toBe(DE.gallery_label);
+    expect(
+      popup.querySelector("[data-popup-close]").getAttribute("aria-label"),
+    ).toBe(DE.close_gallery_label);
+  });
+
+  test("puts the language switcher in the header when configured", async () => {
+    const page = await doc("/about/index.html");
+    const switcher = page.querySelector("nav.site-nav .language-links a");
+    expect(switcher.getAttribute("href")).toBe("/de/ueber-uns/");
+    expect(page.querySelector("footer .language-links")).toBeNull();
+  });
+
+  test("renders a language's own snippet, falling back to the shared one", async () => {
+    const footerText = async (path) =>
+      (await doc(path)).querySelector("footer").textContent;
+    expect(await footerText("/de/ueber-uns/index.html")).toContain(
+      "Deutsche Fußzeile",
+    );
+    expect(await footerText("/about/index.html")).toContain("Shared footer");
+  });
+
+  test("links the logo, as authored, to the language's home page", async () => {
+    const logo = (await doc("/de/ueber-uns/index.html")).querySelector(
+      "a.site-logo",
+    );
+    expect(logo.getAttribute("href")).toBe("/de/");
+    expect(logo.querySelector("img").getAttribute("alt")).toBe(siteData.name);
+    expect(logo.querySelector("img").getAttribute("loading")).toBe("eager");
+    // Served as authored, not turned into raster variants
+    expect(logo.querySelector("img").getAttribute("src")).toBe(
+      "/images/party.jpg",
+    );
+    expect(logo.querySelector("picture")).toBeNull();
+  });
+});
+
+describe("a site with no navigation pages", () => {
+  const getSite = useSharedSite({
+    files: [
+      navPage("pages/index.md", "/", "Home", { eleventyNavigation: false }),
+    ],
+  });
+
+  test("renders no menu or menu toggle", async () => {
+    const nav = (await getSite().getDoc("/index.html")).querySelector(
+      "nav.site-nav",
+    );
+    expect(nav.querySelector(".site-menu")).toBeNull();
+    expect(nav.querySelector(".menu-toggle")).toBeNull();
   });
 });

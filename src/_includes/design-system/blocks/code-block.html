@@ -1,27 +1,26 @@
 {%- comment -%}
 Code block with terminal-style header and decorative dots.
 
-Accepts either direct parameters or a block object:
-  Direct: filename, code, language, reveal
-  Block:  block.filename, block.code, block.language, block.reveal
+Parameters (via block object):
+  - block.intro_content: Optional markdown intro rendered above the code block
+  - block.filename: Displayed in the toolbar header
+  - block.code: Code content
+  - block.language: Sets data-language
+  - block.reveal: If true, adds data-reveal animation
 
-Usage (direct params - used by split figure):
+Embeddable (direct params with `block: false`, used by the split-code figure):
   {% include "design-system/blocks/code-block.html",
-     filename: "example.js", code: "const x = 1;", language: "javascript"
-  %}
-
-Usage (block object - used by standalone code-block type):
-  {% include "design-system/blocks/code-block.html",
-     block: { filename: "example.js", code: "const x = 1;" }
+     block: false, filename: "example.js", code: "const x = 1;", language: "javascript"
   %}
 {%- endcomment -%}
+
+{%- include "design-system/block-intro.html" -%}
 
 {%- assign _filename = filename | default: block.filename -%}
 {%- assign _code = code | default: block.code -%}
 {%- assign _language = language | default: block.language -%}
-{%- assign _reveal = reveal | default: block.reveal -%}
 
-<div class="code-block"{% if _reveal %} data-reveal="{{ _reveal }}"{% endif %}>
+<div class="code-block"{% if block.reveal %} data-reveal{% endif %}>
   <div class="code-block-toolbar">
     <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
     <span>{{ _filename }}</span>

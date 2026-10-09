@@ -1,6 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
-  buildPdfFilename,
   buildPermalink,
   normalisePermalink,
   normaliseSlug,
@@ -122,32 +121,5 @@ describe("buildPermalink", () => {
   test("builds permalink when permalink is falsy (false)", () => {
     const data = { permalink: false, page: { fileSlug: "draft" } };
     expect(buildPermalink(data, "posts")).toBe("/posts/draft/");
-  });
-});
-
-describe("buildPdfFilename", () => {
-  test("builds PDF filename from business name and menu slug", () => {
-    const result = buildPdfFilename("My Restaurant", "lunch-menu");
-    expect(result).toBe("my-restaurant-lunch-menu.pdf");
-  });
-
-  test("slugifies business name with special characters", () => {
-    const result = buildPdfFilename("Café & Bistro", "dinner");
-    expect(result).toBe("cafe-and-bistro-dinner.pdf");
-  });
-
-  test("handles already-slugified business name", () => {
-    const result = buildPdfFilename("simple-name", "menu");
-    expect(result).toBe("simple-name-menu.pdf");
-  });
-
-  test("handles business name with numbers", () => {
-    const result = buildPdfFilename("Restaurant 42", "specials");
-    expect(result).toBe("restaurant-42-specials.pdf");
-  });
-
-  test("handles business name with apostrophes", () => {
-    const result = buildPdfFilename("Joe's Diner", "breakfast");
-    expect(result).toBe("joes-diner-breakfast.pdf");
   });
 });

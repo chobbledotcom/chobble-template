@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   BLOCK_DOCS,
   BLOCK_SCHEMAS,
@@ -7,13 +7,42 @@ import {
   validateBlocks,
 } from "#utils/block-schema.js";
 
+const sampleValueFor = (fieldDef) => {
+  if (fieldDef.list) return [];
+  if (fieldDef.type === "number") return 1;
+  if (fieldDef.type === "boolean") return true;
+  if (fieldDef.type === "object") {
+    return Object.fromEntries(
+      Object.entries(fieldDef.fields).map(([key, childDef]) => [
+        key,
+        sampleValueFor(childDef),
+      ]),
+    );
+  }
+  return "test-value";
+};
+
+const validBlockFor = (blockType) => ({
+  type: blockType,
+  ...Object.fromEntries(
+    Object.entries(BLOCK_SCHEMAS[blockType])
+      .filter(([, fieldDef]) => fieldDef.required)
+      .map(([key, fieldDef]) => [key, sampleValueFor(fieldDef)]),
+  ),
+});
+
+const markdownWithUnknownKey = () => ({
+  type: "markdown",
+  content: "Valid",
+  video_url: "bad",
+});
+
 describe("BLOCK_DOCS shape", () => {
   // One test per block so the failure message identifies the broken module.
   for (const [blockType, docs] of Object.entries(BLOCK_DOCS)) {
-    test(`${blockType}: docs expose a non-empty summary and params object`, () => {
+    test(`${blockType}: docs expose a non-empty summary`, () => {
       expect(typeof docs.summary).toBe("string");
       expect(docs.summary.length).toBeGreaterThan(0);
-      expect(docs.params).toEqual(expect.any(Object));
     });
   }
 });
@@ -22,17 +51,9 @@ describe("validateBlocks accepts every schema-declared key", () => {
   // Data-driven replacement for the per-block "allows all valid keys for X"
   // tests. If a block schema drops a legitimate key, the corresponding
   // test case here will fail and name the block.
-  const sampleValueFor = (fieldDef) => {
-    if (fieldDef.list) return [];
-    if (fieldDef.type === "number") return 1;
-    if (fieldDef.type === "boolean") return true;
-    if (fieldDef.type === "object") return {};
-    return "test-value";
-  };
-
   for (const [blockType, fieldDefs] of Object.entries(BLOCK_SCHEMAS)) {
     test(`${blockType}: block with every schema key validates`, () => {
-      const block = { type: blockType };
+      const block = validBlockFor(blockType);
       for (const [key, fieldDef] of Object.entries(fieldDefs)) {
         block[key] = sampleValueFor(fieldDef);
       }
@@ -46,7 +67,7 @@ describe("validateBlocks accepts common wrapper keys on every block", () => {
   // be accepted on every block type regardless of its own schema.
   for (const blockType of Object.keys(BLOCK_SCHEMAS)) {
     test(`${blockType}: dark accepted`, () => {
-      const block = { type: blockType, dark: true };
+      const block = { ...validBlockFor(blockType), dark: true };
       expect(() => validateBlocks([block])).not.toThrow();
     });
   }
@@ -80,7 +101,7 @@ describe("validateBlocks error handling", () => {
   });
 
   test("throws when a block has an unknown key and lists allowed keys", () => {
-    const blocks = [{ type: "video-background", video_url: "bad" }];
+    const blocks = [markdownWithUnknownKey()];
     expect(() => validateBlocks(blocks)).toThrow('unknown keys: "video_url"');
     expect(() => validateBlocks(blocks)).toThrow("Allowed keys:");
   });
@@ -94,13 +115,13 @@ describe("validateBlocks error handling", () => {
   test("reports the offending block index (1-based) in error messages", () => {
     const blocks = [
       { type: "section-header", intro: "## Hello" },
-      { type: "video-background", video_url: "bad" },
+      { type: "markdown", content: "Valid", video_url: "bad" },
     ];
     expect(() => validateBlocks(blocks)).toThrow("block 2");
   });
 
   test("appends caller-supplied context to the error message", () => {
-    const blocks = [{ type: "video-background", video_url: "bad" }];
+    const blocks = [markdownWithUnknownKey()];
     expect(() => validateBlocks(blocks, " in test-file.html")).toThrow(
       "in test-file.html",
     );
@@ -110,7 +131,9 @@ describe("validateBlocks error handling", () => {
     // split-callout and split-image share a base but diverge: figure_src
     // belongs to split-image, not split-callout. This guards against
     // cross-variant key leaks.
-    const blocks = [{ type: "split-callout", figure_src: "/img.jpg" }];
+    const blocks = [
+      { type: "split-callout", content: "Valid", figure_src: "/img.jpg" },
+    ];
     expect(() => validateBlocks(blocks)).toThrow('unknown keys: "figure_src"');
   });
 
@@ -141,8 +164,8 @@ describe("validateBlocks error handling", () => {
 
   test("collects errors from all blocks rather than stopping at the first", () => {
     const blocks = [
-      { type: "video-background", video_url: "bad" },
-      { type: "stats", bogus_key: "x" },
+      { type: "markdown", content: "Valid", video_url: "bad" },
+      { type: "stats", items: [], bogus_key: "x" },
     ];
     expect(() => validateBlocks(blocks)).toThrow("block 1");
     expect(() => validateBlocks(blocks)).toThrow("block 2");
@@ -159,16 +182,16 @@ describe("validateBlocks field-type validation", () => {
   // the offending block, field, and file.
 
   test("rejects a markdown field authored as an array", () => {
-    const blocks = [{ type: "contact-form", content: ["a", "b"] }];
+    const blocks = [{ type: "markdown", content: ["a", "b"] }];
     expect(() => validateBlocks(blocks)).toThrow(
-      'Block "contact-form" field "content" must be a string but got array',
+      'Block "markdown" field "content" must be a string but got array',
     );
   });
 
   test("rejects a markdown field authored as an object", () => {
-    const blocks = [{ type: "contact-form", content: { text: "hi" } }];
+    const blocks = [{ type: "markdown", content: { text: "hi" } }];
     expect(() => validateBlocks(blocks)).toThrow(
-      'Block "contact-form" field "content" must be a string but got object',
+      'Block "markdown" field "content" must be a string but got object',
     );
   });
 
@@ -184,7 +207,7 @@ describe("validateBlocks field-type validation", () => {
       {
         type: "iframe-embed",
         src: "https://example.com",
-        title: "Demo",
+        name: "Demo",
         width: "560",
       },
     ];
@@ -194,9 +217,9 @@ describe("validateBlocks field-type validation", () => {
   });
 
   test("rejects a boolean field authored as a string", () => {
-    const blocks = [{ type: "reviews", current_item: "yes" }];
+    const blocks = [{ type: "features", items: [], center: "yes" }];
     expect(() => validateBlocks(blocks)).toThrow(
-      'Block "reviews" field "current_item" must be a boolean but got string',
+      'Block "features" field "center" must be a boolean but got string',
     );
   });
 
@@ -209,7 +232,7 @@ describe("validateBlocks field-type validation", () => {
 
   test("rejects an object field authored as an array", () => {
     const blocks = [
-      { type: "cta", title: "Hi", button: [{ text: "x", href: "/" }] },
+      { type: "cta", content: "Hi", button: [{ text: "x", href: "/" }] },
     ];
     expect(() => validateBlocks(blocks)).toThrow(
       'Block "cta" field "button" must be an object but got array',
@@ -223,24 +246,108 @@ describe("validateBlocks field-type validation", () => {
     );
   });
 
-  test("allows null to mean 'omitted'", () => {
-    const blocks = [{ type: "contact-form", content: null }];
+  test("allows null to omit an optional field", () => {
+    const blocks = [{ type: "markdown", content: "Valid", compact: null }];
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
   test("field-type error includes the file context", () => {
-    const blocks = [{ type: "contact-form", content: ["a"] }];
-    expect(() => validateBlocks(blocks, " in src/products/widget.md")).toThrow(
-      "in src/products/widget.md",
+    const blocks = [{ type: "markdown", content: ["a"] }];
+    expect(() => validateBlocks(blocks, " in src/pages/widget.md")).toThrow(
+      "in src/pages/widget.md",
     );
   });
 
   test("field-type error reports the block index", () => {
     const blocks = [
       { type: "section-header", intro: "x" },
-      { type: "contact-form", content: { bad: true } },
+      { type: "markdown", content: { bad: true } },
     ];
     expect(() => validateBlocks(blocks)).toThrow("block 2");
+  });
+});
+
+describe("validateBlocks required-field validation", () => {
+  test.each([
+    undefined,
+    null,
+    "",
+    "   ",
+  ])("rejects a missing or blank top-level required field: %s", (content) => {
+    const block = { type: "markdown" };
+    if (content !== undefined) block.content = content;
+    expect(() => validateBlocks([block])).toThrow(
+      'Block "markdown" is missing required "content" field',
+    );
+  });
+
+  test("accepts false, zero, and an empty required list as present values", () => {
+    expect(() =>
+      validateBlocks([
+        { type: "features", items: [] },
+        { type: "stats", items: [{ value: 0, label: false }] },
+      ]),
+    ).not.toThrow();
+  });
+
+  test("does not require children of an omitted optional object", () => {
+    expect(() =>
+      validateBlocks([{ type: "cta", content: "Valid" }]),
+    ).not.toThrow();
+  });
+
+  test("requires children when an optional object is present", () => {
+    expect(() =>
+      validateBlocks([
+        { type: "cta", content: "Valid", button: { text: "Go" } },
+      ]),
+    ).toThrow('Block "cta" "button" is missing required "href" field');
+  });
+
+  test("collects every missing required field in an object-list entry", () => {
+    expect(() => validateBlocks([{ type: "downloads", items: [{}] }])).toThrow(
+      /"items\[0\]" is missing required "file"[\s\S]*"items\[0\]" is missing required "label"/,
+    );
+  });
+
+  test("allows non-object stat entries supported by the renderer", () => {
+    expect(() =>
+      validateBlocks([{ type: "stats", items: ["35+|Block types"] }]),
+    ).not.toThrow();
+  });
+
+  test.each([
+    null,
+    "file.txt",
+    0,
+    false,
+    [],
+  ])("rejects a non-object entry in an object list: %s", (item) => {
+    expect(() =>
+      validateBlocks([{ type: "downloads", items: [item] }]),
+    ).toThrow('Block "downloads" field "items[0]" must be an object');
+  });
+
+  test("rejects unsupported scalar stat entries", () => {
+    expect(() => validateBlocks([{ type: "stats", items: [35] }])).toThrow(
+      'Block "stats" field "items[0]" must be an object or pipe-delimited string',
+    );
+  });
+
+  test.each([
+    "",
+    "35+",
+    "|Block types",
+    "35+|",
+    "35+|Blocks|Ignored",
+  ])("rejects a malformed pipe-delimited stat entry: %s", (item) => {
+    expect(() => validateBlocks([{ type: "stats", items: [item] }])).toThrow(
+      'Block "stats" field "items[0]" must be an object or pipe-delimited string',
+    );
+  });
+
+  test("allows FAQ blocks to use page-level FAQs", () => {
+    expect(() => validateBlocks([{ type: "faqs" }])).not.toThrow();
   });
 });
 
@@ -251,10 +358,8 @@ describe("getBlockContainerWidth", () => {
     expect(getBlockContainerWidth("section-header")).toBe("wide");
   });
 
-  test("returns full for image and video background blocks", () => {
+  test("returns full for full-bleed blocks", () => {
     for (const type of [
-      "video-background",
-      "bunny-video-background",
       "image-background",
       "marquee-images",
       "hero",
@@ -268,8 +373,10 @@ describe("getBlockContainerWidth", () => {
     expect(getBlockContainerWidth("icon-links")).toBe("narrow");
   });
 
-  test("defaults unknown block types to wide", () => {
-    expect(getBlockContainerWidth("not-a-real-block")).toBe("wide");
+  test("throws on unknown block types", () => {
+    expect(() => getBlockContainerWidth("not-a-real-block")).toThrow(
+      'Unknown block type "not-a-real-block"',
+    );
   });
 });
 
@@ -284,11 +391,9 @@ describe("getBlockTemplate", () => {
   test("honors the per-module template override (split-* variants)", () => {
     for (const type of [
       "split-image",
-      "split-video",
       "split-code",
       "split-icon-links",
       "split-html",
-      "split-buy-options",
     ]) {
       expect(getBlockTemplate(type)).toBe("design-system/split.html");
     }

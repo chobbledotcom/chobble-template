@@ -1,6 +1,8 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
 @use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
 
 // =============================================================================
 // DESIGN SYSTEM ROOT
@@ -23,9 +25,13 @@
   --color-text-muted: #{$color-text-muted};
   --color-link: #{$color-primary};
   --color-link-hover: #{$color-primary-dark};
-  --link-decoration: none;
+  // Underlined, so links in running text never rely on colour alone
+  // (WCAG 1.4.1); a theme may drop it where its link colour has 3:1 against
+  // the text around it.
+  --link-decoration: underline;
   --link-decoration-hover: underline;
   --link-decoration-style: solid;
+  --breadcrumb-separator: "/";
   --color-tint: #{$color-tint};
   --color-secondary: #{$color-secondary};
   --color-accent: #{$color-accent};
@@ -79,7 +85,7 @@
 }
 
 .design-system {
-  --section-padding-y: var(--section-padding-y-sm);
+  @include section-padding-y(sm);
 
   scroll-behavior: smooth;
 
@@ -88,18 +94,15 @@
   // ===========================================================================
 
   font-family: var(--font-family-body);
-  font-size: $font-size-base;
-  line-height: $line-height-normal;
+
+  @include body-base;
+
   color: var(--color-text);
 
   -webkit-font-smoothing: antialiased;
 
   main & {
-    --section-padding-y: var(--section-padding-y-main-sm);
-
-    @include breakpoint.up("md") {
-      --section-padding-y: var(--section-padding-y-main-md);
-    }
+    @include section-padding-sm-md(main);
   }
 
   // ===========================================================================
@@ -154,9 +157,8 @@
 
   // Links - exclude buttons
   a:not(.btn) {
-    color: var(--color-link);
-    text-decoration: var(--link-decoration);
-    text-decoration-style: var(--link-decoration-style);
+    @include link-tokens;
+
     transition: color $transition-fast;
 
     &:hover {
@@ -290,14 +292,12 @@
 
     // Sections containing split-full have no padding; panels provide their own
     &:has(.split-full) {
-      padding-top: 0;
-      padding-bottom: 0;
+      @include section-flush;
     }
 
     // Sections containing a hero have no padding; the hero fills the section
     &:has(> .hero) {
-      padding-top: 0;
-      padding-bottom: 0;
+      @include section-flush;
     }
   }
 
@@ -343,7 +343,7 @@
     }
 
     time {
-      color: var(--color-text-muted);
+      @include muted-text;
     }
 
     figure {
@@ -379,9 +379,9 @@
   // ===========================================================================
   // Even sections get alternate background; odd sections inherit from body
 
-  > section:nth-child(even),
-  main > section:nth-child(even) {
-    background: var(--body-background-alt);
+  > section,
+  main > section {
+    @include zebra-stripe;
   }
 
   // Even dark sections get alternate dark background
@@ -391,12 +391,10 @@
   }
 
   @include breakpoint.up("md") {
-    --section-padding-y: var(--section-padding-y-md);
+    @include section-padding-y(md);
   }
 
-  @include breakpoint.reduced-motion {
-    scroll-behavior: auto;
-  }
+  @include reduced-motion-scroll;
 
   @include breakpoint.reduced-motion {
     [data-reveal] {

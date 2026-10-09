@@ -6,7 +6,8 @@
  * browser-side decrypt-text.js can restore them.
  */
 import getEncryptKey from "#data/encryptKey.js";
-import { decodeBase64, encrypt } from "#utils/aes-encrypt.js";
+import { decodeBase64 } from "#utils/aes-base64.js";
+import { encrypt } from "#utils/aes-encrypt.js";
 
 const keyText = getEncryptKey();
 const keyBytes = decodeBase64(keyText);

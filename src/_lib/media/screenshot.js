@@ -1,10 +1,11 @@
+/* jscpd:ignore-start -- shared browser automation import block */
 import {
   BROWSER_ARGS,
   createBatchRunner,
   createPathContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
-  ensurePlaywrightBrowsers,
+  ensureBrowserInstalled,
   frozenObject,
   getDefaultOutputDir,
   log,
@@ -12,12 +13,16 @@ import {
   runBatchOperations,
 } from "#media/browser-utils.js";
 
+/* jscpd:ignore-end */
+
+/* jscpd:ignore-start -- declaration data: viewport spec table */
 const VIEWPORTS = frozenObject({
   mobile: { width: 375, height: 667, name: "mobile" },
   tablet: { width: 768, height: 1024, name: "tablet" },
   desktop: { width: 1280, height: 800, name: "desktop" },
   "full-page": { width: 1280, height: 4000, name: "full-page" },
 });
+/* jscpd:ignore-end */
 
 const DEFAULT_OPTIONS = frozenObject({
   viewport: "desktop",
@@ -32,23 +37,34 @@ const DEFAULT_OPTIONS = frozenObject({
 
 /** @typedef {import("#media/browser-utils.js").OperationContext<typeof DEFAULT_OPTIONS>} ScreenshotContext */
 
+/** @type {Record<string, { width: number, height: number, name: string }>} */
+const viewportMap = { ...VIEWPORTS };
+
+/** @param {string} viewport */
 export const buildViewportSuffix = (viewport) =>
   viewport !== "desktop" ? `-${viewport}` : "";
 
-export const takeScreenshotWithPlaywright = async (
+/**
+ * @param {string} url
+ * @param {string} outputPath
+ * @param {string} viewport
+ * @param {{ timeout?: number }} options
+ */
+const takeScreenshotWithPlaywright = async (
   url,
   outputPath,
   viewport,
   options,
 ) => {
   const { chromium } = await import("playwright");
-  const { width, height } = VIEWPORTS[viewport] || VIEWPORTS.desktop;
+  const { width, height } = viewportMap[viewport] || VIEWPORTS.desktop;
 
   prepareOutputDir(outputPath);
 
   const browser = await chromium.launch({
     headless: true,
     args: BROWSER_ARGS,
+    executablePath: await ensureBrowserInstalled(),
   });
   const context = await browser.newContext({
     viewport: { width, height },
@@ -75,8 +91,14 @@ export const takeScreenshotWithPlaywright = async (
   return { success: true, path: outputPath, url, viewport };
 };
 
+/**
+ * Capture a page screenshot by running the Playwright pipeline in
+ * takeScreenshotWithPlaywright against the page's capture context.
+ * @param {string} pagePath
+ * @param {object} [options]
+ */
 export const screenshot = async (pagePath, options = {}) => {
-  await ensurePlaywrightBrowsers();
+  await ensureBrowserInstalled();
 
   const context = createPathContext(pagePath, DEFAULT_OPTIONS, options, {
     suffix: (opts) => buildViewportSuffix(opts.viewport),
@@ -96,6 +118,10 @@ export const screenshot = async (pagePath, options = {}) => {
 
 export const screenshotMultiple = createBatchRunner(screenshot);
 
+/**
+ * @param {string} pagePath
+ * @param {object} [options]
+ */
 export const screenshotAllViewports = (pagePath, options = {}) => {
   const viewportNames = Object.keys(VIEWPORTS);
   return runBatchOperations(

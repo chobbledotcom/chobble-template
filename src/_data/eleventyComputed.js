@@ -1,74 +1,28 @@
 import getConfig from "#data/config.js";
-import contactFormFn from "#data/contact-form.js";
-import quoteFieldsFn from "#data/quote-fields.js";
-import { slugifyAttr } from "#filters/filter-core.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
-import { collectBlockErrors } from "#utils/block-schema.js";
-import { languageForUrl, translationForUrl } from "#utils/i18n.js";
-import { getFilterAttributes } from "#utils/mock-filter-attributes.js";
+import { buildGalleryBlocks } from "#utils/block-gallery.js";
+import { applyBlockDefaults, collectBlockErrors } from "#utils/block-schema.js";
+import {
+  languageForUrl,
+  pageLocation,
+  translationForUrl,
+} from "#utils/i18n.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
   buildBaseMeta,
   buildOrganizationMeta,
   buildPostMeta,
-  buildProductMeta,
   buildSocialMeta,
 } from "#utils/schema-helper.js";
 import { collectItemErrors } from "#utils/validate-item.js";
-import { getVideoThumbnailUrl } from "#utils/video.js";
 
 /**
- * @param {import("#lib/types").EleventyComputedData} data - Page data
- * @param {string} tag - Tag to check for
- * @returns {boolean} Whether data has the given tag
+ * Throw a single error joining the messages when a list is non-empty.
+ * @param {unknown[]} messages
  */
-const hasTag = (data, tag) => (data.tags || []).includes(tag);
-
-/**
- * Default values for block types. Applied at build time so templates
- * don't need to handle defaults.
- * @type {Record<string, Record<string, unknown>>}
- */
-const BLOCK_DEFAULTS = {
-  features: { reveal: true, center: false },
-  stats: { reveal: true },
-  "split-image": { reveal_figure: "scale" },
-  "split-video": { reveal_figure: "scale" },
-  "split-code": { reveal_figure: "scale" },
-  "split-icon-links": { reveal_figure: "scale" },
-  "split-html": { reveal_figure: "scale" },
-  "split-callout": { reveal_figure: "scale" },
-  "section-header": { align: "center" },
-  "image-cards": { reveal: true },
-  "code-block": { reveal: true },
-  "icon-links": { reveal: true },
-  downloads: { reveal: true },
-};
-
-const applyBlockDefaults = (block) => {
-  const blockType = String(block.type);
-  const merged = Object.assign(
-    { dark: false },
-    BLOCK_DEFAULTS[blockType],
-    block,
-  );
-  if (blockType.startsWith("split-") && !block.reveal_content) {
-    merged.reveal_content = block.reverse ? "right" : "left";
-  }
-  return merged;
-};
-
-const enrichVideoCards = async (block) => {
-  if (block.type !== "video-cards" || !Array.isArray(block.videos))
-    return block;
-  const videos = await Promise.all(
-    block.videos.map(async (video) => ({
-      ...video,
-      thumbnail_url: await getVideoThumbnailUrl(video.id),
-    })),
-  );
-  return { ...block, videos };
+const throwIfNotEmpty = (messages) => {
+  if (messages.length > 0) throw new Error(messages.join("\n"));
 };
 
 export default {
@@ -99,47 +53,8 @@ export default {
   description: (data) => data.description || data.meta_description || "",
 
   /**
-   * Override filter_attributes with mock values in FAST_INACCURATE_BUILDS mode.
-   * Only applies to items that have filter_attributes defined (products, properties).
-   * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {Array<{name: string, value: string}>} Filter attributes (defaults to empty array)
-   */
-  filter_attributes: (data) =>
-    getFilterAttributes(data.filter_attributes, data.page.inputPath),
-
-  /**
-   * Pre-computed filter data for client-side filtering.
-   * Only computed for products. Uses .filter(Boolean) before .map() because
-   * Eleventy's ComputedDataProxy wraps arrays as sparse `new Array(N)` —
-   * .map() preserves holes causing Object.fromEntries to fail, while
-   * .filter(Boolean) materializes the proxy into a real empty array.
-   * @param {import("#lib/types").ProductItemData & import("#lib/types").EleventyComputedData} data - Page data (products only)
-   * @returns {{ name: string, price: number|undefined, filters: Record<string, string> }|undefined}
-   */
-  filter_data: (data) => {
-    if (!hasTag(data, "products")) return undefined;
-
-    const getPrice = () => {
-      if (data.options.length > 0) {
-        return Math.min(...data.options.map((o) => o.unit_price));
-      }
-      if (data.price === undefined || data.price === null) return undefined;
-      const numeric = String(data.price).replace(/[^0-9.]/g, "");
-      if (numeric === "") return undefined;
-      return Number(numeric);
-    };
-
-    return {
-      name: data.name.toLowerCase(),
-      price: getPrice(),
-      filters: Object.fromEntries(
-        data.filter_attributes.filter(Boolean).map(slugifyAttr),
-      ),
-    };
-  },
-
-  /**
-   * The language this page is written in, read from its URL prefix. The layout,
+   * The language this page is written in, read from its URL prefix (or, for a
+   * page with no URL, from where its file sits - see pageLocation). The layout,
    * the head tags, the breadcrumbs and the language switcher read it, so a
    * site with one language gets that language on every page and nothing has to
    * ask whether the site is translated at all.
@@ -150,7 +65,8 @@ export default {
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {import("#lib/types").Language|undefined}
    */
-  pageLanguage: (data) => languageForUrl(data.page?.url, data.languages || []),
+  pageLanguage: (data) =>
+    languageForUrl(pageLocation(data.page), data.languages || []),
 
   /**
    * The URLs of this page in every language it has been written in, keyed by
@@ -161,9 +77,6 @@ export default {
   pageTranslation: (data) =>
     translationForUrl(data.page?.url, data.translations || []),
 
-  contactForm: () => contactFormFn(),
-  quoteFields: () => quoteFieldsFn(),
-
   /**
    * Finds the first valid thumbnail from available images, or returns a
    * placeholder if configured
@@ -173,19 +86,12 @@ export default {
   thumbnail: (data) => {
     const image = getFirstValidImage([data.thumbnail, data.gallery?.[0]]);
     if (image) return image;
-    if (hasTag(data, "reviews") || hasTag(data, "team")) return null;
     const config = data.config || getConfig();
     if (!config.placeholder_images) return null;
     const url = data.page?.url;
     if (typeof url !== "string") return null;
     return getPlaceholderForPath(url);
   },
-
-  /**
-   * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {number} Rating (defaults to 5 for reviews without explicit rating)
-   */
-  rating: (data) => data.rating ?? 5,
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
@@ -228,34 +134,39 @@ export default {
    */
   meta: (data) => {
     if (data.no_index) return undefined;
-    if (hasTag(data, "products")) return buildProductMeta(data);
-    if (hasTag(data, "news")) return buildPostMeta(data);
+    if ((data.tags || []).includes("news")) return buildPostMeta(data);
     if (data.schema_type === "organization") return buildOrganizationMeta(data);
     return buildBaseMeta(data);
   },
 
   /**
-   * Validates and applies default values to blocks. Works for any content
-   * with blocks. Also enriches `video-cards` blocks with `thumbnail_url`
-   * for each video so templates don't need to fetch them.
+   * Validates blocks and fills their schema defaults. Works for any content
+   * with blocks.
+   *
+   * A page flagged `block_gallery` builds its blocks from the canonical
+   * per-type examples instead of frontmatter - see
+   * `#utils/block-gallery.js`. A paginated reference page carries its
+   * document's pre-built blocks as `doc` - see
+   * `#collections/docs-references.js`.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {Promise<Array<Record<string, unknown>>|undefined>} Blocks with defaults applied
    * @throws {Error} If any block contains unknown keys
    */
   blocks: async (data) => {
     const context = ` in ${data.page.inputPath}`;
-    const itemErrors = collectItemErrors(data, context);
-    if (!data.blocks) {
-      if (itemErrors.length > 0) throw new Error(itemErrors.join("\n"));
-      return data.blocks;
-    }
-    const allErrors = [
-      ...itemErrors,
-      ...collectBlockErrors(data.blocks, context),
-    ];
-    if (allErrors.length > 0) throw new Error(allErrors.join("\n"));
-    return Promise.all(
-      data.blocks.map(applyBlockDefaults).map(enrichVideoCards),
+    const doc = /** @type {{ blocks?: Array<Record<string, unknown>> }} */ (
+      data.doc
     );
+    const fromGallery = data.block_gallery ? buildGalleryBlocks() : undefined;
+    const sourceBlocks = doc?.blocks || fromGallery || data.blocks;
+    if (!sourceBlocks) {
+      throwIfNotEmpty(collectItemErrors(data, context));
+      return sourceBlocks;
+    }
+    throwIfNotEmpty([
+      ...collectItemErrors(data, context),
+      ...collectBlockErrors(sourceBlocks, context),
+    ]);
+    return sourceBlocks.map(applyBlockDefaults);
   },
 };

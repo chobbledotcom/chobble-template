@@ -4,12 +4,12 @@ src/_lib/public/ui/image-popup.js with slides and thumbnails cloned from a
 [data-popup-scope] gallery's hidden full-size images. Rendered on every page
 so product, property, and gallery-block galleries can all open it.
 {%- endcomment -%}
-<dialog id="image-popup" class="image-popup" aria-label="Image gallery">
-  <button type="button" class="popup-close" data-popup-close aria-label="Close gallery">
+<dialog id="image-popup" class="image-popup" aria-label="{{ pageLanguage.gallery_label }}">
+  <button type="button" class="popup-close" data-popup-close aria-label="{{ pageLanguage.close_gallery_label }}">
     {{- "hugeicons:cancel-01" | icon -}}
   </button>
   <div class="popup-stage">
-    <button type="button" class="popup-nav" data-nav="prev" aria-label="Previous image">
+    <button type="button" class="popup-nav" data-nav="prev" aria-label="{{ pageLanguage.previous_image_label }}">
       <span class="popup-nav-icon">{{- "hugeicons:arrow-left-01" | icon -}}</span>
     </button>
     <div
@@ -17,9 +17,9 @@ so product, property, and gallery-block galleries can all open it.
       data-popup-track
       tabindex="0"
       role="group"
-      aria-label="Images"
+      aria-label="{{ pageLanguage.gallery_images_label }}"
     ></div>
-    <button type="button" class="popup-nav" data-nav="next" aria-label="Next image">
+    <button type="button" class="popup-nav" data-nav="next" aria-label="{{ pageLanguage.next_image_label }}">
       <span class="popup-nav-icon">{{- "hugeicons:arrow-right-01" | icon -}}</span>
     </button>
   </div>

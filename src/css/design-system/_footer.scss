@@ -1,6 +1,8 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
 @use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
 
 // =============================================================================
 // FOOTER
@@ -28,13 +30,10 @@
     }
 
     .language-links {
-      @include flex-row($space-md, center, center);
-
-      flex-wrap: wrap;
+      @include flex-row-wrap;
 
       margin: 0 0 $space-md;
       padding: 0;
-
       list-style: none;
     }
 

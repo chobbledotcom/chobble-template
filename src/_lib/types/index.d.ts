@@ -20,6 +20,10 @@ export type {
 // =============================================================================
 // Eleventy Types
 // =============================================================================
+
+/** Build Awesome's official configuration API (Eleventy v4 UserConfig). */
+export type UserConfig = import("@awesome.me/buildawesome/UserConfig").default;
+
 export type {
   // Page data
   EleventyPageData,

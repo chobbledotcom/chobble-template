@@ -2,4 +2,4 @@
 name: Footer Content
 ---
 
-Example Web Design in Prestwich
+An example informational site built from the template

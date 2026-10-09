@@ -2,9 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import markdownIt from "markdown-it";
-import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
-import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { registerFilters } from "#eleventy/register.js";
+import { toBlockArray } from "#utils/block-columns.js";
+import { normaliseBlocks } from "#utils/block-schema.js";
+import { memoize } from "#utils/fp/memoize.js";
 import { processLiquidStrings } from "#utils/liquid-render.js";
 import { validateSidebarBlocks } from "#utils/sidebar-blocks.js";
 
@@ -67,6 +68,12 @@ const requireBlankLineBeforeLists = (md) => {
   const { fn: listRule, alt } = ruler.__rules__[ruler.__find__("list")];
   ruler.at(
     "list",
+    /**
+     * @param {any} state
+     * @param {number} startLine
+     * @param {number} endLine
+     * @param {boolean} silent
+     */
     (state, startLine, endLine, silent) => {
       if (silent && state.parentType === "paragraph" && state.listIndent < 0) {
         return false;
@@ -96,20 +103,8 @@ const createMarkdownRenderer = () => {
  * @typedef {{ blocks?: Record<string, unknown>[] } & Record<string, unknown>} SnippetData
  */
 
-/** @type {AsyncHtmlProvider} */
-const getOpeningHtml = /** @type {any} */ (getOpeningTimesHtml);
-/** @type {AsyncHtmlProvider} */
-const getRecurringHtml = /** @type {any} */ (getRecurringEventsHtml);
-
 /** @param {unknown[]} args */
 const cacheKeyFromArgs = (args) => args.join(",");
-
-/**
- * @param {string} relativePath
- * @param {string} [baseDir]
- */
-const resolvePath = (relativePath, baseDir = process.cwd()) =>
-  path.join(baseDir, relativePath);
 
 /** @param {string} dirPath */
 const ensureDir = (dirPath) => {
@@ -119,60 +114,46 @@ const ensureDir = (dirPath) => {
   return dirPath;
 };
 
-const fileExists = memoize(
-  /**
-   * @param {string} relativePath
-   * @param {string} baseDir
-   */
-  (relativePath, baseDir) => fs.existsSync(resolvePath(relativePath, baseDir)),
-  { cacheKey: cacheKeyFromArgs },
-);
-
-const readFileContent = memoize(
-  /**
-   * @param {string} relativePath
-   * @param {string} baseDir
-   */
-  (relativePath, baseDir) => {
-    const fullPath = resolvePath(relativePath, baseDir);
-    if (!fs.existsSync(fullPath)) return "";
-    return fs.readFileSync(fullPath, "utf8");
-  },
-  { cacheKey: cacheKeyFromArgs },
-);
-
 /**
+ * Snippet file path for a reference: a bare name, or the
+ * `src/snippets/<name>.md` path Pages CMS saves. A page in another language
+ * reads that language's own version, `src/snippets/<code>/<name>.md`, when
+ * the site has written one, and the shared snippet otherwise.
  * @param {string} name
- * @param {string} [baseDir]
+ * @param {string} baseDir
+ * @param {string} [language] - The page language's code
  */
-const loadSnippet = (name, baseDir = process.cwd()) => {
-  const snippetName = path.basename(name, path.extname(name));
-  const snippetPath = path.join(baseDir, "src/snippets", `${snippetName}.md`);
-  return fs.existsSync(snippetPath) ? matter.read(snippetPath) : null;
+const snippetPath = (name, baseDir, language = "") => {
+  const file = `${path.basename(name, path.extname(name))}.md`;
+  const localised = path.join(baseDir, "src/snippets", language, file);
+  return language && fs.existsSync(localised)
+    ? localised
+    : path.join(baseDir, "src/snippets", file);
 };
+
+/** @param {string} file - A snippet path from snippetPath */
+const loadSnippet = (file) => (fs.existsSync(file) ? matter.read(file) : null);
 
 const readSnippetData = memoize(
   /**
+   * A snippet's frontmatter, empty when the snippet does not exist. Its
+   * `blocks` are validated and default-filled exactly like page blocks.
    * @param {string} name
    * @param {string} [baseDir]
+   * @param {string} [language]
    * @returns {SnippetData}
    */
-  (name, baseDir = process.cwd()) => {
-    const parsed = loadSnippet(name, baseDir);
-    return parsed ? parsed.data : {};
+  (name, baseDir = process.cwd(), language = "") => {
+    const data = loadSnippet(snippetPath(name, baseDir, language))?.data;
+    if (!data) return {};
+    if (!data.blocks) return data;
+    return {
+      ...data,
+      blocks: normaliseBlocks(data.blocks, ` in snippet "${name}"`),
+    };
   },
   { cacheKey: cacheKeyFromArgs },
 );
-
-/**
- * @param {string} content
- * @param {string} pattern
- * @param {AsyncHtmlProvider} getHtml
- */
-const replaceIfPresent = async (content, pattern, getHtml) =>
-  content.includes(pattern)
-    ? content.replace(pattern, await getHtml())
-    : content;
 
 const renderSnippet = memoize(
   /**
@@ -180,75 +161,61 @@ const renderSnippet = memoize(
    * @param {string} [defaultString]
    * @param {string} [baseDir]
    * @param {ReturnType<typeof markdownIt>} [mdRenderer]
+   * @param {string} [language]
    */
   async (
     name,
     defaultString = "",
     baseDir = process.cwd(),
     mdRenderer = createMarkdownRenderer(),
+    language = "",
   ) => {
-    const parsed = loadSnippet(name, baseDir);
+    const parsed = loadSnippet(snippetPath(name, baseDir, language));
     if (!parsed) return defaultString;
 
-    const withOpening = await replaceIfPresent(
-      parsed.content,
-      "{% opening_times %}",
-      getOpeningHtml,
-    );
-    const processed = await replaceIfPresent(
-      withOpening,
-      "{% recurring_events %}",
-      getRecurringHtml,
-    );
-
-    return mdRenderer.render(processed);
+    return mdRenderer.render(parsed.content);
   },
   { cacheKey: cacheKeyFromArgs },
 );
 
-/** @param {string} name */
-const fileExistsFilter = (name) => fileExists(name);
-
-/** @param {string} name */
-const fileMissingFilter = (name) => !fileExists(name);
-
-/** @param {string} name */
-const snippetDataFilter = (name) => readSnippetData(name);
+/**
+ * @param {string} name
+ * @param {string} [language] - The page language's code
+ */
+const snippetDataFilter = (name, language = "") =>
+  readSnippetData(name, process.cwd(), language);
 
 /**
- * @this {LiquidFilterContext}
+ * The blocks a `snippet` block renders. The referenced snippet must exist:
+ * a dangling reference fails the build instead of silently rendering
+ * nothing. Liquid in the blocks resolves in blocks.html, like page blocks.
  * @param {string} name
+ * @param {string} [language] - The page language's code
  */
-async function snippetBlocksFilter(name) {
-  return resolveSnippetBlocks(name, this.context.environments);
-}
-
-/**
- * Reads a snippet's blocks, optionally validates them, and resolves Liquid
- * expressions against the page context.
- *
- * @param {string} name
- * @param {Record<string, unknown>} context
- * @param {(blocks: Record<string, unknown>[]) => Record<string, unknown>[]} [validate]
- */
-const resolveSnippetBlocks = (name, context, validate = (blocks) => blocks) => {
-  const data = readSnippetData(name);
-  if (!data?.blocks) return [];
-  return processLiquidStrings(validate(data.blocks), context);
+const snippetBlocksFilter = (name, language = "") => {
+  if (!fs.existsSync(snippetPath(name, process.cwd(), language))) {
+    throw new Error(
+      `Snippet block references "${name}", but src/snippets/ has no such snippet`,
+    );
+  }
+  return toBlockArray(readSnippetData(name, process.cwd(), language).blocks);
 };
 
 /**
- * Like snippet_blocks, but enforces that every block type is safe inside the
- * narrow right-content sidebar column.
+ * The optional right-content sidebar's blocks, restricted to column-safe
+ * types, with Liquid resolved against the page (they render without
+ * blocks.html).
  *
  * @this {LiquidFilterContext}
  * @param {string} name
+ * @param {string} [language] - The page language's code
  */
-async function sidebarBlocksFilter(name) {
-  return resolveSnippetBlocks(
-    name,
+async function sidebarBlocksFilter(name, language = "") {
+  return processLiquidStrings(
+    validateSidebarBlocks(
+      readSnippetData(name, process.cwd(), language).blocks,
+    ),
     this.context.environments,
-    validateSidebarBlocks,
   );
 }
 
@@ -261,24 +228,19 @@ async function renderBlockLiquidFilter(blocks) {
   return processLiquidStrings(blocks, this.context.environments);
 }
 
-/** @param {string} str */
-const escapeHtmlFilter = (str) =>
-  str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-
 /**
  * @param {string} name
  * @param {string} defaultString
  * @param {ReturnType<typeof markdownIt>} mdRenderer
+ * @param {string} [language] - The page language's code
  */
-const renderSnippetShortcode = async (name, defaultString, mdRenderer) =>
-  await renderSnippet(name, defaultString, process.cwd(), mdRenderer);
-
-/** @param {string} relativePath */
-const readFileShortcode = (relativePath) => readFileContent(relativePath);
+const renderSnippetShortcode = async (
+  name,
+  defaultString,
+  mdRenderer,
+  language = "",
+) =>
+  await renderSnippet(name, defaultString, process.cwd(), mdRenderer, language);
 
 /**
  * @param {{ addFilter: Function, addAsyncFilter: Function, addShortcode: Function, addAsyncShortcode: Function }} eleventyConfig
@@ -286,28 +248,30 @@ const readFileShortcode = (relativePath) => readFileContent(relativePath);
 const configureFileUtils = (eleventyConfig) => {
   const mdRenderer = createMarkdownRenderer();
 
-  eleventyConfig.addFilter("file_exists", fileExistsFilter);
-  eleventyConfig.addFilter("file_missing", fileMissingFilter);
-  eleventyConfig.addFilter("snippet_data", snippetDataFilter);
-  eleventyConfig.addAsyncFilter("snippet_blocks", snippetBlocksFilter);
-  eleventyConfig.addAsyncFilter("sidebar_blocks", sidebarBlocksFilter);
-  eleventyConfig.addAsyncFilter("render_block_liquid", renderBlockLiquidFilter);
-  eleventyConfig.addFilter("escape_html", escapeHtmlFilter);
-  eleventyConfig.addFilter("markdown", (str) =>
-    str ? mdRenderer.render(str) : "",
-  );
+  registerFilters(eleventyConfig)({
+    snippet_data: snippetDataFilter,
+    snippet_blocks: snippetBlocksFilter,
+    markdown: /** @param {string | null | undefined} str */ (str) =>
+      str ? mdRenderer.render(str) : "",
+  });
+  registerFilters(
+    eleventyConfig,
+    "addAsyncFilter",
+  )({
+    sidebar_blocks: sidebarBlocksFilter,
+    render_block_liquid: renderBlockLiquidFilter,
+  });
 
   eleventyConfig.addAsyncShortcode(
     "render_snippet",
     /**
      * @param {string} name
      * @param {string} defaultString
+     * @param {string} [language] - The page language's code
      */
-    async (name, defaultString) =>
-      await renderSnippetShortcode(name, defaultString, mdRenderer),
+    async (name, defaultString, language) =>
+      await renderSnippetShortcode(name, defaultString, mdRenderer, language),
   );
-
-  eleventyConfig.addShortcode("read_file", readFileShortcode);
 };
 
 export { amendMarkdown, configureFileUtils, ensureDir };

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { loadDOM, withDOMSlot } from "#utils/lazy-dom.js";
 
 describe("loadDOM", () => {

@@ -2,13 +2,16 @@
  * Shared helpers and types for the CMS config generator.
  *
  * Collects the reusable pieces that stitch collection field lists together:
- * the `FieldContext` (body field precomputed from the visual-editor
- * setting), the common meta fields, and the composition helpers (`withEnabled`,
- * `buildItem`) used by each per-collection field builder.
+ * the common meta fields, the feature-gated optional fields, and the
+ * `withEnabled` composition helper.
  */
 
-import { COMMON_FIELDS, getBodyField } from "#scripts/customise-cms/fields.js";
-import { compact, memberOf, pipe } from "#toolkit/fp/array.js";
+import {
+  COMMON_FIELDS,
+  FAQS_FIELD,
+  GALLERY_FIELD,
+} from "#scripts/customise-cms/fields.js";
+import { compact, memberOf, pipe } from "#utils/fp/array.js";
 
 /**
  * @typedef {import('./config.js').CmsConfig} CmsConfig
@@ -43,12 +46,6 @@ import { compact, memberOf, pipe } from "#toolkit/fp/array.js";
  */
 
 /**
- * @typedef {Object} FieldContext
- * @property {CmsField} body - Body field (code or rich-text based on config)
- * @property {(label: string) => CmsField} bodyWithLabel - Create body field with custom label
- */
-
-/**
  * Common meta fields added to most collections
  * @type {CmsField[]}
  */
@@ -58,46 +55,10 @@ export const META_FIELDS = [
 ];
 
 /**
- * Create precomputed fields based on visual editor setting
- * @param {boolean} useVisualEditor - Whether to use rich-text editor
- * @returns {FieldContext} Precomputed field context
- */
-export const createFieldContext = (useVisualEditor) => {
-  const body = getBodyField(useVisualEditor);
-  return {
-    body,
-    bodyWithLabel: (label) => ({ ...body, label }),
-  };
-};
-
-/**
- * Get common trailing content fields (subtitle, body, meta)
- * @param {FieldContext} fields - Precomputed fields
+ * Get common trailing content fields for block-only collections.
  * @returns {CmsField[]} Content fields
  */
-export const getContentFields = (fields) => [
-  COMMON_FIELDS.subtitle,
-  fields.body,
-  ...META_FIELDS,
-];
-
-/**
- * Top of every item: name, subtitle, thumbnail, order
- * @returns {CmsField[]}
- */
-export const getItemTop = () => [
-  COMMON_FIELDS.name,
-  COMMON_FIELDS.subtitle,
-  COMMON_FIELDS.thumbnail,
-  COMMON_FIELDS.order,
-];
-
-/**
- * Bottom of every item: body, meta
- * @param {FieldContext} fields - Precomputed fields
- * @returns {CmsField[]}
- */
-export const getItemBottom = (fields) => [fields.body, ...META_FIELDS];
+export const getContentFields = () => [COMMON_FIELDS.subtitle, ...META_FIELDS];
 
 /**
  * Build fields with an "enabled" helper that checks if a collection is enabled
@@ -106,18 +67,6 @@ export const getItemBottom = (fields) => [fields.body, ...META_FIELDS];
  */
 export const withEnabled = (buildFn) => (config) =>
   pipe(memberOf, buildFn, compact)(config.collections);
-
-/**
- * Build fields for an item (top, [middle], bottom)
- * @param {(enabled: (name: string) => boolean) => (false | CmsField)[]} middle
- * @returns {(config: CmsConfig, fields: FieldContext) => CmsField[]}
- */
-export const buildItem = (middle) => (config, fields) =>
-  withEnabled((enabled) => [
-    ...getItemTop(),
-    ...middle(enabled),
-    ...getItemBottom(fields),
-  ])(config);
 
 /**
  * Convert a slug to a human-readable label (e.g., "my-thing" → "My Thing")
@@ -137,3 +86,17 @@ export const slugToLabel = (slug) =>
  */
 export const getDataPath = (hasSrcFolder) =>
   hasSrcFolder ? "src/_data" : "_data";
+
+/**
+ * Optional fields gated by feature flags, in their canonical order.
+ * Shared by the standard collections and custom blocks collections so
+ * both emit the same fields for the same feature set.
+ * @param {import('./config.js').CmsFeatures} features - Enabled features
+ * @returns {(false | import('./fields.js').CmsField)[]} Fields with false for disabled features
+ */
+export const getFeatureFields = (features) => [
+  features.permalinks && COMMON_FIELDS.permalink,
+  features.redirects && COMMON_FIELDS.redirect_from,
+  features.faqs && FAQS_FIELD,
+  features.galleries && GALLERY_FIELD,
+];

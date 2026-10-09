@@ -61,6 +61,79 @@ export const languageForUrl = (url, languages) => {
 };
 
 /**
+ * Where a page sits for working out its language: its URL, or - for a page
+ * with no URL of its own (`permalink: false`, such as a navigation entry that
+ * links elsewhere) - its source path inside its collection directory, so
+ * `src/pages/es/visit.md` is Spanish like the pages published under /es/.
+ * @param {{ url?: string | false, filePathStem?: string } | undefined} page
+ * @returns {string | undefined}
+ */
+export const pageLocation = (page) =>
+  typeof page?.url === "string"
+    ? page.url
+    : page?.filePathStem?.replace(/^\/[^/]+/, "");
+
+/**
+ * Everything a language declares beyond the optional `is_default` flag. None
+ * of it comes from a page: the templates read these straight through, so a
+ * language missing one publishes an empty `hreflang`, an unnamed breadcrumb
+ * landmark, or a skip link with no text — bugs a screen reader meets long
+ * before anyone sees them.
+ */
+/* jscpd:ignore-start -- declaration data: required language field list */
+/** @type {Array<keyof import("#lib/types").Language>} */
+const REQUIRED_LANGUAGE_FIELDS = [
+  "code",
+  "hreflang",
+  "og_locale",
+  "label",
+  "home_url",
+  "home_label",
+  "breadcrumb_label",
+  "skip_to_content_label",
+  "search_label",
+  "navigation_label",
+  "menu_label",
+  "close_menu_label",
+  "submenu_label",
+  "gallery_label",
+  "close_gallery_label",
+  "previous_image_label",
+  "next_image_label",
+  "gallery_images_label",
+  "download_label",
+  "load_more_label",
+  "no_results_label",
+  "back_to_label",
+  "result_count_one_label",
+  "result_count_other_label",
+  "redirect_label",
+  "redirect_link_label",
+];
+/* jscpd:ignore-end */
+
+/**
+ * What is wrong with the fields every language must declare, as messages, or
+ * nothing. `validated-config.js` calls this once at load alongside
+ * `baseLanguageErrors`, so the templates reading these values can trust them.
+ * Each message names its language, so a site that mis-declares one is told
+ * which rather than being left to count entries in `_data/languages.json`.
+ * @param {import("#lib/types").Language[]} languages
+ * @returns {string[]}
+ */
+export const languageFieldErrors = (languages) => {
+  /** @param {import("#lib/types").Language} language */
+  const errorsFor = (language) => {
+    const name = language.code ? `"${language.code}"` : "with no code";
+    return REQUIRED_LANGUAGE_FIELDS.filter((key) => !language[key]).map(
+      (key) =>
+        `_data/languages.json language ${name} is missing a non-empty "${key}".`,
+    );
+  };
+  return languages.flatMap(errorsFor);
+};
+
+/**
  * The URLs of one page in every language it has been written in, keyed by
  * language code, or null when the page exists in one language only.
  * @param {string|undefined} url

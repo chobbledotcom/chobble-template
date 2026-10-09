@@ -1,16 +1,27 @@
-<div>
-  <label class="no-checkbox">{{ label | default: "Border" }}</label>
+{%- comment -%}
+The three controls that make up one border property. They belong together, so
+they are grouped in a fieldset the legend names, and each control names the
+part of the border it sets - a legend names a group, not the controls in it.
+{%- endcomment -%}
+{% assign border_label = label | default: "Border" %}
+{% if scope %}{% assign border_prefix = scope | append: "-" %}{% else %}{% assign border_prefix = "" %}{% endif %}
+<fieldset>
+  <legend class="no-checkbox">{{ border_label }}</legend>
   <div class="border-controls">
     <div class="border-width">
       <input
         type="number"
-        id="{% if scope %}{{ scope }}-{% endif %}border-width"
+        id="{{ border_prefix }}border-width"
+        aria-label="{{ border_label }} width"
         min="0"
         value="2"
       > <span>px</span>
     </div>
     <div class="border-style">
-      <select id="{% if scope %}{{ scope }}-{% endif %}border-style">
+      <select
+        id="{{ border_prefix }}border-style"
+        aria-label="{{ border_label }} style"
+      >
         <option value="solid">Solid</option>
         <option value="dashed">Dashed</option>
         <option value="dotted">Dotted</option>
@@ -18,8 +29,12 @@
       </select>
     </div>
     <div class="border-color">
-      <input type="color" id="{% if scope %}{{ scope }}-{% endif %}border-color">
+      <input
+        type="color"
+        id="{{ border_prefix }}border-color"
+        aria-label="{{ border_label }} colour"
+      >
     </div>
   </div>
-  <input type="hidden" id="{% if scope %}{{ scope }}-{% endif %}border" data-var="--border"{% if scope %} data-scope="{{ scope }}"{% endif %}>
-</div>
+  <input type="hidden" id="{{ border_prefix }}border" data-var="--border"{% if scope %} data-scope="{{ scope }}"{% endif %}>
+</fieldset>

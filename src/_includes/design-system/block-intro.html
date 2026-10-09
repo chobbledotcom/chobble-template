@@ -2,7 +2,8 @@
 Renders the optional markdown intro for a block.
 
 Expects:
-  block - the block frontmatter object
+  block - the block frontmatter object, or false when a block template is
+          embedded as another block's figure
 {%- endcomment -%}
 {%- if block.intro_content -%}
   <div class="prose">{{ block.intro_content | renderContent: "md" }}</div>

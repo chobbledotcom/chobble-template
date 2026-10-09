@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import { rootDir, withTempDir } from "#test/test-utils.js";
 import { regenerateToTemp } from "#test/unit/code-quality/code-quality-utils.js";
 
@@ -10,11 +10,9 @@ const GENERATOR_SCRIPT = join(
   "scripts/customise-cms/generate-full.js",
 );
 
-/** Mirrors the BLOCKS_LAYOUT.md freshness test in block-docs.test.js: the
- *  committed .pages.yml must match what the full-config generator produces,
- *  so any change to BLOCK_CMS_FIELDS or the generator output shape forces a
- *  regeneration rather than silently drifting. Regenerates to a temp path so
- *  the committed file is never written mid-run. */
+/** The committed .pages.yml must match the cms_config saved in site.json, so
+ *  per-site customization and schema changes cannot silently drift. Generates
+ *  to a temp path so the committed file is never written mid-run. */
 describe("pages-yml-freshness", () => {
   test(".pages.yml matches generator output", () =>
     withTempDir("pages-yml-freshness", (tempDir) => {
@@ -24,6 +22,9 @@ describe("pages-yml-freshness", () => {
         "PAGES_YML_OUTPUT_PATH",
         tempDir,
       );
-      expect(regenerated).toBe(committed);
+      expect(
+        regenerated,
+        ".pages.yml is stale: run npm run generate-references and re-stage it",
+      ).toBe(committed);
     }));
 });

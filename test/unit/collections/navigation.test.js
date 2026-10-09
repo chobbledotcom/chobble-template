@@ -1,25 +1,24 @@
-import { describe, expect, test } from "bun:test";
-import { DEFAULT_PRODUCT_DATA, DEFAULTS } from "#config/helpers.js";
+import fs from "node:fs";
+import { join } from "node:path";
+import { afterEach, describe, expect, test, vi } from "vitest";
+import { PAGES_DIR } from "#lib/paths.js";
 import {
   createMockEleventyConfig,
   expectResultTitles,
   item,
-  mockModule,
   withMockFetch,
 } from "#test/test-utils.js";
-import { map } from "#toolkit/fp/array.js";
+import { map } from "#utils/fp/array.js";
 
-await mockModule("#data/config.js", () => ({
-  default: () => ({
-    ...DEFAULTS,
-    products: DEFAULT_PRODUCT_DATA,
+vi.mock("#data/config.js", async () => {
+  const { mockTemplateConfig } = await import("#test/test-utils.js");
+  return mockTemplateConfig({
     nav_thumbnails: true,
     internal_link_suffix: "",
-    form_target: null,
-  }),
-}));
+  });
+});
 
-const { configureNavigation, findPageUrl, toNavigation } = await import(
+const { configureNavigation, toNavigation } = await import(
   "#collections/navigation.js"
 );
 
@@ -27,16 +26,26 @@ const MOCK_SVG = '<svg xmlns="http://www.w3.org/2000/svg"><path/></svg>';
 
 const withIconMock = (callback) => withMockFetch(MOCK_SVG, {}, callback);
 
+// Whether the site publishes a search page is decided by src/pages/search.md,
+// which a fork may delete; each search test states the answer it needs.
+const SEARCH_PAGE_PATH = join(PAGES_DIR, "search.md");
+const realExistsSync = fs.existsSync;
+const setSearchPage = (present) =>
+  vi
+    .spyOn(fs, "existsSync")
+    .mockImplementation((path) =>
+      path === SEARCH_PAGE_PATH ? present : realExistsSync(path),
+    );
+
 const pageItem = (slug, url, tags = []) => ({
   data: { tags },
   fileSlug: slug,
   url,
 });
 
-const navItem = ([title, navOptions]) =>
-  item(title, { eleventyNavigation: navOptions });
-
-const navItems = map(navItem);
+const navItems = map(([title, navOptions]) =>
+  item(title, { eleventyNavigation: navOptions }),
+);
 
 const configureWithMock = async () => {
   const mockConfig = createMockEleventyConfig();
@@ -58,65 +67,6 @@ const navEntry = (key, options = {}) => ({
   pluginType: "eleventy-navigation",
   data: options.data ?? {},
   children: options.children ?? [],
-});
-
-describe("findPageUrl", () => {
-  const HELLO_WORLD = pageItem("hello-world", "/posts/hello-world/", ["post"]);
-  const ABOUT = pageItem("about", "/about/", ["page"]);
-  const FEATURED_POST = pageItem("featured-post", "/posts/featured-post/", [
-    "post",
-    "featured",
-  ]);
-
-  test("returns the URL of the matching tag + slug", () => {
-    const collection = [HELLO_WORLD, ABOUT, FEATURED_POST];
-    expect(findPageUrl(collection, "post", "hello-world")).toBe(
-      "/posts/hello-world/",
-    );
-  });
-
-  test("matches on any of the page's tags", () => {
-    expect(findPageUrl([FEATURED_POST], "featured", "featured-post")).toBe(
-      "/posts/featured-post/",
-    );
-  });
-
-  test("matches exact slug even when similar slugs exist", () => {
-    const target = pageItem("hello-world", "/posts/hello-world/", ["post"]);
-    const collection = [
-      pageItem("hello", "/posts/hello/", ["post"]),
-      pageItem("hello-world-2", "/posts/hello-world-2/", ["post"]),
-      target,
-    ];
-    expect(findPageUrl(collection, "post", "hello-world")).toBe(target.url);
-  });
-
-  test("ignores items whose tags are missing or null", () => {
-    const target = pageItem("real", "/real/", ["post"]);
-    const noisy = [
-      { data: {}, fileSlug: "no-tags", url: "/no-tags/" },
-      pageItem("null-tags", "/null-tags/", null),
-    ];
-    expect(findPageUrl([...noisy, target], "post", "real")).toBe("/real/");
-  });
-
-  test("throws when the slug is not present", () => {
-    expect(() => findPageUrl([HELLO_WORLD], "post", "nonexistent")).toThrow(
-      'Slug "nonexistent" not found',
-    );
-  });
-
-  test("throws when the slug exists but the tag does not match", () => {
-    expect(() => findPageUrl([HELLO_WORLD], "page", "hello-world")).toThrow(
-      'Page "hello-world" does not have tag "page"',
-    );
-  });
-
-  test("throws for an empty collection", () => {
-    expect(() => findPageUrl([], "post", "test")).toThrow(
-      'Slug "test" not found',
-    );
-  });
 });
 
 describe("navigationLinks collection", () => {
@@ -156,17 +106,17 @@ describe("navigationLinks collection", () => {
     ]);
     expectResultTitles(result, ["First", "No Order A", "No Order Z"]);
   });
+
+  test("breaks ties on order using the page name when keyless", async () => {
+    const result = await getNavLinks([
+      ["Zebra", { order: 1 }],
+      ["Apple", { order: 1 }],
+    ]);
+    expectResultTitles(result, ["Apple", "Zebra"]);
+  });
 });
 
 describe("configureNavigation wiring", () => {
-  test("registers pageUrl filter that finds URLs", async () => {
-    const mockConfig = await configureWithMock();
-    const collection = [pageItem("widget", "/products/widget/", ["product"])];
-    expect(mockConfig.filters.pageUrl(collection, "product", "widget")).toBe(
-      "/products/widget/",
-    );
-  });
-
   test("registers async toNavigation filter", async () => {
     const mockConfig = await configureWithMock();
     expect(await mockConfig.asyncFilters.toNavigation([])).toBe("");
@@ -180,18 +130,61 @@ describe("configureNavigation wiring", () => {
 });
 
 describe("toNavigation", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  // Every site that publishes a search page has to name its search field, so
+  // the tests that are about something else still supply a label.
+  const renderNav = (pages, activeKey = "") =>
+    toNavigation(pages, activeKey, "Search");
+
   test("returns empty string for empty pages", async () => {
-    expect(await toNavigation([])).toBe("");
+    expect(await renderNav([])).toBe("");
   });
 
   test("renders the search form with a search input and submit button", () =>
     withIconMock(async () => {
+      setSearchPage(true);
       // search.md exists, so toNavigation appends the search item. The form's
       // body is `searchInput + searchButton`; assert both ended up inside it.
-      const html = await toNavigation([navEntry("Home", { url: "/" })], "");
+      const html = await renderNav([navEntry("Home", { url: "/" })]);
       expect(html).toContain('class="search-box"');
       expect(html).toContain('type="search"');
       expect(html).toContain("<button");
+    }));
+
+  test("names the search field and its icon button after the language", () =>
+    withIconMock(async () => {
+      // Both are unlabelled otherwise: the button holds only an icon, and the
+      // field only a placeholder.
+      setSearchPage(true);
+      const html = await toNavigation(
+        [navEntry("Home", { url: "/" })],
+        "",
+        "Suchen",
+      );
+      expect(html).toContain('<button type="submit" aria-label="Suchen"');
+      expect(html).toContain('aria-label="Suchen"');
+      expect(html).toContain('placeholder="Suchen"');
+    }));
+
+  test("refuses to render a search field it cannot name", () =>
+    withIconMock(async () => {
+      setSearchPage(true);
+      await expect(
+        toNavigation([navEntry("Home", { url: "/" })], ""),
+      ).rejects.toThrow(/search_label/);
+    }));
+
+  test("leaves the search field out when the site has no search page", () =>
+    withIconMock(async () => {
+      setSearchPage(false);
+      // No search page means no field to name, so no label is required.
+      const html = await toNavigation([navEntry("Home", { url: "/" })], "");
+      expect(html).toBe(
+        '<ul class="nav-thumbnails"><li><a href="/"><span>Home</span></a></li></ul>',
+      );
     }));
 
   test("throws when input is missing the eleventyNavigation pluginType", async () => {
@@ -203,14 +196,14 @@ describe("toNavigation", () => {
 
   test("marks the active entry with class='active'", () =>
     withIconMock(async () => {
-      const html = await toNavigation([navEntry("Home", { url: "/" })], "Home");
+      const html = await renderNav([navEntry("Home", { url: "/" })], "Home");
       expect(html).toContain('class="active"');
       expect(html).toContain('href="/"');
     }));
 
   test("only marks the matching entry as active, not its siblings", () =>
     withIconMock(async () => {
-      const html = await toNavigation(
+      const html = await renderNav(
         [navEntry("Home", { url: "/" }), navEntry("About")],
         "About",
       );
@@ -221,7 +214,7 @@ describe("toNavigation", () => {
 
   test("renders children inside a nested ul", () =>
     withIconMock(async () => {
-      const html = await toNavigation(
+      const html = await renderNav(
         [
           navEntry("Products", {
             children: [navEntry("Category A"), navEntry("Category B")],
@@ -236,7 +229,7 @@ describe("toNavigation", () => {
 
   test("renders entries without a href when url is missing", () =>
     withIconMock(async () => {
-      const html = await toNavigation(
+      const html = await renderNav(
         [
           {
             key: "No Link",
@@ -254,7 +247,7 @@ describe("toNavigation", () => {
 
   test("does not render a thumbnail for root-level entries", () =>
     withIconMock(async () => {
-      const html = await toNavigation(
+      const html = await renderNav(
         [
           navEntry("Products", {
             data: { thumbnail: "images/placeholders/blue.svg" },
@@ -268,7 +261,7 @@ describe("toNavigation", () => {
 
   test("renders a thumbnail for a child entry when nav_thumbnails is on", () =>
     withIconMock(async () => {
-      const html = await toNavigation(
+      const html = await renderNav(
         [
           navEntry("Products", {
             children: [
@@ -283,4 +276,57 @@ describe("toNavigation", () => {
       expect(html).toContain("<picture");
       expect(html).toContain("<img");
     }));
+});
+
+describe("toNavigation current page", () => {
+  const renderAt = (pages, activeKey, currentUrl) =>
+    withIconMock(() => toNavigation(pages, activeKey, "Search", currentUrl));
+
+  test("marks the page being rendered aria-current=page", async () => {
+    const html = await renderAt(
+      [navEntry("Home", { url: "/" }), navEntry("About")],
+      "About",
+      "/about/",
+    );
+    expect(html).toContain(
+      '<a class="active" href="/about/" aria-current="page">',
+    );
+    expect(html.match(/aria-current/g)).toHaveLength(1);
+  });
+
+  test("marks the section of a page outside the menu aria-current=true", async () => {
+    // A news post is not in the menu; its navigationParent (News) is active
+    const html = await renderAt(
+      [navEntry("News"), navEntry("About")],
+      "News",
+      "/news/a-post/",
+    );
+    expect(html).toContain(
+      '<a class="active" href="/news/" aria-current="true">',
+    );
+  });
+
+  test("marks a child page itself and its parent's section", async () => {
+    const html = await renderAt(
+      [navEntry("Sign up", { children: [navEntry("Get started")] })],
+      "Sign up",
+      "/get started/",
+    );
+    expect(html).toContain('href="/sign up/" aria-current="true"');
+    expect(html).toContain('href="/get started/" aria-current="page"');
+  });
+});
+
+describe("inLanguage filter", () => {
+  const inLanguageFilter = async () =>
+    (await configureWithMock()).filters.inLanguage;
+  const pageIn = (code) => ({ data: { pageLanguage: { code } }, code });
+
+  test("keeps only the navigation pages written in the given language", async () => {
+    const inLanguage = await inLanguageFilter();
+    const pages = [pageIn("en"), pageIn("es"), pageIn("en")];
+
+    expect(inLanguage(pages, { code: "es" })).toEqual([pages[1]]);
+    expect(inLanguage(pages, { code: "en" })).toEqual([pages[0], pages[2]]);
+  });
 });

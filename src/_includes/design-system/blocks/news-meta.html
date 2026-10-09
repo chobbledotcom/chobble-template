@@ -1,18 +1,4 @@
-{%- if authorSlug -%}
-  {%- assign authorData = collections.team | getBySlug: authorSlug -%}
-{%- endif -%}
-
-{%- if authorSlug and authorData.data.thumbnail -%}
-<div class="row" role="doc-subtitle">
-  <figure>
-    <a href="{{ authorData.url }}">{% image authorData.data.thumbnail, authorData.data.name, "80,160,240", "", "", "1/1" %}</a>
-  </figure>
-  <div class="stack--sm">
-    {%- include "post-meta-author.html" -%}
-    {%- include "post-meta-date.html" -%}
-  </div>
-</div>
-{%- elsif authorSlug -%}
+{%- if author -%}
 <div class="stack--sm" role="doc-subtitle">
   {%- include "post-meta-author.html" -%}
   {%- include "post-meta-date.html" -%}

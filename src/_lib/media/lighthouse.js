@@ -1,3 +1,5 @@
+import { writeFileSync } from "node:fs";
+/* jscpd:ignore-start -- shared browser automation import block */
 import {
   buildUrl,
   createBatchRunner,
@@ -13,6 +15,8 @@ import {
   sanitizePagePath,
   startServer,
 } from "#media/browser-utils.js";
+
+/* jscpd:ignore-end */
 
 const CATEGORIES = frozenObject({
   performance: "performance",
@@ -34,14 +38,26 @@ const DEFAULT_OPTIONS = frozenObject({
 
 /** @typedef {import("#media/browser-utils.js").OperationContext<typeof DEFAULT_OPTIONS>} LighthouseContext */
 
+/** @type {Record<string, string>} */
+const FORMAT_EXTENSIONS = { html: "html", json: "json", csv: "csv" };
+
+/**
+ * @param {string} url
+ * @param {string} outputPath
+ * @param {{ format?: string, onlyCategories?: string[] | null, categories?: string[], timeout?: number, thresholds?: Record<string, number> | null }} options
+ */
 export const runLighthouse = async (url, outputPath, options) => {
+  /** @param {{ port: number }} chrome */
   const runLighthouseAudit = async (chrome) => {
     const lighthouseFn = (await import("lighthouse")).default;
     return lighthouseFn(
       url,
       {
         port: chrome.port,
-        output: options.format,
+        output:
+          options.format === "json" || options.format === "csv"
+            ? options.format
+            : "html",
         logLevel: "error",
         onlyCategories: options.onlyCategories || options.categories,
       },
@@ -55,6 +71,7 @@ export const runLighthouse = async (url, outputPath, options) => {
     );
   };
 
+  /** @param {any} lhr */
   const extractScores = (lhr) => ({
     performance: lhr.categories.performance?.score,
     accessibility: lhr.categories.accessibility?.score,
@@ -62,41 +79,63 @@ export const runLighthouse = async (url, outputPath, options) => {
     seo: lhr.categories.seo?.score,
   });
 
+  /**
+   * @param {Record<string, number | null | undefined>} scores
+   * @param {Record<string, number> | null | undefined} thresholds
+   */
   const checkThresholds = (scores, thresholds) => {
     if (!thresholds) return { passed: true, failures: [] };
-    const failures = Object.entries(thresholds)
-      .filter(([cat, min]) => scores[cat] !== null && scores[cat] < min)
-      .map(([cat, min]) => ({
-        category: cat,
-        actual: Math.round(scores[cat] * 100),
-        expected: Math.round(min * 100),
-      }));
+    const failures = Object.entries(thresholds).flatMap(([cat, min]) => {
+      const actual = scores[cat];
+      return actual !== null && actual !== undefined && actual < min
+        ? [
+            {
+              category: cat,
+              actual: Math.round(actual * 100),
+              expected: Math.round(min * 100),
+            },
+          ]
+        : [];
+    });
     return { passed: failures.length === 0, failures };
   };
 
-  prepareOutputDir(outputPath);
-  const chrome = await launchChromeHeadless(await getChromePath());
-
-  try {
-    const { report, lhr } = await runLighthouseAudit(chrome);
-    await Bun.write(outputPath, report);
-    const scores = extractScores(lhr);
+  /** @param {{ port: number }} chrome */
+  const auditAndReport = async (chrome) => {
+    const result = await runLighthouseAudit(chrome);
+    if (!result) throw new Error(`Lighthouse returned no result for ${url}`);
+    writeFileSync(
+      outputPath,
+      Array.isArray(result.report) ? result.report.join("") : result.report,
+    );
+    const scores = extractScores(result.lhr);
     return {
       success: true,
       path: outputPath,
       url,
       scores,
       thresholds: checkThresholds(scores, options.thresholds),
-      finalUrl: lhr.finalDisplayedUrl,
+      finalUrl: result.lhr.finalDisplayedUrl,
     };
+  };
+
+  prepareOutputDir(outputPath);
+  const chrome = await launchChromeHeadless(await getChromePath());
+
+  try {
+    return await auditAndReport(chrome);
   } finally {
     await chrome.kill();
   }
 };
 
+/**
+ * @param {string} pagePath
+ * @param {object} [options]
+ */
 export const lighthouse = async (pagePath, options = {}) => {
-  const formatExtension = (fmt) =>
-    ({ html: "html", json: "json", csv: "csv" })[fmt] || "html";
+  /** @param {string} fmt */
+  const formatExtension = (fmt) => FORMAT_EXTENSIONS[fmt] || "html";
   const context = createPathContext(pagePath, DEFAULT_OPTIONS, options, {
     extension: (opts) => formatExtension(opts.format),
   });
@@ -107,6 +146,7 @@ export const lighthouse = async (pagePath, options = {}) => {
     context.outputPath,
     context.opts,
   );
+  /** @param {number | null} s */
   const formatScore = (s) => (s === null ? "N/A" : `${Math.round(s * 100)}`);
   const scoreStr = Object.entries(result.scores)
     .map(([k, v]) => `${k}: ${formatScore(v)}`)

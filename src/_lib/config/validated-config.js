@@ -7,148 +7,121 @@
  *
  * Exports validated values for use by other modules.
  */
-import fs from "node:fs";
-import path from "node:path";
-import matter from "gray-matter";
-import configData from "#data/config.json" with { type: "json" };
+/* jscpd:ignore-start -- data file import block */
+import { configErrors } from "#config/config-schema.js";
+import { unknownKeyErrors } from "#config/data-schema.js";
+import { siteErrors } from "#config/site-schema.js";
+import config from "#data/config.json" with { type: "json" };
 import languages from "#data/languages.json" with { type: "json" };
 import site from "#data/site.json" with { type: "json" };
-import { PAGES_DIR } from "#lib/paths.js";
-import { baseLanguageErrors } from "#utils/i18n.js";
+import strings from "#data/strings.json" with { type: "json" };
+import baseStrings from "#data/strings-base.json" with { type: "json" };
+import { baseLanguageErrors, languageFieldErrors } from "#utils/i18n.js";
 
-const VALID_CART_MODES = ["stripe", "quote"];
-const VALID_PRODUCT_MODES = ["buy", "hire"];
-const VALID_QUOTE_TYPES = ["hire"];
+/* jscpd:ignore-end */
+
+const PLACEHOLDER_SITE_NAMES = ["change me", "example site", "your site name"];
+const PLACEHOLDER_HOSTS = ["example.com", "example.org", "example.net"];
+
+/** @param {unknown} value */
+const isBlank = (value) =>
+  typeof value !== "string" || value.trim().length === 0;
+
+/** @type {Array<(url: string, label: string) => string[]>} */
+const RAW_URL_ERROR_COLLECTORS = [
+  (url, label) =>
+    url.trim() === url
+      ? []
+      : [`${label} must not have leading or trailing whitespace: ${url}`],
+  (url, label) =>
+    url.endsWith("/") ? [`${label} must not end with a slash: ${url}`] : [],
+];
+
+/** @type {Array<(url: URL, label: string) => string[]>} */
+const PARSED_URL_ERROR_COLLECTORS = [
+  (url, label) =>
+    ["http:", "https:"].includes(url.protocol)
+      ? []
+      : [`${label} must use http or https protocol, got: ${url.href}`],
+  (url, label) =>
+    url.search || url.hash
+      ? [`${label} must not include a query string or fragment: ${url.href}`]
+      : [],
+  (url, label) => {
+    const hostname = url.hostname.toLowerCase();
+    const isPlaceholder =
+      hostname.endsWith(".example") ||
+      PLACEHOLDER_HOSTS.some(
+        (placeholder) =>
+          hostname === placeholder || hostname.endsWith(`.${placeholder}`),
+      );
+    return isPlaceholder
+      ? [`${label} uses a placeholder hostname: ${url.href}`]
+      : [];
+  },
+];
 
 /**
- * @param {string | null | undefined} value
- * @param {readonly string[]} validValues
- * @param {string} field
- * @param {string} defaultNote
- * @returns {string[]}
+ * @param {unknown} value
+ * @param {string} label
+ * @param {string} missingError
  */
-const validateEnum = (value, validValues, field, defaultNote) => {
-  if (!value || validValues.includes(value)) return [];
+const getSiteUrlErrors = (value, label, missingError) => {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return [missingError];
+  }
+  const rawErrors = RAW_URL_ERROR_COLLECTORS.flatMap((collectErrors) =>
+    collectErrors(value, label),
+  );
+  if (!URL.canParse(value)) {
+    return [...rawErrors, `${label} is not a valid URL: ${value}`];
+  }
+
+  const parsedUrl = new URL(value);
   return [
-    `Invalid ${field}: "${value}". Must be one of: ${validValues.join(", ")}, or ${defaultNote}.`,
+    ...rawErrors,
+    ...PARSED_URL_ERROR_COLLECTORS.flatMap((collectErrors) =>
+      collectErrors(parsedUrl, label),
+    ),
   ];
 };
 
-const cartModeError = (cartMode, filename, issue) =>
-  `cart_mode is "${cartMode}" but src/pages/${filename} ${issue}`;
-
-const validatePageFrontmatter = (filename, permalink, cartMode) => {
-  const pagePath = path.isAbsolute(filename)
-    ? filename
-    : path.join(PAGES_DIR, filename);
-
-  if (!fs.existsSync(pagePath)) {
-    return [cartModeError(cartMode, filename, "does not exist")];
-  }
-
-  const { data } = matter.read(pagePath);
-  if (Object.keys(data).length === 0) {
-    return [cartModeError(cartMode, filename, "has no frontmatter")];
-  }
-
-  return data.permalink === permalink
-    ? []
-    : [
-        cartModeError(
-          cartMode,
-          filename,
-          `does not have permalink: ${permalink}`,
-        ),
-      ];
-};
-
-const siteUrlProtocolErrors = !site.url
+/**
+ * A missing url, name, or description is reported by the site schema; the
+ * URL and placeholder-name checks look only at values that are present.
+ */
+const siteUrlErrors = isBlank(site.url)
   ? []
-  : !URL.canParse(site.url)
-    ? [`site.json 'url' is not a valid URL: ${site.url}`]
-    : ["http:", "https:"].includes(new URL(site.url).protocol)
-      ? []
-      : [`site.json 'url' must use http or https protocol, got: ${site.url}`];
+  : getSiteUrlErrors(
+      site.url,
+      "site.json 'url'",
+      "site.json is missing the 'url' field",
+    );
 
-const siteUrlErrors = !site.url
-  ? ["site.json is missing the 'url' field"]
-  : [
-      ...(site.url.endsWith("/")
-        ? [`site.json 'url' must not end with a slash: ${site.url}`]
-        : []),
-      ...siteUrlProtocolErrors,
-    ];
-
-const currencyErrors =
-  !configData.currency ||
-  Intl.supportedValuesOf("currency").includes(configData.currency)
+const deploymentSiteUrlErrors =
+  process.env.SITE_URL === undefined
     ? []
-    : [
-        `Invalid currency: "${configData.currency}". Must be a valid ISO 4217 currency code (e.g. "GBP", "USD", "EUR").`,
-      ];
+    : getSiteUrlErrors(
+        process.env.SITE_URL,
+        "SITE_URL",
+        "SITE_URL must be a non-empty URL",
+      );
 
-const stripeCartErrors =
-  configData.cart_mode !== "stripe"
-    ? []
-    : [
-        ...(configData.ecommerce_api_host
-          ? []
-          : [
-              'cart_mode is "stripe" but ecommerce_api_host is not set in config.json',
-            ]),
-        ...validatePageFrontmatter(
-          "stripe-checkout.md",
-          "/stripe-checkout/",
-          "stripe",
-        ),
-        ...validatePageFrontmatter(
-          "order-complete.md",
-          "/order-complete/",
-          "stripe",
-        ),
-      ];
-
-const quoteFormTarget =
-  configData.contact_form_target ||
-  (configData.formspark_id &&
-    `https://submit-form.com/${configData.formspark_id}`);
-
-const quoteCartErrors =
-  configData.cart_mode !== "quote"
-    ? []
-    : [
-        ...(quoteFormTarget
-          ? []
-          : [
-              'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
-            ]),
-        ...validatePageFrontmatter("checkout.md", "/checkout/", "quote"),
-      ];
+const siteNameErrors = isBlank(site.name)
+  ? []
+  : PLACEHOLDER_SITE_NAMES.includes(site.name.trim().toLowerCase())
+    ? [`site.json 'name' is still a placeholder: ${site.name}`]
+    : [];
 
 const errors = [
   ...baseLanguageErrors(languages),
+  ...languageFieldErrors(languages),
+  ...siteErrors(site),
+  ...siteNameErrors,
   ...siteUrlErrors,
-  ...currencyErrors,
-  ...validateEnum(
-    configData.product_mode,
-    VALID_PRODUCT_MODES,
-    "product_mode",
-    "null/omitted for default (buy)",
-  ),
-  ...validateEnum(
-    configData.cart_mode,
-    VALID_CART_MODES,
-    "cart_mode",
-    "null/omitted for no cart",
-  ),
-  ...validateEnum(
-    configData.quote_type,
-    VALID_QUOTE_TYPES,
-    "quote_type",
-    "null/omitted for default (no hire days)",
-  ),
-  ...stripeCartErrors,
-  ...quoteCartErrors,
+  ...deploymentSiteUrlErrors,
+  ...configErrors(config),
+  ...unknownKeyErrors("strings.json", strings, baseStrings),
 ];
 
 if (errors.length > 0) {
@@ -160,4 +133,8 @@ if (errors.length > 0) {
   throw new Error(`${heading}\n${body}`);
 }
 
-export const siteUrl = site.url;
+// SITE_URL lets a deployment (e.g. the SharedServices workflow) override
+// the canonical origin without editing site.json. Both values are validated
+// so every build fails at the configuration boundary on a bad public URL.
+export const siteUrl =
+  process.env.SITE_URL === undefined ? site.url : process.env.SITE_URL;

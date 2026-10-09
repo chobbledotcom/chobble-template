@@ -1,23 +1,21 @@
-import { describe, expect, test } from "bun:test";
 import { resolve } from "node:path";
-import { fs, rootDir } from "#test/test-utils.js";
+import { describe, expect, test } from "vitest";
+import { fs, getFiles, rootDir } from "#test/test-utils.js";
 
-const forbiddenLockfiles = [
-  "package-lock.json",
-  "yarn.lock",
-  "pnpm-lock.yaml",
-  "npm-shrinkwrap.json",
-];
+// Any directory depth, including the repository root: no package manager
+// other than npm may leave its lockfile behind.
+const FOREIGN_LOCKFILE_PATTERN =
+  /(?:^|\/)(?:bun\.lockb?|yarn\.lock|pnpm-lock\.yaml|deno\.lock)$/;
 
 describe("lockfile", () => {
-  test("only bun.lock should exist (this project uses bun)", () => {
-    for (const lockfile of forbiddenLockfiles) {
-      const lockfilePath = resolve(rootDir, lockfile);
-      const exists = fs.existsSync(lockfilePath);
-      expect(exists).toBe(false);
-    }
+  test("only package-lock.json exists anywhere in the repo (this project uses npm)", () => {
+    const foreignLockfiles = getFiles(FOREIGN_LOCKFILE_PATTERN);
+    expect(
+      foreignLockfiles,
+      "this project uses npm: remove the foreign lockfile(s) and rely on package-lock.json",
+    ).toEqual([]);
 
-    const bunLockPath = resolve(rootDir, "bun.lock");
-    expect(fs.existsSync(bunLockPath)).toBe(true);
+    const npmLockPath = resolve(rootDir, "package-lock.json");
+    expect(fs.existsSync(npmLockPath)).toBe(true);
   });
 });

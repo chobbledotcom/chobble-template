@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureUnusedImages } from "#media/unused-images.js";
 import {
   captureConsoleLogAsync,
@@ -46,6 +46,26 @@ const runUnusedImagesTest = async (testName, setup, assertion) => {
 
   assertion(logs);
   cleanupTempDir(tempDir);
+};
+
+/** Write a JSON data file under the temp dir's _data directory */
+const writeDataFile = (tempDir, filename, data) => {
+  fs.mkdirSync(path.join(tempDir, "_data"), { recursive: true });
+  fs.writeFileSync(path.join(tempDir, "_data", filename), JSON.stringify(data));
+};
+
+/** Assert the unused-images report lists exactly these images */
+const expectUnusedImages = (logs, names) => {
+  const logOutput = logs.join("\n");
+  expect(logOutput.includes("Unused Images Report")).toBe(true);
+  for (const name of names) {
+    expect(logOutput.includes(name)).toBe(true);
+  }
+  expect(
+    logOutput.includes(
+      `Found ${names.length} unused image${names.length === 1 ? "" : "s"}`,
+    ),
+  ).toBe(true);
 };
 
 describe("unused-images", () => {
@@ -115,13 +135,7 @@ describe("unused-images", () => {
           "![Used](/images/used.jpg)",
         );
       },
-      (logs) => {
-        const logOutput = logs.join("\n");
-        expect(logOutput.includes("Unused Images Report")).toBe(true);
-        expect(logOutput.includes("unused.png")).toBe(true);
-        expect(logOutput.includes("also-unused.gif")).toBe(true);
-        expect(logOutput.includes("Found 2 unused images")).toBe(true);
-      },
+      (logs) => expectUnusedImages(logs, ["unused.png", "also-unused.gif"]),
     );
   });
 
@@ -249,11 +263,87 @@ describe("unused-images", () => {
           ),
         );
       },
-      (logs) => {
-        const logOutput = logs.join("\n");
-        expect(logOutput.includes("Found 1 unused image")).toBe(true);
-        expect(logOutput.includes("unused.gif")).toBe(true);
+      (logs) => expectUnusedImages(logs, ["unused.gif"]),
+    );
+  });
+
+  test("Detects images referenced inside nested block frontmatter", async () => {
+    await runUnusedImagesTest(
+      "block-frontmatter",
+      (tempDir, imagesDir) => {
+        fs.writeFileSync(path.join(imagesDir, "hero-shot.jpg"), "fake jpg");
+        fs.writeFileSync(
+          path.join(tempDir, "page.md"),
+          createFrontmatter({
+            blocks: [{ type: "hero", image: "/images/hero-shot.jpg" }],
+          }),
+        );
       },
+      expectAllImagesUsed,
+    );
+  });
+
+  test("Detects images in quoted HTML inside block content", async () => {
+    await runUnusedImagesTest(
+      "block-html",
+      (tempDir, imagesDir) => {
+        fs.writeFileSync(path.join(imagesDir, "emblem.svg"), "fake svg");
+        fs.writeFileSync(
+          path.join(tempDir, "page.md"),
+          [
+            "---",
+            "blocks:",
+            "  - type: hero",
+            "    content: |",
+            '      <img src="/images/emblem.svg" alt="">',
+            "---",
+            "",
+          ].join("\n"),
+        );
+      },
+      expectAllImagesUsed,
+    );
+  });
+
+  test("Detects the site logo declared in site data", async () => {
+    await runUnusedImagesTest(
+      "site-logo",
+      (tempDir, imagesDir) => {
+        fs.writeFileSync(path.join(imagesDir, "mark.svg"), "fake svg");
+        writeDataFile(tempDir, "site.json", {
+          name: "Test site",
+          logo: "/images/mark.svg",
+        });
+      },
+      expectAllImagesUsed,
+    );
+  });
+
+  test("Detects images referenced from include templates", async () => {
+    await runUnusedImagesTest(
+      "include-ref",
+      (tempDir, imagesDir) => {
+        fs.writeFileSync(path.join(imagesDir, "org-logo.png"), "fake png");
+        fs.mkdirSync(path.join(tempDir, "_includes"), { recursive: true });
+        fs.writeFileSync(
+          path.join(tempDir, "_includes", "footer.html"),
+          '<img src="/images/org-logo.png" alt="Org">',
+        );
+      },
+      expectAllImagesUsed,
+    );
+  });
+
+  test("Does not count images only named in other data files", async () => {
+    await runUnusedImagesTest(
+      "data-not-usage",
+      (tempDir, imagesDir) => {
+        fs.writeFileSync(path.join(imagesDir, "listed.png"), "fake png");
+        writeDataFile(tempDir, "alt-tags.json", {
+          images: [{ image: "listed.png", alt: "Listed" }],
+        });
+      },
+      (logs) => expectUnusedImages(logs, ["listed.png"]),
     );
   });
 });

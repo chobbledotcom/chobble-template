@@ -1,12 +1,13 @@
-/* jscpd:ignore-start */
+/* jscpd:ignore-start -- block schema declaration data */
+import { str } from "#utils/block-schema/shared.js";
 import {
   SPLIT_BASE_DOCS,
   SPLIT_BASE_FIELDS,
-  str,
 } from "#utils/block-schema/split-shared.js";
-/* jscpd:ignore-end */
 
 export const type = "split-code";
+
+export const columnSafe = false;
 export const template = "design-system/split.html";
 
 export const fields = {
@@ -30,3 +31,14 @@ export const docs = {
   summary: "Two-column layout with text content and a code block.",
   ...SPLIT_BASE_DOCS,
 };
+
+export const example = {
+  type: "split-code",
+  subtitle: "Split layouts",
+  content:
+    "## Text beside a code block\n\nUse this to walk through configuration or commands next to the explanation.",
+  figure_filename: "site.json",
+  figure_language: "json",
+  figure_code: '{\n  "name": "My Site",\n  "url": "https://example.com"\n}',
+};
+/* jscpd:ignore-end */

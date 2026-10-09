@@ -1,14 +1,7 @@
 import { isAbsolute, join } from "node:path";
-import { getConfig } from "#config/site-config.js";
-import { sanitizePagePath, startServer } from "#media/browser-utils.js";
-import {
-  buildViewportSuffix,
-  getViewports,
-  screenshot,
-  screenshotAllViewports,
-  screenshotMultiple,
-} from "#media/screenshot.js";
-import { map, pipe } from "#toolkit/fp/array.js";
+import getConfig from "#data/config.js";
+import { startServer } from "#media/browser-utils.js";
+import { screenshotMultiple } from "#media/screenshot.js";
 import { log, error as logError } from "#utils/console.js";
 
 /** @typedef {import("#media/browser-utils.js").DevServerHandle} DevServerHandle */
@@ -16,14 +9,14 @@ import { log, error as logError } from "#utils/console.js";
 /** @returns {import("#lib/types").ScreenshotConfig} */
 const getScreenshotConfig = () => getConfig().screenshots;
 
+/** @param {any[]} collection */
 const extractPagePaths = (collection) =>
-  pipe(map((item) => item.url || item.data?.page?.url))(collection).filter(
-    Boolean,
-  );
+  collection.map((item) => item.url || item.data?.page?.url).filter(Boolean);
 
-export const buildScreenshotPath = (pagePath, viewport = "desktop") =>
-  `/screenshots/${sanitizePagePath(pagePath)}${buildViewportSuffix(viewport)}.png`;
-
+/**
+ * @param {{ urls: string[] }} pageUrlsRef
+ * @returns {(collectionApi: import("#lib/types").EleventyCollectionApi) => unknown[]}
+ */
 export const buildCollectionHandler = (pageUrlsRef) => (collectionApi) => {
   const screenshotConfig = getScreenshotConfig();
 
@@ -40,7 +33,11 @@ export const buildCollectionHandler = (pageUrlsRef) => (collectionApi) => {
   return [];
 };
 
-export const logScreenshotErrors = (errors) => {
+/**
+ * Report per-page capture failures to the console.
+ * @param {Array<{ pagePath: string, error: unknown }>} errors
+ */
+const logScreenshotErrors = (errors) => {
   if (errors.length === 0) return;
   logError(`Screenshot errors: ${errors.length}`);
   for (const err of errors) {
@@ -48,11 +45,14 @@ export const logScreenshotErrors = (errors) => {
   }
 };
 
-export const captureScreenshots = async (
-  pageUrls,
-  screenshotConfig,
-  outputDir,
-) => {
+/**
+ * Start the preview server, capture the given pages, and stop the server.
+ * Per-page failures are reported via logScreenshotErrors.
+ * @param {string[]} pageUrls
+ * @param {import("#lib/types").ScreenshotConfig} screenshotConfig
+ * @param {string} outputDir
+ */
+const captureScreenshots = async (pageUrls, screenshotConfig, outputDir) => {
   const server = await startServer(outputDir, screenshotConfig.port || 8080);
   const configOutputDir = screenshotConfig.outputDir || "screenshots";
 
@@ -78,7 +78,9 @@ export const captureScreenshots = async (
 
 /**
  * Eleventy wrapper for screenshot utilities.
- * Wraps #media/screenshot.js for Eleventy integration.
+ * Wraps #media/screenshot.js for Eleventy integration. Captures the
+ * collected page URLs via captureScreenshots after the build.
+ * @param {import("#lib/types").UserConfig} eleventyConfig
  */
 export const configureScreenshots = (eleventyConfig) => {
   const pageUrlsRef = { urls: [] };
@@ -87,18 +89,18 @@ export const configureScreenshots = (eleventyConfig) => {
     "_screenshotPages",
     buildCollectionHandler(pageUrlsRef),
   );
-  eleventyConfig.addGlobalData("screenshotViewports", () => getViewports());
-  eleventyConfig.addFilter("screenshotPath", buildScreenshotPath);
 
-  eleventyConfig.on("eleventy.after", async ({ dir }) => {
-    const screenshotConfig = getScreenshotConfig();
-    if (!screenshotConfig.enabled || !screenshotConfig.autoCapture) {
-      return;
-    }
+  eleventyConfig.on(
+    "eleventy.after",
+    /** @param {{ dir: { output: string } }} event */
+    async ({ dir }) => {
+      const screenshotConfig = getScreenshotConfig();
+      if (!screenshotConfig.enabled || !screenshotConfig.autoCapture) {
+        return;
+      }
 
-    log("Starting screenshot capture...");
-    await captureScreenshots(pageUrlsRef.urls, screenshotConfig, dir.output);
-  });
+      log("Starting screenshot capture...");
+      await captureScreenshots(pageUrlsRef.urls, screenshotConfig, dir.output);
+    },
+  );
 };
-
-export { screenshot, screenshotAllViewports, screenshotMultiple, startServer };

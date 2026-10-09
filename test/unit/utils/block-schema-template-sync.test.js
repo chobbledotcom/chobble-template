@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import { rootDir } from "#test/test-utils.js";
 import { BLOCK_SCHEMAS, getBlockTemplate } from "#utils/block-schema.js";
 

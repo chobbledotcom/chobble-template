@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { decodeBase64, encodeBase64 } from "#utils/aes-base64.js";
 import { encrypt, generateKeyText } from "#utils/aes-encrypt.js";
 

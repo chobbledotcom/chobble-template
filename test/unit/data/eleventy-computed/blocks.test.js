@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import eleventyComputed from "#data/eleventyComputed.js";
-import { getVideoThumbnailUrl } from "#utils/video.js";
+import { BLOCK_EXAMPLES } from "#utils/block-schema.js";
 
 const page = { inputPath: "test.html" };
 const name = "Test Item";
@@ -22,26 +22,36 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
+  test("applies defaults without mutating source blocks", async () => {
+    const block = Object.freeze({ type: "stats", items: [] });
+    const blocks = Object.freeze([block]);
+    const result = await eleventyComputed.blocks({ blocks, page, name });
+    expect(result).toEqual([
+      { type: "stats", items: [], reveal: true, dark: false },
+    ]);
+    expect(result[0]).not.toBe(block);
+  });
+
   test("throws on unknown block types", async () => {
-    expect(
+    await expect(
       runSingle({ type: "unknown-type", content: "test" }),
     ).rejects.toThrow('Unknown block type "unknown-type"');
   });
 
   test("throws when a block contains unknown keys", async () => {
-    expect(
-      runSingle({ type: "video-background", video_url: "bad" }),
+    await expect(
+      runSingle({ type: "markdown", content: "Valid", video_url: "bad" }),
     ).rejects.toThrow('unknown keys: "video_url"');
   });
 
   test("includes inputPath in thrown validation errors", async () => {
-    expect(
+    await expect(
       eleventyComputed.blocks({
         blocks: [{ type: "unknown-type" }],
         name,
-        page: { inputPath: "src/products/example.md" },
+        page: { inputPath: "src/pages/example.md" },
       }),
-    ).rejects.toThrow("src/products/example.md");
+    ).rejects.toThrow("src/pages/example.md");
   });
 
   test("applies the features defaults (reveal, center)", async () => {
@@ -65,10 +75,16 @@ describe("eleventyComputed.blocks", () => {
 
   test("applies split-image defaults including reveal_content 'left'", async () => {
     expect(
-      await runSingle({ type: "split-image", content: "## Section Heading" }),
+      await runSingle({
+        type: "split-image",
+        content: "## Section Heading",
+        figure_src: "/images/example.jpg",
+      }),
     ).toEqual({
       type: "split-image",
       content: "## Section Heading",
+      figure_src: "/images/example.jpg",
+      reverse: false,
       reveal_figure: "scale",
       reveal_content: "left",
       dark: false,
@@ -79,6 +95,7 @@ describe("eleventyComputed.blocks", () => {
     const block = await runSingle({
       type: "split-html",
       content: "## Section Heading",
+      figure_html: "<p>Figure</p>",
       reverse: true,
     });
     expect(block.reveal_content).toBe("right");
@@ -88,6 +105,7 @@ describe("eleventyComputed.blocks", () => {
     const block = await runSingle({
       type: "split-code",
       content: "## Section Heading",
+      figure_code: "const example = true;",
       reveal_content: "left",
     });
     expect(block.reveal_content).toBe("left");
@@ -129,9 +147,43 @@ describe("eleventyComputed.blocks", () => {
     });
   });
 
+  test("fills nested button defaults per block, keeping authored values", async () => {
+    const cta = await runSingle({
+      type: "cta",
+      content: "## Go",
+      button: { text: "Go", href: "/go/" },
+    });
+    expect(cta.button).toEqual({
+      text: "Go",
+      href: "/go/",
+      variant: "secondary",
+      size: "lg",
+    });
+
+    const hero = await runSingle({
+      type: "hero",
+      content: "# Hi",
+      buttons: [
+        { text: "A", href: "/a/" },
+        { text: "B", href: "/b/", variant: "ghost" },
+      ],
+    });
+    expect(hero.buttons.map(({ variant }) => variant)).toEqual([
+      "primary",
+      "ghost",
+    ]);
+  });
+
+  test("leaves split-full without the split-figure reveal fields", async () => {
+    const block = await runSingle({ type: "split-full", left_content: "L" });
+    expect(block).not.toHaveProperty("reveal_content");
+    expect(block).not.toHaveProperty("reveal_figure");
+  });
+
   test("allows user values to override default values", async () => {
     const block = await runSingle({
       type: "features",
+      items: [],
       reveal: false,
       center: true,
     });
@@ -156,19 +208,87 @@ describe("eleventyComputed.blocks", () => {
     expect(result[0].reveal).toBe(true);
     expect(result[1].reveal).toBe(true);
   });
+});
 
-  test("enriches video-cards block videos with thumbnail_url", async () => {
-    const id = "dQw4w9WgXcQ";
-    const block = await runSingle({
-      type: "video-cards",
-      videos: [{ id, name: "Section Heading" }],
+describe("eleventyComputed.blocks block gallery", () => {
+  test("a block_gallery page builds its blocks from the canonical examples", async () => {
+    const blocks = await eleventyComputed.blocks({
+      block_gallery: true,
+      page,
+      name,
     });
-    expect(block.videos[0].thumbnail_url).toBe(await getVideoThumbnailUrl(id));
-    expect(block.videos[0].name).toBe("Section Heading");
+
+    // Hero, then two blocks per type: a YAML source with an intro title and
+    // the live example.
+    expect(blocks.length).toBe(1 + 2 * BLOCK_EXAMPLES.length);
+    expect(blocks[0].type).toBe("hero");
+    // Defaults are applied to the generated blocks like any others
+    expect(blocks.every((block) => "dark" in block)).toBe(true);
+  });
+});
+
+describe("eleventyComputed.blocks item and block validation", () => {
+  test("passes when a tagged item has a name and valid blocks", async () => {
+    await expect(
+      eleventyComputed.blocks({
+        blocks: [{ type: "markdown", content: "Hello" }],
+        name,
+        tags: ["pages"],
+        page,
+      }),
+    ).resolves.toBeDefined();
   });
 
-  test("leaves a video-cards block alone when its videos field is missing", async () => {
-    const block = await runSingle({ type: "video-cards", videos: undefined });
-    expect(block.videos).toBeUndefined();
+  test("does not throw for untagged utility templates without name", async () => {
+    await expect(
+      eleventyComputed.blocks({ subtitle: "utility page", page }),
+    ).resolves.toBeUndefined();
+  });
+
+  test("throws with the page path in the message when a tagged item is missing its name", async () => {
+    await expect(
+      eleventyComputed.blocks({
+        tags: ["pages"],
+        subtitle: "No name",
+        page: { inputPath: "src/pages/test.md" },
+      }),
+    ).rejects.toThrow(/missing required "name" field[\s\S]*test\.md/);
+  });
+
+  test("throws when a nested block item is missing a required field", async () => {
+    await expect(
+      eleventyComputed.blocks({
+        blocks: [{ type: "features", items: [{ icon: "star" }] }],
+        name,
+        tags: ["pages"],
+        page,
+      }),
+    ).rejects.toThrow('"features"');
+  });
+
+  test("throws every missing nested field from the shared schema", async () => {
+    await expect(
+      eleventyComputed.blocks({
+        blocks: [{ type: "downloads", items: [{}] }],
+        name,
+        tags: ["pages"],
+        page,
+      }),
+    ).rejects.toThrow(/required "file"[\s\S]*required "label"/);
+  });
+
+  test("throws item and block errors together when several names are missing", async () => {
+    await expect(
+      eleventyComputed.blocks({
+        tags: ["pages"],
+        blocks: [
+          { type: "features", items: [{ description: "no name" }] },
+          { type: "image-cards", items: [{ image: "/a.jpg" }] },
+        ],
+        page,
+      }),
+    ).rejects.toThrow(
+      /Item is missing required[\s\S]*"features"[\s\S]*"image-cards"/,
+    );
   });
 });

@@ -1,11 +1,11 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   analyzeWithAllowlist,
   assertNoViolations,
   createCodeChecker,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // Pattern to detect .push() calls - array mutation
 const ARRAY_PUSH_PATTERN = /\.push\s*\(/;
@@ -20,7 +20,6 @@ const { find: findArrayPush } = createCodeChecker({
 describe("array-push", () => {
   test("Detects .push() calls in source code", () => {
     const source = `
-const arr = [];
 arr.push(1);
 items.push(newItem);
 result.push(...more);

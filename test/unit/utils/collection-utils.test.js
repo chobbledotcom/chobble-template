@@ -1,99 +1,7 @@
-import { describe, expect, test } from "bun:test";
-import {
-  createMockEleventyConfig,
-  expectResultTitles,
-  taggedCollectionApi,
-} from "#test/test-utils.js";
-import {
-  configureCollectionUtils,
-  createArrayFieldIndexer,
-  createFieldIndexer,
-  featuredCollection,
-  getEventsFromApi,
-} from "#utils/collection-utils.js";
+import { describe, expect, test } from "vitest";
+import { createFieldIndexer } from "#utils/collection-utils.js";
 
 describe("collection-utils", () => {
-  describe("featuredCollection", () => {
-    const createFakeCollection = (api) => api.getFilteredByTag("products");
-
-    const getFeatured = featuredCollection(createFakeCollection);
-
-    test("filters items by featured flag", () => {
-      const products = [
-        { data: { name: "Item 1", featured: true } },
-        { data: { name: "Item 2", featured: false } },
-        { data: { name: "Item 3", featured: true } },
-      ];
-      const result = getFeatured(taggedCollectionApi({ products }));
-      expectResultTitles(result, ["Item 1", "Item 3"]);
-    });
-
-    test("returns empty array when no items are featured", () => {
-      const products = [{ data: { name: "Item 1", featured: false } }];
-      const result = getFeatured(taggedCollectionApi({ products }));
-      expect(result).toHaveLength(0);
-    });
-
-    test("handles empty collection", () => {
-      const result = getFeatured(taggedCollectionApi({ products: [] }));
-      expect(result).toEqual([]);
-    });
-  });
-
-  describe("configureCollectionUtils", () => {
-    test("does not throw", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureCollectionUtils(mockConfig);
-    });
-  });
-
-  describe("getEventsFromApi", () => {
-    test("returns events from collection API", () => {
-      const events = [
-        { data: { name: "Event 1" } },
-        { data: { name: "Event 2" } },
-      ];
-      const api = taggedCollectionApi({ events });
-
-      const result = getEventsFromApi(api);
-
-      expect(result).toEqual(events);
-    });
-
-    test("returns empty array when no events", () => {
-      const api = taggedCollectionApi({ events: [] });
-
-      const result = getEventsFromApi(api);
-
-      expect(result).toEqual([]);
-    });
-  });
-
-  describe("createArrayFieldIndexer slug normalisation", () => {
-    const indexByEvents = createArrayFieldIndexer("events");
-
-    test.each([
-      { format: "bare slug", value: "summer-sale" },
-      { format: "path with .md", value: "events/summer-sale.md" },
-      { format: "path without extension", value: "events/summer-sale" },
-    ])("normalises $format to bare slug for lookup", ({ value }) => {
-      const items = [{ data: { name: "P1", events: [value] } }];
-      const index = indexByEvents(items);
-      expect(index["summer-sale"]).toHaveLength(1);
-      expect(index["summer-sale"][0].data.name).toBe("P1");
-    });
-
-    test("groups items with mixed slug formats under same key", () => {
-      const items = [
-        { data: { name: "P1", events: ["summer-sale"] } },
-        { data: { name: "P2", events: ["events/summer-sale.md"] } },
-        { data: { name: "P3", events: ["events/summer-sale"] } },
-      ];
-      const index = indexByEvents(items);
-      expect(index["summer-sale"]).toHaveLength(3);
-    });
-  });
-
   describe("createFieldIndexer slug normalisation", () => {
     const indexByParent = createFieldIndexer("parent");
 
@@ -105,6 +13,15 @@ describe("collection-utils", () => {
       const items = [{ data: { name: "C1", parent: value } }];
       const index = indexByParent(items);
       expect(index.widgets).toHaveLength(1);
+    });
+
+    test("groups items sharing a parent under the same key", () => {
+      const items = [
+        { data: { name: "C1", parent: "widgets" } },
+        { data: { name: "C2", parent: "categories/widgets.md" } },
+      ];
+      const index = indexByParent(items);
+      expect(index.widgets).toHaveLength(2);
     });
   });
 });

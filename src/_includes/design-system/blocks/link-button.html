@@ -4,22 +4,11 @@ Link button - a standalone button linking to an anchor or URL.
 Parameters (via block object):
   - block.text: Button label (required)
   - block.href: Link URL or anchor (required)
-  - block.variant: Button variant - "primary", "secondary", or "ghost" (default: "primary")
+  - block.variant: Button variant - "primary", "secondary", or "ghost"
   - block.size: Button size - "sm", "lg", or omit for default
   - block.reveal: If set, adds data-reveal animation
-
-Embeddable form:
-  - text, href, variant, btn_size, reveal: pass directly when sugar blocks
-    need to render a button without constructing a `block` object.
 {%- endcomment -%}
 
-{%- assign _text = text | default: block.text -%}
-{%- assign _href = href | default: block.href -%}
-{%- assign _variant = variant | default: block.variant -%}
-{%- assign _size = btn_size | default: block.size -%}
-{%- assign _reveal = reveal | default: block.reveal -%}
-{%- if _text and _href -%}
-  <div class="link-button"{% if _reveal %} data-reveal="{{ _reveal }}"{% endif %}>
-    {%- include "design-system/button.html", text: _text, href: _href, variant: _variant, btn_size: _size -%}
-  </div>
-{%- endif -%}
+<div class="link-button"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
+  {%- include "design-system/button.html", text: block.text, href: block.href, variant: block.variant, btn_size: block.size -%}
+</div>

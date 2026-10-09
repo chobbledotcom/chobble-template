@@ -16,8 +16,8 @@ const getString = (key) => /** @type {Record<string, string>} */ (strings)[key];
  * navigationParent, compute permalink via buildPermalink. This factory
  * eliminates that duplication.
  *
- * @param {string} type - String key prefix (e.g. "event" -> strings.event_name,
- *   strings.event_permalink_dir)
+ * @param {string} type - String key prefix (e.g. "news" -> strings.news_name,
+ *   strings.news_permalink_dir)
  * @param {Record<string, (data: *) => *>} [extraComputed] - Additional computed
  *   properties merged into eleventyComputed. These override the defaults, so
  *   a custom permalink function can be passed here.

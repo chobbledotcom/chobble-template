@@ -1,6 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
-  "extends": ["./packages/js-toolkit/configs/biome.base.json"],
+  "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
   "files": {
     "includes": [
       "**/*.js",
@@ -8,14 +7,71 @@
       "!_site",
       "!coverage",
       "!result",
-      "!bin",
       "!test/temp-*",
       "!**/.*"
-    ]
+    ],
+    "ignoreUnknown": true
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "complexity": {
+        "noStaticOnlyClass": "error",
+        "noThisInStatic": "error",
+        "noUselessThisAlias": "error",
+        "useArrowFunction": "error",
+        "noForEach": "error",
+        "useFlatMap": "error",
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 7
+          }
+        }
+      },
+      "style": {
+        "useConst": "error",
+        "useTemplate": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNodejsImportProtocol": "error",
+        "noParameterAssign": "error",
+        "useNumberNamespace": "error",
+        "useExponentiationOperator": "error"
+      },
+      "suspicious": {
+        "noVar": "error",
+        "noConsole": "error",
+        "noSkippedTests": "error",
+        "noFocusedTests": "error",
+        "noEmptyBlockStatements": "error",
+        "useIsArray": "error"
+      },
+      "correctness": {
+        "noUnusedVariables": "error",
+        "noUnusedImports": "error",
+        "noUnusedFunctionParameters": "error",
+        "noGlobalDirnameFilename": "error"
+      },
+      "performance": {
+        "noAccumulatingSpread": "error"
+      },
+      "nursery": {
+        "noUnnecessaryConditions": "error"
+      }
+    }
   },
   "overrides": [
     {
-      "includes": ["src/_lib/build/**/*.js", "packages/js-toolkit/**/*.js"],
+      "includes": [
+        "src/_lib/build/**/*.js",
+        "**/test/**/*.js",
+        "scripts/**/*.js",
+        "bin/**/*.js"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
@@ -25,9 +81,16 @@
       }
     },
     {
-      "includes": ["packages/js-toolkit/**/*.js"],
+      "includes": ["**/test/**/*.js"],
       "linter": {
+        "domains": {
+          "test": "all"
+        },
         "rules": {
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedFunctionParameters": "off"
+          },
           "complexity": {
             "noExcessiveCognitiveComplexity": {
               "level": "error",
@@ -35,6 +98,9 @@
                 "maxAllowedComplexity": 30
               }
             }
+          },
+          "suspicious": {
+            "noTemplateCurlyInString": "off"
           }
         }
       }

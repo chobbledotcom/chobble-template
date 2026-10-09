@@ -6,7 +6,7 @@
  * just the filename minus extension for simpler URLs.
  */
 import slugify from "@sindresorhus/slugify";
-import { pipe, split } from "#toolkit/fp/array.js";
+import { pipe, split } from "#utils/fp/array.js";
 
 /**
  * @typedef {Object} PageData
@@ -68,19 +68,4 @@ const buildPermalink = (data, dir) => {
   return `/${dir}/${data.page.fileSlug}/`;
 };
 
-/**
- * Build a PDF filename from business name and menu slug
- * @param {string} businessName - Business name to slugify
- * @param {string} menuSlug - Menu slug
- * @returns {string} PDF filename
- */
-const buildPdfFilename = (businessName, menuSlug) =>
-  `${slugify(businessName)}-${menuSlug}.pdf`;
-
-export {
-  buildPdfFilename,
-  buildPermalink,
-  normalisePermalink,
-  normaliseSlug,
-  slugify,
-};
+export { buildPermalink, normalisePermalink, normaliseSlug, slugify };

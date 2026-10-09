@@ -1,37 +1,49 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test, vi } from "vitest";
+import { green, write } from "#scripts/lib/colors.js";
 import {
   createDotsProgress,
   extractSlowTests,
   extractTestTotal,
 } from "#test/precommit/output.js";
 
+describe("precommit colour helpers", () => {
+  test("write sends raw text to stdout", () => {
+    const writeSpy = vi
+      .spyOn(process.stdout, "write")
+      .mockImplementation(() => true);
+
+    write(green("ok"));
+
+    expect(writeSpy).toHaveBeenCalledWith("\x1b[32mok\x1b[0m");
+    writeSpy.mockRestore();
+  });
+});
+
 describe("precommit output helpers", () => {
   test("createDotsProgress ignores non-dot chunks until dots pass", () => {
     const progress = createDotsProgress();
 
-    expect(progress("bun test v1.3.13")).toBeUndefined();
+    expect(progress(" RUN  v3.2.7 /repo")).toBeUndefined();
     expect(progress("test/unit/example.test.js")).toBeUndefined();
-    expect(progress(".\n.")).toBe("(2 passed)");
+    expect(progress("\u00b7\n\u00b7")).toBe("(2 passed)");
     expect(progress("failure in test/unit/example.test.js")).toBe("(2 passed)");
   });
 
   test("createDotsProgress includes total when provided", () => {
     const progress = createDotsProgress(4);
 
-    expect(progress("..")).toBe("(2/4 passed)");
+    expect(progress("\u00b7\u00b7")).toBe("(2/4 passed)");
   });
 
-  test("extractTestTotal reads bun test summary totals", () => {
+  test("extractTestTotal reads the vitest summary total", () => {
     expect(
-      extractTestTotal("Ran 4200 tests across 200 files. [45000.00ms]"),
+      extractTestTotal("      Tests  4198 passed | 2 skipped (4200)"),
     ).toBe(4200);
   });
 
   test("extractTestTotal ignores missing and zero totals", () => {
     expect(extractTestTotal("suite crashed")).toBeUndefined();
-    expect(
-      extractTestTotal("Ran 0 tests across 0 files. [1.00ms]"),
-    ).toBeUndefined();
+    expect(extractTestTotal("      Tests  0 passed (0)")).toBeUndefined();
   });
 
   test("extractSlowTests returns tests over the threshold", () => {

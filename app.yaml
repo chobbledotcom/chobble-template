@@ -1,0 +1,12 @@
+# SharedServices platform registration (internal deployment). This repo is a
+# special case: it is the canonical cfa-static template, deployed unchanged as
+# its own self-documenting reference site, so the repo name intentionally does
+# not follow the sharedservices-* app-template convention.
+type: static
+build:
+  preset: cfa-static
+  output: _site
+name: cfa-static
+name_short: cfa-static
+program: engineering
+description: The CfA Static site template, self-documenting reference deployment

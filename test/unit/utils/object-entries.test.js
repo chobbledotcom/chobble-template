@@ -1,18 +1,62 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test, vi } from "vitest";
 import { everyEntry } from "#test/test-utils.js";
 import {
+  filterObject,
   fromPairs,
-  mapBoth,
+  frozenObject,
   mapEntries,
   mapObject,
-  omit,
   pickNonNull,
-  pickTruthy,
   toObject,
-} from "#toolkit/fp/object.js";
+} from "#utils/fp/object.js";
 
 describe("object-entries utilities", () => {
   const testObj = { a: 1, b: 2, c: 3 };
+
+  describe("frozenObject", () => {
+    test("allows reading properties", () => {
+      const obj = frozenObject({ a: 1, b: 2 });
+
+      expect(obj.a).toBe(1);
+      expect(obj.b).toBe(2);
+    });
+
+    test("throws TypeError on property assignment", () => {
+      const obj = frozenObject({ value: 42 });
+
+      expect(() => {
+        obj.value = 100;
+      }).toThrow("Cannot set property 'value' on a frozen object");
+    });
+
+    test("throws TypeError on property deletion", () => {
+      const obj = frozenObject({ key: "value" });
+
+      expect(() => {
+        delete obj.key;
+      }).toThrow("Cannot delete property 'key' from a frozen object");
+    });
+
+    test("throws TypeError on defineProperty", () => {
+      const obj = frozenObject({ a: 1 });
+
+      expect(() => {
+        Object.defineProperty(obj, "b", { value: 2 });
+      }).toThrow("Cannot define property 'b' on a frozen object");
+    });
+  });
+
+  describe("filterObject", () => {
+    test("keeps entries matching the key/value predicate", () => {
+      const positiveExceptDropped = filterObject(
+        (k, v) => k !== "drop" && v > 0,
+      );
+
+      expect(positiveExceptDropped({ keep: 1, drop: 2, zero: 0 })).toEqual({
+        keep: 1,
+      });
+    });
+  });
 
   describe("mapEntries", () => {
     test("maps entries with (key, value) callback", () => {
@@ -43,12 +87,9 @@ describe("object-entries utilities", () => {
     });
 
     test("receives key and value as separate args", () => {
-      const keysAndValues = [];
-      everyEntry((k, v) => {
-        keysAndValues.push([k, v]);
-        return true;
-      })({ x: 10, y: 20 });
-      expect(keysAndValues).toEqual([
+      const onEntry = vi.fn(() => true);
+      everyEntry(onEntry)({ x: 10, y: 20 });
+      expect(onEntry.mock.calls).toEqual([
         ["x", 10],
         ["y", 20],
       ]);
@@ -71,35 +112,7 @@ describe("object-entries utilities", () => {
     });
   });
 
-  describe("mapBoth", () => {
-    test("applies same transform to keys and values", () => {
-      const lower = mapBoth((s) => s.toLowerCase());
-      expect(lower({ FOO: "BAR", BAZ: "QUX" })).toEqual({
-        foo: "bar",
-        baz: "qux",
-      });
-    });
-
-    test("works with number transform", () => {
-      const double = mapBoth((n) => n * 2);
-      expect(double({ 1: 2, 3: 4 })).toEqual({ 2: 4, 6: 8 });
-    });
-  });
-
   const MIXED_VALUES = { a: 1, b: null, c: 0, d: "x", e: "" };
-
-  describe("pickTruthy", () => {
-    test("keeps only truthy values", () => {
-      expect(pickTruthy(MIXED_VALUES)).toEqual({
-        a: 1,
-        d: "x",
-      });
-    });
-
-    test("returns empty object when all falsy", () => {
-      expect(pickTruthy({ a: null, b: 0, c: "" })).toEqual({});
-    });
-  });
 
   describe("pickNonNull", () => {
     test("keeps values that are not null", () => {
@@ -212,33 +225,6 @@ describe("object-entries utilities", () => {
     });
   });
 
-  describe("omit", () => {
-    test("removes specified keys from object", () => {
-      const obj = { a: 1, b: 2, c: 3 };
-      expect(omit(["b"])(obj)).toEqual({ a: 1, c: 3 });
-    });
-
-    test("handles multiple keys to omit", () => {
-      const obj = { a: 1, b: 2, c: 3, d: 4 };
-      expect(omit(["a", "c"])(obj)).toEqual({ b: 2, d: 4 });
-    });
-
-    test("returns same object when omitting non-existent keys", () => {
-      const obj = { a: 1, b: 2 };
-      expect(omit(["x", "y"])(obj)).toEqual({ a: 1, b: 2 });
-    });
-
-    test("returns empty object when omitting all keys", () => {
-      const obj = { a: 1, b: 2 };
-      expect(omit(["a", "b"])(obj)).toEqual({});
-    });
-
-    test("works with empty keys array", () => {
-      const obj = { a: 1, b: 2 };
-      expect(omit([])(obj)).toEqual({ a: 1, b: 2 });
-    });
-  });
-
   describe("real-world patterns", () => {
     test("building CSS variable lines", () => {
       const vars = { "--color-bg": "#fff", "--color-text": "#000" };
@@ -253,18 +239,6 @@ describe("object-entries utilities", () => {
       const filters = { size: "small" };
       const matches = everyEntry((k, v) => itemAttrs[k] === v);
       expect(matches(filters)).toBe(true);
-    });
-
-    test("normalizing object with mapBoth", () => {
-      const toSlug = (s) => s.toLowerCase().replace(/\s+/g, "-");
-      expect(mapBoth(toSlug)({ "Size Type": "Extra Large" })).toEqual({
-        "size-type": "extra-large",
-      });
-    });
-
-    test("extracting enabled features", () => {
-      const config = { featureA: true, featureB: false, featureC: true };
-      expect(pickTruthy(config)).toEqual({ featureA: true, featureC: true });
     });
 
     test("building hire price lookup with toObject", () => {

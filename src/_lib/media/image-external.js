@@ -17,37 +17,34 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
-import { wrapImageHtml } from "#media/image-wrapper.js";
-import { dedupeAsync, jsonKey } from "#toolkit/fp/memoize.js";
-import { createHtml } from "#utils/dom-builder.js";
+import { dedupeAsync, jsonKey } from "#utils/fp/memoize.js";
 import { slugify } from "#utils/slug-utils.js";
-import { isRickAstleyThumbnail } from "#utils/video.js";
 
-const shortHash = (str) =>
-  crypto.createHash("md5").update(str).digest("hex").slice(0, 8);
-
-const externalFilenameFormat = (_id, _src, width, format, options) =>
-  `${options.slug}-${width}.${format}`;
+const EXTERNAL_IMAGE_OPTIONS = {
+  ...DEFAULT_IMAGE_OPTIONS,
+  /**
+   * @param {string} _id
+   * @param {string} _src
+   * @param {number} width
+   * @param {string} format
+   * @param {{ slug: string }} options
+   */
+  filenameFormat: (_id, _src, width, format, options) =>
+    `${options.slug}-${width}.${format}`,
+};
 
 /**
- * Process an external image URL through eleventy-img.
+ * Process an external image URL through eleventy-img into wrapped HTML.
+ * Downloads and caches the image locally; throws if it cannot be fetched.
  *
  * Deduplicated to avoid duplicate concurrent work for the same URL/options tuple.
  * While eleventy-img disk-caches downloaded images, this still prevents
  * overlapping fetch/processing work without retaining every settled result in memory.
- *
- * @param {Object} options - Processing options
- * @param {string} options.src - External image URL
- * @param {string | null} options.alt - Alt text (used for filename slug)
- * @param {string | null} options.loading - Loading attribute
- * @param {string | null} options.classes - CSS classes
- * @param {string | null} options.sizes - Sizes attribute
- * @param {string | string[] | null} options.widths - Responsive widths
- * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
- * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
- * @returns {Promise<string>} Wrapped image HTML
  */
-const computeExternalImageHtml = dedupeAsync(
+const processExternal = dedupeAsync(
+  /**
+   * @param {Omit<import("#lib/types").ComputeImageProps, "imageName" | "noLqip"> & { src: string }} props
+   */
   async ({
     src,
     alt,
@@ -68,11 +65,14 @@ const computeExternalImageHtml = dedupeAsync(
       classes,
     });
 
-    const filenameSlug = `${slugify(alt || "external-image")}-${shortHash(src)}`;
+    const urlHash = crypto
+      .createHash("md5")
+      .update(src)
+      .digest("hex")
+      .slice(0, 8);
     const imageOptions = {
-      ...DEFAULT_IMAGE_OPTIONS,
-      filenameFormat: externalFilenameFormat,
-      slug: filenameSlug,
+      ...EXTERNAL_IMAGE_OPTIONS,
+      slug: `${slugify(alt || "external-image")}-${urlHash}`,
     };
 
     const imageMetadata = await pipeline.processFormats(
@@ -106,60 +106,13 @@ const computeExternalImageHtml = dedupeAsync(
 );
 
 /**
- * @param {string | null} classes - CSS classes
- * @param {string | null} aspectRatio - Aspect ratio like "16/9"
- * @returns {Promise<string>} Placeholder image HTML
+ * Compute wrapped HTML for an external image from the shared image-props
+ * shape: renames imageName to the pipeline's src and drops the local-only
+ * noLqip flag so it cannot fragment the dedupe cache key.
+ * @param {import("#lib/types").ComputeImageProps} props
+ * @returns {Promise<string>} Wrapped image HTML
  */
-const generateRickAstleyPlaceholder = async (classes, aspectRatio) => {
-  const imgHtml = await createHtml("img", {
-    src: "/images/placeholders/pink.svg",
-    alt: "Video thumbnail",
-    loading: "lazy",
-  });
-  return wrapImageHtml(imgHtml, {
-    classes,
-    style: buildImageWrapperStyles({ bgImage: null, aspectRatio }),
-  });
-};
+const computeExternalImageHtml = ({ imageName, noLqip: _noLqip, ...props }) =>
+  processExternal({ src: imageName, ...props });
 
-/**
- * Process an external image URL into HTML or an Element.
- * Downloads and caches the image locally via eleventy-img.
- * Throws an error if the remote image cannot be fetched, unless the URL is
- * a Rick Astley placeholder video thumbnail — in that case, returns a
- * placeholder SVG to allow the build to continue.
- *
- * @param {Object} options - Processing options
- * @param {string} options.src - External image URL
- * @param {string | null} options.alt - Alt text (used for filename slug)
- * @param {string | null} options.loading - Loading attribute
- * @param {string | null} options.classes - CSS classes
- * @param {string | null} options.sizes - Sizes attribute
- * @param {string | string[] | null} options.widths - Responsive widths
- * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
- * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
- * @param {boolean} options.returnElement - Whether to return Element or HTML string
- * @param {Document | null} options.document - Optional document for element creation
- * @returns {Promise<string | Element>} HTML string or element
- */
-const processExternalImage = async ({
-  returnElement,
-  document: doc,
-  ...imageProps
-}) => {
-  const html = await computeExternalImageHtml(imageProps).catch(
-    async (error) => {
-      if (!isRickAstleyThumbnail(imageProps.src)) {
-        throw error;
-      }
-      return generateRickAstleyPlaceholder(
-        imageProps.classes,
-        imageProps.aspectRatio,
-      );
-    },
-  );
-
-  return pipeline.resolveOutput(html, returnElement, doc);
-};
-
-export { processExternalImage };
+export { computeExternalImageHtml };

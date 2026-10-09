@@ -1,5 +1,5 @@
-import { describe, expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
+import { describe, expect, test } from "vitest";
 import { createTestSite, useSharedSite } from "#test/test-site-factory.js";
 
 /** Build a page file fixture whose body lives in a markdown block */

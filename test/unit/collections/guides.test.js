@@ -1,12 +1,14 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   configureGuides,
+  createGuideCategoriesCollection,
+  createGuidePagesCollection,
   generalGuides,
-  guideCategoriesByProperty,
   guidesByCategory,
   guidesForProperty,
 } from "#collections/guides.js";
 import {
+  collectionApi,
   createMockEleventyConfig,
   expectResultTitles,
 } from "#test/test-utils.js";
@@ -113,68 +115,6 @@ describe("guides", () => {
     expect(pagesCopy).toEqual(originalPages);
   });
 
-  test("Sorts guides by order then name", () => {
-    const guidePages = [
-      {
-        data: {
-          name: "Guide 1",
-          order: 3,
-          "guide-category": "getting-started",
-        },
-      },
-      {
-        data: {
-          name: "Guide 2",
-          order: 1,
-          "guide-category": "getting-started",
-        },
-      },
-      {
-        data: {
-          name: "Guide 3",
-          order: 2,
-          "guide-category": "getting-started",
-        },
-      },
-    ];
-
-    expectResultTitles(guidesByCategory(guidePages, "getting-started"), [
-      "Guide 2",
-      "Guide 3",
-      "Guide 1",
-    ]);
-  });
-
-  test("Keeps guides without an order in input order", () => {
-    const guidePages = [
-      { data: { name: "Zulu", "guide-category": "getting-started" } },
-      { data: { name: "Alpha", "guide-category": "getting-started" } },
-      { data: { name: "Mike", "guide-category": "getting-started" } },
-    ];
-
-    expectResultTitles(guidesByCategory(guidePages, "getting-started"), [
-      "Zulu",
-      "Alpha",
-      "Mike",
-    ]);
-  });
-
-  test("Sorts by name when guides share the same order", () => {
-    const guidePages = [
-      {
-        data: { name: "Bravo", order: 1, "guide-category": "getting-started" },
-      },
-      {
-        data: { name: "Alpha", order: 1, "guide-category": "getting-started" },
-      },
-    ];
-
-    expectResultTitles(guidesByCategory(guidePages, "getting-started"), [
-      "Alpha",
-      "Bravo",
-    ]);
-  });
-
   test("Adds guidesByCategory filter", () => {
     const mockConfig = createMockEleventyConfig();
 
@@ -182,19 +122,6 @@ describe("guides", () => {
 
     expect(typeof mockConfig.filters.guidesByCategory).toBe("function");
     expect(mockConfig.filters.guidesByCategory).toBe(guidesByCategory);
-  });
-
-  test("Adds guideCategoriesByProperty filter", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    configureGuides(mockConfig);
-
-    expect(typeof mockConfig.filters.guideCategoriesByProperty).toBe(
-      "function",
-    );
-    expect(mockConfig.filters.guideCategoriesByProperty).toBe(
-      guideCategoriesByProperty,
-    );
   });
 
   test("Adds generalGuides filter", () => {
@@ -211,6 +138,38 @@ describe("guides", () => {
     configureGuides(mockConfig);
 
     expect(mockConfig.filters.guidesForProperty).toBe(guidesForProperty);
+  });
+
+  test("Registers the guide-pages collection on Eleventy config", () => {
+    const mockConfig = createMockEleventyConfig();
+
+    configureGuides(mockConfig);
+
+    expect(mockConfig.collections["guide-pages"]).toBe(
+      createGuidePagesCollection,
+    );
+  });
+
+  test("Registers the guide-categories collection on Eleventy config", () => {
+    const mockConfig = createMockEleventyConfig();
+
+    configureGuides(mockConfig);
+
+    expect(mockConfig.collections["guide-categories"]).toBe(
+      createGuideCategoriesCollection,
+    );
+  });
+
+  test("guide-pages collection keeps every guide page in order", () => {
+    const pages = [
+      { data: { name: "First", tags: ["guide-pages"] } },
+      { data: { name: "Hidden", tags: ["guide-pages"], no_index: true } },
+      { data: { name: "Last", tags: ["guide-pages"] } },
+    ];
+
+    const result = createGuidePagesCollection(collectionApi(pages));
+
+    expectResultTitles(result, ["First", "Hidden", "Last"]);
   });
 });
 
@@ -288,49 +247,5 @@ describe("guidesForProperty", () => {
     guidesForProperty(pagesCopy, "seaside-cottage");
 
     expect(pagesCopy).toEqual(originalPages);
-  });
-});
-
-describe("guideCategoriesByProperty", () => {
-  test("Filters guide categories by property slug", () => {
-    const categories = [
-      guideCategory("Getting Started", "seaside-cottage"),
-      guideCategory("Advanced", "mountain-lodge"),
-      guideCategory("Tips", "seaside-cottage"),
-    ];
-
-    const result = guideCategoriesByProperty(categories, "seaside-cottage");
-
-    expectResultTitles(result, ["Getting Started", "Tips"]);
-  });
-
-  test("Returns empty array when no categories match property", () => {
-    const categories = [
-      guideCategory("Getting Started", "seaside-cottage"),
-      guideCategory("Advanced", "mountain-lodge"),
-    ];
-
-    const result = guideCategoriesByProperty(categories, "nonexistent");
-
-    expect(result).toEqual([]);
-  });
-
-  test("Handles empty categories array", () => {
-    const result = guideCategoriesByProperty([], "seaside-cottage");
-
-    expect(result).toEqual([]);
-  });
-
-  test("Skips categories without property field", () => {
-    const categories = [
-      guideCategory("Getting Started", "seaside-cottage"),
-      guideCategory("Advanced"), // no property
-      guideCategory("Tips", "seaside-cottage"),
-    ];
-
-    expectResultTitles(
-      guideCategoriesByProperty(categories, "seaside-cottage"),
-      ["Getting Started", "Tips"],
-    );
   });
 });

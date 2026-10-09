@@ -1,6 +1,6 @@
 /**
  * End-to-end proof that the mutation tester actually works: it spawns real
- * `bun test` subprocesses against generated fixtures and checks that genuine
+ * `vitest run` subprocesses against generated fixtures and checks that genuine
  * test gaps are caught while clean tests pass.
  *
  * Each case writes its fixtures to its own throwaway temp dir (outside test/,
@@ -8,16 +8,16 @@
  * invokes the real `runMutationTesting` — the same code path the CLI uses.
  */
 
-import { describe, expect, test } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import { runMutationTesting } from "#scripts/mutation/runner.js";
 
-// Each subprocess is a fresh `bun test`; a handful of them needs real wall-clock.
+// Each subprocess is a fresh `vitest run`; a handful of them needs real wall-clock.
 const RUN_TIMEOUT = 60_000;
 
-// Fixtures are kept tiny on purpose: every mutant spawns a fresh `bun test`
+// Fixtures are kept tiny on purpose: every mutant spawns a fresh `vitest run`
 // subprocess, and this lane runs concurrently with the unit lane, so extra
 // mutants would steal CPU from time-boxed unit tests.
 const FIXTURES = {
@@ -54,7 +54,7 @@ const runFixture = async (stem, inspect) => {
   writeFileSync(
     testPath,
     [
-      'import { expect, test } from "bun:test";',
+      'import { expect, test } from "vitest";',
       `import { ${imports} } from ${JSON.stringify(src)};`,
       ...body,
       "",

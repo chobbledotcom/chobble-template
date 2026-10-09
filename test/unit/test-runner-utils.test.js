@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
+import { describe, expect, test, vi } from "vitest";
 import {
   checkMetric,
   checkRecord,
@@ -8,19 +8,23 @@ import {
   extractUncoveredBranchLines,
   extractUncoveredLines,
   formatUncovered,
+  getNonCodeQualityTestFiles,
   parseLcov,
   printSummary,
   printTruncatedList,
-  readCoverageIgnorePatterns,
   reportCoverageFailures,
-  runStep,
+  runLanes,
+  runStepAsync,
+  unitTestsStep,
 } from "#test/test-runner-utils.js";
 import {
+  bracketAsync,
   captureConsole,
+  captureConsoleLogAsync,
   withMockedProcessExit,
   withTempDir,
 } from "#test/test-utils.js";
-import { mapObject } from "#toolkit/fp/object.js";
+import { mapObject } from "#utils/fp/object.js";
 
 // ============================================
 // Test Helpers
@@ -30,8 +34,8 @@ import { mapObject } from "#toolkit/fp/object.js";
  * Creates a standard set of test steps (lint and test)
  */
 const createBasicSteps = () => [
-  { name: "lint", cmd: "bun", args: ["run", "lint"] },
-  { name: "test", cmd: "bun", args: ["test"] },
+  { name: "lint", cmd: "npm", args: ["run", "lint"] },
+  { name: "test", cmd: "npm", args: ["test"] },
 ];
 
 /**
@@ -61,15 +65,15 @@ const captureSummaryOutput = (steps, results, title) =>
  */
 const createThreeSteps = () => [
   ...createBasicSteps(),
-  { name: "build", cmd: "bun", args: ["run", "build"] },
+  { name: "build", cmd: "npm", args: ["run", "build"] },
 ];
 
 /**
- * Creates a step that runs a bun script
+ * Creates a step that runs an inline node script
  */
-const createBunScriptStep = (name, script) => ({
+const createNodeScriptStep = (name, script) => ({
   name,
-  cmd: "bun",
+  cmd: process.execPath,
   args: ["-e", script],
 });
 
@@ -77,56 +81,44 @@ const createBunScriptStep = (name, script) => ({
  * Helper to create a single build step, results, and capture output
  */
 const createBuildTestOutput = (buildConfig) => {
-  const steps = [{ name: "build", cmd: "bun", args: ["run", "build"] }];
+  const steps = [{ name: "build", cmd: "npm", args: ["run", "build"] }];
   const results = createResults({ build: buildConfig });
   return captureSummaryOutput(steps, results);
 };
 
 describe("test-runner-utils", () => {
   // ============================================
-  // runStep Tests
-  // ============================================
-  describe("runStep", () => {
-    // Output is captured in both modes (for error extraction)
-    test.each([
-      true,
-      false,
-    ])("Executes command and captures output (verbose=%s)", (verbose) => {
-      const step = { name: "test-step", cmd: "echo", args: ["hello"] };
-
-      const result = runStep(step, verbose);
-
-      expect(result.status).toBe(0);
-      expect(result.stdout).toContain("hello");
-      expect(result.stderr).toBe("");
-    });
-
-    test("Captures stdout and stderr in non-verbose mode", () => {
-      const step = createBunScriptStep(
-        "error-step",
-        "console.error('error message'); console.log('output')",
-      );
-
-      const result = runStep(step, false);
-
-      expect(result.status).toBe(0);
-      expect(result.stdout).toContain("output");
-      expect(result.stderr).toContain("error message");
-    });
-
-    test("Returns non-zero status for failed command", () => {
-      const step = createBunScriptStep("failing-step", "process.exit(1)");
-
-      const result = runStep(step, false);
-
-      expect(result.status).toBe(1);
-    });
-  });
-
-  // ============================================
   // extractErrorsFromOutput Tests
   // ============================================
   describe("extractErrorsFromOutput", () => {
+    test.each([
+      "   ",
+      "  jscpd found duplicated code.  ",
+      "  Do not use duplicated code  ",
+    ])("ends clone blocks before %j", (terminator) => {
+      const output = [
+        "normal output",
+        "  ❌ Clone found  ",
+        "    src/first.js: 1-5  ",
+        "    src/second.js: 2-6  ",
+        terminator,
+        "Error: separate failure",
+      ].join("\n");
+
+      expect(extractErrorsFromOutput(output)).toEqual([
+        "  ❌ Clone found\n    src/first.js: 1-5\n    src/second.js: 2-6",
+        "Error: separate failure",
+      ]);
+    });
+
+    test("keeps an unterminated clone block through the end of output", () => {
+      expect(
+        extractErrorsFromOutput(
+          "❌ Clone found\n  src/first.js: 1-5\n  src/second.js: 2-6",
+        ),
+      ).toEqual(["❌ Clone found\n  src/first.js: 1-5\n  src/second.js: 2-6"]);
+    });
+
     test("Extracts lines starting with error indicators", () => {
       const output = `
 Some normal output
@@ -396,7 +388,7 @@ Failed to compile
     });
 
     test("Uses custom title when provided", () => {
-      const steps = [{ name: "lint", cmd: "bun", args: ["run", "lint"] }];
+      const steps = [{ name: "lint", cmd: "npm", args: ["run", "lint"] }];
       const results = createResults({
         lint: {},
       });
@@ -451,9 +443,8 @@ Failed to compile
 
     test("Handles empty results gracefully", () => {
       const emptyRunSteps = createBasicSteps();
-      const results = {};
 
-      const output = captureConsole(() => printSummary(emptyRunSteps, results));
+      const output = captureConsole(() => printSummary(emptyRunSteps, {}));
 
       expect(output).toContain("SUMMARY");
       expect(output).not.toContain("Passed");
@@ -625,7 +616,7 @@ Failed to compile
     });
 
     describe("checkRecord", () => {
-      test("pushes line and branch failures for partially covered record", () => {
+      test("collects line and branch failures for partially covered record", () => {
         const record = [
           "SF:src/foo.js",
           "DA:3,0",
@@ -637,10 +628,11 @@ Failed to compile
           "BRH:1",
           "BRF:2",
         ].join("\n");
-        const lineFailures = [];
-        const branchFailures = [];
 
-        checkRecord(record, "src/foo.js", lineFailures, branchFailures);
+        const { lineFailures, branchFailures } = checkRecord(
+          record,
+          "src/foo.js",
+        );
 
         expect(lineFailures).toEqual([
           "src/foo.js: 1/2 lines covered\n      uncovered lines: 3",
@@ -650,7 +642,7 @@ Failed to compile
         ]);
       });
 
-      test("pushes nothing when record is fully covered", () => {
+      test("collects nothing when record is fully covered", () => {
         const record = [
           "SF:src/bar.js",
           "DA:1,3",
@@ -660,10 +652,11 @@ Failed to compile
           "BRH:2",
           "BRF:2",
         ].join("\n");
-        const lineFailures = [];
-        const branchFailures = [];
 
-        checkRecord(record, "src/bar.js", lineFailures, branchFailures);
+        const { lineFailures, branchFailures } = checkRecord(
+          record,
+          "src/bar.js",
+        );
 
         expect(lineFailures).toEqual([]);
         expect(branchFailures).toEqual([]);
@@ -714,70 +707,25 @@ Failed to compile
       });
     });
 
-    describe("readCoverageIgnorePatterns", () => {
-      test("extracts quoted entries from the coveragePathIgnorePatterns array", () =>
-        withTempDir("ignore-patterns", (tempDir) => {
-          const bunfigPath = path.join(tempDir, "bunfig.toml");
-          fs.writeFileSync(
-            bunfigPath,
-            [
-              "[test]",
-              "coveragePathIgnorePatterns = [",
-              '  "src/skip-a.js",',
-              '  "src/skip-b.js",',
-              "]",
-              "",
-            ].join("\n"),
-          );
-
-          expect(readCoverageIgnorePatterns(bunfigPath)).toEqual([
-            "src/skip-a.js",
-            "src/skip-b.js",
-          ]);
-        }));
-
-      test("returns empty array when the file does not exist", () => {
-        expect(
-          readCoverageIgnorePatterns("/nonexistent/missing-bunfig.toml"),
-        ).toEqual([]);
-      });
-
-      test("throws when the array block is missing from an existing file", () =>
-        withTempDir("ignore-patterns-missing", (tempDir) => {
-          const bunfigPath = path.join(tempDir, "bunfig.toml");
-          fs.writeFileSync(bunfigPath, "[test]\ntimeout = 1500\n");
-
-          expect(() => readCoverageIgnorePatterns(bunfigPath)).toThrow(
-            /coveragePathIgnorePatterns/,
-          );
-        }));
-    });
-
     describe("reportCoverageFailures", () => {
-      const writeCoverageFixture = (tempDir, { lcovLines, bunfigBody }) => {
+      const writeLcovFixture = (tempDir, lcovLines) => {
         const lcovPath = path.join(tempDir, "lcov.info");
-        const bunfigPath = path.join(tempDir, "bunfig.toml");
         fs.writeFileSync(lcovPath, [...lcovLines, ""].join("\n"));
-        fs.writeFileSync(bunfigPath, bunfigBody);
-        return { lcovPath, bunfigPath };
+        return lcovPath;
       };
 
       test("prints per-file gaps and returns true when lcov has failures", () =>
         withTempDir("coverage-gaps", (tempDir) => {
-          const { lcovPath, bunfigPath } = writeCoverageFixture(tempDir, {
-            lcovLines: [
-              "SF:src/a.js",
-              "DA:1,0",
-              "LH:0",
-              "LF:1",
-              "end_of_record",
-            ],
-            bunfigBody:
-              'coveragePathIgnorePatterns = [\n  "src/ignored.js",\n]\n',
-          });
+          const lcovPath = writeLcovFixture(tempDir, [
+            "SF:src/a.js",
+            "DA:1,0",
+            "LH:0",
+            "LF:1",
+            "end_of_record",
+          ]);
 
           const logs = captureConsole(() => {
-            const returned = reportCoverageFailures(lcovPath, bunfigPath);
+            const returned = reportCoverageFailures(lcovPath);
             expect(returned).toBe(true);
           });
 
@@ -790,25 +738,170 @@ Failed to compile
         }));
 
       test("returns false when lcov file does not exist", () => {
-        expect(
-          reportCoverageFailures(
-            "/nonexistent/lcov.info",
-            "/nonexistent/bunfig.toml",
-          ),
-        ).toBe(false);
+        expect(reportCoverageFailures("/nonexistent/lcov.info")).toBe(false);
       });
 
       test("returns false when every record in lcov is fully covered", () =>
         withTempDir("coverage-clean", (tempDir) => {
-          const { lcovPath, bunfigPath } = writeCoverageFixture(tempDir, {
-            lcovLines: ["SF:src/a.js", "LH:1", "LF:1", "end_of_record"],
-            bunfigBody: "coveragePathIgnorePatterns = [\n]\n",
-          });
+          const lcovPath = writeLcovFixture(tempDir, [
+            "SF:src/a.js",
+            "LH:1",
+            "LF:1",
+            "end_of_record",
+          ]);
 
-          const returned = reportCoverageFailures(lcovPath, bunfigPath);
+          const returned = reportCoverageFailures(lcovPath);
 
           expect(returned).toBe(false);
         }));
     });
+  });
+});
+
+describe("step definitions", () => {
+  test("unitTestsStep adds the verbose reporter only when asked", () => {
+    expect(unitTestsStep(true).args).toContain("--reporter=verbose");
+    expect(unitTestsStep(false).args).not.toContain("--reporter=verbose");
+  });
+
+  test("getNonCodeQualityTestFiles excludes the code-quality suite", () => {
+    const files = getNonCodeQualityTestFiles("test/unit/**/*.test.js");
+
+    expect(files.length).toBeGreaterThan(0);
+    expect(files.some((f) => f.includes("code-quality"))).toBe(false);
+  });
+});
+
+describe("runStepAsync", () => {
+  // Real child processes can take longer than the default test timeout.
+  test.each([
+    [false, "process.exit(0)", "", ""],
+    [true, "process.exit(0)", "", ""],
+    [
+      false,
+      "process.stdout.write('out'); process.stderr.write('err')",
+      "out",
+      "err",
+    ],
+  ])(
+    "does not forward output with verbose=%s for %s",
+    async (verbose, script, stdout, stderr) => {
+      await bracketAsync(
+        () => [
+          vi.spyOn(process.stdout, "write").mockImplementation(() => true),
+          vi.spyOn(process.stderr, "write").mockImplementation(() => true),
+        ],
+        (spies) => {
+          for (const spy of spies) spy.mockRestore();
+        },
+      )(null, async ([stdoutSpy, stderrSpy]) => {
+        const result = await runStepAsync(
+          createNodeScriptStep("silent-step", script),
+          verbose,
+        );
+        expect(result).toEqual({ status: 0, stdout, stderr });
+        expect(stdoutSpy).not.toHaveBeenCalled();
+        expect(stderrSpy).not.toHaveBeenCalled();
+      });
+    },
+    30_000,
+  );
+
+  test("captures output and exit status", async () => {
+    const step = createNodeScriptStep(
+      "async-step",
+      "console.log('out'); console.error('err')",
+    );
+
+    const result = await runStepAsync(step, false);
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("out");
+    expect(result.stderr).toContain("err");
+  }, 30_000);
+
+  test("passes output through in verbose mode and reports the exit status", async () => {
+    const stdoutSpy = vi
+      .spyOn(process.stdout, "write")
+      .mockImplementation(() => true);
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    const step = createNodeScriptStep(
+      "fail-step",
+      "console.log('vout'); console.error('verr'); process.exit(3)",
+    );
+
+    const result = await runStepAsync(step, true);
+
+    expect(result.status).toBe(3);
+    expect(stdoutSpy).toHaveBeenCalledWith(expect.stringContaining("vout"));
+    expect(stderrSpy).toHaveBeenCalledWith(expect.stringContaining("verr"));
+    stdoutSpy.mockRestore();
+    stderrSpy.mockRestore();
+  }, 30_000);
+});
+
+describe("runLanes", () => {
+  test("runs lanes in parallel and stops a lane at its first failure", async () => {
+    const ok = createNodeScriptStep("lane-ok", "console.log('fine')");
+    const fail = createNodeScriptStep("lane-fail", "process.exit(1)");
+    const never = createNodeScriptStep(
+      "lane-never",
+      "console.log('unreachable')",
+    );
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined);
+
+    const output = await captureConsoleLogAsync(async () => {
+      const results = await runLanes({
+        lanes: [[ok], [fail, never]],
+        verbose: false,
+        title: "RUNLANES TEST",
+      });
+
+      expect(results["lane-ok"].status).toBe(0);
+      expect(results["lane-fail"].status).toBe(1);
+      expect(results["lane-never"]).toBeUndefined();
+    });
+
+    expect(output.join("\n")).toContain("RUNLANES TEST");
+    exitSpy.mockRestore();
+  }, 30_000);
+});
+
+describe("coverage failure diagnostics", () => {
+  test("printSummary points coverage failures at the ignore list", () => {
+    const steps = [{ name: "tests:unit", cmd: "npx", args: [] }];
+    const results = {
+      "tests:unit": {
+        status: 1,
+        stdout: [
+          "120 pass",
+          "0 fail",
+          "File | % Funcs | % Lines | Uncovered Lines",
+        ].join("\n"),
+        stderr: "",
+      },
+    };
+
+    const output = captureSummaryOutput(steps, results, "COVERAGE SUMMARY");
+
+    expect(output).toContain(
+      "Excluded files are listed in test/coverage-ignore.js.",
+    );
+  });
+
+  test("extractErrorsFromOutput keeps coverage table rows with uncovered lines", () => {
+    const output = [
+      "src/foo.js | 90.00 | 85.00 | 12,14",
+      "src/bar.js | 100.00 | 100.00 | ",
+    ].join("\n");
+
+    const errors = extractErrorsFromOutput(output);
+
+    expect(errors).toContain("src/foo.js | 90.00 | 85.00 | 12,14");
+    expect(errors.some((e) => e.includes("src/bar.js"))).toBe(false);
   });
 });

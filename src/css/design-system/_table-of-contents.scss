@@ -1,0 +1,47 @@
+// jscpd:ignore-start -- shared @use import block
+@use "../variables" as *;
+@use "../mixins" as *;
+// jscpd:ignore-end
+
+// =============================================================================
+// TABLE OF CONTENTS
+// =============================================================================
+// In-page contents for long documents. The list is built from the page's own
+// headings after it renders, and nests the way those headings do, so the
+// indentation below is driven by real list nesting rather than a class per
+// level.
+
+.design-system {
+  .table-of-contents {
+    padding: $space-md $space-lg;
+    border: 1px solid var(--color-accent);
+    border-radius: $radius-md;
+    background: var(--color-card-bg);
+
+    .toc-title {
+      margin-block: 0 $space-sm;
+      font-size: $font-size-lg;
+    }
+
+    ol {
+      @include flex-col($space-xs);
+
+      margin-block: 0;
+      padding-inline-start: $space-lg;
+    }
+
+    // Nested levels sit closer to their parent than the outer list does to the
+    // title, so the hierarchy reads without a rule for each depth.
+    ol ol {
+      margin-block-start: $space-xs;
+      padding-inline-start: $space-md;
+    }
+
+    a {
+      // 2.5.8 Target Size (Minimum): contents links stack closely, so each one
+      // carries its own vertical padding rather than relying on line height.
+      display: inline-block;
+      padding-block: calc(#{$space-xs} * 0.5);
+    }
+  }
+}

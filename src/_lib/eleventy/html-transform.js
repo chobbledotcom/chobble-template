@@ -14,7 +14,6 @@ import linkifyHtmlLib from "linkify-html";
 import { FAST_INACCURATE_BUILDS } from "#build/build-mode.js";
 import configModule from "#data/config.js";
 import linksMap from "#data/links.json" with { type: "json" };
-import { memoize } from "#toolkit/fp/memoize.js";
 import { encryptEmails, hasMailtoLinks } from "#transforms/encrypt-emails.js";
 import { addExternalLinkAttrs } from "#transforms/external-links.js";
 import { processImages } from "#transforms/images.js";
@@ -32,14 +31,22 @@ import {
 } from "#transforms/raw-text-guard.js";
 import { hasReadMoreMarker, processReadMore } from "#transforms/read-more.js";
 import { wrapTables } from "#transforms/responsive-tables.js";
+import {
+  hasTableOfContents,
+  processTableOfContents,
+} from "#transforms/table-of-contents.js";
+import { memoize } from "#utils/fp/memoize.js";
 import { loadDOM, withDOMSlot } from "#utils/lazy-dom.js";
+
+/** @typedef {import("#lib/types").SiteConfig} SiteConfig */
 
 const getConfig = memoize(configModule);
 
 /**
- * Check if content requires DOM parsing (has tables, images, phone patterns, read-more markers, or config links)
+ * Check if content requires DOM parsing (has tables, images, phone patterns,
+ * read-more markers, a contents block, or config links)
  * @param {string} content
- * @param {number} phoneLen
+ * @param {number | undefined} phoneLen
  * @returns {boolean}
  */
 const needsDomParsing = (content, phoneLen) =>
@@ -47,14 +54,16 @@ const needsDomParsing = (content, phoneLen) =>
   content.includes("<table") ||
   content.includes('src="/images/') ||
   hasReadMoreMarker(content) ||
+  hasTableOfContents(content) ||
   hasConfigLinks(content, linksMap) ||
   hasMailtoLinks(content);
 
 /**
- * Apply DOM-based transforms (phone links, table wrappers, image processing, read-more)
+ * Apply DOM-based transforms (phone links, table wrappers, image processing,
+ * read-more, in-page contents)
  * Skips phone linkification when FAST_INACCURATE_BUILDS is enabled.
  * @param {string} html
- * @param {object} config
+ * @param {SiteConfig} config
  * @param {import("#lib/types").ProcessImageFn} processAndWrapImage
  * @returns {Promise<string>}
  */
@@ -68,6 +77,10 @@ const applyDomTransforms = (html, config, processAndWrapImage) =>
     }
     wrapTables(document, config);
     processReadMore(document);
+    // After read-more, which moves nodes around, and before images, which are
+    // slow: the contents needs the page's final headings, and nothing that
+    // follows adds or renames one.
+    processTableOfContents(document);
     await processImages(document, config, processAndWrapImage);
     encryptEmails(document);
     return dom.serialize();
@@ -79,15 +92,15 @@ const applyDomTransforms = (html, config, processAndWrapImage) =>
  * entity-escapes script/style text nodes when re-serialising, corrupting
  * inline JS and CSS. Extract those elements first and restore them after.
  * @param {string} content
- * @param {object} config
+ * @param {SiteConfig} config
  * @returns {string}
  */
 const linkifyHtml = (content, config) => {
   const { content: guarded, blocks } = extractRawTextElements(content);
   const linkified = linkifyHtmlLib(guarded, {
     ignoreTags: [...SKIP_TAGS],
-    target: config.externalLinksTargetBlank ? "_blank" : null,
-    rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
+    target: config.externalLinksTargetBlank ? "_blank" : undefined,
+    rel: config.externalLinksTargetBlank ? "noopener noreferrer" : undefined,
     format: { url: formatUrlDisplay },
   });
   return restoreRawTextElements(linkified, blocks);
@@ -97,7 +110,7 @@ const linkifyHtml = (content, config) => {
  * Apply string-based transforms (URL/email linkification, external link attrs)
  * Skips linkification when FAST_INACCURATE_BUILDS is enabled.
  * @param {string} content
- * @param {object} config
+ * @param {SiteConfig} config
  * @returns {string}
  */
 const applyStringTransforms = (content, config) => {
@@ -133,15 +146,39 @@ const createHtmlTransform =
   };
 
 /**
+ * Run the project transforms inside Eleventy's PostHTML pipeline, before its
+ * built-in URL rewriter adds PATH_PREFIX to the final attributes.
+ * @param {import("#lib/types").ProcessImageFn} processAndWrapImage
+ */
+const createPosthtmlPlugin = (processAndWrapImage) => {
+  const transform = createHtmlTransform(processAndWrapImage);
+  return (/** @type {{ outputPath: string }} */ context) =>
+    /** @param {{ render: (tree: unknown) => string, parser: (html: string) => unknown }} tree */
+    async (tree) => {
+      const result = await transform(tree.render(tree), context.outputPath);
+      return tree.parser(result);
+    };
+};
+
+/**
  * Configure the unified HTML transform for Eleventy
- * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
+ * @param {import("#lib/types").UserConfig & {
+ *   htmlTransformer: {
+ *     addPosthtmlPlugin(
+ *       extensions: string | string[],
+ *       plugin: unknown,
+ *       options?: { name?: string; priority?: number },
+ *     ): void;
+ *   };
+ * }} eleventyConfig
  * @param {import("#lib/types").ProcessImageFn} processAndWrapImage - Image processing function
  */
 const configureHtmlTransform = (eleventyConfig, processAndWrapImage) => {
-  eleventyConfig.addTransform(
-    "htmlTransform",
-    createHtmlTransform(processAndWrapImage),
+  eleventyConfig.htmlTransformer.addPosthtmlPlugin(
+    "html",
+    createPosthtmlPlugin(processAndWrapImage),
+    { name: "cfa/html-transform" },
   );
 };
 
-export { configureHtmlTransform, createHtmlTransform };
+export { configureHtmlTransform };

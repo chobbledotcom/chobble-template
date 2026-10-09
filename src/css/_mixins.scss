@@ -32,6 +32,11 @@
   justify-content: $justify;
 }
 
+// Centered column stack, the shared intro-block layout (hero, CTA).
+@mixin centered-col($gap: $space-lg) {
+  @include flex-col($gap, center, center);
+}
+
 @mixin flex-center {
   display: flex;
   align-items: center;
@@ -48,6 +53,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: $gap;
+}
+
+// Centered wrapping row, the common action-row layout (hero actions,
+// footer language links).
+@mixin flex-row-wrap($gap: $space-md) {
+  @include flex-row($gap, center, center);
+
+  flex-wrap: wrap;
 }
 
 // Grid layouts
@@ -71,6 +84,14 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
   gap: $gap;
+}
+
+// Responsive grid jump: switch column count at a breakpoint. Shared by the
+// grid layout classes so each breakpoint block is declared once.
+@mixin grid-at($breakpoint, $columns, $gap: $space-lg) {
+  @include breakpoint.up($breakpoint) {
+    @include grid($columns, $gap);
+  }
 }
 
 // =============================================================================
@@ -116,6 +137,59 @@
   }
 }
 
+// Set --section-padding-y from one of the predefined tokens. Every
+// context/breakpoint re-declaration shares this one form.
+@mixin section-padding-y($token) {
+  --section-padding-y: var(--section-padding-y-#{$token});
+}
+
+// Section vertical padding for a named context: a base token plus its
+// md+ override, e.g. @include section-padding-sm-md(main);
+@mixin section-padding-sm-md($base) {
+  @include section-padding-y(#{$base}-sm);
+
+  @include breakpoint.up("md") {
+    @include section-padding-y(#{$base}-md);
+  }
+}
+
+// Compact padded element (small controls, list rows).
+@mixin compact-padding {
+  padding: $space-sm $space-md;
+}
+
+// Plain interactive row: inherits color, no underline.
+@mixin plain-row-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+// Primary-colored block: contrast text on the page's link color.
+@mixin primary-panel {
+  color: var(--color-contrast-text);
+  background: var(--color-link);
+}
+
+// Kill smooth scrolling under prefers-reduced-motion.
+@mixin reduced-motion-scroll {
+  @include breakpoint.reduced-motion {
+    scroll-behavior: auto;
+  }
+}
+
+// A section under a full-bleed child (banner, split-full) carries no
+// vertical padding of its own.
+@mixin section-flush {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+// Alternating-row background for zebra striping (alternate sections,
+// striped tables).
+@mixin alt-bg {
+  background: var(--body-background-alt);
+}
+
 // =============================================================================
 // CARD & BOX MIXINS
 // =============================================================================
@@ -125,6 +199,45 @@
   border: $border-light;
   border-radius: $radius;
   background: var(--color-card-bg);
+}
+
+// Light border with rounded corners, the standard box/card frame without
+// the card's padding or background.
+@mixin box-border($radius: $radius-md) {
+  border: $border-light;
+  border-radius: $radius;
+}
+
+// Card surface background, shared by every element that sits on a card.
+@mixin card-bg {
+  background: var(--color-card-bg);
+}
+
+// Fixed-size icon box: centered, non-shrinking square. Shared by the icon
+// badge and inline icon wrappers.
+@mixin icon-box($size) {
+  @include flex-center;
+
+  flex-shrink: 0;
+  width: $size;
+  height: $size;
+}
+
+// Zebra stripe: an element's even rows use the alternate background.
+@mixin zebra-stripe {
+  &:nth-child(even) {
+    @include alt-bg;
+  }
+}
+
+// Interactive row link: optional light border, always plain and
+// color-inheriting. Shared by the downloads and icon-links blocks.
+@mixin row-link($border: true) {
+  @if $border {
+    @include box-border;
+  }
+
+  @include plain-row-link;
 }
 
 @mixin card-hover {
@@ -219,18 +332,49 @@
   line-height: $line-height-normal;
 }
 
+// Muted secondary text color.
+@mixin muted-text {
+  color: var(--color-text-muted);
+}
+
+// Small muted text (secondary descriptions, card metadata).
+@mixin muted-body-sm {
+  @include body-sm;
+
+  color: var(--color-text-muted);
+}
+
 // Text balance for headings
 @mixin text-balance {
   text-wrap: balance;
 }
 
-// Plain link: themed color, underline on hover only
+// Plain link: themed color, underline on hover (and focus)
 @mixin link-plain {
   color: var(--color-link);
   text-decoration: none;
+  transition: color $transition-fast;
 
-  &:hover {
+  &:hover,
+  &:focus {
     text-decoration: underline;
+  }
+}
+
+// The themed link token trio: color plus the decoration variables. Shared
+// by link elements and interactive lookalikes (read-more labels).
+@mixin link-tokens {
+  color: var(--color-link);
+  text-decoration: var(--link-decoration);
+  text-decoration-style: var(--link-decoration-style);
+}
+
+// Hover state for buttons sitting on a contrast panel: link color on the
+// contrast background.
+@mixin contrast-button-hover {
+  &:hover {
+    color: var(--color-link);
+    background: var(--color-contrast-text);
   }
 }
 
@@ -720,10 +864,6 @@
     .prose {
       align-items: center;
       max-width: $width-default;
-
-      p {
-        max-width: $width-narrow;
-      }
     }
 
     h1, h2, h3, h4, h5, h6 {
@@ -744,10 +884,7 @@
       color: var(--color-link);
       background: var(--color-contrast-text-muted);
 
-      &:hover {
-        color: var(--color-link);
-        background: var(--color-contrast-text);
-      }
+      @include contrast-button-hover;
     }
 
     // a.btn--primary keeps specificity above the a.btn rule, which would
@@ -795,8 +932,9 @@
   border-radius: $radius-md;
 
   font-family: inherit;
-  font-size: $font-size-base;
-  line-height: $line-height-normal;
+
+  @include body-base;
+
   color: var(--color-text);
 
   background: var(--color-card-bg);

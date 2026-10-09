@@ -1,3 +1,8 @@
+{%- comment -%}
+One theme-editor property: a checkbox that enables it and the control that
+sets its value. The visible <label> wraps the checkbox, so the control names
+itself after the same text rather than being left unnamed.
+{%- endcomment -%}
 <div>
   <label>
     <input
@@ -10,6 +15,7 @@
   {% if type == "select" or type == "select-class" %}
   <select
     id="{{ id }}"
+    aria-label="{{ label }}"
     {% if type == "select-class" %}data-class="true"{% else %}data-var="--{{ id }}"{% endif %}
     disabled
   >
@@ -23,6 +29,7 @@
   <input
     type="{{ type | default: 'text' }}"
     id="{{ id }}"
+    aria-label="{{ label }}"
     data-var="--{{ id }}"
     {% if step %}step="{{ step }}"{% endif %}
     {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}

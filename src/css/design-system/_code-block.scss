@@ -1,5 +1,7 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+// jscpd:ignore-end
 
 // =============================================================================
 // CODE BLOCKS
@@ -11,14 +13,16 @@
 
     .code-block-toolbar {
       @include flex-between;
+      @include compact-padding;
 
-      padding: $space-sm $space-md;
       border-radius: $radius-md $radius-md 0 0;
-
       font-size: $font-size-sm;
       color: $color-dark-text-muted;
-
       background: $color-dark-card-bg;
+
+      a:not(.btn) {
+        color: inherit;
+      }
     }
 
     .dots {

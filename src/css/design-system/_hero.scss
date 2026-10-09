@@ -1,6 +1,8 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
 @use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
 
 // =============================================================================
 // HERO
@@ -8,20 +10,22 @@
 
 .design-system {
   .hero {
-    @include flex-col($space-lg, center, center);
+    @include centered-col;
     @include section-self-padding;
 
     text-align: center;
 
     .prose {
       align-items: center;
-      max-width: $width-default;
+
+      // 900px measure plus a 24px gutter each side: with the hero's own
+      // 24px self-padding, text sits at least 48px from the hero's edges.
+      max-width: calc(#{$width-default} + 2 * #{$space-md});
+      padding-inline: $space-md;
 
       p {
         @include body-lg;
-
-        max-width: $width-narrow;
-        color: var(--color-text-muted);
+        @include muted-text;
       }
     }
   }
@@ -42,8 +46,6 @@
   }
 
   .actions {
-    @include flex-row($space-md, center, center);
-
-    flex-wrap: wrap;
+    @include flex-row-wrap;
   }
 }

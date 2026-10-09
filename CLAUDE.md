@@ -1,368 +1,136 @@
-# CLAUDE.md - AI Assistant Guide for Chobble Template
+# Engineering Guide
 
-## Project Overview
+CfA Static is an Eleventy template for informational and marketing sites, with
+schema-validated YAML content blocks, multilingual publishing, responsive media,
+themes, search, and a generated PagesCMS editing layer. It is not an e-commerce,
+form-processing, or user-data application.
 
-**Chobble Template** is an Eleventy (11ty) v3.0.0 static site generator for small business websites with e-commerce capabilities. It uses **Bun** as the package manager and runtime.
+This is the canonical handwritten engineering policy and workflow. Consult:
 
-### Key Features
-- Content types: Products, Categories, Events, News, Menus, Locations, Properties, Reviews, Team profiles
-- E-commerce: Shopping cart (LocalStorage), Stripe Checkout, PayPal, Quote/enquiry mode
-- 10 pre-built themes with live theme editor
-- Responsive images with LQIP (Low Quality Image Placeholders)
-- SEO/Schema.org structured data, RSS feeds, iCal events
+- [Site Builder Reference](docs/developer-reference.md) for the Node requirement, installation, selected site-building commands, CMS options, and authoring links.
+- [Architecture walkthrough](ARCHITECTURE.md) for how the whole system fits together, from content files to deployable artifact.
+- [package.json](package.json) for all scripts and import aliases; [biome.json](biome.json) for configured lint rules and scopes; [FP source JSDoc](src/_lib/utils/fp/) for helper APIs.
+- [Library map](src/_lib/README.md) for architecture and extension points.
+- [Test quality criteria](test/TEST-QUALITY-CRITERIA.md) for the mandatory test standards. Apply every criterion; do not duplicate that checklist elsewhere.
+- [Block reference](skills/cfa-static-site-builder/references/blocks.md) for the generated content model and block authoring API; [layouts](skills/cfa-static-site-builder/references/layouts.md) for authored rendering guidance.
 
----
+## Change Workflow
 
-## Quick Reference
+1. Read the relevant source, tests, and configuration before editing. Follow surrounding conventions and preserve unrelated worktree changes.
+2. Make the smallest correct change. Prefer existing helpers and clear, small functions over new abstractions or duplicated logic.
+3. Add behavioral tests using the canonical test criteria and the shared helpers exported by `#test/test-utils.js`.
+4. Run focused tests while iterating, then the relevant quality gates and lint. Regenerate affected artifacts and check the diff.
+5. Run the full `npm run test` once at the end before committing. Report commands, results, and any verification that could not run. Commit only when requested.
 
-### Essential Commands
-```bash
-bun install          # Install dependencies (MUST use bun, not npm)
-bun run build        # Build the site to _site/
-bun run serve        # Development server with hot reload
-bun test             # Full test suite (lint + build + tests + coverage)
-bun run test:unit    # Unit tests only
-bun run mutation <src-glob> <test-glob>  # Mutation test ("tests for your tests")
-bun run lint         # Check code with Biome
-bun run lint:fix     # Auto-fix lint issues
-bun run precommit    # Pre-commit checks
+Use **npm** for all package management. Install with `npm install`; see the
+generated reference for the current Node requirement and command definitions. Do
+not describe scripts from memory.
+
+## Code Policy
+
+- Use Node subpath import aliases from `package.json` wherever an alias applies, including dynamic and side-effect imports. Repository paths come from `ROOT_DIR` in `#lib/paths.js`, not `process.cwd()`.
+- Prefer arrow functions, `const`, curried helpers, and immutable transformations: `map`/`filter` for transformations, `flatMap` for combined filtering/expansion, `reduce` for aggregation, and `Object.fromEntries` for object construction. Use `pipe` when it makes a transformation clearer; do not force composition or extract helpers solely to add indirection.
+- `.push()` and other mutation-style escapes are gated by `test/unit/code-quality/` tests with distinct scopes, exempt directories, and allowlists. Read the failing gate before choosing an implementation, including inside reducers.
+- Biome and code-quality tests are complementary. Read `biome.json` for actual Biome limits and overrides, not an invented universal scope. Do not broaden enforcement or weaken checks merely to accommodate a change.
+- Site settings are declared once in `#config/config-schema.js` and site identity fields in `#config/site-schema.js`; they supply defaults, validation, the CMS site editor, and generated documentation. Add a key there and to `SiteConfig` or `SiteInfo` together with the code that reads it; never read an undeclared `config` or `site` key.
+- Keep HTML rendering in templates under `src/_includes/`; use existing block, shortcode, and filter registration patterns. Remove dead/commented-out code rather than retaining it as documentation.
+- Stacked containers such as `.prose`, `.block-column`, and `.hero` space their children with a flex `gap`. Change spacing by overriding the gap. Do not add vertical margins to the children: a child margin adds to the gap, so the spacing doubles. The one exception is extra space before a section, and that rule's comment must show the sum, for example `25px gap + 35px = 60px`.
+
+Generic functional helpers live under `#utils/fp/`; consult the generated export
+index and source JSDoc for APIs rather than copying stale utility inventories.
+Create cached helpers at module scope so calls reuse the cache; use
+reference-based caching for collection lookups where appropriate.
+
+### Fail Fast, Never Mask
+
+Unexpected or invalid state must throw a clear error at its origin. Do not hide
+errors behind fallback objects, empty collections, placeholder labels, or
+`{ ok: false, error }` results that callers can silently ignore. Let errors
+propagate unless the boundary has an explicit, justified recovery contract.
+
+Normalize legitimate content defaults early in the data chain, generally in
+collections, rather than scattering defensive defaults through renderers. The
+related gates encode these boundaries in their scopes: the generic FP library is
+not the site-data chain, and external input or browser storage may need boundary
+validation without weakening the gates.
+
+`test/code-quality/code-quality-exceptions.js` is a deletion-only legacy baseline,
+not a place to approve new violations: a per-entry ratchet fails on any entry the
+baseline has not recorded, and deletions must be locked into the baseline it
+prints; suggested updates only remove recorded entries and never approve new
+ones. A genuine file rename or shifted line requires an explicitly reviewed
+baseline update. Each gate also reports stale entries. If a check appears wrong,
+demonstrate the false positive and discuss a targeted correction; do not add
+exceptions or convert thrown failures to default values.
+
+## Testing Workflow
+
+Vitest configuration lives in `vitest.config.js`; shared factories and cleanup
+helpers live in `test/test-utils/` and are re-exported by `#test/test-utils.js`.
+Use them to exercise production behavior and isolate resources. Follow
+[all mandatory test criteria](test/TEST-QUALITY-CRITERIA.md).
+
+Tests travel with every site forked from the template, so they test the
+template, never the site's content. Site data comes from
+`test/fixtures/site-data/` (in-process imports and test-site builds are both
+redirected there), images and files from `test/fixtures/`, and collection
+directory data from `#collections/directory-data.js`. Only checks of a site's
+own generated artifacts, such as `.pages.yml` against its `site.json`, read the
+real files. `npm run test:fork` deletes the demo content, rewrites the site data
+the way a fork does, and runs the whole suite against that copy; CI runs it on
+every pull request.
+
+**Do not run `npm run test` repeatedly to diagnose one issue.** Start with a
+file, test name, or subsystem:
+
+```sh
+node node_modules/vitest/vitest.mjs run test/unit/utils/slug-utils.test.js
+node node_modules/vitest/vitest.mjs run test/unit/utils/slug-utils.test.js -t "specific test name"
+node node_modules/vitest/vitest.mjs run test/unit/collections/
+node node_modules/vitest/vitest.mjs run test/unit/code-quality/
 ```
 
-### Mutation Testing
-`bun run mutation` proves your tests actually catch bugs: it mutates operators in
-the source file(s), runs the mapped test file(s), and reports which mutants
-**survived** (changes no test noticed). The tooling lives in `scripts/mutation/`.
+Invoke vitest through `node` and npm through `npm run` as shown: agent
+permission profiles allow `node`, `npm run`, `npm install`, and `npm ci`, but
+not `npx` or bare `npm` forms such as `npm test`.
 
-```bash
-bun run mutation src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
-bun run mutation 'src/_lib/filters/*.js' 'test/unit/filters/*.test.js' --exhaustive
+For lint, use `npm run lint` and `npm run lint:fix`, or scope the repository's
+Biome runner to changed JavaScript files: `node scripts/biome.js check <paths>`.
+Inspect formatter changes rather than modifying unrelated files.
+
+When the full suite is needed, capture its output once and inspect that log
+instead of rerunning it through successive filters. Keep temporary logs outside
+the worktree, for example under `/tmp/opencode/`.
+
+Mutation testing checks whether tests detect changes to production operators:
+
+```sh
+npm run mutation -- src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
+npm run mutation -- 'src/_lib/eleventy/*.js' 'test/unit/eleventy/*.test.js' --exhaustive
 ```
 
-Confirmed-equivalent survivors (no input can distinguish them) go in
-`scripts/mutation/equivalent-mutants.txt` to keep CI gating on *new* gaps.
-
-### Directory Structure
-```
-src/
-├── _data/           # Site configuration (config.json, site.json, strings.json)
-├── _includes/       # Reusable HTML components (~85 files)
-├── _layouts/        # Page layout templates (~34 layouts)
-├── _lib/            # Core JavaScript library
-│   ├── build/       # JS bundling, SCSS, theme compilation
-│   ├── collections/ # Eleventy collections (12 types)
-│   ├── config/      # Configuration helpers
-│   ├── eleventy/    # Eleventy plugins (~13 configs)
-│   ├── filters/     # URL-based filtering for products/properties
-│   ├── media/       # Image processing (sharp, eleventy-img)
-│   ├── public/      # Frontend JavaScript (bundled by Bun)
-│   └── utils/       # Pure utility functions
-├── css/             # SCSS stylesheets
-├── products/        # Product markdown files
-├── categories/      # Category data
-├── events/          # Event data
-└── [content dirs]/  # news, menus, locations, properties, etc.
-
-test/
-├── unit/            # Unit tests by feature
-├── integration/     # Integration tests
-├── code-quality/    # Code quality checks
-├── test-utils.js    # Shared test utilities & factories
-└── TEST-QUALITY-CRITERIA.md  # Testing standards
-```
-
----
-
-## Import Aliases
-
-Use Node.js subpath imports (defined in `package.json`):
-
-```javascript
-import { memoize } from "#utils/memoize.js";
-import { configureProducts } from "#collections/products.js";
-import { configureImages } from "#media/image.js";
-import config from "#data/config.json" with { type: "json" };
-import { ROOT_DIR } from "#lib/paths.js";
-```
-
-**Available aliases:**
-| Alias | Path |
-|-------|------|
-| `#data/*` | `./src/_data/*` |
-| `#lib/*` | `./src/_lib/*` |
-| `#build/*` | `./src/_lib/build/*` |
-| `#collections/*` | `./src/_lib/collections/*` |
-| `#config/*` | `./src/_lib/config/*` |
-| `#eleventy/*` | `./src/_lib/eleventy/*` |
-| `#filters/*` | `./src/_lib/filters/*` |
-| `#media/*` | `./src/_lib/media/*` |
-| `#utils/*` | `./src/_lib/utils/*` |
-| `#public/*` | `./src/_lib/public/*` |
-| `#test/*` | `./test/*` |
-
----
-
-## Code Conventions
-
-### Eleventy Plugin Pattern
-Files registering with Eleventy export a `configureX` function:
-
-```javascript
-export function configureProducts(eleventyConfig) {
-  eleventyConfig.addCollection("products", ...);
-  eleventyConfig.addFilter("getProductsByCategory", ...);
-}
-```
-
-### Functional Programming Style
-The codebase uses curried, composable functions extensively:
-
-```javascript
-// Use pipe() for function composition
-import { pipe, filter, map, sort } from "#toolkit/fp/array.js";
-
-pipe(
-  filter(x => x > 0),
-  map(x => x * 2),
-  sort((a, b) => a - b)
-)(numbers);
-
-// Curried helpers are preferred
-const isActive = filter(item => item.active);
-const getName = map(item => item.name);
-```
-
-### Memoization Pattern
-```javascript
-import { memoize } from "#utils/memoize.js";
-
-const expensiveComputation = memoize(
-  async (input) => { /* ... */ },
-  { cacheKey: (args) => JSON.stringify(args[0]) }
-);
-```
-
-### Available Array Utilities (`#toolkit/fp/array.js`)
-- `pipe(...fns)` - Left-to-right function composition
-- `filter(predicate)`, `map(fn)`, `flatMap(fn)`, `reduce(fn, initial)` - Curried array methods
-- `sort(comparator)` - Non-mutating sort
-- `unique(arr)`, `uniqueBy(getKey)` - Deduplicate arrays
-- `filterMap(predicate, transform)` - Filter and map in single pass
-- `compact(arr)` - Remove falsy values
-- `chunk(arr, size)` - Split into groups
-- `pick(keys)` - Extract object properties
-- `memberOf(values)`, `notMemberOf(values)` - Membership predicates
-- `pluralize(singular, plural?)` - Format counts with pluralization
-- `accumulate(fn)` - Safe array building in reduce
-
-### Error Handling: Fail Fast, Never Mask
-
-**Throw errors instead of returning fallback values.** When something unexpected happens, fail immediately with a clear error rather than disguising the problem with a default value.
-
-```javascript
-// BAD - masks the problem, makes debugging harder
-const getProduct = (id) => products.find(p => p.id === id) ?? { title: "Unknown" };
-const parseConfig = (json) => { try { return JSON.parse(json); } catch { return {}; } };
-
-// GOOD - fails immediately, stack trace points to the problem
-const getProduct = (id) => {
-  const product = products.find(p => p.id === id);
-  if (!product) throw new Error(`Product not found: ${id}`);
-  return product;
-};
-```
-
-**Why this matters:**
-- Silent fallbacks hide bugs until they cause bigger problems downstream
-- Stack traces from early errors point directly to the root cause
-- Fallback values often propagate through the system causing confusing behavior
-- "It works but shows wrong data" is harder to debug than "it crashed here"
-
-**Code quality tests enforce this:**
-- `nullish-coalescing.test.js` - Bans `??` outside collections (where defaults belong)
-- `data-fallbacks.test.js` - Bans `item.data.foo || fallback` patterns
-- `try-catch-usage.test.js` - Allowlist-only for try/catch blocks
-
-**Rare exceptions** (all require explicit allowlisting):
-- Browser localStorage (users can corrupt it)
-- External HTTP APIs (network failures happen)
-- User-provided input at system boundaries
-
----
-
-## Linting Rules (Biome)
-
-The project enforces strict code quality via Biome. Key rules:
-
-### Must Follow
-- **Use arrow functions** - `useArrowFunction: error`
-- **Use template literals** - `useTemplate: error`
-- **Use const** - `useConst: error`
-- **No var** - `noVar: error`
-- **No ==** - `noDoubleEquals: error` (use `===`)
-- **No unused imports/variables** - `noUnusedImports: error`, `noUnusedVariables: error`
-- **No forEach** - `noForEach: error` (use `for...of` or curried `map`/`filter`)
-- **No accumulating spread** - `noAccumulatingSpread: error` (use `accumulate()` helper)
-- **Max cognitive complexity: 10** - `noExcessiveCognitiveComplexity: 10` (30 in tests)
-- **No console.log** - except in `build/`, `ecommerce-backend/`, and `test/`
-- **No skipped/focused tests** - `noSkippedTests: error`, `noFocusedTests: error`
-
-### Formatting
-- 2-space indentation
-- Run `bun run lint:fix` to auto-format
-
----
-
-## Testing Requirements
-
-### Test Framework
-- **Bun's native test runner** with happy-dom for DOM simulation
-- Tests in `/test/unit/` and `/test/integration/`
-- Shared utilities in `/test/test-utils.js`
-
-### Running Tests Efficiently
-
-**Do NOT run `bun test` or `bun run test` to diagnose a specific issue.** The full suite is slow (lint + build + unit tests + coverage). Running it repeatedly while iterating wastes minutes every loop.
-
-Instead:
-1. **Target the specific file** - `bun test test/unit/path/to/file.test.js` runs in seconds
-2. **Target a single test** - `bun test test/unit/foo.test.js -t "describes the failing case"`
-3. **Scope by directory** - `bun test test/unit/collections/` for a subsystem
-
-**If you genuinely need the full suite output** (e.g. finding which test broke after a wide change):
-1. Run it **once**, redirecting to a file: `bun test > /tmp/test-output.txt 2>&1`
-2. Grep that file repeatedly: `grep -n "(fail)" /tmp/test-output.txt` (bun marks failing tests lowercase `(fail)`)
-3. **Never** pipe `bun test | grep ...` and re-run — you pay the full suite cost each time
-
-Only run the full `bun test` once at the end to confirm everything passes before committing.
-
-### Test Quality Criteria (ALL tests must satisfy)
-
-1. **Tests Production Code, Not Reimplementations**
-   - Call actual imported production functions
-   - Never copy-paste production logic into tests
-   - Import constants, don't hardcode
-
-2. **Not Tautological**
-   - Don't assert values you just set
-   - Verify behavior after production code executes
-
-3. **Tests Behavior, Not Implementation Details**
-   - Verify observable outcomes
-   - Refactoring shouldn't break tests
-
-4. **Has Clear Failure Semantics**
-   - Test names describe specific behavior
-   - When test fails, root cause is obvious
-
-5. **Isolated and Repeatable**
-   - Clean up after tests (temp files, global state)
-   - No dependencies on other tests
-   - No time-dependent flakiness
-
-6. **Tests One Thing**
-   - Single reason to fail
-   - If you need "and" in description, split the test
-
-### Test Utilities
-```javascript
-import {
-  createMockEleventyConfig,  // Mock Eleventy config
-  item, items,               // Collection item factories
-  createEvent, createEvents, // Event fixtures
-  createProduct,             // Product fixtures
-  withTempDir, withTempFile, // Temp file management
-  expectProp, expectDataArray, // Assertion helpers
-  collectionApi,             // Mock collection API
-} from "#test/test-utils.js";
-```
-
----
-
-## Common Patterns
-
-### Collection Creation
-```javascript
-// In src/_lib/collections/[name].js
-export const configureProducts = (eleventyConfig) => {
-  eleventyConfig.addCollection("products", (collectionApi) => {
-    return collectionApi.getFilteredByTag("product")
-      .filter(item => !item.data.hidden)
-      .sort(sortByOrder);
-  });
-};
-```
-
-### Eleventy Shortcode/Filter
-```javascript
-export const configureOpeningTimes = (eleventyConfig) => {
-  eleventyConfig.addShortcode("openingTimes", (times) => {
-    return renderOpeningTimesHtml(times);
-  });
-
-  eleventyConfig.addFilter("isOpen", (times, date) => {
-    return checkIfOpen(times, date);
-  });
-};
-```
-
-### Image Processing
-```javascript
-import { configureImages } from "#media/image.js";
-
-// In templates, use the image shortcode:
-// {% image "photo.jpg", "Alt text", "class-names", "(max-width: 768px) 100vw, 50vw" %}
-```
-
----
-
-## File Naming Conventions
-
-| Type | Pattern | Example |
-|------|---------|---------|
-| Eleventy plugins | `configure*.js` | `configureProducts.js` |
-| Collections | `[plural-noun].js` | `products.js`, `events.js` |
-| Utilities | `[noun]-utils.js` | `array-utils.js`, `slug-utils.js` |
-| Tests | `[feature].test.js` | `products.test.js` |
-| SCSS | `_[component].scss` | `_buttons.scss` |
-
----
-
-## Important Files
-
-| File | Purpose |
-|------|---------|
-| `.eleventy.js` | Main Eleventy configuration - registers all plugins |
-| `src/_data/config.json` | Site features config (cart, forms, payments, themes) |
-| `src/_data/site.json` | Site name, URL, social links, opening hours |
-| `src/_data/strings.json` | Customizable UI labels and permalinks |
-| `biome.json` | Linting and formatting rules |
-| `bunfig.toml` | Bun test configuration |
-| `test/TEST-QUALITY-CRITERIA.md` | Detailed testing standards |
-
----
-
-## Anti-Patterns to Avoid
-
-1. **Don't use npm** - This project requires Bun
-2. **Don't use `forEach`** - Use `for...of` loops or curried `map`/`filter`
-3. **Don't accumulate with spread** - Use `accumulate()` helper for O(1) operations
-4. **Don't use `var`** - Always use `const` (or `let` when reassignment needed)
-5. **Don't use `==`** - Always use `===`
-6. **Don't add console.log** - Except in build scripts and tests
-7. **Don't exceed complexity 10** - Break complex functions into smaller pieces
-8. **Don't hardcode magic values** - Import constants from production code
-9. **Don't create tautological tests** - Verify behavior, not assignments
-10. **Don't return fallbacks for errors** - Throw errors instead of masking problems with default values
-
----
-
-## When Making Changes
-
-1. **Read existing code first** - Understand patterns before modifying
-2. **Follow existing conventions** - Match the style of surrounding code
-3. **Run tests** - `bun test` before committing
-4. **Run linter** - `bun run lint:fix` to auto-fix issues
-5. **Keep functions small** - Stay under complexity limit of 10
-6. **Use functional patterns** - Prefer `pipe`, curried functions, immutability
-7. **Write tests** - Follow the 6 mandatory test quality criteria
-8. **Use import aliases** - Keep imports clean with `#` prefixes
+Investigate survivors; a survivor is not automatically a missing test or an
+equivalent change. Proven-equivalent mutants (no input can distinguish them)
+belong in `scripts/mutation/equivalent-mutants.txt`, whose entries are validated
+by the mutation tooling. This is separate from the deletion-only code-quality
+baseline. Never weaken production mutation/style gates to satisfy mutation tests.
+
+## Generated Artifacts
+
+Edit sources, never generated output by hand. After block schema changes:
+
+1. Update `src/_lib/utils/block-schema/<type>.js` and register new modules in `src/_lib/utils/block-schema.js`.
+2. Add/update `src/_includes/design-system/blocks/<type>.html` and the matching SCSS partial under `src/css/design-system/`.
+3. Run `npm run generate-references`. Its three steps generate the block reference, PagesCMS config plus CMS types, and the Site Builder Reference in order, stopping on failure. Review all four artifacts: `skills/cfa-static-site-builder/references/blocks.md`, `.pages.yml`, `src/_lib/types/pages-cms-generated.d.ts`, and `docs/developer-reference.md`. The freshness gates' failure messages name the regeneration command when an artifact drifts.
+
+The block reference is wholly generated. `BLOCKS_LAYOUT.md` is a handwritten
+navigation page; the skill's `SKILL.md`, layout guidance, and other workflow
+references remain handwritten. Edit those directly when procedures change.
+
+`docs/developer-reference.md` is wholly owned by
+`scripts/generate-developer-reference.js`. Regenerate it with
+`npm run generate-references` (or `npm run generate-developer-reference` for this file alone)
+after changing its `package.json`, shared CMS definition, or config and site
+schema (`#config/config-schema.js`, `#config/site-schema.js`) inputs. Its freshness test
+compares in memory without rewriting the committed file. Keep policy here and
+test criteria in their canonical handwritten document, not in generated facts.

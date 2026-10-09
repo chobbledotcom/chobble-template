@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureFileUtils, ensureDir } from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
@@ -68,20 +68,6 @@ const testSnippet = (testName, snippetName, content, callback) =>
     await callback(result);
   });
 
-/**
- * Run a snippet-reading async filter against a temp snippet with a page
- * context. The callback receives a runner so tests can also assert throws.
- */
-const testSnippetFilterCtx = (filterName) => {
-  return (testName, snippetName, content, pageContext, callback) =>
-    withSnippetSetup(testName, snippetName, content, async (mockConfig) => {
-      const filter = mockConfig.asyncFilters[filterName];
-      await callback(() =>
-        filter.call({ context: { environments: pageContext } }, snippetName),
-      );
-    });
-};
-
 const testSnippetData = (testName, snippetName, content, callback) =>
   withSnippetSetup(testName, snippetName, content, (mockConfig) => {
     callback(mockConfig.filters.snippet_data(snippetName));
@@ -93,13 +79,9 @@ describe("file-utils", () => {
       const mockConfig = createMockEleventyConfig();
       configureFileUtils(mockConfig);
 
-      expect(typeof mockConfig.filters.file_exists).toBe("function");
-      expect(typeof mockConfig.filters.file_missing).toBe("function");
       expect(typeof mockConfig.filters.snippet_data).toBe("function");
-      expect(typeof mockConfig.filters.escape_html).toBe("function");
       expect(typeof mockConfig.filters.markdown).toBe("function");
       expect(typeof mockConfig.asyncShortcodes.render_snippet).toBe("function");
-      expect(typeof mockConfig.shortcodes.read_file).toBe("function");
     });
   });
 
@@ -118,72 +100,6 @@ describe("file-utils", () => {
       expect(markdown("")).toBe("");
       expect(markdown(null)).toBe("");
       expect(markdown(undefined)).toBe("");
-    });
-  });
-
-  describe("file_exists filter", () => {
-    test("Returns true for existing files", () => {
-      testWithFile("file_exists", "test.txt", "test content", (mockConfig) => {
-        expect(mockConfig.filters.file_exists("test.txt")).toBe(true);
-      });
-    });
-
-    test("Returns false for non-existing files", () => {
-      testWithEmptyDir("file_exists-false", (mockConfig) => {
-        expect(mockConfig.filters.file_exists("nonexistent.txt")).toBe(false);
-      });
-    });
-  });
-
-  describe("file_missing filter", () => {
-    test("Returns false for existing files", () => {
-      testWithFile("file_missing", "test.txt", "test content", (mockConfig) => {
-        expect(mockConfig.filters.file_missing("test.txt")).toBe(false);
-      });
-    });
-
-    test("Returns true for non-existing files", () => {
-      testWithEmptyDir("file_missing-true", (mockConfig) => {
-        expect(mockConfig.filters.file_missing("nonexistent.txt")).toBe(true);
-      });
-    });
-  });
-
-  describe("escape_html filter", () => {
-    test("Escapes HTML special characters", () => {
-      const { escape_html } = createConfiguredMock().filters;
-
-      expect(escape_html("<div>")).toBe("&lt;div&gt;");
-      expect(escape_html("a & b")).toBe("a &amp; b");
-      expect(escape_html('"quoted"')).toBe("&quot;quoted&quot;");
-      expect(escape_html('<a href="test">link</a>')).toBe(
-        "&lt;a href=&quot;test&quot;&gt;link&lt;/a&gt;",
-      );
-    });
-
-    test("Handles empty string", () => {
-      const { escape_html } = createConfiguredMock().filters;
-      expect(escape_html("")).toBe("");
-    });
-
-    test("Leaves plain text unchanged", () => {
-      const { escape_html } = createConfiguredMock().filters;
-      expect(escape_html("Hello World")).toBe("Hello World");
-    });
-  });
-
-  describe("read_file shortcode", () => {
-    test("Reads content from existing file", () => {
-      const content = "Hello, World!";
-      testWithFile("read_file", "test.txt", content, (mockConfig) => {
-        expect(mockConfig.shortcodes.read_file("test.txt")).toBe(content);
-      });
-    });
-
-    test("Returns empty string for missing file", () => {
-      testWithEmptyDir("read_file-missing", (mockConfig) => {
-        expect(mockConfig.shortcodes.read_file("nonexistent.txt")).toBe("");
-      });
     });
   });
 
@@ -220,6 +136,36 @@ body content`;
           expect(data).toEqual({});
         },
       );
+    });
+
+    test("A traversal name cannot escape src/snippets", () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "snippet_data-traversal",
+      );
+      try {
+        // The "sensitive" file exists beside src/ with a matching basename;
+        // only src/snippets/secret.md may ever be read.
+        fs.writeFileSync(`${tempDir}/secret.md`, "---\ntitle: Secret\n---\n");
+        fs.writeFileSync(
+          `${snippetsDir}/secret.md`,
+          "---\ntitle: Snippet\n---\n",
+        );
+        withMockedCwd(tempDir, () => {
+          const mockConfig = createConfiguredMock();
+          for (const name of [
+            "../../secret",
+            "../secret",
+            "sub/../../secret",
+            "/etc/cron.d/secret",
+          ]) {
+            expect(mockConfig.filters.snippet_data(name)).toEqual({
+              title: "Snippet",
+            });
+          }
+        });
+      } finally {
+        cleanupTempDir(tempDir);
+      }
     });
   });
 
@@ -267,44 +213,6 @@ Some **bold** text.`;
       );
     });
 
-    test("Preprocesses {% opening_times %} shortcode", async () => {
-      const content = `# Our Hours
-
-{% opening_times %}
-
-Come visit us!`;
-      await testSnippet(
-        "render_snippet-opening",
-        "hours",
-        content,
-        (result) => {
-          expect(result.includes("<h1>")).toBe(true);
-          expect(result.includes("Come visit us")).toBe(true);
-          // The shortcode should be processed (replaced with actual content or empty)
-          expect(result.includes("{% opening_times %}")).toBe(false);
-        },
-      );
-    });
-
-    test("Preprocesses {% recurring_events %} shortcode", async () => {
-      const content = `# Regular Events
-
-{% recurring_events %}
-
-Join us weekly!`;
-      await testSnippet(
-        "render_snippet-recurring",
-        "events",
-        content,
-        (result) => {
-          expect(result.includes("<h1>")).toBe(true);
-          expect(result.includes("Join us weekly")).toBe(true);
-          // The shortcode should be processed
-          expect(result.includes("{% recurring_events %}")).toBe(false);
-        },
-      );
-    });
-
     test("Handles empty snippet content", async () => {
       await testSnippet("render_snippet-empty", "empty", "", (result) => {
         // Empty markdown renders to empty string
@@ -341,40 +249,66 @@ Unicode: café résumé naïve`;
     });
   });
 
-  describe("snippet_blocks filter", () => {
-    const runSnippetBlocks = testSnippetFilterCtx("snippet_blocks");
-    const testSnippetBlocksCtx = (
-      testName,
-      snippetName,
-      content,
-      pageContext,
-      callback,
-    ) =>
-      runSnippetBlocks(
-        testName,
-        snippetName,
-        content,
-        pageContext,
-        async (run) => callback(await run()),
-      );
+  describe("snippets in the page language", () => {
+    const snippet = (heading) =>
+      `---\nblocks:\n  - type: markdown\n    content: "${heading}"\n---\n# ${heading}\n`;
 
-    test("Registers as an async filter", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureFileUtils(mockConfig);
-      expect(typeof mockConfig.asyncFilters.snippet_blocks).toBe("function");
-    });
+    /** A shared footer snippet and a Spanish one, under a mocked CWD. */
+    const withLocalisedSnippets = async (testName, callback) => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(testName);
+      try {
+        fs.writeFileSync(`${snippetsDir}/footer.md`, snippet("Shared"));
+        fs.mkdirSync(`${snippetsDir}/es`);
+        fs.writeFileSync(`${snippetsDir}/es/footer.md`, snippet("Español"));
+        await withMockedCwd(tempDir, () => callback(createConfiguredMock()));
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    };
 
-    test("Returns empty array for missing snippet", async () => {
-      await testSnippetBlocksCtx(
-        "ctx-missing",
-        "nonexistent",
-        null,
-        {},
-        (result) => {
-          expect(result).toEqual([]);
+    test("A page reads its language's own version of a snippet", () =>
+      withLocalisedSnippets(
+        "snippets-localised",
+        async ({ filters, asyncShortcodes }) => {
+          expect(filters.snippet_data("footer", "es").blocks[0].content).toBe(
+            "Español",
+          );
+          expect(filters.snippet_blocks("footer", "es")[0].content).toBe(
+            "Español",
+          );
+          expect(
+            await asyncShortcodes.render_snippet("footer", "", "es"),
+          ).toContain("<h1>Español</h1>");
         },
+      ));
+
+    test("Falls back to the shared snippet for a language without one", () =>
+      withLocalisedSnippets(
+        "snippets-fallback",
+        async ({ filters, asyncShortcodes }) => {
+          expect(filters.snippet_data("footer", "de").blocks[0].content).toBe(
+            "Shared",
+          );
+          expect(filters.snippet_blocks("footer").at(0).content).toBe("Shared");
+          expect(
+            await asyncShortcodes.render_snippet("footer", "", "de"),
+          ).toContain("<h1>Shared</h1>");
+        },
+      ));
+  });
+
+  describe("snippet_blocks filter", () => {
+    const testSnippetBlocks = (testName, snippetName, content, callback) =>
+      withSnippetSetup(testName, snippetName, content, (mockConfig) =>
+        callback(() => mockConfig.filters.snippet_blocks(snippetName)),
       );
-    });
+
+    test("Throws for a snippet that does not exist", () =>
+      testSnippetBlocks("blocks-missing", "nonexistent", null, (run) => {
+        expect(run).toThrow(
+          'Snippet block references "nonexistent", but src/snippets/ has no such snippet',
+        );
+      }));
 
     test("Resolves a snippet path saved by Pages CMS", async () => {
       const content = `---
@@ -385,128 +319,98 @@ blocks:
 ---`;
 
       await withSnippetSetup(
-        "ctx-cms-path",
+        "blocks-cms-path",
         "cms-snippet",
         content,
-        async (mockConfig) => {
-          const filter = mockConfig.asyncFilters.snippet_blocks;
-          const result = await filter.call(
-            { context: { environments: {} } },
-            "src/snippets/cms-snippet.md",
-          );
-
-          expect(result).toEqual([
-            { type: "markdown", content: "CMS content" },
+        (mockConfig) => {
+          expect(
+            mockConfig.filters.snippet_blocks("src/snippets/cms-snippet.md"),
+          ).toEqual([
+            { type: "markdown", content: "CMS content", dark: false },
           ]);
         },
       );
     });
 
-    test("Resolves Liquid expressions in block strings with page context", async () => {
-      const content = `---
-name: Test CTA
+    test("Fills schema defaults like page blocks, leaving Liquid for blocks.html", () =>
+      testSnippetBlocks(
+        "blocks-defaults",
+        "cta",
+        `---
+name: CTA
 blocks:
   - type: cta
-    title: "Book your {{ title }}"
-    description: Static description
----`;
-      await testSnippetBlocksCtx(
-        "ctx-liquid",
-        "test-cta",
-        content,
-        { title: "Mini Gizmo" },
-        (result) => {
-          expect(result.length).toBe(1);
-          expect(result[0].title).toBe("Book your Mini Gizmo");
-          expect(result[0].description).toBe("Static description");
-          expect(result[0].type).toBe("cta");
-        },
-      );
-    });
-
-    test("Resolves Liquid in nested block properties", async () => {
-      const content = `---
-name: Nested Test
-blocks:
-  - type: cta
-    title: "{{ title }}"
+    content: "Book your {{ title }}"
     button:
-      text: "Buy {{ title }}"
+      text: Book
       href: /contact/
----`;
-      await testSnippetBlocksCtx(
-        "ctx-nested",
-        "nested",
-        content,
-        { title: "Widget" },
-        (result) => {
-          expect(result[0].title).toBe("Widget");
-          expect(result[0].button.text).toBe("Buy Widget");
-          expect(result[0].button.href).toBe("/contact/");
+---`,
+        (run) => {
+          expect(run()).toEqual([
+            {
+              type: "cta",
+              content: "Book your {{ title }}",
+              button: {
+                text: "Book",
+                href: "/contact/",
+                variant: "secondary",
+                size: "lg",
+              },
+              dark: false,
+            },
+          ]);
         },
-      );
-    });
+      ));
 
-    test("Returns empty array for snippet without blocks", async () => {
-      const content = `---
+    test("Throws for an invalid block, naming the snippet", () =>
+      testSnippetBlocks(
+        "blocks-invalid",
+        "bad",
+        `---
+name: Bad
+blocks:
+  - type: cta
+    title: Not a cta field
+---`,
+        (run) => {
+          expect(run).toThrow(
+            /unknown keys: "title" \(block 1 in snippet "bad"\)/,
+          );
+        },
+      ));
+
+    test("Returns empty array for snippet without blocks", () =>
+      testSnippetBlocks(
+        "blocks-no-blocks",
+        "no-blocks",
+        `---
 name: No blocks
 ---
-Just body text`;
-      await testSnippetBlocksCtx(
-        "ctx-no-blocks",
-        "no-blocks",
-        content,
-        {},
-        (result) => {
-          expect(result).toEqual([]);
+Just body text`,
+        (run) => {
+          expect(run()).toEqual([]);
         },
-      );
-    });
-
-    test("Leaves plain strings unchanged", async () => {
-      const content = `---
-name: Plain
-blocks:
-  - type: cta
-    title: No templates here
----`;
-      await testSnippetBlocksCtx(
-        "ctx-plain",
-        "plain-cta",
-        content,
-        { title: "Unused" },
-        (result) => {
-          expect(result[0].title).toBe("No templates here");
-        },
-      );
-    });
-
-    test("Preserves non-string values in blocks", async () => {
-      const content = `---
-name: Mixed Types
-blocks:
-  - type: stats
-    columns: 3
-    items:
-      - value: "{{ title }}"
-        label: Name
----`;
-      await testSnippetBlocksCtx(
-        "ctx-mixed",
-        "mixed",
-        content,
-        { title: "Gizmo" },
-        (result) => {
-          expect(result[0].columns).toBe(3);
-          expect(result[0].items[0].value).toBe("Gizmo");
-          expect(result[0].items[0].label).toBe("Name");
-        },
-      );
-    });
+      ));
   });
 
   describe("sidebar_blocks filter", () => {
-    const testSidebarBlocksCtx = testSnippetFilterCtx("sidebar_blocks");
+    // Runs the filter against a temp snippet with a page context; the
+    // callback receives a runner so tests can also assert throws.
+    const testSidebarBlocksCtx = (
+      testName,
+      snippetName,
+      content,
+      pageContext,
+      callback,
+    ) =>
+      withSnippetSetup(testName, snippetName, content, async (mockConfig) => {
+        await callback(() =>
+          mockConfig.asyncFilters.sidebar_blocks.call(
+            { context: { environments: pageContext } },
+            snippetName,
+          ),
+        );
+      });
 
     test("Registers as an async filter", () => {
       const mockConfig = createConfiguredMock();
@@ -530,7 +434,7 @@ blocks:
 name: Sidebar
 blocks:
   - type: cta
-    title: "Contact {{ title }}"
+    content: "Contact {{ title }}"
 ---`;
       await testSidebarBlocksCtx(
         "sidebar-safe",
@@ -538,9 +442,9 @@ blocks:
         content,
         { title: "Us" },
         async (run) => {
-          const result = await run();
-          expect(result.length).toBe(1);
-          expect(result[0].title).toBe("Contact Us");
+          expect(await run()).toEqual([
+            { type: "cta", content: "Contact Us", dark: false },
+          ]);
         },
       );
     });
@@ -558,7 +462,7 @@ blocks:
         content,
         {},
         async (run) => {
-          expect(run).toThrow(
+          await expect(run()).rejects.toThrow(
             'Block type "hero" is not supported inside the right-content sidebar.',
           );
         },
@@ -601,6 +505,22 @@ blocks:
       const blocks = [{ type: "markdown", content: "No templates here" }];
       const result = await callRenderBlockLiquid(blocks, { title: "Unused" });
       expect(result[0].content).toBe("No templates here");
+    });
+
+    test("Resolves Liquid inside list items and nested objects, keeping other values", async () => {
+      const blocks = [
+        {
+          type: "stats",
+          reveal: false,
+          items: [{ value: "{{ title }}", label: "Name" }, "{{ title }}|Pipe"],
+        },
+      ];
+      const [result] = await callRenderBlockLiquid(blocks, { title: "Gizmo" });
+      expect(result).toEqual({
+        type: "stats",
+        reveal: false,
+        items: [{ value: "Gizmo", label: "Name" }, "Gizmo|Pipe"],
+      });
     });
   });
 

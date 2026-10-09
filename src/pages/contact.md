@@ -1,25 +1,19 @@
 ---
 name: Contact
-meta_description:
+meta_description: How to get in touch.
 meta_title: Contact
 schema_type: organization
 eleventyNavigation:
   key: Contact
   order: 5
 blocks:
-  - type: include
-    file: contact-opening-hours.html
-  - type: contact-form
-    intro_content: |
-      ## Get in Touch
+  - type: markdown
+    content: |
+      # Get in Touch
 
-      The contact form is set up in contact-form.json. This file says what fields to show and what labels to use. When someone fills in the form, it gets sent to Formspark or to another address you choose. You can turn on Botpoison to stop spam.
-
-      Some fields can show only on some pages. For example, you can have one message box on product pages and a different one on event pages. The opening hours above come from site.json.
-
-      **If you're looking for my real contact details check out my site at [chobble.com/contact](https://www.chobble.com/contact/)**
+      This template ships without contact forms, so there is no form backend
+      to run and no user data to handle. For questions or problems with CfA
+      Static, [open an issue on GitHub](https://github.com/codeforamerica/cfa-static/issues).
   - type: include
     file: faq.html
-  - type: include
-    file: map-embed.html
 ---

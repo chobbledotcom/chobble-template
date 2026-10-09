@@ -1,9 +1,3 @@
-import { normalisePermalink } from "#utils/slug-utils.js";
+import { directoryData } from "#collections/directory-data.js";
 
-/** @type {{ eleventyComputed: Record<string, (data: *) => *> }} */
-export default {
-  eleventyComputed: {
-    navigationParent: (data) => data.eleventyNavigation?.parent || null,
-    permalink: (data) => normalisePermalink(data.permalink),
-  },
-};
+export default directoryData("pages");
