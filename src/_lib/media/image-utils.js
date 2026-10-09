@@ -170,29 +170,47 @@ export const getPathAwareBasename = (src) => {
 };
 
 /**
- * Percent-encode a basename so generated filenames are always valid URL
- * path segments. eleventy-img writes generated files to this name and
- * emits it verbatim in srcset/src attributes, where whitespace separates
- * each candidate URL from its width descriptor. A source like
- * "Pugh upgrade 1.jpeg" would otherwise invalidate every srcset candidate,
- * silently discarding the whole responsive set and falling back to the
- * largest JPEG.
+ * Percent-encode each path segment of a generated image URL so it is safe
+ * to emit inside srcset/src attributes. eleventy-img writes generated
+ * files under their raw source basename and emits the URL verbatim; raw
+ * whitespace in a filename would otherwise separate each srcset candidate
+ * URL from its width descriptor and silently invalidate the whole
+ * responsive set.
  *
- * Characters outside [A-Za-z0-9._-] are encoded as %XX per UTF-8 byte and
- * a literal "%" becomes %25, which makes the encoding injective: already
- * safe basenames pass through unchanged, and no two different basenames
- * can ever sanitize to the same generated filename.
+ * Encoding the emitted URL (rather than the written filename) keeps the
+ * on-disk and CDN names identical to what browsers request after decoding:
+ * a literal "%" becomes %25 and every other character outside
+ * [A-Za-z0-9._-] becomes %XX per UTF-8 byte, which makes the mapping
+ * injective — two different filenames can never produce the same URL.
  *
- * @param {string} basename - Path-aware basename from getPathAwareBasename
- * @returns {string} URL-safe basename
+ * @param {string} url - Generated image URL (e.g. "/img/photo 1-240.webp")
+ * @returns {string} URL with each path segment percent-encoded
  */
-const toUrlSafeBasename = (basename) =>
-  basename.replace(/[^A-Za-z0-9._-]+/g, (run) =>
-    Array.from(
-      Buffer.from(run, "utf8"),
-      (byte) => `%${byte.toString(16).toUpperCase().padStart(2, "0")}`,
-    ).join(""),
-  );
+const encodeImageUrlPath = (url) =>
+  url
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+
+/**
+ * Percent-encode the URL fields of an eleventy-img metadata entry.
+ * eleventy-img builds `<source>` srcsets from the entry's `srcset` field
+ * (not `url`), so both must be encoded for the emitted markup to reference
+ * the encoded URLs.
+ *
+ * @param {Object} entry - eleventy-img metadata entry
+ * @returns {Object} New entry with URL fields percent-encoded
+ */
+export const encodeMetadataEntryUrls = (entry) => {
+  const url = encodeImageUrlPath(entry.url);
+  return {
+    ...entry,
+    url,
+    ...(typeof entry.srcset === "string" && typeof entry.width === "number"
+      ? { srcset: `${url} ${entry.width}w` }
+      : {}),
+  };
+};
 
 /**
  * Generate filename for resized images.
@@ -205,7 +223,7 @@ const toUrlSafeBasename = (basename) =>
  * @returns {string} Generated filename
  */
 export const filenameFormat = (_id, src, width, format, options = {}) => {
-  const basename = toUrlSafeBasename(getPathAwareBasename(src));
+  const basename = getPathAwareBasename(src);
   const extension = src.slice(src.lastIndexOf(".") + 1).toLowerCase();
   const cropSuffix = options.manualCacheKey
     ? `-${extension}-crop-${String(options.manualCacheKey).replaceAll("/", "x")}`

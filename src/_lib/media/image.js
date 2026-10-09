@@ -40,6 +40,7 @@ import {
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import {
   buildWrapperStyles,
+  encodeMetadataEntryUrls,
   filenameFormat,
   isExternalUrl,
   JPEG_FALLBACK_WIDTH,
@@ -188,8 +189,18 @@ const computeWrappedImageHtml = async ({
     classes,
   });
 
+  // eleventy-img emits raw filenames verbatim; percent-encode the emitted
+  // URLs so srcset candidates with spaces stay parseable, while on-disk and
+  // CDN names stay raw (matching what browsers request after decoding).
+  const encodedMetadata = Object.fromEntries(
+    Object.entries(htmlMetadata).map(([format, entries]) => [
+      format,
+      entries.map(encodeMetadataEntryUrls),
+    ]),
+  );
+
   return await wrapProcessedImage(
-    htmlMetadata,
+    encodedMetadata,
     imgAttributes,
     pictureAttributes,
     {
