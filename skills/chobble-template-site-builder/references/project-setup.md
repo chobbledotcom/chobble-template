@@ -166,13 +166,15 @@ per-language menus and snippets, and the checks to run.
 
 ## Deployment
 
-The bundled GitHub Pages workflow publishes a deployment on every push to
-`main`. The user must enable **Settings > Pages > Source: GitHub Actions**
-once; see the [README deployment guidance](../../../README.md#deployment).
+The bundled `build-and-deploy.yaml` workflow builds on every push and deploys
+to Bunny Sites: `main` to the production site, other branches to the staging
+site. It needs the `BUNNY_ACCESS_KEY` and `BUNNY_PRODUCTION_STORAGE_ZONE_NAME`
+repository secrets, and skips the deploy while they are missing; see the
+[README deployment guidance](../../../README.md#deployment).
 
-The workflow provides `SITE_URL` for canonical URLs, sitemap entries, feeds,
-and schema metadata; Pages project subpaths additionally set `PATH_PREFIX` for
-URL rewriting.
+The canonical origin comes from `url` in `src/_data/site.json`. A pipeline may
+override it with `SITE_URL`, and a host that serves the site from a subpath
+sets `PATH_PREFIX` for URL rewriting.
 
 For another static host, publish the generated `_site/` directory. There is no
 application server. Building public site content does not require a backend

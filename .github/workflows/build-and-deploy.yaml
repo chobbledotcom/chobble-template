@@ -1,0 +1,110 @@
+name: Build and Deploy
+
+on:
+  push:
+  workflow_dispatch:
+
+# Let an in-flight deploy finish rather than cancelling it mid-upload.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    env:
+      BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Restore image cache
+        uses: actions/cache@v4
+        with:
+          path: .image-cache
+          key: images-${{ hashFiles('src/images/**/*') }}
+          restore-keys: |
+            images-
+
+      - name: Build Site
+        run: |
+          npm ci
+          npm run build
+
+      # Repository docs (the generated Site Builder Reference) publish
+      # alongside the site at /docs/.
+      - name: Merge docs into site output
+        run: cp -r docs _site/
+
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: _site
+
+      - name: Write IndexNow key file
+        if: github.ref == 'refs/heads/main' && env.INDEXNOW_KEY != ''
+        run: echo "${{ secrets.INDEXNOW_KEY }}" > "_site/${{ secrets.INDEXNOW_KEY }}.txt"
+
+      # main deploys to the production Bunny Site; every other branch deploys
+      # to the staging one. A missing secret leaves the name empty, which
+      # skips the deploy, so a fork builds cleanly before it has hosting.
+      - name: Set deployment environment
+        id: deployment_env
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "site=${{ secrets.BUNNY_PRODUCTION_STORAGE_ZONE_NAME }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "site=${{ secrets.BUNNY_STAGING_STORAGE_ZONE_NAME }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy to Bunny Sites
+        if: steps.deployment_env.outputs.site != '' && env.BUNNY_ACCESS_KEY != ''
+        uses: BunnyWay/actions/deploy-site@deploy-site_0.1.1
+        with:
+          site: ${{ steps.deployment_env.outputs.site }}
+          directory: _site
+          api_key: ${{ secrets.BUNNY_ACCESS_KEY }}
+          cli_version: "0.19"
+          deployments: true
+
+      - name: Get site URL
+        id: site-url
+        run: echo "url=$(jq -r '.url' src/_data/site.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Submit to IndexNow
+        if: github.ref == 'refs/heads/main' && env.INDEXNOW_KEY != ''
+        uses: bojieyang/indexnow-action@v3
+        with:
+          sitemap-location: "${{ steps.site-url.outputs.url }}/sitemap.xml"
+          key: ${{ secrets.INDEXNOW_KEY }}
+          since: 1
+          since-unit: day
+
+  notify-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [build-and-deploy]
+    if: failure() && github.ref_name == 'main'
+    env:
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+    steps:
+      - name: Send failure notification
+        if: env.NTFY_TOPIC != ''
+        uses: NiNiyas/ntfy-action@master
+        with:
+          url: "https://ntfy.sh"
+          topic: ${{ secrets.NTFY_TOPIC }}

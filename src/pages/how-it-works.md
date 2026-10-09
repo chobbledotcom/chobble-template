@@ -52,15 +52,14 @@ blocks:
     content: |
       ## Push to deploy
 
-      A bundled workflow builds the site and publishes it to GitHub Pages
-      on every push to `main`. It asks Pages where the site will be
-      served, stamps that URL into the build, and uploads `_site/` as the
-      artifact Pages deploys - so any other static host can serve the
-      same directory instead.
+      A bundled workflow builds the site on every push and deploys it to
+      Bunny Sites: `main` goes to production and every other branch to
+      staging. `_site/` is also uploaded as a build artifact, so any other
+      static host can serve the same directory instead.
     reverse: true
-    figure_filename: .github/workflows/pages.yml
+    figure_filename: .github/workflows/build-and-deploy.yaml
     figure_language: yaml
-    figure_code: "- name: Build Site\n  env:\n    PATH_PREFIX: ${{ steps.pages.outputs.base_path }}/\n    SITE_URL: ${{ steps.pages.outputs.base_url }}\n  run: npm run build"
+    figure_code: "- name: Deploy to Bunny Sites\n  uses: BunnyWay/actions/deploy-site@deploy-site_0.1.1\n  with:\n    site: ${{ steps.deployment_env.outputs.site }}\n    directory: _site\n    api_key: ${{ secrets.BUNNY_ACCESS_KEY }}"
   - type: cta
     content: |
       ## Explore the blocks
