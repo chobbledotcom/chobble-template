@@ -160,6 +160,57 @@ describe("git-dates", () => {
         },
       ));
 
+    test("keeps the original publish date when a template is renamed from a non-template path", () =>
+      withGitRepo("git-dates-cross-extension-rename", {
+        fileName: "page.njk",
+      })(({ tempDir, filePath }) => {
+        const renamedPath = path.join(tempDir, "page.liquid");
+        fs.renameSync(filePath, renamedPath);
+        gitCommit(tempDir, "migrate to liquid", "2025-02-01T10:00:00Z");
+
+        const lookup = createLookup(tempDir);
+        expect(lookup.datesFor("page.liquid")).toEqual({
+          published: "2025-01-01T10:00:00Z",
+          updated: "2025-02-01T10:00:00Z",
+        });
+        expect(lookup.datesFor("page.njk")).toEqual({
+          published: "2025-01-01T10:00:00Z",
+          updated: "2025-02-01T10:00:00Z",
+        });
+      }));
+
+    test("backfills the oldest publish date through a rename chain from a non-template path", () =>
+      withGitRepo("git-dates-rename-chain", { fileName: "page.txt" })(
+        ({ tempDir, filePath }) => {
+          const njkPath = path.join(tempDir, "page.njk");
+          fs.renameSync(filePath, njkPath);
+          gitCommit(tempDir, "convert to njk", "2025-02-01T10:00:00Z");
+          fs.renameSync(njkPath, path.join(tempDir, "page.liquid"));
+          gitCommit(tempDir, "convert to liquid", "2025-03-01T10:00:00Z");
+
+          expect(createLookup(tempDir).datesFor("page.liquid")).toEqual({
+            published: "2025-01-01T10:00:00Z",
+            updated: "2025-03-01T10:00:00Z",
+          });
+        },
+      ));
+
+    test("falls back to the copy date when a template is copied from a non-template path", () =>
+      withGitRepo("git-dates-cross-extension-copy", {
+        fileName: "base.njk",
+      })(({ tempDir, filePath }) => {
+        // Copy detection is restricted to template paths for cost, so a
+        // source outside the pathspec cannot be traced. The copy date is
+        // still correct as the last-updated date.
+        fs.copyFileSync(filePath, path.join(tempDir, "base.liquid"));
+        gitCommit(tempDir, "copy base to liquid", "2025-02-01T10:00:00Z");
+
+        expect(createLookup(tempDir).datesFor("base.liquid")).toEqual({
+          published: "2025-02-01T10:00:00Z",
+          updated: "2025-02-01T10:00:00Z",
+        });
+      }));
+
     test("follows copied template history", () =>
       withGitRepo("git-dates-copy", { fileName: "source.md" })(
         ({ tempDir, filePath }) => {

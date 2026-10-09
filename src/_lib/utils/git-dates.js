@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { buildReverseIndex } from "#toolkit/fp/grouping.js";
 
 const HISTORY_TIMEOUT_MS = 120_000;
 const HISTORY_MAX_BUFFER_BYTES = 64 * 1024 * 1024;
@@ -10,6 +11,7 @@ const TEMPLATE_PATHS = ["*.html", "*.liquid", "*.md"];
 /** @typedef {{ published: string, updated: string, blob: string }} IndexedGitDates */
 /** @typedef {{ published: string, updated: string }} GitDates */
 /** @typedef {{ blob: string, status: string }} RawChange */
+/** @typedef {{ oldPath: string, newPath: string, date: string, status: string }} TransferRecord */
 /** @typedef {{ change: RawChange | null, firstPath: string | null, remaining: number }} ParseState */
 /** @typedef {Map<string, IndexedGitDates>} GitDateIndex */
 /** @typedef {{ repo: string, dates: GitDateIndex }} GitRepoIndex */
@@ -27,15 +29,19 @@ const TEMPLATE_PATHS = ["*.html", "*.liquid", "*.md"];
  * @property {(dates: IndexedGitDates, date: string, blob: string) => void} updateDates
  * @property {(index: GitDateIndex, status: string, path: string, date: string, blob: string) => void} applyPathChange
  * @property {(index: GitDateIndex, oldPath: string, newPath: string, date: string, blob: string, status: string) => void} applyTransfer
+ * @property {(index: GitDateIndex, change: RawChange, paths: string[], date: string) => void} applyHistoryChange
  * @property {(rawChange: string | undefined) => RawChange | null} parseRawChange
  * @property {(change: RawChange) => number} pathsConsumedBy
- * @property {(index: GitDateIndex, change: RawChange, paths: string[], date: string) => void} applyHistoryChange
+ * @property {(record: string) => TransferRecord[]} recordTransfers
  * @property {() => ParseState} initialState
  * @property {(state: ParseState, token: string) => ParseState} startChange
  * @property {(state: ParseState, token: string, index: GitDateIndex, date: string) => ParseState} consumePath
  * @property {(state: ParseState, token: string, index: GitDateIndex, date: string) => ParseState} parseHistoryToken
  * @property {(record: string, index: GitDateIndex) => void} parseHistoryRecord
- * @property {(repo: string) => GitDateIndex} buildRepoIndex
+ * @property {(repo: string) => { dates: GitDateIndex, renames: TransferRecord[] }} buildRepoIndex
+ * @property {(repo: string) => TransferRecord[]} copyRecords
+ * @property {(index: GitDateIndex, renames: TransferRecord[], copies: TransferRecord[]) => void} applyCopyOrigins
+ * @property {(index: GitDateIndex, renamesBySource: Map<string, TransferRecord[]>, path: string, origin: string, copyDate: string) => void} patchCopiedChain
  * @property {(indexes: GitRepoIndex[], inputPath: string) => IndexedGitDates | undefined} findDates
  * @property {(indexes: GitRepoIndex[], inputPath: string | null | undefined) => GitDates | null} datesFor
  * @property {(indexes: GitRepoIndex[], startedAt: number) => GitDateLookup} createLookup
@@ -143,6 +149,22 @@ const history = Object.freeze({
     if (path) history.applyPathChange(index, status, path, date, blob);
   },
 
+  recordTransfers(record) {
+    const [rawDate, ...tokens] = record.split("\0");
+    const date = rawDate.trim();
+    if (!date) return [];
+    return tokens.flatMap((token, position) => {
+      const change = history.parseRawChange(token);
+      if (!change || history.pathsConsumedBy(change) === 1) return [];
+      const [oldPath, newPath] = tokens.slice(
+        position + 1,
+        position + 1 + history.pathsConsumedBy(change),
+      );
+      if (!oldPath || !newPath) return [];
+      return [{ oldPath, newPath, date, status: change.status }];
+    });
+  },
+
   initialState() {
     return { change: null, firstPath: null, remaining: 0 };
   },
@@ -195,16 +217,69 @@ const history = Object.freeze({
       "--raw",
       "--no-abbrev",
       "--find-renames",
+      "-z",
+    ]);
+    const records = output ? output.split("\x1e") : [];
+    const dates = records.reduce((index, record) => {
+      history.parseHistoryRecord(record, index);
+      return index;
+    }, new Map());
+    const renames = records.flatMap((record) =>
+      history.recordTransfers(record),
+    );
+    return { dates, renames };
+  },
+
+  copyRecords(repo) {
+    const output = history.gitOutput(repo, [
+      "log",
+      "--reverse",
+      "--format=%x1e%aI",
+      "--raw",
+      "--no-abbrev",
+      "--find-renames",
       "--find-copies-harder",
+      "--diff-filter=C",
       "-z",
       "--",
       ...TEMPLATE_PATHS,
     ]);
     const records = output ? output.split("\x1e") : [];
-    return records.reduce((index, record) => {
-      history.parseHistoryRecord(record, index);
-      return index;
-    }, new Map());
+    return records.flatMap((record) => history.recordTransfers(record));
+  },
+
+  applyCopyOrigins(index, renames, copies) {
+    const renamesBySource = buildReverseIndex(renames, (rename) => [
+      rename.oldPath,
+    ]);
+    for (const { oldPath, newPath, date } of copies) {
+      const source = index.get(oldPath);
+      if (!source) continue;
+      history.patchCopiedChain(
+        index,
+        renamesBySource,
+        newPath,
+        source.published,
+        date,
+      );
+    }
+  },
+
+  patchCopiedChain(index, renamesBySource, path, origin, copyDate) {
+    const dates = index.get(path);
+    if (!dates || dates.published !== copyDate) return;
+    dates.published = origin;
+    const descendants = renamesBySource.get(path);
+    if (!descendants) return;
+    for (const { newPath } of descendants) {
+      history.patchCopiedChain(
+        index,
+        renamesBySource,
+        newPath,
+        origin,
+        copyDate,
+      );
+    }
   },
 
   findDates(indexes, inputPath) {
@@ -252,10 +327,11 @@ export const createGitDateLookup = (options = {}) => {
     options.configuredRepo === undefined
       ? process.env.GIT_DATES_REPO
       : options.configuredRepo;
-  const indexes = history.candidateRepos(cwd, configuredRepo).map((repo) => ({
-    repo,
-    dates: history.buildRepoIndex(repo),
-  }));
+  const indexes = history.candidateRepos(cwd, configuredRepo).map((repo) => {
+    const { dates, renames } = history.buildRepoIndex(repo);
+    history.applyCopyOrigins(dates, renames, history.copyRecords(repo));
+    return { repo, dates };
+  });
   return history.createLookup(indexes, startedAt);
 };
 
