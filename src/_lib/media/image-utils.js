@@ -198,7 +198,7 @@ const encodeImageUrlPath = (url) =>
  * (not `url`), so both must be encoded for the emitted markup to reference
  * the encoded URLs.
  *
- * @param {Object} entry - eleventy-img metadata entry
+ * @param {{url: string, srcset?: string, width?: number}} entry - eleventy-img metadata entry
  * @returns {Object} New entry with URL fields percent-encoded
  */
 export const encodeMetadataEntryUrls = (entry) => {
