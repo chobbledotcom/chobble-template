@@ -41,7 +41,7 @@ const HISTORY_SCAN_ARGS = [
  * @property {(rawChange: string | undefined) => RawChange | null} parseRawChange
  * @property {(change: RawChange) => number} pathsConsumedBy
  * @property {(record: string) => { date: string, tokens: string[] }} splitHistoryRecord
- * @property {(record: string) => TransferRecord[]} recordTransfers
+ * @property {(record: { date: string, tokens: string[] }) => TransferRecord[]} recordTransfers
  * @property {() => ParseState} initialState
  * @property {(state: ParseState, token: string) => ParseState} startChange
  * @property {(state: ParseState, token: string, index: GitDateIndex, date: string) => ParseState} consumePath
@@ -164,8 +164,7 @@ const history = Object.freeze({
     return { date: rawDate.trim(), tokens };
   },
 
-  recordTransfers(record) {
-    const { date, tokens } = history.splitHistoryRecord(record);
+  recordTransfers({ date, tokens }) {
     if (tokens.length === 0) return [];
     return tokens.flatMap((token, position) => {
       const change = history.parseRawChange(token);
@@ -234,7 +233,7 @@ const history = Object.freeze({
       return index;
     }, new Map());
     const renames = records.flatMap((record) =>
-      history.recordTransfers(record),
+      history.recordTransfers(history.splitHistoryRecord(record)),
     );
     return { dates, renames };
   },
