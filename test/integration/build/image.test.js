@@ -235,11 +235,16 @@ describe("image", () => {
         ),
         imageTestPage("markdown", "![A test scene](/images/scene.jpg)"),
         imageTestPage("gallery", galleryContent, "Gallery"),
+        imageTestPage(
+          "spacey",
+          '{% image "Pugh upgrade 1.jpeg", "Uploaded with spaces" %}',
+        ),
       ],
       images: [
         { src: "src/images/party.jpg", dest: "test-image.jpg" },
         { src: "src/images/party.jpg", dest: "scene.jpg" },
         ...imageFiles(["alpha.jpg", "beta.jpg"]),
+        ...imageFiles(["Pugh upgrade 1.jpeg"]),
       ],
       processImages: true,
     });
@@ -276,6 +281,16 @@ describe("image", () => {
 
       expect(html.includes("alpha.jpg")).toBe(true);
       expect(html.includes("beta.jpg")).toBe(true);
+    });
+
+    test("Filenames with spaces generate URL-safe srcset candidates", () => {
+      const html = getProcessedSite().getOutput("/spacey/index.html");
+
+      expect(html.includes("<picture")).toBe(true);
+      // The space-named source must not leak into srcset/src URLs: raw
+      // whitespace invalidates every srcset candidate.
+      expect(html).not.toContain("/img/Pugh upgrade 1");
+      expect(html).toContain("Pugh%20upgrade%201-");
     });
   });
 

@@ -170,6 +170,49 @@ export const getPathAwareBasename = (src) => {
 };
 
 /**
+ * Percent-encode each path segment of a generated image URL so it is safe
+ * to emit inside srcset/src attributes. eleventy-img writes generated
+ * files under their raw source basename and emits the URL verbatim; raw
+ * whitespace in a filename would otherwise separate each srcset candidate
+ * URL from its width descriptor and silently invalidate the whole
+ * responsive set.
+ *
+ * Encoding the emitted URL (rather than the written filename) keeps the
+ * on-disk and CDN names identical to what browsers request after decoding:
+ * a literal "%" becomes %25 and every other character outside
+ * [A-Za-z0-9._-] becomes %XX per UTF-8 byte, which makes the mapping
+ * injective — two different filenames can never produce the same URL.
+ *
+ * @param {string} url - Generated image URL (e.g. "/img/photo 1-240.webp")
+ * @returns {string} URL with each path segment percent-encoded
+ */
+const encodeImageUrlPath = (url) =>
+  url
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+
+/**
+ * Percent-encode the URL fields of an eleventy-img metadata entry.
+ * eleventy-img builds `<source>` srcsets from the entry's `srcset` field
+ * (not `url`), so both must be encoded for the emitted markup to reference
+ * the encoded URLs.
+ *
+ * @param {{url: string, srcset?: string, width?: number}} entry - eleventy-img metadata entry
+ * @returns {Object} New entry with URL fields percent-encoded
+ */
+export const encodeMetadataEntryUrls = (entry) => {
+  const url = encodeImageUrlPath(entry.url);
+  return {
+    ...entry,
+    url,
+    ...(typeof entry.srcset === "string" && typeof entry.width === "number"
+      ? { srcset: `${url} ${entry.width}w` }
+      : {}),
+  };
+};
+
+/**
  * Generate filename for resized images.
  * Used by eleventy-img for both regular images and LQIP thumbnails.
  * @param {string} _id - Image ID (unused)

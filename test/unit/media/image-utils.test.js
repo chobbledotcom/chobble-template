@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   buildImageWrapperStyles,
   buildWrapperStyles,
+  encodeMetadataEntryUrls,
   filenameFormat,
   getPathAwareBasename,
   isExternalUrl,
@@ -446,6 +447,75 @@ describe("image-utils", () => {
       });
 
       expect(jpeg).not.toBe(png);
+    });
+
+    test("encodeMetadataEntryUrls percent-encodes spaces so srcset stays valid", () => {
+      const encoded = encodeMetadataEntryUrls({
+        url: "/img/Pugh upgrade 1-240.webp",
+        srcset: "/img/Pugh upgrade 1-240.webp 240w",
+        width: 240,
+      });
+
+      expect(encoded.url).toBe("/img/Pugh%20upgrade%201-240.webp");
+      expect(encoded.srcset).toBe("/img/Pugh%20upgrade%201-240.webp 240w");
+    });
+
+    test("encodeMetadataEntryUrls percent-encodes per UTF-8 byte", () => {
+      const encoded = encodeMetadataEntryUrls({
+        url: "/img/Doorbell £199 Aug 2026-240.png",
+        srcset: "/img/Doorbell £199 Aug 2026-240.png 240w",
+        width: 240,
+      });
+
+      expect(encoded.url).toBe(
+        "/img/Doorbell%20%C2%A3199%20Aug%202026-240.png",
+      );
+      expect(encoded.srcset).toBe(
+        "/img/Doorbell%20%C2%A3199%20Aug%202026-240.png 240w",
+      );
+    });
+
+    test("different sources that encode to the same shape stay distinct", () => {
+      const spaced = encodeMetadataEntryUrls({
+        url: "/img/photo 1-240.webp",
+        srcset: "/img/photo 1-240.webp 240w",
+        width: 240,
+      });
+      const dashed = encodeMetadataEntryUrls({
+        url: "/img/photo-1-240.webp",
+        srcset: "/img/photo-1-240.webp 240w",
+        width: 240,
+      });
+
+      expect(spaced.url).toBe("/img/photo%201-240.webp");
+      expect(dashed.url).toBe("/img/photo-1-240.webp");
+      expect(spaced.url).not.toBe(dashed.url);
+    });
+
+    test("encodeMetadataEntryUrls self-escapes literal percent signs", () => {
+      const encoded = encodeMetadataEntryUrls({
+        url: "/img/50% off-240.webp",
+        srcset: "/img/50% off-240.webp 240w",
+        width: 240,
+      });
+
+      expect(encoded.url).toBe("/img/50%25%20off-240.webp");
+      expect(encoded.srcset).toBe("/img/50%25%20off-240.webp 240w");
+    });
+
+    test("encodeMetadataEntryUrls encodes characters that would corrupt the URL", () => {
+      expect(encodeMetadataEntryUrls({ url: "/img/###-240.webp" }).url).toBe(
+        "/img/%23%23%23-240.webp",
+      );
+    });
+
+    test("encodeMetadataEntryUrls leaves entries without srcset intact", () => {
+      const encoded = encodeMetadataEntryUrls({
+        url: "/img/photo 1.svg",
+      });
+
+      expect(encoded.url).toBe("/img/photo%201.svg");
+      expect(encoded.srcset).toBeUndefined();
     });
   });
 });
