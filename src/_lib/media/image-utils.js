@@ -4,7 +4,6 @@
  * Helpers for image path normalization, URL detection, and attribute building.
  * Extracted to reduce complexity in image.js and provide reusable utilities.
  */
-import { createHash } from "node:crypto";
 import { compact } from "#toolkit/fp/array.js";
 import { isExternalUrl } from "#utils/url-utils.js";
 
@@ -171,30 +170,29 @@ export const getPathAwareBasename = (src) => {
 };
 
 /**
- * Sanitize a basename so generated filenames are always valid URL path
- * segments. eleventy-img writes generated files to this name and emits it
- * verbatim in srcset/src attributes, where whitespace separates each
- * candidate URL from its width descriptor. A source like
+ * Percent-encode a basename so generated filenames are always valid URL
+ * path segments. eleventy-img writes generated files to this name and
+ * emits it verbatim in srcset/src attributes, where whitespace separates
+ * each candidate URL from its width descriptor. A source like
  * "Pugh upgrade 1.jpeg" would otherwise invalidate every srcset candidate,
  * silently discarding the whole responsive set and falling back to the
- * largest JPEG. Characters outside [A-Za-z0-9._-] collapse to single
- * hyphens; when the name changes, a short hash of the original is appended
- * so two different sources can never sanitize to the same filename.
+ * largest JPEG.
+ *
+ * Characters outside [A-Za-z0-9._-] are encoded as %XX per UTF-8 byte and
+ * a literal "%" becomes %25, which makes the encoding injective: already
+ * safe basenames pass through unchanged, and no two different basenames
+ * can ever sanitize to the same generated filename.
  *
  * @param {string} basename - Path-aware basename from getPathAwareBasename
  * @returns {string} URL-safe basename
  */
-const toUrlSafeBasename = (basename) => {
-  const safe = basename
-    .replace(/[^A-Za-z0-9._-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  if (safe === basename && safe !== "") return safe;
-  const suffix = createHash("sha256")
-    .update(basename)
-    .digest("hex")
-    .slice(0, 8);
-  return `${safe || "image"}-${suffix}`;
-};
+const toUrlSafeBasename = (basename) =>
+  basename.replace(/[^A-Za-z0-9._-]+/g, (run) =>
+    Array.from(
+      Buffer.from(run, "utf8"),
+      (byte) => `%${byte.toString(16).toUpperCase().padStart(2, "0")}`,
+    ).join(""),
+  );
 
 /**
  * Generate filename for resized images.

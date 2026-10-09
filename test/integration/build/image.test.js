@@ -290,7 +290,7 @@ describe("image", () => {
       // The space-named source must not leak into srcset/src URLs: raw
       // whitespace invalidates every srcset candidate.
       expect(html).not.toContain("/img/Pugh upgrade 1");
-      expect(html).toContain("Pugh-upgrade-1-");
+      expect(html).toContain("Pugh%20upgrade%201-");
     });
   });
 

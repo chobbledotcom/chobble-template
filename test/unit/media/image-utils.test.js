@@ -448,13 +448,13 @@ describe("image-utils", () => {
       expect(jpeg).not.toBe(png);
     });
 
-    test("replaces spaces and non-URL characters with hyphens", () => {
+    test("percent-encodes spaces so srcset candidates stay valid", () => {
       expect(
         filenameFormat("id", "./src/images/Pugh upgrade 1.jpeg", 240, "webp"),
-      ).toBe("Pugh-upgrade-1-258e3632-240.webp");
+      ).toBe("Pugh%20upgrade%201-240.webp");
     });
 
-    test("strips URL-hostile characters and appends a hash suffix", () => {
+    test("percent-encodes URL-hostile characters per UTF-8 byte", () => {
       expect(
         filenameFormat(
           "id",
@@ -462,10 +462,10 @@ describe("image-utils", () => {
           240,
           "png",
         ),
-      ).toBe("Doorbell-199-Aug-2026-b7fabc63-240.png");
+      ).toBe("Doorbell%20%C2%A3199%20Aug%202026-240.png");
     });
 
-    test("different sources that sanitize to the same name stay distinct", () => {
+    test("different sources that sanitize to the same shape stay distinct", () => {
       const spaced = filenameFormat(
         "id",
         "./src/images/photo 1.jpg",
@@ -479,15 +479,18 @@ describe("image-utils", () => {
         "webp",
       );
 
-      expect(spaced).toBe("photo-1-e5a5555d-240.webp");
+      expect(spaced).toBe("photo%201-240.webp");
       expect(dashed).toBe("photo-1-240.webp");
       expect(spaced).not.toBe(dashed);
     });
 
-    test("falls back to a generic name when nothing URL-safe remains", () => {
+    test("encodes characters that would terminate or corrupt the URL", () => {
       expect(filenameFormat("id", "./src/images/###.jpeg", 240, "webp")).toBe(
-        "image-56dc6d47-240.webp",
+        "%23%23%23-240.webp",
       );
+      expect(
+        filenameFormat("id", "./src/images/50% off.jpg", 240, "webp"),
+      ).toBe("50%25%20off-240.webp");
     });
   });
 });
