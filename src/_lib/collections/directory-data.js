@@ -92,6 +92,11 @@ const DIRECTORY_DATA = {
         }),
     }),
   },
+  reviews: {
+    tags: ["reviews"],
+    permalink: false,
+    layout: null,
+  },
   snippets: {
     permalink: false,
     layout: null,

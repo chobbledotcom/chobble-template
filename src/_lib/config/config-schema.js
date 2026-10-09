@@ -115,6 +115,12 @@ const CONFIG_SCHEMA = {
     description:
       "Post-build page screenshots: `enabled` and `autoCapture` switch capture on; `collections` or `pages` choose the pages; `outputDir`, `port`, `viewport`, `timeout`, and `limit` tune the run.",
   },
+  review_sources: {
+    type: "object",
+    default: {},
+    description:
+      "Where `npm run fetch-reviews` collects reviews from: `google_business_id` (a Google Maps place ID), `facebook_page_url`, and `trustpilot_url`. Leave a source out to skip it.",
+  },
   disable_liquid_cache: {
     type: "boolean",
     default: false,

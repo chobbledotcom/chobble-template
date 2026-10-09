@@ -124,6 +124,30 @@ to merge them, reviews what changed, and re-runs the site's own checks. The
 quality gates travel with the fork, so a site that pulls an update finds out
 immediately whether the update broke anything it publishes.
 
+## Reviews
+
+Reviews live in `src/reviews/`, one Markdown file each, and the `reviews`
+block shows them on any page. `npm run fetch-reviews` collects new ones from
+the Google, Facebook, and Trustpilot pages named in the `review_sources`
+setting of `src/_data/config.json`:
+
+```json
+"review_sources": {
+  "google_business_id": "ChIJ...",
+  "facebook_page_url": "https://www.facebook.com/your-page",
+  "trustpilot_url": "https://uk.trustpilot.com/review/example.com"
+}
+```
+
+It reads them through [Apify](https://apify.com/), so it needs an
+`APIFY_API_TOKEN`. Leave a source out to skip it; with none set the command
+does nothing and needs no token. A stored review is never rewritten or
+deleted, so adding `hidden: true` to one keeps it off the site for good.
+
+The `Fetch Reviews` workflow (`.github/workflows/fetch-reviews.yml`) runs the
+command every morning, commits what it finds, and redeploys the site when
+there is something new.
+
 ## Deployment
 
 The repo ships a deploy workflow (`.github/workflows/build-and-deploy.yaml`)
@@ -142,6 +166,7 @@ under **Settings → Secrets and variables → Actions**:
 | `BUNNY_STAGING_STORAGE_ZONE_NAME` | Optional. Name of the Bunny Site other branches deploy to |
 | `INDEXNOW_KEY` | Optional. Submits the sitemap to IndexNow after a `main` deploy |
 | `NTFY_TOPIC` | Optional. [ntfy](https://ntfy.sh/) topic notified when a `main` build fails |
+| `APIFY_API_TOKEN` | Optional. [Apify](https://apify.com/) token the reviews workflow fetches reviews with |
 
 A deploy is skipped while its site name or the access key is missing, so a
 fresh fork builds cleanly before it has hosting. The workflow also merges

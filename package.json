@@ -49,6 +49,7 @@
 		"generate-references": "npm run generate-blocks-reference && npm run generate-pages-yml && npm run generate-developer-reference",
 		"screenshot": "node scripts/screenshot.js",
 		"save-icons": "node scripts/save-iconify-icons.js",
+		"fetch-reviews": "node scripts/fetch-reviews.js",
 		"lighthouse": "node scripts/lighthouse.js",
 		"check:links": "node scripts/check-internal-links.js _site",
 		"check:a11y": "node scripts/check-accessibility.js _site"

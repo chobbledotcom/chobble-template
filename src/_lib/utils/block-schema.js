@@ -50,6 +50,7 @@ import * as linkColumns from "#utils/block-schema/link-columns.js";
 import * as markdown from "#utils/block-schema/markdown.js";
 import * as marqueeImages from "#utils/block-schema/marquee-images.js";
 import * as newsMeta from "#utils/block-schema/news-meta.js";
+import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
 import { CONTAINER_FIELDS } from "#utils/block-schema/shared.js";
 import * as snippet from "#utils/block-schema/snippet.js";
@@ -105,6 +106,7 @@ const BLOCK_MODULES = [
   gallery,
   marqueeImages,
   videoCards,
+  reviews,
   iconLinks,
   downloads,
   snippet,

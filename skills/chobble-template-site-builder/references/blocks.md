@@ -64,6 +64,7 @@ This table covers registered types only. `No` types are rejected inside columns 
 | [`gallery`](#gallery) | `wide` | Yes |
 | [`marquee-images`](#marquee-images) | `full` | No |
 | [`video-cards`](#video-cards) | `wide` | Yes |
+| [`reviews`](#reviews) | `wide` | Yes |
 | [`icon-links`](#icon-links) | `narrow` | Yes |
 | [`downloads`](#downloads) | `narrow` | Yes |
 | [`snippet`](#snippet) | `wide` | Yes |
@@ -1553,6 +1554,44 @@ blocks:
         thumbnail_url: lunch.jpg
       - id: https://player.vimeo.com/video/76979871
         name: A video with no thumbnail
+```
+
+## `reviews`
+
+Customer reviews as cards, newest first: rating, date, the reviewer's words, and a link to where they wrote it.
+
+**Schema:** `src/_lib/utils/block-schema/reviews.js`
+
+**Component:** `block_reviews`
+
+**Template:** `src/_includes/design-system/blocks/reviews.html`
+
+**SCSS:** `src/css/design-system/_reviews.scss`
+
+**Container width:** `wide`
+
+**CMS collection availability:** All collections with a block editor
+
+**Columns / sidebar:** Yes
+
+| Field | Schema type | Presence | Default | CMS label | Description |
+| --- | --- | --- | --- | --- | --- |
+| `minimum_rating` | `number` | optional | `1` | Minimum Rating | Only reviews rated at least this are shown, from \`1\` (every review) to \`5\`. |
+| `limit` | `number` | optional | None | Limit | Show at most this many reviews, newest first. |
+| `horizontal` | `boolean` | optional | `false` | Horizontal Slider | If true, renders as a horizontal slider instead of a wrapping grid. |
+| `masonry` | `boolean` | optional | `false` | Masonry Grid | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
+| `intro_content` | `markdown` | optional | None | Intro Content (Markdown) | Markdown content rendered above the block in \`.prose\`. |
+
+**Usage notes:** Renders the \`reviews\` collection: one markdown file per review in \`src/reviews/\`, named \`YYYY-MM-DD-reviewer.md\`, with \`name\`, \`rating\`, and optional \`source\` and \`url\` in the frontmatter and the review as the body. \`npm run fetch-reviews\` writes these files from Google, Facebook and Trustpilot. A review with \`hidden: true\` is left out. The block renders nothing when no review qualifies.
+
+### Canonical example
+
+```yaml
+blocks:
+  - type: reviews
+    minimum_rating: 4
+    limit: 6
+    intro_content: "## What customers say"
 ```
 
 ## `icon-links`

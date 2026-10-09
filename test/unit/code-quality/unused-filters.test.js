@@ -11,12 +11,14 @@
 import { describe, expect, test } from "vitest";
 import { configureGuides } from "#collections/guides.js";
 import { configureNavigation } from "#collections/navigation.js";
+import { configureReviews } from "#collections/reviews.js";
 import { configureBlocks } from "#eleventy/blocks.js";
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { configureCollectionLookup } from "#eleventy/collection-lookup.js";
 import { configureFileUtils } from "#eleventy/file-utils.js";
 import { configureFilters } from "#eleventy/filters.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
+import { configureVideo } from "#eleventy/video.js";
 import { configureIconify } from "#media/iconify.js";
 import { configureImages } from "#media/image.js";
 import { readSource } from "#test/code-scanner.js";
@@ -41,7 +43,9 @@ const CONFIGURE_MODULES = [
   configureIconify,
   configureImages,
   configureNavigation,
+  configureReviews,
   configureStyleBundle,
+  configureVideo,
 ];
 
 const REGISTRATION_MAPS = [

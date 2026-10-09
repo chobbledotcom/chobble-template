@@ -1,0 +1,20 @@
+{%- comment -%}
+Reviews block - the reviews collection as cards, newest first.
+
+Parameters (via block object):
+  - block.minimum_rating: Only reviews rated at least this are shown
+  - block.limit: Show at most this many reviews
+  - block.horizontal: If true, renders as a horizontal slider
+  - block.masonry: If true, renders as a masonry grid
+  - block.intro_content: Optional markdown intro rendered above the reviews
+{%- endcomment -%}
+
+{%- assign _reviews = collections.reviews | minimumRating: block.minimum_rating -%}
+{%- if block.limit -%}
+  {%- assign _reviews = _reviews | slice: 0, block.limit -%}
+{%- endif -%}
+
+{%- if _reviews.size > 0 -%}
+  {%- include "design-system/block-intro.html" -%}
+  {%- include "items.html", items: _reviews, horizontal: block.horizontal, masonry: block.masonry, reviews: true -%}
+{%- endif -%}

@@ -383,6 +383,19 @@ components:
       - name: intro_content
         type: rich-text
         label: Intro Content (Markdown)
+  block_reviews:
+    label: Reviews
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
+      - { name: minimum_rating, type: number, label: Minimum Rating }
+      - { name: limit, type: number, label: Limit }
+      - { name: horizontal, type: boolean, label: Horizontal Slider }
+      - { name: masonry, type: boolean, label: Masonry Grid }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_section_header:
     label: Section Header
     type: object
@@ -721,6 +734,7 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
+          - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
           - { name: split-callout, component: block_split_callout }
@@ -791,6 +805,7 @@ content:
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
           - { name: news-meta, component: block_news_meta }
+          - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
           - { name: split-callout, component: block_split_callout }
@@ -848,6 +863,7 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
+          - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
           - { name: split-callout, component: block_split_callout }
@@ -912,6 +928,7 @@ content:
           - { name: link-columns, component: block_link_columns }
           - { name: markdown, component: block_markdown }
           - { name: marquee-images, component: block_marquee_images }
+          - { name: reviews, component: block_reviews }
           - { name: section-header, component: block_section_header }
           - { name: snippet, component: block_snippet }
           - { name: split-callout, component: block_split_callout }

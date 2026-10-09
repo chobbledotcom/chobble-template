@@ -88,6 +88,7 @@ Every setting [config.json](../src/_data/config.json) accepts, from the [config 
 | `externalLinksTargetBlank` | `boolean` | `false` | Any | Open external links in a new tab (\`target="\_blank"\` with \`rel="noopener noreferrer"\`). |
 | `phoneNumberLength` | `number` | `0` | Any | Digit count of the phone numbers to turn into \`tel:\` links; \`0\` turns phone linking off. |
 | `screenshots` | `object` | `{}` | Any | Post-build page screenshots: \`enabled\` and \`autoCapture\` switch capture on; \`collections\` or \`pages\` choose the pages; \`outputDir\`, \`port\`, \`viewport\`, \`timeout\`, and \`limit\` tune the run. |
+| `review_sources` | `object` | `{}` | Any | Where \`npm run fetch-reviews\` collects reviews from: \`google\_business\_id\` (a Google Maps place ID), \`facebook\_page\_url\`, and \`trustpilot\_url\`. Leave a source out to skip it. |
 | `disable_liquid_cache` | `boolean` | `false` | Any | Turn off Liquid template caching while debugging templates. |
 
 ## Content And Layouts

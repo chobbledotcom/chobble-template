@@ -20,6 +20,15 @@ export type ScreenshotConfig = {
 };
 
 /**
+ * Where `npm run fetch-reviews` collects reviews from (optional feature)
+ */
+export type ReviewSources = {
+  google_business_id?: string;
+  facebook_page_url?: string;
+  trustpilot_url?: string;
+};
+
+/**
  * Site configuration after defaults are applied. Every setting, its default,
  * and its accepted values are declared in #config/config-schema.js; keep this
  * type in step with it.
@@ -43,6 +52,7 @@ export type SiteConfig = {
 
   // {} when unset; pickNonNull strips null overrides
   screenshots: ScreenshotConfig;
+  review_sources: ReviewSources;
 
   // Optional (may be null)
   homepage_footer_markdown: string | null;

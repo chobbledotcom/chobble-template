@@ -1,0 +1,77 @@
+// jscpd:ignore-start -- shared @use import block
+@use "../variables" as *;
+@use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
+
+// =============================================================================
+// REVIEWS
+// =============================================================================
+// Review cards inside an items grid, slider or masonry layout. The card
+// itself is styled by _items.scss; this lays out what a review holds.
+
+.design-system {
+  .items.reviews > li {
+    @include flex-col($space-sm);
+
+    padding: $space-md;
+
+    .review-header {
+      @include flex-between;
+
+      time {
+        @include body-sm;
+
+        color: var(--color-text-muted);
+      }
+    }
+
+    .rating {
+      color: var(--color-link);
+      letter-spacing: 0.1em;
+    }
+
+    // A long review scrolls inside its card rather than stretching the row
+    .review {
+      overflow-y: auto;
+      max-height: 160px;
+    }
+
+    .author-info {
+      @include flex-row($space-sm, center);
+
+      margin-block-start: auto;
+    }
+
+    .reviewer-avatar {
+      @include flex-center;
+
+      flex-shrink: 0;
+
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+
+      font-weight: 600;
+      color: var(--color-contrast-text);
+      text-transform: uppercase;
+
+      background: var(--color-link);
+    }
+
+    .author-details {
+      @include flex-col($space-xs);
+
+      font-size: $font-size-sm;
+    }
+
+    .name {
+      font-weight: 600;
+    }
+
+    .review-link {
+      @include body-sm;
+      @include link-plain;
+    }
+  }
+}

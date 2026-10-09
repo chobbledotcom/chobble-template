@@ -120,18 +120,16 @@ export type EventItemData = BaseItemData & {
  * Review-specific data fields
  */
 export type ReviewItemData = BaseItemData & {
-  /** Rating (typically 1-5) */
-  rating?: number;
   /** Reviewer name */
-  reviewer?: string;
-  /** Review date */
-  review_date?: string;
-  /** Product slugs this review is for */
-  products?: string[];
-  /** Category slugs this review is for */
-  categories?: string[];
-  /** Property slugs this review is for */
-  properties?: string[];
+  name: string;
+  /** Rating from 1 to 5 */
+  rating: number;
+  /** Where the review was written, e.g. "google" */
+  source?: string;
+  /** Link to the review where it was written */
+  url?: string;
+  /** If true, the review is left out of the reviews collection */
+  hidden?: boolean;
 };
 
 /**

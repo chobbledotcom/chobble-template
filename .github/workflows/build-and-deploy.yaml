@@ -3,6 +3,13 @@ name: Build and Deploy
 on:
   push:
   workflow_dispatch:
+  # Called by the Fetch Reviews workflow to publish the reviews it committed.
+  workflow_call:
+    inputs:
+      ref:
+        description: Commit to build; the commit that started the run when empty
+        type: string
+        default: ""
 
 # Let an in-flight deploy finish rather than cancelling it mid-upload.
 concurrency:
@@ -23,6 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
 
       - name: Setup Node
