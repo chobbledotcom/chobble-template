@@ -65,6 +65,7 @@ This table covers registered types only. `No` types are rejected inside columns 
 | [`marquee-images`](#marquee-images) | `full` | No |
 | [`video-cards`](#video-cards) | `wide` | Yes |
 | [`reviews`](#reviews) | `wide` | Yes |
+| [`contact-form`](#contact-form) | `wide` | No |
 | [`icon-links`](#icon-links) | `narrow` | Yes |
 | [`downloads`](#downloads) | `narrow` | Yes |
 | [`snippet`](#snippet) | `wide` | Yes |
@@ -1592,6 +1593,72 @@ blocks:
     minimum_rating: 4
     limit: 6
     intro_content: "## What customers say"
+```
+
+## `contact-form`
+
+A contact form, optionally beside text, that posts to a form service.
+
+**Schema:** `src/_lib/utils/block-schema/contact-form.js`
+
+**Component:** `block_contact_form`
+
+**Template:** `src/_includes/design-system/blocks/contact-form.html`
+
+**SCSS:** `src/css/design-system/_contact-form.scss`
+
+**Container width:** `wide`
+
+**CMS collection availability:** All collections with a block editor
+
+**Columns / sidebar:** No
+
+| Field | Schema type | Presence | Default | CMS label | Description |
+| --- | --- | --- | --- | --- | --- |
+| `content` | `markdown` | optional | None | Content | Text shown beside the form, rendered as markdown. Without it the form takes the full width. |
+| `fields` | `array<object>` | optional | `[{"name":"name","label":"Name","type":"text","required":true},{"name":"email","label":"Email","type":"email","required":true},{"name":"phone","label":"Phone","type":"tel","required":false},{"name":"message","label":"Message","type":"textarea","required":true,"rows":6}]` | Form Fields | The form's fields, in order. Defaults to name, email, phone, and message. |
+| `fields[].label` | `string` | **required** | None | Label |  |
+| `fields[].name` | `string` | optional | Derived | Name | Name the answer is submitted under. Defaults to the label. |
+| `fields[].type` | `string` | optional | `"text"` | Type | \`textarea\`, \`select\`, \`radio\`, \`heading\` (a sub-heading between fields, with \`note\` as its text), or any HTML input type such as \`text\`, \`email\`, \`tel\`, \`date\`, or \`number\`. |
+| `fields[].required` | `boolean` | optional | `false` | Required |  |
+| `fields[].placeholder` | `string` | optional | None | Placeholder |  |
+| `fields[].note` | `string` | optional | None | Help Note |  |
+| `fields[].options` | `array<string>` | optional | None | Options | Choices of a \`select\` or \`radio\` field. |
+| `fields[].rows` | `number` | optional | `6` | Rows | Height of a \`textarea\`, in lines of text. |
+| `submit_text` | `string` | optional | `"Send Enquiry"` | Submit Button Text |  |
+| `redirect` | `string` | optional | `"/thank-you/"` | Redirect | Page a visitor lands on after sending the form. |
+| `intro_content` | `markdown` | optional | None | Intro Content (Markdown) | Markdown content rendered above the block in \`.prose\`. |
+
+**Usage notes:** A static site cannot receive a form, so the block posts to the URL in the \`contact\_form\_target\` setting, or to \[Formspark\](https://formspark.io/) when \`formspark\_id\` is set; with neither it shows a notice in place of the form. Setting \`botpoison\_public\_key\` adds a \[Botpoison\](https://botpoison.com/) spam challenge, which needs JavaScript. The submission emails are named after the site, and a field named \`email\` becomes their reply address on Formspark.
+
+### Canonical example
+
+```yaml
+blocks:
+  - type: contact-form
+    content: |-
+      ## Get in touch
+
+      Tell us what you need and we will get back to you.
+    fields:
+      - label: Name
+        name: name
+        required: true
+      - label: Email
+        name: email
+        type: email
+        required: true
+      - label: What do you need?
+        name: service
+        type: select
+        options:
+          - A new website
+          - Help with an existing site
+          - Something else
+      - label: Message
+        name: message
+        type: textarea
+        required: true
 ```
 
 ## `icon-links`

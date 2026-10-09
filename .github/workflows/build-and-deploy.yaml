@@ -47,6 +47,19 @@ jobs:
           restore-keys: |
             images-
 
+      # Keeps the form IDs out of the repository: when the secrets exist they
+      # become the formspark_id and botpoison_public_key settings for this build.
+      - name: Configure contact form
+        env:
+          FORMSPARK_ID: ${{ secrets.FORMSPARK_ID }}
+          BOTPOISON_PUBLIC_KEY: ${{ secrets.BOTPOISON_PUBLIC_KEY }}
+        run: |
+          jq --arg formspark "$FORMSPARK_ID" --arg botpoison "$BOTPOISON_PUBLIC_KEY" '
+            (if $formspark != "" then .formspark_id = $formspark else . end)
+            | (if $botpoison != "" then .botpoison_public_key = $botpoison else . end)
+          ' src/_data/config.json > config.tmp.json
+          mv config.tmp.json src/_data/config.json
+
       - name: Build Site
         run: |
           npm ci

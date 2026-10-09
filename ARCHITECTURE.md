@@ -12,8 +12,9 @@ whose YAML frontmatter declares arrays of typed content blocks. Schemas
 validate those arrays at build time and fill omitted fields from defaults;
 block templates render them; a token-based theme styles them; Eleventy writes
 a self-contained `_site/` directory that any static host can serve. There is
-no server, no database, no form backend, and no user data — the static boundary
-is a design commitment, not an accident of scope.
+no server, no database, and no form backend: a contact form posts to an
+outside form service, and the site itself holds no user data — the static
+boundary is a design commitment, not an accident of scope.
 
 ## Design Commitments
 
@@ -318,5 +319,5 @@ Repository `docs/` publish alongside the site at `/docs/` on that deployment. To
 ## Provenance
 
 This is version 2 of the Chobble Template: rebuilt from version 1, relicensed
-from AGPL to MIT by its sole author, and cut down to an informational core:
-no e-commerce, no forms, no user-data handling. See [LICENSE](LICENSE).
+from AGPL to MIT by its sole author, and cut down to a static core: no
+e-commerce, no server, and no user data stored. See [LICENSE](LICENSE).

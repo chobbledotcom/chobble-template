@@ -46,6 +46,31 @@ components:
       - { name: filename, type: string, label: Filename, required: true }
       - { name: code, type: string, label: Code, required: true }
       - { name: language, type: string, label: Language }
+  block_contact_form:
+    label: Contact Form
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
+      - { name: content, type: rich-text, label: Content }
+      - name: fields
+        type: object
+        label: Form Fields
+        list: true
+        fields:
+          - { name: label, type: string, label: Label, required: true }
+          - { name: name, type: string, label: Name }
+          - { name: type, type: string, label: Type }
+          - { name: required, type: boolean, label: Required }
+          - { name: placeholder, type: string, label: Placeholder }
+          - { name: note, type: string, label: Help Note }
+          - { name: options, type: string, label: Options, list: true }
+          - { name: rows, type: number, label: Rows }
+      - { name: submit_text, type: string, label: Submit Button Text }
+      - { name: redirect, type: string, label: Redirect }
+      - name: intro_content
+        type: rich-text
+        label: Intro Content (Markdown)
   block_cta:
     label: Cta
     type: object
@@ -714,6 +739,7 @@ content:
         blocks:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
           - { name: cta, component: block_cta }
           - { name: downloads, component: block_downloads }
           - { name: faqs, component: block_faqs }
@@ -784,6 +810,7 @@ content:
         blocks:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
           - { name: cta, component: block_cta }
           - { name: downloads, component: block_downloads }
           - { name: faqs, component: block_faqs }
@@ -841,6 +868,7 @@ content:
         blocks:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
           - { name: cta, component: block_cta }
           - { name: downloads, component: block_downloads }
           - { name: faqs, component: block_faqs }
@@ -906,6 +934,7 @@ content:
         blocks:
           - { name: callout, component: block_callout }
           - { name: code-block, component: block_code_block }
+          - { name: contact-form, component: block_contact_form }
           - { name: cta, component: block_cta }
           - { name: downloads, component: block_downloads }
           - { name: faqs, component: block_faqs }

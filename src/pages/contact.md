@@ -7,13 +7,13 @@ eleventyNavigation:
   key: Contact
   order: 5
 blocks:
-  - type: markdown
+  - type: contact-form
     content: |
       # Get in Touch
 
-      This template ships without contact forms, so there is no form backend
-      to run and no user data to handle. For questions or problems with the
-      Chobble Template, [open an issue on GitHub](https://github.com/chobbledotcom/chobble-template/issues).
+      Send a message with the form, or for questions or problems with the
+      Chobble Template itself,
+      [open an issue on GitHub](https://github.com/chobbledotcom/chobble-template/issues).
   - type: include
     file: faq.html
 ---

@@ -1,0 +1,55 @@
+{%- comment -%}
+Contact form block - a form that posts to the site's form service, with
+optional text beside it.
+
+Parameters (via block object):
+  - block.content: Optional markdown shown beside the form
+  - block.fields: The form's fields, in order
+  - block.submit_text: Label of the submit button
+  - block.redirect: Page shown after the form is sent
+  - block.intro_content: Optional markdown intro rendered above the block
+
+The form posts to config.contact_form_target, else to the Formspark form
+named by config.formspark_id. With neither set there is nowhere to post, so
+the block says so instead of rendering a form that cannot be sent.
+{%- endcomment -%}
+
+{%- include "design-system/block-intro.html" -%}
+{%- if config.contact_form_target -%}
+  {%- assign _form_target = config.contact_form_target -%}
+{%- elsif config.formspark_id -%}
+  {%- assign _form_target = "https://submit-form.com/" | append: config.formspark_id -%}
+{%- else -%}
+  {%- assign _form_target = false -%}
+{%- endif -%}
+<div class="contact-form-block">
+  {%- if block.content -%}
+    {%- include "design-system/blocks/markdown.html" -%}
+  {%- endif -%}
+  {%- if _form_target -%}
+    <form
+      method="POST"
+      class="contact-form"
+      action="{{ _form_target }}"
+      {%- if config.botpoison_public_key %} data-botpoison-public-key="{{ config.botpoison_public_key }}"{% endif -%}
+    >
+      {%- if config.botpoison_public_key -%}
+        <noscript><p>JavaScript is required to send this form.</p></noscript>
+      {%- endif -%}
+      <input type="hidden" name="_redirect" value="{{ block.redirect | canonicalUrl }}">
+      <input type="hidden" name="_email.template.footer" value="false">
+      <input type="hidden" name="_email.from" value="{{ site.name }} contact form">
+      <input type="hidden" name="_email.subject" value="New message from the {{ site.name }} website">
+      {%- for field in block.fields -%}
+        {%- include "design-system/form-field.html", field: field -%}
+      {%- endfor -%}
+      <button type="submit">{{ block.submit_text }}</button>
+    </form>
+    <script type="module" src="{{ '/assets/js/contact-form.js' | cacheBust }}"></script>
+  {%- else -%}
+    <div class="prose">
+      <h3>Contact form not configured</h3>
+      <p>Set <code>contact_form_target</code> or <code>formspark_id</code> in <code>src/_data/config.json</code> to show this form.</p>
+    </div>
+  {%- endif -%}
+</div>

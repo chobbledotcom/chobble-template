@@ -56,6 +56,9 @@ export type SiteConfig = {
 
   // Optional (may be null)
   homepage_footer_markdown: string | null;
+  contact_form_target: string | null;
+  formspark_id: string | null;
+  botpoison_public_key: string | null;
 
   // Digit count of phone numbers to linkify; 0 (the default) disables it
   phoneNumberLength: number;

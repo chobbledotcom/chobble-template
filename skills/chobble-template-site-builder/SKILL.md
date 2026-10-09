@@ -27,9 +27,11 @@ directory.
 ## Scope
 
 Chobble Template produces a static `_site/` artifact. It has no form backend,
-ecommerce, accounts, database, or user-data handling. If a request needs those
-capabilities, explain the boundary and offer a static alternative such as a
-link to an external service. Do not quietly add a server-side subsystem.
+ecommerce, accounts, database, or user-data handling. The `contact-form` block
+is the one form it offers, and it posts to an outside form service the site
+owner has chosen. If a request needs more than that, explain the boundary and
+offer a static alternative such as a link to an external service. Do not
+quietly add a server-side subsystem.
 
 ## Operating Rules
 

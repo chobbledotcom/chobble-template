@@ -26,6 +26,7 @@
 
 import * as callout from "#utils/block-schema/callout.js";
 import * as codeBlock from "#utils/block-schema/code-block.js";
+import * as contactForm from "#utils/block-schema/contact-form.js";
 import * as cta from "#utils/block-schema/cta.js";
 import * as downloads from "#utils/block-schema/downloads.js";
 import * as faqs from "#utils/block-schema/faqs.js";
@@ -107,6 +108,7 @@ const BLOCK_MODULES = [
   marqueeImages,
   videoCards,
   reviews,
+  contactForm,
   iconLinks,
   downloads,
   snippet,

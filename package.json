@@ -73,10 +73,11 @@
 		"zod": "^3.25.76"
 	},
 	"dependencies": {
-		"@awesome.me/buildawesome": "4.0.0-alpha.10",
 		"@11ty/eleventy-img": "7.0.0",
 		"@11ty/eleventy-navigation": "^1.0.5",
 		"@11ty/eleventy-plugin-rss": "^2.0.4",
+		"@awesome.me/buildawesome": "4.0.0-alpha.10",
+		"@botpoison/browser": "^0.1.34",
 		"@nfrasser/simple-html-tokenizer": "^0.5.11-4",
 		"@quasibit/eleventy-plugin-schema": "^1.13.0",
 		"@sindresorhus/slugify": "^3.0.0",

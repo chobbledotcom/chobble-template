@@ -16,8 +16,8 @@ blocks:
       [Eleventy](https://www.11ty.dev/) to plain HTML.
 
       This is version 2 of the template: rebuilt from version 1,
-      relicensed from AGPL to MIT by its author and cut down to an informational
-      core: no e-commerce, no forms, no user data handling.
+      relicensed from AGPL to MIT by its author and cut down to a static
+      core: no e-commerce, no server, no user data stored.
   - type: features
     intro_content: |
       ## Principles

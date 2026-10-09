@@ -115,6 +115,24 @@ const CONFIG_SCHEMA = {
     description:
       "Post-build page screenshots: `enabled` and `autoCapture` switch capture on; `collections` or `pages` choose the pages; `outputDir`, `port`, `viewport`, `timeout`, and `limit` tune the run.",
   },
+  contact_form_target: {
+    type: "string",
+    default: null,
+    description:
+      "URL the `contact-form` block posts to. Takes precedence over `formspark_id`.",
+  },
+  formspark_id: {
+    type: "string",
+    default: null,
+    description:
+      "[Formspark](https://formspark.io/) form ID; the `contact-form` block posts to `https://submit-form.com/<id>`.",
+  },
+  botpoison_public_key: {
+    type: "string",
+    default: null,
+    description:
+      "[Botpoison](https://botpoison.com/) public key; when set, contact forms solve a spam challenge before they submit.",
+  },
   review_sources: {
     type: "object",
     default: {},

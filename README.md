@@ -7,9 +7,9 @@ frontmatter, so engineering-adjacent authors (and AI assistants) can build and
 edit pages without touching templates.
 
 This is version 2 of the Chobble Template: rebuilt from version 1,
-relicensed from AGPL to MIT by its sole author, and cut down to an informational
-core: no e-commerce, no forms, no user data handling — just fast, accessible,
-static pages.
+relicensed from AGPL to MIT by its sole author, and cut down to a static
+core: no e-commerce, no server, no user data stored — just fast, accessible,
+static pages. A contact form posts to a form service of the site's choosing.
 
 ## How this repository documents itself
 
@@ -124,6 +124,23 @@ to merge them, reviews what changed, and re-runs the site's own checks. The
 quality gates travel with the fork, so a site that pulls an update finds out
 immediately whether the update broke anything it publishes.
 
+## Contact forms
+
+The `contact-form` block renders a form that posts to an outside form
+service, because a static site cannot receive one itself. Set either of these
+in `src/_data/config.json`:
+
+| Setting | Purpose |
+|---|---|
+| `formspark_id` | A [Formspark](https://formspark.io/) form ID; the form posts to `https://submit-form.com/<id>` |
+| `contact_form_target` | Any other URL to post to; takes precedence over `formspark_id` |
+| `botpoison_public_key` | Optional. A [Botpoison](https://botpoison.com/) public key, which adds a spam challenge |
+
+With neither target set the block shows a notice instead of a form. The
+deploy workflow fills `formspark_id` and `botpoison_public_key` from the
+`FORMSPARK_ID` and `BOTPOISON_PUBLIC_KEY` repository secrets when they
+exist, so the IDs can stay out of the repository.
+
 ## Reviews
 
 Reviews live in `src/reviews/`, one Markdown file each, and the `reviews`
@@ -166,6 +183,8 @@ under **Settings → Secrets and variables → Actions**:
 | `BUNNY_STAGING_STORAGE_ZONE_NAME` | Optional. Name of the Bunny Site other branches deploy to |
 | `INDEXNOW_KEY` | Optional. Submits the sitemap to IndexNow after a `main` deploy |
 | `NTFY_TOPIC` | Optional. [ntfy](https://ntfy.sh/) topic notified when a `main` build fails |
+| `FORMSPARK_ID` | Optional. Sets the `formspark_id` setting at build time |
+| `BOTPOISON_PUBLIC_KEY` | Optional. Sets the `botpoison_public_key` setting at build time |
 | `APIFY_API_TOKEN` | Optional. [Apify](https://apify.com/) token the reviews workflow fetches reviews with |
 
 A deploy is skipped while its site name or the access key is missing, so a

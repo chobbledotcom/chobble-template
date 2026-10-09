@@ -4,6 +4,7 @@ import {
   BLOCK_SCHEMAS,
   getBlockContainerWidth,
   getBlockTemplate,
+  normaliseBlocks,
   validateBlocks,
 } from "#utils/block-schema.js";
 
@@ -404,5 +405,41 @@ describe("getBlockTemplate", () => {
       'Unknown block type "not-a-real-block"',
     );
     expect(() => getBlockTemplate("not-a-real-block")).toThrow("Valid types:");
+  });
+});
+
+describe("contact-form defaults", () => {
+  const formOf = (block) =>
+    normaliseBlocks([{ type: "contact-form", ...block }], "test")[0];
+
+  test("a form with no fields of its own asks for name, email, phone and message", () => {
+    const form = formOf({});
+    expect(form.fields.map((field) => [field.name, field.type])).toEqual([
+      ["name", "text"],
+      ["email", "email"],
+      ["phone", "tel"],
+      ["message", "textarea"],
+    ]);
+    expect(form.submit_text).toBe("Send Enquiry");
+    expect(form.redirect).toBe("/thank-you/");
+  });
+
+  test("an authored field is a text input named after its label, and not required", () => {
+    expect(formOf({ fields: [{ label: "Full name" }] }).fields).toEqual([
+      {
+        label: "Full name",
+        name: "Full name",
+        type: "text",
+        required: false,
+        rows: 6,
+      },
+    ]);
+  });
+
+  test("an authored field keeps the name, type and rows it was given", () => {
+    const field = { label: "Notes", name: "notes", type: "textarea", rows: 3 };
+    expect(formOf({ fields: [field] }).fields).toEqual([
+      { ...field, required: false },
+    ]);
   });
 });
