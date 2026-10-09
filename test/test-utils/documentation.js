@@ -20,15 +20,13 @@ const publishedDocument = (file) =>
   !file.endsWith("/README.md");
 
 // Author-facing Markdown only: legal notices, eval fixtures, and test fixtures
-// are not documentation. File discovery skips hidden directories, so name the agent
-// guide explicitly. Published content shares example checks, not checkout URLs.
-export const getDocumentationFiles = () => [
-  ".claude/agents/code-nitpicker.md",
-  ...findFiles(
+// are not documentation. Published content shares example checks, not
+// checkout URLs.
+export const getDocumentationFiles = () =>
+  findFiles(
     /^(?:[^/]+\.md|docs\/.*\.md|skills\/.*\.md|src\/_lib\/README\.md|src\/(?:pages|guide-pages|guide-categories|snippets)\/.*\.md|test\/TEST-QUALITY-CRITERIA\.md)$/,
     ROOT_DIR,
-  ).filter((file) => !/^skills\/[^/]+\/evals\//.test(file)),
-];
+  ).filter((file) => !/^skills\/[^/]+\/evals\//.test(file));
 
 /** Require lexical and real-path containment, including directory symlinks. */
 export const assertDocumentationTarget = (root, target, location) => {

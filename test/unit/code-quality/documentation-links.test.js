@@ -13,7 +13,6 @@ describe("author documentation", () => {
         "README.md",
         "BLOCKS_LAYOUT.md",
         "ARCHITECTURE.md",
-        ".claude/agents/code-nitpicker.md",
         "src/_lib/README.md",
         "src/snippets/README.md",
         "test/TEST-QUALITY-CRITERIA.md",
