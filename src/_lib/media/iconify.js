@@ -23,6 +23,46 @@ const normalizeIconName = (name) =>
     .replace(/[_\s]+/g, "-");
 
 /**
+ * Parse an icon identifier into its normalized prefix and name.
+ * @param {string} iconId - Icon identifier in format "prefix:name"
+ * @returns {{ prefix: string, name: string }}
+ * @throws {Error} If the identifier is not in "prefix:name" form
+ */
+const parseIconId = (iconId) => {
+  if (typeof iconId !== "string" || !iconId.includes(":")) {
+    throw new Error(
+      `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`,
+    );
+  }
+
+  const [rawPrefix, ...nameParts] = iconId.split(":");
+  const rawName = nameParts.join(":");
+
+  if (!rawPrefix || !rawName) {
+    throw new Error(
+      `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`,
+    );
+  }
+
+  return {
+    prefix: normalizeIconName(rawPrefix),
+    name: normalizeIconName(rawName),
+  };
+};
+
+/**
+ * Where an icon is cached on disk: src/assets/icons/iconify/{prefix}/{name}.svg
+ * @param {string} iconId - Icon identifier in format "prefix:name"
+ * @param {string} baseDir - Site root holding the icon cache
+ * @returns {string}
+ * @throws {Error} If the identifier is not in "prefix:name" form
+ */
+export const iconFilePath = (iconId, baseDir) => {
+  const icon = parseIconId(iconId);
+  return path.join(baseDir, ICONS_DIR, icon.prefix, `${icon.name}.svg`);
+};
+
+/**
  * Get an icon SVG, reading from disk cache or fetching from Iconify API.
  * Icons are saved to src/assets/icons/iconify/{prefix}/{name}.svg
  *
@@ -35,24 +75,7 @@ const normalizeIconName = (name) =>
  */
 export const getIcon = dedupeAsync(
   async (iconId, baseDir = process.cwd()) => {
-    if (typeof iconId !== "string" || !iconId.includes(":")) {
-      throw new Error(
-        `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`,
-      );
-    }
-
-    const [rawPrefix, ...nameParts] = iconId.split(":");
-    const rawName = nameParts.join(":");
-
-    if (!rawPrefix || !rawName) {
-      throw new Error(
-        `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`,
-      );
-    }
-
-    const prefix = normalizeIconName(rawPrefix);
-    const name = normalizeIconName(rawName);
-    const filePath = path.join(baseDir, ICONS_DIR, prefix, `${name}.svg`);
+    const filePath = iconFilePath(iconId, baseDir);
 
     // Return cached icon if it exists on disk
     if (existsSync(filePath)) {
@@ -60,7 +83,8 @@ export const getIcon = dedupeAsync(
     }
 
     // Fetch from Iconify API
-    const url = `${ICONIFY_API_BASE}/${prefix}/${name}.svg`;
+    const icon = parseIconId(iconId);
+    const url = `${ICONIFY_API_BASE}/${icon.prefix}/${icon.name}.svg`;
     const response = await fetch(url);
 
     if (!response.ok) {
