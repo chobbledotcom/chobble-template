@@ -447,5 +447,47 @@ describe("image-utils", () => {
 
       expect(jpeg).not.toBe(png);
     });
+
+    test("replaces spaces and non-URL characters with hyphens", () => {
+      expect(
+        filenameFormat("id", "./src/images/Pugh upgrade 1.jpeg", 240, "webp"),
+      ).toBe("Pugh-upgrade-1-258e3632-240.webp");
+    });
+
+    test("strips URL-hostile characters and appends a hash suffix", () => {
+      expect(
+        filenameFormat(
+          "id",
+          "./src/images/Doorbell £199 Aug 2026.png",
+          240,
+          "png",
+        ),
+      ).toBe("Doorbell-199-Aug-2026-b7fabc63-240.png");
+    });
+
+    test("different sources that sanitize to the same name stay distinct", () => {
+      const spaced = filenameFormat(
+        "id",
+        "./src/images/photo 1.jpg",
+        240,
+        "webp",
+      );
+      const dashed = filenameFormat(
+        "id",
+        "./src/images/photo-1.jpg",
+        240,
+        "webp",
+      );
+
+      expect(spaced).toBe("photo-1-e5a5555d-240.webp");
+      expect(dashed).toBe("photo-1-240.webp");
+      expect(spaced).not.toBe(dashed);
+    });
+
+    test("falls back to a generic name when nothing URL-safe remains", () => {
+      expect(filenameFormat("id", "./src/images/###.jpeg", 240, "webp")).toBe(
+        "image-56dc6d47-240.webp",
+      );
+    });
   });
 });
