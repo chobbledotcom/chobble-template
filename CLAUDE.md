@@ -1,6 +1,6 @@
 # Engineering Guide
 
-CfA Static is an Eleventy template for informational and marketing sites, with
+Chobble Template is an Eleventy template for informational and marketing sites, with
 schema-validated YAML content blocks, multilingual publishing, responsive media,
 themes, search, and a generated PagesCMS editing layer. It is not an e-commerce,
 form-processing, or user-data application.
@@ -12,7 +12,7 @@ This is the canonical handwritten engineering policy and workflow. Consult:
 - [package.json](package.json) for all scripts and import aliases; [biome.json](biome.json) for configured lint rules and scopes; [FP source JSDoc](src/_lib/utils/fp/) for helper APIs.
 - [Library map](src/_lib/README.md) for architecture and extension points.
 - [Test quality criteria](test/TEST-QUALITY-CRITERIA.md) for the mandatory test standards. Apply every criterion; do not duplicate that checklist elsewhere.
-- [Block reference](skills/cfa-static-site-builder/references/blocks.md) for the generated content model and block authoring API; [layouts](skills/cfa-static-site-builder/references/layouts.md) for authored rendering guidance.
+- [Block reference](skills/chobble-template-site-builder/references/blocks.md) for the generated content model and block authoring API; [layouts](skills/chobble-template-site-builder/references/layouts.md) for authored rendering guidance.
 
 ## Change Workflow
 
@@ -121,7 +121,7 @@ Edit sources, never generated output by hand. After block schema changes:
 
 1. Update `src/_lib/utils/block-schema/<type>.js` and register new modules in `src/_lib/utils/block-schema.js`.
 2. Add/update `src/_includes/design-system/blocks/<type>.html` and the matching SCSS partial under `src/css/design-system/`.
-3. Run `npm run generate-references`. Its three steps generate the block reference, PagesCMS config plus CMS types, and the Site Builder Reference in order, stopping on failure. Review all four artifacts: `skills/cfa-static-site-builder/references/blocks.md`, `.pages.yml`, `src/_lib/types/pages-cms-generated.d.ts`, and `docs/developer-reference.md`. The freshness gates' failure messages name the regeneration command when an artifact drifts.
+3. Run `npm run generate-references`. Its three steps generate the block reference, PagesCMS config plus CMS types, and the Site Builder Reference in order, stopping on failure. Review all four artifacts: `skills/chobble-template-site-builder/references/blocks.md`, `.pages.yml`, `src/_lib/types/pages-cms-generated.d.ts`, and `docs/developer-reference.md`. The freshness gates' failure messages name the regeneration command when an artifact drifts.
 
 The block reference is wholly generated. `BLOCKS_LAYOUT.md` is a handwritten
 navigation page; the skill's `SKILL.md`, layout guidance, and other workflow

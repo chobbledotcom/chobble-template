@@ -133,7 +133,7 @@ if (errors.length > 0) {
   throw new Error(`${heading}\n${body}`);
 }
 
-// SITE_URL lets a deployment (e.g. the SharedServices workflow) override
+// SITE_URL lets a deployment (e.g. the GitHub Pages workflow) override
 // the canonical origin without editing site.json. Both values are validated
 // so every build fails at the configuration boundary on a bad public URL.
 export const siteUrl =

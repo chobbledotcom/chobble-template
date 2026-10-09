@@ -64,7 +64,7 @@ import * as tableOfContents from "#utils/block-schema/table-of-contents.js";
 
 /**
  * Iteration order determines the order that `scripts/generate-blocks-reference.js`
- * emits block types into skills/cfa-static-site-builder/references/blocks.md,
+ * emits block types into skills/chobble-template-site-builder/references/blocks.md,
  * so keep it intentional rather than alphabetical.
  */
 const BLOCK_MODULES = [

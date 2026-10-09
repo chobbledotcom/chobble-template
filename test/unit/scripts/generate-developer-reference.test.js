@@ -192,7 +192,7 @@ describe("site-builder reference", () => {
       link.getAttribute("href"),
     );
     expect(links).toContain(
-      "../skills/cfa-static-site-builder/references/blocks.md",
+      "../skills/chobble-template-site-builder/references/blocks.md",
     );
     expect(links).toContain("../src/css/theme.scss");
     expect(links).toContain("../src/css/_variables.scss");

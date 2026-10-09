@@ -11,7 +11,7 @@ blocks:
       # Guides
 
       Step-by-step guides and reference documentation for building and
-      running a site with CfA Static. Every page here is assembled from the
+      running a site with Chobble Template. Every page here is assembled from the
       template's own blocks — open any page's source file to see exactly
       how it's made.
   - type: guide-categories

@@ -1,9 +1,9 @@
 {
-	"name": "CfA Static",
-	"url": "https://cfa-static.apps.dev.services.cfa.codes",
-	"description": "A static-site template for informational and marketing sites, derived from the Chobble Template.",
+	"name": "Chobble Template",
+	"url": "https://example.chobble.com",
+	"description": "A static-site template for informational and marketing sites.",
 	"socials": {
-		"Github": "https://github.com/codeforamerica/cfa-static",
+		"Github": "https://github.com/chobbledotcom/chobble-template",
 		"RSS": "/feed.xml"
 	},
 	"cms_config": {

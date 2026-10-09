@@ -13,10 +13,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
-import { GITHUB_BASE } from "#utils/docs-links.js";
 import { publishMarkdown, stripTitleHeading } from "#utils/docs-transform.js";
 
-const SKILL_REFERENCES = "skills/cfa-static-site-builder/references";
+const SKILL_REFERENCES = "skills/chobble-template-site-builder/references";
 
 /** The guide category the published reference pages file under. */
 const GUIDE_CATEGORY = "reference";
@@ -31,7 +30,8 @@ const MANIFEST = [
     source: "ARCHITECTURE.md",
     slug: "architecture",
     name: "Architecture",
-    subtitle: "How CfA Static works, from content files to deployable artifact",
+    subtitle:
+      "How Chobble Template works, from content files to deployable artifact",
   },
   {
     source: `${SKILL_REFERENCES}/project-setup.md`,
@@ -77,16 +77,6 @@ const MANIFEST = [
   },
 ];
 
-/**
- * Routes for documents that are not manifest entries. The DevOps walkthrough
- * is fork-deleted demo content, so documents that travel with forks link its
- * GitHub URL — which the publisher localizes to the route.
- */
-const EXTRA_ROUTES = {
-  [`${GITHUB_BASE}/blob/main/src/pages/deploying-sharedservices.md`]:
-    "/deploying-sharedservices/",
-};
-
 /** Every published document's repo path mapped to its route. */
 const PUBLISHED = {
   ...Object.fromEntries(
@@ -95,7 +85,6 @@ const PUBLISHED = {
       `/${["guide", GUIDE_CATEGORY, slug].join("/")}/`,
     ]),
   ),
-  ...EXTRA_ROUTES,
 };
 
 /**

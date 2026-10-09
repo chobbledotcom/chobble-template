@@ -27,7 +27,7 @@ blocks:
 
       For selected site-building commands and authoring links, see the Site Builder
       Reference at `docs/developer-reference.md` in your checkout. Use
-      `skills/cfa-static-site-builder/references/verification.md` for verification checks.
+      `skills/chobble-template-site-builder/references/verification.md` for verification checks.
 faqs:
   - question: What are the system requirements?
     answer: Use the Node.js version listed in the repository's `docs/developer-reference.md`. No application services or secrets are needed. Dependency installation, uncached icons, and remote source images may require network access.

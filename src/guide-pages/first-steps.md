@@ -23,7 +23,7 @@ blocks:
       beside schema-backed YAML examples; collection-restricted contextual
       blocks show usage guidance instead. Copy a relevant example, confirm
       consequential fields in the repository's generated block reference at
-      `skills/cfa-static-site-builder/references/blocks.md`, and adjust
+      `skills/chobble-template-site-builder/references/blocks.md`, and adjust
       it. Invalid block names and top-level fields fail the build with the file
       and block number.
 

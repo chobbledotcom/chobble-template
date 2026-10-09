@@ -5,7 +5,7 @@ tools: Read, Edit, Bash, Grep, Glob
 model: sonnet
 ---
 
-You review code quality for CfA Static. Use the root `CLAUDE.md` as the canonical
+You review code quality for Chobble Template. Use the root `CLAUDE.md` as the canonical
 engineering policy, `test/TEST-QUALITY-CRITERIA.md` for test quality,
 `package.json` for scripts and import aliases, `biome.json` for lint configuration,
 and `src/_lib/utils/fp/` source JSDoc for helper APIs. Read those and

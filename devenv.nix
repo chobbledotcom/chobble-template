@@ -16,7 +16,7 @@ let
   };
 
   precommitHook = pkgs.writeShellApplication {
-    name = "cfa-static-precommit-hook";
+    name = "chobble-template-precommit-hook";
     runtimeInputs = [ nodejs ];
     text = builtins.readFile (
       pkgs.replaceVars ./scripts/devenv/precommit.sh {
@@ -50,7 +50,7 @@ in
 
   git-hooks.hooks.precommit = {
     enable = true;
-    entry = "${precommitHook}/bin/cfa-static-precommit-hook";
+    entry = "${precommitHook}/bin/chobble-template-precommit-hook";
     pass_filenames = false;
   };
 

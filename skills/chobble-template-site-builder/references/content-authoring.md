@@ -1,7 +1,7 @@
 # Content Authoring
 
 Read this reference before creating, migrating, or substantially restructuring
-CfA Static content.
+Chobble Template content.
 
 ## Use The Live Schema
 

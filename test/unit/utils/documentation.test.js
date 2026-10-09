@@ -283,7 +283,7 @@ describe("authored YAML extraction", () => {
   test("excludes generated canonical examples from authored validation", () => {
     expect(
       extractDocumentationExamples(
-        "skills/cfa-static-site-builder/references/blocks.md",
+        "skills/chobble-template-site-builder/references/blocks.md",
         "```yaml\nblocks: invalid\n```",
       ),
     ).toEqual([]);

@@ -1,6 +1,6 @@
-# CfA Static Architecture
+# Chobble Template Architecture
 
-This is the guided walkthrough of how CfA Static works, for every reader —
+This is the guided walkthrough of how Chobble Template works, for every reader —
 site builders, content editors, reviewers, maintainers, and AI assistants. It
 explains the whole system once, end to end, and links to the reference that
 owns each area in depth. It is deliberately fork-safe: no secrets, credentials,
@@ -47,16 +47,16 @@ These recur throughout the system and explain most of its shape:
 | --- | --- |
 | Understand how the whole system fits together | this file |
 | Install, build, and run a site | [README](README.md) quick start; [Site Builder Reference](docs/developer-reference.md) |
-| Start a new site or change its shape | [project setup](skills/cfa-static-site-builder/references/project-setup.md) |
-| Author or edit pages, news, guides, snippets | [content authoring](skills/cfa-static-site-builder/references/content-authoring.md) |
-| Know every block's fields and examples | generated [block reference](skills/cfa-static-site-builder/references/blocks.md), or the live `/blocks/` gallery |
-| Understand rendering, columns, sidebars | [layouts](skills/cfa-static-site-builder/references/layouts.md) |
-| Publish in more than one language | [languages](skills/cfa-static-site-builder/references/i18n.md) |
-| Rebuild an existing site page for page | [site mirroring](skills/cfa-static-site-builder/references/site-mirroring.md) |
-| Verify a change before handoff | [verification](skills/cfa-static-site-builder/references/verification.md) |
+| Start a new site or change its shape | [project setup](skills/chobble-template-site-builder/references/project-setup.md) |
+| Author or edit pages, news, guides, snippets | [content authoring](skills/chobble-template-site-builder/references/content-authoring.md) |
+| Know every block's fields and examples | generated [block reference](skills/chobble-template-site-builder/references/blocks.md), or the live `/blocks/` gallery |
+| Understand rendering, columns, sidebars | [layouts](skills/chobble-template-site-builder/references/layouts.md) |
+| Publish in more than one language | [languages](skills/chobble-template-site-builder/references/i18n.md) |
+| Rebuild an existing site page for page | [site mirroring](skills/chobble-template-site-builder/references/site-mirroring.md) |
+| Verify a change before handoff | [verification](skills/chobble-template-site-builder/references/verification.md) |
 | Change the template's own code | [engineering guide](CLAUDE.md); [library map](src/_lib/README.md); [test quality criteria](test/TEST-QUALITY-CRITERIA.md) |
-| Drive an AI assistant against a site | [Agent Skill](skills/cfa-static-site-builder/SKILL.md) |
-| Deploy | [README deployment](README.md#deployment); [DevOps walkthrough](https://github.com/codeforamerica/cfa-static/blob/main/src/pages/deploying-sharedservices.md) for the internal pipeline |
+| Drive an AI assistant against a site | [Agent Skill](skills/chobble-template-site-builder/SKILL.md) |
+| Deploy | [README deployment](README.md#deployment) |
 
 The [Site Builder Reference](docs/developer-reference.md) is generated from
 `package.json` and the CMS definitions; [BLOCKS_LAYOUT.md](BLOCKS_LAYOUT.md)
@@ -80,7 +80,7 @@ disagree with reality, regenerate rather than trusting either.
 | `scripts/` | Build wrapper, generators, checks, and tooling |
 | `test/` | The suite, its fixtures, and the fork simulation |
 | `docs/` | The generated Site Builder Reference, served at `/docs/` on each deployment |
-| `skills/cfa-static-site-builder/` | The Agent Skill: workflow, references, and evals |
+| `skills/chobble-template-site-builder/` | The Agent Skill: workflow, references, and evals |
 | `.github/workflows/` | CI and the deployment workflows |
 | `.pages.yml` | Generated PagesCMS editing config |
 | `.eleventy.js` | Eleventy entry point: plugin and subsystem registration |
@@ -120,7 +120,7 @@ the Eleventy CLI, then checks every internal link. In order:
    layout matching from `blockLayouts.json`) to
    `design-system/render-block.html` or the full-width renderer, and on to the
    resolved per-block template. The
-   [layouts reference](skills/cfa-static-site-builder/references/layouts.md)
+   [layouts reference](skills/chobble-template-site-builder/references/layouts.md)
    owns this chain in detail, including the section wrapper and column
    semantics.
 6. **Images.** Block images go through the shared eleventy-img/sharp
@@ -171,7 +171,7 @@ blocks:
   `src/_lib/utils/block-schema/`, and everything else derives from them: the
   template under `src/_includes/design-system/blocks/`, the SCSS partial
   under `src/css/design-system/`, the generated
-  [block reference](skills/cfa-static-site-builder/references/blocks.md), the
+  [block reference](skills/chobble-template-site-builder/references/blocks.md), the
   PagesCMS field components, and the `/blocks/` gallery that renders the same
   tested examples.
 - **Columns and sidebars** are declarative: `blockLayouts.json` maps page tags
@@ -207,7 +207,7 @@ build fails on a missing one. `src/_data/translations.json` pairs the pages
 that say the same thing, which is what produces reciprocal `hreflang` links,
 the `x-default`, and the switcher's targets. Menus, snippets, and labels
 resolve per language with no template branching. The
-[languages reference](skills/cfa-static-site-builder/references/i18n.md)
+[languages reference](skills/chobble-template-site-builder/references/i18n.md)
 owns the full pattern, including the checks to run.
 
 ## Theming
@@ -241,7 +241,7 @@ compare each artifact against its source and fail on drift:
 
 | Artifact | Generated from | Command |
 | --- | --- | --- |
-| `skills/cfa-static-site-builder/references/blocks.md` | block schemas and canonical examples | `npm run generate-blocks-reference` |
+| `skills/chobble-template-site-builder/references/blocks.md` | block schemas and canonical examples | `npm run generate-blocks-reference` |
 | `.pages.yml` | block schemas and the saved `cms_config` | `npm run generate-pages-yml` |
 | `src/_lib/types/pages-cms-generated.d.ts` | `.pages.yml` | `npm run generate-cms-types` |
 | `docs/developer-reference.md` | `package.json`, the shared CMS definitions, and the site and config schemas | `npm run generate-developer-reference` |
@@ -277,7 +277,7 @@ What the tests mean and how to write good ones is owned by the
 [test quality criteria](test/TEST-QUALITY-CRITERIA.md). What automation
 cannot settle — rendered contrast, keyboard flow, content accuracy — is
 flagged for manual review by the
-[verification reference](skills/cfa-static-site-builder/references/verification.md).
+[verification reference](skills/chobble-template-site-builder/references/verification.md).
 
 ## Deployment Boundary
 
@@ -285,14 +285,10 @@ The deliverable is the `_site/` directory: self-contained, no application
 server, no build-time secrets. `SITE_URL` stamps the public origin into
 canonical URLs, the sitemap, feeds, and social metadata; `PATH_PREFIX`
 rewrites internal URLs for hosts that serve the site from a subpath. The
-repository ships workflow shapes for both of its supported targets — a public
-GitHub Pages deploy on every push to `main`, and a manual internal deploy that
-hands the artifact to a platform workflow owning the cloud credentials — plus
-CI for builds, tests, dependency scanning, and review tooling. Repository
-`docs/` publish alongside the site at `/docs/` on each deployment. To host
-anywhere else, run `npm run build` and point any static host or pipeline at
-`_site/`. The [DevOps walkthrough](https://github.com/codeforamerica/cfa-static/blob/main/src/pages/deploying-sharedservices.md)
-covers the internal pipeline's one-time registration in step-by-step detail.
+repository ships a GitHub Pages workflow that deploys on every push to `main`,
+plus CI for builds, tests, and review tooling. Repository `docs/` publish
+alongside the site at `/docs/` on that deployment. To host anywhere else, run
+`npm run build` and point any static host or pipeline at `_site/`.
 
 ## Extending The System
 
@@ -321,7 +317,6 @@ covers the internal pipeline's one-time registration in step-by-step detail.
 
 ## Provenance
 
-CfA Static was derived from the
-[Chobble Template](https://github.com/chobbledotcom/chobble-template),
-relicensed to MIT by its sole author, and cut down to an informational core:
+This is version 2 of the Chobble Template: rebuilt from version 1, relicensed
+from AGPL to MIT by its sole author, and cut down to an informational core:
 no e-commerce, no forms, no user-data handling. See [LICENSE](LICENSE).

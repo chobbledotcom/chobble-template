@@ -44,7 +44,7 @@ const getInternalHrefs = (tokens) => {
 
 /**
  * When the site is built with a path prefix (e.g. a static host serving it
- * at /cfa-static/), absolute internal links carry the prefix but the
+ * at /chobble-template/), absolute internal links carry the prefix but the
  * output files on disk do not - strip it before resolving.
  */
 const PATH_PREFIX = process.env.PATH_PREFIX || "/";

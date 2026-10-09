@@ -8,7 +8,7 @@ placements in the base layout:
   `<main>`, before the footer, on every page using the base layout.
 - `right-content.md`: An optional sidebar beside the main content. Nonempty
   frontmatter `blocks` render instead of its Markdown body. Use column-safe
-  blocks only; see the [layout reference](../../skills/cfa-static-site-builder/references/layouts.md)
+  blocks only; see the [layout reference](../../skills/chobble-template-site-builder/references/layouts.md)
   for restrictions. Width is themeable via `--right-column-width`. When the
   sidebar exists, a page's first `image-background` block is hoisted above
   the columns to span both content and sidebar.
@@ -43,4 +43,4 @@ blocks:
 The `snippet` block renders the referenced snippet's blocks, not its Markdown
 body. A reference to a missing snippet fails the build, and snippet blocks are
 validated and default-filled exactly like page blocks. For accepted fields, use the generated
-[block reference](../../skills/cfa-static-site-builder/references/blocks.md).
+[block reference](../../skills/chobble-template-site-builder/references/blocks.md).

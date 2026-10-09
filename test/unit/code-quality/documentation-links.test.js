@@ -18,9 +18,9 @@ describe("author documentation", () => {
         "src/snippets/README.md",
         "test/TEST-QUALITY-CRITERIA.md",
         "docs/developer-reference.md",
-        "skills/cfa-static-site-builder/SKILL.md",
-        "skills/cfa-static-site-builder/references/blocks.md",
-        "skills/cfa-static-site-builder/references/layouts.md",
+        "skills/chobble-template-site-builder/SKILL.md",
+        "skills/chobble-template-site-builder/references/blocks.md",
+        "skills/chobble-template-site-builder/references/layouts.md",
       ]),
     );
   });

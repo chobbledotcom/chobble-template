@@ -1,5 +1,5 @@
 /**
- * Test utilities for CfA Static
+ * Test utilities for Chobble Template
  *
  * Re-exports the generic helpers from test/test-utils/ with
  * project-specific wrappers, plus Eleventy-specific test helpers.

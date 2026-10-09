@@ -170,7 +170,7 @@ describe("internal link validation", () => {
 
   test("strips PATH_PREFIX from absolute links before resolving targets", async () => {
     // PATH_PREFIX is read at module load, so re-import with the env stubbed
-    vi.stubEnv("PATH_PREFIX", "/cfa-static/");
+    vi.stubEnv("PATH_PREFIX", "/chobble-template/");
     vi.resetModules();
     const prefixed = await import("#scripts/internal-links.js");
     try {
@@ -178,7 +178,7 @@ describe("internal link validation", () => {
         writeOutput(
           outputDir,
           "index.html",
-          '<a href="/cfa-static/about/">About</a><a href="/missing/">Broken</a>',
+          '<a href="/chobble-template/about/">About</a><a href="/missing/">Broken</a>',
         );
         writeOutput(outputDir, "about/index.html");
         const broken = prefixed.findBrokenInternalLinks(outputDir);

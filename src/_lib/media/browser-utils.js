@@ -157,11 +157,15 @@ export const startServer = async (siteDir, port = 8080) => {
   const { default: EleventyDevServer } = await import(
     "@11ty/eleventy-dev-server"
   );
-  const server = EleventyDevServer.getServer("cfa-static-tools", siteDir, {
-    liveReload: false,
-    portReassignmentRetryCount: 0,
-    logger: { info: log, log, error: logError },
-  });
+  const server = EleventyDevServer.getServer(
+    "chobble-template-tools",
+    siteDir,
+    {
+      liveReload: false,
+      portReassignmentRetryCount: 0,
+      logger: { info: log, log, error: logError },
+    },
+  );
   server.serve(port);
 
   const baseUrl = `http://localhost:${port}`;

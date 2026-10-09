@@ -1,6 +1,6 @@
 # Site Mirroring
 
-Read this reference when rebuilding an existing website as a CfA Static fork,
+Read this reference when rebuilding an existing website as a Chobble Template fork,
 page for page. Mirroring means fidelity to the source's content and visual
 design, rebuilt with the block model — not reproducing its DOM. Read
 [project setup](project-setup.md), [content authoring](content-authoring.md),

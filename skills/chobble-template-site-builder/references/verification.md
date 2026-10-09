@@ -1,6 +1,6 @@
 # Verification
 
-Read this reference before declaring a CfA Static site task complete. Run
+Read this reference before declaring a Chobble Template site task complete. Run
 commands from the repository root.
 
 ## Validation Loop

@@ -1,7 +1,7 @@
 ---
 name: About
 meta_title: About this template
-meta_description: What CfA Static is, where it comes from, and the principles it's built on.
+meta_description: What Chobble Template is, where it comes from, and the principles it's built on.
 blocks:
   - type: section-header
     intro: |-
@@ -10,13 +10,13 @@ blocks:
       A small, opinionated base for informational sites
   - type: markdown
     content: |
-      CfA Static is a static-site template for informational and marketing
+      Chobble Template is a static-site template for informational and marketing
       sites. Pages are assembled from typed content blocks written in YAML
       frontmatter, validated at build time, and rendered by
       [Eleventy](https://www.11ty.dev/) to plain HTML.
 
-      It is derived from the [Chobble Template](https://github.com/chobbledotcom/chobble-template),
-      relicensed to MIT by its author and cut down to an informational
+      This is version 2 of the template: rebuilt from version 1,
+      relicensed from AGPL to MIT by its author and cut down to an informational
       core: no e-commerce, no forms, no user data handling.
   - type: features
     intro_content: |

@@ -25,7 +25,7 @@ vi.mock("node:fs", async (importOriginal) => {
 const generators = [
   {
     script: "generate-blocks-reference.js",
-    target: "skills/cfa-static-site-builder/references/blocks.md",
+    target: "skills/chobble-template-site-builder/references/blocks.md",
     load: () => import("#scripts/generate-blocks-reference.js"),
     render: async () => {
       const { renderBlocksReference } = await import(

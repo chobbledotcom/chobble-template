@@ -2,7 +2,7 @@
 
 # Site Builder Reference
 
-For creating and maintaining a site with CfA Static. Regenerate with `npm run generate-references`, or `npm run generate-developer-reference` for this file alone.
+For creating and maintaining a site with Chobble Template. Regenerate with `npm run generate-references`, or `npm run generate-developer-reference` for this file alone.
 
 ## Runtime And Commands
 
@@ -12,7 +12,7 @@ Use Node `>=22.15` and npm. Install dependencies from the repository root:
 npm install
 ```
 
-Selected site-building commands from [package.json](../package.json). See [verification](../skills/cfa-static-site-builder/references/verification.md) for which checks to run.
+Selected site-building commands from [package.json](../package.json). See [verification](../skills/chobble-template-site-builder/references/verification.md) for which checks to run.
 
 | Command | Package Script |
 | --- | --- |
@@ -27,7 +27,7 @@ Selected site-building commands from [package.json](../package.json). See [verif
 
 ## CMS Choices
 
-These are available editor options, not this site's saved selection. CMS collection choices do not control what Eleventy publishes. See [project setup](../skills/cfa-static-site-builder/references/project-setup.md#choose-collections-and-cms-features) before changing them.
+These are available editor options, not this site's saved selection. CMS collection choices do not control what Eleventy publishes. See [project setup](../skills/chobble-template-site-builder/references/project-setup.md#choose-collections-and-cms-features) before changing them.
 
 | Collection | Content Directory | Availability | Depends On |
 | --- | --- | --- | --- |
@@ -92,13 +92,13 @@ Every setting [config.json](../src/_data/config.json) accepts, from the [config 
 
 ## Content And Layouts
 
-- [Project setup](../skills/cfa-static-site-builder/references/project-setup.md): site identity, navigation, CMS, languages, and publishing.
+- [Project setup](../skills/chobble-template-site-builder/references/project-setup.md): site identity, navigation, CMS, languages, and publishing.
 
-- [Content authoring](../skills/cfa-static-site-builder/references/content-authoring.md): pages, news, guides, snippets, and media.
+- [Content authoring](../skills/chobble-template-site-builder/references/content-authoring.md): pages, news, guides, snippets, and media.
 
-- [Block reference](../skills/cfa-static-site-builder/references/blocks.md): accepted fields and canonical YAML examples.
+- [Block reference](../skills/chobble-template-site-builder/references/blocks.md): accepted fields and canonical YAML examples.
 
-- [Layouts](../skills/cfa-static-site-builder/references/layouts.md): columns, sidebars, and styling conventions.
+- [Layouts](../skills/chobble-template-site-builder/references/layouts.md): columns, sidebars, and styling conventions.
 
 ## Themes
 

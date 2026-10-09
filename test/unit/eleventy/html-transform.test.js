@@ -157,7 +157,7 @@ describe("html-transform", () => {
       configureHtmlTransform(mockConfig, mockImageProcessor);
 
       const registration = mockConfig.htmlTransformer.plugins.html;
-      expect(registration.options.name).toBe("cfa/html-transform");
+      expect(registration.options.name).toBe("chobble/html-transform");
       expect(typeof registration.plugin).toBe("function");
     });
 

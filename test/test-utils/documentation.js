@@ -14,7 +14,7 @@ export const getTableRows = (root) =>
   );
 
 const canonicalReference =
-  "skills/cfa-static-site-builder/references/blocks.md";
+  "skills/chobble-template-site-builder/references/blocks.md";
 const publishedDocument = (file) =>
   /^src\/(pages|guide-pages|guide-categories|snippets)\//.test(file) &&
   !file.endsWith("/README.md");

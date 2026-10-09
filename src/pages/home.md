@@ -1,6 +1,6 @@
 ---
 name: Home
-meta_title: CfA Static
+meta_title: Chobble Template
 meta_description: A static-site template for informational and marketing sites, built from composable content blocks.
 permalink: /
 eleventyNavigation:

@@ -8,7 +8,7 @@ import { renderBlocksReference } from "#scripts/lib/render-blocks-reference.js";
 await runIfMain(import.meta.url, () => {
   const outputPath = join(
     ROOT_DIR,
-    "skills/cfa-static-site-builder/references/blocks.md",
+    "skills/chobble-template-site-builder/references/blocks.md",
   );
   writeFileSync(outputPath, renderBlocksReference());
   console.log(`Generated block reference in ${outputPath}`);

@@ -15,13 +15,13 @@ import { buildDocsReferences } from "#utils/docs-references.js";
 
 const SOURCES = [
   "ARCHITECTURE.md",
-  "skills/cfa-static-site-builder/references/project-setup.md",
-  "skills/cfa-static-site-builder/references/content-authoring.md",
-  "skills/cfa-static-site-builder/references/blocks.md",
-  "skills/cfa-static-site-builder/references/layouts.md",
-  "skills/cfa-static-site-builder/references/i18n.md",
-  "skills/cfa-static-site-builder/references/site-mirroring.md",
-  "skills/cfa-static-site-builder/references/verification.md",
+  "skills/chobble-template-site-builder/references/project-setup.md",
+  "skills/chobble-template-site-builder/references/content-authoring.md",
+  "skills/chobble-template-site-builder/references/blocks.md",
+  "skills/chobble-template-site-builder/references/layouts.md",
+  "skills/chobble-template-site-builder/references/i18n.md",
+  "skills/chobble-template-site-builder/references/site-mirroring.md",
+  "skills/chobble-template-site-builder/references/verification.md",
 ];
 
 const writeFixture = (root, relative, body) => {
@@ -73,7 +73,7 @@ describe("buildDocsReferences", () => {
       writeFixture(
         root,
         "ARCHITECTURE.md",
-        "Read [project setup](skills/cfa-static-site-builder/references/project-setup.md).",
+        "Read [project setup](skills/chobble-template-site-builder/references/project-setup.md).",
       );
 
       const [architecture] = buildDocsReferences(root);
