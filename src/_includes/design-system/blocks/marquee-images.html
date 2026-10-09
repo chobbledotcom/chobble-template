@@ -10,8 +10,8 @@ Parameters (via block object):
     - image: Image path (required)
     - alt: Alt text (optional, falls back to alt-tags lookup then empty string)
     - link_url: Optional URL to link the image to
-  - block.speed: Animation duration for one cycle (default: "30s")
-  - block.height: CSS height for images (default: "50px")
+  - block.speed: Animation duration for one cycle
+  - block.height: CSS height for images
   - block.intro_content: Optional markdown intro rendered above the marquee
 {%- endcomment -%}
 
@@ -22,9 +22,7 @@ Parameters (via block object):
 {%- endif -%}
 
 {%- if block.items.size > 0 -%}
-  {%- assign speed = block.speed | default: "30s" -%}
-  {%- assign height = block.height | default: "50px" -%}
-  <div class="marquee-images{% if block.intro_content %} marquee-images--has-header{% endif %}" style="--marquee-speed: {{ speed }}; --marquee-height: {{ height }}">
+  <div class="marquee-images{% if block.intro_content %} marquee-images--has-header{% endif %}" style="--marquee-speed: {{ block.speed }}; --marquee-height: {{ block.height }}">
     <div class="marquee-images__track">
       {%- for item in block.items -%}
         {%- assign image = item.image -%}

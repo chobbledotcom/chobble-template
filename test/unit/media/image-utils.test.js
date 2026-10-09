@@ -1,16 +1,29 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test, vi } from "vitest";
 import {
   buildImageWrapperStyles,
-  buildWrapperStyles,
-  encodeMetadataEntryUrls,
-  filenameFormat,
-  getPathAwareBasename,
-  isExternalUrl,
+  DEFAULT_IMAGE_OPTIONS,
+  getImageCacheDir,
   normalizeImagePath,
   normalizeImageUrl,
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
+
+const { filenameFormat } = DEFAULT_IMAGE_OPTIONS;
+
+describe("getImageCacheDir", () => {
+  test("defaults to the checkout's .image-cache", () => {
+    vi.stubEnv("IMAGE_CACHE_DIR", "");
+    expect(getImageCacheDir()).toBe(".image-cache");
+    vi.unstubAllEnvs();
+  });
+
+  test("follows IMAGE_CACHE_DIR so test runs redirect processed output", () => {
+    vi.stubEnv("IMAGE_CACHE_DIR", "/swept/test-cache");
+    expect(getImageCacheDir()).toBe("/swept/test-cache");
+    vi.unstubAllEnvs();
+  });
+});
 
 describe("image-utils", () => {
   describe("normalizeImagePath", () => {
@@ -80,24 +93,6 @@ describe("image-utils", () => {
     });
   });
 
-  describe("isExternalUrl", () => {
-    test("returns true for http:// URLs", () => {
-      expect(isExternalUrl("http://example.com/image.jpg")).toBe(true);
-    });
-
-    test("returns true for https:// URLs", () => {
-      expect(isExternalUrl("https://example.com/image.jpg")).toBe(true);
-    });
-
-    test("returns false for relative paths", () => {
-      expect(isExternalUrl("/images/photo.jpg")).toBe(false);
-    });
-
-    test("returns false for bare filenames", () => {
-      expect(isExternalUrl("photo.jpg")).toBe(false);
-    });
-  });
-
   describe("parseWidths", () => {
     test("splits comma-separated string into array and appends auto", () => {
       expect(parseWidths("240,480,900")).toEqual(["240", "480", "900", "auto"]);
@@ -130,88 +125,56 @@ describe("image-utils", () => {
         loading: "eager",
         classes: "featured",
       });
-      expect(imgAttributes.alt).toBe("A photo");
-      expect(imgAttributes.sizes).toBe("100vw");
-      expect(imgAttributes.loading).toBe("eager");
-      expect(imgAttributes.decoding).toBe("async");
-      expect(pictureAttributes.class).toBe("featured");
+      expect(imgAttributes).toEqual({
+        alt: "A photo",
+        sizes: "100vw",
+        loading: "eager",
+        decoding: "async",
+      });
+      expect(pictureAttributes).toEqual({ class: "featured" });
     });
 
     test("uses defaults for missing img values", () => {
       const { imgAttributes } = prepareImageAttributes({});
-      expect(imgAttributes.alt).toBe("");
-      expect(imgAttributes.loading).toBe("lazy");
-      expect(imgAttributes.decoding).toBe("async");
-    });
-
-    test("returns empty picture attributes when classes is null", () => {
-      const { pictureAttributes } = prepareImageAttributes({
-        alt: "Photo",
-        classes: null,
+      expect(imgAttributes).toEqual({
+        alt: "",
+        sizes: "auto",
+        loading: "lazy",
+        decoding: "async",
       });
-      expect(pictureAttributes).toEqual({});
     });
 
-    test("returns empty picture attributes when classes is empty string", () => {
-      const { pictureAttributes } = prepareImageAttributes({
-        alt: "Photo",
-        classes: "  ",
+    test("preserves an explicitly null alt attribute", () => {
+      expect(
+        prepareImageAttributes({ alt: null }).imgAttributes.alt,
+      ).toBeNull();
+    });
+
+    test.each([null, ""])("defaults empty sizes and loading (%j)", (value) => {
+      const { imgAttributes } = prepareImageAttributes({
+        sizes: value,
+        loading: value,
       });
-      expect(pictureAttributes).toEqual({});
-    });
-  });
-
-  describe("buildWrapperStyles", () => {
-    const mockGetAspectRatio = (ratio, _metadata) => ratio || "auto";
-
-    test("builds style string with background image", () => {
-      const styles = buildWrapperStyles(
-        "url(thumb.jpg)",
-        "16:9",
-        { width: 800 },
-        mockGetAspectRatio,
-      );
-      expect(styles).toContain("background-image: url(thumb.jpg)");
-      expect(styles).toContain("aspect-ratio: 16:9");
-      expect(styles).toContain("max-width: min(800px, 100%)");
+      expect(imgAttributes).toMatchObject({ sizes: "auto", loading: "lazy" });
     });
 
-    test("omits background image when not provided", () => {
-      const styles = buildWrapperStyles(
-        null,
-        "16:9",
-        { width: 800 },
-        mockGetAspectRatio,
-      );
-      expect(styles).not.toContain("background-image");
+    test.each([
+      undefined,
+      null,
+      "",
+      "  ",
+      "\t\n",
+    ])("omits blank picture classes (%j)", (classes) => {
+      expect(prepareImageAttributes({ classes }).pictureAttributes).toEqual({});
     });
 
-    test("omits max-width when metadata has no width", () => {
-      const styles = buildWrapperStyles(null, "16:9", {}, mockGetAspectRatio);
-      expect(styles).not.toContain("max-width");
-    });
-
-    test("omits max-width when skipMaxWidth is true", () => {
-      const styles = buildWrapperStyles(
-        null,
-        "16:9",
-        { width: 800 },
-        mockGetAspectRatio,
-        true,
-      );
-      expect(styles).not.toContain("max-width");
-      expect(styles).toContain("aspect-ratio: 16:9");
-    });
-
-    test("includes max-width when skipMaxWidth is false", () => {
-      const styles = buildWrapperStyles(
-        null,
-        "16:9",
-        { width: 800 },
-        mockGetAspectRatio,
-        false,
-      );
-      expect(styles).toContain("max-width: min(800px, 100%)");
+    test("preserves whitespace around nonblank picture classes", () => {
+      expect(
+        prepareImageAttributes({ classes: "  hero featured  " })
+          .pictureAttributes,
+      ).toEqual({
+        class: "  hero featured  ",
+      });
     });
   });
 
@@ -265,94 +228,25 @@ describe("image-utils", () => {
     });
   });
 
-  describe("getPathAwareBasename", () => {
-    test("extracts basename for images in root images folder", () => {
-      expect(getPathAwareBasename("./src/images/photo.jpg")).toBe("photo");
-    });
-
-    test("includes subdirectory in basename for nested images", () => {
-      expect(getPathAwareBasename("./src/images/products/photo.jpg")).toBe(
-        "products-photo",
-      );
-    });
-
-    test("handles multiple subdirectory levels", () => {
-      expect(
-        getPathAwareBasename("./src/images/products/featured/photo.jpg"),
-      ).toBe("products-featured-photo");
-    });
-
-    test("handles paths without ./ prefix", () => {
-      expect(getPathAwareBasename("src/images/products/photo.jpg")).toBe(
-        "products-photo",
-      );
-    });
-
-    test("handles paths starting with images/", () => {
-      expect(getPathAwareBasename("images/products/photo.jpg")).toBe(
-        "products-photo",
-      );
-    });
-
-    test("handles Windows-style backslashes", () => {
-      expect(getPathAwareBasename(".\\src\\images\\products\\photo.jpg")).toBe(
-        "products-photo",
-      );
-    });
-
-    test("preserves path for non-images directories", () => {
-      expect(getPathAwareBasename("./src/assets/icons/logo.png")).toBe(
-        "assets-icons-logo",
-      );
-    });
-
-    test("handles paths outside src directory", () => {
-      expect(getPathAwareBasename("/other/path/photo.jpg")).toBe(
-        "other-path-photo",
-      );
-    });
-
-    test("handles various image extensions", () => {
-      expect(getPathAwareBasename("./src/images/products/item.png")).toBe(
-        "products-item",
-      );
-      expect(getPathAwareBasename("./src/images/news/banner.webp")).toBe(
-        "news-banner",
-      );
-    });
-
-    test("strips .image-cache/ prefix from cropped images", () => {
-      expect(getPathAwareBasename(".image-cache/photo-crop-abc123.jpeg")).toBe(
-        "photo-crop-abc123",
-      );
-    });
-
-    test("strips image-cache/ prefix without leading dot", () => {
-      expect(getPathAwareBasename("image-cache/photo-crop-abc123.jpeg")).toBe(
-        "photo-crop-abc123",
-      );
-    });
-
-    test("strips .image-cache/ from absolute paths", () => {
-      expect(
-        getPathAwareBasename("/abs/path/.image-cache/photo-crop-abc123.jpeg"),
-      ).toBe("photo-crop-abc123");
-    });
-
-    test("strips .image-cache/ from paths with parent directory references", () => {
-      expect(
-        getPathAwareBasename("../.image-cache/photo-crop-abc123.jpeg"),
-      ).toBe("photo-crop-abc123");
-    });
-
-    test("strips .image-cache/ from paths with other prefixes", () => {
-      expect(
-        getPathAwareBasename("foo/.image-cache/photo-crop-abc123.jpeg"),
-      ).toBe("photo-crop-abc123");
-    });
-  });
-
   describe("filenameFormat", () => {
+    test.each([
+      ["src/images/products/photo.jpg", "products-photo-240.webp"],
+      ["images/products/photo.jpg", "products-photo-240.webp"],
+      [".\\src\\images\\products\\photo.jpg", "products-photo-240.webp"],
+      ["/other/path/photo.jpg", "other-path-photo-240.webp"],
+      ["./src/images/products/item.png", "products-item-240.webp"],
+      ["./src/images/news/banner.webp", "news-banner-240.webp"],
+      ["image-cache/photo-crop-abc123.jpeg", "photo-crop-abc123-240.webp"],
+      [
+        "/abs/path/.image-cache/photo-crop-abc123.jpeg",
+        "photo-crop-abc123-240.webp",
+      ],
+      ["../.image-cache/photo-crop-abc123.jpeg", "photo-crop-abc123-240.webp"],
+      ["foo/.image-cache/photo-crop-abc123.jpeg", "photo-crop-abc123-240.webp"],
+    ])("normalizes source path %s in the output filename", (src, expected) => {
+      expect(filenameFormat("id", src, 240, "webp")).toBe(expected);
+    });
+
     test("generates correct filename for root images", () => {
       expect(filenameFormat("id", "./src/images/photo.jpg", 240, "webp")).toBe(
         "photo-240.webp",
@@ -447,75 +341,6 @@ describe("image-utils", () => {
       });
 
       expect(jpeg).not.toBe(png);
-    });
-
-    test("encodeMetadataEntryUrls percent-encodes spaces so srcset stays valid", () => {
-      const encoded = encodeMetadataEntryUrls({
-        url: "/img/Pugh upgrade 1-240.webp",
-        srcset: "/img/Pugh upgrade 1-240.webp 240w",
-        width: 240,
-      });
-
-      expect(encoded.url).toBe("/img/Pugh%20upgrade%201-240.webp");
-      expect(encoded.srcset).toBe("/img/Pugh%20upgrade%201-240.webp 240w");
-    });
-
-    test("encodeMetadataEntryUrls percent-encodes per UTF-8 byte", () => {
-      const encoded = encodeMetadataEntryUrls({
-        url: "/img/Doorbell £199 Aug 2026-240.png",
-        srcset: "/img/Doorbell £199 Aug 2026-240.png 240w",
-        width: 240,
-      });
-
-      expect(encoded.url).toBe(
-        "/img/Doorbell%20%C2%A3199%20Aug%202026-240.png",
-      );
-      expect(encoded.srcset).toBe(
-        "/img/Doorbell%20%C2%A3199%20Aug%202026-240.png 240w",
-      );
-    });
-
-    test("different sources that encode to the same shape stay distinct", () => {
-      const spaced = encodeMetadataEntryUrls({
-        url: "/img/photo 1-240.webp",
-        srcset: "/img/photo 1-240.webp 240w",
-        width: 240,
-      });
-      const dashed = encodeMetadataEntryUrls({
-        url: "/img/photo-1-240.webp",
-        srcset: "/img/photo-1-240.webp 240w",
-        width: 240,
-      });
-
-      expect(spaced.url).toBe("/img/photo%201-240.webp");
-      expect(dashed.url).toBe("/img/photo-1-240.webp");
-      expect(spaced.url).not.toBe(dashed.url);
-    });
-
-    test("encodeMetadataEntryUrls self-escapes literal percent signs", () => {
-      const encoded = encodeMetadataEntryUrls({
-        url: "/img/50% off-240.webp",
-        srcset: "/img/50% off-240.webp 240w",
-        width: 240,
-      });
-
-      expect(encoded.url).toBe("/img/50%25%20off-240.webp");
-      expect(encoded.srcset).toBe("/img/50%25%20off-240.webp 240w");
-    });
-
-    test("encodeMetadataEntryUrls encodes characters that would corrupt the URL", () => {
-      expect(encodeMetadataEntryUrls({ url: "/img/###-240.webp" }).url).toBe(
-        "/img/%23%23%23-240.webp",
-      );
-    });
-
-    test("encodeMetadataEntryUrls leaves entries without srcset intact", () => {
-      const encoded = encodeMetadataEntryUrls({
-        url: "/img/photo 1.svg",
-      });
-
-      expect(encoded.url).toBe("/img/photo%201.svg");
-      expect(encoded.srcset).toBeUndefined();
     });
   });
 });

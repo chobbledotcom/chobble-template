@@ -1,6 +1,8 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
 @use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
 
 // =============================================================================
 // GRID LAYOUTS
@@ -9,14 +11,8 @@
 .design-system {
   .grid {
     @include grid(1, $space-lg);
-
-    @include breakpoint.up("md") {
-      @include grid(2, $space-lg);
-    }
-
-    @include breakpoint.up("lg") {
-      @include grid(3, $space-xl);
-    }
+    @include grid-at("md", 2);
+    @include grid-at("lg", 3, $space-xl);
 
     &--2 {
       // 2-column max: inherits 1→2 from .grid, overrides to wider gap and no 3rd column
@@ -31,14 +27,8 @@
 
     &--4 {
       @include grid(1, $space-md);
-
-      @include breakpoint.up("sm") {
-        @include grid(2, $space-md);
-      }
-
-      @include breakpoint.up("lg") {
-        @include grid(4, $space-lg);
-      }
+      @include grid-at("sm", 2, $space-md);
+      @include grid-at("lg", 4, $space-lg);
     }
   }
 

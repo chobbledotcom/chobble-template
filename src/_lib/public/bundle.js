@@ -1,25 +1,21 @@
-// Main JS bundle - processed by Bun during build
+// Main JS bundle - bundled by esbuild during build
 
+/* jscpd:ignore-start -- bundle import block */
 // NPM dependencies
 import "instant.page";
-import Botpoison from "@botpoison/browser";
 
-window.Botpoison = Botpoison;
-
-// UI features
+// UI features. Each module exports an init function; the bundle owns the
+// DOM-ready registration so modules stay importable before a page's DOM exists.
+import { onReady } from "#public/utils/on-ready.js";
 import "#public/ui/autosizes.js";
-import "#public/ui/gallery.js";
-import "#public/ui/image-popup.js";
-import "#public/ui/nav-dropdown.js";
+import { initGallery } from "#public/ui/gallery.js";
+import { initImagePopup } from "#public/ui/image-popup.js";
+import { initNavDropdown } from "#public/ui/nav-dropdown.js";
 import "#public/ui/scroll-fade.js";
-import "#public/ui/search.js";
+import { initSearch } from "#public/ui/search.js";
+import "#public/ui/site-menu.js";
 import "#public/ui/slider.js";
-import "#public/ui/shuffle-properties.js";
-import "#public/ui/sort-dropdown.js";
-import "#public/ui/category-filter.js";
-import "#public/ui/contact-form-submit.js";
 import "#public/ui/decrypt-text.js";
-import "#public/ui/freetobook.js";
 
 // Design system (scoped to .design-system containers)
 import "#public/design-system.js";
@@ -27,14 +23,9 @@ import "#public/design-system.js";
 // Theme
 import "#public/theme/theme-editor.js";
 import "#public/theme/theme-switcher.js";
+/* jscpd:ignore-end */
 
-// Cart & Quote
-import "#public/cart/cart.js";
-import "#public/cart/quote.js";
-import "#public/cart/quote-checkout.js";
-import "#public/cart/quote-complete.js";
-import "#public/cart/order-complete.js";
-import "#public/cart/quote-steps.js";
-import "#public/ui/quote-steps-progress.js";
-import "#public/cart/hire-calculator.js";
-import "#public/cart/stripe-checkout.js";
+onReady(initGallery);
+onReady(initImagePopup);
+onReady(initNavDropdown);
+onReady(initSearch);

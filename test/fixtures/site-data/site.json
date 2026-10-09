@@ -1,0 +1,28 @@
+{
+	"name": "CfA Static",
+	"url": "https://cfa-static.apps.dev.services.cfa.codes",
+	"description": "A static-site template for informational and marketing sites, derived from the Chobble Template.",
+	"socials": {
+		"Github": "https://github.com/codeforamerica/cfa-static",
+		"RSS": "/feed.xml"
+	},
+	"cms_config": {
+		"collections": [
+			"pages",
+			"news",
+			"guide-categories",
+			"guide-pages",
+			"snippets"
+		],
+		"features": {
+			"permalinks": true,
+			"redirects": true,
+			"faqs": true,
+			"galleries": true,
+			"external_navigation_urls": true,
+			"no_index": true
+		},
+		"hasSrcFolder": true,
+		"customBlocksCollections": []
+	}
+}

@@ -5,7 +5,7 @@ no_index: true
 blocks:
   - type: section-header
     intro: |-
-      ## Search
+      # Search
   - type: include
     file: search-box.html
   - type: include

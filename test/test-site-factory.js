@@ -7,8 +7,8 @@
  *       { path: 'events/my-event.md', frontmatter: { title: 'Test' }, content: '# Hello' },
  *       { path: 'pages/test.md', frontmatter: { title: 'Test', permalink: '/test/' } }
  *     ],
- *     config: { site_name: 'Test Site' },
- *     images: ['party.jpg'],  // optional: copies from src/images/
+ *     config: { show_breadcrumbs: false },
+ *     images: ['party.jpg'],  // optional: copies from test/fixtures/images/
  *     processImages: true  // optional: real sharp processing instead of placeholders
  *   }, (site) => {
  *     const html = site.getOutput('/events/my-event/index.html');
@@ -16,34 +16,25 @@
  *   });
  */
 
-import { afterAll, beforeAll } from "bun:test";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import matter from "gray-matter";
+import { afterAll, beforeAll } from "vitest";
+import { directoryData } from "#collections/directory-data.js";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
-import { FIXTURES_ROOT_ENV } from "#scripts/hermetic-test-config.js";
-import { filter, flatMap, map, pipe, unique } from "#toolkit/fp/array.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { filter, flatMap, map, pipe, unique } from "#utils/fp/array.js";
+import { memoize } from "#utils/fp/memoize.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
 const rootDir = ROOT_DIR;
-
-/**
- * Downstream clients copy this template excluding test/, test-*, images/,
- * and markdown content, then overlay their own site content under src/.
- * Running the fixture factory against ROOT_DIR in that checkout mixes
- * pristine template test fixtures with the client's overridden _data/content,
- * which breaks tests asserting on template defaults. Setting this env var to
- * a pristine chobble-template checkout (see scripts/stage-hermetic-tests.js)
- * makes the factory source template-owned fixtures from there instead.
- */
-/** Read lazily (not cached at module load) so tests can toggle the env var per-case. */
-const getFixturesRoot = () =>
-  process.env[FIXTURES_ROOT_ENV]
-    ? path.resolve(process.env[FIXTURES_ROOT_ENV])
-    : rootDir;
+const FIXTURES_DIR = path.join(rootDir, "test", "fixtures");
+const SITE_DATA_REGISTER = path.join(
+  import.meta.dirname,
+  "test-site-data-register.js",
+);
 
 // -----------------------------------------------------------------------------
 // Curried Path Utilities
@@ -115,16 +106,17 @@ const copyDirFiles = (src, dest, filterFn = () => true) =>
     }),
   )();
 
-/** Copy 11ty data files for a collection */
-const copy11tyDataFiles = (templateSrc, srcDir) => (collection) => {
-  const hasExtension =
-    (...exts) =>
-    (filename) =>
-      exts.some((ext) => filename.endsWith(ext));
-  return copyDirFiles(
-    path.join(templateSrc, collection),
-    path.join(srcDir, collection),
-    hasExtension(".11tydata.js", ".json"),
+/**
+ * Write a collection's directory data file - the same one-line re-export of
+ * the template's directory data a site's own collection directory holds - so
+ * test sites never depend on a collection directory the site may have deleted.
+ * Directories that are not template collections get no directory data.
+ */
+const writeDirectoryData = (srcDir) => (collection) => {
+  if (!directoryData(collection)) return;
+  writeToDir(srcDir)(
+    `${collection}/${collection}.11tydata.js`,
+    `import { directoryData } from "#collections/directory-data.js";\n\nexport default directoryData("${collection}");\n`,
   );
 };
 
@@ -141,8 +133,7 @@ const createTestSite = async (options = {}) => {
   const siteDir = path.join(import.meta.dirname, ".test-sites", siteId);
   const srcDir = path.join(siteDir, "src");
   const outputDir = path.join(siteDir, "_site");
-  const fixturesSrc = path.join(getFixturesRoot(), "src");
-  const runtimeSrc = path.join(rootDir, "src");
+  const templateSrc = path.join(rootDir, "src");
 
   fs.mkdirSync(srcDir, { recursive: true });
 
@@ -155,7 +146,7 @@ const createTestSite = async (options = {}) => {
       fs.symlinkSync(path.join(templateSrc, dir), path.join(srcDir, dir));
     }
   };
-  symlinkDirs(runtimeSrc, srcDir, [
+  symlinkDirs(templateSrc, srcDir, [
     "_lib",
     "_includes",
     "_layouts",
@@ -165,7 +156,7 @@ const createTestSite = async (options = {}) => {
   ]);
 
   // Copy placeholder images for thumbnail fallbacks
-  const placeholdersDir = path.join(fixturesSrc, "images/placeholders");
+  const placeholdersDir = path.join(templateSrc, "images/placeholders");
   if (fs.existsSync(placeholdersDir)) {
     const destDir = ensureDir(path.join(srcDir, "images/placeholders"));
     copyDirFiles(placeholdersDir, destDir);
@@ -178,12 +169,14 @@ const createTestSite = async (options = {}) => {
     const writeData = writeToDir(dataTarget);
     const writeJson = writeJsonToDir(dataTarget);
 
-    // Copy base data files
+    // Copy the data modules, then the template-default site data over the
+    // site's own: tests build the template, not the fork they run in.
     copyDirFiles(dataSource, dataTarget);
+    copyDirFiles(path.join(FIXTURES_DIR, "site-data"), dataTarget);
 
-    // Merge config with source config
+    // Merge config with the template-default config
     if (options.config) {
-      const configPath = path.join(dataSource, "config.json");
+      const configPath = path.join(dataTarget, "config.json");
       const existing = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       writeJson("config.json", { ...existing, ...options.config });
     }
@@ -203,7 +196,7 @@ const createTestSite = async (options = {}) => {
       }
     }
   };
-  setupDataDir(fixturesSrc, srcDir, options);
+  setupDataDir(templateSrc, srcDir, options);
 
   // Create content files and return collections touched
   const getCollection = (filePath) => filePath.split("/")[0];
@@ -211,14 +204,13 @@ const createTestSite = async (options = {}) => {
     map(({ path: filePath }) => getCollection(filePath)),
     unique,
   );
-  const createContentFiles = (templateSrc, srcDir, files = []) => {
+  const createContentFiles = (srcDir, files = []) => {
     const collections = extractCollections(files);
-    const copyDataFiles = copy11tyDataFiles(templateSrc, srcDir);
     const writeMarkdown = createMarkdownFile(srcDir);
 
-    // Copy data files for each collection (side effect)
+    // Write directory data for each collection (side effect)
     for (const collection of collections) {
-      copyDataFiles(collection);
+      writeDirectoryData(srcDir)(collection);
     }
 
     // Create markdown files (side effect)
@@ -231,18 +223,22 @@ const createTestSite = async (options = {}) => {
 
     return collections;
   };
-  const collections = createContentFiles(fixturesSrc, srcDir, options.files);
+  const collections = createContentFiles(srcDir, options.files);
 
-  // Ensure an index page exists
-  const ensureIndexPage = (templateSrc, srcDir, files = [], collections) => {
+  // Ensure something serves "/": a home page, or a redirect from "/" (a site
+  // whose default language lives under a prefix such as /en/)
+  const ensureIndexPage = (srcDir, files = [], collections) => {
     const hasIndex = files.some(
-      (f) => f.path === "pages/index.md" || f.frontmatter?.permalink === "/",
+      (f) =>
+        f.path === "pages/index.md" ||
+        f.frontmatter?.permalink === "/" ||
+        [f.frontmatter?.redirect_from].flat().includes("/"),
     );
 
     if (hasIndex) return;
 
     if (!collections.includes("pages")) {
-      copy11tyDataFiles(templateSrc, srcDir)("pages");
+      writeDirectoryData(srcDir)("pages");
     }
 
     createMarkdownFile(srcDir)("pages/index.md", {
@@ -253,12 +249,12 @@ const createTestSite = async (options = {}) => {
       },
     });
   };
-  ensureIndexPage(fixturesSrc, srcDir, options.files, collections);
+  ensureIndexPage(srcDir, options.files, collections);
 
   // Copy test images
   const normalizeImageSpec = (img) =>
     typeof img === "string"
-      ? { src: path.join(getFixturesRoot(), "src/images", img), dest: img }
+      ? { src: path.join(FIXTURES_DIR, "images", img), dest: img }
       : {
           src: img.src.startsWith("/") ? img.src : path.join(rootDir, img.src),
           dest: img.dest,
@@ -277,7 +273,7 @@ const createTestSite = async (options = {}) => {
 
   // Copy the directory data file providing the default base.html layout
   copyToDir(srcDir)(
-    path.join(runtimeSrc, "src.11tydata.js"),
+    path.join(templateSrc, "src.11tydata.js"),
     "src.11tydata.js",
   );
 
@@ -326,14 +322,24 @@ const createTestSite = async (options = {}) => {
         // Async spawn so concurrent tests can overlap builds. Sites skip
         // sharp image processing unless the test opts in via processImages.
         const child = spawn(
-          "bun",
-          ["./node_modules/@11ty/eleventy/cmd.cjs", "--quiet"],
+          process.execPath,
+          [
+            "--import",
+            pathToFileURL(SITE_DATA_REGISTER).href,
+            "./node_modules/@11ty/eleventy/cmd.cjs",
+            "--quiet",
+          ],
           {
             cwd: siteDir,
             stdio: ["ignore", "pipe", "pipe"],
             env: {
               ...process.env,
+              ...options.env,
+              TEST_SITE_DIR: siteDir,
               PLACEHOLDER_IMAGES: options.processImages ? "0" : "1",
+              // Blank the vitest worker's cache override so each site keeps
+              // its own .image-cache instead of sharing the worker's.
+              IMAGE_CACHE_DIR: "",
             },
           },
         );
@@ -344,7 +350,7 @@ const createTestSite = async (options = {}) => {
         ]);
 
         if (status !== 0) {
-          const error = new Error(`Eleventy build failed: ${stderr || stdout}`);
+          const error = new Error(`Eleventy build failed:\n${stdout}${stderr}`);
           error.stdout = stdout;
           error.stderr = stderr;
           throw error;
@@ -435,18 +441,45 @@ const useSharedSite = (options) => {
   return () => site;
 };
 
-const cleanupAllTestSites = () => {
-  const testSitesDir = path.join(import.meta.dirname, ".test-sites");
-  if (fs.existsSync(testSitesDir)) {
-    fs.rmSync(testSitesDir, { recursive: true, force: true });
-  }
+/**
+ * Run a describe block's in-process tests from inside an unbuilt test site.
+ * Code that resolves files from the working directory - images resolve from
+ * ./src/images - then reads the site's fixtures instead of whatever content
+ * the repository (perhaps a fork with its demo deleted) happens to hold.
+ */
+const useSiteAsWorkingDirectory = (options) => {
+  let restore = null;
+  beforeAll(async () => {
+    const site = await createTestSite(options);
+    process.chdir(site.dir);
+    restore = () => {
+      process.chdir(rootDir);
+      site.cleanup();
+    };
+  });
+  afterAll(() => restore?.());
 };
 
+// The shared .test-sites root is swept by test/global-teardown.js after the
+// whole run, never mid-run: parallel workers build sibling sites in the same
+// root, so removing it from inside any single test file would race them.
+
+/**
+ * A standalone page file carrying the given design-system blocks, served at
+ * `/<slug>/`.
+ * @param {string} slug
+ * @param {Record<string, unknown>[]} blocks
+ */
+const pageWithBlocks = (slug, blocks) => ({
+  path: `pages/${slug}.md`,
+  frontmatter: { name: slug, permalink: `/${slug}/`, blocks },
+});
+
 export {
-  cleanupAllTestSites,
   createTestSite,
-  FIXTURES_ROOT_ENV,
+  pageWithBlocks,
   useSharedSite,
+  useSiteAsWorkingDirectory,
   withSetupTestSite,
   withTestSite,
 };

@@ -1,28 +1,15 @@
 {%- if items.size > 0 -%}
-{%- assign firstItemTags = items[0].data.tags -%}
-{%- assign isReviewCollection = firstItemTags contains "reviews" -%}
 {%- if horizontal -%}
 <div class="slider-container">
-  <ul class="items slider{% if isReviewCollection %} reviews-grid{% if compact %} reviews-grid--compact{% endif %}{% endif %}">
+  <ul class="items slider">
 {%- elsif masonry -%}
-<ul class="items masonry{% if isReviewCollection %} reviews-grid{% if compact %} reviews-grid--compact{% endif %}{% endif %}">
-{%- elsif isReviewCollection -%}
-<ul class="grid reviews-grid{% if compact %} reviews-grid--compact{% endif %}">
+<ul class="items masonry">
 {%- else -%}
 <ul class="items">
 {%- endif -%}
-{%- if isReviewCollection -%}
-  {%- assign product_links = true -%}
-  {%- for review in items -%}
-    {%- if review.content != "" -%}
-      {%- include "reviews-list-item.html", review: review, product_links: product_links -%}
-    {%- endif -%}
-  {%- endfor -%}
-{%- else -%}
-  {%- for item in items -%}
-    {%- include "list-item.html", image_aspect_ratio: image_aspect_ratio -%}
-  {%- endfor -%}
-{%- endif -%}
+{%- for item in items -%}
+  {%- include "list-item.html", image_aspect_ratio: image_aspect_ratio -%}
+{%- endfor -%}
 </ul>
 {%- if horizontal -%}
   {% include "slider-nav.html" %}

@@ -11,8 +11,11 @@ import {
   getRequiredCollections,
   resolveDependencies,
 } from "#scripts/customise-cms/collections.js";
-import { createDefaultConfig } from "#scripts/customise-cms/config.js";
-import { map, unique } from "#toolkit/fp/array.js";
+import {
+  createDefaultConfig,
+  createEmptyConfig,
+} from "#scripts/customise-cms/config.js";
+import { map, unique } from "#utils/fp/array.js";
 
 // Re-export I/O functions from cli-io.js
 export { parseCliArguments, showHelp };
@@ -25,15 +28,9 @@ const ALL_FEATURES = [
   "permalinks",
   "redirects",
   "faqs",
-  "features",
   "galleries",
-  "add_ons",
   "external_navigation_urls",
-  "external_purchases",
-  "event_locations_and_dates",
-  "use_visual_editor",
   "no_index",
-  "parent_categories",
 ];
 
 /**
@@ -49,7 +46,7 @@ const ALL_COLLECTIONS = map((c) => c.name)(COLLECTIONS);
 const generateHelp = () => `
 CMS Customisation Script - Non-Interactive Mode
 
-Usage: bun run customise-cms [options]
+Usage: npm run customise-cms -- [options]
 
 When no options are provided, runs in interactive mode.
 
@@ -64,8 +61,6 @@ OPTIONS:
 TEMPLATE STRUCTURE:
   --src-folder            Template has a 'src' folder (default)
   --no-src-folder         Template does not have a 'src' folder
-  --custom-home           Template has a custom home.html layout
-  --no-custom-home        Template uses default homepage (default)
 
 BLOCKS LAYOUT:
   --custom-blocks-collections LIST  Comma-separated custom blocks collections (e.g., clients,services)
@@ -88,19 +83,19 @@ FEATURES:
 
 EXAMPLES:
   # Regenerate .pages.yml using saved config (after updating generator)
-  bun run customise-cms --regenerate
+  npm run customise-cms -- --regenerate
 
-  # Enable products, categories, and news with FAQs and galleries
-  bun run customise-cms --collections products,categories,news --enable faqs,galleries
+  # Enable news and guides with FAQs and galleries
+  npm run customise-cms -- --collections news,guide-categories,guide-pages --enable faqs,galleries
 
-  # Enable all collections but disable visual editor
-  bun run customise-cms --all --disable use_visual_editor
+  # Enable all collections but leave out FAQs
+  npm run customise-cms -- --all --disable faqs
 
   # Preview configuration without saving
-  bun run customise-cms --collections pages,products,categories --dry-run
+  npm run customise-cms -- --collections pages,news --dry-run
 
   # Use all defaults for a simple site
-  bun run customise-cms --collections products,categories
+  npm run customise-cms -- --collections news
 `;
 
 /**
@@ -148,7 +143,7 @@ const validateFeatures = (features) => {
 
 /**
  * Check if any CLI flags were provided (excluding help and list options)
- * @param {Object} values - Parsed CLI values
+ * @param {Record<string, any>} values - Parsed CLI values
  * @returns {boolean} True if non-interactive mode should be used
  */
 export const hasCliFlags = (values) => {
@@ -160,8 +155,6 @@ export const hasCliFlags = (values) => {
     "disable",
     "src-folder",
     "no-src-folder",
-    "custom-home",
-    "no-custom-home",
     "custom-blocks-collections",
     "save-config",
     "no-save-config",
@@ -174,7 +167,7 @@ export const hasCliFlags = (values) => {
 
 /**
  * Format a collection for display with optional flags
- * @param {Object} collection - Collection definition
+ * @param {{ name: string, description: string, required?: boolean, internal?: boolean }} collection - Collection definition
  * @returns {string} Formatted collection string
  */
 const formatCollection = (collection) => {
@@ -207,7 +200,7 @@ const listFeatures = () => {
 
 /**
  * Handle list options (--list-collections, --list-features)
- * @param {Object} values - Parsed CLI values
+ * @param {Record<string, any>} values - Parsed CLI values
  * @returns {boolean} True if a list was displayed and we should exit
  */
 export const handleListOptions = (values) => {
@@ -224,12 +217,15 @@ export const handleListOptions = (values) => {
 
 /**
  * Build collections list from CLI values
- * @param {Object} values - Parsed CLI values
- * @param {Object|null} baseConfig - Base config if --all was used
+ * @param {Record<string, any>} values - Parsed CLI values
+ * @param {import('./config.js').CmsConfig | null} baseConfig - Base config if --all was used
  * @returns {string[]} List of collection names
  */
 const buildCollections = (values, baseConfig) => {
-  if (values.all) return baseConfig.collections;
+  if (values.all) {
+    if (!baseConfig) throw new Error("--all requires a base config");
+    return baseConfig.collections;
+  }
 
   const requestedCollections = parseCommaSeparated(values.collections);
   validateCollections(requestedCollections);
@@ -243,35 +239,32 @@ const buildCollections = (values, baseConfig) => {
 /**
  * Create base features object (all enabled or all disabled)
  * @param {boolean} allEnabled - Whether to enable all features
- * @param {Object|null} baseConfig - Base config if --all was used
- * @returns {Object} Features object
+ * @param {import('./config.js').CmsConfig | null} baseConfig - Base config if --all was used
+ * @returns {import('./config.js').CmsFeatures} Features object
  */
 const createBaseFeatures = (allEnabled, baseConfig) => {
-  if (allEnabled) return { ...baseConfig.features };
-
-  const features = {};
-  for (const f of ALL_FEATURES) {
-    features[f] = false;
-  }
-  return features;
+  if (!allEnabled) return createEmptyConfig().features;
+  if (!baseConfig) throw new Error("--all requires a base config");
+  return { ...baseConfig.features };
 };
 
 /**
- * Apply feature overrides (enables and disables) to features object
- * @param {Object} features - Features object to modify
+ * Apply feature overrides (enables and disables) to a features object,
+ * returning a new object (validateFeatures has vetted every name).
+ * @param {import('./config.js').CmsFeatures} features - Base feature flags
  * @param {string[]} enables - Features to enable
  * @param {string[]} disables - Features to disable
- * @returns {Object} Modified features object
+ * @returns {import('./config.js').CmsFeatures} Modified features object
  */
-const applyFeatureOverrides = (features, enables, disables) => {
-  for (const f of enables) features[f] = true;
-  for (const f of disables) features[f] = false;
-  return features;
-};
+const applyFeatureOverrides = (features, enables, disables) => ({
+  ...features,
+  ...Object.fromEntries(enables.map((f) => [f, true])),
+  ...Object.fromEntries(disables.map((f) => [f, false])),
+});
 
 /**
  * Resolve boolean flag pair (e.g., --src-folder / --no-src-folder)
- * @param {Object} values - Parsed CLI values
+ * @param {Record<string, any>} values - Parsed CLI values
  * @param {string} positiveFlag - Name of positive flag
  * @param {string} negativeFlag - Name of negative flag
  * @param {boolean} defaultValue - Default value if neither is set
@@ -289,52 +282,49 @@ const resolveBooleanFlag = (
 };
 
 /**
- * Build CMS config from CLI arguments
- * @param {Object} values - Parsed CLI values
- * @returns {import('./config.js').CmsConfig} CMS configuration
+ * Resolve the feature set from the --all/--enable/--disable flags
+ * @param {Record<string, any>} values - Parsed CLI values
+ * @param {import('./config.js').CmsConfig | null} baseConfig
  */
-export const buildConfigFromCli = (values) => {
-  const baseConfig = values.all ? createDefaultConfig() : null;
-  const collections = buildCollections(values, baseConfig);
-
+const buildFeaturesFromCli = (values, baseConfig) => {
   const enabledFeatures = parseCommaSeparated(values.enable);
   const disabledFeatures = parseCommaSeparated(values.disable);
   validateFeatures(enabledFeatures);
   validateFeatures(disabledFeatures);
-
-  const features = applyFeatureOverrides(
+  return applyFeatureOverrides(
     createBaseFeatures(values.all, baseConfig),
     enabledFeatures,
     disabledFeatures,
   );
+};
 
-  const customBlocksCollections = parseCommaSeparated(
-    values["custom-blocks-collections"],
-  );
+/**
+ * Build CMS config from CLI arguments
+ * @param {Record<string, any>} values - Parsed CLI values
+ * @returns {import('./config.js').CmsConfig} CMS configuration
+ */
+export const buildConfigFromCli = (values) => {
+  const baseConfig = values.all ? createDefaultConfig() : null;
 
   return {
-    collections,
-    features,
+    collections: buildCollections(values, baseConfig),
+    features: buildFeaturesFromCli(values, baseConfig),
     hasSrcFolder: resolveBooleanFlag(
       values,
       "src-folder",
       "no-src-folder",
       true,
     ),
-    customHomePage: resolveBooleanFlag(
-      values,
-      "custom-home",
-      "no-custom-home",
-      false,
+    customBlocksCollections: parseCommaSeparated(
+      values["custom-blocks-collections"],
     ),
-    customBlocksCollections,
   };
 };
 
 /**
  * Get CLI options
- * @param {Object} values - Parsed CLI values
- * @returns {Object} CLI options object
+ * @param {Record<string, any>} values - Parsed CLI values
+ * @returns {{ saveConfig: boolean, dryRun: boolean, quiet: boolean }} CLI options object
  */
 export const getCliOptions = (values) => ({
   saveConfig: values["no-save-config"] !== true,
@@ -342,7 +332,4 @@ export const getCliOptions = (values) => ({
   quiet: values.quiet === true,
 });
 
-/**
- * Export for testing
- */
-export { ALL_COLLECTIONS, ALL_FEATURES, formatCollection, generateHelp };
+export { generateHelp };

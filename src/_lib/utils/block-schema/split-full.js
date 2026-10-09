@@ -1,11 +1,14 @@
+/* jscpd:ignore-start -- block schema declaration data */
 import {
-  BUTTON_FIELDS_BASE,
+  buttonFields,
   md,
   objectField,
   str,
 } from "#utils/block-schema/shared.js";
 
 export const type = "split-full";
+
+export const columnSafe = false;
 
 export const containerWidth = "full";
 
@@ -21,8 +24,8 @@ export const fields = {
       "Left panel content with markdown headings (e.g. `## Heading`). Rendered as markdown via `.prose`.",
   },
   left_button: {
-    ...objectField("Left Button", BUTTON_FIELDS_BASE),
-    description: "`{text, href, variant}`.",
+    ...objectField("Left Button", buttonFields({ variant: "secondary" })),
+    description: "`{text, href, variant, size}`.",
   },
   right_content: {
     ...md("Right Content"),
@@ -30,8 +33,8 @@ export const fields = {
       "Right panel content with markdown headings (e.g. `## Heading`). Rendered as markdown via `.prose`.",
   },
   right_button: {
-    ...objectField("Right Button", BUTTON_FIELDS_BASE),
-    description: "`{text, href, variant}`.",
+    ...objectField("Right Button", buttonFields({ variant: "secondary" })),
+    description: "`{text, href, variant, size}`.",
   },
   reveal_left: {
     ...str("Reveal Left Animation"),
@@ -51,3 +54,17 @@ export const docs = {
   notes:
     'Variants: `"dark-left"` / `"dark-right"` (dark bg + light text), `"primary-left"` / `"primary-right"` (`--color-link` bg + contrast text). Button colors automatically invert in dark/primary panels. The parent `<section>` has zero padding — panels handle their own padding.',
 };
+
+export const example = {
+  type: "split-full",
+  variant: "dark-left",
+  left_content: "## Two panels\n\nEach side takes its own content and button.",
+  left_button: {
+    text: "Left action",
+    href: "/how-it-works/",
+    variant: "secondary",
+  },
+  right_content: "## Side by side\n\nVariants control which side is dark.",
+  right_button: { text: "Right action", href: "/blocks/" },
+};
+/* jscpd:ignore-end */

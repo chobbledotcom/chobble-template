@@ -1,11 +1,14 @@
+/* jscpd:ignore-start -- block schema declaration data */
 import {
   bool,
+  HERO_CONTENT_FIELDS,
   img,
-  OVERLAY_CONTENT_FIELDS,
   str,
 } from "#utils/block-schema/shared.js";
 
 export const type = "image-background";
+
+export const columnSafe = false;
 
 export const containerWidth = "full";
 
@@ -17,18 +20,24 @@ export const fields = {
   },
   image_alt: {
     ...str("Image Alt Text"),
-    default: '"Background image"',
+    default: "Background image",
     description: "Alt text.",
   },
-  ...OVERLAY_CONTENT_FIELDS,
+  class: { ...str("CSS Class"), description: "Extra CSS classes." },
+  ...HERO_CONTENT_FIELDS,
+  content: {
+    ...HERO_CONTENT_FIELDS.content,
+    description:
+      "Markdown overlay content rendered in `.prose` inside the `<figcaption>`.",
+  },
   parallax: {
     ...bool("Parallax"),
-    default: "false",
+    default: false,
     description: "Enables CSS `animation-timeline: scroll()` parallax effect.",
   },
   tint: {
     ...bool("Tint"),
-    default: "false",
+    default: false,
     description:
       "Applies a dark gradient overlay for text legibility over the background image.",
   },
@@ -42,3 +51,14 @@ export const docs = {
   notes:
     "Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 16/9. Parallax uses `animation-timeline: scroll()` for native CSS scroll-driven translation.",
 };
+
+export const example = {
+  type: "image-background",
+  image: "city-traffic-night.jpg",
+  image_alt: "City traffic at night",
+  tint: true,
+  badge: "Image background",
+  content:
+    "# Content over a full-width image\n\nA tint keeps the text readable.",
+};
+/* jscpd:ignore-end */

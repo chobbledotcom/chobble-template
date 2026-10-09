@@ -1,9 +1,5 @@
 {%- assign schemaType = "page" -%}
-{%- if tags and tags contains "products" -%}
-  {%- assign schemaType = "product" -%}
-{%- elsif tags and tags contains "events" -%}
-  {%- assign schemaType = "event" -%}
-{%- elsif tags and tags contains "news" -%}
+{%- if tags and tags contains "news" -%}
   {%- assign schemaType = "post" -%}
 {%- elsif schema_type == "organization" -%}
   {%- assign schemaType = "organization" -%}
@@ -12,9 +8,6 @@
 {%- endif -%}
 
 {%- unless no_index -%}
-  {%- assign schemaMeta = meta | withSchemaLanguage: pageLanguage | withSchemaBreadcrumbs: config.show_breadcrumbs, page, name, navigationParent, parent, categories, collections, property, parentGuideCategory, pageLanguage, translations -%}
-  {%- if schemaType == "post" and author -%}
-    {%- assign schemaMeta = schemaMeta | withSchemaAuthor: author, collections.team -%}
-  {%- endif -%}
+  {%- assign schemaMeta = meta | withSchemaLanguage: pageLanguage | withSchemaBreadcrumbs: config.show_breadcrumbs, page, name, navigationParent, pageLanguage, translations -%}
   {% jsonLdScript schemaMeta, schemaType, tags %}
 {%- endunless -%}

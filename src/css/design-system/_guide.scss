@@ -1,5 +1,7 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+// jscpd:ignore-end
 
 // =============================================================================
 // GUIDE PAGES
@@ -17,9 +19,19 @@
     }
 
     p {
-      @include body-sm;
+      @include muted-body-sm;
+    }
+  }
 
-      color: var(--color-text-muted);
+  // Shared vertical stack of cards used by both guide lists
+  @mixin guide-card-list($gap) {
+    @include flex-col($gap);
+
+    list-style: none;
+
+    > li {
+      @include card;
+      @include card-hover;
     }
   }
 
@@ -47,14 +59,10 @@
   // ===========================================================================
 
   .guide-categories-list {
-    @include flex-col($space-md);
-
-    list-style: none;
+    @include guide-card-list($space-md);
 
     > li {
-      @include card;
       @include flex-row($space-md, flex-start);
-      @include card-hover;
 
       .guide-category-icon {
         flex-shrink: 0;
@@ -78,13 +86,9 @@
   // ===========================================================================
 
   .guide-list {
-    @include flex-col($space-sm);
-
-    list-style: none;
+    @include guide-card-list($space-sm);
 
     > li {
-      @include card;
-      @include card-hover;
       @include guide-card-text;
     }
   }

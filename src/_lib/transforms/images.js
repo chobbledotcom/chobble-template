@@ -65,30 +65,11 @@ const extractImageOptions = (img, document) => {
     sizes: img.getAttribute("sizes"),
     widths,
     aspectRatio,
-    loading: null,
+    loading: img.getAttribute("loading"),
     noLqip,
     returnElement: true,
     document,
   };
-};
-
-/**
- * Process a single image element
- * @param {Element} img
- * @param {*} document
- * @param {ProcessImageFn} processAndWrapImage
- * @returns {Promise<void>}
- */
-const processImageElement = async (img, document, processAndWrapImage) => {
-  if (img.hasAttribute(IGNORE_ATTRIBUTE)) {
-    img.removeAttribute(IGNORE_ATTRIBUTE);
-    return;
-  }
-  if (img.parentElement?.classList?.contains("image-wrapper")) return;
-  const wrapped = await processAndWrapImage(extractImageOptions(img, document));
-  if (typeof wrapped !== "string" && img.parentElement) {
-    img.parentElement.replaceChild(wrapped, img);
-  }
 };
 
 /**
@@ -103,13 +84,28 @@ const processImages = async (document, _config, processAndWrapImage) => {
 
   if (images.length === 0) return;
 
+  /** @param {Element} img */
+  const processImageElement = async (img) => {
+    if (img.hasAttribute(IGNORE_ATTRIBUTE)) {
+      img.removeAttribute(IGNORE_ATTRIBUTE);
+      return;
+    }
+    if (img.parentElement?.classList?.contains("image-wrapper")) return;
+    const wrapped = await processAndWrapImage(
+      extractImageOptions(img, document),
+    );
+    if (typeof wrapped !== "string" && img.parentElement) {
+      img.parentElement.replaceChild(wrapped, img);
+    }
+  };
+
   const pendingImages = [...images].reverse();
   const workerCount = Math.min(IMAGE_PROCESSING_PARALLELISM, images.length);
   const runWorker = async () => {
     while (pendingImages.length > 0) {
       const image = pendingImages.pop();
       if (!image) return;
-      await processImageElement(image, document, processAndWrapImage);
+      await processImageElement(image);
     }
   };
 
@@ -123,9 +119,6 @@ export {
   extractImageOptions,
   fixDivsInParagraphs,
   IGNORE_ATTRIBUTE,
-  LEGACY_WIDTHS_ATTRIBUTE,
   NO_LQIP_ATTRIBUTE,
-  processImageElement,
   processImages,
-  WIDTHS_ATTRIBUTE,
 };

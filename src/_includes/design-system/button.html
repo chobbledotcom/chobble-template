@@ -6,7 +6,8 @@ client template restyles (or re-markups) every design-system button at once.
 Parameters (pass as direct include arguments):
   - text: Button label (required)
   - href: Link URL or anchor (required)
-  - variant: "primary", "secondary", or "ghost" (default: "primary")
+  - variant: "primary", "secondary", or "ghost" (required; block schemas
+    default each button's variant)
   - btn_size: "sm", "lg", or omit for default
   - download: If truthy, adds the `download` attribute
 
@@ -19,8 +20,7 @@ resolves to a number. Only the known size values ("sm"/"lg") emit a class, so
 an object's `.size` key-count fallback can never produce a bogus size class.
 {%- endcomment -%}
 
-{%- assign _variant = variant | default: "primary" -%}
 {%- if text and href -%}
-  {%- capture _class -%}btn btn--{{ _variant }}{%- if btn_size == "sm" or btn_size == "lg" %} btn--{{ btn_size }}{%- endif -%}{%- endcapture -%}
+  {%- capture _class -%}btn btn--{{ variant }}{%- if btn_size == "sm" or btn_size == "lg" %} btn--{{ btn_size }}{%- endif -%}{%- endcapture -%}
   <a href="{{ href }}" class="{{ _class }}"{% if download %} download{% endif %}>{{ text }}</a>
 {%- endif -%}

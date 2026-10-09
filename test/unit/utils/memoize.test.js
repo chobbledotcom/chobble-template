@@ -1,5 +1,111 @@
-import { describe, expect, test } from "bun:test";
-import { groupByWithCache, indexBy, memoize } from "#toolkit/fp/memoize.js";
+import { describe, expect, test } from "vitest";
+import {
+  dedupeAsync,
+  groupByWithCache,
+  indexBy,
+  jsonKey,
+  memoize,
+} from "#utils/fp/memoize.js";
+
+/** Create a counter for tracking function calls in tests */
+const createCounter = () => ({ count: 0 });
+
+describe("dedupeAsync", () => {
+  test("concurrent calls for same key share one Promise", async () => {
+    const counter = createCounter();
+    const slow = dedupeAsync(async (id) => {
+      counter.count++;
+      await new Promise((r) => setTimeout(r, 10));
+      return `result-${id}`;
+    });
+
+    const [r1, r2, r3] = await Promise.all([slow(1), slow(1), slow(1)]);
+
+    expect(r1).toBe("result-1");
+    expect(r2).toBe("result-1");
+    expect(r3).toBe("result-1");
+    expect(counter.count).toBe(1);
+  });
+
+  const makeSlowCounter = () => {
+    const counter = createCounter();
+    const slow = dedupeAsync(async (id) => {
+      counter.count++;
+      return `result-${id}`;
+    });
+    return { counter, slow };
+  };
+
+  test("different keys run separate operations", async () => {
+    const { counter, slow } = makeSlowCounter();
+
+    const [r1, r2] = await Promise.all([slow(1), slow(2)]);
+
+    expect(r1).toBe("result-1");
+    expect(r2).toBe("result-2");
+    expect(counter.count).toBe(2);
+  });
+
+  test("cache clears after Promise resolves", async () => {
+    const { counter, slow } = makeSlowCounter();
+
+    await slow(1);
+    await slow(1);
+
+    expect(counter.count).toBe(2);
+  });
+
+  test("cache clears after Promise rejects", async () => {
+    const counter = createCounter();
+    const failing = dedupeAsync(async () => {
+      counter.count++;
+      throw new Error("fail");
+    });
+
+    await expect(failing(1)).rejects.toThrow("fail");
+    await expect(failing(1)).rejects.toThrow("fail");
+
+    expect(counter.count).toBe(2);
+  });
+
+  test("custom cacheKey function", async () => {
+    const counter = createCounter();
+    const slow = dedupeAsync(
+      async (a, b) => {
+        counter.count++;
+        return a + b;
+      },
+      { cacheKey: (args) => `${args[0]}:${args[1]}` },
+    );
+
+    const [r1, r2] = await Promise.all([slow(1, 2), slow(1, 2)]);
+
+    expect(r1).toBe(3);
+    expect(r2).toBe(3);
+    expect(counter.count).toBe(1);
+  });
+});
+
+describe("jsonKey", () => {
+  test("stringifies the first argument", () => {
+    expect(jsonKey([{ a: 1 }])).toBe('{"a":1}');
+  });
+
+  test("lets memoize treat equal-content objects as one key", () => {
+    const counter = createCounter();
+    const compute = memoize(
+      (obj) => {
+        counter.count++;
+        return obj.a;
+      },
+      { cacheKey: jsonKey },
+    );
+
+    expect(compute({ a: 1 })).toBe(1);
+    expect(compute({ a: 1 })).toBe(1);
+    expect(counter.count).toBe(1);
+  });
+});
 
 describe("memoize", () => {
   test("caches by default key: a repeated call returns the same result object", () => {

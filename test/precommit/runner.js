@@ -9,16 +9,8 @@
  *   failures. `--ci` (or CI env) disables progress spinners and prompts.
  */
 import { spawn } from "node:child_process";
-import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
-import {
-  bold,
-  dim,
-  green,
-  red,
-  write,
-  yellow,
-} from "#test/precommit/colors.js";
+import { bold, dim, green, red, write, yellow } from "#scripts/lib/colors.js";
 import { getStepEnvironment } from "#test/precommit/environment.js";
 import { getMergeConflictWarning } from "#test/precommit/merge-warning.js";
 import { promptToPushCheckedInChanges } from "#test/precommit/push.js";
@@ -31,7 +23,6 @@ import {
 import {
   extractErrorsFromOutput,
   printTruncatedList,
-  reportCoverageFailures,
 } from "#test/test-runner-utils.js";
 
 const isVerbose = () => process.argv.includes("--verbose");
@@ -71,7 +62,15 @@ const readStream = (stream, { onChunk, onLine }) =>
     stream.on("error", () => onEnd());
   });
 
-const runStep = async (step, showProgress) => {
+/**
+ * Run one precommit step, streaming progress, and report whether it
+ * passed. Exported for the unit tests; main() is the only production
+ * caller.
+ * @param {{ name: string, cmd: string[], preRun?: () => void, progress?: (chunk: string) => string }} step
+ * @param {boolean} showProgress
+ * @returns {Promise<boolean>}
+ */
+export const runStep = async (step, showProgress) => {
   const prefix = `  ${step.name} … `;
   write(prefix);
   const start = performance.now();
@@ -125,21 +124,16 @@ const runStep = async (step, showProgress) => {
   if (errors.length > 0) {
     printTruncatedList({ moreLabel: "errors" })(errors);
   } else {
-    const lcovPath = join(ROOT_DIR, "coverage/lcov.info");
-    const bunfigPath = join(ROOT_DIR, "bunfig.toml");
-    if (reportCoverageFailures(lcovPath, bunfigPath)) {
-      console.log(
-        "  Thresholds are defined in bunfig.toml (coverageThreshold).",
-      );
-    } else {
-      const allOutput = stderr || stdout || "";
-      console.log("  No specific errors extracted. Last 15 lines of output:");
-      const lastLines = allOutput
-        .split("\n")
-        .slice(-15)
-        .filter((l) => l.trim());
-      for (const line of lastLines) console.log(`  ${line}`);
-    }
+    // No precommit step runs with --coverage, so a leftover lcov.info can
+    // never explain this failure; show the raw tail instead of stale
+    // coverage gaps.
+    const allOutput = stderr || stdout || "";
+    console.log("  No specific errors extracted. Last 15 lines of output:");
+    const lastLines = allOutput
+      .split("\n")
+      .slice(-15)
+      .filter((l) => l.trim());
+    for (const line of lastLines) console.log(`  ${line}`);
   }
   return false;
 };

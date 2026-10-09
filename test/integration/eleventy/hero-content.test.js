@@ -1,5 +1,5 @@
-import { describe, expect, test } from "bun:test";
-import { useSharedSite } from "#test/test-site-factory.js";
+import { describe, expect, test } from "vitest";
+import { pageWithBlocks, useSharedSite } from "#test/test-site-factory.js";
 
 const BUTTONS = [
   { text: "Primary Action", href: "/go/" },
@@ -8,12 +8,6 @@ const BUTTONS = [
 
 /** Class names of an element's children, for asserting render order */
 const childClasses = (el) => [...el.children].map((child) => child.className);
-
-/** A standalone page carrying a single design-system block */
-const pageWithBlock = (slug, block) => ({
-  path: `pages/${slug}.md`,
-  frontmatter: { name: slug, permalink: `/${slug}/`, blocks: [block] },
-});
 
 const imageBackground = (overlay) => ({
   type: "image-background",
@@ -27,25 +21,25 @@ const imageBackground = (overlay) => ({
 const getSite = useSharedSite({
   images: ["party.jpg"],
   files: [
-    pageWithBlock("hero", {
-      type: "hero",
-      badge: "New",
-      content: "# Big Heading\n\nLead paragraph text.",
-      buttons: BUTTONS,
-    }),
-    pageWithBlock(
-      "overlay-markdown",
+    pageWithBlocks("hero", [
+      {
+        type: "hero",
+        badge: "New",
+        content: "# Big Heading\n\nLead paragraph text.",
+        buttons: BUTTONS,
+      },
+    ]),
+    pageWithBlocks("overlay-markdown", [
       imageBackground({ content: "## Overlay Heading" }),
-    ),
-    pageWithBlock(
-      "overlay-badge-buttons",
+    ]),
+    pageWithBlocks("overlay-badge-buttons", [
       imageBackground({
         badge: "Featured",
         content: "## Overlay Heading",
         buttons: BUTTONS,
       }),
-    ),
-    pageWithBlock("overlay-media-only", imageBackground({})),
+    ]),
+    pageWithBlocks("overlay-media-only", [imageBackground({})]),
     {
       // Page-level `text`/`href`/`variant` data must not leak into the
       // button partial and override each hero button's own fields.

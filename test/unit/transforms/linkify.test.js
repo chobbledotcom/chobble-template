@@ -1,15 +1,12 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { wrapHtml } from "#test/test-utils.js";
 import {
   buildConfigLinksPattern,
   hasConfigLinks,
   hasPhonePattern,
   linkifyConfigLinks,
-  linkifyEmails,
   linkifyPhones,
-  linkifyUrls,
   parseTextByPattern,
-  URL_PATTERN,
 } from "#transforms/linkify.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
@@ -27,28 +24,6 @@ const expectSingleAnchor = (result) =>
 // Shared test case definitions for skip-tag behavior
 const skipTagTestCases = [
   {
-    name: "URLs",
-    transform: linkifyUrls,
-    config: {},
-    anchorHtml: '<a href="https://example.com">Click</a>',
-    nestedHtml:
-      '<a href="https://example.com">Visit <span>https://example.com</span></a>',
-    scriptHtml: '<script>const url = "https://example.com";</script>',
-    notContain: "<a href",
-    surroundingHtml: "<p>Before https://example.com after</p>",
-  },
-  {
-    name: "emails",
-    transform: linkifyEmails,
-    config: {},
-    anchorHtml: '<a href="mailto:test@example.com">Contact</a>',
-    nestedHtml:
-      '<a href="mailto:test@example.com">Contact <span>test@example.com</span></a>',
-    scriptHtml: '<script>const email = "test@example.com";</script>',
-    notContain: 'href="mailto:',
-    surroundingHtml: "<p>Before test@example.com after</p>",
-  },
-  {
     name: "phones",
     transform: linkifyPhones,
     config: { phoneNumberLength: 11 },
@@ -60,172 +35,68 @@ const skipTagTestCases = [
   },
 ];
 
-// URL-only skip tags (style, code, pre, title are tested separately from shared tests)
-const urlOnlySkipTags = [
-  { tag: "style", html: "<style>/* https://example.com */</style>" },
-  { tag: "code", html: "<code>https://example.com</code>" },
-  { tag: "pre", html: "<pre>https://example.com</pre>" },
-  { tag: "title", html: "<title>https://example.com</title>" },
+// Raw-text skip tags (style, code, pre, title are tested separately from shared tests)
+const rawTextSkipTags = [
+  { tag: "style", html: "<style>/* 01234 567 890 */</style>" },
+  { tag: "code", html: "<code>01234 567 890</code>" },
+  { tag: "pre", html: "<pre>01234 567 890</pre>" },
+  { tag: "title", html: "<title>01234 567 890</title>" },
 ];
 
 describe("linkify transforms", () => {
   describe("parseTextByPattern", () => {
+    // A generic three-digit pattern: parseTextByPattern is a generic text
+    // splitter; production feeds it phone and config-link patterns.
+    const DIGITS = /\d{3}/g;
+    const digitPart = (v) => ({ type: "phone", value: v });
+
     test("returns single text part when no matches", () => {
-      const result = parseTextByPattern("hello world", URL_PATTERN, (v) => ({
-        type: "url",
-        value: v,
-      }));
+      const result = parseTextByPattern("hello world", DIGITS, digitPart);
       expect(result).toEqual([{ type: "text", value: "hello world" }]);
     });
 
-    test("parses single URL in text", () => {
-      const result = parseTextByPattern(
-        "visit https://example.com today",
-        URL_PATTERN,
-        (v) => ({ type: "url", value: v }),
-      );
+    test("parses single match in text", () => {
+      const result = parseTextByPattern("call 123 today", DIGITS, digitPart);
       expect(result).toEqual([
-        { type: "text", value: "visit " },
-        { type: "url", value: "https://example.com" },
+        { type: "text", value: "call " },
+        { type: "phone", value: "123" },
         { type: "text", value: " today" },
       ]);
     });
 
-    test("parses multiple URLs in text", () => {
-      const result = parseTextByPattern(
-        "see https://foo.com and https://bar.com",
-        URL_PATTERN,
-        (v) => ({ type: "url", value: v }),
-      );
+    test("parses multiple matches in text", () => {
+      const result = parseTextByPattern("see 123 and 456", DIGITS, digitPart);
       expect(result.length).toBe(4);
-      expect(result[1]).toEqual({ type: "url", value: "https://foo.com" });
-      expect(result[3]).toEqual({ type: "url", value: "https://bar.com" });
+      expect(result[1]).toEqual({ type: "phone", value: "123" });
+      expect(result[3]).toEqual({ type: "phone", value: "456" });
     });
 
-    test("handles URL at start of text", () => {
-      const result = parseTextByPattern(
-        "https://example.com is great",
-        URL_PATTERN,
-        (v) => ({ type: "url", value: v }),
-      );
-      expect(result[0]).toEqual({ type: "url", value: "https://example.com" });
+    test("handles match at start of text", () => {
+      const result = parseTextByPattern("123 is great", DIGITS, digitPart);
+      expect(result[0]).toEqual({ type: "phone", value: "123" });
     });
 
-    test("handles URL at end of text", () => {
-      const result = parseTextByPattern(
-        "visit https://example.com",
-        URL_PATTERN,
-        (v) => ({ type: "url", value: v }),
-      );
+    test("handles match at end of text", () => {
+      const result = parseTextByPattern("call 123", DIGITS, digitPart);
       expect(result[result.length - 1]).toEqual({
-        type: "url",
-        value: "https://example.com",
+        type: "phone",
+        value: "123",
       });
-    });
-  });
-
-  describe("linkifyUrls", () => {
-    test("converts plain URLs to anchor tags", async () => {
-      const html = wrapHtml("<p>Visit https://example.com for more</p>");
-      const result = await transformHtml(html, linkifyUrls, {
-        externalLinksTargetBlank: true,
-      });
-
-      expect(result).toContain('href="https://example.com"');
-      expect(result).toContain(">example.com</a>");
-    });
-
-    test("adds target=_blank when config enabled", async () => {
-      const html = wrapHtml("<p>Visit https://example.com</p>");
-      const result = await transformHtml(html, linkifyUrls, {
-        externalLinksTargetBlank: true,
-      });
-
-      expect(result).toContain('target="_blank"');
-      expect(result).toContain("noopener");
-      expect(result).toContain('rel="noopener noreferrer"');
-    });
-
-    test("does not add target=_blank when config disabled", async () => {
-      const html = wrapHtml("<p>Visit https://example.com</p>");
-      const result = await transformHtml(html, linkifyUrls, {
-        externalLinksTargetBlank: false,
-      });
-
-      expect(result).toContain('href="https://example.com"');
-      expect(result).not.toContain('target="_blank"');
-    });
-
-    test("handles multiple URLs", async () => {
-      const html = wrapHtml("<p>See https://foo.com and https://bar.com</p>");
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result).toContain('href="https://foo.com"');
-      expect(result).toContain('href="https://bar.com"');
-    });
-
-    test("strips www. from display text", async () => {
-      const html = wrapHtml("<p>Visit https://www.example.com/page</p>");
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result).toContain(">example.com/page</a>");
-    });
-
-    test("strips trailing slash from display text", async () => {
-      const html = wrapHtml("<p>Visit https://example.com/</p>");
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result).toContain(">example.com</a>");
-    });
-
-    for (const { tag, html } of urlOnlySkipTags) {
-      test(`does not linkify URLs inside ${tag} tags`, async () => {
-        const result = await transformHtml(wrapHtml(html), linkifyUrls, {});
-        expect(result).not.toContain("<a href");
-      });
-    }
-
-    test("handles HTTP URLs", async () => {
-      const html = wrapHtml("<p>Visit http://example.com</p>");
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result).toContain('href="http://example.com"');
-    });
-  });
-
-  describe("linkifyEmails", () => {
-    test("converts plain email addresses to mailto links", async () => {
-      const html = wrapHtml("<p>Contact hello@example.com</p>");
-      const result = await transformHtml(html, linkifyEmails, {});
-
-      expect(result).toContain('href="mailto:hello@example.com"');
-      expect(result).toContain(">hello@example.com</a>");
-    });
-
-    test("handles multiple email addresses", async () => {
-      const html = wrapHtml("<p>Email support@foo.com or sales@bar.co.uk</p>");
-      const result = await transformHtml(html, linkifyEmails, {});
-
-      expect(result).toContain('href="mailto:support@foo.com"');
-      expect(result).toContain('href="mailto:sales@bar.co.uk"');
-    });
-
-    test("handles emails with subdomains", async () => {
-      const html = wrapHtml("<p>Email user@mail.example.co.uk</p>");
-      const result = await transformHtml(html, linkifyEmails, {});
-
-      expect(result).toContain('href="mailto:user@mail.example.co.uk"');
-    });
-
-    test("handles emails with plus signs", async () => {
-      const html = wrapHtml("<p>Email user+tag@example.com</p>");
-      const result = await transformHtml(html, linkifyEmails, {});
-
-      expect(result).toContain('href="mailto:user+tag@example.com"');
     });
   });
 
   describe("linkifyPhones", () => {
+    test("links every matching text node without losing inline structure", async () => {
+      const result = await transformHtml(
+        wrapHtml("<p>01234 567 890<span>01234567890</span>01234 567 890</p>"),
+        linkifyPhones,
+        { phoneNumberLength: 11 },
+      );
+      expect(result).toContain(
+        '<p><a href="tel:01234567890">01234 567 890</a><span><a href="tel:01234567890">01234567890</a></span><a href="tel:01234567890">01234 567 890</a></p>',
+      );
+    });
+
     test("converts phone numbers to tel links with length 11", async () => {
       const html = wrapHtml("<p>Call 01234 567 890</p>");
       const result = await transformHtml(html, linkifyPhones, {
@@ -335,6 +206,15 @@ describe("linkify transforms", () => {
         });
       });
     }
+
+    for (const { tag, html } of rawTextSkipTags) {
+      test(`does not linkify phone numbers inside ${tag} tags`, async () => {
+        const result = await transformHtml(wrapHtml(html), linkifyPhones, {
+          phoneNumberLength: 11,
+        });
+        expect(result).not.toContain('<a href="tel:');
+      });
+    }
   });
 
   describe("linkifyConfigLinks", () => {
@@ -435,7 +315,22 @@ describe("linkify transforms", () => {
       );
       const result = await transformConfigLinks(html, linksMap);
 
-      expect(result).toContain('href="https://acme.example.com"');
+      expect(result).toContain(
+        '<p>Visit <a href="https://acme.example.com">Acme Corp</a></p>',
+      );
+      expectSingleAnchor(result);
+    });
+
+    test("links matching text across separate prose roots", async () => {
+      const result = await transformConfigLinks(
+        wrapHtml(
+          '<div class="prose">Acme Corp</div><p>Acme Corp</p><section class="prose">Acme Corp</section>',
+        ),
+        linksMap,
+      );
+      expect(result).toContain(
+        '<div class="prose"><a href="https://acme.example.com">Acme Corp</a></div><p>Acme Corp</p><section class="prose"><a href="https://acme.example.com">Acme Corp</a></section>',
+      );
     });
   });
 

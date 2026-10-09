@@ -1,6 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { useSharedSite } from "#test/test-site-factory.js";
-import { filter, pipe } from "#toolkit/fp/array.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
 // ============================================
@@ -13,11 +12,10 @@ import { normaliseSlug } from "#utils/slug-utils.js";
  * @param {string} name - Post name
  * @param {Object} options - Additional frontmatter (author, etc.)
  */
-const newsPostFile = (slug, name, { author, ...extras } = {}) => ({
+const newsPostFile = (slug, name, extras = {}) => ({
   path: `news/2024-01-01-${slug}.md`,
   frontmatter: {
     name,
-    ...(author && { author: `src/team/${author}.md` }),
     blocks: [
       { type: "include", file: "news-post-header.html" },
       { type: "news-meta" },
@@ -25,24 +23,6 @@ const newsPostFile = (slug, name, { author, ...extras } = {}) => ({
       { type: "include", file: "news-post-gallery.html" },
       { type: "include", file: "faq.html" },
     ],
-    ...extras,
-  },
-  content: "",
-});
-
-/**
- * Create a team member file for test site
- * @param {string} slug - Team member slug
- * @param {string} name - Team member name
- * @param {Object} options - Additional frontmatter (thumbnail, subtitle, etc.)
- */
-const teamMember = (slug, name, { thumbnail, ...extras } = {}) => ({
-  path: `team/${slug}.md`,
-  frontmatter: {
-    name,
-    subtitle: extras.subtitle ?? `${name} bio subtitle`,
-    ...(thumbnail && { thumbnail: `src/images/${thumbnail}` }),
-    blocks: [{ type: "markdown", content: `${name} bio.` }],
     ...extras,
   },
   content: "",
@@ -66,39 +46,11 @@ const getContentHtml = async (site, slug) => {
 };
 
 /**
- * Extract images from test files (for images array)
- */
-const extractImages = pipe(
-  filter((file) => file.frontmatter?.thumbnail),
-  (files) =>
-    files.map((f) => f.frontmatter.thumbnail.replace("src/images/", "")),
-);
-
-/**
- * Assert post meta has expected elements for posts with authors
- */
-const expectAuthorElements = (postMeta) => {
-  expect(postMeta.querySelector("address") !== null).toBe(true);
-  expect(postMeta.querySelector('a[rel="author"]') !== null).toBe(true);
-};
-
-/**
  * Assert post meta has time element with datetime attribute
  */
 const expectTimeElement = (postMeta) => {
   expect(postMeta.querySelector("time") !== null).toBe(true);
   expect(postMeta.querySelector("time").hasAttribute("datetime")).toBe(true);
-};
-
-/**
- * Assert post meta base structure (exists, thumbnail class, figure)
- */
-const expectMetaStructure = (postMeta, { hasThumbnail, hasFigure }) => {
-  expect(postMeta !== null).toBe(true);
-  expect(postMeta.classList.contains("row")).toBe(hasThumbnail);
-  hasFigure
-    ? expect(postMeta.querySelector("figure") !== null).toBe(true)
-    : expect(postMeta.querySelector("figure")).toBe(null);
 };
 
 describe("news", () => {
@@ -125,24 +77,13 @@ describe("news", () => {
     );
   });
 
-  // Integration tests with test site. Author/image rendering and no_index
-  // archive behaviour are independent, so one shared build with all the post
-  // fixtures covers both — the extra posts don't affect either assertion set.
+  // Integration tests with test site. Author rendering and no_index archive
+  // behaviour are independent, so one shared build with all the post fixtures
+  // covers both — the extra posts don't affect either assertion set.
   describe("built site", () => {
     const files = [
-      // Post with author + image
-      newsPostFile("with-author-image", "Post With Author and Image", {
-        author: "jane-doe",
-      }),
-      teamMember("jane-doe", "Jane Doe", {
-        thumbnail: "placeholders/blue.svg",
-      }),
-
-      // Post with author but no image
-      newsPostFile("with-author-no-image", "Post With Author No Image", {
-        author: "john-smith",
-      }),
-      teamMember("john-smith", "John Smith"),
+      // Post with a plain-text author
+      newsPostFile("with-author", "Post With Author", { author: "Jane Doe" }),
 
       // Post without author
       newsPostFile("no-author", "Post Without Author"),
@@ -165,47 +106,27 @@ describe("news", () => {
         content: "",
       },
     ];
-    const getSite = useSharedSite({ files, images: extractImages(files) });
+    const getSite = useSharedSite({ files });
 
-    test("Post meta renders correctly with various author and image combinations", async () => {
+    test("Post meta renders correctly with and without an author", async () => {
       const site = getSite();
 
-      // Test 1: Post with author + image renders thumbnail layout with semantic HTML
-      const metaWithImage = await getPostMeta(site, "with-author-image");
-      expectMetaStructure(metaWithImage, {
-        hasThumbnail: true,
-        hasFigure: true,
-      });
-      expect(metaWithImage.querySelector("figure a") !== null).toBe(true);
-      expectAuthorElements(metaWithImage);
-      expectTimeElement(metaWithImage);
-      expect(metaWithImage.tagName.toLowerCase()).toBe("div");
-      expect(metaWithImage.getAttribute("role")).toBe("doc-subtitle");
+      // Post with author renders a byline plus date with semantic HTML
+      const metaWithAuthor = await getPostMeta(site, "with-author");
+      expect(metaWithAuthor !== null).toBe(true);
+      expect(metaWithAuthor.querySelector("address") !== null).toBe(true);
+      expectTimeElement(metaWithAuthor);
+      expect(metaWithAuthor.tagName.toLowerCase()).toBe("div");
+      expect(metaWithAuthor.getAttribute("role")).toBe("doc-subtitle");
 
-      // Test 2: Post with author link renders in HTML content
-      const htmlWithAuthor = await getContentHtml(site, "with-author-image");
-      expect(htmlWithAuthor.includes('href="/team/jane-doe/"')).toBe(true);
+      // The author name renders as plain text, not a link
+      const htmlWithAuthor = await getContentHtml(site, "with-author");
       expect(htmlWithAuthor.includes("Jane Doe")).toBe(true);
+      expect(htmlWithAuthor.includes('rel="author"')).toBe(false);
 
-      // Test 3: Post with author but no image renders without thumbnail
-      const metaNoImage = await getPostMeta(site, "with-author-no-image");
-      expectMetaStructure(metaNoImage, {
-        hasThumbnail: false,
-        hasFigure: false,
-      });
-      expectAuthorElements(metaNoImage);
-      expectTimeElement(metaNoImage);
-
-      // Test 4: Post without author does not render author section
-      const htmlNoAuthor = await getContentHtml(site, "no-author");
-      expect(htmlNoAuthor.includes('href="/team/')).toBe(false);
-
-      // Test 5: Post without author renders simple date-only layout
+      // Post without author renders simple date-only layout
       const metaNoAuthor = await getPostMeta(site, "no-author");
-      expectMetaStructure(metaNoAuthor, {
-        hasThumbnail: false,
-        hasFigure: false,
-      });
+      expect(metaNoAuthor !== null).toBe(true);
       expect(metaNoAuthor.querySelector("address")).toBe(null);
       expectTimeElement(metaNoAuthor);
     });

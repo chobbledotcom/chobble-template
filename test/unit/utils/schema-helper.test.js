@@ -1,16 +1,14 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
+import siteData from "#data/site.json" with { type: "json" };
 import { expectObjectProps } from "#test/test-utils.js";
 import {
-  createMockReview,
   createPostSchemaData,
-  createProductSchemaData,
   createSchemaData,
 } from "#test/unit/utils/schema-helper-utils.js";
 import {
   buildBaseMeta,
   buildOrganizationMeta,
   buildPostMeta,
-  buildProductMeta,
   buildSocialMeta,
 } from "#utils/schema-helper.js";
 
@@ -21,10 +19,6 @@ import {
 /** Curried: (overrides) => buildBaseMeta result */
 const baseMeta = (overrides = {}) => buildBaseMeta(createSchemaData(overrides));
 
-/** Curried: (overrides) => buildProductMeta result */
-const productMeta = (overrides = {}) =>
-  buildProductMeta(createProductSchemaData(overrides));
-
 /** Curried: (overrides) => buildPostMeta result */
 const postMeta = (overrides = {}) =>
   buildPostMeta(createPostSchemaData(overrides));
@@ -34,21 +28,6 @@ const orgMeta = (overrides = {}) =>
   buildOrganizationMeta(
     createSchemaData({ pageUrl: "/", name: "Home", ...overrides }),
   );
-
-/** Curried: (price input) => numeric price from offers */
-const strippedPrice = (price) => productMeta({ price }).offers.price;
-
-/** Build productMeta with mock reviews from specs */
-const testProductMeta = (reviewSpecs) => {
-  const mockReviews = reviewSpecs.map((spec) =>
-    createMockReview({
-      name: spec.name,
-      rating: spec.rating,
-      ...(spec.date && { date: new Date(spec.date) }),
-    }),
-  );
-  return productMeta({ reviews: mockReviews, tags: ["products"] });
-};
 
 describe("buildBaseMeta", () => {
   test("returns basic meta with url, title, and description", () => {
@@ -111,6 +90,15 @@ describe("buildBaseMeta", () => {
     );
   });
 
+  test("preserves the site path when resolving local metadata images", () => {
+    expect(
+      baseMeta({
+        image: "/images/photo.jpg",
+        siteUrl: "https://example.com/project",
+      }).image.src,
+    ).toBe("https://example.com/project/images/photo.jpg");
+  });
+
   test("prepends /images/ for plain image filenames", () => {
     expect(baseMeta({ image: "photo.jpg" }).image.src).toBe(
       "https://example.com/images/photo.jpg",
@@ -165,122 +153,6 @@ describe("buildBaseMeta", () => {
   });
 });
 
-describe("buildProductMeta", () => {
-  test("returns product meta with name and brand", () => {
-    expectObjectProps({
-      name: "Test Product",
-      brand: "Test Store",
-    })(productMeta());
-  });
-
-  test("includes offers when price is provided", () => {
-    const result = productMeta({ price: "29.99" });
-    expect(result.offers).toBeTruthy();
-    expect(result.offers.price).toBe(29.99);
-    expect(result.offers.priceCurrency).toBe("GBP");
-    expect(result.offers.availability).toBe("https://schema.org/InStock");
-    expect(result.offers.priceValidUntil).toBeTruthy();
-  });
-
-  test("strips currency symbols from price", () => {
-    expect(strippedPrice("£29.99")).toBe(29.99);
-  });
-
-  test("strips dollar sign from price", () => {
-    expect(strippedPrice("$49.99")).toBe(49.99);
-  });
-
-  test("strips euro sign from price", () => {
-    expect(strippedPrice("€39.99")).toBe(39.99);
-  });
-
-  test("strips commas from price", () => {
-    expect(strippedPrice("1,299.99")).toBe(1299.99);
-  });
-
-  test("parses a prefixed price", () => {
-    expect(strippedPrice("From £495")).toBe(495);
-  });
-
-  test("does not include offers when price is not provided", () => {
-    expect(productMeta().offers).toBeUndefined();
-  });
-
-  test("does not include offers for POA, ambiguous, or non-positive prices", () => {
-    expect(productMeta({ price: "POA" }).offers).toBeUndefined();
-    expect(productMeta({ price: "£10 / £12" }).offers).toBeUndefined();
-    expect(productMeta({ price: 0 }).offers).toBeUndefined();
-  });
-
-  test("does not turn negative string prices into positive offers", () => {
-    expect(productMeta({ price: "-10" }).offers).toBeUndefined();
-    expect(productMeta({ price: "From -£10" }).offers).toBeUndefined();
-    expect(productMeta({ price: "GBP -10" }).offers).toBeUndefined();
-  });
-
-  test("uses the lowest product option when no page-level price exists", () => {
-    expect(
-      productMeta({
-        options: [{ unit_price: 20 }, { unit_price: 15 }],
-      }).offers.price,
-    ).toBe(15);
-  });
-
-  test("includes reviews and rating when tags and collections.reviews are provided", () => {
-    const result = testProductMeta([
-      { name: "Reviewer 1", rating: 5 },
-      { name: "Reviewer 2", rating: 4, date: "2024-02-20" },
-    ]);
-    expect(result.reviews).toBeTruthy();
-    expect(result.reviews.length).toBe(2);
-    expect(result.rating).toBeTruthy();
-    expect(result.rating.reviewCount).toBe(2);
-    expect(result.rating.bestRating).toBe(5);
-    expect(result.rating.worstRating).toBe(1);
-  });
-
-  test("calculates correct average rating", () => {
-    const result = testProductMeta([
-      { name: "Reviewer 1", rating: 5 },
-      { name: "Reviewer 2", rating: 3, date: "2024-02-20" },
-    ]);
-    expect(result.rating.ratingValue).toBe("4.0");
-  });
-
-  test("formats review with author and rating", () => {
-    const result = testProductMeta([
-      { name: "John Doe", rating: 5, date: "2024-06-15" },
-    ]);
-    expect(result.reviews[0].author).toBe("John Doe");
-    expect(result.reviews[0].rating).toBe(5);
-    expect(result.reviews[0].date).toBe("2024-06-15");
-  });
-
-  test("uses rating from data (set by eleventyComputed default)", () => {
-    const result = productMeta({
-      reviews: [
-        {
-          data: { name: "Reviewer", rating: 5, products: ["test"] },
-          date: new Date("2024-01-15"),
-        },
-      ],
-      tags: ["products"],
-    });
-    expect(result.reviews[0].rating).toBe(5);
-  });
-
-  test("does not include reviews and rating when no matching reviews", () => {
-    const result = productMeta({
-      reviews: [
-        createMockReview({ name: "Reviewer", items: ["other-product"] }),
-      ],
-      tags: ["products"],
-    });
-    expect(result.reviews).toBeUndefined();
-    expect(result.rating).toBeUndefined();
-  });
-});
-
 describe("buildPostMeta", () => {
   test("returns post meta with author", () => {
     const result = postMeta({ author: "John Author" });
@@ -316,7 +188,7 @@ describe("buildSocialMeta", () => {
     ).toEqual({
       title: "SEO title",
       description: "Description",
-      url: "https://example.chobble.com/page/",
+      url: `${siteData.url}/page/`,
       image: "https://example.com/images/social.jpg",
       type: "article",
     });
@@ -330,14 +202,14 @@ describe("buildSocialMeta", () => {
     ).toEqual({
       title: "Legacy title",
       description: undefined,
-      url: "https://example.chobble.com/page/",
+      url: `${siteData.url}/page/`,
       type: "website",
     });
   });
 
-  test("uses product type for product pages", () => {
-    expect(buildSocialMeta(createSchemaData({ tags: ["products"] })).type).toBe(
-      "product",
+  test("uses website type for pages that are not news", () => {
+    expect(buildSocialMeta(createSchemaData({ tags: ["pages"] })).type).toBe(
+      "website",
     );
   });
 });

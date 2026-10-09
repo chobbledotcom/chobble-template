@@ -49,7 +49,7 @@ export type ImageTransformOptions = {
   sizes: string | null;
   widths: string | null;
   aspectRatio: string | null;
-  loading: null;
+  loading: string | null;
   noLqip: boolean;
   returnElement: true;
   document: Document;

@@ -12,21 +12,20 @@ const applyTheme = (themeName) => {
 };
 
 const updateButtonText = (themeName) => {
-  const button = document.getElementById("theme-switcher-button");
-  if (button) {
-    const computed = getComputedStyle(document.documentElement);
-    const displayName = computed
-      .getPropertyValue(`--theme-${themeName}-name`)
-      .trim();
-    const resolvedDisplayName = displayName
-      ? displayName.replace(/['"]/g, "")
-      : themeName;
+  const computed = getComputedStyle(document.documentElement);
+  const displayName = computed
+    .getPropertyValue(`--theme-${themeName}-name`)
+    .trim();
+  const resolvedDisplayName = displayName
+    ? displayName.replace(/['"]/g, "")
+    : themeName;
 
-    button.setAttribute(
+  document
+    .getElementById("theme-switcher-button")
+    ?.setAttribute(
       "aria-label",
       `Current theme: ${resolvedDisplayName}. Click to switch theme`,
     );
-  }
 };
 
 const cycleTheme = () => {

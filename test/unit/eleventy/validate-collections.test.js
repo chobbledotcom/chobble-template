@@ -1,8 +1,12 @@
-import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import { configureCollectionValidation } from "#eleventy/validate-collections.js";
-import { createMockEleventyConfig, withTempDir } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  srcDir,
+  withTempDir,
+} from "#test/test-utils.js";
 
 /**
  * Helper: set up the plugin and return the eleventy.before handler.
@@ -154,42 +158,22 @@ describe("configureCollectionValidation", () => {
     });
   });
 
-  test("discovers filter-based collections from configure-filters.js", () => {
-    withTempDir("filter-collections", (tempDir) => {
-      writeFile(
-        tempDir,
-        "_lib/filters/configure-filters.js",
-        'const config = { pages: "filteredByColor", redirects: "colorRedirects" };',
-      );
-      writeFile(
-        tempDir,
-        "views/page.html",
-        "{{ collections.filteredByColor }}",
-      );
-      expect(() => getHandler(tempDir)()).not.toThrow();
-    });
-  });
-
-  test("discovers ListingFilterUI collections from filter names", () => {
-    withTempDir("listing-filter-ui", (tempDir) => {
-      writeFile(
-        tempDir,
-        "_lib/filters/configure-filters.js",
-        'const config = { pages: "filteredBySize" };',
-      );
-      writeFile(
-        tempDir,
-        "views/page.html",
-        "{{ collections.filteredBySizeListingFilterUI }}",
-      );
-      expect(() => getHandler(tempDir)()).not.toThrow();
-    });
-  });
-
-  test("works when configure-filters.js does not exist", () => {
-    withTempDir("no-filters", (tempDir) => {
+  test("accepts collections registered via addCollection", () => {
+    withTempDir("registered-collections", (tempDir) => {
       writeFile(tempDir, "lib.js", '.addCollection("items", fn);');
       writeFile(tempDir, "views/page.html", "{{ collections.items }}");
+      expect(() => getHandler(tempDir)()).not.toThrow();
+    });
+  });
+
+  test("stays valid after a child site deletes the demo collection directories", () => {
+    withTempDir("child-site-removal", (tempDir) => {
+      const removable = ["news", "guide-pages", "guide-categories"];
+      fs.cpSync(srcDir, tempDir, {
+        recursive: true,
+        filter: (source) => !removable.includes(path.relative(srcDir, source)),
+      });
+
       expect(() => getHandler(tempDir)()).not.toThrow();
     });
   });

@@ -1,41 +1,11 @@
 {
-  "has_products_filter": true,
-  "has_properties_filter": null,
   "show_breadcrumbs": true,
   "placeholder_images": true,
-  "product_mode": null,
-  "contact_form_target": null,
-  "formspark_id": null,
-  "botpoison_public_key": null,
-  "map_embed_src": null,
-  "sticky_mobile_nav": null,
-  "horizontal_nav": null,
-  "collapse_mobile_menu": true,
   "enable_theme_switcher": true,
-  "externalLinksTargetBlank": null,
-  "template_repo_url": null,
-  "homepage_footer_markdown": "[template](https://github.com/chobbledotcom/chobble-template) by [chobble](https://www.chobble.com)",
-  "cart_mode": "stripe",
-  "quote_type": null,
-  "ecommerce_api_host": "ecom.chobble.com",
-  "currency": "GBP",
-  "default_image_widths": null,
-  "products": {
-    "max_images": null
-  },
-  "timezone": null,
-  "show_product_review_counts": true,
-  "reviews_truncate_limit": null,
-  "rating_stars_uses_svg": true,
-  "list_item_fields": null,
-  "navigation_content_anchor": null,
   "nav_thumbnails": false,
-  "screenshots": null,
-  "phoneNumberLength": null,
-  "use_visual_editor": true,
-  "default_max_quantity": null,
-  "search_collections": null,
-  "ntfy_channel": null,
-  "linkify_urls": null,
-  "disable_liquid_cache": null
+  "search_collections": [
+    "pages",
+    "guide-pages",
+    "guide-categories"
+  ]
 }

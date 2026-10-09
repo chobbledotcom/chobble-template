@@ -1,7 +1,7 @@
 // Placeholder image generation for fast dev builds
 // Used when PLACEHOLDER_IMAGES=1 env var is set
 
-import { wrapImageHtml } from "#media/image-wrapper.js";
+import { wrapImageHtml } from "#media/image-pipeline.js";
 import { createHtml } from "#utils/dom-builder.js";
 
 // 1x1 transparent PNG as base64 data URL
@@ -30,9 +30,7 @@ const generatePlaceholderHtml = async ({
   const pictureHtml = await createHtml("picture", {}, imgHtml);
   return wrapImageHtml(pictureHtml, {
     classes,
-    style: aspectRatio
-      ? `aspect-ratio: ${aspectRatio}; background: #eee`
-      : "aspect-ratio: 1/1; background: #eee",
+    style: `aspect-ratio: ${aspectRatio || "1/1"}; background: #eee`,
   });
 };
 

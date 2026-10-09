@@ -1,10 +1,10 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { generateBlocksField } from "#scripts/customise-cms/blocks.js";
 import { BLOCK_CMS_FIELDS } from "#utils/block-schema.js";
 
 describe("generateBlocksField envelope", () => {
   test("wraps blocks in a block-type list field keyed by type", () => {
-    const field = generateBlocksField(["section-header"], false);
+    const field = generateBlocksField(["section-header"]);
 
     expect(field).toMatchObject({
       name: "blocks",
@@ -16,7 +16,7 @@ describe("generateBlocksField envelope", () => {
   });
 
   test("sorts requested block types alphabetically by name", () => {
-    const field = generateBlocksField(["section-header", "cta", "hero"], false);
+    const field = generateBlocksField(["section-header", "cta", "hero"]);
 
     expect(field.blocks.map((b) => b.name)).toEqual([
       "cta",
@@ -24,40 +24,24 @@ describe("generateBlocksField envelope", () => {
       "section-header",
     ]);
   });
-
-  test("orders markdown first, then the remaining declared block types alphabetically", () => {
-    const blockTypes = Object.keys(BLOCK_CMS_FIELDS);
-    const names = generateBlocksField(blockTypes, false).blocks.map(
-      (b) => b.name,
-    );
-
-    // Same multiset as the schema: no block type dropped or duplicated.
-    expect([...names].sort()).toEqual([...blockTypes].sort());
-    // markdown pinned to the front, everything else in alphabetical order.
-    expect(names.slice(1)).toEqual(
-      blockTypes.filter((type) => type !== "markdown").sort(),
-    );
-  });
 });
 
 describe("generateBlocksField block component", () => {
   test("derives a _componentName by replacing hyphens with underscores", () => {
-    const field = generateBlocksField(
-      ["section-header", "video-background"],
-      false,
-    );
+    const field = generateBlocksField(["section-header", "image-background"]);
 
     expect(field.blocks.map((b) => b._componentName)).toEqual([
+      "block_image_background",
       "block_section_header",
-      "block_video_background",
     ]);
   });
 
   test("derives a human-readable label from the slug", () => {
-    const field = generateBlocksField(
-      ["cta", "section-header", "split-icon-links"],
-      false,
-    );
+    const field = generateBlocksField([
+      "cta",
+      "section-header",
+      "split-icon-links",
+    ]);
 
     expect(field.blocks.map((b) => b.label)).toEqual([
       "Cta",
@@ -65,48 +49,36 @@ describe("generateBlocksField block component", () => {
       "Split Icon Links",
     ]);
   });
-
-  test("labels the markdown block Text Editor without disturbing its schema", () => {
-    const [block] = generateBlocksField(["markdown"], false).blocks;
-    const schema = Object.entries(BLOCK_CMS_FIELDS.markdown);
-
-    expect(block.label).toBe("Text Editor");
-    // Relabelling the block must not reshape what editors already save.
-    expect(block.fields.map((f) => f.name)).toEqual(
-      schema.map(([name]) => name),
-    );
-    expect(block.fields.map((f) => f.label)).toEqual(
-      schema.map(([, field]) => field.label),
-    );
-  });
 });
 
 describe("generateBlocksField markdown field conversion", () => {
-  // section-header.intro is a markdown-typed schema field.
-  const getIntroField = (blockTypes, visual) => {
-    const field = generateBlocksField(blockTypes, visual);
-    return field.blocks[0].fields.find((f) => f.name === "intro");
-  };
-
-  test("emits a rich-text field when visual editor is enabled", () => {
-    const intro = getIntroField(["section-header"], true);
+  test("emits a rich-text field for a markdown-typed schema field", () => {
+    // section-header.intro is a markdown-typed schema field.
+    const intro = generateBlocksField(["section-header"]).blocks[0].fields.find(
+      (f) => f.name === "intro",
+    );
 
     expect(intro.type).toBe("rich-text");
-  });
-
-  test("emits a code/markdown field when visual editor is disabled", () => {
-    const intro = getIntroField(["section-header"], false);
-
-    expect(intro.type).toBe("code");
-    expect(intro.options).toEqual({ language: "markdown" });
+    expect(intro.options).toBeUndefined();
   });
 });
 
 describe("generateBlocksField list field conversion", () => {
+  test("exposes the supported optional accessible label for feature icons", () => {
+    const [{ fields }] = generateBlocksField(["features"]).blocks;
+    expect(
+      fields.find((field) => field.name === "items").fields,
+    ).toContainEqual({
+      name: "icon_label",
+      label: "Icon Accessible Label",
+      type: "string",
+    });
+  });
+
   test("emits a list string field for items-array.items paths", () => {
     // items-array.items declares type:"string" with list:true to accept an
     // array of file paths.
-    const field = generateBlocksField(["items-array"], false);
+    const field = generateBlocksField(["items-array"]);
     const items = field.blocks[0].fields.find((f) => f.name === "items");
 
     expect(items.type).toBe("string");
@@ -116,7 +88,7 @@ describe("generateBlocksField list field conversion", () => {
 
 describe("generateBlocksField reference conversion", () => {
   test("preserves the snippet target and required scalar shape", () => {
-    const field = generateBlocksField(["snippet"], false);
+    const field = generateBlocksField(["snippet"]);
     const reference = field.blocks[0].fields.find(
       (candidate) => candidate.name === "reference",
     );
@@ -133,7 +105,7 @@ describe("generateBlocksField reference conversion", () => {
 describe("generateBlocksField generic field conversion", () => {
   test("passes primitive type strings through verbatim", () => {
     // split-image covers string, boolean, and image in one block.
-    const field = generateBlocksField(["split-image"], false);
+    const field = generateBlocksField(["split-image"]);
     const byName = Object.fromEntries(
       field.blocks[0].fields.map((f) => [f.name, f]),
     );
@@ -145,7 +117,7 @@ describe("generateBlocksField generic field conversion", () => {
 
   test("propagates required:true from the schema", () => {
     // items.collection is required:true.
-    const field = generateBlocksField(["items"], false);
+    const field = generateBlocksField(["items"]);
     const collection = field.blocks[0].fields.find(
       (f) => f.name === "collection",
     );
@@ -156,7 +128,7 @@ describe("generateBlocksField generic field conversion", () => {
   test("recursively converts nested object fields", () => {
     // features.items is an object list whose nested fields include a
     // required:true primitive, so this verifies the recursive dispatch.
-    const field = generateBlocksField(["features"], false);
+    const field = generateBlocksField(["features"]);
     const items = field.blocks[0].fields.find((f) => f.name === "items");
     const nameField = items.fields.find((f) => f.name === "name");
 
@@ -169,7 +141,7 @@ describe("generateBlocksField schema coverage", () => {
   test("emits one CMS field per schema key for every real block", () => {
     // Regression guard: detects if any schema field is silently dropped.
     const blockTypes = Object.keys(BLOCK_CMS_FIELDS);
-    const field = generateBlocksField(blockTypes, false);
+    const field = generateBlocksField(blockTypes);
 
     for (const block of field.blocks) {
       const schema = BLOCK_CMS_FIELDS[block.name];

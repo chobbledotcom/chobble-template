@@ -1,8 +1,8 @@
 {
   "hooks": {
     "postToolUse": {
-      "Write": "bun run lint || true",
-      "Edit": "bun run lint || true"
+      "Write": "npm run lint || true",
+      "Edit": "npm run lint || true"
     }
   }
 }

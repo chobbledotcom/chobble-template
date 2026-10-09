@@ -36,8 +36,8 @@ import {
   shouldIncludeScopedVar,
 } from "#public/theme/theme-editor-lib.js";
 import { onReady } from "#public/utils/on-ready.js";
-import { compact, filter, flatMap, map, pipe } from "#toolkit/fp/array.js";
-import { frozenObject } from "#toolkit/fp/object.js";
+import { compact, filter, flatMap, map, pipe } from "#utils/fp/array.js";
+import { frozenObject } from "#utils/fp/object.js";
 
 const ELEMENT_IDS = frozenObject({
   form: "theme-editor-form",

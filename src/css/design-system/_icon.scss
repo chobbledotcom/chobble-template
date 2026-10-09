@@ -1,5 +1,7 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+// jscpd:ignore-end
 
 // =============================================================================
 // ICON BADGE
@@ -14,14 +16,9 @@
 
 .design-system {
   .icon {
-    @include flex-center;
+    @include icon-box(42px);
 
-    flex-shrink: 0;
-
-    width: 42px;
-    height: 42px;
     border-radius: $radius-md;
-
     font-size: $font-size-2xl;
 
     @include tint-bg;

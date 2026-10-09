@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, test } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { afterEach, describe, expect, test } from "vitest";
 import { ROOT_DIR } from "#lib/paths.js";
 import {
   ignoreListProblems,
@@ -187,11 +187,22 @@ describe("loadIgnoreList", () => {
   test("parses entries, skipping blanks and comments", () => {
     // Real entry first so any corruption of the read (e.g. concatenating onto
     // an undefined accumulator) breaks the parsed key, not just a comment.
+    // The path must be a real file - deleted files fail the load.
     const list = loadIgnoreFrom(
-      ["src/foo.js:42:7 ?? → ||  # equivalent", "# a comment", ""].join("\n"),
+      ["src/_lib/paths.js:42:7 ?? → ||  # equivalent", "# a comment", ""].join(
+        "\n",
+      ),
     );
-    expect(list.entries).toEqual(["src/foo.js:42:7 ??→||"]);
-    expect(list.keys.has("src/foo.js:42:7 ??→||")).toBe(true);
+    expect(list.entries).toEqual(["src/_lib/paths.js:42:7 ??→||"]);
+    expect(list.keys.has("src/_lib/paths.js:42:7 ??→||")).toBe(true);
+  });
+
+  test("throws when an entry points at a file that no longer exists", () => {
+    // Per-run validation only covers the files being mutated, so entries
+    // for deleted files must fail at load time instead of rotting.
+    expect(() =>
+      loadIgnoreFrom("src/deleted-long-ago.js:42:7 ?? → ||  # stale\n"),
+    ).toThrow("files that no longer exist");
   });
 
   test("ignores a commented-out entry line", () => {
@@ -210,10 +221,10 @@ describe("loadIgnoreList", () => {
     // The mutant text contains both a glued `#` and a space-preceded ` #`; only
     // the trailing ` # reason` (on the replacement side of `→`) is a comment.
     const list = loadIgnoreFrom(
-      'src/x.js:5:3  document.querySelector("body #nav"); → (removed)   # equivalent\n',
+      'src/_lib/paths.js:5:3  document.querySelector("body #nav"); → (removed)   # equivalent\n',
     );
     expect(list.entries).toEqual([
-      'src/x.js:5:3 document.querySelector("body #nav");→(removed)',
+      'src/_lib/paths.js:5:3 document.querySelector("body #nav");→(removed)',
     ]);
   });
 });

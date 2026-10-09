@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 /**
  * CMS Customisation Script
@@ -27,7 +27,7 @@ import { askQuestions } from "#scripts/customise-cms/prompts.js";
 import {
   generateCompactYaml,
   runWithErrorHandling,
-  writePagesYaml,
+  writeCmsArtifacts,
 } from "#scripts/customise-cms/writer.js";
 
 /**
@@ -75,9 +75,11 @@ const logConfigSummary = (config, message, quiet) => {
     log(`  Features: ${enabledFeatures.join(", ")}`, quiet);
   }
 
-  const customBlocks = config.customBlocksCollections || [];
-  if (customBlocks.length > 0) {
-    log(`  Custom blocks collections: ${customBlocks.join(", ")}`, quiet);
+  if (config.customBlocksCollections.length > 0) {
+    log(
+      `  Custom blocks collections: ${config.customBlocksCollections.join(", ")}`,
+      quiet,
+    );
   }
 };
 
@@ -99,7 +101,7 @@ const runInteractive = async () => {
   const config = await askQuestions(existingConfig);
 
   await saveCmsConfig(config);
-  await writePagesYaml(generateCompactYaml(config));
+  await writeCmsArtifacts(config);
 
   console.log("\n.pages.yml has been updated!");
   console.log("Your configuration has been saved to src/_data/site.json");
@@ -125,7 +127,7 @@ const runRegenerate = async (values) => {
     return;
   }
 
-  await writePagesYaml(generateCompactYaml(config));
+  await writeCmsArtifacts(config);
   logConfigSummary(
     config,
     ".pages.yml has been regenerated from saved config!",
@@ -152,7 +154,7 @@ const runNonInteractive = async (values) => {
     log("Configuration saved to site.json", options.quiet);
   }
 
-  await writePagesYaml(generateCompactYaml(config));
+  await writeCmsArtifacts(config);
   logConfigSummary(config, "\n.pages.yml has been updated!", options.quiet);
 };
 
@@ -160,17 +162,29 @@ const runNonInteractive = async (values) => {
  * Main entry point
  * @returns {Promise<void>}
  */
-const main = async () => {
-  let values;
+/**
+ * Report a bad CLI invocation and exit non-zero.
+ * @param {unknown} error
+ * @returns {never}
+ */
+const exitWithUsageHint = (error) => {
+  const reason = error instanceof Error ? error.message : String(error);
+  console.error(`Error: ${reason}`);
+  console.error("Use --help for usage information.");
+  return process.exit(1);
+};
 
+/** Parse the CLI invocation, exiting with a usage hint on bad flags. */
+const parseOrExit = () => {
   try {
-    const parsed = parseCliArguments();
-    values = parsed.values;
+    return parseCliArguments().values;
   } catch (error) {
-    console.error(`Error: ${error.message}`);
-    console.error("Use --help for usage information.");
-    process.exit(1);
+    return exitWithUsageHint(error);
   }
+};
+
+const main = async () => {
+  const values = parseOrExit();
 
   // Handle --help
   if (values.help) {

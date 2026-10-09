@@ -9,11 +9,11 @@ eleventyNavigation:
 blocks:
   - type: markdown
     content: |
-      ## Chobble Template News
+      # News
 
-      On a real website this is where you'd list your news posts - saving your visitors from needing to click through to your [Facebook]({{ site.socials.Facebook }}) or [Mastodon]({{ site.socials.Mastodon }}) pages to learn about what you've been up to.
+      On a real website this is where you'd list your news posts - saving your visitors from needing to click through to social media to learn about what you've been up to.
 
-      Your news posts are also pulled through to the [RSS Feed](/feed.xml), which also looks tidy and explains what RSS is - pretty neat, no?
+      Your news posts also appear in the [Atom feed](/feed.xml), so visitors can subscribe in a feed reader.
   - type: items
     collection: news
     image_aspect_ratio: "4/3"

@@ -1,5 +1,7 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+// jscpd:ignore-end
 
 // =============================================================================
 // BREADCRUMBS
@@ -17,7 +19,8 @@
 
     padding-block: $space-sm;
 
-    font-size: $font-size-sm;
+    @include body-sm;
+
     list-style: none;
 
     li {
@@ -28,17 +31,17 @@
     }
 
     a {
-      color: var(--color-link);
-      text-decoration: none;
-      transition: color $transition-fast;
-
-      &:hover {
-        text-decoration: underline;
-      }
+      @include link-plain;
     }
 
+    // The separator is drawn by the theme: set --breadcrumb-separator
+    // (a CSS string, such as ">") to change it.
     .separator {
-      color: var(--color-text-muted);
+      @include muted-text;
+
+      &::before {
+        content: var(--breadcrumb-separator);
+      }
     }
 
     span[aria-current] {

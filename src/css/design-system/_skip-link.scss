@@ -1,0 +1,46 @@
+// jscpd:ignore-start -- shared @use import block
+@use "../variables" as *;
+@use "../mixins" as *;
+@use "../breakpoints" as *;
+// jscpd:ignore-end
+
+// =============================================================================
+// SKIP LINK
+// =============================================================================
+// The first focusable thing on every page: one keypress past the browser
+// chrome takes a keyboard or screen-reader user straight to <main id="content">,
+// skipping the navigation (WCAG 2.4.1 Bypass Blocks).
+//
+// It is off-screen rather than display: none, because a hidden element cannot
+// be focused. Fixed positioning above every other layer keeps it visible once
+// focused even under a sticky header (WCAG 2.4.11 Focus Not Obscured), and the
+// padding keeps the target comfortably past the 24px minimum (WCAG 2.5.8).
+
+.design-system {
+  .skip-link {
+    position: fixed;
+    z-index: $z-skip-link;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    transform: translateY(-100%);
+
+    @include compact-padding;
+
+    border: 1px solid var(--color-link);
+    border-radius: 0 0 $radius-md;
+
+    @include body-base;
+
+    background: var(--color-card-bg);
+
+    transition: transform 150ms ease-out;
+
+    &:focus {
+      transform: translateY(0);
+    }
+
+    @include reduced-motion {
+      transition: none;
+    }
+  }
+}

@@ -1,5 +1,5 @@
 <div>
-  <label class="no-checkbox">{{ label }}</label>
+  <label class="no-checkbox" for="{{ scope }}-{{ id }}">{{ label }}</label>
   <input
     type="{{ type | default: 'color' }}"
     id="{{ scope }}-{{ id }}"

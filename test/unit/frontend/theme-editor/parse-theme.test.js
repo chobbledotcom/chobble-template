@@ -2,7 +2,7 @@
 // These are pure functions that convert theme SCSS strings into
 // structured data — they do not touch the DOM.
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   parseBorderValue,
   parseThemeContent,

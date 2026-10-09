@@ -1,3 +1,4 @@
+import { readFileSync, statSync } from "node:fs";
 /**
  * Low Quality Image Placeholder (LQIP) generation.
  *
@@ -10,7 +11,7 @@
  * - Small images under 5KB (overhead not worth it)
  */
 import { getSharp } from "#media/image-crop.js";
-import { mapObject } from "#toolkit/fp/object.js";
+import { mapObject } from "#utils/fp/object.js";
 
 // Node.js caches dynamic imports, no memoization needed
 const getEleventyImg = () => import("@11ty/eleventy-img");
@@ -29,7 +30,7 @@ const PLACEHOLDER_SIZE_THRESHOLD = 5 * 1024;
  */
 const shouldGenerateLqip = async (imagePath, metadata) => {
   if (metadata.format === "svg") return false;
-  if (Bun.file(imagePath).size < PLACEHOLDER_SIZE_THRESHOLD) return false;
+  if (statSync(imagePath).size < PLACEHOLDER_SIZE_THRESHOLD) return false;
   if (!metadata.hasAlpha) return true;
   const sharp = await getSharp();
   const stats = await sharp(imagePath).stats();
@@ -39,7 +40,6 @@ const shouldGenerateLqip = async (imagePath, metadata) => {
 /**
  * Extract LQIP data URL from eleventy-img metadata.
  * Finds the 32px webp image and converts it to a base64 data URL.
- * Uses Bun.file().arrayBuffer() for faster binary file reading.
  * @param {{ webp?: Array<{ width: number, outputPath: string }> }} imageMetadata - Metadata returned by eleventy-img
  * @returns {Promise<string | null>} CSS url() with base64 data, or null if not found
  */
@@ -49,8 +49,7 @@ const extractLqipFromMetadata = async (imageMetadata) => {
   const lqipImage = imageMetadata.webp.find((img) => img.width === LQIP_WIDTH);
   if (!lqipImage) return null;
 
-  const buffer = await Bun.file(lqipImage.outputPath).arrayBuffer();
-  const base64 = Buffer.from(buffer).toString("base64");
+  const base64 = readFileSync(lqipImage.outputPath).toString("base64");
   return `url('data:image/webp;base64,${base64}')`;
 };
 
@@ -59,10 +58,16 @@ const extractLqipFromMetadata = async (imageMetadata) => {
  * @param {Record<string, Array<{ width: number }>>} imageMetadata - Metadata returned by eleventy-img
  * @returns {Record<string, Array<{ width: number }>>} Filtered metadata without LQIP-sized images
  */
-const removeLqip = mapObject((format, images) => [
-  format,
-  images.filter((img) => img.width !== LQIP_WIDTH),
-]);
+const removeLqip = mapObject(
+  /**
+   * @param {string} format
+   * @param {Array<{ width: number }>} images
+   */
+  (format, images) => [
+    format,
+    images.filter((img) => img.width !== LQIP_WIDTH),
+  ],
+);
 
 export {
   extractLqipFromMetadata,

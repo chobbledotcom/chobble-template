@@ -13,11 +13,11 @@
  * Use --verbose flag to see full output from all checks.
  */
 
+import { isMainModule } from "#scripts/lib/is-main-module.js";
 import {
   COMMON_STEPS,
   codeQualityTestsStep,
   integrationTestsStep,
-  isMainModule,
   runLanes,
   unitTestsStep,
   verbose,
@@ -28,8 +28,10 @@ const mainLanes = [
   [COMMON_STEPS.lintScss],
   [COMMON_STEPS.knip],
   [COMMON_STEPS.typecheck, COMMON_STEPS.typecheckStrict],
-  [COMMON_STEPS.cpdDesignSystem, COMMON_STEPS.cpd],
-  [COMMON_STEPS.build],
+  [COMMON_STEPS.cpd, COMMON_STEPS.cpdRatchet],
+  // The accessibility check reads the built site, so it follows the build in
+  // the same lane rather than racing it in another.
+  [COMMON_STEPS.build, COMMON_STEPS.checkA11y],
   [unitTestsStep(verbose)],
   [integrationTestsStep],
 ];

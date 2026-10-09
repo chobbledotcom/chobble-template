@@ -1,7 +1,9 @@
+// jscpd:ignore-start -- shared @use import block
 @use "sass:math";
 @use "../variables" as *;
 @use "../mixins" as *;
 @use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
 
 // =============================================================================
 // ITEMS LIST (for list-item.html)
@@ -74,11 +76,8 @@
       flex-direction: column;
       gap: var(--item-gap);
 
-      border: $border-light;
-      border-radius: $radius-lg;
-
-      background: var(--color-card-bg);
-
+      @include box-border($radius-lg);
+      @include card-bg;
       @include card-hover;
 
       &.featured {
@@ -121,42 +120,19 @@
       @include product-card-typography;
 
       p:not(.price) {
-        @include body-sm;
-
-        color: var(--color-text-muted);
+        @include muted-body-sm;
       }
 
       // =======================================================================
-      // CART BUTTONS
+      // CARD BUTTONS
       // =======================================================================
 
-      // "Select Options" link or standalone "Add to Cart" button
-      > .button,
-      > .add-to-cart {
+      // "Read more" style call-to-action button pinned to the card foot
+      > .button {
         @include button-primary;
 
         margin-block-start: auto;
         margin-inline: var(--item-padding-inline);
-      }
-
-      // Cart controls row (button + quantity selector)
-      .list-item-cart-controls {
-        display: flex;
-        gap: $space-sm;
-        align-items: center;
-
-        margin-block-start: auto;
-        padding: 0 var(--item-padding-inline) var(--item-padding-inline);
-
-        .add-to-cart {
-          @include button-primary;
-
-          margin: 0;
-        }
-
-        .item-quantity {
-          margin: 0;
-        }
       }
     }
 

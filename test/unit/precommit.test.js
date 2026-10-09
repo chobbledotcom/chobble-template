@@ -1,11 +1,10 @@
-import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import { getStepEnvironment } from "#test/precommit/environment.js";
 import { extractErrorsFromOutput } from "#test/test-runner-utils.js";
 import { expectErrorsInclude, rootDir } from "#test/test-utils.js";
 
 const precommitPath = join(rootDir, "test", "precommit.js");
-const testRunnerUtilsPath = join(rootDir, "test", "test-runner-utils.js");
 
 describe("precommit step environment", () => {
   test("removes parent repository state from child processes", () => {
@@ -22,10 +21,6 @@ describe("precommit step environment", () => {
     expect(environment).toEqual({ PATH: "/bin", VERBOSE: "1" });
   });
 });
-
-/** Read the test-runner-utils.js file content */
-const readTestRunnerUtils = () =>
-  require("node:fs").readFileSync(testRunnerUtilsPath, "utf-8");
 
 /**
  * Assert that all expected strings appear in the errors array.
@@ -152,10 +147,19 @@ jscpd found duplicated code.
     ).toHaveLength(1);
   });
 
+  test("extractErrorsFromOutput preserves large clone reports without recursion", () => {
+    const block = [
+      "❌ Clone found (javascript, 20000 lines)",
+      ...Array.from({ length: 20_000 }, (_, index) => `fragment line ${index}`),
+    ].join("\n");
+
+    expect(extractErrorsFromOutput(`${block}\n\n`)).toEqual([block]);
+  });
+
   test("extractErrorsFromOutput correctly parses test failures", () => {
-    // Simulate real bun test failure output
+    // Simulate real test-runner failure output
     const testOutput = `
-$ bun test test/unit
+$ npm test
 
 ❌ utils.test.js > formatDate handles invalid dates
 AssertionError: expected "Invalid Date" to equal "N/A"
@@ -177,7 +181,7 @@ AssertionError: expected undefined to be defined
   });
 
   test("extractErrorsFromOutput correctly parses coverage errors", () => {
-    // Simulate real coverage error output from bun test --coverage
+    // Simulate real coverage error output from a --coverage run
     const coverageOutput = `
 ❌ Coverage below threshold for statements: 85.5% < 90%
 ❌ Coverage below threshold for branches: 75.2% < 80%
@@ -210,7 +214,7 @@ src/utils/new-helper.js
 
   test("extractErrorsFromOutput filters out noise but keeps errors", () => {
     const noisyOutput = `
-$ bun test
+$ npm test
 
 /home/user/project/test/unit/something.test.js
 
@@ -231,7 +235,7 @@ error: something went wrong
     const errors = extractErrorsFromOutput(noisyOutput);
 
     // Should filter out command lines starting with $
-    expect(errors.some((e) => e.startsWith("$ bun"))).toBe(false);
+    expect(errors.some((e) => e.startsWith("$ npm"))).toBe(false);
 
     // Should filter out file paths starting with /
     expect(errors.some((e) => e.startsWith("/home"))).toBe(false);
@@ -295,19 +299,6 @@ Error: Cannot find module 'missing-dep'
     expect(packageJson.scripts["knip:fix"]).toBeDefined();
     expect(packageJson.devDependencies.knip).toBeDefined();
   });
-
-  test("precommit script limits errors to 10 by default", () => {
-    const code = readTestRunnerUtils();
-    // Check that the shared utilities use printTruncatedList with errors label
-    expect(code).toContain("export const printTruncatedList");
-    expect(code).toContain('printTruncatedList({ moreLabel: "errors"');
-  });
-
-  test("precommit script shows verbose flag hint when errors are truncated", () => {
-    const code = readTestRunnerUtils();
-    // Verify the printTruncatedList utility has the verbose hint as default
-    expect(code).toContain("use --verbose to see all");
-  });
 });
 
 /**
@@ -316,27 +307,12 @@ Error: Cannot find module 'missing-dep'
 describe("precommit script integration", () => {
   test("precommit script exists and is executable", () => {
     const fs = require("node:fs");
-    const { access, constants } = require("node:fs");
-
     // Check file exists and is executable
     expect(fs.existsSync(precommitPath)).toBe(true);
 
     // Verify file has execute permissions (or at least read permissions)
     const stats = fs.statSync(precommitPath);
     expect(stats.isFile()).toBe(true);
-  });
-
-  test("precommit script runs in non-verbose mode by default", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // Precommit should check for --verbose flag
-    expect(precommitCode).toContain("--verbose");
-    // Shared utilities should always capture output for error extraction
-    expect(readTestRunnerUtils()).toContain(
-      'stdio: ["inherit", "pipe", "pipe"]',
-    );
   });
 });
 

@@ -1,5 +1,3 @@
-import { pipe } from "#toolkit/fp/array.js";
-
 const PLACEHOLDER_COLORS = [
   "green",
   "blue",
@@ -9,26 +7,16 @@ const PLACEHOLDER_COLORS = [
   "orange",
 ];
 
-const hashString = (str) =>
-  Math.abs(
-    [...str].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) | 0, 0),
+/** @param {string} itemPath */
+const getPlaceholderForPath = (itemPath) => {
+  const hash = Math.abs(
+    [...itemPath].reduce(
+      (hash, char) => (hash * 31 + char.charCodeAt(0)) | 0,
+      0,
+    ),
   );
-
-const getPlaceholderForPath = (itemPath) =>
-  pipe(
-    hashString,
-    (hash) => hash % PLACEHOLDER_COLORS.length,
-    (index) => PLACEHOLDER_COLORS[index],
-    (color) => `images/placeholders/${color}.svg`,
-  )(itemPath);
-
-const configureThumbnailPlaceholder = (eleventyConfig) => {
-  eleventyConfig.addFilter("thumbnailPlaceholder", getPlaceholderForPath);
+  const color = PLACEHOLDER_COLORS[hash % PLACEHOLDER_COLORS.length];
+  return `images/placeholders/${color}.svg`;
 };
 
-export {
-  configureThumbnailPlaceholder,
-  getPlaceholderForPath,
-  hashString,
-  PLACEHOLDER_COLORS,
-};
+export { getPlaceholderForPath };

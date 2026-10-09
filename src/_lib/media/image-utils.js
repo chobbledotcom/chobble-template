@@ -4,41 +4,55 @@
  * Helpers for image path normalization, URL detection, and attribute building.
  * Extracted to reduce complexity in image.js and provide reusable utilities.
  */
-import { compact } from "#toolkit/fp/array.js";
+import { compact } from "#utils/fp/array.js";
+import { frozenObject } from "#utils/fp/object.js";
 import { isExternalUrl } from "#utils/url-utils.js";
-
-export { isExternalUrl };
 
 const DEFAULT_WIDTHS = [240, 480, 900, 1300];
 const DEFAULT_SIZE = "auto";
 
 /**
- * Normalize image path to resolve from project root.
- * Handles various input formats:
- * - "/images/photo.jpg" -> "./src/images/photo.jpg"
- * - "src/images/photo.jpg" -> "./src/images/photo.jpg"
- * - "images/photo.jpg" -> "./src/images/photo.jpg"
- * - "photo.jpg" -> "./src/images/photo.jpg"
- *
- * @param {string} imageName - Image path (always string from shortcode or transform)
- * @returns {string} Normalized path
+ * Resolve the processed-image cache directory at call time. The
+ * IMAGE_CACHE_DIR environment variable redirects it so in-process test runs
+ * write to a swept temp directory instead of seeding the checkout's build
+ * cache, which every site build ships into `_site/img/`. Spawned test-site
+ * builds blank it to keep their cache site-local.
+ * @returns {string} Cache directory, cwd-relative by default
  */
-export const normalizeImagePath = (imageName) => {
-  if (imageName.startsWith("/")) return `./src${imageName}`;
-  if (imageName.startsWith("src/")) return `./${imageName}`;
-  if (imageName.startsWith("images/")) return `./src/${imageName}`;
-  return `./src/images/${imageName}`;
+export const getImageCacheDir = () =>
+  process.env.IMAGE_CACHE_DIR || ".image-cache";
+
+/**
+ * Reduce an accepted image reference to a src/-relative path. The single
+ * source of truth for the input shapes image references may take:
+ * - "/images/photo.jpg", "src/images/photo.jpg", "images/photo.jpg", and
+ *   "photo.jpg" all become "images/photo.jpg"
+ * - explicitly rooted non-image paths keep their own directory
+ *   ("/files/photo.png" -> "files/photo.png")
+ *
+ * @param {string} imageName - Image path as written in frontmatter/templates
+ * @returns {string} Path relative to src/, without a leading slash
+ */
+const toSrcRelative = (imageName) => {
+  if (imageName.startsWith("/")) return imageName.slice(1);
+  if (imageName.startsWith("src/")) return imageName.slice(4);
+  if (imageName.startsWith("images/")) return imageName;
+  return `images/${imageName}`;
 };
 
 /**
- * Normalize an image path to a browser URL rooted at the site.
- * Mirrors normalizeImagePath's input shapes but returns URL-space output:
- * - "/images/photo.jpg"    -> "/images/photo.jpg"
- * - "src/images/photo.jpg" -> "/images/photo.jpg"
- * - "images/photo.jpg"     -> "/images/photo.jpg"
- * - "photo.jpg"            -> "/images/photo.jpg"
+ * Normalize image path to resolve from project root
+ * (e.g. "photo.jpg" -> "./src/images/photo.jpg").
+ * @param {string} imageName - Image path (always string from shortcode or transform)
+ * @returns {string} Normalized path
+ */
+export const normalizeImagePath = (imageName) =>
+  `./src/${toSrcRelative(imageName)}`;
+
+/**
+ * Normalize an image path to a browser URL rooted at the site
+ * (e.g. "photo.jpg" -> "/images/photo.jpg").
  * External URLs (http:, https:, protocol-relative //, data:) pass through.
- *
  * @param {string} imageName - Image path as written in frontmatter
  * @returns {string} Browser-safe URL
  */
@@ -46,17 +60,14 @@ export const normalizeImageUrl = (imageName) => {
   if (isExternalUrl(imageName)) return imageName;
   if (imageName.startsWith("//") || imageName.startsWith("data:"))
     return imageName;
-  if (imageName.startsWith("/")) return imageName;
-  if (imageName.startsWith("src/")) return `/${imageName.slice(4)}`;
-  if (imageName.startsWith("images/")) return `/${imageName}`;
-  return `/images/${imageName}`;
+  return `/${toSrcRelative(imageName)}`;
 };
 
 /**
  * Parse widths parameter and add "auto" for original source image.
  * Handles comma-separated string "240,480,900" or array [240, 480, 900].
  * Always appends "auto" to include the original source image.
- * @param {string | number[] | null} [widths] - Widths as CSV string or array
+ * @param {string | Array<string | number> | null} [widths] - Widths as CSV string or array
  */
 export const parseWidths = (widths) => {
   const parsed =
@@ -68,44 +79,11 @@ export const parseWidths = (widths) => {
 };
 
 /**
- * Build standard image attributes object.
- * @param {Object} options - Attribute options
- * @param {string | null} [options.src] - Image source (for external images)
- * @param {string} [options.alt] - Alt text
- * @param {string | null} [options.sizes] - Sizes attribute
- * @param {string | null} [options.loading] - Loading attribute
- * @param {string | null} [options.classes] - CSS classes
- * @returns {Record<string, string>} Image attributes
- */
-const buildImgAttributes = ({
-  src = null,
-  alt = "",
-  sizes = null,
-  loading = null,
-  classes = null,
-} = {}) => ({
-  ...(src && { src }),
-  alt,
-  sizes: sizes || DEFAULT_SIZE,
-  loading: loading || "lazy",
-  decoding: "async",
-  ...(classes && { class: classes }),
-});
-
-/**
- * Build picture element attributes.
- * @param {string | null} classes - CSS classes
- * @returns {Record<string, string>} Picture attributes
- */
-const buildPictureAttributes = (classes) =>
-  classes?.trim() ? { class: classes } : {};
-
-/**
  * Build wrapper styles for images from pre-computed values.
  * Shared by both local and external image processing paths.
  * @param {Object} options
  * @param {string | null} options.bgImage - LQIP background image CSS value
- * @param {string | null} options.aspectRatio - Pre-computed aspect ratio string
+ * @param {string | null} [options.aspectRatio] - Pre-computed aspect ratio string
  * @param {number | null} [options.maxWidth] - Maximum width in pixels
  * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
  * @returns {string} CSS style string
@@ -122,127 +100,43 @@ export const buildImageWrapperStyles = ({
     !skipMaxWidth && maxWidth && `max-width: min(${maxWidth}px, 100%)`,
   ]).join("; ");
 
-/**
- * Build wrapper styles for local images.
- * Computes aspect ratio from metadata, then delegates to buildImageWrapperStyles.
- * @param {string | null} bgImage - LQIP background image CSS value
- * @param {string | null} aspectRatio - Aspect ratio string
- * @param {{ width: number }} metadata - Image metadata with width property
- * @param {Function} getAspectRatioFn - Function to compute aspect ratio
- * @param {boolean} [skipMaxWidth=false] - Skip max-width constraint
- */
-export const buildWrapperStyles = (
-  bgImage,
-  aspectRatio,
-  metadata,
-  getAspectRatioFn,
-  skipMaxWidth = false,
-) =>
-  buildImageWrapperStyles({
-    bgImage,
-    aspectRatio: getAspectRatioFn(aspectRatio, metadata),
-    maxWidth: metadata.width,
-    skipMaxWidth,
-  });
-
-/**
- * Converts a file path to a unique, filename-safe basename.
- * Strips common prefixes (./src/, src/) and the images/ directory,
- * then strips everything up to and including .image-cache/ if present anywhere.
- * Finally converts remaining path segments to hyphen-separated format.
- *
- * E.g., "./src/images/products/photo.jpg" -> "products-photo"
- *       "./src/images/photo.jpg" -> "photo"
- *       "./src/assets/icons/logo.png" -> "assets-icons-logo"
- *       ".image-cache/photo-crop-abc123.jpeg" -> "photo-crop-abc123"
- *       "/abs/path/.image-cache/photo.jpeg" -> "photo"
- * @param {string} src - File path
- * @returns {string} Filename-safe basename
- */
-export const getPathAwareBasename = (src) => {
-  const normalized = src
-    .replace(/\\/g, "/")
-    .replace(/^\.?\/?(src\/)?/, "")
-    .replace(/^images\//, "")
-    .replace(/^.*[/]?\.?image-cache\//, "");
-  const withoutExt = normalized.replace(/\.[^.]+$/, "");
-  return withoutExt.replace(/\//g, "-");
-};
-
-/**
- * Percent-encode each path segment of a generated image URL so it is safe
- * to emit inside srcset/src attributes. eleventy-img writes generated
- * files under their raw source basename and emits the URL verbatim; raw
- * whitespace in a filename would otherwise separate each srcset candidate
- * URL from its width descriptor and silently invalidate the whole
- * responsive set.
- *
- * Encoding the emitted URL (rather than the written filename) keeps the
- * on-disk and CDN names identical to what browsers request after decoding:
- * a literal "%" becomes %25 and every other character outside
- * [A-Za-z0-9._-] becomes %XX per UTF-8 byte, which makes the mapping
- * injective — two different filenames can never produce the same URL.
- *
- * @param {string} url - Generated image URL (e.g. "/img/photo 1-240.webp")
- * @returns {string} URL with each path segment percent-encoded
- */
-const encodeImageUrlPath = (url) =>
-  url
-    .split("/")
-    .map((segment) => encodeURIComponent(segment))
-    .join("/");
-
-/**
- * Percent-encode the URL fields of an eleventy-img metadata entry.
- * eleventy-img builds `<source>` srcsets from the entry's `srcset` field
- * (not `url`), so both must be encoded for the emitted markup to reference
- * the encoded URLs.
- *
- * @param {{url: string, srcset?: string, width?: number}} entry - eleventy-img metadata entry
- * @returns {Object} New entry with URL fields percent-encoded
- */
-export const encodeMetadataEntryUrls = (entry) => {
-  const url = encodeImageUrlPath(entry.url);
-  return {
-    ...entry,
-    url,
-    ...(typeof entry.srcset === "string" && typeof entry.width === "number"
-      ? { srcset: `${url} ${entry.width}w` }
-      : {}),
-  };
-};
-
-/**
- * Generate filename for resized images.
- * Used by eleventy-img for both regular images and LQIP thumbnails.
- * @param {string} _id - Image ID (unused)
- * @param {string} src - Source path
- * @param {number} width - Output width
- * @param {string} format - Output format
- * @param {{manualCacheKey?: string | number}} [options] - Eleventy Image options
- * @returns {string} Generated filename
- */
-export const filenameFormat = (_id, src, width, format, options = {}) => {
-  const basename = getPathAwareBasename(src);
-  const extension = src.slice(src.lastIndexOf(".") + 1).toLowerCase();
-  const cropSuffix = options.manualCacheKey
-    ? `-${extension}-crop-${String(options.manualCacheKey).replaceAll("/", "x")}`
-    : "";
-  return `${basename}${cropSuffix}-${width}.${format}`;
-};
-
 // JPEG fallback width - only generate one JPEG size since nearly all browsers support webp
 export const JPEG_FALLBACK_WIDTH = 1300;
 
 /**
  * Default options for eleventy-img processing.
- * Shared between local and external image processing.
+ * Shared between local and external image processing — the single source of
+ * truth for the cache directory and URL path. The cache directory resolves
+ * through getImageCacheDir at import time, after test setup has had its say.
  */
-export const DEFAULT_IMAGE_OPTIONS = {
-  outputDir: ".image-cache",
+export const DEFAULT_IMAGE_OPTIONS = frozenObject({
+  outputDir: getImageCacheDir(),
   urlPath: "/img/",
-  filenameFormat,
-};
+  /**
+   * Generate filenames for resized images and LQIP thumbnails.
+   * Strip src/images and cache prefixes; preserve subdirectories as hyphens.
+   * @param {string} _id - Image ID (unused)
+   * @param {string} src - Source path
+   * @param {number} width - Output width
+   * @param {string} format - Output format
+   * @param {{manualCacheKey?: string | number}} [options] - Eleventy Image options
+   * @returns {string} Generated filename
+   */
+  filenameFormat: (_id, src, width, format, options = {}) => {
+    const basename = src
+      .replace(/\\/g, "/")
+      .replace(/^\.?\/?(src\/)?/, "")
+      .replace(/^images\//, "")
+      .replace(/^.*[/]?\.?image-cache\//, "")
+      .replace(/\.[^.]+$/, "")
+      .replace(/\//g, "-");
+    const extension = src.slice(src.lastIndexOf(".") + 1).toLowerCase();
+    const cropSuffix = options.manualCacheKey
+      ? `-${extension}-crop-${String(options.manualCacheKey).replaceAll("/", "x")}`
+      : "";
+    return `${basename}${cropSuffix}-${width}.${format}`;
+  },
+});
 
 /**
  * Prepare attributes for image and picture elements.
@@ -251,9 +145,19 @@ export const DEFAULT_IMAGE_OPTIONS = {
  * @param {string | null} [options.sizes] - Sizes attribute
  * @param {string | null} [options.loading] - Loading attribute
  * @param {string | null} [options.classes] - CSS classes
- * @returns {{ imgAttributes: Record<string, string>, pictureAttributes: Record<string, string> }}
+ * @returns {{ imgAttributes: Record<string, string | null>, pictureAttributes: Record<string, string> }}
  */
-export const prepareImageAttributes = ({ alt, sizes, loading, classes }) => ({
-  imgAttributes: buildImgAttributes({ alt, sizes, loading }),
-  pictureAttributes: buildPictureAttributes(classes),
+export const prepareImageAttributes = ({
+  alt = "",
+  sizes,
+  loading,
+  classes,
+}) => ({
+  imgAttributes: {
+    alt,
+    sizes: sizes || DEFAULT_SIZE,
+    loading: loading || "lazy",
+    decoding: "async",
+  },
+  pictureAttributes: classes?.trim() ? { class: classes } : {},
 });

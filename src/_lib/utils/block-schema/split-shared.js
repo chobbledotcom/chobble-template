@@ -1,20 +1,18 @@
+/* jscpd:ignore-start -- block schema declaration data */
 /**
  * Shared unified fields for all split-* block types.
  *
- * Every split variant (split-image, split-video, split-code, split-icon-links,
- * split-html) shares the same text-side fields. This module centralizes them
- * so each variant only adds its own figure-specific keys.
+ * Every split variant (split-image, split-code, split-icon-links, split-html,
+ * split-callout) shares the same text-side fields. This module centralizes
+ * them so each variant only adds its own figure-specific keys.
  */
 import {
-  BUTTON_FIELDS_WITH_SIZE,
   bool,
+  buttonFields,
   md,
   objectField,
   str,
 } from "#utils/block-schema/shared.js";
-
-// Re-export so split variants only need one import source.
-export { md, str } from "#utils/block-schema/shared.js";
 
 /** Unified fields shared by all split variants. */
 export const SPLIT_BASE_FIELDS = {
@@ -29,30 +27,31 @@ export const SPLIT_BASE_FIELDS = {
   },
   reverse: {
     ...bool("Reverse Layout"),
-    default: "false",
+    default: false,
     description:
       "Reverses column order (content right, figure left) on desktop.",
   },
   reveal_content: {
     ...str("Reveal Content Animation"),
-    default: '"left"',
+    /** @param {{ reverse?: boolean }} block */
+    default: ({ reverse }) => (reverse ? "right" : "left"),
     description:
-      '`data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true.',
+      '`data-reveal` for the text side. Defaults to `"left"`, or `"right"` when `reverse` is true.',
   },
   reveal_figure: {
     ...str("Reveal Figure Animation"),
-    default: '"scale"',
+    default: "scale",
     description: "`data-reveal` for the figure side.",
   },
   button: {
-    ...objectField("Button", BUTTON_FIELDS_WITH_SIZE),
-    description:
-      '`{text, href, variant}`. Rendered below content. Default variant: `"secondary"`.',
+    ...objectField("Button", buttonFields({ variant: "secondary" })),
+    description: "`{text, href, variant, size}`. Rendered below content.",
   },
 };
 
-/** Shared docs metadata for all split variants. */
+/** Shared docs metadata for the split variants rendered by `split.html`. */
 export const SPLIT_BASE_DOCS = {
   scss: "src/css/design-system/_split.scss",
   htmlRoot: '<div class="split">',
 };
+/* jscpd:ignore-end */

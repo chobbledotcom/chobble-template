@@ -3,7 +3,7 @@
  * Shared test utilities for schema-helper.test.js
  */
 
-import { filterMap, map } from "#toolkit/fp/array.js";
+import { filterMap, map } from "#utils/fp/array.js";
 
 /**
  * Create a curried optional property adder
@@ -105,42 +105,6 @@ const createSchemaData = (options = {}) => {
 };
 
 /**
- * Create product schema data
- *
- * @param {Object} options - Configuration options
- * @param {string} [options.fileSlug="test"] - Product slug
- * @param {string} [options.name="Test Product"] - Product name
- * @param {string} [options.siteName="Test Store"] - Site name
- * @param {number} [options.price] - Product price
- * @param {Array} [options.reviews] - Reviews collection
- * @param {string[]} [options.tags] - Item tags (used to derive reviews field)
- * @returns {Object} Product schema data
- */
-const createProductSchemaData = ({
-  fileSlug = "test",
-  name = "Test Product",
-  siteName = "Test Store",
-  price = null,
-  reviews = null,
-  tags = null,
-  ...extraData
-} = {}) => {
-  const data = createSchemaData({
-    pageUrl: `/products/${fileSlug}/`,
-    pageFileSlug: fileSlug,
-    name,
-    siteName,
-    ...extraData,
-  });
-  if (price) data.price = price;
-  if (reviews && tags) {
-    data.collections = { reviews };
-    data.tags = tags;
-  }
-  return data;
-};
-
-/**
  * Create post/news schema data
  *
  * @param {Object} options - Configuration options
@@ -171,34 +135,10 @@ const createPostSchemaData = ({
   return data;
 };
 
-/**
- * Create a mock review fixture
- *
- * @param {Object} options - Configuration options
- * @param {string} [options.name="Reviewer"] - Reviewer name
- * @param {number} [options.rating=5] - Review rating
- * @param {string} [options.field="products"] - Review relationship field
- * @param {Array} [options.items=["test"]] - Items being reviewed
- * @param {Date} [options.date] - Review date
- * @returns {Object} Review fixture with { data, date }
- */
-const createMockReview = ({
-  name = "Reviewer",
-  rating = 5,
-  field = "products",
-  items = ["test"],
-  date = new Date("2024-01-15"),
-} = {}) => ({
-  data: { name, rating, [field]: items },
-  date,
-});
-
 export {
   addOptionalProps,
-  createMockReview,
   createObjectBuilder,
   createPostSchemaData,
-  createProductSchemaData,
   createSchemaData,
   createSchemaPage,
   createSchemaSite,

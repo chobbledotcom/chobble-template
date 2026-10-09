@@ -1,3 +1,4 @@
+/* jscpd:ignore-start -- block schema declaration data */
 import {
   INTRO_CONTENT_FIELD,
   objectList,
@@ -5,6 +6,8 @@ import {
 } from "#utils/block-schema/shared.js";
 
 export const type = "marquee-images";
+
+export const columnSafe = false;
 
 export const containerWidth = "full";
 
@@ -21,13 +24,13 @@ export const fields = {
   },
   speed: {
     ...str("Scroll Speed (e.g. 30s)"),
-    default: '"30s"',
+    default: "30s",
     description:
       'CSS animation duration for one full scroll cycle (e.g. `"20s"`, `"45s"`). Slower = longer duration.',
   },
   height: {
     ...str("Image Height (e.g. 50px)"),
-    default: '"50px"',
+    default: "50px",
     description:
       'CSS height for the images (e.g. `"60px"`, `"80px"`). Width scales proportionally.',
   },
@@ -40,3 +43,15 @@ export const docs = {
   scss: "src/css/design-system/_marquee-images.scss",
   htmlRoot: '<div class="marquee-images">',
 };
+
+export const example = {
+  type: "marquee-images",
+  height: "60px",
+  items: [
+    { image: "breakfast.jpg", alt: "Breakfast" },
+    { image: "lunch.jpg", alt: "Lunch" },
+    { image: "dinner.jpg", alt: "Dinner" },
+    { image: "fireworks.jpg", alt: "Fireworks" },
+  ],
+};
+/* jscpd:ignore-end */

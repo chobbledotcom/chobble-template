@@ -1,7 +1,7 @@
 // Tests for layout-aliases.js
 // Verifies Eleventy layout alias configuration from src/_layouts directory
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test, vi } from "vitest";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
 import {
   cleanupTempDir,
@@ -17,26 +17,29 @@ import {
 // ============================================
 
 /**
- * Creates a mock config with alias capture wired up.
+ * Creates a mock config with alias capture wired up: recorded calls map
+ * straight to { alias, file } pairs.
  */
 const captureAliases = () => {
   const config = createMockEleventyConfig();
-  const aliases = [];
-  config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
-  return { config, aliases };
+  config.addLayoutAlias = vi.fn();
+  return config;
 };
+
+const recordedAliases = (config) =>
+  config.addLayoutAlias.mock.calls.map(([alias, file]) => ({ alias, file }));
 
 /**
  * Run configureLayoutAliases in a temp directory, returning captured aliases.
  * Handles cleanup automatically.
  */
 const runLayoutAliases = (tempDir) => {
-  const { config, aliases } = captureAliases();
+  const config = captureAliases();
 
   try {
     const srcDir = path.join(tempDir, "src");
     configureLayoutAliases(config, srcDir);
-    return aliases;
+    return recordedAliases(config);
   } finally {
     cleanupTempDir(tempDir);
   }
@@ -143,9 +146,10 @@ describe("layout-aliases", () => {
 
   // --- Integration: Production Directory ---
   test("Successfully reads from actual src/_layouts directory", () => {
-    const { config, aliases } = captureAliases();
+    const config = captureAliases();
 
     configureLayoutAliases(config);
+    const aliases = recordedAliases(config);
 
     // Test behaviors, not specific files
     expect(aliases.length > 0).toBe(true);

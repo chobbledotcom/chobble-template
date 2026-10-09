@@ -1,27 +1,30 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ALLOWED_NULLISH_COALESCING } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
+  combineFileLists,
   createCodeChecker,
   expectNoStaleExceptions,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 const THIS_FILE = "test/unit/code-quality/nullish-coalescing.test.js";
 
 // Files to check: src/ JS files excluding collections (where defaults belong)
-// and packages/ (shared utilities, not part of site data chain)
-const ALLOWED_DIRS = ["src/_lib/collections/", "packages/"];
+// and the generic fp utilities (library code, not part of site data chain)
+const ALLOWED_DIRS = ["src/_lib/collections/", "src/_lib/utils/fp/"];
 
 describe("nullish-coalescing", () => {
   const { find: findNullishCoalescing, analyze: analyzeNullishCoalescing } =
     createCodeChecker({
       patterns: /\?\?/,
       files: () =>
-        SRC_JS_FILES().filter(
+        combineFileLists([SRC_JS_FILES(), SCRIPT_JS_FILES()]).filter(
           (file) => !ALLOWED_DIRS.some((dir) => file.startsWith(dir)),
         ),
-      excludeFiles: [THIS_FILE],
+      // The mutation operator tables *describe* the ?? token as quoted
+      // string data - the one file where "??" is not the operator.
+      excludeFiles: [THIS_FILE, "scripts/mutation/operators.js"],
       allowlist: ALLOWED_NULLISH_COALESCING,
     });
 
@@ -42,7 +45,7 @@ const e = other || "not nullish";
     assertNoViolations(violations, {
       singular: "nullish coalescing operator",
       fixHint:
-        "set default values in src/_lib/collections/ instead, or add to ALLOWED_NULLISH_COALESCING in code-quality-exceptions.js",
+        "set default values in src/_lib/collections/ instead - the ALLOWED_NULLISH_COALESCING baseline is deletion-only",
     });
   });
 

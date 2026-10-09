@@ -14,7 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { SRC_DIR } from "#lib/paths.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 /** Liquid properties that look like collection names but are not */
 const IGNORED_PROPERTIES = frozenSet(["size", "length"]);
@@ -22,11 +22,11 @@ const IGNORED_PROPERTIES = frozenSet(["size", "length"]);
 /** Match .addCollection("name" in JS source files */
 const ADD_COLLECTION_PATTERN = /\.addCollection\(\s*"([^"]+)"/g;
 
-/** Match "tags": ["name"] in directory data JSON files */
-const TAG_ARRAY_PATTERN = /"tags"\s*:\s*\[\s*"([^"]+)"\s*\]/g;
+/** Match tags: ["name"] in directory data (JSON, or JS like directory-data.js) */
+const TAG_ARRAY_PATTERN = /"?tags"?\s*:\s*\[\s*"([^"]+)"\s*\]/g;
 
-/** Match "tags": "name" in directory data JSON files */
-const TAG_STRING_PATTERN = /"tags"\s*:\s*"([^"]+)"/g;
+/** Match tags: "name" in directory data (JSON, or JS) */
+const TAG_STRING_PATTERN = /"?tags"?\s*:\s*"([^"]+)"/g;
 
 /** Match collections.NAME (dot notation) in templates */
 const DOT_ACCESS_PATTERN = /collections\.([a-zA-Z_][\w-]*)/g;
@@ -34,14 +34,13 @@ const DOT_ACCESS_PATTERN = /collections\.([a-zA-Z_][\w-]*)/g;
 /** Match collections["NAME"] (bracket notation) in templates */
 const BRACKET_ACCESS_PATTERN = /collections\["([^"]+)"\]/g;
 
-/** Dynamic collection name patterns from configure-filters.js */
-const FILTER_CONFIG_PATTERN = /(?:pages|redirects|attributes)\s*:\s*"([^"]+)"/g;
-const CATEGORY_KEY_PATTERN = /^\s+(\w+)\s*:/gm;
-
 const TEMPLATE_EXTENSIONS = frozenSet([".html", ".liquid"]);
 
 /**
  * Recursively collect all files matching a predicate.
+ * @param {string} dir
+ * @param {(name: string) => boolean} predicate
+ * @returns {string[]}
  */
 const collectFiles = (dir, predicate) =>
   fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -51,34 +50,24 @@ const collectFiles = (dir, predicate) =>
   });
 
 /**
- * Extract all regex group-1 matches from content.
- */
-const extractAllMatches = (content, pattern) =>
-  [...content.matchAll(pattern)].map((m) => m[1]);
-
-/**
- * Extract collection names from files matching a predicate, using a regex.
+ * Extract collection names from files matching a predicate, using the
+ * regex's group-1 matches.
+ * @param {string} srcDir
+ * @param {(name: string) => boolean} filePredicate
+ * @param {RegExp} pattern
+ * @returns {string[]}
  */
 const extractNamesFromFiles = (srcDir, filePredicate, pattern) =>
   collectFiles(srcDir, filePredicate).flatMap((file) =>
-    extractAllMatches(fs.readFileSync(file, "utf-8"), pattern),
+    [...fs.readFileSync(file, "utf-8").matchAll(pattern)].map((m) => m[1]),
   );
 
 /**
  * Build the set of all registered collection names from source files.
+ * @param {string} srcDir
  */
-const buildRegisteredNames = (srcDir) => {
-  const configPath = path.join(
-    srcDir,
-    "_lib",
-    "filters",
-    "configure-filters.js",
-  );
-  const filterSource = fs.existsSync(configPath)
-    ? fs.readFileSync(configPath, "utf-8")
-    : "";
-  const filterNames = extractAllMatches(filterSource, FILTER_CONFIG_PATTERN);
-  return frozenSet([
+const buildRegisteredNames = (srcDir) =>
+  frozenSet([
     "all",
     ...extractNamesFromFiles(
       srcDir,
@@ -86,18 +75,18 @@ const buildRegisteredNames = (srcDir) => {
       ADD_COLLECTION_PATTERN,
     ),
     ...[TAG_ARRAY_PATTERN, TAG_STRING_PATTERN].flatMap((pattern) =>
-      extractNamesFromFiles(srcDir, (n) => n.endsWith(".json"), pattern),
+      extractNamesFromFiles(
+        srcDir,
+        (n) => n.endsWith(".js") || n.endsWith(".json"),
+        pattern,
+      ),
     ),
-    ...filterNames,
-    ...extractAllMatches(filterSource, CATEGORY_KEY_PATTERN),
-    ...filterNames
-      .filter((n) => n.startsWith("filtered"))
-      .map((n) => `${n}ListingFilterUI`),
   ]);
-};
 
 /**
  * Find all template collection references that are not registered.
+ * @param {string} srcDir
+ * @param {ReadonlySet<string>} registeredNames
  */
 const findViolations = (srcDir, registeredNames) =>
   collectFiles(srcDir, (name) =>
@@ -131,7 +120,7 @@ const findViolations = (srcDir, registeredNames) =>
  * unregistered collections. Template typos like `collections.produts`
  * will fail the build immediately.
  *
- * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
+ * @param {import("#lib/types").UserConfig} eleventyConfig
  */
 export const configureCollectionValidation = (
   eleventyConfig,

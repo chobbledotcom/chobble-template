@@ -15,9 +15,13 @@
  *   const { title } = data;    // Trust the type system
  *   const config = loadConfig();  // Fail fast if missing
  */
-import { describe, expect, test } from "bun:test";
-import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { describe, expect, test } from "vitest";
+import {
+  assertNoViolations,
+  combineFileLists,
+  createCodeChecker,
+} from "#test/code-scanner.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 const THIS_FILE = "test/unit/code-quality/or-fallbacks.test.js";
 
@@ -27,7 +31,7 @@ const ALLOWED_DIRS = [
   "src/_lib/public/", // Browser code - can't validate server data
   "src/_lib/build/", // Build utilities
   "src/_data/", // Computed data layer
-  "packages/", // Shared utilities
+  "src/_lib/utils/fp/", // Generic fp utilities
 ];
 
 // File patterns where defaults are appropriate
@@ -50,7 +54,7 @@ const DETAILS_EXTRACTOR = /\|\|\s*(\[\]|\{\}|""|null\b|0\b)/;
 const { find, analyze } = createCodeChecker({
   patterns: OR_FALLBACK_PATTERNS,
   files: () =>
-    SRC_JS_FILES().filter((file) => {
+    combineFileLists([SRC_JS_FILES(), SCRIPT_JS_FILES()]).filter((file) => {
       // Skip allowed directories
       if (ALLOWED_DIRS.some((dir) => file.startsWith(dir))) return false;
       // Skip allowed file patterns

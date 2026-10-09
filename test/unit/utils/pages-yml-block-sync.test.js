@@ -1,12 +1,16 @@
-import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import YAML from "yaml";
 import { rootDir } from "#test/test-utils.js";
 import { collectBlockReferences } from "#test/unit/utils/pages-yml-helpers.js";
-import { BLOCK_CMS_FIELDS, BLOCK_SCHEMAS } from "#utils/block-schema.js";
+import {
+  BLOCK_CMS_FIELDS,
+  BLOCK_SCHEMAS,
+  isBlockAllowedIn,
+} from "#utils/block-schema.js";
 
-/** Inverse of scripts/customise-cms/generator.js#blockTypeToComponentName —
+/** Inverse of scripts/customise-cms/generator.js#componentNameFor —
  *  turns `block_section_header` back into `section-header`. */
 const componentNameToBlockType = (componentName) =>
   componentName.replace(/^block_/, "").replace(/_/g, "-");
@@ -16,6 +20,11 @@ const componentNameToBlockType = (componentName) =>
 const CONTAINER_FIELD_NAMES = ["dark", "compact"];
 
 const PAGES_YML_PATH = join(rootDir, ".pages.yml");
+// .pages.yml is generated from the site's own cms_config, so this compares
+// the site's real site.json (read from disk, not the test fixture) with it.
+const siteData = JSON.parse(
+  readFileSync(join(rootDir, "src", "_data", "site.json"), "utf-8"),
+);
 const parsedPagesYml = YAML.parse(readFileSync(PAGES_YML_PATH, "utf-8"));
 const components = parsedPagesYml.components || {};
 const blockComponents = Object.fromEntries(
@@ -23,6 +32,15 @@ const blockComponents = Object.fromEntries(
 );
 
 const blockReferences = collectBlockReferences(parsedPagesYml);
+
+/** Block types the generated config can offer: those allowed in at least one
+ *  collection the site's CMS config enables. A collection-only block (such as
+ *  news-meta) has no editor when its collection is switched off. */
+const { collections, customBlocksCollections } = siteData.cms_config;
+const cmsCollections = [...collections, ...customBlocksCollections];
+const reachableBlockTypes = Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
+  cmsCollections.some((collection) => isBlockAllowedIn(type, collection)),
+);
 
 describe(".pages.yml components ↔ BLOCK_CMS_FIELDS", () => {
   test("every block_* component corresponds to a known block type", () => {
@@ -32,9 +50,9 @@ describe(".pages.yml components ↔ BLOCK_CMS_FIELDS", () => {
     expect(unknown).toEqual([]);
   });
 
-  test("every BLOCK_CMS_FIELDS type has a block_* component", () => {
+  test("every block type the CMS collections allow has a block_* component", () => {
     const existing = Object.keys(blockComponents).map(componentNameToBlockType);
-    const missing = Object.keys(BLOCK_CMS_FIELDS)
+    const missing = reachableBlockTypes
       .filter((type) => !existing.includes(type))
       .sort();
     expect(missing).toEqual([]);
@@ -115,9 +133,9 @@ describe(".pages.yml block references ↔ BLOCK_SCHEMAS", () => {
     expect(mismatches).toEqual([]);
   });
 
-  test("every BLOCK_CMS_FIELDS type is referenced by at least one page", () => {
+  test("every block type the CMS collections allow is referenced by at least one page", () => {
     const referenced = blockReferences.map((r) => r.name);
-    const unreachable = Object.keys(BLOCK_CMS_FIELDS)
+    const unreachable = reachableBlockTypes
       .filter((type) => !referenced.includes(type))
       .sort();
     expect(unreachable).toEqual([]);

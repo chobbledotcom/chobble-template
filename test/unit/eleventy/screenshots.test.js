@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureScreenshots } from "#eleventy/screenshots.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
@@ -24,15 +24,6 @@ describe("screenshots eleventy plugin", () => {
       );
     });
 
-    test("Adds screenshotPath filter", () => {
-      const mockConfig = createMockEleventyConfig();
-
-      configureScreenshots(mockConfig);
-
-      expect(mockConfig.filters).toBeDefined();
-      expect(typeof mockConfig.filters.screenshotPath).toBe("function");
-    });
-
     test("Screenshot collection returns empty array", () => {
       const mockConfig = createMockEleventyConfig();
 
@@ -45,57 +36,6 @@ describe("screenshots eleventy plugin", () => {
 
       const result = mockConfig.collections._screenshotPages(mockCollectionApi);
       expect(result).toEqual([]);
-    });
-  });
-
-  describe("screenshotPath filter", () => {
-    test("Generates correct path for root page", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureScreenshots(mockConfig);
-
-      const result = mockConfig.filters.screenshotPath("/");
-      expect(result).toBe("/screenshots/home.png");
-    });
-
-    test("Generates correct path for simple page", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureScreenshots(mockConfig);
-
-      const result = mockConfig.filters.screenshotPath("/about/");
-      expect(result).toBe("/screenshots/about.png");
-    });
-
-    test("Generates correct path for nested page", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureScreenshots(mockConfig);
-
-      const result = mockConfig.filters.screenshotPath("/products/category/");
-      expect(result).toBe("/screenshots/products-category.png");
-    });
-
-    test("Adds viewport suffix for mobile", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureScreenshots(mockConfig);
-
-      const result = mockConfig.filters.screenshotPath("/about/", "mobile");
-      expect(result).toBe("/screenshots/about-mobile.png");
-    });
-
-    test("Adds viewport suffix for tablet", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureScreenshots(mockConfig);
-
-      const result = mockConfig.filters.screenshotPath("/about/", "tablet");
-      expect(result).toBe("/screenshots/about-tablet.png");
-    });
-
-    test("Does not add suffix for desktop viewport", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureScreenshots(mockConfig);
-
-      const result = mockConfig.filters.screenshotPath("/about/", "desktop");
-      expect(result).not.toContain("-desktop");
-      expect(result).toBe("/screenshots/about.png");
     });
   });
 

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { wrapTables } from "#transforms/responsive-tables.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 

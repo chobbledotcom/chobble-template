@@ -1,6 +1,6 @@
-import { describe, expect, mock, test } from "bun:test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { describe, expect, test, vi } from "vitest";
 import {
   findBrokenInternalLinks,
   formatBrokenInternalLink,
@@ -15,7 +15,7 @@ const writeOutput = (outputDir, relativePath, content = "") => {
 };
 
 const runCheck = (outputDir) => {
-  const output = { log: mock(), error: mock() };
+  const output = { log: vi.fn(), error: vi.fn() };
   return { status: runInternalLinkCheck(outputDir, output), output };
 };
 
@@ -166,5 +166,30 @@ describe("internal link validation", () => {
       expect(status).toBe(0);
       expect(output.log).toHaveBeenCalledWith("Internal link check passed");
     });
+  });
+
+  test("strips PATH_PREFIX from absolute links before resolving targets", async () => {
+    // PATH_PREFIX is read at module load, so re-import with the env stubbed
+    vi.stubEnv("PATH_PREFIX", "/cfa-static/");
+    vi.resetModules();
+    const prefixed = await import("#scripts/internal-links.js");
+    try {
+      withTempDir("internal-links-prefix", (outputDir) => {
+        writeOutput(
+          outputDir,
+          "index.html",
+          '<a href="/cfa-static/about/">About</a><a href="/missing/">Broken</a>',
+        );
+        writeOutput(outputDir, "about/index.html");
+        const broken = prefixed.findBrokenInternalLinks(outputDir);
+        // The prefixed link resolves to the on-disk file; the unprefixed
+        // one passes through untouched and reports as broken.
+        expect(broken).toHaveLength(1);
+        expect(broken[0].href).toBe("/missing/");
+      });
+    } finally {
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    }
   });
 });

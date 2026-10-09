@@ -14,7 +14,7 @@ import { sortByDateDescending } from "#utils/sorting.js";
  * Fetches all items tagged with "news", filters out no_index ones, and sorts by date.
  * Individual post pages are still rendered - this only affects listings.
  *
- * @type {(collectionApi: import("@11ty/eleventy").CollectionApi) => NewsCollectionItem[]}
+ * @type {(collectionApi: import("#lib/types").EleventyCollectionApi) => NewsCollectionItem[]}
  */
 const createNewsCollection = createTagCollection(
   "news",

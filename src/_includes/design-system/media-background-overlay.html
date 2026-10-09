@@ -1,15 +1,8 @@
 {%- comment -%}
 Overlay figure for the *-background blocks. Renders hero-style content
 (badge, markdown content in .prose, buttons) inside a <figcaption>, or
-nothing at all for media-only blocks.
-
-Parameters:
-  - block.badge: Optional badge text above the content
-  - block.content: Markdown content rendered in .prose
-  - block.buttons: Array of {text, href, variant, size} button objects
-
-Usage:
-  {% include "design-system/media-background-overlay.html", block: block %}
+nothing at all for media-only blocks. See hero-content.html for the
+block parameter documentation.
 {%- endcomment -%}
 
 {%- if block.badge or block.content or block.buttons.size > 0 -%}

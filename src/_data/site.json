@@ -1,21 +1,28 @@
 {
-	"name": "The Chobble Template",
-	"url": "https://example.chobble.com",
-	"description": "The Chobble template - a complete Eleventy starter for small businesses, built with Github Actions and hosted on Neocities or Bunny.net",
+	"name": "CfA Static",
+	"url": "https://cfa-static.apps.dev.services.cfa.codes",
+	"description": "A static-site template for informational and marketing sites, derived from the Chobble Template.",
 	"socials": {
-		"Github": "https://github.com/chobbledotcom/chobble-template",
-		"Forgejo": "https://git.chobble.com/chobble/chobble-template",
-		"Facebook": "https://www.facebook.com/profile.php?id=61571286130366",
-		"Mastodon": "https://social.lol/@stefan",
-		"Instagram": "https://example.chobble.com",
-		"TikTok": "https://example.chobble.com",
-		"Google": "https://maps.app.goo.gl/kNqgHRNaMgPDp7Mo8",
-		"WhatsApp": "https://example.chobble.com",
+		"Github": "https://github.com/codeforamerica/cfa-static",
 		"RSS": "/feed.xml"
 	},
-	"opening_times": [
-		{ "day": "Monday - Friday", "hours": "9am - 5pm" },
-		{ "day": "Saturday", "hours": "10am - 2pm" },
-		{ "day": "Sunday", "hours": "Closed" }
-	]
+	"cms_config": {
+		"collections": [
+			"pages",
+			"news",
+			"guide-categories",
+			"guide-pages",
+			"snippets"
+		],
+		"features": {
+			"permalinks": true,
+			"redirects": true,
+			"faqs": true,
+			"galleries": true,
+			"external_navigation_urls": true,
+			"no_index": true
+		},
+		"hasSrcFolder": true,
+		"customBlocksCollections": []
+	}
 }

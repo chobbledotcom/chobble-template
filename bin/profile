@@ -24,26 +24,16 @@ echo ""
 cd "$PROJECT_DIR"
 rm -rf _site
 
-# Run build with CPU profiling
-# Note: --cpu-prof-dir and --cpu-prof-name don't work reliably in Bun,
-# so we find the generated file and move it manually
-bun --cpu-prof node_modules/@11ty/eleventy/cmd.cjs
+# Run the build with Node's CPU profiler writing straight to the target file
+node \
+  --cpu-prof \
+  --cpu-prof-dir "$PROFILE_DIR" \
+  --cpu-prof-name "build.cpuprofile" \
+  node_modules/@awesome.me/buildawesome/cmd.js
 
 echo ""
-
-# Find the generated profile (Bun creates CPU.*.cpuprofile in cwd)
-GENERATED_PROFILE=$(ls -t "$PROJECT_DIR"/CPU.*.cpuprofile 2>/dev/null | head -1)
-
-if [[ -z "$GENERATED_PROFILE" ]]; then
-  echo "Error: CPU profile not generated."
-  echo "Try running directly: bun --cpu-prof node_modules/@11ty/eleventy/cmd.cjs"
-  exit 1
-fi
-
-mv "$GENERATED_PROFILE" "$PROFILE_FILE"
-
 echo "Generating report..."
-bun "$SCRIPT_DIR/profile-report.js" "$PROFILE_FILE" "$PROFILE_DIR/report.txt" "$PROJECT_DIR"
+node "$SCRIPT_DIR/profile-report.js" "$PROFILE_FILE" "$PROFILE_DIR/report.txt" "$PROJECT_DIR"
 
 echo ""
 echo "Profile saved to: .profile/build.cpuprofile"
@@ -51,5 +41,5 @@ echo "Report saved to:  .profile/report.txt"
 
 if [[ "$1" == "--open" ]]; then
   echo ""
-  bunx speedscope "$PROFILE_FILE"
+  npx speedscope "$PROFILE_FILE"
 fi

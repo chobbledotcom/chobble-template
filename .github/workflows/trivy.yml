@@ -1,0 +1,17 @@
+name: Trivy Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  trivy:
+    uses: codeforamerica/github-actions/.github/workflows/trivy.yaml@main
+    with:
+      path: ./

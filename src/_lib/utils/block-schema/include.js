@@ -1,3 +1,4 @@
+/* jscpd:ignore-start -- block schema declaration data */
 import { str } from "#utils/block-schema/shared.js";
 
 export const type = "include";
@@ -15,3 +16,9 @@ export const docs = {
   notes:
     "Escape hatch for custom content that doesn't fit the block system. The `file` value is passed straight to `{% include %}`.",
 };
+
+export const example = {
+  type: "include",
+  file: "demo-include.html",
+};
+/* jscpd:ignore-end */

@@ -1,68 +1,25 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   COMMON_FIELDS,
-  createAddOnsField,
-  createBodyField,
+  createEleventyNavigationField,
   createMarkdownField,
   createReferenceField,
-  getBodyField,
 } from "#scripts/customise-cms/fields.js";
 
 describe("createMarkdownField", () => {
-  test("returns code field with markdown when visual editor disabled", () => {
-    const field = createMarkdownField("intro", "Intro", false);
-
-    expect(field.type).toBe("code");
-    expect(field.options).toEqual({ language: "markdown" });
-  });
-
-  test("returns rich-text field when visual editor enabled", () => {
-    const field = createMarkdownField("intro", "Intro", true);
-
-    expect(field.type).toBe("rich-text");
-    expect(field.options).toBeUndefined();
+  test("returns a field for the visual rich-text editor", () => {
+    expect(createMarkdownField("intro", "Intro")).toEqual({
+      name: "intro",
+      type: "rich-text",
+      label: "Intro",
+    });
   });
 
   test("passes through additional properties", () => {
-    const field = createMarkdownField("body", "Body", false, {
-      required: true,
-    });
+    const field = createMarkdownField("body", "Body", { required: true });
 
     expect(field.required).toBe(true);
     expect(field.name).toBe("body");
-  });
-});
-
-describe("getBodyField", () => {
-  test("returns markdown code field when visual editor disabled", () => {
-    const field = getBodyField(false);
-
-    expect(field.name).toBe("body");
-    expect(field.type).toBe("code");
-  });
-
-  test("returns rich-text field when visual editor enabled", () => {
-    const field = getBodyField(true);
-
-    expect(field.name).toBe("body");
-    expect(field.type).toBe("rich-text");
-  });
-});
-
-describe("createBodyField", () => {
-  test("applies custom label to body field", () => {
-    const field = createBodyField("Biography", false);
-
-    expect(field.name).toBe("body");
-    expect(field.label).toBe("Biography");
-    expect(field.type).toBe("code");
-  });
-
-  test("respects visual editor for custom-labeled body", () => {
-    const field = createBodyField("Biography", true);
-
-    expect(field.type).toBe("rich-text");
-    expect(field.label).toBe("Biography");
   });
 });
 
@@ -89,6 +46,12 @@ describe("createReferenceField", () => {
 
     expect(field.list).toBeUndefined();
   });
+
+  test("throws when the target collection is missing", () => {
+    expect(() => createReferenceField("author", "Author", undefined)).toThrow(
+      /missing options\.collection/,
+    );
+  });
 });
 
 describe("COMMON_FIELDS", () => {
@@ -97,28 +60,19 @@ describe("COMMON_FIELDS", () => {
   });
 });
 
-describe("createAddOnsField", () => {
-  test("intro uses code type when visual editor disabled", () => {
-    const field = createAddOnsField(false);
-    const introField = field.fields.find((f) => f.name === "intro");
+describe("createEleventyNavigationField", () => {
+  test("includes only key and order by default", () => {
+    const field = createEleventyNavigationField();
+    const names = field.fields.map((f) => f.name);
 
-    expect(introField.type).toBe("code");
+    expect(field.name).toBe("eleventyNavigation");
+    expect(names).toEqual(["key", "order"]);
   });
 
-  test("intro uses rich-text type when visual editor enabled", () => {
-    const field = createAddOnsField(true);
-    const introField = field.fields.find((f) => f.name === "intro");
+  test("adds a url field when includeUrl is set", () => {
+    const field = createEleventyNavigationField(true);
+    const names = field.fields.map((f) => f.name);
 
-    expect(introField.type).toBe("rich-text");
-  });
-
-  test("options sub-field requires name and price", () => {
-    const field = createAddOnsField(false);
-    const optionsField = field.fields.find((f) => f.name === "options");
-    const names = optionsField.fields.map((f) => f.name);
-
-    expect(names).toContain("name");
-    expect(names).toContain("price");
-    expect(optionsField.fields.every((f) => f.required)).toBe(true);
+    expect(names).toEqual(["key", "order", "url"]);
   });
 });

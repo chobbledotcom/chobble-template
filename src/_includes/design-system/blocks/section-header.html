@@ -1,35 +1,12 @@
 {%- comment -%}
 Section header with rich text intro.
 
-Parameters (via named params or block object):
-  - intro / block.intro: Rich text content rendered as markdown
-  - align / block.align: Text alignment, defaults to "center"
-  - header_class / block.class: Additional CSS classes
-
-Usage (named params - preferred for re-use from other includes):
-  {% include "design-system/section-header.html",
-     intro: "## My Section\nOptional description here"
-  %}
-
-Usage (block object - used by blocks.html):
-  {% include "design-system/section-header.html",
-     block: { intro: "## My Section\nOptional description here" }
-  %}
+Parameters (via block object):
+  - block.intro: Rich text content rendered as markdown
+  - block.align: Text alignment; "center" adds .text-center
+  - block.class: Additional CSS classes
 {%- endcomment -%}
 
-{%- assign _sh_intro = intro | default: block.intro -%}
-{%- assign _sh_align = align | default: block.align | default: "center" -%}
-{%- assign _sh_class = header_class | default: block.class -%}
-{%- assign _sh_classes = "" -%}
-{%- if _sh_align == "center" -%}
-  {%- assign _sh_classes = _sh_classes | append: " text-center" -%}
-{%- endif -%}
-{%- if _sh_class -%}
-  {%- assign _sh_classes = _sh_classes | append: " " | append: _sh_class -%}
-{%- endif -%}
-
-{%- if _sh_intro -%}
-<div class="section-header prose {{ _sh_classes }}">
-  {{ _sh_intro | renderContent: "md" }}
+<div class="section-header prose {%- if block.align == 'center' %} text-center{% endif %}{% if block.class %} {{ block.class }}{% endif %}">
+  {{ block.intro | renderContent: "md" }}
 </div>
-{%- endif -%}

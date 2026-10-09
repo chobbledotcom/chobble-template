@@ -5,7 +5,7 @@ wrapper for this type, so each inner block renders its own section directly.
 Liquid expressions in block values are resolved against the page context.
 {%- endcomment -%}
 
-{%- assign processed_blocks = block.reference | snippet_blocks -%}
+{%- assign processed_blocks = block.reference | snippet_blocks: pageLanguage.code -%}
 {%- if processed_blocks.size > 0 -%}
   {%- include "design-system/blocks.html", blocks: processed_blocks -%}
 {%- endif -%}

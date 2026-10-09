@@ -1,4 +1,5 @@
-import { LINK_BUTTON_STYLE_FIELDS, str } from "#utils/block-schema/shared.js";
+/* jscpd:ignore-start -- block schema declaration data */
+import { str } from "#utils/block-schema/shared.js";
 
 export const type = "link-button";
 
@@ -13,7 +14,19 @@ export const fields = {
     required: true,
     description: 'Link URL or anchor (e.g. `"#contact"`, `"/about"`).',
   },
-  ...LINK_BUTTON_STYLE_FIELDS,
+  variant: {
+    ...str("Variant"),
+    default: "primary",
+    description: '`"primary"`, `"secondary"`, or `"ghost"`.',
+  },
+  size: {
+    ...str("Size"),
+    description: '`"sm"`, `"lg"`, or omit for default.',
+  },
+  reveal: {
+    ...str("Reveal Animation"),
+    description: "`data-reveal` value.",
+  },
 };
 
 export const docs = {
@@ -21,3 +34,11 @@ export const docs = {
   scss: "src/css/design-system/_link-button.scss",
   htmlRoot: '<div class="link-button">',
 };
+
+export const example = {
+  type: "link-button",
+  text: "A standalone button",
+  href: "/search/",
+  variant: "primary",
+};
+/* jscpd:ignore-end */

@@ -2,7 +2,7 @@
 // Detects HTML classes that are never referenced in SCSS or JS files
 // This helps identify dead code and potential cleanup opportunities
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   fs,
   getFiles,
@@ -11,8 +11,8 @@ import {
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
 } from "#test/test-utils.js";
-import { filter, flatMap, map, pipe, split } from "#toolkit/fp/array.js";
-import { buildReverseIndex } from "#toolkit/fp/grouping.js";
+import { filter, flatMap, map, pipe, split } from "#utils/fp/array.js";
+import { buildReverseIndex } from "#utils/fp/grouping.js";
 
 const { readFileSync } = fs;
 const { join } = path;
@@ -190,14 +190,16 @@ describe("unused-classes", () => {
   });
 
   test("Extracts classes from JS template literals", () => {
-    const js = `
-      const html = \`<div class="cart-item">
-        <span class="item-name item-bold"></span>
-      </div>\`;
-      icon.classList.add("active");
-      let classes = "base-class";
-      classes += " extra";
-    `;
+    const js = [
+      "",
+      '      const html = `<div class="cart-item">',
+      '        <span class="item-name item-bold"></span>',
+      "      </div>`;",
+      '      icon.classList.add("active");',
+      '      let classes = "base-class";',
+      '      classes += " extra";',
+      "    ",
+    ].join("\n");
     const classes = extractClassesFromJs(js);
     expect(classes.has("cart-item")).toBe(true);
     expect(classes.has("item-name")).toBe(true);
@@ -235,20 +237,13 @@ describe("unused-classes", () => {
     const scssFiles = SRC_SCSS_FILES().map((f) => join(rootDir, f));
     const jsFiles = PUBLIC_JS_FILES.map((f) => join(rootDir, f));
 
-    // Build reverse indexes: class name -> files where defined
-    // Using buildReverseIndex which handles the grouping cleanly
-    const htmlClasses = buildReverseIndex(htmlFiles, (file) => [
-      ...extractClassesFromHtml(readFileSync(file, "utf-8")),
-    ]);
-    const jsClasses = buildReverseIndex(jsFiles, (file) => [
-      ...extractClassesFromJs(readFileSync(file, "utf-8")),
-    ]);
-
-    // Merge HTML and JS classes into a single map
-    const allClasses = new Map(htmlClasses);
-    for (const [cls, files] of jsClasses) {
-      allClasses.set(cls, [...(allClasses.get(cls) || []), ...files]);
-    }
+    // Build one reverse index: class name -> files where defined
+    // (html entry files first, then public JS files, per class)
+    const allClasses = buildReverseIndex([...htmlFiles, ...jsFiles], (file) =>
+      file.endsWith(".js")
+        ? [...extractClassesFromJs(readFileSync(file, "utf-8"))]
+        : [...extractClassesFromHtml(readFileSync(file, "utf-8"))],
+    );
 
     // Load all SCSS and JS content for reference checking
     const scssContent = scssFiles
@@ -256,17 +251,13 @@ describe("unused-classes", () => {
       .join("\n");
     const jsContent = jsFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
 
-    const unusedClasses = [];
-
     // Check each class for references
-    for (const [className, definedIn] of allClasses) {
+    const unusedClasses = [...allClasses].flatMap(([className, definedIn]) => {
       const inScss = findClassReferencesInScss(scssContent, className);
       const inJs = findClassReferencesInJs(className)(jsContent);
 
-      if (!inScss && !inJs) {
-        unusedClasses.push({ name: className, definedIn });
-      }
-    }
+      return !inScss && !inJs ? [{ name: className, definedIn }] : [];
+    });
 
     // Report results
     console.log("\n  📊 Analysis Results:");

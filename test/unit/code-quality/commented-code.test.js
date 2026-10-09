@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   assertNoViolations,
   combineFileLists,
@@ -6,7 +6,7 @@ import {
   withAllowlist,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
-import { filterMap, pipe } from "#toolkit/fp/array.js";
+import { filterMap, pipe } from "#utils/fp/array.js";
 
 /**
  * Patterns that indicate commented-out code (not documentation)
@@ -61,13 +61,14 @@ const findCommentedCode = (source, _relativePath) => {
   const rawLines = lines.map((l) => l.line);
 
   // Build template literal state in O(n) - tracks if each line is inside a template literal
-  let backtickCount = 0;
-  const insideTemplateLiteral = rawLines.map((line) => {
-    const isInside = backtickCount % 2 === 1;
-    const matches = line.match(/(?<!\\)`/g);
-    if (matches) backtickCount += matches.length;
-    return isInside;
-  });
+  const insideTemplateLiteral = rawLines.reduce(
+    (state, line) => ({
+      backtickCount:
+        state.backtickCount + (line.match(/(?<!\\)`/g) || []).length,
+      flags: [...state.flags, state.backtickCount % 2 === 1],
+    }),
+    { backtickCount: 0, flags: [] },
+  ).flags;
 
   // Check if a comment is documentation (comment before a regex pattern)
   const isDocumentation = (nextLine) => nextLine && /^\s*\/[^/]/.test(nextLine);
@@ -143,6 +144,23 @@ const real = 1;
     `;
     const results = findCommentedCode(source, "test.js");
     expect(results.length).toBe(0);
+  });
+
+  test("resumes detection after templates without treating escaped backticks as boundaries", () => {
+    const source = [
+      "const inline = `closed`;",
+      "// const before = 1;",
+      "const fixture = `",
+      "// const ignored = 2;",
+      "escaped \\` tick",
+      '// console.log("ignored");',
+      "`;",
+      "// const after = 3;",
+    ].join("\n");
+    expect(findCommentedCode(source, "test.js")).toEqual([
+      { lineNumber: 2, line: "// const before = 1;" },
+      { lineNumber: 8, line: "// const after = 3;" },
+    ]);
   });
 
   test("Does not flag regular documentation comments", () => {

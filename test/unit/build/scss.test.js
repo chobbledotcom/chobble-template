@@ -1,19 +1,19 @@
-import { describe, expect, test } from "bun:test";
-import { configureScss, createScssCompiler } from "#build/scss.js";
+import { afterEach, describe, expect, test, vi } from "vitest";
+import { configureScss } from "#build/scss.js";
+import * as configModule from "#data/config.js";
 import {
   compileScss,
   createMockEleventyConfig,
   fs,
   path,
   srcDir,
+  withTempDirAsync,
 } from "#test/test-utils.js";
 
-const compileExtension = async (ext, content, inputPath) => {
-  const result = await ext.compile(content, inputPath)({});
-  expect(typeof result).toBe("string");
-  expect(result.includes(".test")).toBe(true);
-  return result;
-};
+// These tests run real sass compilations, which can far exceed the global
+// 1.5s testTimeout when the full suite's lanes load the machine.
+vi.setConfig({ testTimeout: 15_000 });
+afterEach(() => vi.restoreAllMocks());
 
 const compileDesignSystemBundle = async () => {
   const bundlePath = path.join(srcDir, "css", "design-system-bundle.scss");
@@ -21,35 +21,26 @@ const compileDesignSystemBundle = async () => {
 };
 
 describe("scss", () => {
-  test("Creates SCSS compiler function for given input path", async () => {
-    const inputPath = "/test/styles.scss";
+  test("Compiles SCSS variables through the registered extension", async () => {
+    const inputPath = "/test/design-system-bundle.scss";
     const simpleScss = "$color: red; body { color: $color; }";
-    const compiler = createScssCompiler(simpleScss, inputPath);
-
-    expect(typeof compiler).toBe("function");
-
-    const result = await compiler({});
+    const result = await compileScss(simpleScss, inputPath);
     expect(result.includes("color: red")).toBe(true);
     expect(result.includes("body")).toBe(true);
   });
 
-  test("Handles SCSS with @use paths correctly", async () => {
-    const inputPath = "/project/src/css/main.scss";
+  test("Rejects missing @use modules", async () => {
+    const inputPath = "/project/src/css/design-system-bundle.scss";
     const scssWithUse =
       '@use "variables"; body { background: variables.$bg-color; }';
-    const compiler = createScssCompiler(scssWithUse, inputPath);
-
-    expect(typeof compiler).toBe("function");
-
-    // Missing module should throw an error
-    await expect(compiler({})).rejects.toThrow(
+    await expect(compileScss(scssWithUse, inputPath)).rejects.toThrow(
       /Can't find stylesheet|file to import not found/i,
     );
   });
 
   test("Compiles SCSS content with basic functionality", async () => {
     const inputContent = "$primary: #333; .header { color: $primary; }";
-    const inputPath = "/test/style.scss";
+    const inputPath = "/test/design-system-bundle.scss";
 
     const result = await compileScss(inputContent, inputPath);
 
@@ -59,9 +50,15 @@ describe("scss", () => {
     ).toBe(true);
   });
 
+  test("emits font URLs relative to the compiled stylesheet", async () => {
+    const css = await compileDesignSystemBundle();
+    expect(css).toContain('url("../assets/fonts/');
+    expect(css).not.toContain('url("/assets/fonts/');
+  });
+
   test("Handles nested SCSS rules", async () => {
     const inputContent = ".nav { ul { margin: 0; li { list-style: none; } } }";
-    const inputPath = "/test/nested.scss";
+    const inputPath = "/test/design-system-bundle.scss";
 
     const result = await compileScss(inputContent, inputPath);
 
@@ -77,7 +74,7 @@ describe("scss", () => {
         }
         .btn { @include button-style(blue); }
       `;
-    const inputPath = "/test/mixins.scss";
+    const inputPath = "/test/design-system-bundle.scss";
 
     const result = await compileScss(inputContent, inputPath);
 
@@ -102,7 +99,9 @@ describe("scss", () => {
 
     const scssExtension = mockConfig.extensions.scss;
     expect(scssExtension.outputFileExtension).toBe("css");
+    expect(scssExtension.useLayouts).toBe(false);
     expect(typeof scssExtension.compile).toBe("function");
+    expect(mockConfig.watchTargets).toContain("./src/css/");
   });
 
   test("SCSS extension compile function works correctly", async () => {
@@ -112,55 +111,46 @@ describe("scss", () => {
     const scssExtension = mockConfig.extensions.scss;
     expect(typeof scssExtension.compile).toBe("function");
 
-    const result = await compileExtension(
-      scssExtension,
+    const result = await scssExtension.compile(
       "$color: green; .test { color: $color; }",
       "/project/design-system-bundle.scss",
-    );
+    )({});
+    expect(result).toContain(".test");
     expect(
       result.includes("color: green") || result.includes("color:green"),
     ).toBe(true);
   });
 
   test("Uses correct load paths for imports", async () => {
-    const mockConfig = createMockEleventyConfig();
-    configureScss(mockConfig);
-
-    await compileExtension(
-      mockConfig.extensions.scss,
-      ".test { color: blue; }",
-      "/project/src/css/design-system-bundle.scss",
-    );
+    await withTempDirAsync("scss-load-path", async (dir) => {
+      fs.writeFileSync(path.join(dir, "_palette.scss"), "$color: blue;");
+      const result = await compileScss(
+        '@use "palette"; .test { color: palette.$color; }',
+        path.join(dir, "design-system-bundle.scss"),
+      );
+      expect(result).toContain("color: blue");
+    });
   });
 
   test("Handles SCSS compilation errors gracefully", async () => {
     const invalidScss = ".test { color: ; }"; // Invalid syntax
-    const inputPath = "/test/invalid.scss";
+    const inputPath = "/test/design-system-bundle.scss";
 
     // Invalid SCSS should throw an error with a message
     await expect(compileScss(invalidScss, inputPath)).rejects.toThrow(/./);
   });
 
-  test("Functions should be pure and not modify inputs", async () => {
-    const originalContent = "$test: red; .class { color: $test; }";
-    const originalPath = "/test/style.scss";
-    const contentCopy = originalContent;
-    const pathCopy = originalPath;
-
-    await compileScss(contentCopy, pathCopy);
-    createScssCompiler(contentCopy, pathCopy);
-
-    expect(contentCopy).toBe(originalContent);
-    expect(pathCopy).toBe(originalPath);
-  });
-
-  test("SCSS extension skips non-bundle SCSS files", () => {
+  test.each([
+    "style.scss",
+    "_partial.scss",
+    "design-system-bundle.scss.bak",
+  ])("SCSS extension skips %s even when its syntax is invalid", (filename) => {
     const mockConfig = createMockEleventyConfig();
     configureScss(mockConfig);
 
     const scssExtension = mockConfig.extensions.scss;
-    const inputContent = ".test { color: red; }";
-    const inputPath = "/project/src/css/style.scss";
+    const inputContent = ".test { color: ; }";
+    const inputPath = `/project/src/css/${filename}`;
 
     const compileFn = scssExtension.compile(inputContent, inputPath);
     expect(typeof compileFn).toBe("function");
@@ -173,8 +163,9 @@ describe("scss", () => {
     const scss = "body { color: var(--does-not-exist); }";
     const inputPath = "/project/design-system-bundle.scss";
 
-    const compiler = createScssCompiler(scss, inputPath);
-    await expect(compiler({})).rejects.toThrow(/undefined CSS variable/);
+    await expect(compileScss(scss, inputPath)).rejects.toThrow(
+      /undefined CSS variable/,
+    );
   });
 
   test("Bundle compilation error lists all undefined variables", async () => {
@@ -182,16 +173,16 @@ describe("scss", () => {
       "body { color: var(--missing-a); background: var(--missing-b); }";
     const inputPath = "/project/design-system-bundle.scss";
 
-    const compiler = createScssCompiler(scss, inputPath);
-    await expect(compiler({})).rejects.toThrow(/--missing-a/);
+    await expect(compileScss(scss, inputPath)).rejects.toThrow(
+      /--missing-a[\s\S]*--missing-b/,
+    );
   });
 
   test("Bundle compilation succeeds when all CSS variables are defined", async () => {
     const scss = ":root { --my-color: red; } body { color: var(--my-color); }";
     const inputPath = "/project/design-system-bundle.scss";
 
-    const compiler = createScssCompiler(scss, inputPath);
-    const result = await compiler({});
+    const result = await compileScss(scss, inputPath);
     expect(result).toContain("var(--my-color)");
   });
 
@@ -200,17 +191,39 @@ describe("scss", () => {
       ":root { --font-body: sans-serif; } body { font: var(--font-heading, var(--font-body)); }";
     const inputPath = "/project/design-system-bundle.scss";
 
-    const compiler = createScssCompiler(scss, inputPath);
     // --font-heading is used but not defined
-    await expect(compiler({})).rejects.toThrow(/--font-heading/);
+    await expect(compileScss(scss, inputPath)).rejects.toThrow(
+      /--font-heading/,
+    );
   });
 
-  test("Non-bundle files skip CSS variable validation", async () => {
+  test("Non-bundle files with undefined CSS variables produce no output", async () => {
     const scss = "body { color: var(--does-not-exist); }";
     const inputPath = "/project/partial.scss";
 
     const result = await compileScss(scss, inputPath);
-    expect(result).toContain("var(--does-not-exist)");
+    expect(result).toBeUndefined();
+  });
+
+  test.each([
+    true,
+    false,
+  ])("Theme switcher output follows enabled=%s", async (enabled) => {
+    vi.spyOn(configModule, "default").mockReturnValue({
+      enable_theme_switcher: enabled,
+    });
+    const result = await compileScss(
+      "body { color: red; }",
+      "/test/design-system-bundle.scss",
+    );
+    expect(result).toContain("color: red");
+    if (enabled) {
+      expect(result).toContain('html[data-theme="');
+      expect(result).toContain("--theme-list:");
+    } else {
+      expect(result).not.toContain("data-theme");
+      expect(result).not.toContain("--theme-list:");
+    }
   });
 
   test("Design tokens expose runtime spacing and type aliases", async () => {
@@ -227,7 +240,7 @@ describe("scss", () => {
         font-size: $font-size-base;
       }
     `;
-    const inputPath = path.join(srcDir, "css", "token-test.scss");
+    const inputPath = path.join(srcDir, "css", "design-system-bundle.scss");
 
     const result = await compileScss(scss, inputPath);
 
@@ -238,10 +251,7 @@ describe("scss", () => {
   });
 
   test("Design-system sidebar columns stretch and stack item cards", async () => {
-    const result = await compileScss(
-      '@use "design-system";',
-      path.join(srcDir, "css", "test.scss"),
-    );
+    const result = await compileDesignSystemBundle();
     const columnsRule =
       result.match(
         /\.design-system\.two-columns \.page-columns\s*\{[^}]*\}/,
@@ -274,19 +284,73 @@ describe("scss", () => {
     expect(tableRule).toContain("margin: 0");
   });
 
-  test("Design-system mobile navigation panel supports scrolling overflow", async () => {
+  test("Collapsed menu panel scrolls within the viewport", async () => {
     const result = await compileDesignSystemBundle();
     const menuRule =
       result.match(
-        /\.design-system\.sticky-mobile-nav nav > ul\s*\{[^}]*\}/,
+        /\.design-system nav\.site-nav\[data-menu\]\[data-collapse=always\] \.site-menu\s*\{[^}]*\}/,
       )?.[0] ?? "";
 
     expect(menuRule).toContain("overflow-y: auto");
     expect(menuRule).toContain("overscroll-behavior-y: contain");
-    expect(menuRule).toContain("box-sizing: border-box");
-    expect(menuRule).toContain("height: calc(100vh - 3rem)");
-    expect(menuRule).toContain("height: calc(100dvh - 3rem)");
-    expect(menuRule).toContain("-webkit-overflow-scrolling: touch");
+    expect(menuRule).toContain("max-height: calc(100dvh - 3rem)");
+  });
+
+  test("Closed menu panel is hidden, not just moved out of view", async () => {
+    const result = await compileDesignSystemBundle();
+    const panelRule =
+      result.match(
+        /\.design-system nav\.site-nav\[data-menu\]\[data-collapse=always\] \.site-menu\s*\{[^}]*\}/,
+      )?.[0] ?? "";
+    const openRule =
+      result.match(
+        /\.design-system nav\.site-nav\[data-menu\]\[data-collapse=always\]\[data-menu=open\] \.site-menu\s*\{[^}]*\}/,
+      )?.[0] ?? "";
+
+    expect(panelRule).toContain("visibility: hidden");
+    expect(openRule).toContain("visibility: visible");
+  });
+
+  test("Mobile sticky nav positioning targets only the site header nav", async () => {
+    const result = await compileDesignSystemBundle();
+
+    const stickyBarRule =
+      result.match(
+        /\.design-system\.sticky-mobile-nav nav\.site-nav\s*\{[^}]*\}/,
+      )?.[0] ?? "";
+    expect(stickyBarRule).toContain("position: fixed");
+
+    const unscopedBar = result.match(
+      /\.design-system\.sticky-mobile-nav nav\s*\{/,
+    );
+    expect(unscopedBar).toBeNull();
+  });
+
+  test("Desktop horizontal nav positioning targets only the site header nav", async () => {
+    const result = await compileDesignSystemBundle();
+
+    const horizontalRules =
+      result.match(
+        /\.design-system\.horizontal-nav nav\.site-nav(:not\([^)]*\))?\s*\{[^}]*\}/g,
+      ) ?? [];
+    expect(
+      horizontalRules.some((rule) => rule.includes("position: sticky")),
+    ).toBe(true);
+
+    const unscopedHorizontal = result.match(
+      /\.design-system\.horizontal-nav nav\s*\{/,
+    );
+    expect(unscopedHorizontal).toBeNull();
+  });
+
+  test("Design-system bundle ships table-of-contents card styling", async () => {
+    const result = await compileDesignSystemBundle();
+    const tocRule =
+      result.match(/\.design-system \.table-of-contents\s*\{[^}]*\}/)?.[0] ??
+      "";
+
+    expect(tocRule).toContain("border-radius");
+    expect(tocRule).toContain("background");
   });
 
   test("Design-system bundle defines default link decoration tokens", async () => {

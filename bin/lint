@@ -1,9 +1,0 @@
-#!/usr/bin/env nix-shell
-#! nix-shell -i bash -p biome
-
-biome \
-  format \
-  --write \
-  --no-errors-on-unmatched \
-  --files-ignore-unknown=true \
-  "./src"

@@ -1,5 +1,23 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test, vi } from "vitest";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
+import { bracketAsync } from "#test/test-utils.js";
+
+const withTheme = bracketAsync(
+  (content) => {
+    vi.resetModules();
+    vi.doMock("node:fs", async (importOriginal) => ({
+      default: {
+        ...(await importOriginal()).default,
+        readdirSync: () => ["theme-fixture.scss"],
+        readFileSync: () => content,
+      },
+    }));
+  },
+  () => {
+    vi.doUnmock("node:fs");
+    vi.resetModules();
+  },
+);
 
 describe("theme-compiler", () => {
   describe("generateThemeSwitcherContent", () => {
@@ -65,5 +83,70 @@ describe("theme-compiler", () => {
       const afterMetadata = result.slice(metadataStart);
       expect(afterMetadata.includes(":root {")).toBe(true);
     });
+
+    test.each([
+      ["missing", "p { color: red; }"],
+      ["block-commented", "/* :root { --color-bg: red; } */"],
+      ["line-commented", "// :root { --color-bg: red; }"],
+      ["quoted", 'p { content: ":root { --color-bg: red; }"; }'],
+      ["empty", ":root {}"],
+      ["whitespace-only", ":root { \n\t }"],
+      [
+        "comment-only",
+        ":root { /* --color-bg: red; */\n // --color-text: blue;\n }",
+      ],
+    ])("rejects a %s :root block naming the theme file", (_label, content) =>
+      withTheme(content, async () => {
+        const fresh = await import("#build/theme-compiler.js");
+        expect(() => fresh.generateThemeSwitcherContent()).toThrow(
+          "Theme file theme-fixture.scss must define a non-empty :root block with theme variables",
+        );
+      }));
+
+    test("ignores commented roots while preserving the first real root's full SCSS body", () =>
+      withTheme(
+        `
+/* :root { --color-bg: fake; } */
+// :root { --color-bg: also-fake; }
+:root {
+  // Keep SCSS comments, including a closing brace: }
+  --color-bg: blue;
+  --label: "}";
+  color: red;
+  @media (min-width: 40rem) { --color-bg: navy; }
+}
+:root { --color-bg: ignored; }
+header { --color-bg: scoped; }
+`,
+        async () => {
+          const fresh = await import("#build/theme-compiler.js");
+          const result = fresh.generateThemeSwitcherContent();
+          expect(result).toContain(`html[data-theme="fixture"] {
+  // Keep SCSS comments, including a closing brace: }
+  --color-bg: blue;
+  --label: "}";
+  color: red;
+  @media (min-width: 40rem) { --color-bg: navy; }
+}`);
+          expect(result).not.toMatch(/fake|ignored|scoped/);
+          expect(result).toContain('--theme-list: "default,fixture";');
+        },
+      ));
+
+    test("does not require custom properties when the root has other SCSS content", () =>
+      withTheme(":root { color: red; }", async () => {
+        const fresh = await import("#build/theme-compiler.js");
+        expect(fresh.generateThemeSwitcherContent()).toContain(
+          'html[data-theme="fixture"] { color: red; }',
+        );
+      }));
+
+    test("reports the theme file when its SCSS is malformed", () =>
+      withTheme(":root { --color-bg: red;", async () => {
+        const fresh = await import("#build/theme-compiler.js");
+        expect(() => fresh.generateThemeSwitcherContent()).toThrow(
+          /theme-fixture\.scss.*Unclosed block/,
+        );
+      }));
   });
 });

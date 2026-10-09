@@ -15,14 +15,15 @@
  *   const buildIndex = memoize((items) => ...);  // Cache persists
  *   const getData = (items, key) => buildIndex(items).get(key);
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   assertNoViolations,
+  combineFileLists,
   createBraceDepthScanner,
   isCommentLine,
   readSource,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 // Pattern to match memoize() calls
 const MEMOIZE_PATTERN = /\bmemoize\s*\(/;
@@ -97,7 +98,10 @@ const secondViolation = () => {
   });
 
   test("No memoize() calls inside functions in source files", () => {
-    const violations = SRC_JS_FILES().flatMap((file) =>
+    const violations = combineFileLists([
+      SRC_JS_FILES(),
+      SCRIPT_JS_FILES(),
+    ]).flatMap((file) =>
       findMemoizeInsideFunction(readSource(file)).map((v) => ({
         file,
         line: v.lineNumber,

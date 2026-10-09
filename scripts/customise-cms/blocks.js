@@ -13,16 +13,29 @@ import {
   createReferenceField,
 } from "#scripts/customise-cms/fields.js";
 import { slugToLabel } from "#scripts/customise-cms/generator-helpers.js";
-import { BLOCK_CMS_FIELDS } from "#utils/block-schema.js";
+import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
+
+/** @typedef {import('./fields.js').CmsField} CmsField */
+
+/**
+ * One field's schema as declared in a block schema module.
+ * @typedef {Object} BlockFieldSchema
+ * @property {string} type
+ * @property {string} [label]
+ * @property {boolean} [required]
+ * @property {*} [default]
+ * @property {boolean} [list]
+ * @property {Record<string, BlockFieldSchema>} [fields]
+ * @property {{ collection: string, multiple?: boolean }} [options]
+ */
 
 /**
  * Convert a non-markdown schema field to a generic CMS field
  * @param {string} name - Field name
- * @param {object} fieldSchema - Field schema from JSON
- * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} CMS field configuration
+ * @param {BlockFieldSchema} fieldSchema - Field schema from JSON
+ * @returns {CmsField} CMS field configuration
  */
-const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
+const buildGenericCmsField = (name, fieldSchema) => ({
   name,
   type: fieldSchema.type,
   label: fieldSchema.label || name,
@@ -31,28 +44,22 @@ const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
   ...(fieldSchema.list && { list: true }),
   ...(fieldSchema.fields && {
     fields: Object.entries(fieldSchema.fields).map(([n, f]) =>
-      schemaFieldToCmsField(n, f, useVisualEditor),
+      toCmsField(n, f),
     ),
   }),
 });
 
 /**
- * Convert a page layout block schema field to a CMS field
+ * Convert a schema field (a block field, or a site.json field) to a CMS field
  * @param {string} name - Field name
- * @param {object} fieldSchema - Field schema from JSON
- * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} CMS field configuration
+ * @param {BlockFieldSchema} fieldSchema - Field schema from JSON
+ * @returns {CmsField} CMS field configuration
  */
-const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
+export const toCmsField = (name, fieldSchema) => {
   if (fieldSchema.type === "markdown") {
-    return createMarkdownField(
-      name,
-      fieldSchema.label || name,
-      useVisualEditor,
-      {
-        ...(fieldSchema.required && { required: true }),
-      },
-    );
+    return createMarkdownField(name, fieldSchema.label || name, {
+      ...(fieldSchema.required && { required: true }),
+    });
   }
 
   if (fieldSchema.type === "reference") {
@@ -60,14 +67,14 @@ const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
       ...createReferenceField(
         name,
         fieldSchema.label || name,
-        fieldSchema.options.collection,
-        fieldSchema.options.multiple === true,
+        fieldSchema.options?.collection,
+        fieldSchema.options?.multiple === true,
       ),
       ...(fieldSchema.required && { required: true }),
     };
   }
 
-  return buildGenericCmsField(name, fieldSchema, useVisualEditor);
+  return buildGenericCmsField(name, fieldSchema);
 };
 
 /**
@@ -75,52 +82,23 @@ const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
  * @param {string} type - Block type slug
  * @returns {string} Component name
  */
-const blockTypeToComponentName = (type) => `block_${type.replace(/-/g, "_")}`;
-
-/**
- * CMS labels that differ from the slug-derived default. The block type itself
- * stays `markdown` (existing pages keep their front matter), but editors see
- * plain-English names in the block picker.
- * @type {Record<string, string>}
- */
-const BLOCK_LABEL_OVERRIDES = {
-  markdown: "Text Editor",
-};
-
-/**
- * Block types surfaced first in the picker, ahead of the alphabetical run.
- * `markdown` is the catch-all text block, so it leads every page's list.
- * @type {string[]}
- */
-const LEADING_BLOCK_TYPES = ["markdown"];
-
-/**
- * Order block types for the CMS picker: leading types in declared order, then
- * the rest alphabetically.
- * @param {string[]} blockTypes - Block type slugs supported on this page
- * @returns {string[]} Ordered block type slugs
- */
-const orderBlockTypes = (blockTypes) => [
-  ...LEADING_BLOCK_TYPES.filter((type) => blockTypes.includes(type)),
-  ...blockTypes.filter((type) => !LEADING_BLOCK_TYPES.includes(type)).sort(),
-];
+export const componentNameFor = (type) => `block_${type.replace(/-/g, "_")}`;
 
 /**
  * Build a CMS block component definition from BLOCK_CMS_FIELDS for one block type.
  * Each block is tagged with _componentName so it's extracted into the top-level
  * components map and replaced with a component reference downstream.
  * @param {string} type - Block type slug (must exist in BLOCK_CMS_FIELDS)
- * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} CMS block configuration
+ * @returns {CmsField} CMS block configuration
  */
-const buildBlockComponent = (type, useVisualEditor) => ({
+const buildBlockComponent = (type) => ({
   name: type,
-  label: BLOCK_LABEL_OVERRIDES[type] || slugToLabel(type),
+  label: slugToLabel(type),
   type: "object",
   fields: Object.entries(BLOCK_CMS_FIELDS[type]).map(([name, fieldSchema]) =>
-    schemaFieldToCmsField(name, fieldSchema, useVisualEditor),
+    toCmsField(name, fieldSchema),
   ),
-  _componentName: blockTypeToComponentName(type),
+  _componentName: componentNameFor(type),
 });
 
 /**
@@ -129,16 +107,28 @@ const buildBlockComponent = (type, useVisualEditor) => ({
  * single source of truth — so the same block type always resolves to the same
  * component no matter which page uses it.
  * @param {string[]} blockTypes - Block type slugs supported on this page
- * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} CMS blocks field configuration using type: block
+ * @returns {CmsField} CMS blocks field configuration using type: block
  */
-export const generateBlocksField = (blockTypes, useVisualEditor) => ({
+export const generateBlocksField = (blockTypes) => ({
   name: "blocks",
   label: "Content Blocks",
   type: "block",
   list: true,
   blockKey: "type",
-  blocks: orderBlockTypes(blockTypes).map((type) =>
-    buildBlockComponent(type, useVisualEditor),
-  ),
+  blocks: [...blockTypes].sort().map((type) => buildBlockComponent(type)),
 });
+
+/**
+ * Build the blocks field for one collection: every block type the block
+ * schema allows in that collection. The single source for the
+ * "allowed types → blocks field" idiom shared by pages, item collections,
+ * and custom blocks collections.
+ * @param {string} collectionName - Collection the blocks field belongs to
+ * @returns {import('./fields.js').CmsField} Blocks field configuration
+ */
+export const blocksFieldFor = (collectionName) =>
+  generateBlocksField(
+    Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
+      isBlockAllowedIn(type, collectionName),
+    ),
+  );

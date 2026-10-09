@@ -1,5 +1,7 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+// jscpd:ignore-end
 
 // Icon Links
 // A vertical list of links with icons, rendered as a flex column stack.
@@ -10,15 +12,12 @@
   }
 
   .icon-links__link {
-    display: flex;
-    gap: $space-sm;
-    align-items: center;
+    @include flex-row($space-sm);
+    @include compact-padding;
 
-    padding: $space-sm $space-md;
     border-radius: $radius-md;
 
-    color: inherit;
-    text-decoration: none;
+    @include row-link(false);
 
     transition: background-color 0.2s ease;
 
@@ -28,13 +27,7 @@
   }
 
   .icon-links__icon {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-
-    width: 1.5em;
-    height: 1.5em;
+    @include icon-box(1.5em);
 
     svg {
       width: 100%;

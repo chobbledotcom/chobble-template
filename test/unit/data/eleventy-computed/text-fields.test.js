@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import eleventyComputed from "#data/eleventyComputed.js";
 
 describe("eleventyComputed.meta_title", () => {
@@ -36,20 +36,6 @@ describe("eleventyComputed.description", () => {
 
   test("returns empty string when no description field is set", () => {
     expect(eleventyComputed.description({})).toBe("");
-  });
-});
-
-describe("eleventyComputed.rating", () => {
-  test("returns the explicit rating when set", () => {
-    expect(eleventyComputed.rating({ rating: 3 })).toBe(3);
-  });
-
-  test("preserves a rating of zero instead of applying the default", () => {
-    expect(eleventyComputed.rating({ rating: 0 })).toBe(0);
-  });
-
-  test("defaults to 5 when rating is not set", () => {
-    expect(eleventyComputed.rating({})).toBe(5);
   });
 });
 

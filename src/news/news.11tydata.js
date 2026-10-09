@@ -1,10 +1,3 @@
-import { linkableContent } from "#utils/linkable-content.js";
-import { normaliseSlug } from "#utils/slug-utils.js";
+import { directoryData } from "#collections/directory-data.js";
 
-export default linkableContent("news", {
-  authorSlug: (data) => {
-    if (!data.author) return null;
-    return normaliseSlug(data.author);
-  },
-  date: (data) => data.page.date,
-});
+export default directoryData("news");

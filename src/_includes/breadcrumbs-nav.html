@@ -1,15 +1,17 @@
-{%- assign crumbs = page | breadcrumbsFilter: name, navigationParent, parent, categories, collections, property, parentGuideCategory, pageLanguage, translations -%}
+{%- assign crumbs = page | breadcrumbsFilter: name, navigationParent, pageLanguage, translations -%}
 {%- if crumbs.size > 0 -%}
-<ol class="breadcrumbs" aria-label="{{ pageLanguage.breadcrumb_label }}">
-  {%- for crumb in crumbs -%}
-  <li>
-    {%- unless forloop.first -%}<span class="separator" aria-hidden="true">/</span>{%- endunless -%}
-    {%- if crumb.url -%}
-    <a href="{{ crumb.url }}{{ config.internal_link_suffix }}">{{ crumb.label }}</a>
-    {%- else -%}
-    <span aria-current="page">{{ crumb.label }}</span>
-    {%- endif -%}
-  </li>
-  {%- endfor -%}
-</ol>
+<nav aria-label="{{ pageLanguage.breadcrumb_label }}">
+  <ol class="breadcrumbs">
+    {%- for crumb in crumbs -%}
+    <li>
+      {%- unless forloop.first -%}<span class="separator" aria-hidden="true"></span>{%- endunless -%}
+      {%- if crumb.url -%}
+      <a href="{{ crumb.url }}{{ config.internal_link_suffix }}">{{ crumb.label }}</a>
+      {%- else -%}
+      <span aria-current="page">{{ crumb.label }}</span>
+      {%- endif -%}
+    </li>
+    {%- endfor -%}
+  </ol>
+</nav>
 {%- endif -%}

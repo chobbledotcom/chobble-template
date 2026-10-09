@@ -1,23 +1,13 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createTestSite } from "#test/test-site-factory.js";
+import { describe, expect, test } from "vitest";
+import { useSharedSite } from "#test/test-site-factory.js";
 
 // Test the actual feed output using isolated test sites
 // Tests are grouped to minimize builds while maintaining test isolation
 
 // Factory: setup and teardown a test site within a describe block
 const setupTestSiteWithFeed = (siteOptions) => {
-  let site;
-  let feed;
-
-  beforeAll(async () => {
-    site = await createTestSite(siteOptions);
-    await site.build();
-    feed = site.getOutput("feed.xml");
-  }, 30_000);
-
-  afterAll(() => site?.cleanup());
-
-  return { getSite: () => site, getFeed: () => feed };
+  const getSite = useSharedSite(siteOptions);
+  return { getSite, getFeed: () => getSite().getOutput("feed.xml") };
 };
 
 describe("feed", () => {
@@ -30,7 +20,7 @@ describe("feed", () => {
           filename: "site.json",
           data: {
             name: "Test Blog Name",
-            url: "https://test.example.com",
+            url: "https://test.invalid",
             description: "Test site",
           },
         },

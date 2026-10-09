@@ -8,6 +8,9 @@
  */
 
 declare module "@11ty/eleventy-navigation" {
-  const plugin: (eleventyConfig: unknown, options?: unknown) => void;
+  const plugin: (
+    eleventyConfig: import("#lib/types").UserConfig,
+    options?: unknown,
+  ) => void;
   export default plugin;
 }

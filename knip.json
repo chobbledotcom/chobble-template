@@ -6,30 +6,32 @@
 		"src/**/*.11tydata.js",
 		"src/_lib/public/bundle.js",
 		"src/_lib/public/design-system.js",
-		"src/_lib/public/bunny-video.js",
-		"src/_lib/public/youtube-video.js",
 		"src/_lib/public/masonry.js",
 		"bin/profile-report.js",
 		"test/**/*.test.js",
-		"test/build-profiling.js",
-		"test/demo-precommit-errors.js",
-		"packages/js-toolkit/fp/index.js",
-		"packages/js-toolkit/test-utils/index.js",
-		"packages/js-toolkit/code-quality/index.js"
+		"test/test-site-data-register.js",
+		"test/test-site-data-hooks.js"
 	],
-	"project": ["**/*.{js,mjs}"],
-	"ignore": [
-		"src/assets/**",
-		"src/_lib/public/ui/search.js"
+	"project": [
+		"**/*.{js,mjs}"
 	],
+	"ignore": [],
 	"ignoreDependencies": [
-		"bun-types",
+		"@biomejs/biome",
+		"jscpd",
 		"pagefind",
 		"postcss-scss",
 		"zod"
 	],
 	"ignoreBinaries": [],
 	"ignoreExportsUsedInFile": true,
+	// withSchemaBreadcrumbs / withSchemaLanguage are registered as Eleventy
+	// filters via registerFilters (src/_lib/eleventy/register.js); knip
+	// cannot trace the map-form registration the way it traced
+	// addFilter("name", fn), so its exports are reported as unused here.
+	"ignoreIssues": {
+		"src/_lib/eleventy/breadcrumbs.js": ["exports"]
+	},
 	"rules": {},
 	"eleventy": false
 }

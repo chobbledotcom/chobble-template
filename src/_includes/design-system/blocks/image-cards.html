@@ -4,36 +4,29 @@ Image cards grid - similar to features but with images instead of emoji icons.
 Parameters (via block object):
   - block.items: Array of card objects with properties:
     - image: Image path (required)
-    - title: Card title (required)
+    - name: Card name (required)
     - description: Card description (optional)
     - link: URL to link to (optional)
-  - block.reveal: If true, adds data-reveal animation (default: true)
-  - block.image_aspect_ratio: Aspect ratio for images (e.g., "16/9", "1/1", "4/3"). Default: uses CSS default
+  - block.reveal: If true, adds data-reveal animation
+  - block.image_aspect_ratio: Aspect ratio for images (e.g., "16/9", "1/1", "4/3")
   - block.intro_content: Optional markdown intro rendered above the grid
-
-Usage:
-  {% include "design-system/image-cards.html",
-     block: { items: page.image_cards, image_aspect_ratio: "16/9" }
-  %}
-
-  Where page.image_cards = [
-    { image: "/images/photo.jpg", title: "Title", description: "Description", link: "/page/" },
-    ...
-  ]
 {%- endcomment -%}
-
-{%- assign reveal = block.reveal | default: true -%}
 
 {%- include "design-system/block-intro.html" -%}
 
 <ul class="items" role="list">
   {%- for item in block.items -%}
-  <li{% if reveal %} data-reveal{% endif %}>
+  <li{% if block.reveal %} data-reveal{% endif %}>
     {%- if item.image -%}
+      {%- comment -%}
+        With a link, the card's heading links the same place, so this one is
+        hidden from assistive tech rather than read out twice. Without one, it
+        is the only way to the image and carries the card's name.
+      {%- endcomment -%}
       {%- if item.link -%}
-        <a class="image-link" href="{{ item.link }}">
+        <a class="image-link" href="{{ item.link }}" aria-hidden="true" tabindex="-1">
       {%- else -%}
-        <a class="image-link" href="{{ item.image | normalizeImageUrl }}">
+        <a class="image-link" href="{{ item.image | normalizeImageUrl }}" aria-label="{{ item.name }}">
       {%- endif -%}
         {%- image item.image, "", "", "", "", block.image_aspect_ratio -%}
       </a>
