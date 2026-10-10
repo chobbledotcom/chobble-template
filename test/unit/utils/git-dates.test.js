@@ -200,6 +200,28 @@ describe("git-dates", () => {
         },
       ));
 
+    test("terminates when rename propagation reaches a cycle", () =>
+      withGitRepo("git-dates-rename-cycle", { fileName: "page.txt" })(
+        ({ tempDir, filePath }) => {
+          fs.renameSync(filePath, path.join(tempDir, "a.md"));
+          gitCommit(tempDir, "to a.md", "2025-02-01T10:00:00Z");
+          fs.renameSync(path.join(tempDir, "a.md"), path.join(tempDir, "b.md"));
+          gitCommit(tempDir, "to b.md", "2025-02-01T10:00:00Z");
+          fs.renameSync(path.join(tempDir, "b.md"), path.join(tempDir, "a.md"));
+          gitCommit(tempDir, "back to a.md", "2025-02-01T10:00:00Z");
+
+          const lookup = createLookup(tempDir);
+          expect(lookup.datesFor("a.md")).toEqual({
+            published: "2025-01-01T10:00:00Z",
+            updated: "2025-02-01T10:00:00Z",
+          });
+          expect(lookup.datesFor("b.md")).toEqual({
+            published: "2025-01-01T10:00:00Z",
+            updated: "2025-02-01T10:00:00Z",
+          });
+        },
+      ));
+
     test("propagates the backfilled origin through copies of the renamed template", () =>
       withGitRepo("git-dates-rename-copy", { fileName: "page.txt" })(
         ({ tempDir, filePath }) => {
