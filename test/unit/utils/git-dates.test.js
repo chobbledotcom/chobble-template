@@ -302,9 +302,18 @@ describe("git-dates", () => {
      * Build main and feature edits over the base commit, merge them into a
      * conflict, and complete the merge by writing the given resolution.
      */
-    const mergeWithResolution = (tempDir, filePath, resolved, date) => {
+    const mergeWithResolution = (
+      tempDir,
+      filePath,
+      {
+        resolved,
+        mergeAuthorDate,
+        mergeCommitterDate = mergeAuthorDate,
+        mainEditDate = "2025-02-01T10:00:00Z",
+      },
+    ) => {
       fs.writeFileSync(filePath, "main version");
-      gitCommit(tempDir, "edit on main", "2025-02-01T10:00:00Z");
+      gitCommit(tempDir, "edit on main", mainEditDate);
       runGitInDir(["checkout", "-b", "feature", "HEAD~1"], tempDir);
       fs.writeFileSync(filePath, "feature version");
       gitCommit(tempDir, "edit on feature", "2025-03-01T10:00:00Z");
@@ -315,8 +324,22 @@ describe("git-dates", () => {
       });
       expect(merge.status).not.toBe(0);
       fs.writeFileSync(filePath, resolved);
-      gitCommit(tempDir, "merge feature", date);
+      runGitInDir(["add", "-A"], tempDir);
+      execFileSync("git", ["commit", "-m", "merge feature"], {
+        cwd: tempDir,
+        env: {
+          ...process.env,
+          GIT_AUTHOR_DATE: mergeAuthorDate,
+          GIT_COMMITTER_DATE: mergeCommitterDate,
+        },
+      });
     };
+
+    const mergeNovelResolution = (tempDir, filePath) =>
+      mergeWithResolution(tempDir, filePath, {
+        resolved: "merged version",
+        mergeAuthorDate: "2025-04-01T10:00:00Z",
+      });
 
     const lookupMergedPage = (tempDir) => ({
       gitUpdated: runGitInDir(
@@ -329,12 +352,10 @@ describe("git-dates", () => {
     test("keeps the simplified-history date across a conflict resolved for one parent", () =>
       withGitRepo("git-dates-merge-resolution", { fileName: "page.md" })(
         ({ tempDir, filePath }) => {
-          mergeWithResolution(
-            tempDir,
-            filePath,
-            "main version",
-            "2025-04-01T10:00:00Z",
-          );
+          mergeWithResolution(tempDir, filePath, {
+            resolved: "main version",
+            mergeAuthorDate: "2025-04-01T10:00:00Z",
+          });
 
           const { gitUpdated, dates } = lookupMergedPage(tempDir);
           expect(dates.updated).toBe("2025-02-01T10:00:00Z");
@@ -345,12 +366,7 @@ describe("git-dates", () => {
     test("counts a merge that resolves to novel content as the update", () =>
       withGitRepo("git-dates-merge-novel-resolution", { fileName: "page.md" })(
         ({ tempDir, filePath }) => {
-          mergeWithResolution(
-            tempDir,
-            filePath,
-            "merged version",
-            "2025-04-01T10:00:00Z",
-          );
+          mergeNovelResolution(tempDir, filePath);
 
           const { gitUpdated, dates } = lookupMergedPage(tempDir);
           expect(dates.updated).toBe("2025-04-01T10:00:00Z");
@@ -362,18 +378,73 @@ describe("git-dates", () => {
     test("keeps a post-merge edit newer than the merge resolution", () =>
       withGitRepo("git-dates-post-merge-edit", { fileName: "page.md" })(
         ({ tempDir, filePath }) => {
-          mergeWithResolution(
-            tempDir,
-            filePath,
-            "merged version",
-            "2025-04-01T10:00:00Z",
-          );
+          mergeNovelResolution(tempDir, filePath);
           fs.writeFileSync(filePath, "polished version");
           gitCommit(tempDir, "polish after merge", "2025-05-01T10:00:00Z");
 
           const { gitUpdated, dates } = lookupMergedPage(tempDir);
           expect(dates.updated).toBe("2025-05-01T10:00:00Z");
           expect(dates.updated).toBe(gitUpdated);
+        },
+      ));
+
+    test("counts a merge as the update even when authored before a parent edit", () =>
+      withGitRepo("git-dates-merge-topology", { fileName: "page.md" })(
+        ({ tempDir, filePath }) => {
+          mergeWithResolution(tempDir, filePath, {
+            resolved: "merged version",
+            mergeAuthorDate: "2025-02-01T10:00:00Z",
+            mergeCommitterDate: "2025-05-01T10:00:00Z",
+            mainEditDate: "2025-04-01T10:00:00Z",
+          });
+
+          const updated = runGitInDir(
+            ["log", "-1", "--format=%aI", "--", "page.md"],
+            tempDir,
+          );
+          const dates = createLookup(tempDir).datesFor("page.md");
+          expect(dates.updated).toBe("2025-02-01T10:00:00Z");
+          expect(dates.updated).toBe(updated);
+        },
+      ));
+
+    test("replaces the published date when a rename reuses a deleted path", () =>
+      withGitRepo("git-dates-reused-path", { fileName: "page.md" })(
+        ({ tempDir }) => {
+          fs.rmSync(path.join(tempDir, "page.md"));
+          gitCommit(tempDir, "delete page", "2025-02-01T10:00:00Z");
+          fs.writeFileSync(path.join(tempDir, "page.txt"), "fresh content");
+          gitCommit(tempDir, "add page.txt", "2025-03-01T10:00:00Z");
+          fs.renameSync(
+            path.join(tempDir, "page.txt"),
+            path.join(tempDir, "page.md"),
+          );
+          gitCommit(tempDir, "rename to page.md", "2025-04-01T10:00:00Z");
+
+          expect(createLookup(tempDir).datesFor("page.md")).toEqual({
+            published: "2025-03-01T10:00:00Z",
+            updated: "2025-04-01T10:00:00Z",
+          });
+        },
+      ));
+
+    test("anchors a rename origin to the transfer commit", () =>
+      withGitRepo("git-dates-source-reuse", { fileName: "page.txt" })(
+        ({ tempDir, filePath }) => {
+          fs.renameSync(filePath, path.join(tempDir, "old.md"));
+          gitCommit(tempDir, "convert to md", "2025-02-01T10:00:00Z");
+          fs.writeFileSync(path.join(tempDir, "source.md"), "new source");
+          gitCommit(tempDir, "add source", "2025-03-01T10:00:00Z");
+          fs.copyFileSync(
+            path.join(tempDir, "source.md"),
+            path.join(tempDir, "page.txt"),
+          );
+          gitCommit(tempDir, "reuse page.txt", "2025-04-01T10:00:00Z");
+
+          expect(createLookup(tempDir).datesFor("old.md")).toEqual({
+            published: "2025-01-01T10:00:00Z",
+            updated: "2025-02-01T10:00:00Z",
+          });
         },
       ));
 

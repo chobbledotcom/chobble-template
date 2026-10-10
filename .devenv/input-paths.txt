@@ -1,0 +1,8 @@
+/run/user/1000/devenv-81cd809/processes/native-manager.pid
+/tmp/pr1481/.devenv/bootstrap/bootstrapLib.nix
+/tmp/pr1481/.devenv/bootstrap/default.nix
+/tmp/pr1481/.devenv/bootstrap/resolve-lock.nix
+/tmp/pr1481/devenv.local.nix
+/tmp/pr1481/devenv.lock
+/tmp/pr1481/devenv.nix
+/tmp/pr1481/devenv.yaml

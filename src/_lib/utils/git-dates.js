@@ -8,7 +8,7 @@ const HISTORY_MAX_BUFFER_BYTES = 64 * 1024 * 1024;
 const TEMPLATE_PATHS = ["*.html", "*.liquid", "*.md"];
 const HISTORY_SCAN_ARGS = [
   "--reverse",
-  "--format=%x1e%aI",
+  "--format=%x1e%aI%x00%H",
   "--raw",
   "--no-abbrev",
   "--find-renames",
@@ -19,7 +19,7 @@ const HISTORY_SCAN_ARGS = [
 /** @typedef {{ published: string, updated: string, blob: string }} IndexedGitDates */
 /** @typedef {{ published: string, updated: string }} GitDates */
 /** @typedef {{ oldMode: string, newMode: string, blob: string, status: string }} RawChange */
-/** @typedef {{ oldPath: string, newPath: string, date: string, status: string }} TransferRecord */
+/** @typedef {{ commit: string, oldPath: string, newPath: string, date: string, status: string }} TransferRecord */
 /** @typedef {Map<string, IndexedGitDates>} GitDateIndex */
 /** @typedef {{ repo: string, dates: GitDateIndex }} GitRepoIndex */
 /** @typedef {{ durationMs: number, paths: number, repositories: number }} GitDateStats */
@@ -39,16 +39,17 @@ const HISTORY_SCAN_ARGS = [
  * @property {(index: GitDateIndex, change: RawChange, paths: string[], date: string) => void} applyHistoryChange
  * @property {(rawChange: string | undefined) => RawChange | null} parseRawChange
  * @property {(change: RawChange) => number} pathsConsumedBy
- * @property {(record: string) => { date: string, tokens: string[] }} splitHistoryRecord
+ * @property {(record: string) => { date: string, hash: string, tokens: string[] }} splitHistoryRecord
+ * @property {(record: string) => { date: string, hash: string, tokens: string[] } | undefined} parseDatedRecord
  * @property {(record: { tokens: string[] }) => { change: RawChange, paths: string[] }[]} recordChanges
- * @property {(record: { date: string, tokens: string[] }) => TransferRecord[]} recordTransfers
- * @property {(index: GitDateIndex, record: string, floorTime: number) => void} applyRecordChanges
+ * @property {(record: { date: string, hash: string, tokens: string[] }) => TransferRecord[]} recordTransfers
+ * @property {(index: GitDateIndex, record: string, mergeRecords: Map<string, string>) => void} applyRecord
  * @property {(repo: string, args: string[]) => string[]} historyRecords
- * @property {(repo: string, args: string[], includeDates?: boolean) => { dates: GitDateIndex, transfers: TransferRecord[] }} scanHistory
+ * @property {(repo: string) => Map<string, string>} mergeResolutionRecords
+ * @property {(byDate: Map<string, string>, date: string) => string | undefined} takeMergeRecord
  * @property {(repo: string) => { dates: GitDateIndex, transfers: TransferRecord[] }} buildRepoIndex
- * @property {(repo: string, index: GitDateIndex) => void} applyMergeResolutions
  * @property {(repo: string) => TransferRecord[]} renameRecords
- * @property {(repo: string, sourcePath: string) => string | undefined} originDateFor
+ * @property {(repo: string, sourcePath: string, anchor: string) => string | undefined} originDateFor
  * @property {(repo: string, index: GitDateIndex, renames: TransferRecord[], transfers: TransferRecord[]) => void} applyRenameOrigins
  * @property {(index: GitDateIndex, successorsBySource: Map<string, TransferRecord[]>, path: string, origin: string, transferDate: string) => void} patchOriginChain
  * @property {(indexes: GitRepoIndex[], inputPath: string) => IndexedGitDates | undefined} findDates
@@ -175,8 +176,13 @@ const history = Object.freeze({
   },
 
   splitHistoryRecord(record) {
-    const [rawDate, ...tokens] = record.split("\0");
-    return { date: rawDate.trim(), tokens };
+    const [rawDate, hash, ...tokens] = record.split("\0");
+    return { date: rawDate.trim(), hash, tokens };
+  },
+
+  parseDatedRecord(record) {
+    const parsed = history.splitHistoryRecord(record);
+    return parsed.date ? parsed : undefined;
   },
 
   recordChanges({ tokens }) {
@@ -197,6 +203,7 @@ const history = Object.freeze({
       .recordChanges(parsed)
       .filter(({ change }) => history.pathsConsumedBy(change) === 2)
       .map(({ change, paths }) => ({
+        commit: parsed.hash,
         oldPath: paths[0],
         newPath: paths[1],
         date: parsed.date,
@@ -204,12 +211,17 @@ const history = Object.freeze({
       }));
   },
 
-  applyRecordChanges(index, record, floorTime) {
-    const parsed = history.splitHistoryRecord(record);
-    if (!parsed.date) return;
-    for (const { change, paths } of history.recordChanges(parsed)) {
-      const target = index.get(paths[paths.length - 1]);
-      if (target && Date.parse(target.updated) >= floorTime) continue;
+  applyRecord(index, record, mergeRecords) {
+    const parsed = history.parseDatedRecord(record);
+    if (!parsed) return;
+    const changes = history.recordChanges(parsed);
+    if (changes.length === 0) {
+      // A date-only record is an interesting merge; replay its first-parent diff at this position.
+      const mergeRecord = history.takeMergeRecord(mergeRecords, parsed.date);
+      if (mergeRecord) history.applyRecord(index, mergeRecord, mergeRecords);
+      return;
+    }
+    for (const { change, paths } of changes) {
       history.applyHistoryChange(index, change, paths, parsed.date);
     }
   },
@@ -223,51 +235,52 @@ const history = Object.freeze({
     return output ? output.split("\x1e") : [];
   },
 
-  scanHistory(repo, args, includeDates = true) {
-    const records = history.historyRecords(repo, args);
-    const dates = includeDates
-      ? records.reduce((index, record) => {
-          history.applyRecordChanges(index, record, Number.POSITIVE_INFINITY);
-          return index;
-        }, new Map())
-      : new Map();
-    const transfers = records.flatMap((record) =>
-      history.recordTransfers(history.splitHistoryRecord(record)),
-    );
-    return { dates, transfers };
-  },
-
-  buildRepoIndex(repo) {
-    // The template pathspec keeps git's history simplification, matching the legacy per-path queries.
-    return history.scanHistory(repo, [
-      "--find-copies-harder",
-      "--",
-      ...TEMPLATE_PATHS,
-    ]);
-  },
-
-  applyMergeResolutions(repo, index) {
-    // Replay first-parent diffs of merges so novel resolutions count as updates, skipping records older than the path's update.
+  mergeResolutionRecords(repo) {
     const records = history.historyRecords(repo, [
       "--merges",
       "--diff-merges=first-parent",
       "--",
       ...TEMPLATE_PATHS,
     ]);
-    for (const record of records) {
-      const { date } = history.splitHistoryRecord(record);
-      if (!date) continue;
-      history.applyRecordChanges(index, record, Date.parse(date));
-    }
+    return records.reduce((byDate, record) => {
+      const parsed = history.parseDatedRecord(record);
+      if (!parsed) return byDate;
+      if (history.recordChanges(parsed).length === 0) return byDate;
+      return new Map(byDate).set(parsed.date, record);
+    }, new Map());
+  },
+
+  takeMergeRecord(byDate, date) {
+    const record = byDate.get(date);
+    if (record) byDate.delete(date);
+    return record;
+  },
+
+  buildRepoIndex(repo) {
+    // The template pathspec keeps git's history simplification, matching the legacy per-path queries.
+    const mergeRecords = history.mergeResolutionRecords(repo);
+    const records = history.historyRecords(repo, [
+      "--find-copies-harder",
+      "--",
+      ...TEMPLATE_PATHS,
+    ]);
+    const dates = records.reduce((index, record) => {
+      history.applyRecord(index, record, mergeRecords);
+      return index;
+    }, new Map());
+    const transfers = records.flatMap(transferFromRecord);
+    return { dates, transfers };
   },
 
   renameRecords(repo) {
-    return history.scanHistory(repo, ["--diff-filter=RC"], false).transfers;
+    const records = history.historyRecords(repo, ["--diff-filter=RC"]);
+    return records.flatMap(transferFromRecord);
   },
 
-  originDateFor(repo, sourcePath) {
+  originDateFor(repo, sourcePath, anchor) {
     const output = history.gitOutput(repo, [
       "log",
+      anchor,
       "--follow",
       "--diff-filter=A",
       "--format=%aI",
@@ -278,15 +291,14 @@ const history = Object.freeze({
   },
 
   applyRenameOrigins(repo, index, renames, transfers) {
-    // Propagation edges: every rename in the repository plus the copies the
-    // template scan applied, so backfilled origins also reach copies.
+    // Propagation edges: renames plus the scan's copies, so backfilled origins reach copies.
     const successorsBySource = buildReverseIndex(
       [...renames, ...transfers.filter(({ status }) => status === "C")],
       (edge) => [edge.oldPath],
     );
-    for (const { oldPath, newPath, date } of renames) {
+    for (const { commit, oldPath, newPath, date } of renames) {
       if (index.has(oldPath) || !index.has(newPath)) continue;
-      const origin = history.originDateFor(repo, oldPath);
+      const origin = history.originDateFor(repo, oldPath, commit);
       if (!origin) continue;
       history.patchOriginChain(
         index,
@@ -300,7 +312,11 @@ const history = Object.freeze({
 
   patchOriginChain(index, successorsBySource, path, origin, transferDate) {
     const dates = index.get(path);
-    if (!dates || dates.published !== transferDate) return;
+    if (!dates) return;
+    // A rename into a deleted-and-reused path must replace the stale published date.
+    if (dates.published !== transferDate && dates.updated !== transferDate) {
+      return;
+    }
     dates.published = origin;
     const successors = successorsBySource.get(path);
     if (!successors) return;
@@ -349,6 +365,10 @@ const history = Object.freeze({
   },
 });
 
+/** @param {string} record @returns {TransferRecord[]} */
+const transferFromRecord = (record) =>
+  history.recordTransfers(history.splitHistoryRecord(record));
+
 /**
  * @param {GitDateLookupOptions} [options]
  * @returns {GitDateLookup}
@@ -362,7 +382,6 @@ export const createGitDateLookup = (options = {}) => {
       : options.configuredRepo;
   const indexes = history.candidateRepos(cwd, configuredRepo).map((repo) => {
     const { dates, transfers } = history.buildRepoIndex(repo);
-    history.applyMergeResolutions(repo, dates);
     history.applyRenameOrigins(
       repo,
       dates,
