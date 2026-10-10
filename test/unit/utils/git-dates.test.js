@@ -333,13 +333,20 @@ describe("git-dates", () => {
         mergeAuthorDate,
         mergeCommitterDate = mergeAuthorDate,
         mainEditDate = "2025-02-01T10:00:00Z",
+        featureEditDate = "2025-03-01T10:00:00Z",
+        extraFeatureFiles = [],
+        resolutionFiles = [],
       },
     ) => {
       fs.writeFileSync(filePath, "main version");
       gitCommit(tempDir, "edit on main", mainEditDate);
-      runGitInDir(["checkout", "-b", "feature", "HEAD~1"], tempDir);
+      runGitInDir(["checkout", "-B", "feature", "HEAD~1"], tempDir);
       fs.writeFileSync(filePath, "feature version");
-      gitCommit(tempDir, "edit on feature", "2025-03-01T10:00:00Z");
+      gitCommit(tempDir, "edit on feature", featureEditDate);
+      for (const { name, content, date } of extraFeatureFiles) {
+        fs.writeFileSync(path.join(tempDir, name), content);
+        gitCommit(tempDir, `add ${name}`, date);
+      }
       runGitInDir(["checkout", "main"], tempDir);
       const merge = spawnSync("git", ["merge", "--no-edit", "feature"], {
         cwd: tempDir,
@@ -347,6 +354,9 @@ describe("git-dates", () => {
       });
       expect(merge.status).not.toBe(0);
       fs.writeFileSync(filePath, resolved);
+      for (const { name, content } of resolutionFiles) {
+        fs.writeFileSync(path.join(tempDir, name), content);
+      }
       runGitInDir(["add", "-A"], tempDir);
       execFileSync("git", ["commit", "-m", "merge feature"], {
         cwd: tempDir,
@@ -409,6 +419,83 @@ describe("git-dates", () => {
           const { gitUpdated, dates } = lookupMergedPage(tempDir);
           expect(dates.updated).toBe("2025-05-01T10:00:00Z");
           expect(dates.updated).toBe(gitUpdated);
+        },
+      ));
+
+    test("pairs sequential novel merges that share one author date", () =>
+      withGitRepo("git-dates-merge-same-date", { fileName: "a.md" })(
+        ({ tempDir }) => {
+          const bPath = path.join(tempDir, "b.md");
+          fs.writeFileSync(bPath, "b-base");
+          gitCommit(tempDir, "add b", "2025-01-01T11:00:00Z");
+          mergeWithResolution(tempDir, path.join(tempDir, "a.md"), {
+            resolved: "a-merged",
+            mergeAuthorDate: "2025-02-01T10:00:00Z",
+            mainEditDate: "2025-01-02T10:00:00Z",
+            featureEditDate: "2025-01-03T10:00:00Z",
+          });
+          mergeWithResolution(tempDir, bPath, {
+            resolved: "b-merged",
+            mergeAuthorDate: "2025-02-01T10:00:00Z",
+            mergeCommitterDate: "2025-02-02T10:00:00Z",
+            mainEditDate: "2025-01-04T10:00:00Z",
+            featureEditDate: "2025-01-05T10:00:00Z",
+          });
+
+          const lookup = createLookup(tempDir);
+          expect(lookup.datesFor("a.md").updated).toBe("2025-02-01T10:00:00Z");
+          expect(lookup.datesFor("b.md").updated).toBe("2025-02-01T10:00:00Z");
+        },
+      ));
+
+    test("does not bump inherited second-parent adds during merge replay", () =>
+      withGitRepo("git-dates-merge-inherited-add", { fileName: "p.md" })(
+        ({ tempDir, filePath }) => {
+          mergeWithResolution(tempDir, filePath, {
+            resolved: "r1",
+            mergeAuthorDate: "2025-04-01T10:00:00Z",
+            mainEditDate: "2025-01-02T10:00:00Z",
+            featureEditDate: "2025-01-03T10:00:00Z",
+            extraFeatureFiles: [
+              {
+                name: "side.md",
+                content: "side",
+                date: "2025-03-01T10:00:00Z",
+              },
+            ],
+          });
+
+          const sideUpdated = runGitInDir(
+            ["log", "-1", "--format=%aI", "--", "side.md"],
+            tempDir,
+          );
+          const lookup = createLookup(tempDir);
+          expect(lookup.datesFor("side.md")).toEqual({
+            published: "2025-03-01T10:00:00Z",
+            updated: "2025-03-01T10:00:00Z",
+          });
+          expect(lookup.datesFor("p.md").updated).toBe("2025-04-01T10:00:00Z");
+          expect(sideUpdated).toBe("2025-03-01T10:00:00Z");
+        },
+      ));
+
+    test("counts a file created by a merge resolution as added at the merge", () =>
+      withGitRepo("git-dates-merge-created-file", { fileName: "p.md" })(
+        ({ tempDir, filePath }) => {
+          mergeWithResolution(tempDir, filePath, {
+            resolved: "r2",
+            mergeAuthorDate: "2025-03-15T10:00:00Z",
+            mainEditDate: "2025-02-01T10:00:00Z",
+            featureEditDate: "2025-03-01T10:00:00Z",
+            resolutionFiles: [{ name: "new.md", content: "created" }],
+          });
+
+          const lookup = createLookup(tempDir);
+          expect(lookup.datesFor("new.md")).toEqual({
+            published: "2025-03-15T10:00:00Z",
+            updated: "2025-03-15T10:00:00Z",
+          });
+          expect(lookup.datesFor("p.md").updated).toBe("2025-03-15T10:00:00Z");
         },
       ));
 

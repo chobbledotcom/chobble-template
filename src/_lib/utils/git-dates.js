@@ -43,10 +43,15 @@ const HISTORY_SCAN_ARGS = [
  * @property {(record: string) => { date: string, hash: string, tokens: string[] } | undefined} parseDatedRecord
  * @property {(record: { tokens: string[] }) => { change: RawChange, paths: string[] }[]} recordChanges
  * @property {(record: { date: string, hash: string, tokens: string[] }) => TransferRecord[]} recordTransfers
- * @property {(index: GitDateIndex, record: string, mergeRecords: Map<string, string>) => void} applyRecord
+ * @property {(index: GitDateIndex, record: string, mergeRecords: Map<string, { record: string, novelPaths: Set<string> }>) => void} applyRecord
+ * @property {(index: GitDateIndex, changes: { change: RawChange, paths: string[] }[], date: string) => void} applyChanges
+ * @property {(index: GitDateIndex, parsed: { date: string, hash: string, tokens: string[] }, mergeRecords: Map<string, { record: string, novelPaths: Set<string> }>) => void} replayMergeResolution
  * @property {(repo: string, args: string[]) => string[]} historyRecords
- * @property {(repo: string) => Map<string, string>} mergeResolutionRecords
- * @property {(byDate: Map<string, string>, date: string) => string | undefined} takeMergeRecord
+ * @property {(repo: string) => Map<string, { record: string, novelPaths: Set<string> }>} mergeResolutionRecords
+ * @property {(repo: string) => Map<string, Set<string>>} mergeNovelPaths
+ * @property {(parsed: { tokens: string[] }) => Set<string>} novelPaths
+ * @property {(resolution: { record: string, novelPaths: Set<string> }) => { change: RawChange, paths: string[] }[]} resolutionChanges
+ * @property {(byHash: Map<string, { record: string, novelPaths: Set<string> }>, hash: string) => { record: string, novelPaths: Set<string> } | undefined} takeMergeRecord
  * @property {(repo: string) => { dates: GitDateIndex, transfers: TransferRecord[] }} buildRepoIndex
  * @property {(repo: string) => TransferRecord[]} renameRecords
  * @property {(repo: string, sourcePath: string, anchor: string) => string | undefined} originDateFor
@@ -217,14 +222,38 @@ const history = Object.freeze({
     if (!parsed) return;
     const changes = history.recordChanges(parsed);
     if (changes.length === 0) {
-      // A date-only record is an interesting merge; replay its first-parent diff at this position.
-      const mergeRecord = history.takeMergeRecord(mergeRecords, parsed.date);
-      if (mergeRecord) history.applyRecord(index, mergeRecord, mergeRecords);
+      history.replayMergeResolution(index, parsed, mergeRecords);
       return;
     }
+    history.applyChanges(index, changes, parsed.date);
+  },
+
+  applyChanges(index, changes, date) {
     for (const { change, paths } of changes) {
-      history.applyHistoryChange(index, change, paths, parsed.date);
+      history.applyHistoryChange(index, change, paths, date);
     }
+  },
+
+  replayMergeResolution(index, parsed, mergeRecords) {
+    // A date-only record is an interesting merge; replay its first-parent diff at this position.
+    const resolution = history.takeMergeRecord(mergeRecords, parsed.hash);
+    if (!resolution) return;
+    history.applyChanges(
+      index,
+      history.resolutionChanges(resolution),
+      parsed.date,
+    );
+  },
+
+  resolutionChanges({ record, novelPaths }) {
+    const parsed = history.splitHistoryRecord(record);
+    return history
+      .recordChanges(parsed)
+      .filter(
+        ({ change, paths }) =>
+          change.oldMode !== "000000" ||
+          novelPaths.has(paths[paths.length - 1]),
+      );
   },
 
   historyRecords(repo, args) {
@@ -237,23 +266,52 @@ const history = Object.freeze({
   },
 
   mergeResolutionRecords(repo) {
-    const records = history.historyRecords(repo, [
-      "--merges",
-      "--diff-merges=first-parent",
-      "--",
-      ...TEMPLATE_PATHS,
-    ]);
-    return records.reduce((byDate, record) => {
-      const parsed = history.parseDatedRecord(record);
-      if (!parsed) return byDate;
-      if (history.recordChanges(parsed).length === 0) return byDate;
-      return new Map(byDate).set(parsed.date, record);
-    }, new Map());
+    const novels = history.mergeNovelPaths(repo);
+    return indexByCommit(
+      history.historyRecords(repo, [
+        "--merges",
+        "--diff-merges=first-parent",
+        "--",
+        ...TEMPLATE_PATHS,
+      ]),
+      (parsed, record) => {
+        if (history.recordChanges(parsed).length === 0) return undefined;
+        const novelPaths = novels.get(parsed.hash) || new Set();
+        return { record, novelPaths };
+      },
+    );
   },
 
-  takeMergeRecord(byDate, date) {
-    const record = byDate.get(date);
-    if (record) byDate.delete(date);
+  mergeNovelPaths(repo) {
+    // Combined diffs list paths whose merge result differs from every parent.
+    return indexByCommit(
+      history.historyRecords(repo, [
+        "--merges",
+        "--diff-merges=combined",
+        "--",
+        ...TEMPLATE_PATHS,
+      ]),
+      (parsed) => {
+        const novelPaths = history.novelPaths(parsed);
+        return novelPaths.size > 0 ? novelPaths : undefined;
+      },
+    );
+  },
+
+  novelPaths({ tokens }) {
+    return new Set(
+      tokens.flatMap((token, position) => {
+        if (!token?.trim().match(/^:{2,}(?:\d{6} )+(?:[0-9a-f]+ )+[A-Z]+$/)) {
+          return [];
+        }
+        return [tokens[position + 1]];
+      }),
+    );
+  },
+
+  takeMergeRecord(byHash, hash) {
+    const record = byHash.get(hash);
+    if (record) byHash.delete(hash);
     return record;
   },
 
@@ -381,6 +439,22 @@ const history = Object.freeze({
 /** @param {string} record @returns {TransferRecord[]} */
 function transferFromRecord(record) {
   return history.recordTransfers(history.splitHistoryRecord(record));
+}
+
+/**
+ * @template T
+ * @param {string[]} records
+ * @param {(parsed: { date: string, hash: string, tokens: string[] }, record: string) => T | undefined} extract
+ * @returns {Map<string, T>}
+ */
+function indexByCommit(records, extract) {
+  return records.reduce((byHash, record) => {
+    const parsed = history.parseDatedRecord(record);
+    if (!parsed) return byHash;
+    const value = extract(parsed, record);
+    if (!value) return byHash;
+    return new Map(byHash).set(parsed.hash, value);
+  }, new Map());
 }
 
 /**
