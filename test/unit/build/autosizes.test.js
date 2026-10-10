@@ -141,6 +141,20 @@ const SRC_SRCSET_ATTRS = {
 };
 
 /**
+ * Wait until the predicate holds, since the polyfill restores attributes
+ * through chained happy-dom timers whose dispatch is delayed when the
+ * concurrent suite saturates the CPU.
+ */
+const waitForRestore = async (predicate, timeoutMs = 2000) => {
+  const deadline = Date.now() + timeoutMs;
+  while (!predicate()) {
+    if (Date.now() > deadline) return false;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  return true;
+};
+
+/**
  * Setup test environment with imgAttrs and run autosizes.
  * Returns a Promise resolving to { window, img } for assertions.
  */
@@ -304,8 +318,8 @@ describe("autosizes", () => {
       const fcp = await setupAndRun(SRC_SRCSET_ATTRS);
       expect(fcp.img.hasAttribute("src")).toBe(false);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
+      const restored = await waitForRestore(() => fcp.img.hasAttribute("src"));
+      expect(restored).toBe(true);
       expect(fcp.img.getAttribute("src")).toBe("/image.jpg");
       expect(fcp.img.getAttribute("srcset")).toBe("/image-300.jpg 300w");
     });
@@ -313,8 +327,11 @@ describe("autosizes", () => {
     test("Cleans up data-auto-sizes-* attributes after restoration", async () => {
       const { window, img } = await createAutosizesTestEnv();
       runAutosizes(window, img);
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      expect(img.hasAttribute("data-auto-sizes-src")).toBe(false);
+      expect(img.hasAttribute("data-auto-sizes-src")).toBe(true);
+      const restored = await waitForRestore(
+        () => img.hasAttribute("data-auto-sizes-src") === false,
+      );
+      expect(restored).toBe(true);
     });
   });
 
@@ -351,8 +368,10 @@ describe("autosizes", () => {
       const srcset = "/img-300.webp 300w";
       const { source } = await setupAndRunPicture(srcset);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
+      const restored = await waitForRestore(() =>
+        source.hasAttribute("srcset"),
+      );
+      expect(restored).toBe(true);
       expect(source.getAttribute("srcset")).toBe(srcset);
       expect(source.hasAttribute("data-auto-sizes-srcset")).toBe(false);
     });

@@ -1,63 +1,121 @@
 import { describe, expect, test } from "bun:test";
 import {
-  calculateAverageCpuUsage,
-  formatAverageCpuUsage,
-  getCpuSnapshot,
+  combinePhaseMetrics,
+  createPhaseMetrics,
+  formatPhaseMetrics,
 } from "#scripts/build-metrics.js";
 
-const cpu = (times) => ({
-  model: "test",
-  speed: 1000,
-  times,
+const usage = ({
+  maxRSS = 1024,
+  system = 500_000n,
+  user = 1_500_000n,
+} = {}) => ({
+  cpuTime: { system, user },
+  maxRSS,
 });
 
 describe("build metrics", () => {
-  test("aggregates cumulative times across logical CPUs", () => {
-    const snapshot = getCpuSnapshot([
-      cpu({ user: 100, nice: 10, sys: 20, idle: 300, irq: 5 }),
-      cpu({ user: 200, nice: 20, sys: 40, idle: 400, irq: 10 }),
-    ]);
-
-    expect(snapshot).toEqual({
-      idle: 700,
-      total: 1105,
-      logicalCpuCount: 2,
+  test("derives CPU utilization and Linux RSS for one phase", () => {
+    expect(
+      createPhaseMetrics({
+        logicalCpuCount: 4,
+        name: "Eleventy",
+        platform: "linux",
+        resourceUsage: usage(),
+        wallMs: 2000,
+      }),
+    ).toEqual({
+      cpuUtilization: 25,
+      effectiveCores: 1,
+      logicalCpuCount: 4,
+      maxRssBytes: 1024 ** 2,
+      name: "Eleventy",
+      systemCpuMs: 500,
+      totalCpuMs: 2000,
+      userCpuMs: 1500,
+      wallMs: 2000,
     });
   });
 
-  test("calculates average utilization over the snapshot interval", () => {
-    const usage = calculateAverageCpuUsage(
-      { idle: 600, total: 1000, logicalCpuCount: 2 },
-      { idle: 700, total: 1400, logicalCpuCount: 2 },
+  test("does not scale RSS on platforms where it is already bytes", () => {
+    expect(
+      createPhaseMetrics({
+        logicalCpuCount: 2,
+        name: "Pagefind",
+        platform: "darwin",
+        resourceUsage: usage({ maxRSS: 12_345 }),
+        wallMs: 1000,
+      }).maxRssBytes,
+    ).toBe(12_345);
+  });
+
+  test("combines sequential phase time and peak memory", () => {
+    const first = createPhaseMetrics({
+      logicalCpuCount: 4,
+      name: "Eleventy",
+      platform: "linux",
+      resourceUsage: usage({ maxRSS: 2048 }),
+      wallMs: 2000,
+    });
+    const second = createPhaseMetrics({
+      logicalCpuCount: 4,
+      name: "Pagefind",
+      platform: "linux",
+      resourceUsage: usage({ maxRSS: 1024, system: 0n, user: 500_000n }),
+      wallMs: 1000,
+    });
+
+    expect(combinePhaseMetrics("Total build", [first, second])).toMatchObject({
+      effectiveCores: 2.5 / 3,
+      maxRssBytes: 2 * 1024 ** 2,
+      name: "Total build",
+      systemCpuMs: 500,
+      totalCpuMs: 2500,
+      userCpuMs: 2000,
+      wallMs: 3000,
+    });
+  });
+
+  test("formats phase metrics with effective cores and normalized CPU", () => {
+    const metrics = createPhaseMetrics({
+      logicalCpuCount: 8,
+      name: "Eleventy",
+      platform: "linux",
+      resourceUsage: usage({ maxRSS: 1_572_864 }),
+      wallMs: 2000,
+    });
+
+    expect(formatPhaseMetrics(metrics)).toBe(
+      "Eleventy resources: 2.00s wall, 2.00s CPU " +
+        "(1.50s user + 0.50s sys, 1.00 effective cores, 12.5% of 8), " +
+        "1.50 GiB peak RSS",
     );
 
-    expect(usage).toEqual({
-      percentage: 75,
-      busyCores: 1.5,
-      logicalCpuCount: 2,
-    });
-  });
-
-  test("formats utilization as percentage and equivalent busy cores", () => {
     expect(
-      formatAverageCpuUsage({
-        percentage: 37.54,
-        busyCores: 3.0032,
-        logicalCpuCount: 8,
-      }),
-    ).toBe("Average system CPU usage: 37.5% (3.0 of 8 logical CPUs)");
-  });
-
-  test("rejects snapshots without elapsed CPU time", () => {
-    expect(() =>
-      calculateAverageCpuUsage(
-        { idle: 100, total: 200, logicalCpuCount: 2 },
-        { idle: 100, total: 200, logicalCpuCount: 2 },
+      formatPhaseMetrics(
+        createPhaseMetrics({
+          logicalCpuCount: 8,
+          name: "Pagefind",
+          platform: "linux",
+          resourceUsage: usage(),
+          wallMs: 2000,
+        }),
       ),
-    ).toThrow("invalid CPU time delta");
+    ).toEndWith("1.0 MiB peak RSS");
   });
 
-  test("rejects snapshots when no logical CPUs are reported", () => {
-    expect(() => getCpuSnapshot([])).toThrow("no logical CPUs were reported");
+  test("rejects missing resource data and empty phase sets", () => {
+    expect(() =>
+      createPhaseMetrics({
+        logicalCpuCount: 0,
+        name: "Eleventy",
+        resourceUsage: usage(),
+        wallMs: 1,
+      }),
+    ).toThrow("no logical CPUs");
+    expect(() =>
+      createPhaseMetrics({ name: "Eleventy", resourceUsage: null, wallMs: 1 }),
+    ).toThrow("Resource usage is unavailable");
+    expect(() => combinePhaseMetrics("Total build", [])).toThrow("empty set");
   });
 });

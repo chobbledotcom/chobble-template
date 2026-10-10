@@ -3,18 +3,14 @@
  * Fail-fast Eleventy build wrapper.
  *
  * By default, Eleventy continues processing other templates after an error,
- * and async image processing continues in the background. This makes it hard
- * to identify errors in CI logs (they get buried under thousands of lines).
- *
- * This wrapper monitors the build output and immediately terminates on error,
- * ensuring errors are visible at the end of the log output.
+ * and async image processing continues in the background. This wrapper
+ * terminates the build when one of Eleventy's fatal error markers appears.
  */
-import { spawn, spawnSync } from "node:child_process";
 import { parseArgs } from "node:util";
 import {
-  calculateAverageCpuUsage,
-  formatAverageCpuUsage,
-  getCpuSnapshot,
+  combinePhaseMetrics,
+  createPhaseMetrics,
+  formatPhaseMetrics,
 } from "#scripts/build-metrics.js";
 
 const ERROR_PATTERNS = [
@@ -39,19 +35,6 @@ if (values.serve) args.push("--serve");
 if (values.incremental) args.push("--incremental");
 args.push(...positionals);
 
-const cpuStart = getCpuSnapshot();
-
-const eleventy = spawn(
-  "bun",
-  ["./node_modules/@11ty/eleventy/cmd.cjs", ...args],
-  {
-    stdio: ["inherit", "pipe", "pipe"],
-    env: process.env,
-  },
-);
-
-let errorDetected = false;
-
 const containsError = (text) =>
   ERROR_PATTERNS.some((pattern) => text.includes(pattern));
 
@@ -68,84 +51,170 @@ const printFailureBanner = () => {
   console.error("Fix the issue and rebuild.\n");
 };
 
-const triggerFailFast = () => {
-  errorDetected = true;
-  setTimeout(() => {
-    printFailureBanner();
-    eleventy.kill("SIGTERM");
-  }, 100);
-};
-
-const writeErrorOutput = (data, text) => {
-  if (!isImageProcessingNoise(text)) {
-    process.stderr.write(data);
-  }
-};
-
-const writeNormalOutput = (data, isStderr) => {
-  const target = isStderr ? process.stderr : process.stdout;
-  target.write(data);
+const reportProcessFailure = (message, error) => {
+  console.error(message, error.message);
+  process.exitCode = 1;
+  return null;
 };
 
 const runPagefind = () => {
   console.log("\nRunning Pagefind indexer...");
-  const result = spawnSync(
-    "bun",
-    ["./node_modules/.bin/pagefind", "--site", "_site"],
-    { stdio: "inherit", env: process.env },
+  const startedAt = performance.now();
+  const result = Bun.spawnSync(
+    [process.execPath, "./node_modules/.bin/pagefind", "--site", "_site"],
+    {
+      env: process.env,
+      stderr: "inherit",
+      stdin: "inherit",
+      stdout: "inherit",
+    },
   );
-  if (result.status !== 0) {
+  const metrics = createPhaseMetrics({
+    name: "Pagefind",
+    resourceUsage: result.resourceUsage,
+    wallMs: performance.now() - startedAt,
+  });
+
+  console.log(formatPhaseMetrics(metrics));
+  if (result.exitCode !== 0) {
     console.error("Pagefind indexing failed");
-    return false;
+    return { metrics, succeeded: false };
   }
   console.log("Pagefind indexing complete\n");
-  return true;
+  return { metrics, succeeded: true };
 };
 
-let pagefindRanForServe = false;
+const spawnEleventy = () => {
+  try {
+    return Bun.spawn(
+      [process.execPath, "./node_modules/@11ty/eleventy/cmd.cjs", ...args],
+      {
+        env: process.env,
+        stderr: "pipe",
+        stdin: "inherit",
+        stdout: "pipe",
+      },
+    );
+  } catch (error) {
+    return reportProcessFailure("Failed to start Eleventy:", error);
+  }
+};
 
-const processChunk = (data, isStderr) => {
-  const text = data.toString();
-  if (errorDetected) {
-    writeErrorOutput(data, text);
+const pumpOutput = async (stream, processChunk, isStderr) => {
+  const reader = stream.getReader();
+  try {
+    let chunk = await reader.read();
+    while (!chunk.done) {
+      processChunk(Buffer.from(chunk.value), isStderr);
+      chunk = await reader.read();
+    }
+  } finally {
+    reader.releaseLock();
+  }
+};
+
+const waitForEleventy = async (eleventy, output) => {
+  try {
+    const exitCode = await eleventy.exited;
+    await output;
+    return exitCode;
+  } catch (error) {
+    return reportProcessFailure("Eleventy process failed:", error);
+  }
+};
+
+const createOutputProcessor = (eleventy) => {
+  let errorDetected = false;
+  let pagefindRanForServe = false;
+
+  const triggerFailFast = () => {
+    errorDetected = true;
+    setTimeout(() => {
+      printFailureBanner();
+      eleventy.kill("SIGTERM");
+    }, 100);
+  };
+
+  const shouldRunPagefind = (text) =>
+    values.serve && !pagefindRanForServe && text.includes("[11ty] Watching");
+
+  const writeAfterError = (data, text) => {
+    if (!isImageProcessingNoise(text)) process.stderr.write(data);
+  };
+
+  const processNormalChunk = (data, text, isStderr) => {
+    const target = isStderr ? process.stderr : process.stdout;
+    target.write(data);
+    if (containsError(text)) triggerFailFast();
+    if (shouldRunPagefind(text)) {
+      pagefindRanForServe = true;
+      runPagefind();
+    }
+  };
+
+  const processChunk = (data, isStderr) => {
+    const text = data.toString();
+    if (errorDetected) {
+      writeAfterError(data, text);
+      return;
+    }
+    processNormalChunk(data, text, isStderr);
+  };
+
+  return {
+    failed: () => errorDetected,
+    processChunk,
+  };
+};
+
+const getEleventyMetrics = (eleventy, startedAt) => {
+  const usage = eleventy.resourceUsage();
+  return usage
+    ? createPhaseMetrics({
+        name: "Eleventy",
+        resourceUsage: usage,
+        wallMs: performance.now() - startedAt,
+      })
+    : null;
+};
+
+const runPostBuild = (eleventyMetrics) => {
+  const pagefind = runPagefind();
+  if (!pagefind.succeeded) {
+    process.exitCode = 1;
     return;
   }
-  writeNormalOutput(data, isStderr);
-  if (containsError(text)) {
-    triggerFailFast();
-  }
-  if (
-    values.serve &&
-    !pagefindRanForServe &&
-    text.includes("[11ty] Watching")
-  ) {
-    pagefindRanForServe = true;
-    runPagefind();
+  if (eleventyMetrics) {
+    console.log(
+      formatPhaseMetrics(
+        combinePhaseMetrics("Total build", [eleventyMetrics, pagefind.metrics]),
+      ),
+    );
   }
 };
 
-const handleOutput = (stream, isStderr) => {
-  stream.on("data", (data) => processChunk(data, isStderr));
+const main = async () => {
+  const startedAt = performance.now();
+  const eleventy = spawnEleventy();
+  if (!eleventy) return;
+  const outputProcessor = createOutputProcessor(eleventy);
+
+  const output = Promise.all([
+    pumpOutput(eleventy.stdout, outputProcessor.processChunk, false),
+    pumpOutput(eleventy.stderr, outputProcessor.processChunk, true),
+  ]);
+  const exitCode = await waitForEleventy(eleventy, output);
+  if (exitCode === null) return;
+
+  const eleventyMetrics = getEleventyMetrics(eleventy, startedAt);
+  if (eleventyMetrics) console.log(formatPhaseMetrics(eleventyMetrics));
+
+  if (outputProcessor.failed() || exitCode !== 0) {
+    process.exitCode = exitCode || 1;
+    return;
+  }
+  if (values.serve) return;
+  runPostBuild(eleventyMetrics);
 };
 
-handleOutput(eleventy.stdout, false);
-handleOutput(eleventy.stderr, true);
-
-eleventy.on("close", (code) => {
-  if (errorDetected || code !== 0) {
-    process.exit(code || 1);
-  }
-  if (!values.serve) {
-    if (!runPagefind()) {
-      process.exit(1);
-    }
-    const cpuUsage = calculateAverageCpuUsage(cpuStart, getCpuSnapshot());
-    console.log(formatAverageCpuUsage(cpuUsage));
-  }
-  process.exit(0);
-});
-
-eleventy.on("error", (err) => {
-  console.error("Failed to start Eleventy:", err.message);
-  process.exit(1);
-});
+await main();
