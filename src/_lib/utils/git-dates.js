@@ -453,7 +453,8 @@ function indexByCommit(records, extract) {
     if (!parsed) return byHash;
     const value = extract(parsed, record);
     if (!value) return byHash;
-    return new Map(byHash).set(parsed.hash, value);
+    byHash.set(parsed.hash, value);
+    return byHash;
   }, new Map());
 }
 
