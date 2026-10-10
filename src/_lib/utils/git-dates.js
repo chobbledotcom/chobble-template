@@ -51,6 +51,7 @@ const HISTORY_SCAN_ARGS = [
  * @property {(repo: string) => TransferRecord[]} renameRecords
  * @property {(repo: string, sourcePath: string, anchor: string) => string | undefined} originDateFor
  * @property {(repo: string, index: GitDateIndex, renames: TransferRecord[], transfers: TransferRecord[]) => void} applyRenameOrigins
+ * @property {(dates: { published: string, updated: string }, transferDate: string) => boolean} lineageMatches
  * @property {(index: GitDateIndex, successorsBySource: Map<string, TransferRecord[]>, path: string, origin: string, transferDate: string) => void} patchOriginChain
  * @property {(indexes: GitRepoIndex[], inputPath: string) => IndexedGitDates | undefined} findDates
  * @property {(indexes: GitRepoIndex[], inputPath: string | null | undefined) => GitDates | null} datesFor
@@ -310,13 +311,15 @@ const history = Object.freeze({
     }
   },
 
+  lineageMatches(dates, transferDate) {
+    return dates.published === transferDate || dates.updated === transferDate;
+  },
+
   patchOriginChain(index, successorsBySource, path, origin, transferDate) {
     const dates = index.get(path);
     if (!dates) return;
     // A rename into a deleted-and-reused path must replace the stale published date.
-    if (dates.published !== transferDate && dates.updated !== transferDate) {
-      return;
-    }
+    if (!history.lineageMatches(dates, transferDate)) return;
     dates.published = origin;
     const successors = successorsBySource.get(path);
     if (!successors) return;

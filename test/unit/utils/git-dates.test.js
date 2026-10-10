@@ -9,13 +9,14 @@ import {
   formatIso,
 } from "#utils/git-dates.js";
 
-const runGitInDir = (args, cwd, env = {}) =>
-  execFileSync("git", args, {
+function runGitInDir(args, cwd, env = {}) {
+  return execFileSync("git", args, {
     cwd,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "ignore"],
     env: { ...process.env, ...env },
   }).trim();
+}
 
 const initGitRepo = (dir) => {
   runGitInDir(["init", "-b", "main"], dir);
