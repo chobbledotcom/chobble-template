@@ -20,7 +20,6 @@ const HISTORY_SCAN_ARGS = [
 /** @typedef {{ published: string, updated: string }} GitDates */
 /** @typedef {{ oldMode: string, newMode: string, blob: string, status: string }} RawChange */
 /** @typedef {{ oldPath: string, newPath: string, date: string, status: string }} TransferRecord */
-/** @typedef {{ change: RawChange | null, firstPath: string | null, remaining: number }} ParseState */
 /** @typedef {Map<string, IndexedGitDates>} GitDateIndex */
 /** @typedef {{ repo: string, dates: GitDateIndex }} GitRepoIndex */
 /** @typedef {{ durationMs: number, paths: number, repositories: number }} GitDateStats */
@@ -41,18 +40,17 @@ const HISTORY_SCAN_ARGS = [
  * @property {(rawChange: string | undefined) => RawChange | null} parseRawChange
  * @property {(change: RawChange) => number} pathsConsumedBy
  * @property {(record: string) => { date: string, tokens: string[] }} splitHistoryRecord
+ * @property {(record: { tokens: string[] }) => { change: RawChange, paths: string[] }[]} recordChanges
  * @property {(record: { date: string, tokens: string[] }) => TransferRecord[]} recordTransfers
- * @property {() => ParseState} initialState
- * @property {(state: ParseState, token: string) => ParseState} startChange
- * @property {(state: ParseState, token: string, index: GitDateIndex, date: string) => ParseState} consumePath
- * @property {(state: ParseState, token: string, index: GitDateIndex, date: string) => ParseState} parseHistoryToken
- * @property {(record: string, index: GitDateIndex) => void} parseHistoryRecord
- * @property {(repo: string, args: string[]) => { dates: GitDateIndex, renames: TransferRecord[] }} scanHistory
- * @property {(repo: string) => GitDateIndex} buildRepoIndex
+ * @property {(index: GitDateIndex, record: string, floorTime: number) => void} applyRecordChanges
+ * @property {(repo: string, args: string[]) => string[]} historyRecords
+ * @property {(repo: string, args: string[], includeDates?: boolean) => { dates: GitDateIndex, transfers: TransferRecord[] }} scanHistory
+ * @property {(repo: string) => { dates: GitDateIndex, transfers: TransferRecord[] }} buildRepoIndex
+ * @property {(repo: string, index: GitDateIndex) => void} applyMergeResolutions
  * @property {(repo: string) => TransferRecord[]} renameRecords
  * @property {(repo: string, sourcePath: string) => string | undefined} originDateFor
- * @property {(repo: string, index: GitDateIndex, renames: TransferRecord[]) => void} applyRenameOrigins
- * @property {(index: GitDateIndex, renamesBySource: Map<string, TransferRecord[]>, path: string, origin: string, transferDate: string) => void} patchRenamedChain
+ * @property {(repo: string, index: GitDateIndex, renames: TransferRecord[], transfers: TransferRecord[]) => void} applyRenameOrigins
+ * @property {(index: GitDateIndex, successorsBySource: Map<string, TransferRecord[]>, path: string, origin: string, transferDate: string) => void} patchOriginChain
  * @property {(indexes: GitRepoIndex[], inputPath: string) => IndexedGitDates | undefined} findDates
  * @property {(indexes: GitRepoIndex[], inputPath: string | null | undefined) => GitDates | null} datesFor
  * @property {(indexes: GitRepoIndex[], startedAt: number) => GitDateLookup} createLookup
@@ -181,92 +179,90 @@ const history = Object.freeze({
     return { date: rawDate.trim(), tokens };
   },
 
-  recordTransfers({ date, tokens }) {
-    if (tokens.length === 0) return [];
+  recordChanges({ tokens }) {
     return tokens.flatMap((token, position) => {
       const change = history.parseRawChange(token);
-      if (!change || history.pathsConsumedBy(change) === 1) return [];
-      const [oldPath, newPath] = tokens.slice(
+      if (!change) return [];
+      const paths = tokens.slice(
         position + 1,
         position + 1 + history.pathsConsumedBy(change),
       );
-      if (!oldPath || !newPath) return [];
-      return [{ oldPath, newPath, date, status: change.status }];
+      if (paths.length < history.pathsConsumedBy(change)) return [];
+      return [{ change, paths }];
     });
   },
 
-  initialState() {
-    return { change: null, firstPath: null, remaining: 0 };
+  recordTransfers(parsed) {
+    return history
+      .recordChanges(parsed)
+      .filter(({ change }) => history.pathsConsumedBy(change) === 2)
+      .map(({ change, paths }) => ({
+        oldPath: paths[0],
+        newPath: paths[1],
+        date: parsed.date,
+        status: change.status,
+      }));
   },
 
-  startChange(state, token) {
-    const change = history.parseRawChange(token);
-    return change
-      ? {
-          change,
-          firstPath: null,
-          remaining: history.pathsConsumedBy(change),
-        }
-      : state;
-  },
-
-  consumePath(state, token, index, date) {
-    if (state.remaining === 1 && state.change) {
-      const paths = state.firstPath ? [state.firstPath, token] : [token];
-      history.applyHistoryChange(index, state.change, paths, date);
-      return { change: null, firstPath: null, remaining: 0 };
+  applyRecordChanges(index, record, floorTime) {
+    const parsed = history.splitHistoryRecord(record);
+    if (!parsed.date) return;
+    for (const { change, paths } of history.recordChanges(parsed)) {
+      const target = index.get(paths[paths.length - 1]);
+      if (target && Date.parse(target.updated) >= floorTime) continue;
+      history.applyHistoryChange(index, change, paths, parsed.date);
     }
-    return {
-      change: state.change,
-      firstPath: token,
-      remaining: state.remaining - 1,
-    };
   },
 
-  parseHistoryToken(state, token, index, date) {
-    return state.remaining === 0
-      ? history.startChange(state, token)
-      : history.consumePath(state, token, index, date);
-  },
-
-  parseHistoryRecord(record, index) {
-    const { date, tokens } = history.splitHistoryRecord(record);
-    if (!date) return;
-    tokens.reduce(
-      (state, token) => history.parseHistoryToken(state, token, index, date),
-      history.initialState(),
-    );
-  },
-
-  scanHistory(repo, args) {
+  historyRecords(repo, args) {
     const output = history.gitOutput(repo, [
       "log",
       ...HISTORY_SCAN_ARGS,
       ...args,
     ]);
-    const records = output ? output.split("\x1e") : [];
-    const dates = records.reduce((index, record) => {
-      history.parseHistoryRecord(record, index);
-      return index;
-    }, new Map());
-    const renames = records.flatMap((record) =>
+    return output ? output.split("\x1e") : [];
+  },
+
+  scanHistory(repo, args, includeDates = true) {
+    const records = history.historyRecords(repo, args);
+    const dates = includeDates
+      ? records.reduce((index, record) => {
+          history.applyRecordChanges(index, record, Number.POSITIVE_INFINITY);
+          return index;
+        }, new Map())
+      : new Map();
+    const transfers = records.flatMap((record) =>
       history.recordTransfers(history.splitHistoryRecord(record)),
     );
-    return { dates, renames };
+    return { dates, transfers };
   },
 
   buildRepoIndex(repo) {
-    // The template pathspec keeps git's history simplification, which is
-    // exactly what the legacy per-path queries saw, merges included.
+    // The template pathspec keeps git's history simplification, matching the legacy per-path queries.
     return history.scanHistory(repo, [
       "--find-copies-harder",
       "--",
       ...TEMPLATE_PATHS,
-    ]).dates;
+    ]);
+  },
+
+  applyMergeResolutions(repo, index) {
+    // Replay first-parent diffs of merges so novel resolutions count as updates, skipping records older than the path's update.
+    const records = history.historyRecords(repo, [
+      "--merges",
+      "--diff-merges=first-parent",
+      "--",
+      ...TEMPLATE_PATHS,
+    ]);
+    for (const record of records) {
+      const { date } = history.splitHistoryRecord(record);
+      if (!date) continue;
+      history.applyRecordChanges(index, record, Date.parse(date));
+    }
   },
 
   renameRecords(repo) {
-    return history.scanHistory(repo, []).renames;
+    return history.scanHistory(repo, ["--diff-filter=RC"], false).transfers;
   },
 
   originDateFor(repo, sourcePath) {
@@ -281,30 +277,37 @@ const history = Object.freeze({
     return output?.split("\n").filter(Boolean).pop();
   },
 
-  applyRenameOrigins(repo, index, renames) {
-    const renamesBySource = buildReverseIndex(renames, (rename) => [
-      rename.oldPath,
-    ]);
+  applyRenameOrigins(repo, index, renames, transfers) {
+    // Propagation edges: every rename in the repository plus the copies the
+    // template scan applied, so backfilled origins also reach copies.
+    const successorsBySource = buildReverseIndex(
+      [...renames, ...transfers.filter(({ status }) => status === "C")],
+      (edge) => [edge.oldPath],
+    );
     for (const { oldPath, newPath, date } of renames) {
-      // Renames whose source the template scan indexed are already exact;
-      // only a source outside the pathspec hides its original add date.
       if (index.has(oldPath) || !index.has(newPath)) continue;
       const origin = history.originDateFor(repo, oldPath);
       if (!origin) continue;
-      history.patchRenamedChain(index, renamesBySource, newPath, origin, date);
+      history.patchOriginChain(
+        index,
+        successorsBySource,
+        newPath,
+        origin,
+        date,
+      );
     }
   },
 
-  patchRenamedChain(index, renamesBySource, path, origin, transferDate) {
+  patchOriginChain(index, successorsBySource, path, origin, transferDate) {
     const dates = index.get(path);
     if (!dates || dates.published !== transferDate) return;
     dates.published = origin;
-    const descendants = renamesBySource.get(path);
-    if (!descendants) return;
-    for (const { newPath } of descendants) {
-      history.patchRenamedChain(
+    const successors = successorsBySource.get(path);
+    if (!successors) return;
+    for (const { newPath } of successors) {
+      history.patchOriginChain(
         index,
-        renamesBySource,
+        successorsBySource,
         newPath,
         origin,
         transferDate,
@@ -358,8 +361,14 @@ export const createGitDateLookup = (options = {}) => {
       ? process.env.GIT_DATES_REPO
       : options.configuredRepo;
   const indexes = history.candidateRepos(cwd, configuredRepo).map((repo) => {
-    const dates = history.buildRepoIndex(repo);
-    history.applyRenameOrigins(repo, dates, history.renameRecords(repo));
+    const { dates, transfers } = history.buildRepoIndex(repo);
+    history.applyMergeResolutions(repo, dates);
+    history.applyRenameOrigins(
+      repo,
+      dates,
+      history.renameRecords(repo),
+      transfers,
+    );
     return { repo, dates };
   });
   return history.createLookup(indexes, startedAt);

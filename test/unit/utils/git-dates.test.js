@@ -199,6 +199,29 @@ describe("git-dates", () => {
         },
       ));
 
+    test("propagates the backfilled origin through copies of the renamed template", () =>
+      withGitRepo("git-dates-rename-copy", { fileName: "page.txt" })(
+        ({ tempDir, filePath }) => {
+          fs.renameSync(filePath, path.join(tempDir, "page.md"));
+          gitCommit(tempDir, "convert to md", "2025-02-01T10:00:00Z");
+          fs.copyFileSync(
+            path.join(tempDir, "page.md"),
+            path.join(tempDir, "copy.md"),
+          );
+          gitCommit(tempDir, "copy page", "2025-03-01T10:00:00Z");
+
+          const lookup = createLookup(tempDir);
+          expect(lookup.datesFor("page.md")).toEqual({
+            published: "2025-01-01T10:00:00Z",
+            updated: "2025-02-01T10:00:00Z",
+          });
+          expect(lookup.datesFor("copy.md")).toEqual({
+            published: "2025-01-01T10:00:00Z",
+            updated: "2025-03-01T10:00:00Z",
+          });
+        },
+      ));
+
     test("falls back to the copy date when a template is copied from a non-template path", () =>
       withGitRepo("git-dates-cross-extension-copy", {
         fileName: "base.njk",
@@ -275,30 +298,82 @@ describe("git-dates", () => {
         },
       ));
 
+    /**
+     * Build main and feature edits over the base commit, merge them into a
+     * conflict, and complete the merge by writing the given resolution.
+     */
+    const mergeWithResolution = (tempDir, filePath, resolved, date) => {
+      fs.writeFileSync(filePath, "main version");
+      gitCommit(tempDir, "edit on main", "2025-02-01T10:00:00Z");
+      runGitInDir(["checkout", "-b", "feature", "HEAD~1"], tempDir);
+      fs.writeFileSync(filePath, "feature version");
+      gitCommit(tempDir, "edit on feature", "2025-03-01T10:00:00Z");
+      runGitInDir(["checkout", "main"], tempDir);
+      const merge = spawnSync("git", ["merge", "--no-edit", "feature"], {
+        cwd: tempDir,
+        stdio: "ignore",
+      });
+      expect(merge.status).not.toBe(0);
+      fs.writeFileSync(filePath, resolved);
+      gitCommit(tempDir, "merge feature", date);
+    };
+
+    const lookupMergedPage = (tempDir) => ({
+      gitUpdated: runGitInDir(
+        ["log", "-1", "--format=%aI", "--", "page.md"],
+        tempDir,
+      ),
+      dates: createLookup(tempDir).datesFor("page.md"),
+    });
+
     test("keeps the simplified-history date across a conflict resolved for one parent", () =>
       withGitRepo("git-dates-merge-resolution", { fileName: "page.md" })(
         ({ tempDir, filePath }) => {
-          fs.writeFileSync(filePath, "main version");
-          gitCommit(tempDir, "edit on main", "2025-02-01T10:00:00Z");
-          runGitInDir(["checkout", "-b", "feature", "HEAD~1"], tempDir);
-          fs.writeFileSync(filePath, "feature version");
-          gitCommit(tempDir, "edit on feature", "2025-03-01T10:00:00Z");
-          runGitInDir(["checkout", "main"], tempDir);
-          const merge = spawnSync("git", ["merge", "--no-edit", "feature"], {
-            cwd: tempDir,
-            stdio: "ignore",
-          });
-          expect(merge.status).not.toBe(0);
-          runGitInDir(["checkout", "--ours", "--", "page.md"], tempDir);
-          gitCommit(tempDir, "merge feature", "2025-04-01T10:00:00Z");
-
-          const updated = runGitInDir(
-            ["log", "-1", "--format=%aI", "--", "page.md"],
+          mergeWithResolution(
             tempDir,
+            filePath,
+            "main version",
+            "2025-04-01T10:00:00Z",
           );
-          const dates = createLookup(tempDir).datesFor("page.md");
+
+          const { gitUpdated, dates } = lookupMergedPage(tempDir);
           expect(dates.updated).toBe("2025-02-01T10:00:00Z");
-          expect(dates.updated).toBe(updated);
+          expect(dates.updated).toBe(gitUpdated);
+        },
+      ));
+
+    test("counts a merge that resolves to novel content as the update", () =>
+      withGitRepo("git-dates-merge-novel-resolution", { fileName: "page.md" })(
+        ({ tempDir, filePath }) => {
+          mergeWithResolution(
+            tempDir,
+            filePath,
+            "merged version",
+            "2025-04-01T10:00:00Z",
+          );
+
+          const { gitUpdated, dates } = lookupMergedPage(tempDir);
+          expect(dates.updated).toBe("2025-04-01T10:00:00Z");
+          expect(dates.updated).toBe(gitUpdated);
+          expect(dates.published).toBe("2025-01-01T10:00:00Z");
+        },
+      ));
+
+    test("keeps a post-merge edit newer than the merge resolution", () =>
+      withGitRepo("git-dates-post-merge-edit", { fileName: "page.md" })(
+        ({ tempDir, filePath }) => {
+          mergeWithResolution(
+            tempDir,
+            filePath,
+            "merged version",
+            "2025-04-01T10:00:00Z",
+          );
+          fs.writeFileSync(filePath, "polished version");
+          gitCommit(tempDir, "polish after merge", "2025-05-01T10:00:00Z");
+
+          const { gitUpdated, dates } = lookupMergedPage(tempDir);
+          expect(dates.updated).toBe("2025-05-01T10:00:00Z");
+          expect(dates.updated).toBe(gitUpdated);
         },
       ));
 
