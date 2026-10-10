@@ -335,11 +335,12 @@ describe("git-dates", () => {
       });
     };
 
-    const mergeNovelResolution = (tempDir, filePath) =>
-      mergeWithResolution(tempDir, filePath, {
+    function mergeNovelResolution(tempDir, filePath) {
+      return mergeWithResolution(tempDir, filePath, {
         resolved: "merged version",
         mergeAuthorDate: "2025-04-01T10:00:00Z",
       });
+    }
 
     const lookupMergedPage = (tempDir) => ({
       gitUpdated: runGitInDir(

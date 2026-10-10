@@ -366,8 +366,9 @@ const history = Object.freeze({
 });
 
 /** @param {string} record @returns {TransferRecord[]} */
-const transferFromRecord = (record) =>
-  history.recordTransfers(history.splitHistoryRecord(record));
+function transferFromRecord(record) {
+  return history.recordTransfers(history.splitHistoryRecord(record));
+}
 
 /**
  * @param {GitDateLookupOptions} [options]
