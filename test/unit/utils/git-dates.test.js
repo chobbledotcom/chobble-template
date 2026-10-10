@@ -18,7 +18,7 @@ const runGitInDir = (args, cwd, env = {}) =>
   }).trim();
 
 const initGitRepo = (dir) => {
-  runGitInDir(["init"], dir);
+  runGitInDir(["init", "-b", "main"], dir);
   runGitInDir(["config", "user.email", "test@test.com"], dir);
   runGitInDir(["config", "user.name", "Test"], dir);
 };
