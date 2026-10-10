@@ -51,3 +51,7 @@ jobs:
 
       - name: Run tests
         run: bun run test --verbose
+
+      - name: Dump git-dates coverage
+        if: failure()
+        run: grep -A 500 'SF:src/_lib/utils/git-dates.js' coverage/lcov.info || true
