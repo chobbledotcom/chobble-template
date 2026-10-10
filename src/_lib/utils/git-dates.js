@@ -18,7 +18,7 @@ const HISTORY_SCAN_ARGS = [
 /** @typedef {import("node:child_process").SpawnSyncReturns<string>} GitResult */
 /** @typedef {{ published: string, updated: string, blob: string }} IndexedGitDates */
 /** @typedef {{ published: string, updated: string }} GitDates */
-/** @typedef {{ blob: string, status: string }} RawChange */
+/** @typedef {{ oldMode: string, newMode: string, blob: string, status: string }} RawChange */
 /** @typedef {{ oldPath: string, newPath: string, date: string, status: string }} TransferRecord */
 /** @typedef {{ change: RawChange | null, firstPath: string | null, remaining: number }} ParseState */
 /** @typedef {Map<string, IndexedGitDates>} GitDateIndex */
@@ -34,8 +34,8 @@ const HISTORY_SCAN_ARGS = [
  * @property {(cwd: string, configuredRepo: string | null | undefined) => string[]} candidateRepos
  * @property {(date: string, blob: string) => IndexedGitDates} initialDates
  * @property {(index: GitDateIndex, path: string, date: string, blob: string) => IndexedGitDates} datesAt
- * @property {(dates: IndexedGitDates, date: string, blob: string) => void} updateDates
- * @property {(index: GitDateIndex, status: string, path: string, date: string, blob: string) => void} applyPathChange
+ * @property {(dates: IndexedGitDates, date: string, blob: string, modeChanged?: boolean) => void} updateDates
+ * @property {(index: GitDateIndex, status: string, path: string, date: string, blob: string, modeChanged: boolean) => void} applyPathChange
  * @property {(index: GitDateIndex, oldPath: string, newPath: string, date: string, blob: string, status: string) => void} applyTransfer
  * @property {(index: GitDateIndex, change: RawChange, paths: string[], date: string) => void} applyHistoryChange
  * @property {(rawChange: string | undefined) => RawChange | null} parseRawChange
@@ -48,10 +48,11 @@ const HISTORY_SCAN_ARGS = [
  * @property {(state: ParseState, token: string, index: GitDateIndex, date: string) => ParseState} parseHistoryToken
  * @property {(record: string, index: GitDateIndex) => void} parseHistoryRecord
  * @property {(repo: string, args: string[]) => { dates: GitDateIndex, renames: TransferRecord[] }} scanHistory
- * @property {(repo: string) => { dates: GitDateIndex, renames: TransferRecord[] }} buildRepoIndex
- * @property {(repo: string) => TransferRecord[]} copyRecords
- * @property {(index: GitDateIndex, renames: TransferRecord[], copies: TransferRecord[]) => void} applyCopyOrigins
- * @property {(index: GitDateIndex, renamesBySource: Map<string, TransferRecord[]>, path: string, origin: string, copyDate: string) => void} patchCopiedChain
+ * @property {(repo: string) => GitDateIndex} buildRepoIndex
+ * @property {(repo: string) => TransferRecord[]} renameRecords
+ * @property {(repo: string, sourcePath: string) => string | undefined} originDateFor
+ * @property {(repo: string, index: GitDateIndex, renames: TransferRecord[]) => void} applyRenameOrigins
+ * @property {(index: GitDateIndex, renamesBySource: Map<string, TransferRecord[]>, path: string, origin: string, transferDate: string) => void} patchRenamedChain
  * @property {(indexes: GitRepoIndex[], inputPath: string) => IndexedGitDates | undefined} findDates
  * @property {(indexes: GitRepoIndex[], inputPath: string | null | undefined) => GitDates | null} datesFor
  * @property {(indexes: GitRepoIndex[], startedAt: number) => GitDateLookup} createLookup
@@ -110,15 +111,15 @@ const history = Object.freeze({
     return existing ? existing : history.initialDates(date, blob);
   },
 
-  updateDates(dates, date, blob) {
-    if (dates.blob !== blob) dates.updated = date;
+  updateDates(dates, date, blob, modeChanged) {
+    if (dates.blob !== blob || modeChanged) dates.updated = date;
     dates.blob = blob;
   },
 
-  applyPathChange(index, status, path, date, blob) {
+  applyPathChange(index, status, path, date, blob, modeChanged) {
     if (status === "D") {
       const dates = history.datesAt(index, path, date, blob);
-      history.updateDates(dates, date, blob);
+      history.updateDates(dates, date, blob, modeChanged);
       index.set(path, dates);
       return;
     }
@@ -127,7 +128,7 @@ const history = Object.freeze({
       index.set(path, history.initialDates(date, blob));
       return;
     }
-    history.updateDates(dates, date, blob);
+    history.updateDates(dates, date, blob, modeChanged);
   },
 
   applyTransfer(index, oldPath, newPath, date, blob, status) {
@@ -142,21 +143,37 @@ const history = Object.freeze({
   parseRawChange(rawChange) {
     const match = rawChange
       ?.trim()
-      .match(/^:\d+ \d+ [0-9a-f]+ ([0-9a-f]+) ([A-Z])(\d+)?$/);
-    return match ? { blob: match[1], status: match[2] } : null;
+      .match(/^:(\d+) (\d+) [0-9a-f]+ ([0-9a-f]+) ([A-Z])(\d+)?$/);
+    return match
+      ? {
+          oldMode: match[1],
+          newMode: match[2],
+          blob: match[3],
+          status: match[4],
+        }
+      : null;
   },
 
   pathsConsumedBy({ status }) {
     return status === "R" || status === "C" ? 2 : 1;
   },
 
-  applyHistoryChange(index, { blob, status }, paths, date) {
+  applyHistoryChange(index, { blob, status, oldMode, newMode }, paths, date) {
     if (status === "R" || status === "C") {
       history.applyTransfer(index, paths[0], paths[1], date, blob, status);
       return;
     }
     const path = paths[0];
-    if (path) history.applyPathChange(index, status, path, date, blob);
+    if (path) {
+      history.applyPathChange(
+        index,
+        status,
+        path,
+        date,
+        blob,
+        oldMode !== newMode,
+      );
+    }
   },
 
   splitHistoryRecord(record) {
@@ -239,51 +256,58 @@ const history = Object.freeze({
   },
 
   buildRepoIndex(repo) {
-    // Full history with rename detection: cheap without copy detection, and
-    // it indexes every path, so a rename's source always carries true dates.
-    return history.scanHistory(repo, []);
-  },
-
-  copyRecords(repo) {
-    const { renames } = history.scanHistory(repo, [
+    // The template pathspec keeps git's history simplification, which is
+    // exactly what the legacy per-path queries saw, merges included.
+    return history.scanHistory(repo, [
       "--find-copies-harder",
-      "--diff-filter=C",
       "--",
       ...TEMPLATE_PATHS,
-    ]);
-    return renames;
+    ]).dates;
   },
 
-  applyCopyOrigins(index, renames, copies) {
+  renameRecords(repo) {
+    return history.scanHistory(repo, []).renames;
+  },
+
+  originDateFor(repo, sourcePath) {
+    const output = history.gitOutput(repo, [
+      "log",
+      "--follow",
+      "--diff-filter=A",
+      "--format=%aI",
+      "--",
+      sourcePath,
+    ]);
+    return output?.split("\n").filter(Boolean).pop();
+  },
+
+  applyRenameOrigins(repo, index, renames) {
     const renamesBySource = buildReverseIndex(renames, (rename) => [
       rename.oldPath,
     ]);
-    for (const { oldPath, newPath, date } of copies) {
-      const source = index.get(oldPath);
-      if (!source) continue;
-      history.patchCopiedChain(
-        index,
-        renamesBySource,
-        newPath,
-        source.published,
-        date,
-      );
+    for (const { oldPath, newPath, date } of renames) {
+      // Renames whose source the template scan indexed are already exact;
+      // only a source outside the pathspec hides its original add date.
+      if (index.has(oldPath) || !index.has(newPath)) continue;
+      const origin = history.originDateFor(repo, oldPath);
+      if (!origin) continue;
+      history.patchRenamedChain(index, renamesBySource, newPath, origin, date);
     }
   },
 
-  patchCopiedChain(index, renamesBySource, path, origin, copyDate) {
+  patchRenamedChain(index, renamesBySource, path, origin, transferDate) {
     const dates = index.get(path);
-    if (!dates || dates.published !== copyDate) return;
+    if (!dates || dates.published !== transferDate) return;
     dates.published = origin;
     const descendants = renamesBySource.get(path);
     if (!descendants) return;
     for (const { newPath } of descendants) {
-      history.patchCopiedChain(
+      history.patchRenamedChain(
         index,
         renamesBySource,
         newPath,
         origin,
-        copyDate,
+        transferDate,
       );
     }
   },
@@ -334,8 +358,8 @@ export const createGitDateLookup = (options = {}) => {
       ? process.env.GIT_DATES_REPO
       : options.configuredRepo;
   const indexes = history.candidateRepos(cwd, configuredRepo).map((repo) => {
-    const { dates, renames } = history.buildRepoIndex(repo);
-    history.applyCopyOrigins(dates, renames, history.copyRecords(repo));
+    const dates = history.buildRepoIndex(repo);
+    history.applyRenameOrigins(repo, dates, history.renameRecords(repo));
     return { repo, dates };
   });
   return history.createLookup(indexes, startedAt);

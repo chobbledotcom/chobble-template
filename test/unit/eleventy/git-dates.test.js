@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { configureGitDates } from "#eleventy/git-dates.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
-const TRACKED_TEMPLATE = "src/_lib/eleventy/git-dates.js";
+const TRACKED_TEMPLATE = "src/utils/sitemap.html";
 
 describe("git date filters", () => {
   test("registers build refresh and public filters", () => {

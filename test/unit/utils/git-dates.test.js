@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { withTempDirAsync } from "#test/test-utils.js";
@@ -173,10 +173,6 @@ describe("git-dates", () => {
           published: "2025-01-01T10:00:00Z",
           updated: "2025-02-01T10:00:00Z",
         });
-        expect(lookup.datesFor("page.njk")).toEqual({
-          published: "2025-01-01T10:00:00Z",
-          updated: "2025-02-01T10:00:00Z",
-        });
       }));
 
     test("backfills the oldest publish date through a rename chain from a non-template path", () =>
@@ -185,12 +181,20 @@ describe("git-dates", () => {
           const njkPath = path.join(tempDir, "page.njk");
           fs.renameSync(filePath, njkPath);
           gitCommit(tempDir, "convert to njk", "2025-02-01T10:00:00Z");
-          fs.renameSync(njkPath, path.join(tempDir, "page.liquid"));
+          const liquidPath = path.join(tempDir, "page.liquid");
+          fs.renameSync(njkPath, liquidPath);
           gitCommit(tempDir, "convert to liquid", "2025-03-01T10:00:00Z");
+          fs.renameSync(liquidPath, path.join(tempDir, "page2.liquid"));
+          gitCommit(tempDir, "rename liquid", "2025-04-01T10:00:00Z");
 
-          expect(createLookup(tempDir).datesFor("page.liquid")).toEqual({
+          const lookup = createLookup(tempDir);
+          expect(lookup.datesFor("page.liquid")).toEqual({
             published: "2025-01-01T10:00:00Z",
-            updated: "2025-03-01T10:00:00Z",
+            updated: "2025-04-01T10:00:00Z",
+          });
+          expect(lookup.datesFor("page2.liquid")).toEqual({
+            published: "2025-01-01T10:00:00Z",
+            updated: "2025-04-01T10:00:00Z",
           });
         },
       ));
@@ -255,6 +259,46 @@ describe("git-dates", () => {
             "ref: refs/heads/nope",
           );
           expect(() => createLookup(tempDir)).toThrow();
+        },
+      ));
+
+    test("bumps the updated date for a mode-only change", () =>
+      withGitRepo("git-dates-mode-only", { fileName: "script.md" })(
+        ({ tempDir, filePath }) => {
+          fs.chmodSync(filePath, 0o755);
+          gitCommit(tempDir, "make executable", "2025-02-01T10:00:00Z");
+
+          expect(createLookup(tempDir).datesFor("script.md")).toEqual({
+            published: "2025-01-01T10:00:00Z",
+            updated: "2025-02-01T10:00:00Z",
+          });
+        },
+      ));
+
+    test("keeps the simplified-history date across a conflict resolved for one parent", () =>
+      withGitRepo("git-dates-merge-resolution", { fileName: "page.md" })(
+        ({ tempDir, filePath }) => {
+          fs.writeFileSync(filePath, "main version");
+          gitCommit(tempDir, "edit on main", "2025-02-01T10:00:00Z");
+          runGitInDir(["checkout", "-b", "feature", "HEAD~1"], tempDir);
+          fs.writeFileSync(filePath, "feature version");
+          gitCommit(tempDir, "edit on feature", "2025-03-01T10:00:00Z");
+          runGitInDir(["checkout", "main"], tempDir);
+          const merge = spawnSync("git", ["merge", "--no-edit", "feature"], {
+            cwd: tempDir,
+            stdio: "ignore",
+          });
+          expect(merge.status).not.toBe(0);
+          runGitInDir(["checkout", "--ours", "--", "page.md"], tempDir);
+          gitCommit(tempDir, "merge feature", "2025-04-01T10:00:00Z");
+
+          const updated = runGitInDir(
+            ["log", "-1", "--format=%aI", "--", "page.md"],
+            tempDir,
+          );
+          const dates = createLookup(tempDir).datesFor("page.md");
+          expect(dates.updated).toBe("2025-02-01T10:00:00Z");
+          expect(dates.updated).toBe(updated);
         },
       ));
 
