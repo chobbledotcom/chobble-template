@@ -14,7 +14,8 @@
  * @property {string} [note]
  * @property {string} [fieldClass]
  * @property {boolean} [half]
- * @property {boolean} [defaultFromPageTitle]
+ * @property {boolean} [defaultFromPageTitle] - Pre-fill value/placeholder from
+ *   the page's `name`
  * @property {string} [showOn] - Only render when this tag is present on the page
  * @property {boolean} [showForItemTag] - Rewrite field name/label from itemTagLabels
  * @property {string} [template] - Resolved template path (added by addFieldTemplates)
