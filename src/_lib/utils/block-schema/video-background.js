@@ -6,9 +6,10 @@ export const containerWidth = "full";
 
 export const fields = {
   video_id: {
-    ...str("Video Embed URL"),
+    ...str("Video ID or embed URL"),
     required: true,
-    description: "YouTube video ID or full iframe URL (for Bunny, Vimeo, etc).",
+    description:
+      "Bare YouTube video ID (e.g. `dQw4w9WgXcQ`); the block builds the embed and thumbnail itself. For other providers (Vimeo, Bunny Stream), the full embed URL. Never an `<iframe>` snippet.",
   },
   thumbnail_url: {
     ...str("Thumbnail URL"),

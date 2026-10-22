@@ -6,7 +6,8 @@ export const fields = {
   src: {
     ...str("Iframe URL"),
     required: true,
-    description: "Full URL of the iframe to embed.",
+    description:
+      "Just the embed URL (e.g. `https://www.youtube.com/embed/dQw4w9WgXcQ`), not the whole `<iframe>` snippet; the block renders the iframe element itself.",
   },
   name: {
     ...str("Accessible Name"),

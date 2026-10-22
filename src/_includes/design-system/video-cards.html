@@ -1,7 +1,7 @@
 {%- comment -%}
 Video cards grid - displays video thumbnails with click-to-play.
 
-Supports both YouTube video IDs and custom iframe URLs (starting with "http").
+Supports both YouTube video IDs and custom embed URLs (starting with "http").
 YouTube videos show optimized thumbnails; custom URLs show a placeholder.
 
 Uses eleventy-img to fetch and optimize YouTube thumbnails for fast loading.
@@ -9,7 +9,7 @@ Videos only load when clicked, saving bandwidth until user interaction.
 
 Parameters:
   - videos: Array of video objects with properties:
-    - id: YouTube video ID or custom iframe URL (required)
+    - id: YouTube video ID or custom embed URL (required)
     - name: Video name (required)
     - thumbnail_url: Computed property - YouTube thumbnail URL or null for custom URLs
   - reveal: If true, adds data-reveal animation (default: true)

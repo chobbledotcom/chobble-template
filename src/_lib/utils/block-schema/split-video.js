@@ -16,7 +16,7 @@ export const fields = {
     ...str("Video ID or URL"),
     required: true,
     description:
-      "YouTube video ID or custom iframe URL (e.g. Bunny Stream, Vimeo).",
+      "Bare YouTube video ID (e.g. `dQw4w9WgXcQ`), or the full embed URL for other providers (Bunny Stream, Vimeo). Never an `<iframe>` snippet.",
   },
   figure_thumbnail_url: {
     ...str("Thumbnail URL"),

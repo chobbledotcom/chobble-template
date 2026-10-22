@@ -224,7 +224,7 @@ Two-column layout with text content and an embedded video.
 | `reveal_content` | string | `"left"` | `data-reveal` for the text side. Auto-set to `"right"` when `reverse` is true. |
 | `reveal_figure` | string | `"scale"` | `data-reveal` for the figure side. |
 | `button` | object | — | `{text, href, variant}`. Rendered below content. Default variant: `"secondary"`. |
-| `figure_video_id` | string | **required** | YouTube video ID or custom iframe URL (e.g. Bunny Stream, Vimeo). |
+| `figure_video_id` | string | **required** | Bare YouTube video ID (e.g. `dQw4w9WgXcQ`), or the full embed URL for other providers (Bunny Stream, Vimeo). Never an `<iframe>` snippet. |
 | `figure_thumbnail_url` | string | — | Thumbnail image URL shown in the click-to-play facade. Required for non-YouTube URLs (Bunny Stream, Vimeo, etc.); YouTube thumbnails are fetched automatically when this is omitted. |
 | `figure_alt` | string | — | Accessible title for the video iframe. |
 | `figure_caption` | string | — | Visible caption below the video. |
@@ -420,7 +420,7 @@ Auto-playing video background with hero-style overlay content (badge, markdown c
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `video_id` | string | **required** | YouTube video ID or full iframe URL (for Bunny, Vimeo, etc). |
+| `video_id` | string | **required** | Bare YouTube video ID (e.g. `dQw4w9WgXcQ`); the block builds the embed and thumbnail itself. For other providers (Vimeo, Bunny Stream), the full embed URL. Never an `<iframe>` snippet. |
 | `thumbnail_url` | string | — | URL of a thumbnail image displayed behind the iframe while the video loads. |
 | `video_title` | string | `"Background video"` | Accessible `title` on the iframe. |
 | `class` | string | — | Extra CSS classes. |
@@ -484,7 +484,7 @@ Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 1
 
 ### `video-cards`
 
-Grid of clickable video thumbnails. Supports YouTube IDs and custom iframe URLs (Vimeo, Bunny Stream, etc.).
+Grid of clickable video thumbnails. Supports YouTube IDs and custom embed URLs (Vimeo, Bunny Stream, etc.).
 
 **Component:** `block_video_cards`
 **Template:** `src/_includes/design-system/blocks/video-cards.html`
@@ -493,7 +493,7 @@ Grid of clickable video thumbnails. Supports YouTube IDs and custom iframe URLs 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `videos` | array | **required** | Video objects. Each: `{id, name}`. `id` is a YouTube video ID or full iframe URL (Vimeo, Bunny Stream, etc.). |
+| `videos` | array | **required** | Video objects. Each: `{id, name}`. `id` is a bare YouTube video ID (e.g. `dQw4w9WgXcQ`) or the full embed URL for other providers (Vimeo, Bunny Stream). Never an `<iframe>` snippet. |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `reveal` | boolean | `true` | Adds `data-reveal` to each video card. |
 | `expand` | boolean | `false` | If true, videos fill the available width (1=100%, 2=50%, 3+=33.3%) instead of the standard card grid. |
@@ -738,7 +738,7 @@ Third-party iframe embed (itch.io widgets, Buttondown, Bandcamp, Stripe buttons,
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src` | string | **required** | Full URL of the iframe to embed. |
+| `src` | string | **required** | Just the embed URL (e.g. `https://www.youtube.com/embed/dQw4w9WgXcQ`), not the whole `<iframe>` snippet; the block renders the iframe element itself. |
 | `name` | string | **required** | Accessible name (rendered as the iframe's `title` attribute). |
 | `width` | number | — | Fixed pixel width. Omit to fill the container. |
 | `height` | number | — | Fixed pixel height. Required for non-responsive embeds unless `aspect_ratio` is set. |
