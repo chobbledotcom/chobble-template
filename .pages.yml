@@ -777,7 +777,10 @@ components:
     fields:
       - { name: dark, type: boolean, label: Dark }
       - { name: compact, type: boolean, label: Compact }
-      - { name: video_id, type: string, label: Video ID or embed URL, required: true }
+      - name: video_id
+        type: string
+        label: Video ID or embed URL
+        required: true
       - { name: thumbnail_url, type: string, label: Thumbnail URL }
       - { name: video_title, type: string, label: Video Title }
       - { name: class, type: string, label: CSS Class }
