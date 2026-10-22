@@ -228,6 +228,74 @@ describe("breadcrumbsFilter", () => {
     ]);
   });
 
+  describe("pages without a name", () => {
+    test("renders only Home for a nameless page with no parent", () => {
+      const mockConfig = setupFilter();
+      const crumbs = callFilter(
+        mockConfig,
+        { url: "/about/" },
+        undefined,
+        null,
+      );
+      expect(crumbs).toEqual([{ label: "Home", url: "/" }]);
+    });
+
+    test("keeps the collection crumb for a nameless index page", () => {
+      const mockConfig = setupFilter();
+      const crumbs = callFilter(
+        mockConfig,
+        { url: "/products/" },
+        undefined,
+        "Products",
+        null,
+      );
+      expect(crumbs).toEqual([
+        { label: "Home", url: "/" },
+        { label: "Products", url: null },
+      ]);
+    });
+
+    test("omits the current-page crumb for a nameless product page", () => {
+      const mockConfig = setupFilter();
+      const crumbs = callFilter(
+        mockConfig,
+        { url: "/products/test-product/" },
+        undefined,
+        "Products",
+        null,
+      );
+      expect(crumbs).toEqual([
+        { label: "Home", url: "/" },
+        { label: "Products", url: "/products/" },
+      ]);
+    });
+
+    test("omits the current-page crumb for a nameless product in a category", () => {
+      const mockConfig = setupFilter();
+      const categories = [
+        {
+          fileSlug: "widgets",
+          url: "/categories/widgets/",
+          data: { name: "Widgets" },
+        },
+      ];
+      const crumbs = callFilter(
+        mockConfig,
+        { url: "/products/my-product/" },
+        undefined,
+        "Products",
+        undefined,
+        ["widgets"],
+        { categories },
+      );
+      expect(crumbs).toEqual([
+        { label: "Home", url: "/" },
+        { label: "Products", url: "/products/" },
+        { label: "Widgets", url: "/categories/widgets/" },
+      ]);
+    });
+  });
+
   test("derives URL from page URL for unknown navigation parent", () => {
     const mockConfig = setupFilter();
     const crumbs = callFilter(

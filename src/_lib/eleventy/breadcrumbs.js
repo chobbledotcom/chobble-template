@@ -30,14 +30,14 @@ const makeCrumb = (item, isCurrentPage) => ({
 });
 
 /**
- * Append a non-linked title crumb to a crumbs array
+ * Append a non-linked title crumb to a crumbs array. A page without a
+ * `name` (its frontmatter only sets meta_title) contributes no current-page
+ * crumb rather than an empty span.
  * @param {Array<{label: string, url: string | null}>} crumbs
- * @param {string} title
+ * @param {string|undefined} title
  */
-const withTitleCrumb = (crumbs, title) => [
-  ...crumbs,
-  { label: title, url: null },
-];
+const withTitleCrumb = (crumbs, title) =>
+  title ? [...crumbs, { label: title, url: null }] : crumbs;
 
 /** Get index URL for a navigation parent, falling back to first path segment */
 /**
@@ -102,8 +102,8 @@ const buildCategoryCrumbs = (
   const categoryCrumbs = getCategoryChain(category).map((cat) =>
     makeCrumb(cat, isAtCategory && cat === category),
   );
-  const itemCrumb = isAtCategory ? [] : [{ label: title, url: null }];
-  return [...baseCrumbs, ...categoryCrumbs, ...itemCrumb];
+  const chain = [...baseCrumbs, ...categoryCrumbs];
+  return isAtCategory ? chain : withTitleCrumb(chain, title);
 };
 
 /**
@@ -186,10 +186,10 @@ const buildStandardCrumbs = (context) => {
   );
 
   if (context.page.url === indexUrl) {
-    return [
-      context.home,
-      { label: context.navigationParent || context.title, url: null },
-    ];
+    return withTitleCrumb(
+      [context.home],
+      context.navigationParent || context.title,
+    );
   }
 
   const baseCrumbs = context.navigationParent

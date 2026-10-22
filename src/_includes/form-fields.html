@@ -7,10 +7,9 @@ Parameters:
 {%- assign _resolvedFields = contactForm | contactFormFieldsForPage: tags, skipShowOn -%}
 {%- assign fieldsToRender = fields | default: _resolvedFields -%}
 {%- comment -%}
-  defaultFromPageTitle fields pre-fill from the page's `name`. Every page
-  computes one: item pages carry their display name in frontmatter, plain
-  pages fall back to meta_title (pages.11tydata.js), and the paginated
-  property contact page computes it from its pagination item. `title` is
+  defaultFromPageTitle fields pre-fill from the page's `name`. Item pages
+  carry their display name in frontmatter and the paginated property
+  contact page computes it from its pagination item. `title` is
   the meta title and is not used here.
 {%- endcomment -%}
 {%- for field in fieldsToRender -%}
