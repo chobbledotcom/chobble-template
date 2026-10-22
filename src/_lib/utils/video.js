@@ -1,7 +1,7 @@
 /**
  * Video URL utilities for handling YouTube IDs, Vimeo URLs, and custom video URLs.
  *
- * Supports YouTube video IDs, Vimeo embed URLs, and custom iframe URLs.
+ * Supports YouTube video IDs, Vimeo embed URLs, and other custom embed URLs.
  * YouTube IDs are converted to privacy-respecting youtube-nocookie.com embed URLs.
  * Vimeo URLs are passed through directly and get thumbnails via the oEmbed API.
  * Other custom URLs (starting with "http") are used directly as iframe src.

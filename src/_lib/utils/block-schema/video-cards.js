@@ -17,7 +17,7 @@ export const fields = {
     }),
     required: true,
     description:
-      "Video objects. Each: `{id, name}`. `id` is a YouTube video ID or full iframe URL (Vimeo, Bunny Stream, etc.).",
+      "Video objects. Each: `{id, name}`. `id` is a bare YouTube video ID (e.g. `dQw4w9WgXcQ`) or the full embed URL for other providers (Vimeo, Bunny Stream). Never an `<iframe>` snippet.",
   },
   /* jscpd:ignore-end */
   intro_content: INTRO_CONTENT_FIELD,
@@ -36,7 +36,7 @@ export const fields = {
 
 export const docs = {
   summary:
-    "Grid of clickable video thumbnails. Supports YouTube IDs and custom iframe URLs (Vimeo, Bunny Stream, etc.).",
+    "Grid of clickable video thumbnails. Supports YouTube IDs and custom embed URLs (Vimeo, Bunny Stream, etc.).",
   ...ITEMS_GRID_META,
   notes:
     "YouTube videos render optimized thumbnails via eleventy-img; custom URLs use a placeholder. Videos load only on click to save bandwidth.",

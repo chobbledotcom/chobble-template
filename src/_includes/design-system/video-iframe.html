@@ -1,12 +1,12 @@
 {%- comment -%}
 Shared video iframe partial with privacy-protecting defaults.
 
-Supports both YouTube video IDs and custom iframe URLs (starting with "http").
+Supports both YouTube video IDs and custom embed URLs (starting with "http").
 Custom URLs are used directly as iframe src, while YouTube IDs are converted
 to privacy-respecting youtube-nocookie.com embed URLs.
 
 Parameters:
-  - video_id: YouTube video ID or custom iframe URL (required)
+  - video_id: YouTube video ID or custom embed URL (required)
   - name: Accessible title for the iframe (required)
   - background: If true, adds mute/loop/controls params for ambient background
                 video and disables lazy loading so autoplay works (default: false)
