@@ -70,18 +70,22 @@ const collectFeaturesErrors = (block, ctx) => {
 
 /**
  * Collect all item-level name errors without throwing.
- * Every rendered template that takes part in collections must have a
- * `name`: tagged content items (products, events, news…) and plain pages
- * alike, because breadcrumbs, headings, and schema all display it. Utility
- * templates opt out with `eleventyExcludeFromCollections` (feeds, sitemaps,
- * robots, pagination shells).
+ * Every template whose output displays a name must have one: tagged
+ * content items (products, events, news…) and pages that render as URLs.
+ * Templates that output no page (`permalink: false` partials such as
+ * snippets and internal docs) have no observable name, and utility
+ * templates opt out with `eleventyExcludeFromCollections` (feeds,
+ * sitemaps, robots, pagination shells).
  * @param {Record<string, unknown>} data - Item data
  * @param {string} context - Context for error messages (e.g., file path)
  * @returns {string[]}
  */
 export const collectItemErrors = (data, context = "") => {
+  const isTaggedContent = Array.isArray(data.tags) && data.tags.length > 0;
   const nameError =
-    !data.eleventyExcludeFromCollections && !data.name
+    (isTaggedContent || data.permalink !== false) &&
+    !data.eleventyExcludeFromCollections &&
+    !data.name
       ? [`Item is missing required "name" field${context}`]
       : [];
 

@@ -1,8 +1,3 @@
----
-permalink: false
-eleventyExcludeFromCollections: true
----
-
 # Snippets
 
 Create a file in this folder called "snippet-name.md" and it'll be rendered in the spot mentioned:

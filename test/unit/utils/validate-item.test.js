@@ -31,6 +31,22 @@ describe("collectItemErrors", () => {
     ).toEqual([]);
   });
 
+  test("returns empty array for a permalink-false partial without name", () => {
+    expect(
+      collectItemErrors({ subtitle: "A snippet", permalink: false }),
+    ).toEqual([]);
+  });
+
+  test("still requires a name when a tagged item opts out of output", () => {
+    const errors = collectItemErrors({
+      tags: ["products"],
+      subtitle: "A product",
+      permalink: false,
+    });
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('missing required "name" field');
+  });
+
   test("returns empty array for excluded pagination templates without name", () => {
     expect(
       collectItemErrors({

@@ -1,7 +1,6 @@
 ---
 permalink: false
 layout: ""
-eleventyExcludeFromCollections: true
 ---
 
 # \_lib Directory Structure
