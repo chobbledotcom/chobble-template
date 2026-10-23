@@ -16,7 +16,7 @@ const PARTY_IMAGE = {
 
 const rightContentSnippet = (blocks) => ({
   path: "snippets/right-content.md",
-  frontmatter: { blocks },
+  frontmatter: { name: "Right Content", blocks },
 });
 
 /** A standalone page carrying the given design-system blocks */

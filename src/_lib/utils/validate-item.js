@@ -1,7 +1,8 @@
 /**
  * Item-level validation.
  *
- * Checks that collection items have a `name` field, and that nested
+ * Checks that every template taking part in collections has a `name` field
+ * (tagged items like products and plain pages alike), and that nested
  * object-list entries in blocks also have `name` where required by schema.
  * Errors are collected before throwing so the user sees every problem
  * in one build.
@@ -69,8 +70,12 @@ const collectFeaturesErrors = (block, ctx) => {
 
 /**
  * Collect all item-level name errors without throwing.
- * Only checks `name` on tagged content items (pages/products/events etc.);
- * utility templates without tags (feeds, sitemaps) are exempt.
+ * Every template whose output displays a name must have one: tagged
+ * content items (products, events, news…) and pages that render as URLs.
+ * Templates that output no page (`permalink: false` partials such as
+ * snippets and internal docs) have no observable name, and utility
+ * templates opt out with `eleventyExcludeFromCollections` (feeds,
+ * sitemaps, robots, pagination shells).
  * @param {Record<string, unknown>} data - Item data
  * @param {string} context - Context for error messages (e.g., file path)
  * @returns {string[]}
@@ -78,7 +83,9 @@ const collectFeaturesErrors = (block, ctx) => {
 export const collectItemErrors = (data, context = "") => {
   const isTaggedContent = Array.isArray(data.tags) && data.tags.length > 0;
   const nameError =
-    isTaggedContent && !data.eleventyExcludeFromCollections && !data.name
+    (isTaggedContent || data.permalink !== false) &&
+    !data.eleventyExcludeFromCollections &&
+    !data.name
       ? [`Item is missing required "name" field${context}`]
       : [];
 

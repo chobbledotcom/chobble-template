@@ -6,4 +6,6 @@ pagination:
 permalink: "/{{ strings.property_permalink_dir }}/{{ item.fileSlug }}/reviews/"
 layout: item-reviews
 eleventyExcludeFromCollections: true
+eleventyComputed:
+  name: "{{ item.data.name }}"
 ---
