@@ -1,6 +1,7 @@
 import { addDataFilter } from "#eleventy/add-data-filter.js";
 import { createFieldIndexer } from "#utils/collection-utils.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
+import { sortItems } from "#utils/sorting.js";
 
 /** Index guides by category for O(1) lookups, cached per guides array */
 const indexByGuideCategory = createFieldIndexer("guide-category");
@@ -14,7 +15,7 @@ const indexByProperty = createFieldIndexer("property");
  * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const guidesByCategory = (guidePages, categorySlug) =>
-  indexByGuideCategory(guidePages)[categorySlug] ?? [];
+  [...(indexByGuideCategory(guidePages)[categorySlug] ?? [])].sort(sortItems);
 
 /**
  * @param {import("#lib/types").EleventyCollectionItem[]} guideCategories

@@ -113,6 +113,68 @@ describe("guides", () => {
     expect(pagesCopy).toEqual(originalPages);
   });
 
+  test("Sorts guides by order then name", () => {
+    const guidePages = [
+      {
+        data: {
+          name: "Guide 1",
+          order: 3,
+          "guide-category": "getting-started",
+        },
+      },
+      {
+        data: {
+          name: "Guide 2",
+          order: 1,
+          "guide-category": "getting-started",
+        },
+      },
+      {
+        data: {
+          name: "Guide 3",
+          order: 2,
+          "guide-category": "getting-started",
+        },
+      },
+    ];
+
+    expectResultTitles(guidesByCategory(guidePages, "getting-started"), [
+      "Guide 2",
+      "Guide 3",
+      "Guide 1",
+    ]);
+  });
+
+  test("Keeps guides without an order in input order", () => {
+    const guidePages = [
+      { data: { name: "Zulu", "guide-category": "getting-started" } },
+      { data: { name: "Alpha", "guide-category": "getting-started" } },
+      { data: { name: "Mike", "guide-category": "getting-started" } },
+    ];
+
+    expectResultTitles(guidesByCategory(guidePages, "getting-started"), [
+      "Zulu",
+      "Alpha",
+      "Mike",
+    ]);
+  });
+
+  test("Sorts by name when guides share the same order", () => {
+    const guidePages = [
+      {
+        data: { name: "Bravo", order: 1, "guide-category": "getting-started" },
+      },
+      {
+        data: { name: "Alpha", order: 1, "guide-category": "getting-started" },
+      },
+    ];
+
+    expectResultTitles(guidesByCategory(guidePages, "getting-started"), [
+      "Alpha",
+      "Bravo",
+    ]);
+  });
+
   test("Adds guidesByCategory filter", () => {
     const mockConfig = createMockEleventyConfig();
 
