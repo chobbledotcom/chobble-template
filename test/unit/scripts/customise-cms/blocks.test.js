@@ -24,6 +24,20 @@ describe("generateBlocksField envelope", () => {
       "section-header",
     ]);
   });
+
+  test("orders markdown first, then the remaining declared block types alphabetically", () => {
+    const blockTypes = Object.keys(BLOCK_CMS_FIELDS);
+    const names = generateBlocksField(blockTypes, false).blocks.map(
+      (b) => b.name,
+    );
+
+    // Same multiset as the schema: no block type dropped or duplicated.
+    expect([...names].sort()).toEqual([...blockTypes].sort());
+    // markdown pinned to the front, everything else in alphabetical order.
+    expect(names.slice(1)).toEqual(
+      blockTypes.filter((type) => type !== "markdown").sort(),
+    );
+  });
 });
 
 describe("generateBlocksField block component", () => {
@@ -50,6 +64,20 @@ describe("generateBlocksField block component", () => {
       "Section Header",
       "Split Icon Links",
     ]);
+  });
+
+  test("labels the markdown block Text Editor without disturbing its schema", () => {
+    const [block] = generateBlocksField(["markdown"], false).blocks;
+    const schema = Object.entries(BLOCK_CMS_FIELDS.markdown);
+
+    expect(block.label).toBe("Text Editor");
+    // Relabelling the block must not reshape what editors already save.
+    expect(block.fields.map((f) => f.name)).toEqual(
+      schema.map(([name]) => name),
+    );
+    expect(block.fields.map((f) => f.label)).toEqual(
+      schema.map(([, field]) => field.label),
+    );
   });
 });
 
