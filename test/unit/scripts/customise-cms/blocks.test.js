@@ -24,6 +24,19 @@ describe("generateBlocksField envelope", () => {
       "section-header",
     ]);
   });
+
+  test("lists the markdown block first, ahead of the alphabetical run", () => {
+    const field = generateBlocksField(
+      ["section-header", "markdown", "cta"],
+      false,
+    );
+
+    expect(field.blocks.map((b) => b.name)).toEqual([
+      "markdown",
+      "cta",
+      "section-header",
+    ]);
+  });
 });
 
 describe("generateBlocksField block component", () => {
@@ -50,6 +63,14 @@ describe("generateBlocksField block component", () => {
       "Section Header",
       "Split Icon Links",
     ]);
+  });
+
+  test("labels the markdown block Text Editor without changing its type", () => {
+    const field = generateBlocksField(["markdown"], false);
+    const [block] = field.blocks;
+
+    expect(block.name).toBe("markdown");
+    expect(block.label).toBe("Text Editor");
   });
 });
 

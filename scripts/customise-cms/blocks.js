@@ -78,6 +78,34 @@ const schemaFieldToCmsField = (name, fieldSchema, useVisualEditor) => {
 const blockTypeToComponentName = (type) => `block_${type.replace(/-/g, "_")}`;
 
 /**
+ * CMS labels that differ from the slug-derived default. The block type itself
+ * stays `markdown` (existing pages keep their front matter), but editors see
+ * plain-English names in the block picker.
+ * @type {Record<string, string>}
+ */
+const BLOCK_LABEL_OVERRIDES = {
+  markdown: "Text Editor",
+};
+
+/**
+ * Block types surfaced first in the picker, ahead of the alphabetical run.
+ * `markdown` is the catch-all text block, so it leads every page's list.
+ * @type {string[]}
+ */
+const LEADING_BLOCK_TYPES = ["markdown"];
+
+/**
+ * Order block types for the CMS picker: leading types in declared order, then
+ * the rest alphabetically.
+ * @param {string[]} blockTypes - Block type slugs supported on this page
+ * @returns {string[]} Ordered block type slugs
+ */
+const orderBlockTypes = (blockTypes) => [
+  ...LEADING_BLOCK_TYPES.filter((type) => blockTypes.includes(type)),
+  ...blockTypes.filter((type) => !LEADING_BLOCK_TYPES.includes(type)).sort(),
+];
+
+/**
  * Build a CMS block component definition from BLOCK_CMS_FIELDS for one block type.
  * Each block is tagged with _componentName so it's extracted into the top-level
  * components map and replaced with a component reference downstream.
@@ -87,7 +115,7 @@ const blockTypeToComponentName = (type) => `block_${type.replace(/-/g, "_")}`;
  */
 const buildBlockComponent = (type, useVisualEditor) => ({
   name: type,
-  label: slugToLabel(type),
+  label: BLOCK_LABEL_OVERRIDES[type] || slugToLabel(type),
   type: "object",
   fields: Object.entries(BLOCK_CMS_FIELDS[type]).map(([name, fieldSchema]) =>
     schemaFieldToCmsField(name, fieldSchema, useVisualEditor),
@@ -110,7 +138,7 @@ export const generateBlocksField = (blockTypes, useVisualEditor) => ({
   type: "block",
   list: true,
   blockKey: "type",
-  blocks: [...blockTypes]
-    .sort()
-    .map((type) => buildBlockComponent(type, useVisualEditor)),
+  blocks: orderBlockTypes(blockTypes).map((type) =>
+    buildBlockComponent(type, useVisualEditor),
+  ),
 });
