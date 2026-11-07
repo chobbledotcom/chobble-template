@@ -34,13 +34,13 @@ const renderAltText = (image, fallback) =>
     altTagsLookup,
   });
 
-// Every shape a template may pass for an image under the media root, e.g.
-// "/images/products/red-widget/01.jpg" is reachable as all four of these.
-const imageReferenceShapes = (mediaPath) => [
-  `/images${mediaPath}`,
-  `src/images${mediaPath}`,
-  `images${mediaPath}`,
-  mediaPath.replace(/^\//, ""),
+// The same registry entry, written as every image path shape a template may
+// pass: the media URL, repo-relative, media-root-relative, and bare.
+const redWidgetReferences = [
+  "/images/products/red-widget/01.jpg",
+  "src/images/products/red-widget/01.jpg",
+  "images/products/red-widget/01.jpg",
+  "products/red-widget/01.jpg",
 ];
 
 describe("altTagsLookup", () => {
@@ -64,7 +64,7 @@ describe("altTagsLookup", () => {
   });
 
   test("matches every image reference shape for a registered path", async () => {
-    for (const image of imageReferenceShapes("/products/red-widget/01.jpg")) {
+    for (const image of redWidgetReferences) {
       expect([image, await renderAltText(image)]).toEqual([
         image,
         "Red widget front",
@@ -82,7 +82,10 @@ describe("altTagsLookup", () => {
       "CDN photo",
     );
     expect(
-      await renderAltText("https://cdn.example.com/other/photo.jpg", "Fallback"),
+      await renderAltText(
+        "https://cdn.example.com/other/photo.jpg",
+        "Fallback",
+      ),
     ).toBe("Fallback");
   });
 
