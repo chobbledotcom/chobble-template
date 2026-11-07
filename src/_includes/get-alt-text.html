@@ -1,2 +1,2 @@
-{%- assign image_filename = image | split: "/" | last -%}
-{{- altTagsLookup[image_filename] | default: fallback | default: "" -}}
+{%- assign image_basename = image | split: "/" | last -%}
+{{- altTagsLookup[image] | default: altTagsLookup[image_basename] | default: fallback | default: "" -}}
