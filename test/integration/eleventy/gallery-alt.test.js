@@ -23,7 +23,7 @@ const EXPECTED_ALTS = {
   "gallery-colliding-alt": ["Blue table by the door"],
 };
 
-let site;
+let site = null;
 
 beforeAll(async () => {
   site = await createTestSite({
