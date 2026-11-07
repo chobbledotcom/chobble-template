@@ -1,6 +1,16 @@
+{%- comment -%}
+Full-size copies of a gallery's images, hidden behind the image popup
+(see image-popup.html). Each entry's alt text matches the visible thumbnail.
+
+`gallery` entries are either an image path string or an object with
+`image` and optional `alt` fields. An entry's own `alt` wins; otherwise the
+alt-tags lookup fills in from the bare filename.
+{%- endcomment -%}
 <div aria-hidden="true" class="gallery-full-size-images">
-  {%- for image in gallery -%}
-    {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+  {%- for entry in gallery -%}
+    {%- assign image = entry.image | default: entry -%}
+    {%- capture lookup_alt -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+    {%- assign alt_text = entry.alt | default: lookup_alt -%}
     <div class="full-image-{{ forloop.index }}">
       {% image image, alt_text, "", "fade-in" %}
     </div>

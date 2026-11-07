@@ -1141,7 +1141,7 @@ Image grid with optional aspect ratio cropping and captions.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | Image objects. Each: `{image, caption}`. Images processed by `{% image %}` shortcode. |
+| `items` | array | **required** | Image objects. Each: `{image, alt, caption}`. `alt` is optional alt text and wins over the filename-keyed alt-tags lookup, which collides when different products reuse filenames like `01.jpg`. Images processed by `{% image %}` shortcode. |
 | `aspect_ratio` | string | — | Aspect ratio for images (e.g. `"16/9"`, `"1/1"`, `"4/3"`). Default: no cropping. |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |

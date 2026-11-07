@@ -14,11 +14,12 @@ export const fields = {
   items: {
     ...objectList("Gallery Images", {
       image: img("Image", { required: true }),
+      alt: str("Alt Text"),
       caption: str("Caption"),
     }),
     required: true,
     description:
-      "Image objects. Each: `{image, caption}`. Images processed by `{% image %}` shortcode.",
+      "Image objects. Each: `{image, alt, caption}`. `alt` is optional alt text and wins over the filename-keyed alt-tags lookup, which collides when different products reuse filenames like `01.jpg`. Images processed by `{% image %}` shortcode.",
   },
   aspect_ratio: {
     ...str("Aspect Ratio"),

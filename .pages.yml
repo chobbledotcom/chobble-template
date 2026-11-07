@@ -224,6 +224,7 @@ components:
         list: true
         fields:
           - { name: image, type: image, label: Image, required: true }
+          - { name: alt, type: string, label: Alt Text }
           - { name: caption, type: string, label: Caption }
       - { name: aspect_ratio, type: string, label: Aspect Ratio }
       - name: intro_content

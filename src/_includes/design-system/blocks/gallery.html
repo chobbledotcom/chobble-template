@@ -7,6 +7,9 @@ without JavaScript the links fall back to the image files themselves.
 Parameters (via block object):
   - block.items: Array of image objects with properties:
     - image: Image path (required)
+    - alt: Alt text (optional). Takes precedence over the filename-keyed
+      alt-tags lookup, which collides when different products reuse
+      filenames like 01.jpg
     - caption: Caption text displayed below the image (optional)
   - block.aspect_ratio: Aspect ratio for images (e.g., "16/9", "1/1", "4/3"). Default: no cropping
   - block.intro_content: Optional markdown content rendered above the grid in `.prose`
@@ -24,7 +27,8 @@ Parameters (via block object):
       {%- for item in block.items -%}
         <li>
           {%- assign image = item.image -%}
-          {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+          {%- capture lookup_alt -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+          {%- assign alt_text = item.alt | default: lookup_alt -%}
           <a
             class="image-link"
             href="{{ item.image | normalizeImageUrl }}"
@@ -39,8 +43,7 @@ Parameters (via block object):
         </li>
       {%- endfor -%}
     </ul>
-    {%- assign gallery_block_images = block.items | map: "image" -%}
-    {% include "gallery-full-size-images.html", gallery: gallery_block_images %}
+    {% include "gallery-full-size-images.html", gallery: block.items %}
   </div>
   {%- if block.horizontal -%}
     {% include "slider-nav.html" %}
