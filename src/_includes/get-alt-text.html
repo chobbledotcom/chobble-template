@@ -1,2 +1,8 @@
-{%- assign image_filename = image | split: "/" | last -%}
-{{- altTagsLookup[image_filename] | default: fallback | default: "" -}}
+{%- comment -%}
+  altTagsLookup is keyed by the full image path in its canonical URL form, so
+  the reference is normalised first: "/images/a/01.jpg", "src/images/a/01.jpg",
+  "images/a/01.jpg" and "a/01.jpg" all resolve to the same entry, while images
+  that only share a basename in different folders stay distinct.
+{%- endcomment -%}
+{%- assign image_url = image | normalizeImageUrl -%}
+{{- altTagsLookup[image_url] | default: fallback | default: "" -}}
