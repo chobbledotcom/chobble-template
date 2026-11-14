@@ -19,6 +19,9 @@ jobs:
       NEOCITIES_API_KEY: ${{ secrets.NEOCITIES_API_KEY }}
       BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
       INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,18 +69,13 @@ jobs:
 
       - name: Deploy to Bunny CDN
         if: github.ref == 'refs/heads/main' && env.BUNNY_ACCESS_KEY != ''
-        uses: R-J-dev/bunny-deploy@v2.0.6
+        uses: BunnyWay/actions/deploy-site@deploy-site_0.1.1
         with:
-          access-key: ${{ secrets.BUNNY_ACCESS_KEY }}
-          directory-to-upload: _site
-          storage-endpoint: "https://storage.bunnycdn.com"
-          storage-zone-name: "chobble-example"
-          storage-zone-password: ${{ secrets.BUNNY_STORAGE_ZONE_PASSWORD }}
-          concurrency: "5"
-          enable-delete-action: true
-          enable-purge-pull-zone: true
-          pull-zone-id: 4582983
-          replication-timeout: "15000"
+          site: chobble-example
+          directory: _site
+          api_key: ${{ secrets.BUNNY_ACCESS_KEY }}
+          cli_version: "0.19"
+          deployments: true
 
       - name: Get site URL
         id: site-url
