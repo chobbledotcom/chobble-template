@@ -150,7 +150,9 @@ image paths, alt text, aspect ratios, and caption fields.
 
 ### Layout and Interaction Primitives
 
-- `.features` uses an auto-fit card grid. `.grid`, `.grid--2`, and `.grid--4` provide responsive general-purpose grids.
+- `.features` uses an auto-fit card grid that fits three cards to a row on a
+  full-width page, so a `features` block should have a multiple of three items.
+- `.grid`, `.grid--2`, and `.grid--4` provide responsive general-purpose grids.
 - Buttons combine `.btn` with `.btn--primary`, `.btn--secondary`, or `.btn--ghost`; `.btn--sm` and `.btn--lg` select sizes.
 - `.prose` supplies rich-text spacing and list styling. `.stack`, `.stack--sm`, `.text-center`, and `.text-muted` supply simple layout and text utilities.
 - `data-reveal` supports fade-up (empty value), `left`, `right`, and `scale`. IntersectionObserver adds `.is-visible`; reduced-motion preferences disable motion.

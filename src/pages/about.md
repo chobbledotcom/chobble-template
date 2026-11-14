@@ -34,6 +34,12 @@ blocks:
       - icon: "hugeicons:wheelchair"
         name: Accessible by default
         description: Semantic markup, reduced-motion support, and a target of WCAG 2.2 AA conformance.
+      - icon: "hugeicons:checkmark-circle-02"
+        name: Tested like software
+        description: Every change runs the full test suite, with complete line coverage and quality gates that keep the code small and consistent.
+      - icon: "hugeicons:certificate-01"
+        name: Yours to keep
+        description: MIT licensed, with no service to sign up to. Fork it, change it, host it wherever you like.
   - type: cta
     content: |
       ## Explore the building blocks

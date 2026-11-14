@@ -37,6 +37,12 @@ blocks:
       - icon: "hugeicons:rocket"
         name: Static output
         description: One command builds the whole site to a deployable directory - no servers, no database, nothing to patch.
+      - icon: "hugeicons:note-edit"
+        name: Visual editing
+        description: A generated PagesCMS config lets site owners edit pages and blocks in the browser, without touching YAML.
+      - icon: "hugeicons:shopping-cart-01"
+        name: Quotes, not checkouts
+        description: Products carry add-to-quote buttons, and visitors send their quote - hire dates and an estimated price included - to your inbox.
   - type: markdown
     content: |
       ## Quick start

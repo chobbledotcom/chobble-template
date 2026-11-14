@@ -36,6 +36,8 @@ export const docs = {
   summary:
     "Grid of feature cards with optional icons, names, and descriptions.",
   scss: "src/css/design-system/_feature.scss",
+  notes:
+    "On a full-width page the cards sit three to a row, so give the block a multiple of three items - three, six, nine - or the last row is left part-empty.",
   htmlRoot:
     '<ul class="features" role="list"> containing <li><article class="feature"> items',
 };
