@@ -144,6 +144,8 @@ Grid of feature cards with optional icons, names, and descriptions.
 | `reveal` | `boolean` | optional | `true` | Not exposed | Adds \`data-reveal\` to each feature. |
 | `center` | `boolean` | optional | `false` | Centered | If true, centers feature text. |
 
+**Usage notes:** On a full-width page the cards sit three to a row, so give the block a multiple of three items - three, six, nine - or the last row is left part-empty.
+
 ### Canonical example
 
 ```yaml
