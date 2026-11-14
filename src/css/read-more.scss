@@ -12,6 +12,8 @@
  * <div class="read-more-content">following paragraphs</div>
  */
 
+@use "mixins" as *;
+
 // Hide the checkbox visually but keep it functional
 .read-more-toggle {
   pointer-events: none;
@@ -29,11 +31,9 @@
 // Style the label as an interactive link (inline with text)
 .read-more-label {
   cursor: pointer;
-
   font-weight: bold;
-  color: var(--color-link);
-  text-decoration: var(--link-decoration);
-  text-decoration-style: var(--link-decoration-style);
+
+  @include link-tokens;
 
   &:hover,
   &:focus {

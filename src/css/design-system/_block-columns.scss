@@ -1,6 +1,8 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
 @use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
 
 // =============================================================================
 // BLOCK COLUMNS
@@ -37,9 +39,8 @@
   }
 
   .block-column {
-    display: flex;
-    flex-direction: column;
-    gap: $space-lg;
+    @include flex-col($space-lg);
+
     min-width: 0;
   }
 }

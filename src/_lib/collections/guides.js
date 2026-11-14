@@ -1,13 +1,12 @@
-import { addDataFilter } from "#eleventy/add-data-filter.js";
-import { createFieldIndexer } from "#utils/collection-utils.js";
+import { registerFilters } from "#eleventy/register.js";
+import {
+  createFieldIndexer,
+  createTagCollection,
+} from "#utils/collection-utils.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
-import { sortItems } from "#utils/sorting.js";
 
 /** Index guides by category for O(1) lookups, cached per guides array */
 const indexByGuideCategory = createFieldIndexer("guide-category");
-
-/** Index guide categories by property for O(1) lookups */
-const indexByProperty = createFieldIndexer("property");
 
 /**
  * @param {import("#lib/types").EleventyCollectionItem[]} guidePages
@@ -15,15 +14,7 @@ const indexByProperty = createFieldIndexer("property");
  * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const guidesByCategory = (guidePages, categorySlug) =>
-  [...(indexByGuideCategory(guidePages)[categorySlug] ?? [])].sort(sortItems);
-
-/**
- * @param {import("#lib/types").EleventyCollectionItem[]} guideCategories
- * @param {string} propertySlug
- * @returns {import("#lib/types").EleventyCollectionItem[]}
- */
-const guideCategoriesByProperty = (guideCategories, propertySlug) =>
-  indexByProperty(guideCategories)[propertySlug] ?? [];
+  indexByGuideCategory(guidePages)[categorySlug] ?? [];
 
 /**
  * Guide categories or pages with no property of their own, i.e. the ones that
@@ -54,22 +45,39 @@ const guidesForProperty = (guides, propertySlug) => {
   });
 };
 
+/**
+ * The guide collections are registered by the library rather than only by
+ * the demo content directory tags, so a child site can delete
+ * `src/guide-pages` and `src/guide-categories` without unregistering the
+ * collections that shared block templates reference. Both handlers keep the
+ * plain tag-collection behavior: every tagged item, in build order.
+ *
+ * @type {(api: import("#lib/types").EleventyCollectionApi) => import("#lib/types").EleventyCollectionItem[]}
+ */
+const createGuidePagesCollection = createTagCollection("guide-pages");
+const createGuideCategoriesCollection = createTagCollection("guide-categories");
+
 /** @param {*} eleventyConfig */
 const configureGuides = (eleventyConfig) => {
-  eleventyConfig.addFilter("guidesByCategory", guidesByCategory);
-  addDataFilter(
-    eleventyConfig,
-    "guideCategoriesByProperty",
-    guideCategoriesByProperty,
+  /* jscpd:ignore-start -- declaration data: registered filter map */
+  registerFilters(eleventyConfig)({
+    guidesByCategory,
+    generalGuides,
+    guidesForProperty,
+  });
+  /* jscpd:ignore-end */
+  eleventyConfig.addCollection("guide-pages", createGuidePagesCollection);
+  eleventyConfig.addCollection(
+    "guide-categories",
+    createGuideCategoriesCollection,
   );
-  addDataFilter(eleventyConfig, "generalGuides", generalGuides);
-  addDataFilter(eleventyConfig, "guidesForProperty", guidesForProperty);
 };
 
 export {
   configureGuides,
+  createGuideCategoriesCollection,
+  createGuidePagesCollection,
   generalGuides,
-  guideCategoriesByProperty,
   guidesByCategory,
   guidesForProperty,
 };

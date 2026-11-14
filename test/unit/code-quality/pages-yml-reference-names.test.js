@@ -1,14 +1,14 @@
-import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import matter from "gray-matter";
+import { describe, expect, test } from "vitest";
 import YAML from "yaml";
 import { rootDir } from "#test/test-utils.js";
 import {
   collectReferenceFields,
   getCollectionMap,
 } from "#test/unit/utils/pages-yml-helpers.js";
-import { unique } from "#toolkit/fp/array.js";
+import { unique } from "#utils/fp/array.js";
 
 const pagesConfig = YAML.parse(
   readFileSync(join(rootDir, ".pages.yml"), "utf-8"),

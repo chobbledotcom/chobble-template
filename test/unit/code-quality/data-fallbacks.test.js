@@ -12,7 +12,7 @@
  *   const { title } = product.data;
  *   const name = item.data.name;
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ALLOWED_DATA_FALLBACKS } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,

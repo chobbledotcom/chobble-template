@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   addExternalLinkAttrs,
   isExternalUrl,
@@ -19,6 +19,16 @@ describe("external-links transform", () => {
   });
 
   describe("addExternalLinkAttrs", () => {
+    test("replaces mixed-case attributes in place without duplicating them", () => {
+      const html =
+        '<a TARGET="_self" HREF="https://example.com" REL="author" class="button">Link</a>';
+      expect(
+        addExternalLinkAttrs(html, { externalLinksTargetBlank: true }),
+      ).toBe(
+        '<a target="_blank" HREF="https://example.com" rel="noopener noreferrer" class="button">Link</a>',
+      );
+    });
+
     test("adds target and rel to external links when enabled", () => {
       const html = '<a href="https://example.com">Link</a>';
       const result = addExternalLinkAttrs(html, {

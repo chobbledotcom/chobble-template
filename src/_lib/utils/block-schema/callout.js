@@ -1,3 +1,4 @@
+/* jscpd:ignore-start -- block schema declaration data */
 import { md, str } from "#utils/block-schema/shared.js";
 
 export const type = "callout";
@@ -7,7 +8,7 @@ export const containerWidth = "narrow";
 export const fields = {
   variant: {
     ...str("Variant (info | warning | success | danger)"),
-    default: '"info"',
+    default: "info",
     description:
       'Color scheme: `"info"`, `"warning"`, `"success"`, or `"danger"`.',
   },
@@ -31,3 +32,13 @@ export const docs = {
   scss: "src/css/design-system/_callout.scss",
   htmlRoot: '<aside class="callout">',
 };
+
+export const example = {
+  type: "callout",
+  variant: "info",
+  icon: "hugeicons:information-circle",
+  name: "Good to know",
+  content:
+    "Callouts hold short advisories, tips, and warnings. Four color variants are available.",
+};
+/* jscpd:ignore-end */

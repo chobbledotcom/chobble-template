@@ -8,10 +8,10 @@ eleventyExcludeFromCollections: true
   {%- for page in collections.all -%}
     {%- if page.data.no_index != true and page.url -%}
       {%- unless page.url contains "." -%}
-        {%- assign updated = page.inputPath | gitUpdated -%}
+        {%- assign dates = page.inputPath | gitDates -%}
         <url>
           <loc>{{ page.url | canonicalUrl | escape }}</loc>
-          {%- if updated %}<lastmod>{{ updated | isoDate }}</lastmod>{% endif -%}
+          {%- if dates %}<lastmod>{{ dates.updated | isoDate }}</lastmod>{% endif -%}
         </url>
       {%- endunless -%}
     {%- endif -%}

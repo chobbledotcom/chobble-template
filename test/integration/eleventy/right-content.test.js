@@ -1,5 +1,9 @@
-import { describe, expect, test } from "bun:test";
-import { createTestSite, useSharedSite } from "#test/test-site-factory.js";
+import { describe, expect, test } from "vitest";
+import {
+  createTestSite,
+  pageWithBlocks,
+  useSharedSite,
+} from "#test/test-site-factory.js";
 
 const SIDEBAR_TEXT = "Sidebar contact details";
 const PAGE_BLOCK = { type: "markdown", content: "Page body" };
@@ -16,14 +20,14 @@ const PARTY_IMAGE = {
 
 const rightContentSnippet = (blocks) => ({
   path: "snippets/right-content.md",
-  frontmatter: { name: "Right Content", blocks },
+  frontmatter: { blocks },
 });
 
-/** A standalone page carrying the given design-system blocks */
-const pageWithBlocks = (slug, blocks) => ({
-  path: `pages/${slug}.md`,
-  frontmatter: { name: slug, permalink: `/${slug}/`, blocks },
-});
+/** The plain + banner page pair every right-content site build shares. */
+const plainAndBannerPages = (bannerBlocks) => [
+  pageWithBlocks("plain", [PAGE_BLOCK]),
+  pageWithBlocks("banner", bannerBlocks),
+];
 
 /** Locate the image-background banner in a built document */
 const findBanner = (doc) => {
@@ -44,8 +48,7 @@ describe("right-content sidebar", () => {
     const getSite = useSharedSite({
       images: [PARTY_IMAGE],
       files: [
-        pageWithBlocks("plain", [PAGE_BLOCK]),
-        pageWithBlocks("banner", [BANNER_BLOCK, PAGE_BLOCK]),
+        ...plainAndBannerPages([BANNER_BLOCK, PAGE_BLOCK]),
         {
           path: "pages/sidebar-item.md",
           frontmatter: { name: "Sidebar Item", permalink: "/sidebar-item/" },
@@ -106,10 +109,7 @@ describe("right-content sidebar", () => {
   describe("without a snippet", () => {
     const getSite = useSharedSite({
       images: [PARTY_IMAGE],
-      files: [
-        pageWithBlocks("plain", [PAGE_BLOCK]),
-        pageWithBlocks("banner", [BANNER_BLOCK]),
-      ],
+      files: plainAndBannerPages([BANNER_BLOCK]),
     });
 
     test("the body is one-column and has no aside", async () => {

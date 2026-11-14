@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { globSync } from "tinyglobby";
+import { describe, expect, test } from "vitest";
 import strings from "#data/strings.js";
 import baseStrings from "#data/strings-base.json" with { type: "json" };
 import {
@@ -6,7 +7,7 @@ import {
   expectObjectProps,
   srcDir,
 } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // File extensions to ignore (from imports like "./strings.js")
 const IGNORE_KEYS = frozenSet(["js", "json", "test", "mjs"]);
@@ -20,18 +21,17 @@ describe("strings", () => {
 
   test("Returns values from strings-base.json", () => {
     expectObjectProps({
-      product_name: "Products",
-      event_name: "Events",
+      news_name: "News",
+      guide_name: "Guide",
     })(strings);
   });
 
   test("Every strings.X usage in codebase has a default in strings-base.json", () => {
-    const SOURCE_FILES = () => [
-      ...new Bun.Glob("**/*.{html,md,js,mjs,liquid,njk}").scanSync({
+    const SOURCE_FILES = () =>
+      globSync("**/*.{html,md,js,mjs,liquid,njk}", {
         cwd: srcDir,
         absolute: true,
-      }),
-    ];
+      });
 
     const extractStringsKeys = createExtractor(/strings\.([a-z_]+)/g);
     const findStringsUsage = () =>

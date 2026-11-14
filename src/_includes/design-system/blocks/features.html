@@ -3,35 +3,21 @@ Features grid with list semantics.
 
 Parameters (via block object):
   - block.items: Array of feature objects with properties:
-    - icon: Icon content. Supported formats:
-        - Iconify ID: "prefix:name" (e.g., "hugeicons:home-01", "hugeicons:settings-02")
-        - Image path: starts with "/" (e.g., "/images/icon.svg")
-        - Raw content: emoji or HTML entity (e.g., "&#128640;")
+    - icon: Icon content (see icon.html for the supported formats)
     - icon_label: Accessible label for icon (optional, defaults to decorative)
-    - title: Feature title
+    - name: Feature title
     - description: Feature description (supports markdown)
     - style: Optional inline styles (e.g., for custom colors)
-  - block.reveal: If true, adds data-reveal animation (default: true)
-  - block.center: If true, centers feature text (default: false)
+  - block.reveal: If true, adds data-reveal animation
+  - block.center: If true, centers feature text
   - block.intro_content: Optional markdown intro rendered above the grid
-
-Embeddable form:
-  - items: pass an items array directly (skips intro_content); reveal still
-    follows block.reveal (default true) so the embedding caller can suppress
-    animations by passing block: { reveal: false }.
-
-Usage:
-  {% include "design-system/features.html", block: page.features_block %}
-  {% include "design-system/features.html", items: page.spec_feature_items %}
 {%- endcomment -%}
 
-{%- assign _items = items | default: block.items -%}
-{%- assign reveal = block.reveal | default: true -%}
-{%- unless items -%}{%- include "design-system/block-intro.html" -%}{%- endunless -%}
+{%- include "design-system/block-intro.html" -%}
 <ul class="features{% if block.center %} text-center{% endif %}" role="list">
-  {%- for item in _items -%}
+  {%- for item in block.items -%}
   <li>
-    <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
+    <article class="feature"{% if block.reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
       {%- if item.icon -%}
         {%- include "design-system/icon-badge.html", icon: item.icon, label: item.icon_label -%}
       {%- endif -%}

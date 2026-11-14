@@ -1,8 +1,5 @@
-import { getReviewsFor } from "#collections/reviews.js";
-import getConfig from "#data/config.js";
 import { normalizeImageUrl } from "#media/image-utils.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
-import { isAmbiguousPrice } from "#utils/price-utils.js";
 
 /**
  * @typedef {Object} SiteInfo
@@ -45,16 +42,6 @@ import { isAmbiguousPrice } from "#utils/price-utils.js";
  */
 
 /**
- * @typedef {Object} ProductPageData
- * @property {string} [name] - Product name
- * @property {string | number} [price] - Product price
- * @property {SiteInfo} site - Site information
- * @property {PageInfo} page - Page information
- * @property {string[]} [tags] - Item tags (used to derive reviews field)
- * @property {Array<{unit_price: string | number}>} [options] - Product options
- */
-
-/**
  * @typedef {Object} PostPageData
  * @property {PageInfo} page - Page information
  * @property {string} [name] - Post name
@@ -75,21 +62,10 @@ import { isAmbiguousPrice } from "#utils/price-utils.js";
  * @property {{ src: string }} [image] - Image info
  * @property {FAQ[]} [faq] - FAQ items
  * @property {string} [name] - Name
- * @property {string} [brand] - Brand name
- * @property {Record<string, unknown>} [offers] - Offer data
- * @property {Record<string, unknown>[]} [reviews] - Review data
- * @property {Record<string, unknown>} [rating] - Rating data
  * @property {string} [published] - Published date
  * @property {Record<string, unknown>} [author] - Author info
  * @property {Record<string, unknown>} [organization] - Organization info
  */
-
-/**
- * Convert a Date to ISO date string (YYYY-MM-DD)
- * @param {Date} date - Date to convert
- * @returns {string} ISO date string
- */
-const toDateString = (date) => date.toISOString().split("T")[0];
 
 /** @param {BasePageData} data */
 const getPageImageUrl = (data) => {
@@ -106,7 +82,12 @@ const getPageImageUrl = (data) => {
   if (!image) return null;
   const src = typeof image === "string" ? image : image.src;
   if (src.startsWith("data:")) return null;
-  return new URL(normalizeImageUrl(src), `${data.site.url}/`).href;
+  const imageUrl = normalizeImageUrl(src);
+  const relativeImageUrl =
+    imageUrl.startsWith("/") && !imageUrl.startsWith("//")
+      ? imageUrl.slice(1)
+      : imageUrl;
+  return new URL(relativeImageUrl, `${data.site.url}/`).href;
 };
 
 /** @param {BasePageData} data */
@@ -125,11 +106,7 @@ const buildSocialMeta = (data) => {
     description: getDescription(data),
     url: canonicalUrl(data.page.url),
     ...(image && { image }),
-    type: data.tags?.includes("news")
-      ? "article"
-      : data.tags?.includes("products")
-        ? "product"
-        : "website",
+    type: data.tags?.includes("news") ? "article" : "website",
   };
 };
 
@@ -168,97 +145,6 @@ function buildBaseMeta(data) {
   };
 }
 
-/** @param {number} price */
-const positiveFinitePrice = (price) =>
-  Number.isFinite(price) && price > 0 ? price : null;
-
-/** @param {string | number | null | undefined} price */
-const parseOfferPrice = (price) => {
-  const normalized =
-    typeof price === "string" ? price.replaceAll(",", "") : price;
-  if (isAmbiguousPrice(normalized)) return null;
-  if (typeof price === "number") return positiveFinitePrice(price);
-  if (
-    typeof normalized === "string" &&
-    /[-−]\s*(?:[A-Z]{3}\s*)?[£€$]?\s*\d/i.test(normalized)
-  )
-    return null;
-  const match = price ? String(normalized).match(/\d+(?:\.\d+)?/) : null;
-  return positiveFinitePrice(match ? Number(match[0]) : Number.NaN);
-};
-
-/**
- * Build schema.org metadata for a product page
- * @param {BasePageData & ProductPageData} data - Product page data
- * @returns {SchemaOrgMeta} Schema.org product metadata
- */
-const buildProductMeta = (data) => {
-  const getOfferPrice = () => {
-    if (data.price !== undefined && data.price !== null && data.price !== "")
-      return parseOfferPrice(data.price);
-    if (!Array.isArray(data.options)) return null;
-    const prices = data.options
-      .map((option) => parseOfferPrice(option.unit_price))
-      .filter((price) => price !== null);
-    return prices.length > 0 ? Math.min(...prices) : null;
-  };
-  const buildPriceValidUntil = () => {
-    const date = new Date();
-    date.setFullYear(date.getFullYear() + 1);
-    return toDateString(date);
-  };
-
-  const buildOffers = (price) => ({
-    price,
-    priceCurrency: getConfig().currency,
-    availability: "https://schema.org/InStock",
-    priceValidUntil: buildPriceValidUntil(),
-  });
-
-  const buildReview = (review) => ({
-    author: review.data.name,
-    rating: review.data.rating,
-    ...(review.date && { date: toDateString(review.date) }),
-  });
-
-  const buildRating = (reviews) => {
-    const ratings = reviews.map((r) => r.data.rating);
-    const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-    return {
-      ratingValue: avg.toFixed(1),
-      reviewCount: reviews.length,
-      bestRating: 5,
-      worstRating: 1,
-    };
-  };
-
-  const buildReviewsMeta = () => {
-    if (!data.collections?.reviews || !data.tags) return {};
-
-    const reviews = getReviewsFor(
-      data.collections.reviews,
-      data.page.fileSlug,
-      data.tags,
-    );
-
-    if (reviews.length === 0) return {};
-
-    return {
-      reviews: reviews.map(buildReview),
-      rating: buildRating(reviews),
-    };
-  };
-
-  const price = getOfferPrice();
-  return {
-    ...buildBaseMeta(data),
-    name: data.name,
-    brand: data.site.name,
-    ...(price !== null && { offers: buildOffers(price) }),
-    ...buildReviewsMeta(),
-  };
-};
-
 /**
  * Build schema.org metadata for a blog post
  * @param {BasePageData & PostPageData} data - Post page data
@@ -267,7 +153,9 @@ const buildProductMeta = (data) => {
 const buildPostMeta = (data) => {
   return {
     ...buildBaseMeta(data),
-    ...(data.page.date && { published: toDateString(data.page.date) }),
+    ...(data.page.date && {
+      published: data.page.date.toISOString().split("T")[0],
+    }),
     author: { name: data.author || data.site.name },
   };
 };
@@ -284,10 +172,4 @@ const buildOrganizationMeta = (data) => ({
   }),
 });
 
-export {
-  buildBaseMeta,
-  buildOrganizationMeta,
-  buildPostMeta,
-  buildProductMeta,
-  buildSocialMeta,
-};
+export { buildBaseMeta, buildOrganizationMeta, buildPostMeta, buildSocialMeta };

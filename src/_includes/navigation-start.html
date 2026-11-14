@@ -1,0 +1,12 @@
+{%- comment -%}
+  Header slot before the menu: the site's logo, linking to the home page of
+  this page's language. Set `logo` in site.json to a path under src/images.
+  The logo is served as authored (eleventy:ignore): a small header mark, often
+  an SVG, gains nothing from responsive raster variants and must not lose its
+  transparency to a JPEG fallback.
+{%- endcomment -%}
+{%- if site.logo -%}
+  <a class="site-logo" href="{{ pageLanguage.home_url }}">
+    <img src="{{ site.logo }}" alt="{{ site.name }}" loading="eager" eleventy:ignore>
+  </a>
+{%- endif -%}

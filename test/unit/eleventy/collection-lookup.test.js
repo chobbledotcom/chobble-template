@@ -1,10 +1,9 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   configureCollectionLookup,
   getBySlug,
   getItemsByPath,
   indexBySlug,
-  withSchemaAuthor,
 } from "#eleventy/collection-lookup.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
@@ -26,21 +25,7 @@ describe("collection-lookup", () => {
       configureCollectionLookup(mockConfig);
 
       expect(typeof mockConfig.filters.getBySlug).toBe("function");
-      expect(typeof mockConfig.filters.withSchemaAuthor).toBe("function");
-    });
-  });
-
-  describe("withSchemaAuthor", () => {
-    test("uses the same team lookup as the rendered news byline", () => {
-      const team = slugItems([["jane-doe", "Jane Doe", "/team/jane-doe/"]]);
-      expect(
-        withSchemaAuthor({ title: "News" }, "src/team/jane-doe.md", team),
-      ).toEqual({ title: "News", author: { name: "Jane Doe" } });
-    });
-
-    test("returns metadata unchanged without an author reference", () => {
-      const meta = { title: "News" };
-      expect(withSchemaAuthor(meta, null, [])).toBe(meta);
+      expect(typeof mockConfig.filters.getItemsByPath).toBe("function");
     });
   });
 

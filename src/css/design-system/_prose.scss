@@ -1,7 +1,15 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+// jscpd:ignore-end
 
 // Rich text content container. Inherits stack layout (flex-col with gap).
+//
+// .prose spaces its children with a flex gap. Do not add top or bottom
+// margins to children (p, ul, li, headings): a margin adds to the gap, so
+// the spacing doubles. To change the spacing, override the gap. Extra space
+// before one section is allowed, but the rule's comment must show the sum,
+// for example "25px gap + 35px = 60px".
 
 .design-system {
   .prose {
@@ -23,7 +31,8 @@
       font-size: $font-size-md;
       font-style: italic;
       line-height: $line-height-relaxed;
-      color: var(--color-text-muted);
+
+      @include muted-text;
     }
 
     // Tables — Markdown tables with alternating rows and themed header
@@ -41,13 +50,12 @@
     table {
       overflow: hidden;
       border-spacing: 0;
-      border: $border-light;
-      border-radius: $radius-md;
+
+      @include box-border;
     }
 
     thead {
-      color: var(--color-contrast-text);
-      background: var(--color-link);
+      @include primary-panel;
     }
 
     th {
@@ -61,8 +69,8 @@
       border-top: $border-light;
     }
 
-    tbody tr:nth-child(even) {
-      background: var(--body-background-alt);
+    tbody tr {
+      @include zebra-stripe;
     }
   }
 }

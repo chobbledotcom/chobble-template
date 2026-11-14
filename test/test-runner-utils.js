@@ -2,23 +2,19 @@
  * Shared utilities for test runners (precommit.js and run-tests.js)
  */
 
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { globSync } from "tinyglobby";
 import { ROOT_DIR } from "#lib/paths.js";
+import { COVERAGE_IGNORE } from "#test/coverage-ignore.js";
+import { compact, unique } from "#utils/fp/array.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 const rootDir = ROOT_DIR;
 
 /** Check if --verbose flag was passed on command line */
 export const verbose = process.argv.includes("--verbose");
-
-/**
- * Check if the current module is the main entry point.
- * @param {string} importMetaUrl - The import.meta.url of the calling module
- * @returns {boolean}
- */
-export const isMainModule = (importMetaUrl) =>
-  importMetaUrl === `file://${process.argv[1]}`;
 
 /**
  * @typedef {Object} TruncateOptions
@@ -63,12 +59,8 @@ export const printTruncatedList =
  * @param {string} record - A single lcov record (between SF: and end_of_record)
  * @returns {number[]} Line numbers with zero hits
  */
-export const extractUncoveredLines = (record) => {
-  const matches = record.matchAll(/^DA:(\d+),0$/gm);
-  const lines = [];
-  for (const m of matches) lines.push(Number.parseInt(m[1], 10));
-  return lines;
-};
+export const extractUncoveredLines = (record) =>
+  [...record.matchAll(/^DA:(\d+),0$/gm)].map((m) => Number.parseInt(m[1], 10));
 
 /**
  * Extract uncovered branch line numbers from BRDA: entries, deduped by line.
@@ -76,19 +68,12 @@ export const extractUncoveredLines = (record) => {
  * @param {string} record - A single lcov record
  * @returns {number[]} Line numbers with at least one uncovered branch
  */
-export const extractUncoveredBranchLines = (record) => {
-  const matches = record.matchAll(/^BRDA:(\d+),\d+,\d+,(-|0)$/gm);
-  const seen = new Set();
-  const lines = [];
-  for (const m of matches) {
-    const line = Number.parseInt(m[1], 10);
-    if (!seen.has(line)) {
-      seen.add(line);
-      lines.push(line);
-    }
-  }
-  return lines;
-};
+export const extractUncoveredBranchLines = (record) =>
+  unique(
+    [...record.matchAll(/^BRDA:(\d+),\d+,\d+,(-|0)$/gm)].map((m) =>
+      Number.parseInt(m[1], 10),
+    ),
+  );
 
 /**
  * Format uncovered line numbers as an indented suffix, or "" if none.
@@ -130,52 +115,26 @@ export const checkMetric = (
 };
 
 /**
- * Check line and branch metrics on an lcov record, pushing failures into the
- * provided arrays.
+ * Check line and branch metrics on an lcov record.
  * @param {string} record - A single lcov record
  * @param {string} file - Source file path (from SF:)
- * @param {string[]} lineFailures - Mutated with line-coverage failures
- * @param {string[]} branchFailures - Mutated with branch-coverage failures
+ * @returns {{ lineFailures: string[], branchFailures: string[] }} Line- and branch-coverage failures found in the record
  */
-export const checkRecord = (record, file, lineFailures, branchFailures) => {
+export const checkRecord = (record, file) => {
   const lineSuffix = formatUncovered("lines", extractUncoveredLines(record));
   const branchSuffix = formatUncovered(
     "branches",
     extractUncoveredBranchLines(record),
   );
-  const lineFail = checkMetric(record, "LH", "LF", file, "lines", lineSuffix);
-  if (lineFail) lineFailures.push(lineFail);
-  const branchFail = checkMetric(
-    record,
-    "BRH",
-    "BRF",
-    file,
-    "branches",
-    branchSuffix,
-  );
-  if (branchFail) branchFailures.push(branchFail);
-};
 
-/**
- * Read coveragePathIgnorePatterns from bunfig.toml.
- * Returns [] when the file does not exist.
- * Throws when the file exists but the expected array block is missing.
- * @param {string} bunfigPath - Absolute path to bunfig.toml
- * @returns {string[]}
- */
-export const readCoverageIgnorePatterns = (bunfigPath) => {
-  if (!existsSync(bunfigPath)) return [];
-  const text = readFileSync(bunfigPath, "utf8");
-  const block = text.match(/coveragePathIgnorePatterns\s*=\s*\[([\s\S]*?)\]/);
-  if (!block) {
-    throw new Error(
-      `coveragePathIgnorePatterns not found in ${bunfigPath}. ` +
-        "If the key was renamed, update readCoverageIgnorePatterns.",
-    );
-  }
-  const entries = [];
-  for (const m of block[1].matchAll(/"([^"]+)"/g)) entries.push(m[1]);
-  return entries;
+  return {
+    lineFailures: compact([
+      checkMetric(record, "LH", "LF", file, "lines", lineSuffix),
+    ]),
+    branchFailures: compact([
+      checkMetric(record, "BRH", "BRF", file, "branches", branchSuffix),
+    ]),
+  };
 };
 
 /**
@@ -185,31 +144,30 @@ export const readCoverageIgnorePatterns = (bunfigPath) => {
  * @returns {{ lineFailures: string[], branchFailures: string[] }}
  */
 export const parseLcov = (lcovText, excludes) => {
-  const excludeSet = new Set(excludes);
-  const lineFailures = [];
-  const branchFailures = [];
-  const records = lcovText.split(/^end_of_record$/m);
-  for (const record of records) {
-    const sfMatch = record.match(/^SF:(.+)$/m);
-    if (!sfMatch) continue;
-    const file = sfMatch[1].trim();
-    if (excludeSet.has(file)) continue;
-    checkRecord(record, file, lineFailures, branchFailures);
-  }
-  return { lineFailures, branchFailures };
+  const excludeSet = frozenSet(excludes);
+  const recordFailures = lcovText
+    .split(/^end_of_record$/m)
+    .flatMap((record) => {
+      const file = record.match(/^SF:(.+)$/m)?.[1].trim();
+      if (!file || excludeSet.has(file)) return [];
+      return [checkRecord(record, file)];
+    });
+
+  return {
+    lineFailures: recordFailures.flatMap((r) => r.lineFailures),
+    branchFailures: recordFailures.flatMap((r) => r.branchFailures),
+  };
 };
 
 /**
  * When a coverage failure occurs, read lcov.info and print per-file gaps.
  * @param {string} lcovPath - Absolute path to coverage/lcov.info
- * @param {string} bunfigPath - Absolute path to bunfig.toml
  * @returns {boolean} True when a report was printed, false otherwise
  */
-export const reportCoverageFailures = (lcovPath, bunfigPath) => {
+export const reportCoverageFailures = (lcovPath) => {
   if (!existsSync(lcovPath)) return false;
   const lcovText = readFileSync(lcovPath, "utf8");
-  const excludes = readCoverageIgnorePatterns(bunfigPath);
-  const { lineFailures, branchFailures } = parseLcov(lcovText, excludes);
+  const { lineFailures, branchFailures } = parseLcov(lcovText, COVERAGE_IGNORE);
   const all = [...lineFailures, ...branchFailures];
   if (all.length === 0) return false;
   console.log("\n  Per-file coverage gaps:");
@@ -222,77 +180,61 @@ export const reportCoverageFailures = (lcovPath, bunfigPath) => {
  * @type {Object.<string, Object>}
  */
 export const COMMON_STEPS = {
-  install: { name: "install", cmd: "bun", args: ["install"] },
-  generateTypes: {
-    name: "generate-types",
-    cmd: "bun",
-    args: ["scripts/generate-pages-cms-types.js"],
-  },
-  lint: { name: "lint", cmd: "bun", args: ["run", "lint"] },
-  lintFix: { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
-  lintScss: { name: "lint:scss", cmd: "bun", args: ["run", "lint:scss"] },
-  lintScssFix: {
-    name: "lint:scss:fix",
-    cmd: "bun",
-    args: ["run", "lint:scss:fix"],
-  },
-  knipFix: { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
-  typecheck: { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
+  lint: { name: "lint", cmd: "npm", args: ["run", "lint"] },
+  lintScss: { name: "lint:scss", cmd: "npm", args: ["run", "lint:scss"] },
+  typecheck: { name: "typecheck", cmd: "npm", args: ["run", "typecheck"] },
   typecheckStrict: {
     name: "typecheck:strict",
-    cmd: "bun",
+    cmd: "npm",
     args: ["run", "typecheck:strict"],
   },
-  cpdFp: { name: "cpd:fp", cmd: "bun", args: ["run", "cpd:fp"] },
-  cpdDesignSystem: {
-    name: "cpd:design-system",
-    cmd: "bun",
-    args: ["run", "cpd:design-system"],
-  },
-  cpd: { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
-  cpdRatchet: { name: "cpd:ratchet", cmd: "bun", args: ["run", "cpd:ratchet"] },
-  knip: { name: "knip", cmd: "bun", args: ["run", "knip"] },
-  test: { name: "test", cmd: "bun", args: ["test", "--timeout", "1500"] },
+  cpd: { name: "cpd", cmd: "npm", args: ["run", "cpd"] },
+  cpdRatchet: { name: "cpd:ratchet", cmd: "npm", args: ["run", "cpd:ratchet"] },
+  knip: { name: "knip", cmd: "npm", args: ["run", "knip"] },
   build: {
     name: "build",
-    cmd: "bun",
+    cmd: "npm",
     args: ["run", "build"],
   },
+  checkA11y: {
+    name: "check:a11y",
+    cmd: "npm",
+    args: ["run", "check:a11y"],
+  },
 };
+
+export const getNonCodeQualityTestFiles = (pattern) =>
+  globSync(pattern, { cwd: rootDir }).filter(
+    (file) => !file.startsWith("test/unit/code-quality/"),
+  );
 
 /**
  * Create the unit tests step with coverage and optional verbose flag.
  * Unit tests alone satisfy the 100% coverage thresholds; integration tests
  * run their Eleventy builds in child processes that coverage never sees,
- * so instrumenting them adds time without adding signal.
+ * so instrumenting them adds time without adding signal. The code-quality
+ * suite also runs in its own earlier fast-fail lane, but it must run here
+ * too: it is what exercises the shared code-analysis utilities, so the
+ * coverage thresholds depend on it.
  * @param {boolean} verbose - Whether to include verbose flag
  * @returns {Object} Unit tests step configuration
  */
 export const unitTestsStep = (verbose) => ({
   name: "tests:unit",
-  cmd: "bun",
+  cmd: "npx",
   args: [
-    "test",
+    "vitest",
+    "run",
     "test/unit",
     "--coverage",
-    "--coverage-reporter=lcov",
-    "--coverage-reporter=text",
-    "--concurrent",
-    "--timeout",
-    "1500",
-    ...(verbose ? ["--verbose"] : []),
+    ...(verbose ? ["--reporter=verbose"] : []),
   ],
 });
 
-export const getNonCodeQualityTestFiles = (pattern) =>
-  [...new Bun.Glob(pattern).scanSync(rootDir)].filter(
-    (file) => !file.startsWith("test/unit/code-quality/"),
-  );
-
 export const codeQualityTestsStep = {
   name: "tests:code-quality",
-  cmd: "bun",
-  args: ["test", "test/unit/code-quality", "--concurrent", "--timeout", "1500"],
+  cmd: "npx",
+  args: ["vitest", "run", "test/unit/code-quality"],
 };
 
 /**
@@ -301,50 +243,18 @@ export const codeQualityTestsStep = {
  */
 export const integrationTestsStep = {
   name: "tests:integration",
-  cmd: "bun",
-  args: ["test", "test/integration", "--concurrent", "--timeout", "1500"],
+  cmd: "npx",
+  args: ["vitest", "run", "test/integration"],
 };
-
-/**
- * Run a single test step
- * @param {Object} step - Step configuration
- * @param {boolean} verbose - Whether to show full output
- * @returns {Object} Result with status and output
- */
-export function runStep(step, verbose) {
-  // Always capture stdout/stderr so we can extract errors for the summary
-  // If verbose, we'll print the output after capturing it
-  const result = spawnSync(step.cmd, step.args, {
-    cwd: rootDir,
-    stdio: ["inherit", "pipe", "pipe"],
-    env: {
-      ...process.env,
-      VERBOSE: verbose ? "1" : "0",
-    },
-  });
-
-  const stdout = result.stdout?.toString() || "";
-  const stderr = result.stderr?.toString() || "";
-
-  return finishStepResult(result.status, stdout, stderr, verbose);
-}
 
 /** Drain a step's output stream into a string */
 const drainStepOutput = async (stream) =>
   Buffer.concat(await Array.fromAsync(stream)).toString();
 
-/** Print captured output in verbose mode and shape the step result */
-const finishStepResult = (status, stdout, stderr, verbose) => {
-  if (verbose) {
-    if (stdout) process.stdout.write(stdout);
-    if (stderr) process.stderr.write(stderr);
-  }
-  return { status, stdout, stderr };
-};
-
 /**
  * Run a single step asynchronously so independent steps can overlap.
- * Same result shape as runStep.
+ * Output is always captured so errors can be extracted for the summary;
+ * verbose mode prints it after capturing.
  * @param {Object} step - Step configuration
  * @param {boolean} verbose - Whether to show full output
  * @returns {Promise<Object>} Result with status and output
@@ -365,26 +275,33 @@ export const runStepAsync = async (step, verbose) => {
     new Promise((resolve) => child.on("close", resolve)),
   ]);
 
-  return finishStepResult(status, stdout, stderr, verbose);
+  if (verbose) {
+    if (stdout) process.stdout.write(stdout);
+    if (stderr) process.stderr.write(stderr);
+  }
+  return { status, stdout, stderr };
 };
 
 /**
- * Run one lane's steps sequentially, recording results by step name.
+ * Run one lane's steps sequentially, returning [name, result] entries.
  * Stops the lane at the first failure; other lanes are unaffected.
  * @param {Object[]} lane - Steps to run in order
  * @param {boolean} verbose - Whether to show full output
- * @param {Object} results - Shared results map, mutated per step
+ * @param {[string, Object][]} entries - Results recorded so far
+ * @returns {Promise<[string, Object][]>} Recorded entries
  */
-const runLane = async (lane, verbose, results) => {
-  for (const step of lane) {
-    const startedAt = Date.now();
-    const result = await runStepAsync(step, verbose);
-    results[step.name] = result;
-    const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
-    const mark = result.status === 0 ? "✓" : "✗";
-    console.log(`${mark} ${step.name} (${seconds}s)`);
-    if (result.status !== 0) return;
-  }
+const runLane = async (lane, verbose, entries = []) => {
+  const [step, ...rest] = lane;
+  if (!step) return entries;
+
+  const startedAt = Date.now();
+  const result = await runStepAsync(step, verbose);
+  const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
+  const mark = result.status === 0 ? "✓" : "✗";
+  console.log(`${mark} ${step.name} (${seconds}s)`);
+
+  const recorded = [...entries, [step.name, result]];
+  return result.status === 0 ? runLane(rest, verbose, recorded) : recorded;
 };
 
 /**
@@ -398,88 +315,13 @@ const runLane = async (lane, verbose, results) => {
  * @returns {Promise<Object>} Results map from step names to results
  */
 export const runLanes = async ({ lanes, verbose, title }) => {
-  const results = {};
-  await Promise.all(lanes.map((lane) => runLane(lane, verbose, results)));
+  const entries = (
+    await Promise.all(lanes.map((lane) => runLane(lane, verbose)))
+  ).flat();
+  const results = Object.fromEntries(entries);
   printSummary(lanes.flat(), results, title);
   return results;
 };
-
-const isCpdCloneBlockEnd = (blockIndex, startIndex, line) =>
-  blockIndex > startIndex &&
-  (!line ||
-    line === "jscpd found duplicated code." ||
-    line.startsWith("Do not use "));
-
-const extractCpdCloneBlocks = (lines) => {
-  const cloneBlocks = [];
-  const consumedLines = new Set();
-
-  for (let index = 0; index < lines.length; index++) {
-    const trimmed = lines[index].trim();
-    if (!trimmed.startsWith("❌ Clone found")) continue;
-
-    const block = [];
-    for (let blockIndex = index; blockIndex < lines.length; blockIndex++) {
-      const blockLine = lines[blockIndex];
-      const blockTrimmed = blockLine.trim();
-
-      if (isCpdCloneBlockEnd(blockIndex, index, blockTrimmed)) break;
-
-      consumedLines.add(blockIndex);
-      block.push(blockLine.trimEnd());
-    }
-
-    if (block.length > 0) cloneBlocks.push(block.join("\n"));
-  }
-
-  return { cloneBlocks, consumedLines };
-};
-
-const isSkippableErrorLine = (line) =>
-  !line ||
-  line.startsWith("$") ||
-  line.startsWith("/") ||
-  line.endsWith(".jpg") ||
-  line.endsWith(".png") ||
-  line.endsWith(".gif") ||
-  line.startsWith("node -e") ||
-  line.startsWith("(pass)");
-
-const hasErrorIndicator = (line) =>
-  line.startsWith("❌") ||
-  line.startsWith("error:") ||
-  line.startsWith("Error:") ||
-  line.startsWith("AssertionError:") ||
-  line.includes("FAIL") ||
-  (line.toLowerCase().includes("fail") && line !== "0 fail") ||
-  line.includes("below threshold") ||
-  line.includes("must have test coverage") ||
-  /Uncovered lines?:/i.test(line);
-
-const hasToolPattern = (line) =>
-  /^Unused (files|exports|dependencies|types)/i.test(line) ||
-  /^Unlisted dependencies/i.test(line) ||
-  /^(Clone found|Duplication detected|Total duplicates)/i.test(line) ||
-  /\d+ (tests?|errors?) (failed|found)/i.test(line) ||
-  /coverage.*\d+%/i.test(line);
-
-const hasCoverageTableViolation = (line) => {
-  const coverageTableMatch = line.match(
-    /^(.+?)\s*\|\s*(\d+\.?\d*)\s*\|\s*(\d+\.?\d*)\s*\|\s*(.*)$/,
-  );
-  if (!coverageTableMatch) return false;
-
-  const [, , , , uncoveredLines] = coverageTableMatch;
-  return Boolean(uncoveredLines?.trim());
-};
-
-const isCoverageViolationDetail = (line) =>
-  /^[\w./-]+\.\w+:\s*.+$/.test(line) &&
-  !line.includes("instance(s)") &&
-  !line.includes("usage(s)") &&
-  !/:\s*lines\s+\d/.test(line);
-
-const isStackTraceLine = (line) => /^at .+\(.+:\d+:\d+\)/.test(line);
 
 /**
  * Extract error messages from test output
@@ -487,6 +329,96 @@ const isStackTraceLine = (line) => /^at .+\(.+:\d+:\d+\)/.test(line);
  * @returns {string[]} Array of error messages
  */
 export function extractErrorsFromOutput(output) {
+  /**
+   * Collect one clone block's lines, starting at the "❌ Clone found" marker.
+   * Stops before a blank line or the tool's summary/guidance.
+   * @param {string[]} lines - Full output lines
+   * @param {number} startIndex - Index of the block's first line
+   * @returns {string[]} Trimmed lines of the block, marker included
+   */
+  const cloneBlockLines = (lines, startIndex) => {
+    const remaining = lines.slice(startIndex);
+    const end = remaining.findIndex((line, offset) => {
+      const trimmed = line.trim();
+      return (
+        offset > 0 &&
+        (!trimmed ||
+          trimmed === "jscpd found duplicated code." ||
+          trimmed.startsWith("Do not use "))
+      );
+    });
+    return remaining
+      .slice(0, end === -1 ? remaining.length : end)
+      .map((line) => line.trimEnd());
+  };
+
+  const extractCpdCloneBlocks = (lines) => {
+    const cloneStartIndexes = lines.flatMap((line, index) =>
+      line.trim().startsWith("❌ Clone found") ? [index] : [],
+    );
+    const blocks = cloneStartIndexes.map((startIndex) => ({
+      startIndex,
+      collected: cloneBlockLines(lines, startIndex),
+    }));
+    return {
+      cloneBlocks: blocks.map((block) => block.collected.join("\n")),
+      consumedLines: frozenSet(
+        blocks.flatMap((block) =>
+          Array.from(
+            { length: block.collected.length },
+            (_, offset) => block.startIndex + offset,
+          ),
+        ),
+      ),
+    };
+  };
+
+  const isSkippableErrorLine = (line) =>
+    !line ||
+    line.startsWith("$") ||
+    line.startsWith("/") ||
+    line.endsWith(".jpg") ||
+    line.endsWith(".png") ||
+    line.endsWith(".gif") ||
+    line.startsWith("node -e") ||
+    line.startsWith("(pass)");
+
+  const hasErrorIndicator = (line) =>
+    line.startsWith("❌") ||
+    line.startsWith("error:") ||
+    line.startsWith("Error:") ||
+    line.startsWith("AssertionError:") ||
+    line.includes("FAIL") ||
+    (line.toLowerCase().includes("fail") && line !== "0 fail") ||
+    line.includes("below threshold") ||
+    line.includes("must have test coverage") ||
+    /Uncovered lines?:/i.test(line);
+
+  const hasToolPattern = (line) =>
+    /^Unused (files|exports|dependencies|types)/i.test(line) ||
+    /^Unlisted dependencies/i.test(line) ||
+    /^(Clone found|Duplication detected|Total duplicates)/i.test(line) ||
+    /\d+ (tests?|errors?) (failed|found)/i.test(line) ||
+    /coverage.*\d+%/i.test(line);
+
+  const hasCoverageTableViolation = (line) => {
+    const coverageTableMatch = line.match(
+      /^(.+?)\s*\|\s*(\d+\.?\d*)\s*\|\s*(\d+\.?\d*)\s*\|\s*(.*)$/,
+    );
+    if (!coverageTableMatch) return false;
+
+    const [, , , , uncoveredLines] = coverageTableMatch;
+    return Boolean(uncoveredLines?.trim());
+  };
+
+  const isCoverageViolationDetail = (line) =>
+    /^[\w./-]+\.\w+:\s*.+$/.test(line) &&
+    !line.includes("instance(s)") &&
+    !line.includes("usage(s)") &&
+    !/:\s*lines\s+\d/.test(line);
+
+  const isStackTraceLine = (line) => /^at .+\(.+:\d+:\d+\)/.test(line);
+
   const lines = output.split("\n");
   const { cloneBlocks, consumedLines } = extractCpdCloneBlocks(lines);
   const errors = [...cloneBlocks];
@@ -534,51 +466,6 @@ export function extractErrorsFromOutput(output) {
 }
 
 /**
- * Print the coverage-failure diagnostic block when the failed step output
- * matches the "tests passed + coverage table present" heuristic.
- */
-const printCoverageFailureBlock = () => {
-  const lcovPath = join(rootDir, "coverage/lcov.info");
-  const bunfigPath = join(rootDir, "bunfig.toml");
-  const reported = reportCoverageFailures(lcovPath, bunfigPath);
-  if (!reported) {
-    console.log("  Coverage threshold not met. Check coverage output above.");
-  }
-  console.log("  Thresholds are defined in bunfig.toml (coverageThreshold).");
-};
-
-/**
- * Print the generic "last 15 lines" fallback for a failed step with no
- * specific errors extracted.
- */
-const printGenericFailureBlock = (result, allOutput) => {
-  console.log("  No specific errors extracted. Last 15 lines of output:");
-  const outputLines = allOutput.split("\n");
-  const lastLines = outputLines.slice(-15).filter((l) => l.trim());
-  for (const line of lastLines) {
-    console.log(`  ${line}`);
-  }
-  console.log("\n  Run with --verbose to see full output, or check exit code:");
-  console.log(`  Exit code: ${result.status}`);
-};
-
-/**
- * Print diagnostics for a single failing step when no errors were extracted.
- * Branches between the coverage-failure report and the generic fallback.
- */
-const printStepFailureDiagnostics = (result) => {
-  const allOutput = result.stderr || result.stdout || "";
-  const hasPassingTests = /\d+ pass/.test(allOutput);
-  const hasZeroFail = /0 fail/.test(allOutput);
-  const hasCoverageTable = /% Funcs.*% Lines/.test(allOutput);
-  if (hasPassingTests && hasZeroFail && hasCoverageTable) {
-    printCoverageFailureBlock();
-  } else {
-    printGenericFailureBlock(result, allOutput);
-  }
-};
-
-/**
  * Print a summary of test results
  * @param {Object[]} steps - Array of step configurations
  * @param {Object} results - Map of step names to results
@@ -589,18 +476,13 @@ export function printSummary(steps, results, title = "SUMMARY") {
   console.log(title);
   console.log("=".repeat(60));
 
-  const passedSteps = [];
-  const failedSteps = [];
-
-  for (const step of steps) {
-    const result = results[step.name];
-    if (!result) continue; // Skip if step wasn't run
-    if (result.status === 0) {
-      passedSteps.push(step.name);
-    } else {
-      failedSteps.push(step.name);
-    }
-  }
+  const runSteps = steps.filter((step) => results[step.name]);
+  const passedSteps = runSteps
+    .filter((step) => results[step.name].status === 0)
+    .map((step) => step.name);
+  const failedSteps = runSteps
+    .filter((step) => results[step.name].status !== 0)
+    .map((step) => step.name);
 
   const allPassed = failedSteps.length === 0;
 
@@ -608,6 +490,52 @@ export function printSummary(steps, results, title = "SUMMARY") {
   if (passedSteps.length > 0) {
     console.log(`✅ Passed: ${passedSteps.join(", ")}`);
   }
+
+  /**
+   * Print the coverage-failure diagnostic block when the failed step output
+   * matches the "tests passed + coverage table present" heuristic.
+   */
+  const printCoverageFailureBlock = () => {
+    const lcovPath = join(rootDir, "coverage/lcov.info");
+    const reported = reportCoverageFailures(lcovPath);
+    if (!reported) {
+      console.log("  Coverage threshold not met. Check coverage output above.");
+    }
+    console.log("  Excluded files are listed in test/coverage-ignore.js.");
+  };
+
+  /**
+   * Print the generic "last 15 lines" fallback for a failed step with no
+   * specific errors extracted.
+   */
+  const printGenericFailureBlock = (result, allOutput) => {
+    console.log("  No specific errors extracted. Last 15 lines of output:");
+    const outputLines = allOutput.split("\n");
+    const lastLines = outputLines.slice(-15).filter((l) => l.trim());
+    for (const line of lastLines) {
+      console.log(`  ${line}`);
+    }
+    console.log(
+      "\n  Run with --verbose to see full output, or check exit code:",
+    );
+    console.log(`  Exit code: ${result.status}`);
+  };
+
+  /**
+   * Print diagnostics for a single failing step when no errors were extracted.
+   * Branches between the coverage-failure report and the generic fallback.
+   */
+  const printStepFailureDiagnostics = (result) => {
+    const allOutput = result.stderr || result.stdout || "";
+    const hasPassingTests = /\d+ pass/.test(allOutput);
+    const hasZeroFail = /0 fail/.test(allOutput);
+    const hasCoverageTable = /% Funcs.*% Lines/.test(allOutput);
+    if (hasPassingTests && hasZeroFail && hasCoverageTable) {
+      printCoverageFailureBlock();
+    } else {
+      printGenericFailureBlock(result, allOutput);
+    }
+  };
 
   // Print failed checks with errors
   if (failedSteps.length > 0) {

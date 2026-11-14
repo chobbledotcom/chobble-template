@@ -8,14 +8,9 @@ import {
   getSelectableCollections,
   resolveDependencies,
 } from "#scripts/customise-cms/collections.js";
-import {
-  filter,
-  map,
-  memberOf,
-  notMemberOf,
-  pipe,
-  unique,
-} from "#toolkit/fp/array.js";
+import { createEmptyConfig } from "#scripts/customise-cms/config.js";
+import { FEATURE_QUESTIONS } from "#scripts/customise-cms/feature-questions.js";
+import { filter, map, notMemberOf, pipe, unique } from "#utils/fp/array.js";
 
 /**
  * @typedef {import('./config.js').CmsConfig} CmsConfig
@@ -92,8 +87,11 @@ const parseSelection = (input, options, defaults) => {
   if (trimmed === "all") return map((o) => o.name)(options);
   if (trimmed === "none" || trimmed === "") return [];
 
+  /** @param {number} n */
   const isValidIndex = (n) => n >= 1 && n <= options.length;
+  /** @param {number} n */
   const toName = (n) => options[n - 1].name;
+  /** @param {string} n */
   const toNumber = (n) => Number.parseInt(n.trim(), 10);
 
   return pipe(
@@ -172,173 +170,6 @@ const askCollectionQuestions = async (rl, defaultCollections) => {
 };
 
 /**
- * Ask conditional feature questions for features
- * @param {readline.Interface} rl - Readline interface
- * @param {string[]} collections - Selected collection names
- * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
- * @returns {Promise<{features: boolean}>} Features selection
- */
-const askSpecsAndFeaturesQuestions = async (
-  rl,
-  collections,
-  defaultFeatures,
-) => {
-  const hasFeaturesCollections = collections.some(
-    memberOf(["products", "properties"]),
-  );
-
-  return {
-    features: hasFeaturesCollections
-      ? await askYesNo(
-          rl,
-          "Do you want feature lists on products/properties?",
-          defaultFeatures.features ?? false,
-        )
-      : false,
-  };
-};
-
-/**
- * Ask conditional feature questions for external purchases
- * @param {readline.Interface} rl - Readline interface
- * @param {string[]} collections - Selected collection names
- * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
- * @returns {Promise<{external_purchases: boolean}>} External purchases selection
- */
-const askExternalPurchasesQuestion = async (
-  rl,
-  collections,
-  defaultFeatures,
-) => {
-  const hasProducts = collections.includes("products");
-
-  return {
-    external_purchases: hasProducts
-      ? await askYesNo(
-          rl,
-          "Are purchases handled externally (e.g., Etsy, external store)?",
-          defaultFeatures.external_purchases ?? false,
-        )
-      : false,
-  };
-};
-
-/**
- * Ask conditional feature questions for product add-ons
- * @param {readline.Interface} rl - Readline interface
- * @param {string[]} collections - Selected collection names
- * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
- * @returns {Promise<{add_ons: boolean}>} Add-ons selection
- */
-const askAddOnsQuestion = async (rl, collections, defaultFeatures) => {
-  const hasProducts = collections.includes("products");
-
-  return {
-    add_ons: hasProducts
-      ? await askYesNo(
-          rl,
-          "Do you want add-ons on products (e.g., gift wrapping, extra services)?",
-          defaultFeatures.add_ons ?? false,
-        )
-      : false,
-  };
-};
-
-/**
- * Ask conditional feature questions for event locations and dates
- * @param {readline.Interface} rl - Readline interface
- * @param {string[]} collections - Selected collection names
- * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
- * @returns {Promise<{event_locations_and_dates: boolean}>} Event locations and dates selection
- */
-const askEventLocationsAndDatesQuestion = async (
-  rl,
-  collections,
-  defaultFeatures,
-) => {
-  const hasEvents = collections.includes("events");
-
-  return {
-    event_locations_and_dates: hasEvents
-      ? await askYesNo(
-          rl,
-          "Do your events have locations and dates (not just informational pages)?",
-          defaultFeatures.event_locations_and_dates ?? true,
-        )
-      : true,
-  };
-};
-
-/**
- * Ask conditional feature questions for no_index (hiding from listings)
- * @param {readline.Interface} rl - Readline interface
- * @param {string[]} collections - Selected collection names
- * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
- * @returns {Promise<{no_index: boolean}>} No index selection
- */
-const askNoIndexQuestion = async (rl, collections, defaultFeatures) => {
-  const hasPagesOrNews = collections.some(memberOf(["pages", "news"]));
-
-  return {
-    no_index: hasPagesOrNews
-      ? await askYesNo(
-          rl,
-          "Do you want to hide pages/news from listings (no_index field)?",
-          defaultFeatures.no_index ?? false,
-        )
-      : false,
-  };
-};
-
-/**
- * Ask conditional feature questions for parent/child categories
- * @param {readline.Interface} rl - Readline interface
- * @param {string[]} collections - Selected collection names
- * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
- * @returns {Promise<{parent_categories: boolean}>} Parent categories selection
- */
-const askParentCategoriesQuestion = async (
-  rl,
-  collections,
-  defaultFeatures,
-) => {
-  const hasProducts = collections.includes("products");
-
-  return {
-    parent_categories: hasProducts
-      ? await askYesNo(
-          rl,
-          "Do you want parent/child category hierarchy (e.g., Widgets > Premium Widgets)?",
-          defaultFeatures.parent_categories ?? false,
-        )
-      : false,
-  };
-};
-
-/**
- * Ask conditional feature questions for search keywords on products and categories
- * @param {readline.Interface} rl - Readline interface
- * @param {string[]} collections - Selected collection names
- * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
- * @returns {Promise<{keywords: boolean}>} Keywords selection
- */
-const askKeywordsQuestion = async (rl, collections, defaultFeatures) => {
-  const hasProductsOrCategories = collections.some(
-    memberOf(["products", "categories"]),
-  );
-
-  return {
-    keywords: hasProductsOrCategories
-      ? await askYesNo(
-          rl,
-          "Do you want search keywords on products and categories?",
-          defaultFeatures.keywords ?? false,
-        )
-      : false,
-  };
-};
-
-/**
  * Parse a comma-separated string into an array of slugified names
  * @param {string} input - Comma-separated names (e.g., "clients, services")
  * @returns {string[]} Array of slugified names
@@ -357,10 +188,7 @@ const parseCustomCollectionNames = (input) => {
  * @param {string[]} defaultCustomCollections - Previously configured custom collections
  * @returns {Promise<string[]>} Custom collection names
  */
-const askCustomBlocksCollectionsQuestion = async (
-  rl,
-  defaultCustomCollections,
-) => {
+const askCustomCollections = async (rl, defaultCustomCollections) => {
   const defaultValue = defaultCustomCollections.join(", ");
   const answer = await askFreeText(
     rl,
@@ -371,93 +199,19 @@ const askCustomBlocksCollectionsQuestion = async (
 };
 
 /**
- * Ask feature questions
+ * Ask every feature question in order
  * @param {readline.Interface} rl - Readline interface
- * @param {string[]} collections - Selected collection names
- * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @param {CmsFeatures} defaultFeatures - Default feature values
  * @returns {Promise<CmsFeatures>} All feature selections
  */
-const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
+const askFeatureQuestions = async (rl, defaultFeatures) => {
   console.log("\n--- Optional Features ---\n");
 
-  const baseFeatures = {
-    permalinks: await askYesNo(
-      rl,
-      "Do you want custom permalinks on items?",
-      defaultFeatures.permalinks ?? false,
-    ),
-    redirects: await askYesNo(
-      rl,
-      "Do you want redirect_from support (for URL redirects)?",
-      defaultFeatures.redirects ?? false,
-    ),
-    faqs: await askYesNo(
-      rl,
-      "Do you want FAQs on items?",
-      defaultFeatures.faqs ?? false,
-    ),
-    galleries: await askYesNo(
-      rl,
-      "Do you want image galleries on items?",
-      defaultFeatures.galleries ?? false,
-    ),
-    external_navigation_urls: await askYesNo(
-      rl,
-      "Do you want to link to external URLs in your navigation?",
-      defaultFeatures.external_navigation_urls ?? false,
-    ),
-    use_visual_editor: await askYesNo(
-      rl,
-      "Do you want to use a visual rich-text editor instead of markdown?",
-      defaultFeatures.use_visual_editor ?? false,
-    ),
-  };
-
-  const conditionalFeatures = await askSpecsAndFeaturesQuestions(
-    rl,
-    collections,
-    defaultFeatures,
-  );
-  const purchaseFeatures = await askExternalPurchasesQuestion(
-    rl,
-    collections,
-    defaultFeatures,
-  );
-  const addOnsFeatures = await askAddOnsQuestion(
-    rl,
-    collections,
-    defaultFeatures,
-  );
-  const eventFeatures = await askEventLocationsAndDatesQuestion(
-    rl,
-    collections,
-    defaultFeatures,
-  );
-  const noIndexFeatures = await askNoIndexQuestion(
-    rl,
-    collections,
-    defaultFeatures,
-  );
-  const keywordsFeatures = await askKeywordsQuestion(
-    rl,
-    collections,
-    defaultFeatures,
-  );
-  const parentCategoriesFeatures = await askParentCategoriesQuestion(
-    rl,
-    collections,
-    defaultFeatures,
-  );
-  return {
-    ...baseFeatures,
-    ...conditionalFeatures,
-    ...purchaseFeatures,
-    ...addOnsFeatures,
-    ...eventFeatures,
-    ...noIndexFeatures,
-    ...keywordsFeatures,
-    ...parentCategoriesFeatures,
-  };
+  const features = { ...defaultFeatures };
+  for (const [key, question] of FEATURE_QUESTIONS) {
+    features[key] = await askYesNo(rl, question, defaultFeatures[key]);
+  }
+  return features;
 };
 
 /**
@@ -470,21 +224,7 @@ const askSrcFolderQuestion = async (rl, defaultHasSrc) => {
   return await askYesNo(
     rl,
     "Does your template have a 'src' folder?",
-    defaultHasSrc ?? true,
-  );
-};
-
-/**
- * Ask about custom home.html layout
- * @param {readline.Interface} rl - Readline interface
- * @param {boolean} defaultCustomHome - Default answer
- * @returns {Promise<boolean>} Whether template has custom home layout
- */
-const askCustomHomeLayoutQuestion = async (rl, defaultCustomHome) => {
-  return await askYesNo(
-    rl,
-    "Does your template have a custom home.html layout file?",
-    defaultCustomHome ?? false,
+    defaultHasSrc,
   );
 };
 
@@ -497,37 +237,26 @@ export const askQuestions = async (existingConfig = null) => {
   const rl = createInterface();
 
   try {
-    const defaultCollections = existingConfig?.collections || [];
-    const defaultFeatures = existingConfig?.features || {};
-    const defaultHasSrc = existingConfig?.hasSrcFolder ?? true;
-    const defaultCustomHome = existingConfig?.customHomePage ?? false;
-    const defaultCustomBlocksCollections =
-      existingConfig?.customBlocksCollections || [];
+    // A loaded config is already complete (normalized at load time); a
+    // fresh run starts from the empty config, so every question below has
+    // a real default with no fallback logic.
+    const defaults = existingConfig ? existingConfig : createEmptyConfig();
 
     console.log("\n--- Template Configuration ---\n");
-    const hasSrcFolder = await askSrcFolderQuestion(rl, defaultHasSrc);
-    const customHomePage = await askCustomHomeLayoutQuestion(
-      rl,
-      defaultCustomHome,
-    );
+    const hasSrcFolder = await askSrcFolderQuestion(rl, defaults.hasSrcFolder);
 
-    const collections = await askCollectionQuestions(rl, defaultCollections);
-    const features = await askFeatureQuestions(
-      rl,
-      collections,
-      defaultFeatures,
-    );
+    const collections = await askCollectionQuestions(rl, defaults.collections);
+    const features = await askFeatureQuestions(rl, defaults.features);
 
-    const customBlocksCollections = await askCustomBlocksCollectionsQuestion(
+    const customBlocksCollections = await askCustomCollections(
       rl,
-      defaultCustomBlocksCollections,
+      defaults.customBlocksCollections,
     );
 
     return {
       collections,
       features,
       hasSrcFolder,
-      customHomePage,
       customBlocksCollections,
     };
   } finally {

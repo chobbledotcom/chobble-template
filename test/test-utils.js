@@ -1,16 +1,15 @@
 /**
- * Test utilities for chobble-template
+ * Test utilities for Chobble Template
  *
- * Re-exports generic utilities from @chobble/js-toolkit with project-specific
- * wrappers, plus Eleventy-specific test helpers.
+ * Re-exports the generic helpers from test/test-utils/ with
+ * project-specific wrappers, plus Eleventy-specific test helpers.
  */
-import { afterAll, expect, mock } from "bun:test";
+
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { expect, vi } from "vitest";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
-import { map } from "#toolkit/fp/array.js";
-import { omit } from "#toolkit/fp/object.js";
 
 // Test fixture helpers for creating Eleventy-style collection items
 // (These are test-only utilities, not general FP functions)
@@ -55,32 +54,73 @@ import {
   expectErrorsInclude,
   expectObjectProps,
   expectProp,
-} from "#toolkit/test-utils/assertions.js";
+} from "#test/test-utils/assertions.js";
 import {
   ALWAYS_SKIP,
+  createExtractor,
   extractFunctions,
+  findFiles as getFilesRaw,
   memoizedFileGetter,
-  getFiles as toolkitGetFiles,
-} from "#toolkit/test-utils/code-analysis.js";
+} from "#test/test-utils/code-analysis.js";
 import {
   captureConsole,
   captureConsoleLogAsync,
   createConsoleCapture,
   mockFetch,
+  mockTemplateConfig,
   withMockFetch,
-} from "#toolkit/test-utils/mocking.js";
-// Import from toolkit for internal use and re-export
+} from "#test/test-utils/mocking.js";
+// Import for internal use and re-export
 import {
   bracket,
   bracketAsync,
   cleanupTempDir,
+  createTempDir,
   createTempFile,
+  withChdirAsync,
   withMockedCwd,
   withMockedCwdAsync,
   withMockedProcessExit,
   withSubDir,
   withSubDirAsync,
-} from "#toolkit/test-utils/resource.js";
+  withTempDir,
+  withTempDirAsync,
+  withTempFile,
+} from "#test/test-utils/resource.js";
+
+/** Shared no-op for mockImplementation calls. */
+const noop = () => undefined;
+
+/**
+ * Mock process.exit to throw `exit:<code>` so a test can assert both that
+ * the CLI exited and with which code, without killing the test process.
+ * Restore with `.mockRestore()`.
+ */
+const mockExitThrow = () =>
+  vi.spyOn(process, "exit").mockImplementation((code) => {
+    throw new Error(`exit:${code}`);
+  });
+
+/**
+ * Run a CLI entry point that may call process.exit, capturing what it
+ * printed to console.error. Returns the captured error lines and the
+ * `exit:<code>` message (null when the entry returned without exiting),
+ * with the spies restored either way.
+ * @param {() => unknown} run
+ * @returns {Promise<{ errors: string[], exitError: string | null }>}
+ */
+const captureCliFailure = async (run) => {
+  const errorSpy = vi.spyOn(console, "error").mockImplementation(noop);
+  const exitSpy = mockExitThrow();
+  const [outcome] = await Promise.allSettled([(async () => run())()]);
+  const errors = errorSpy.mock.calls.map(([line]) => String(line));
+  errorSpy.mockRestore();
+  exitSpy.mockRestore();
+  return {
+    errors,
+    exitError: outcome.status === "rejected" ? outcome.reason.message : null,
+  };
+};
 
 // ============================================
 // Project-specific path utilities
@@ -88,16 +128,6 @@ import {
 
 const rootDir = ROOT_DIR;
 const srcDir = SRC_DIR;
-const CART_STORAGE_KEY = "shopping_cart";
-
-// Wrap toolkit's createTempDir to use test directory (not cwd)
-const createTempDir = (testName, suffix = "") => {
-  const uniqueId = `${Date.now()}-${process.pid}-${Math.random().toString(36).slice(2, 9)}`;
-  const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}-${uniqueId}`;
-  const tempDir = path.join(import.meta.dirname, dirName);
-  fs.mkdirSync(tempDir, { recursive: true });
-  return tempDir;
-};
 
 const createTempSnippetsDir = (testName) => {
   const tempDir = createTempDir(testName);
@@ -106,26 +136,15 @@ const createTempSnippetsDir = (testName) => {
   return { tempDir, snippetsDir };
 };
 
-// Create project-specific withTempDir functions using our createTempDir
-const withTempDir = bracket(createTempDir, cleanupTempDir);
-const withTempDirAsync = bracketAsync(createTempDir, cleanupTempDir);
-
-const withTempFile = (testName, filename, content, callback) =>
-  withTempDir(testName, (tempDir) => {
-    const filePath = path.join(tempDir, filename);
-    fs.writeFileSync(filePath, content);
-    return callback(tempDir, filePath);
-  });
-
 // ============================================
 // File discovery utilities (project-specific ROOT_DIR)
 // ============================================
 
 /**
  * Get all files matching a pattern from the project root.
- * Wrapper around toolkit's getFiles with implicit ROOT_DIR.
+ * Wrapper around the generic findFiles with implicit ROOT_DIR.
  */
-const getFiles = (pattern) => toolkitGetFiles(pattern, rootDir);
+const getFiles = (pattern) => getFilesRaw(pattern, rootDir);
 
 /**
  * Create a memoized file getter for a given pattern.
@@ -133,41 +152,19 @@ const getFiles = (pattern) => toolkitGetFiles(pattern, rootDir);
  */
 const memoizedFiles = memoizedFileGetter(rootDir);
 
-// Production JS files: src/ and packages/ (excluding test-utils which are test code)
-const SRC_JS_FILES = memoizedFiles(
-  /^(src\/|packages\/js-toolkit\/(?!test-utils\/)).*\.js$/,
-);
+// Production JS files: src/ only (test/ helpers are test code)
+const SRC_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
 const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
 const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
 const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
-// Build/dev scripts under scripts/. Not in SRC_JS_FILES because they're not
-// part of the runtime, but they're still production usage of any src/ exports
-// they import — code-quality scans treat them as a usage site.
-const SCRIPT_JS_FILES = memoizedFiles(/^scripts\/.*\.js$/);
-const ALL_JS_FILES = memoizedFiles(/^(src\/|test\/).*\.js$/);
-
-/**
- * Create a pattern extractor for files.
- * Reads files directly (supports both absolute and relative paths).
- * For relative paths, prepends rootDir.
- */
-const createExtractor =
-  (pattern, transform = (m) => m[1]) =>
-  (files) => {
-    const fileList = Array.isArray(files) ? files : [files];
-    const results = new Set();
-
-    for (const file of fileList) {
-      // Support both absolute and relative paths
-      const filePath = path.isAbsolute(file) ? file : path.join(rootDir, file);
-      const content = fs.readFileSync(filePath, "utf-8");
-      for (const match of content.matchAll(pattern)) {
-        results.add(transform(match));
-      }
-    }
-
-    return results;
-  };
+// Build/dev tooling under scripts/ and bin/. Not in SRC_JS_FILES because
+// they're not part of the runtime, but they're held to the same correctness
+// gates and count as production usage of any src/ exports they import.
+const SCRIPT_JS_FILES = memoizedFiles(/^(scripts\/|bin\/).*\.js$/);
+// Every first-party JS file the default code-quality gates scan. Gates that
+// deliberately exclude tooling (organisation-style rules) combine
+// SRC_JS_FILES and TEST_FILES instead.
+const ALL_JS_FILES = memoizedFiles(/^(src\/|test\/|scripts\/|bin\/).*\.js$/);
 
 // ============================================
 // Object Utilities (for test infrastructure)
@@ -176,13 +173,13 @@ const createExtractor =
 // ============================================
 
 /**
- * Compile SCSS content to CSS (test utility).
- * Moved here from production code since it's only used in tests.
+ * Compile SCSS through the registered Eleventy extension (test utility).
  */
 const compileScss = async (inputContent, inputPath) => {
-  const { createScssCompiler } = await import("#build/scss.js");
-  const compiler = createScssCompiler(inputContent, inputPath);
-  return await compiler({});
+  const { configureScss } = await import("#build/scss.js");
+  const config = createMockEleventyConfig();
+  configureScss(config);
+  return await config.extensions.scss.compile(inputContent, inputPath)({});
 };
 
 // HTML wrapper for creating complete documents in transform tests
@@ -224,6 +221,12 @@ const createArrayMethod = (propName) =>
   };
 
 const createMockEleventyConfig = () => ({
+  htmlTransformer: {
+    addPosthtmlPlugin(extensions, plugin, options) {
+      this.plugins = this.plugins || {};
+      this.plugins[extensions] = { plugin, options };
+    },
+  },
   addPlugin: function (plugin, config) {
     this.pluginCalls = this.pluginCalls || [];
     this.pluginCalls.push({ plugin, config });
@@ -268,51 +271,15 @@ const item = (name, options = {}) => ({
 /**
  * Create items from an array of [name, options] tuples.
  */
-const items = map(([name, options]) => item(name, options));
 
 const createFrontmatter = (frontmatterData, content = "") =>
   matter.stringify(content, frontmatterData);
-
-const createProduct = ({
-  slug = null,
-  name = "Test Product",
-  categories = [],
-  order = DEFAULT_ORDER,
-  ...extraData
-} = {}) => ({
-  ...(slug && { fileSlug: slug }),
-  data: {
-    name,
-    categories,
-    order,
-    ...extraData,
-  },
-});
 
 // ============================================
 // Eleventy-specific assertion helpers
 // ============================================
 
-/**
- * Assert that an HTML string contains a valid unordered list structure.
- */
-const expectHtmlList = (html) => {
-  expect(html.includes("<ul>")).toBe(true);
-  expect(html.includes("</ul>")).toBe(true);
-  expect(html.includes("<li>")).toBe(true);
-};
-
-/**
- * Assert that a result is a valid script tag with correct id and type.
- */
-const expectValidScriptTag = (result) => {
-  expect(result.startsWith('<script id="site-config"')).toBe(true);
-  expect(result.includes('type="application/json"')).toBe(true);
-  expect(result.endsWith("</script>")).toBe(true);
-};
-
 // Pre-built data array checkers
-const expectGalleries = expectDataArray("gallery");
 const expectResultTitles = expectDataArray("name");
 
 // ============================================
@@ -321,10 +288,6 @@ const expectResultTitles = expectDataArray("name");
 
 const collectionApi = (items) => ({
   getFilteredByTag: () => items,
-});
-
-const taggedCollectionApi = (tagMap) => ({
-  getFilteredByTag: (tag) => tagMap[tag] ?? [],
 });
 
 // ============================================
@@ -345,58 +308,33 @@ const withConfiguredMock = (configureFn) => () => {
   };
 };
 
-/** Get a collection by name: getCollectionFrom("events")(configureEvents)(tagMap) */
-const getCollectionFrom = (collectionName) => (configureFn) => (tagMap) => {
-  const mockConfig = createMockEleventyConfig();
-  configureFn(mockConfig);
-  return mockConfig.collections[collectionName](taggedCollectionApi(tagMap));
-};
-
 // ============================================
 // Module mocking with auto-restore
 // ============================================
-
-/**
- * Mock a module's exports and automatically restore the real exports after
- * the current test file finishes.
- *
- * Bun's `mock.module()` is process-global and persists across files. Without
- * restoration, a mock from one test file silently changes module behavior in
- * every other test file sharing the same worker, producing bugs that look
- * flaky but are really order-dependent.
- *
- * The real module is imported first so its exports can be re-installed via
- * `afterAll`. If it cannot load in the test environment (e.g. reads `document`
- * at import time), this throws — those modules must be stubbed with a bare
- * `mock.module` call instead (see the allowlist in mock-module-usage.test.js).
- *
- * @param {string} specifier - Module specifier to mock (e.g. "#data/config.js")
- * @param {() => Record<string, unknown>} factory - Replacement module factory
- * @returns {Promise<void>} Resolves once the mock is installed
- */
-const mockModule = async (specifier, factory) => {
-  const original = { ...(await import(specifier)) };
-  mock.module(specifier, factory);
-  afterAll(() => {
-    mock.module(specifier, () => original);
-  });
-};
 
 // ============================================
 // Exports
 // ============================================
 
-// Re-export toolkit utilities
 // Export project-specific utilities
+export { analyzeBlockMarkdown } from "#test/test-utils/block-markdown-analysis.js";
+export {
+  assertDocumentationLinks,
+  assertDocumentationTarget,
+  extractDocumentationExamples,
+  getDocumentationFiles,
+  getTableRows,
+} from "#test/test-utils/documentation.js";
+
 export {
   ALL_JS_FILES,
-  // Code analysis (from toolkit)
+  // Code analysis
   ALWAYS_SKIP,
-  // Resource management (from toolkit)
+  // Resource management
   bracket,
   bracketAsync,
-  CART_STORAGE_KEY,
-  // Mocking (from toolkit)
+  captureCliFailure,
+  // Mocking
   captureConsole,
   captureConsoleLogAsync,
   cleanupTempDir,
@@ -408,7 +346,6 @@ export {
   createFrontmatter,
   // Temp file management
   createMockEleventyConfig,
-  createProduct,
   createTempDir,
   createTempFile,
   createTempSnippetsDir,
@@ -416,31 +353,27 @@ export {
   data,
   everyEntry,
   expect,
-  // Assertions (from toolkit)
+  // Assertions
   expectArrayProp,
   expectAsyncThrows,
   expectDataArray,
   expectErrorsInclude,
-  expectGalleries,
   // Assertions
-  expectHtmlList,
   expectObjectProps,
   expectProp,
   expectResultTitles,
-  expectValidScriptTag,
   extractFunctions,
   fs,
-  getCollectionFrom,
   // File discovery
   getFiles,
   // Image popup fixtures
   imagePopupDialogHtml,
   // Fixture factories
   item,
-  items,
+  mockExitThrow,
   mockFetch,
-  mockModule,
-  omit,
+  mockTemplateConfig,
+  noop,
   path,
   popupSlideAlts,
   rootDir,
@@ -450,9 +383,9 @@ export {
   SRC_SCSS_FILES,
   srcDir,
   TEST_FILES,
-  taggedCollectionApi,
   toData,
   // Curried config mock factories
+  withChdirAsync,
   withConfiguredMock,
   withMockedCwd,
   withMockedCwdAsync,

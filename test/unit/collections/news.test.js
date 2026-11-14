@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureNews, createNewsCollection } from "#collections/news.js";
 import {
   collectionApi,

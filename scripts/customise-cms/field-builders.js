@@ -3,108 +3,55 @@
  *
  * These collections don't follow the standard "item" layout (title, subtitle,
  * thumbnail, body, meta). Instead each one has a bespoke field list — e.g.
- * `pages` carries layout and navigation fields, `team` has an order and
- * biography, `snippets` is just name + body.
- *
- * The reusable `categoriesRef` and `productsRefList` helpers are also exported
- * here for use by the item-based builders in `item-builders.js`.
+ * `pages` carries layout and navigation fields, `snippets` is just name +
+ * body.
  */
 
-import { generateBlocksField } from "#scripts/customise-cms/blocks.js";
+import { blocksFieldFor } from "#scripts/customise-cms/blocks.js";
 import {
   COMMON_FIELDS,
   createEleventyNavigationField,
+  createMarkdownField,
   createObjectListField,
-  createReferenceField,
-  KEYWORDS_FIELD,
 } from "#scripts/customise-cms/fields.js";
-import {
-  getItemBottom,
-  getItemTop,
-  META_FIELDS,
-} from "#scripts/customise-cms/generator-helpers.js";
-import { compact, memberOf } from "#toolkit/fp/array.js";
-import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
+import { compact } from "#utils/fp/array.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig
  * @typedef {import('./generator-helpers.js').CmsField} CmsField
- * @typedef {import('./generator-helpers.js').FieldContext} FieldContext
  */
 
 /**
- * Create a categories reference field predicate
- * @param {(name: string) => boolean} enabled - Collection enablement checker
- * @returns {false | CmsField} Categories reference field or false
- */
-export const categoriesRef = (enabled) =>
-  enabled("categories") &&
-  createReferenceField("categories", "Categories", "categories");
-
-/**
- * Create a products object list field with nested reference
- * @param {(name: string) => boolean} enabled - Collection enablement checker
- * @returns {false | CmsField} Products object list field or false
- */
-export const productsRefList = (enabled) =>
-  enabled("products") && {
-    ...createObjectListField("products", "Products", [
-      createReferenceField("product", "Product", "products", false),
-    ]),
-    _componentName: "products_list",
-  };
-
-/**
- * Field builders for each collection type - functions that accept config and fields
+ * Field builders for each collection type
  * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fields - Precomputed fields
  * @returns {Record<string, () => CmsField[]>} Map of collection names to field builder functions
  */
-export const getCollectionFieldBuilders = (config, fields) => ({
+export const getCollectionFieldBuilders = (config) => ({
   pages: () =>
     compact([
       COMMON_FIELDS.name,
       COMMON_FIELDS.subtitle,
-      fields.body,
       COMMON_FIELDS.meta_title,
       COMMON_FIELDS.meta_description,
       createEleventyNavigationField(config.features.external_navigation_urls),
       { name: "layout", type: "string" },
       config.features.no_index && COMMON_FIELDS.no_index,
-      generateBlocksField(
-        Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
-          isBlockAllowedIn(type, "pages"),
-        ),
-        config.features.use_visual_editor,
-      ),
+      blocksFieldFor("pages"),
     ]),
 
-  categories: () =>
-    compact([
-      COMMON_FIELDS.name,
-      COMMON_FIELDS.thumbnail,
-      config.features.parent_categories &&
-        createReferenceField("parent", "Parent Category", "categories", false),
-      COMMON_FIELDS.featured,
-      config.features.keywords && KEYWORDS_FIELD,
-      ...META_FIELDS,
-      COMMON_FIELDS.subtitle,
-      generateBlocksField(
-        Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
-          isBlockAllowedIn(type, "categories"),
-        ),
-        config.features.use_visual_editor,
-      ),
+  products: () => [
+    COMMON_FIELDS.name,
+    COMMON_FIELDS.subtitle,
+    COMMON_FIELDS.thumbnail,
+    COMMON_FIELDS.order,
+    { name: "max_quantity", type: "number", label: "Most Per Quote" },
+    { name: "hidden", type: "boolean", label: "Hide from listings" },
+    createObjectListField("options", "Options", [
+      { name: "name", type: "string", label: "Name", required: true },
+      { name: "unit_price", type: "number", label: "Price", required: true },
+      { name: "days", type: "number", label: "Days of Hire" },
     ]),
-
-  team: () =>
-    compact([
-      COMMON_FIELDS.name,
-      COMMON_FIELDS.thumbnail,
-      COMMON_FIELDS.order,
-      COMMON_FIELDS.subtitle,
-      fields.bodyWithLabel("Biography"),
-    ]),
+  ],
 
   "guide-categories": () =>
     compact([
@@ -112,12 +59,7 @@ export const getCollectionFieldBuilders = (config, fields) => ({
       COMMON_FIELDS.subtitle,
       COMMON_FIELDS.order,
       { name: "icon", type: "image", label: "Icon" },
-      memberOf(config.collections)("properties") &&
-        createReferenceField("property", "Property", "properties", false),
-      fields.body,
     ]),
 
-  snippets: () => [COMMON_FIELDS.name, fields.body],
-
-  menus: () => compact([...getItemTop(), ...getItemBottom(fields)]),
+  snippets: () => [COMMON_FIELDS.name, createMarkdownField("body", "Body")],
 });

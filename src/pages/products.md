@@ -1,17 +1,18 @@
 ---
 name: Products
-meta_description:
+meta_description: Products to add to a quote.
 meta_title: Products
-permalink: "/{{ strings.product_permalink_dir }}/"
+permalink: /products/
 eleventyNavigation:
   key: Products
-  order: 3
+  order: 4
 blocks:
-  - type: include
-    file: products-header.html
   - type: markdown
-    content: Browse all products or use the filters above to narrow your search.
+    content: |
+      # Products
+
+      On a real website this is where you'd list what you sell or hire. Each product can be added to a quote, which visitors send you from the [quote page](/quote/) - there is no checkout or payment, just an enquiry with the items and an estimated price.
   - type: items
     collection: products
-    filter_ui_collection: filteredProductPagesListingFilterUI
+    image_aspect_ratio: "4/3"
 ---

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   getLayoutForTags,
   splitBlocksForColumns,
@@ -24,12 +24,12 @@ describe("block-columns", () => {
       ).toThrow(/"hero".*not supported/);
     });
 
-    test("rejects background-variants", () => {
+    test("rejects every full-bleed and two-pane type", () => {
       for (const type of [
-        "video-background",
-        "bunny-video-background",
         "image-background",
         "marquee-images",
+        "split-full",
+        "split-callout",
       ]) {
         expect(() =>
           splitBlocksForColumns([block(type)], withLayout([type])),
@@ -37,8 +37,14 @@ describe("block-columns", () => {
       }
     });
 
+    test("rejects a layout slot naming an unregistered type", () => {
+      expect(() =>
+        splitBlocksForColumns([md("a")], withLayout(["not-a-block"])),
+      ).toThrow('Unknown block type "not-a-block"');
+    });
+
     test("allows standard flow types without throwing", () => {
-      for (const type of ["markdown", "gallery", "buy-options", "features"]) {
+      for (const type of ["markdown", "gallery", "stats", "features"]) {
         expect(() =>
           splitBlocksForColumns([block(type)], withLayout([type])),
         ).not.toThrow();
@@ -92,13 +98,13 @@ describe("block-columns", () => {
       const blocks = [
         block("gallery", { id: "g1" }),
         block("markdown", { id: "m1" }),
-        block("buy-options", { id: "b1" }),
+        block("stats", { id: "b1" }),
         block("features", { id: "f1" }),
       ];
       const layout = {
         columns: [
           { types: ["gallery"] },
-          { types: ["markdown", "buy-options", "features"] },
+          { types: ["markdown", "stats", "features"] },
         ],
       };
 
@@ -255,8 +261,7 @@ describe("block-columns", () => {
     test("allows full-width types inside before that are banned in columns", () => {
       const fullWidthTypes = [
         "hero",
-        "video-background",
-        "bunny-video-background",
+        "split-full",
         "image-background",
         "marquee-images",
         "split-image",

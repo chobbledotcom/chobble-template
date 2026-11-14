@@ -1,0 +1,31 @@
+[
+	{
+		"code": "en",
+		"hreflang": "en-GB",
+		"og_locale": "en_GB",
+		"label": "English",
+		"home_url": "/",
+		"home_label": "Home",
+		"breadcrumb_label": "Breadcrumb",
+		"skip_to_content_label": "Skip to main content",
+		"search_label": "Search",
+		"navigation_label": "Main",
+		"menu_label": "Menu",
+		"close_menu_label": "Close menu",
+		"submenu_label": "Show submenu",
+		"gallery_label": "Image gallery",
+		"close_gallery_label": "Close gallery",
+		"previous_image_label": "Previous image",
+		"next_image_label": "Next image",
+		"gallery_images_label": "Images",
+		"download_label": "Download",
+		"load_more_label": "Load more",
+		"no_results_label": "No results found.",
+		"back_to_label": "Back to",
+		"result_count_one_label": "{count} result found.",
+		"result_count_other_label": "{count} results found.",
+		"redirect_label": "Redirecting…",
+		"redirect_link_label": "Click here if you are not redirected.",
+		"is_default": true
+	}
+]

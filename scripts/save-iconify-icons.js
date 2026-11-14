@@ -1,132 +1,127 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+#!/usr/bin/env node
+
+/**
+ * Save every Iconify icon a site references into its icon cache.
+ *
+ * The build fetches a missing icon from the Iconify API the first time a
+ * page renders it. Saving the icons ahead of time and committing them means
+ * a build never depends on that API being reachable.
+ *
+ * Usage:
+ *   node scripts/save-iconify-icons.js                 Scan src/ for `icon:` values
+ *   node scripts/save-iconify-icons.js <dir> ...       Scan other directories instead
+ *   node scripts/save-iconify-icons.js mdi:home ...    Also save the named icons
+ */
+
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { globSync } from "tinyglobby";
+import getSite from "#data/site.js";
 import socialIcons from "#data/social-icons.json" with { type: "json" };
-import { getIcon, getIconPath } from "#media/iconify.js";
+import { ROOT_DIR } from "#lib/paths.js";
+import { getIcon, iconFilePath } from "#media/iconify.js";
+import { runIfMain } from "#scripts/lib/is-main-module.js";
 
-const templateRoot = path.resolve(import.meta.dir, "..");
-const iconRefPattern = /\bicon:\s*["']([^"']+)["']/g;
-const textFilePattern = /\.(md|json|yml|yaml|html|liquid)$/;
-const skipDirNames = new Set([
-  ".git",
-  ".build",
-  ".image-cache",
-  ".opencode",
-  ".github",
-  "_site",
-  "node_modules",
-  "chobble-template",
-  "coverage",
-]);
+const ICON_REFERENCE = /\bicon:\s*["']([^"']+)["']/g;
+const SKIPPED_DIRS = ["node_modules", "_site", "coverage"];
 
-const collectIconRefsFromFile = (filePath, refs) => {
-  for (const match of readFileSync(filePath, "utf8").matchAll(iconRefPattern)) {
-    refs.add(match[1].trim());
-  }
-};
+/** @type {Record<string, string>} Copied so lookups take arbitrary string keys */
+const socialIconMap = { ...socialIcons };
 
-const collectIconRefsFromEntry = (entry, entryPath, refs) => {
-  if (entry.isDirectory()) {
-    if (!skipDirNames.has(entry.name)) collectIconRefsFromDir(entryPath, refs);
-    return;
-  }
-  if (textFilePattern.test(entry.name)) {
-    collectIconRefsFromFile(entryPath, refs);
-  }
-};
+/**
+ * An Iconify identifier is "prefix:name". Other icon values are image
+ * paths or literal text such as an emoji, which need no saving.
+ * @param {string} value
+ */
+const isIconifyId = (value) => value.includes(":") && !value.includes("/");
 
-const collectIconRefsFromDir = (dir, refs) => {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    collectIconRefsFromEntry(entry, path.join(dir, entry.name), refs);
-  }
-};
-
-const collectSocialIconRefs = (clientDir, refs) => {
-  const siteFilePath = path.join(clientDir, "_data", "site.json");
-  if (!existsSync(siteFilePath)) return;
-  const site = JSON.parse(readFileSync(siteFilePath, "utf8"));
-  for (const [platform, url] of Object.entries(site.socials || {})) {
-    if (!url) continue;
-    const iconId = socialIcons[platform.toLowerCase()];
-    if (iconId) refs.add(iconId);
-  }
-};
-
-const collectIconRefs = (targetDir) => {
-  const refs = new Set();
-  collectIconRefsFromDir(targetDir, refs);
-  collectSocialIconRefs(targetDir, refs);
-  return refs;
-};
-
-const saveIcon = async (iconId, results) => {
-  // Icon values without a colon are other icon types (image paths, emoji),
-  // not failed Iconify identifiers
-  if (!iconId.includes(":")) return;
-
-  if (!/^[a-z0-9-]+:[a-z0-9_ -]+$/i.test(iconId)) {
-    results.failed.push(`${iconId} (invalid icon identifier)`);
-    return;
-  }
-
-  if (existsSync(getIconPath(iconId, templateRoot))) {
-    results.cached.push(iconId);
-    return;
-  }
-  try {
-    await getIcon(iconId, templateRoot);
-    results.saved.push(iconId);
-  } catch (err) {
-    results.failed.push(`${iconId} (${err.message})`);
-  }
-};
-
-const reportSaved = (saved) => {
-  if (!saved.length) return;
-  console.log(`Saved: ${saved.length} icons`);
-  for (const iconId of saved) console.log(`  ${iconId}`);
-};
-
-const reportFailed = (failed) => {
-  if (!failed.length) return;
-  console.warn(`Failed: ${failed.length} icons`);
-  for (const failure of failed) console.warn(`  ${failure}`);
-  process.exitCode = 1;
-};
-
-const report = (results) => {
-  if (results.cached.length) {
-    console.log(`Already cached: ${results.cached.length} icons`);
-  }
-  reportSaved(results.saved);
-  reportFailed(results.failed);
-  if (
-    results.cached.length + results.saved.length + results.failed.length ===
-    0
-  ) {
-    console.log("No icon references found");
-  }
-};
-
-const main = async () => {
-  const args = process.argv.slice(2);
-  const targets = args.filter((arg) => !arg.includes(":"));
-  const explicitIconIds = args.filter((arg) => arg.includes(":"));
-
-  const results = { saved: [], cached: [], failed: [] };
-  const scanDirs = targets.length ? targets : [templateRoot];
-
-  const refs = new Set(explicitIconIds);
-  for (const dir of scanDirs) {
-    for (const ref of collectIconRefs(path.resolve(dir))) refs.add(ref);
-  }
-
-  for (const iconId of refs) await saveIcon(iconId, results);
-  report(results);
-};
-
-if (import.meta.main) {
-  main().catch((err) => {
-    console.error(`Error: ${err.message}`);
-    process.exit(1);
+/**
+ * Every content and data file under a directory. Dot-directories are
+ * skipped by the glob itself; build output and dependencies by name.
+ * @param {string} dir
+ * @returns {string[]}
+ */
+const textFiles = (dir) =>
+  globSync("**/*.{md,json,yml,yaml,html,liquid}", {
+    cwd: dir,
+    absolute: true,
+    ignore: SKIPPED_DIRS.map((name) => `**/${name}/**`),
   });
-}
+
+/**
+ * The `icon:` values written in a directory's content and data files.
+ * @param {string} dir
+ * @returns {string[]}
+ */
+const iconReferences = (dir) =>
+  textFiles(dir).flatMap((file) =>
+    [...readFileSync(file, "utf8").matchAll(ICON_REFERENCE)].map((match) =>
+      match[1].trim(),
+    ),
+  );
+
+/**
+ * Icons for the social platforms the site links to, if it links to any.
+ * @param {Record<string, string>} [socials] - Platform names mapped to URLs
+ * @returns {string[]}
+ */
+const socialIconIds = (socials = {}) =>
+  Object.keys(socials)
+    .map((platform) => socialIconMap[platform.toLowerCase()])
+    .filter(Boolean);
+
+/**
+ * Save one icon, reporting whether it was already in the cache.
+ * @param {string} baseDir - Site root holding the icon cache
+ * @returns {(iconId: string) => Promise<{ iconId: string, cached: boolean }>}
+ */
+const saveIcon = (baseDir) => async (iconId) => {
+  const cached = existsSync(iconFilePath(iconId, baseDir));
+  await getIcon(iconId, baseDir);
+  return { iconId, cached };
+};
+
+/**
+ * Save the icons named or referenced by the arguments into baseDir's cache.
+ * Arguments containing a colon are icon identifiers; the rest are
+ * directories to scan, defaulting to baseDir's src/.
+ * @param {string[]} args
+ * @param {string} baseDir - Site root holding the icon cache
+ * @returns {Promise<{ saved: string[], cached: string[] }>}
+ */
+export const saveIcons = async (args, baseDir) => {
+  const dirs = args.filter((arg) => !isIconifyId(arg));
+  const scanDirs = dirs.length > 0 ? dirs : [path.join(baseDir, "src")];
+  const iconIds = [
+    ...args,
+    ...scanDirs.flatMap(iconReferences),
+    ...socialIconIds(getSite().socials),
+  ].filter(isIconifyId);
+  const results = await Promise.all(
+    [...new Set(iconIds)].map(saveIcon(baseDir)),
+  );
+  return {
+    saved: results.filter((r) => !r.cached).map((r) => r.iconId),
+    cached: results.filter((r) => r.cached).map((r) => r.iconId),
+  };
+};
+
+/**
+ * Command-line entry: save the icons and print what the run did.
+ * @param {string[]} [args]
+ * @param {string} [baseDir] - Site root holding the icon cache
+ */
+export const main = async (
+  args = process.argv.slice(2),
+  baseDir = ROOT_DIR,
+) => {
+  const result = await saveIcons(args, baseDir);
+  const lines = [
+    `Already cached: ${result.cached.length} icons`,
+    `Saved: ${result.saved.length} icons`,
+    ...result.saved.map((iconId) => `  ${iconId}`),
+  ];
+  console.log(lines.join("\n"));
+};
+
+await runIfMain(import.meta.url, main);

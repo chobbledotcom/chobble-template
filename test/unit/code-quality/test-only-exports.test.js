@@ -1,14 +1,14 @@
 /**
- * Detects exports from src/ and packages/ that are only imported in test/ files.
+ * Detects exports from src/ that are only imported in test/ files.
  *
  * When a function is exported but only ever imported in test/,
  * it suggests the tests are testing implementation details rather than
  * the public API. These exports should either:
  * - Be made private (unexported) if they're truly internal
  * - Be used in production code if they're valuable utilities
- * - Be added to ALLOWED_TEST_ONLY_EXPORTS if intentionally test-only
+ * Existing ALLOWED_TEST_ONLY_EXPORTS entries are a deletion-only legacy baseline.
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ALLOWED_TEST_ONLY_EXPORTS } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
@@ -16,6 +16,7 @@ import {
   readSource,
 } from "#test/code-scanner.js";
 import { SCRIPT_JS_FILES, SRC_JS_FILES, TEST_FILES } from "#test/test-utils.js";
+import { unique } from "#utils/fp/array.js";
 
 const THIS_FILE = "test/unit/code-quality/test-only-exports.test.js";
 
@@ -29,19 +30,23 @@ const IMPORT_ALIASES = {
   "#lib/": "src/_lib/",
   "#collections/": "src/_lib/collections/",
   "#config/": "src/_lib/config/",
-  "#filters/": "src/_lib/filters/",
   "#eleventy/": "src/_lib/eleventy/",
   "#build/": "src/_lib/build/",
   "#media/": "src/_lib/media/",
   "#utils/": "src/_lib/utils/",
   "#public/": "src/_lib/public/",
   "#test/": "test/",
-  "#toolkit/": "packages/js-toolkit/",
+  "#scripts/": "scripts/",
+  "#bin/": "bin/",
+  // NOTE: #transforms/ is deliberately absent for
+  // now: resolving them makes this gate see the transform test suites'
+  // white-box imports, which need their own refactor before the gate can
+  // cover them without an allowlist.
 };
 
 /**
  * Resolve an import path to a relative file path.
- * @param {string} importPath - The import path (e.g., "#toolkit/fp/memoize.js")
+ * @param {string} importPath - The import path (e.g., "#utils/fp/memoize.js")
  * @returns {string|null} - The resolved path or null if not a src/ file
  */
 const resolveImportPath = (importPath) => {
@@ -96,6 +101,13 @@ const ELEVENTY_REGISTRATION_PATTERN = new RegExp(
   "g",
 );
 
+// Matches the registerFilters map form used by configure* modules:
+//   registerFilters(eleventyConfig)({ shorthand, key: implementation, ... })
+// and captures the implementation references, which would otherwise be
+// invisible to the addFilter("name", fn) pattern above.
+const REGISTER_FILTERS_PATTERN =
+  /registerFilters\s*\([^)]*\)\s*\(\s*\{([\s\S]*?)\}/g;
+
 // Matches: import name from "path" (default imports)
 const DEFAULT_IMPORT_PATTERN =
   /import\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s+from\s*["']([^"']+)["']/g;
@@ -109,12 +121,8 @@ const DEFAULT_IMPORT_PATTERN =
  * @param {string} source - Source code
  * @returns {Array<{names: string[], path: string, resolvedPath: string|null}>}
  */
-const extractImports = (source) => {
-  const imports = [];
-
-  // Named imports: import { a, b } from "path"
-  const namedMatches = source.matchAll(IMPORT_PATTERN);
-  for (const match of namedMatches) {
+const extractImports = (source) =>
+  [...source.matchAll(IMPORT_PATTERN)].flatMap((match) => {
     const names = match[1]
       .split(",")
       .map((n) => {
@@ -127,47 +135,57 @@ const extractImports = (source) => {
     const importPath = match[2];
     const resolvedPath = resolveImportPath(importPath);
 
-    if (names.length > 0) {
-      imports.push({ names, path: importPath, resolvedPath });
-    }
-  }
-
-  return imports;
-};
+    return names.length > 0 ? [{ names, path: importPath, resolvedPath }] : [];
+  });
 
 /**
  * Build a map tracking where each export is imported from.
  * @param {string[]} files - Files to scan for imports
- * @returns {Map<string, Set<string>>} - Map of "file:export" to set of importing files
+ * @returns {Map<string, {key: string, file: string}[]>} - Map of "file:export" to importing entries
  */
-const buildImportUsageMap = (files) => {
-  const usageMap = new Map();
-
-  for (const file of files) {
-    const source = readSource(file);
-    const imports = extractImports(source);
-
-    for (const { names, resolvedPath } of imports) {
-      if (!resolvedPath) continue;
-
-      for (const name of names) {
-        const key = `${resolvedPath}:${name}`;
-        if (!usageMap.has(key)) {
-          usageMap.set(key, new Set());
-        }
-        usageMap.get(key).add(file);
-      }
-    }
-  }
-
-  return usageMap;
-};
+const buildImportUsageMap = (files, loadSource = readSource) =>
+  Map.groupBy(
+    files.flatMap((file) =>
+      extractImports(loadSource(file)).flatMap(({ names, resolvedPath }) =>
+        (resolvedPath ? names : []).map((name) => ({
+          key: `${resolvedPath}:${name}`,
+          file,
+        })),
+      ),
+    ),
+    (entry) => entry.key,
+  );
 
 // ============================================
 // Tests
 // ============================================
 
 describe("test-only-exports", () => {
+  test("groups import usages by source export without losing locations", () => {
+    const sources = {
+      "test/first.js":
+        'import { shared } from "#utils/shared.js";\nimport { other } from "#utils/shared.js";',
+      "test/second.js": 'import { shared } from "#utils/shared.js";',
+    };
+    const usage = buildImportUsageMap(
+      Object.keys(sources),
+      (file) => sources[file],
+    );
+    expect([...usage]).toEqual([
+      [
+        "src/_lib/utils/shared.js:shared",
+        [
+          { key: "src/_lib/utils/shared.js:shared", file: "test/first.js" },
+          { key: "src/_lib/utils/shared.js:shared", file: "test/second.js" },
+        ],
+      ],
+      [
+        "src/_lib/utils/shared.js:other",
+        [{ key: "src/_lib/utils/shared.js:other", file: "test/first.js" }],
+      ],
+    ]);
+  });
+
   describe("extractExports", () => {
     test("finds export function declarations", () => {
       const source = `
@@ -212,6 +230,15 @@ export { baseExport as renamed };
 `;
       const exports = extractExports(source);
       expect(exports.has("baseExport")).toBe(true);
+    });
+
+    test("finds export default", () => {
+      const source = `
+function main() {}
+export default main;
+`;
+      const exports = extractExports(source);
+      expect(exports.has("main")).toBe(true);
     });
 
     test.each([
@@ -275,9 +302,9 @@ import { orig as alias } from "#utils/test.js";
   });
 
   describe("resolveImportPath", () => {
-    test("resolves #toolkit/ alias", () => {
-      expect(resolveImportPath("#toolkit/fp/memoize.js")).toBe(
-        "packages/js-toolkit/fp/memoize.js",
+    test("resolves #utils/fp/ alias", () => {
+      expect(resolveImportPath("#utils/fp/memoize.js")).toBe(
+        "src/_lib/utils/fp/memoize.js",
       );
     });
 
@@ -303,7 +330,7 @@ import { orig as alias } from "#utils/test.js";
     });
 
     test("returns null for node modules", () => {
-      expect(resolveImportPath("bun:test")).toBe(null);
+      expect(resolveImportPath("node:test")).toBe(null);
       expect(resolveImportPath("fs")).toBe(null);
     });
   });
@@ -316,84 +343,96 @@ import { orig as alias } from "#utils/test.js";
       ".eleventy.js",
     ];
 
-    const exportsMap = new Map();
-    for (const file of SRC_JS_FILES()) {
-      const source = readSource(file);
-      const exports = extractExports(source);
-      if (exports.size > 0) exportsMap.set(file, exports);
-    }
+    const srcExports = SRC_JS_FILES().flatMap((file) => {
+      const exports = extractExports(readSource(file));
+      return exports.size > 0 ? [{ file, exports }] : [];
+    });
 
     const srcImportUsage = buildImportUsageMap(productionFiles);
     const testImportUsage = buildImportUsageMap(testFiles);
 
-    const eleventyRegistrations = new Map();
-    for (const file of SRC_JS_FILES()) {
-      const source = readSource(file);
-      const registered = new Set();
-      for (const match of source.matchAll(ELEVENTY_REGISTRATION_PATTERN)) {
-        registered.add(match[1]);
-      }
-      if (registered.size > 0) eleventyRegistrations.set(file, registered);
-    }
+    // File -> names registered via Eleventy (addFilter, addShortcode, ...)
+    const eleventyRegistrations = Object.fromEntries(
+      SRC_JS_FILES()
+        .map((file) => [
+          file,
+          unique([
+            ...[
+              ...readSource(file).matchAll(ELEVENTY_REGISTRATION_PATTERN),
+            ].map((match) => match[1]),
+            // Map form: named entries (`key: implementation`) and shorthands
+            ...readSource(file)
+              .matchAll(REGISTER_FILTERS_PATTERN)
+              .flatMap((match) =>
+                unique([
+                  ...[...match[1].matchAll(/:\s*([A-Za-z_$][\w$]*)/g)].map(
+                    (ref) => ref[1],
+                  ),
+                  ...[
+                    ...match[1].matchAll(
+                      /(?:^|,)\s*([A-Za-z_$][\w$]*)\s*(?=,|$|\})/g,
+                    ),
+                  ].map((ref) => ref[1]),
+                ]),
+              ),
+          ]),
+        ])
+        .filter(([, registered]) => registered.length > 0),
+    );
 
-    const violations = [];
-    for (const [file, exports] of exportsMap) {
-      const registeredInFile = eleventyRegistrations.get(file) || new Set();
-      for (const exportName of exports) {
+    const violations = srcExports.flatMap(({ file, exports }) =>
+      [...exports].flatMap((exportName) => {
         const key = `${file}:${exportName}`;
         const usedInSrc = srcImportUsage.has(key);
-        const registeredWithEleventy = registeredInFile.has(exportName);
+        const registeredWithEleventy = (
+          eleventyRegistrations[file] ?? []
+        ).includes(exportName);
         const usedInTest = testImportUsage.has(key);
 
-        if (!usedInSrc && !registeredWithEleventy && usedInTest) {
-          if (!ALLOWED_TEST_ONLY_EXPORTS.has(key)) {
-            violations.push({
-              file,
-              line: 0,
-              code: exportName,
-              reason: `Export "${exportName}" is only imported in test files`,
-              testFiles: [...testImportUsage.get(key)],
-            });
-          }
-        }
-      }
-    }
+        return !usedInSrc &&
+          !registeredWithEleventy &&
+          usedInTest &&
+          !ALLOWED_TEST_ONLY_EXPORTS.has(key)
+          ? [
+              {
+                file,
+                line: 0,
+                code: exportName,
+                reason: `Export "${exportName}" is only imported in test files`,
+                testFiles: unique(
+                  (testImportUsage.get(key) ?? []).map((entry) => entry.file),
+                ),
+              },
+            ]
+          : [];
+      }),
+    );
 
     assertNoViolations(violations, {
       singular: "test-only export",
       fixHint:
-        "Either unexport the function (make it private), use it in production code, or add to ALLOWED_TEST_ONLY_EXPORTS",
+        "Either unexport the function (make it private) or use it in production code - the ALLOWED_TEST_ONLY_EXPORTS baseline is deletion-only",
     });
   });
 
   test("ALLOWED_TEST_ONLY_EXPORTS entries are valid", () => {
-    const allProductionFiles = new Set(SRC_JS_FILES());
-    const invalid = [];
+    const allProductionFiles = SRC_JS_FILES();
 
-    for (const entry of ALLOWED_TEST_ONLY_EXPORTS) {
+    const invalid = [...ALLOWED_TEST_ONLY_EXPORTS].flatMap((entry) => {
       const [file, exportName] = entry.split(":");
       if (!file || !exportName) {
-        invalid.push({
-          entry,
-          reason: "Invalid format (expected file:export)",
-        });
-        continue;
+        return [{ entry, reason: "Invalid format (expected file:export)" }];
       }
-      if (!allProductionFiles.has(file)) {
-        invalid.push({ entry, reason: `File not found: ${file}` });
-        continue;
+      if (!allProductionFiles.includes(file)) {
+        return [{ entry, reason: `File not found: ${file}` }];
       }
 
       // Verify the export exists in the file
-      const source = readSource(file);
-      const exports = extractExports(source);
-      if (!exports.has(exportName)) {
-        invalid.push({
-          entry,
-          reason: `Export "${exportName}" not found in ${file}`,
-        });
-      }
-    }
+      const exports = extractExports(readSource(file));
+      return exports.has(exportName)
+        ? []
+        : [{ entry, reason: `Export "${exportName}" not found in ${file}` }];
+    });
 
     if (invalid.length > 0) {
       console.log("\n  Invalid ALLOWED_TEST_ONLY_EXPORTS entries:");

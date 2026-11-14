@@ -1,18 +1,17 @@
 /**
- * Format a numeric price using Intl.NumberFormat.
+ * A price as the site shows it, in the site's currency. Whole amounts drop
+ * their pence: "£20", but "£12.50".
  *
- * Whole-number prices have .00 stripped (£10, not £10.00).
- * Fractional prices keep two decimals (£3.50, not £3.5).
+ * Shared by the `formatPrice` filter and the visitor's quote in the browser,
+ * so a price reads the same on a product as in the quote.
  *
- * @param {string} currency
- * @param {string | number} value
+ * @param {number} amount
+ * @param {string} currency - ISO 4217 code, e.g. "GBP"
+ * @returns {string}
  */
-export const formatPrice = (currency, value) => {
-  const num = Number(value);
-  if (Number.isNaN(num)) {
-    throw new Error(`Invalid price value: ${JSON.stringify(value)}`);
-  }
-  return new Intl.NumberFormat("en", { style: "currency", currency })
-    .format(num)
-    .replace(/\.00$/, "");
-};
+export const formatPrice = (amount, currency) =>
+  new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+  }).format(amount);

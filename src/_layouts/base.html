@@ -8,8 +8,6 @@
     href="{{ '/css/design-system-bundle.css' | cacheBust }}"
   >
 
-  {%- include "js-config-script.html" -%}
-
   {%- include "bundle-script.html" -%}
 
   {%- include "head-schema.html" -%}
@@ -18,21 +16,24 @@
 </head>
 <body class="design-system {{ layout | getBodyClasses: config, body-classes, featured, page.url }}">
   {%- include "body-scripts.html" -%}
+  <a class="skip-link" href="#content">{{ pageLanguage.skip_to_content_label }}</a>
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
   {%- endunless -%}
   {%- assign banner_split = blocks | splitHoistedBanner: has_right_content -%}
   {%- include "design-system/hoisted-banner.html", banner: banner_split.banner -%}
   <div class="page-columns">
-    <main{% if pagefind_body %} data-pagefind-body{% endif %}>
+    <main id="content"{% if pagefind_body %} data-pagefind-body{% endif %}>
       {%- if config.show_breadcrumbs and page.url != pageLanguage.home_url -%}
-        {%- include "breadcrumbs-nav.html" -%}
+        {%- unless no_breadcrumbs -%}
+          {%- include "breadcrumbs-nav.html" -%}
+        {%- endunless -%}
       {%- endif -%}
       {{- content | validatePageBodyContent: layout, page.inputPath -}}
       {%- if banner_split.rest.size > 0 -%}
         {%- include "design-system/blocks.html", blocks: banner_split.rest -%}
       {%- endif -%}
-      {%- assign footer_snippet_data = "footer-content" | snippet_data -%}
+      {%- assign footer_snippet_data = "footer-content" | snippet_data: pageLanguage.code -%}
       {%- if footer_snippet_data.blocks -%}
         {%- include "design-system/blocks.html", blocks: footer_snippet_data.blocks -%}
       {%- endif -%}
@@ -41,10 +42,6 @@
   </div>
   {%- include "design-system/footer.html" -%}
   {%- include "image-popup.html" -%}
-  {%- include "client-templates.html" -%}
-  {% slot "templates" %}
   {%- include "theme-switcher.html" -%}
-  {%- include "cart-icon.html" -%}
-  {%- include "cart-overlay.html" -%}
 </body>
 </html>

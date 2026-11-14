@@ -5,27 +5,20 @@ Parameters:
   Standalone (via block object):
     - block.intro_content: Optional markdown intro rendered above the list.
     - block.items: Array of link objects (see below)
-    - block.reveal: If true, adds data-reveal animation (default: true)
+    - block.reveal: If true, adds data-reveal animation
 
-  Embeddable (via items parameter):
-    - items: Array of link objects, skips intro and reveal
+  Embeddable (via items parameter, with `block: false`):
+    - items: Array of link objects, rendered without intro or reveal
 
   Link objects:
     - icon: Iconify ID (e.g., "hugeicons:github"), image path, or raw HTML/emoji
     - text: Link text
     - url: Link URL (optional - renders as plain text if omitted)
-
-Usage:
-  {% include "design-system/blocks/icon-links.html", block: block %}
-  {% include "design-system/blocks/icon-links.html", items: block.figure_items %}
 {%- endcomment -%}
 
-{%- assign _items = items | default: block.items -%}
-{%- assign reveal = block.reveal | default: true -%}
+{%- include "design-system/block-intro.html" -%}
 
-{%- unless items -%}
-  {%- include "design-system/block-intro.html" -%}
-{%- endunless -%}
+{%- assign _items = items | default: block.items -%}
 
 <ul class="icon-links" role="list">
   {%- for item in _items -%}
@@ -33,7 +26,7 @@ Usage:
       <span class="icon-links__icon" aria-hidden="true">{%- include "design-system/icon.html", icon: item.icon -%}</span>
       <span class="icon-links__text">{{ item.text }}</span>
   {%- endcapture -%}
-  <li{% if reveal and items == nil %} data-reveal{% endif %}>
+  <li{% if block.reveal %} data-reveal{% endif %}>
     {%- if item.url -%}
     <a href="{{ item.url }}" class="icon-links__link">{{ link_content }}</a>
     {%- else -%}

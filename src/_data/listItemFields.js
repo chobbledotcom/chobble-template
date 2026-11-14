@@ -1,6 +1,5 @@
-import { selectListItemFields } from "#config/list-config.js";
-import configJson from "#data/config.json" with { type: "json" };
+import getConfig from "#data/config.js";
 
-const listItemFields = selectListItemFields(configJson.list_item_fields);
-
-export default listItemFields;
+// The merged site config (with DEFAULTS applied) is the single source of
+// truth for which fields a list item renders, and in what order.
+export default getConfig().list_item_fields;

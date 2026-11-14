@@ -1,37 +1,37 @@
 ---
-name: First Steps
-subtitle: Your first actions after installation
+name: Your First Page
+subtitle: Build a page out of blocks
 guide-category: getting-started
-order: 2
 blocks:
   - type: guide-header
   - type: guide-navigation
   - type: markdown
     content: |
-      Now that you have everything installed, let's take your first steps.
+      Every page is a markdown file in `src/pages/` whose frontmatter
+      declares a `blocks` array. Create `src/pages/hello.md`:
+  - type: code-block
+    filename: src/pages/hello.md
+    language: yaml
+    code: "---\nname: Hello\npermalink: /hello/\nblocks:\n  - type: hero\n    content: |\n      # Hello, world\n  - type: markdown\n    content: |\n      My first page, built from two blocks.\n---"
+  - type: markdown
+    content: |
+      Save it and the dev server renders `/hello/` immediately.
 
-      ## Understanding the Structure
+      ## Finding the right block
 
-      The project is organised into several key directories:
+      The [blocks page](/blocks/) renders standalone-previewable block types
+      beside schema-backed YAML examples; collection-restricted contextual
+      blocks show usage guidance instead. Copy a relevant example, confirm
+      consequential fields in the repository's generated block reference at
+      `skills/chobble-template-site-builder/references/blocks.md`, and adjust
+      it. Invalid block names and top-level fields fail the build with the file
+      and block number.
 
-      - `src/` - All your source content
-      - `src/_layouts/` - Page templates
-      - `src/_includes/` - Reusable components
-      - `src/_data/` - Site configuration
+      ## Structure worth knowing
 
-      ## Making Your First Edit
-
-      Try editing `src/_data/site.json` to change your site's name and description. Save the file and watch your browser automatically refresh with the changes.
-
-      ## Next Steps
-
-      Once you're comfortable with the basics, move on to the Advanced Topics section to learn about customisation options.
-  - type: faqs
-faqs:
-  - question: Where do I start?
-    answer: Begin by exploring the example content and understanding the folder structure.
-    order: 1
-  - question: Can I delete the example content?
-    answer: Yes, all example content can be safely removed once you understand the structure.
-    order: 2
+      - `src/pages/` - one file per page
+      - `src/news/` - dated posts with an Atom feed
+      - `src/guide-pages/` - documentation pages like this one
+      - `src/snippets/` - reusable block compositions
+      - `src/images/` - images, processed into responsive formats
 ---

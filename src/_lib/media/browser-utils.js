@@ -5,7 +5,7 @@ import { ROOT_DIR } from "#lib/paths.js";
 import { log, error as logError } from "#utils/console.js";
 import { isExternalUrl } from "#utils/url-utils.js";
 
-export { frozenObject } from "#toolkit/fp/object.js";
+export { frozenObject } from "#utils/fp/object.js";
 export { log };
 
 export const BROWSER_ARGS = [
@@ -20,22 +20,23 @@ export const BROWSER_ARGS = [
 export const DEFAULT_BASE_URL = "http://localhost:8080";
 export const DEFAULT_TIMEOUT = 10000;
 
+/** @param {string} pagePath */
 export const sanitizePagePath = (pagePath) =>
   pagePath.replace(/^\//, "").replace(/\/$/, "").replace(/\//g, "-") || "home";
 
+/** @param {string} outputPath */
 export const prepareOutputDir = (outputPath) => {
   ensureDir(dirname(outputPath));
 };
 
+/**
+ * @param {string} pagePath
+ * @param {string} baseUrl
+ */
 export const buildUrl = (pagePath, baseUrl) =>
   isExternalUrl(pagePath)
     ? pagePath
     : `${baseUrl}${pagePath.startsWith("/") ? "" : "/"}${pagePath}`;
-
-export const buildOutputPath = (
-  pagePath,
-  { outputDir, suffix = "", extension },
-) => join(outputDir, `${sanitizePagePath(pagePath)}${suffix}.${extension}`);
 
 /**
  * @typedef {{ outputDir: string, baseUrl: string, outputPath: string | null }} BaseOperationOptions
@@ -49,11 +50,6 @@ export const buildOutputPath = (
 /**
  * @template {object} Options
  * @typedef {OperationOptions<Options>} OutputPathOpts
- */
-
-/**
- * @template {object} Options
- * @typedef {(opts: OutputPathOpts<Options>, path: string) => string} OutputPathBuilder
  */
 
 /**
@@ -76,44 +72,6 @@ const resolveOutputPathValue = (value, opts) =>
   typeof value === "function" ? value(opts) : value;
 
 /**
- * Create a buildOutputPath wrapper with configurable suffix/extension.
- * @template {object} Options
- * @param {{ suffix?: OutputPathValue<Options>, extension: OutputPathValue<Options> }} options
- * @returns {OutputPathBuilder<Options>}
- */
-export const createOutputPathBuilder =
-  ({ suffix = "", extension }) =>
-  (opts, path) => {
-    return buildOutputPath(path, {
-      outputDir: opts.outputDir,
-      suffix: resolveOutputPathValue(suffix, opts),
-      extension: resolveOutputPathValue(extension, opts),
-    });
-  };
-
-/**
- * @template {object} Options
- * @param {string} pagePath
- * @param {OperationOptions<Options>} defaultOpts
- * @param {Partial<OperationOptions<Options>>} userOptions
- * @param {(opts: OperationOptions<Options>, path: string) => string} buildPath
- * @returns {OperationContext<Options>}
- */
-export const createOperationContext = (
-  pagePath,
-  defaultOpts,
-  userOptions,
-  buildPath,
-) => {
-  const mergedOptions = { ...defaultOpts, ...userOptions };
-  return {
-    opts: mergedOptions,
-    url: buildUrl(pagePath, mergedOptions.baseUrl),
-    outputPath: mergedOptions.outputPath || buildPath(mergedOptions, pagePath),
-  };
-};
-
-/**
  * Create operation context using a path-builder config.
  * @template {object} O
  * @param {string} pagePath
@@ -128,20 +86,23 @@ export const createPathContext = (
   userOptions,
   pathConfig,
 ) => {
-  const buildPath = createOutputPathBuilder(pathConfig);
-  return createOperationContext(pagePath, defaultOpts, userOptions, buildPath);
+  const mergedOptions = { ...defaultOpts, ...userOptions };
+  const suffix = resolveOutputPathValue(
+    pathConfig.suffix === undefined ? "" : pathConfig.suffix,
+    mergedOptions,
+  );
+  const extension = resolveOutputPathValue(pathConfig.extension, mergedOptions);
+  return {
+    opts: mergedOptions,
+    url: buildUrl(pagePath, mergedOptions.baseUrl),
+    outputPath:
+      mergedOptions.outputPath ||
+      join(
+        mergedOptions.outputDir,
+        `${sanitizePagePath(pagePath)}${suffix}.${extension}`,
+      ),
+  };
 };
-
-/**
- * Creates an error info factory for page path batch operations
- * @template {string} P
- * @param {P[]} pagePaths
- * @returns {(i: number, reason: Error) => { pagePath: P, error: string }}
- */
-export const pathErrorInfo = (pagePaths) => (i, reason) => ({
-  pagePath: pagePaths[i],
-  error: reason.message,
-});
 
 /**
  * @template T
@@ -150,84 +111,98 @@ export const pathErrorInfo = (pagePaths) => (i, reason) => ({
  * @param {T[]} items
  * @param {(item: T) => Promise<R>} operationFn
  * @param {(i: number, reason: Error) => E} makeErrorInfo
- * @returns {Promise<{ results: R[], errors: E[] }>}
+ * @returns {Promise<{ results: Awaited<R>[], errors: E[] }>}
  */
 export const runBatchOperations = async (items, operationFn, makeErrorInfo) => {
   const settled = await Promise.allSettled(items.map(operationFn));
   return {
-    results: settled
-      .map((r) => (r.status === "fulfilled" ? r.value : null))
-      .filter(Boolean),
-    errors: settled
-      .map((r, i) =>
-        r.status === "rejected" ? makeErrorInfo(i, r.reason) : null,
-      )
-      .filter(Boolean),
+    results: settled.flatMap((r) =>
+      r.status === "fulfilled" ? [r.value] : [],
+    ),
+    errors: settled.flatMap((r, i) =>
+      r.status === "rejected" ? [makeErrorInfo(i, r.reason)] : [],
+    ),
   };
 };
 
-/** Create a batch runner that runs an operation across multiple page paths */
+/**
+ * Create a batch runner that runs an operation across multiple page paths
+ * @template R
+ * @param {(pagePath: string, options: object) => Promise<R>} operationFn
+ * @returns {(pagePaths: string[], options?: object) => Promise<{ results: Awaited<R>[], errors: { pagePath: string, error: string }[] }>}
+ */
 export const createBatchRunner =
   (operationFn) =>
   (pagePaths, options = {}) =>
     runBatchOperations(
       pagePaths,
       (pagePath) => operationFn(pagePath, options),
-      pathErrorInfo(pagePaths),
+      (i, reason) => ({ pagePath: pagePaths[i], error: reason.message }),
     );
 
-export const waitForServer = async (baseUrl, maxAttempts = 30, delay = 250) => {
-  for (let i = 0; i < maxAttempts; i++) {
-    const [result] = await Promise.allSettled([fetch(baseUrl)]);
-    const isReady =
-      result.status === "fulfilled" &&
-      (result.value.ok || result.value.status === 404);
-    if (isReady) return true;
-    await new Promise((r) => setTimeout(r, delay));
-  }
-  throw new Error(
-    `Server at ${baseUrl} did not respond after ${maxAttempts} attempts`,
-  );
-};
-
 /**
- * @typedef {{ process: import("bun").Subprocess, port: number, baseUrl: string, stop: () => void }} DevServerHandle
+ * @typedef {{ port: number, baseUrl: string, stop: () => Promise<void> }} DevServerHandle
  */
 
 /**
+ * Serve a built site directory for browser automation (screenshots,
+ * lighthouse). Uses Eleventy Dev Server - the same server behind
+ * `npm run serve` - with live reload off so pages are served exactly
+ * as built, with no injected scripts.
  * @param {string} siteDir
  * @param {number} [port]
  * @returns {Promise<DevServerHandle>}
  */
 export const startServer = async (siteDir, port = 8080) => {
-  const serverProcess = Bun.spawn(
-    [
-      "bun",
-      "-e",
-      `Bun.serve({port:${port},async fetch(req){const url=new URL(req.url);let p=url.pathname;if(p.endsWith('/'))p+='index.html';const file=Bun.file('${siteDir}'+p);const exists=await file.exists();return exists?new Response(file):new Response('Not found',{status:404})}})`,
-    ],
-    { stdio: ["ignore", "pipe", "pipe"] },
+  const { default: EleventyDevServer } = await import(
+    "@11ty/eleventy-dev-server"
   );
+  const server = EleventyDevServer.getServer(
+    "chobble-template-tools",
+    siteDir,
+    {
+      liveReload: false,
+      portReassignmentRetryCount: 0,
+      logger: { info: log, log, error: logError },
+    },
+  );
+  server.serve(port);
 
   const baseUrl = `http://localhost:${port}`;
-  await waitForServer(baseUrl, 30, 250);
+  const maxAttempts = 30;
+  const delay = 250;
+  for (let i = 0; i < maxAttempts; i++) {
+    const [result] = await Promise.allSettled([fetch(baseUrl)]);
+    const isReady =
+      result.status === "fulfilled" &&
+      (result.value.ok || result.value.status === 404);
+    if (isReady) break;
+    await new Promise((r) => setTimeout(r, delay));
+    if (i === maxAttempts - 1) {
+      throw new Error(
+        `Server at ${baseUrl} did not respond after ${maxAttempts} attempts`,
+      );
+    }
+  }
 
-  return {
-    process: serverProcess,
-    port,
-    baseUrl,
-    stop: () => serverProcess.kill(),
-  };
+  return { port, baseUrl, stop: () => server.close() };
 };
 
+/** @param {string} subdir */
 export const getDefaultOutputDir = (subdir) => join(ROOT_DIR, subdir);
 
+/**
+ * Browser executable used for screenshots and Lighthouse runs: the
+ * CHROME_PATH override when set, otherwise Playwright's own Chromium.
+ * One resolution path for both tools, so the override works everywhere.
+ */
 export const getChromePath = async () => {
   if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
   const { chromium } = await import("playwright");
   return chromium.executablePath();
 };
 
+/** @param {string} chromePath */
 export const launchChromeHeadless = async (chromePath) => {
   const chromeLauncher = await import("chrome-launcher");
   return chromeLauncher.launch({
@@ -237,16 +212,19 @@ export const launchChromeHeadless = async (chromePath) => {
 };
 
 const BROWSER_NOT_INSTALLED_MSG =
-  "Playwright browsers not installed.\n" +
-  "Run: bunx playwright install chromium\n" +
-  "(Use bunx to ensure the correct version is installed)";
+  "Browser not found.\n" +
+  "Run: npx playwright install chromium\n" +
+  "(or point CHROME_PATH at an existing Chromium binary)";
 
-export const ensurePlaywrightBrowsers = async () => {
-  const { chromium } = await import("playwright");
-  const execPath = chromium.executablePath();
+/**
+ * Resolve the browser executable and fail loudly if it does not exist.
+ * @returns {Promise<string>} Path to the browser executable
+ */
+export const ensureBrowserInstalled = async () => {
+  const execPath = await getChromePath();
   if (!existsSync(execPath)) {
     logError(BROWSER_NOT_INSTALLED_MSG);
     throw new Error(BROWSER_NOT_INSTALLED_MSG);
   }
-  return true;
+  return execPath;
 };

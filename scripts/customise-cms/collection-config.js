@@ -10,32 +10,19 @@
  *   4. `generateCollectionConfig` wraps it all up with path/label/filename.
  */
 
-import { generateBlocksField } from "#scripts/customise-cms/blocks.js";
+import { blocksFieldFor } from "#scripts/customise-cms/blocks.js";
 import { getCollection } from "#scripts/customise-cms/collections.js";
 import { getCollectionFieldBuilders } from "#scripts/customise-cms/field-builders.js";
+import { getFeatureFields } from "#scripts/customise-cms/generator-helpers.js";
 import {
-  COMMON_FIELDS,
-  createAddOnsField,
-  FAQS_FIELD,
-  GALLERY_FIELD,
-} from "#scripts/customise-cms/fields.js";
-import {
-  buildEventsFields,
   buildGuidePagesFields,
-  buildMenuCategoriesFields,
-  buildMenuItemsFields,
   buildNewsFields,
-  buildProductsFields,
-  buildPropertiesFields,
-  buildReviewsFields,
 } from "#scripts/customise-cms/item-builders.js";
-import { compact, filter, memberOf } from "#toolkit/fp/array.js";
-import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
+import { compact, memberOf, notMemberOf, unique } from "#utils/fp/array.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig
  * @typedef {import('./generator-helpers.js').CmsField} CmsField
- * @typedef {import('./generator-helpers.js').FieldContext} FieldContext
  * @typedef {import('./generator-helpers.js').ViewConfig} ViewConfig
  * @typedef {import('./generator-helpers.js').CollectionConfig} CollectionConfig
  * @typedef {import('./collections.js').CollectionDefinition} CollectionDefinition
@@ -43,46 +30,30 @@ import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
 
 /**
  * Dispatch to the appropriate field builder for a given collection name.
- * Returns an empty array for unknown collections (the caller appends optional
- * fields such as blocks/FAQs regardless).
  * @param {string} collectionName - Name of the collection
  * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Core fields for the collection
  */
-const getCoreFields = (collectionName, config, fields) => {
-  const builders = getCollectionFieldBuilders(config, fields);
+export const getCoreFields = (collectionName, config) => {
+  const builders = getCollectionFieldBuilders(config);
   const staticBuilder = builders[collectionName];
   if (staticBuilder) return staticBuilder();
 
-  const dynamicBuilders = {
-    news: buildNewsFields,
-    products: buildProductsFields,
-    reviews: buildReviewsFields,
-    events: buildEventsFields,
-    properties: buildPropertiesFields,
-    "guide-pages": buildGuidePagesFields,
-    "menu-categories": buildMenuCategoriesFields,
-    "menu-items": buildMenuItemsFields,
-  };
-
-  const builder = dynamicBuilders[collectionName];
-  return builder ? builder(config, fields) : [];
+  const builder = DYNAMIC_BUILDERS[collectionName];
+  if (!builder) {
+    throw new Error(`No field builder for collection "${collectionName}"`);
+  }
+  return builder(config);
 };
 
 /**
- * Get collection-specific optional fields based on what the collection supports
- * @param {CollectionDefinition} collection - Collection definition
- * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fieldContext - Precomputed fields
- * @returns {(false | CmsField)[]} Collection-specific optional fields
+ * Field builders for collections whose fields vary with the config.
+ * @type {Record<string, (config: CmsConfig) => CmsField[]>}
  */
-const getCollectionSpecificFields = (collection, config) => [
-  config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
-  config.features.add_ons &&
-    collection.supportsAddOns &&
-    createAddOnsField(config.features.use_visual_editor),
-];
+const DYNAMIC_BUILDERS = {
+  news: buildNewsFields,
+  "guide-pages": buildGuidePagesFields,
+};
 
 /**
  * Add optional fields based on configuration
@@ -94,20 +65,11 @@ const getCollectionSpecificFields = (collection, config) => [
 const addOptionalFields = (coreFields, collectionName, config) => {
   if (collectionName === "snippets") return coreFields;
 
-  const collection = getCollection(collectionName);
-  const alreadyHasBlocks =
-    collectionName === "pages" || collectionName === "categories";
-  const allowedBlockTypes = Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
-    isBlockAllowedIn(type, collectionName),
-  );
+  const alreadyHasBlocks = collectionName === "pages";
   return compact([
     ...coreFields,
-    config.features.permalinks && COMMON_FIELDS.permalink,
-    config.features.redirects && COMMON_FIELDS.redirect_from,
-    config.features.faqs && FAQS_FIELD,
-    ...getCollectionSpecificFields(collection, config),
-    !alreadyHasBlocks &&
-      generateBlocksField(allowedBlockTypes, config.features.use_visual_editor),
+    ...getFeatureFields(config.features),
+    !alreadyHasBlocks && blocksFieldFor(collectionName),
   ]);
 };
 
@@ -115,97 +77,87 @@ const addOptionalFields = (coreFields, collectionName, config) => {
  * Build all fields for a collection
  * @param {string} collectionName - Name of the collection
  * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {CmsField[]} Complete field configuration for the collection
  */
-const buildCollectionFields = (collectionName, config, fieldContext) => {
-  const coreFields = getCoreFields(collectionName, config, fieldContext);
+const buildCollectionFields = (collectionName, config) => {
+  const coreFields = getCoreFields(collectionName, config);
   return addOptionalFields(coreFields, collectionName, config);
 };
 
 /**
- * Filter a list of field names to only include those that are available
- * @param {string[]} requestedFields - Fields to filter
- * @param {string[]} availableFields - Fields that are actually available
- * @returns {string[]} Filtered list of available fields
- */
-const filterToAvailable = (requestedFields, availableFields) =>
-  filter(memberOf(availableFields))(requestedFields);
-
-/**
- * Create a validated view config with only available fields
- * @param {ViewConfig} rawConfig - Raw view configuration
- * @param {string[]} availableFields - Fields that are actually available
- * @returns {ViewConfig} Validated view configuration
- */
-const createValidatedViewConfig = (rawConfig, availableFields) => {
-  const validFields = filterToAvailable(rawConfig.fields, availableFields);
-  const validSort = filterToAvailable(rawConfig.sort, availableFields);
-
-  // Use first valid field as primary if original primary is unavailable
-  const validPrimary = availableFields.includes(rawConfig.primary)
-    ? rawConfig.primary
-    : validFields[0] || availableFields[0] || "name";
-
-  return {
-    fields: validFields.length > 0 ? validFields : ["name"],
-    primary: validPrimary,
-    sort: validSort.length > 0 ? validSort : [validPrimary],
-  };
-};
-
-/**
- * Raw view configurations for collections (before validation)
+ * View configurations for collections. Feature-gated fields (e.g. permalink)
+ * are dropped from the view when their feature is off; a view whose primary
+ * or sort field is missing, or whose field list filters down to nothing, is
+ * a configuration bug and fails the generator loudly.
  * @type {Record<string, ViewConfig>}
  */
-const RAW_VIEW_CONFIGS = {
+const VIEW_CONFIGS = {
   pages: {
-    fields: ["thumbnail", "permalink", "meta_title"],
+    fields: ["permalink", "meta_title"],
     primary: "meta_title",
     sort: ["meta_title"],
   },
   news: {
-    fields: ["thumbnail", "name", "date"],
+    fields: ["name", "date"],
     primary: "name",
     sort: ["date"],
   },
-  events: {
-    fields: [
-      "thumbnail",
-      "name",
-      "event_date",
-      "recurring_date",
-      "event_location",
-    ],
+  products: {
+    fields: ["name", "order"],
     primary: "name",
-    sort: ["name"],
+    sort: ["order", "name"],
   },
-  properties: {
-    fields: ["thumbnail", "name", "subtitle", "bedrooms", "sleeps"],
-    primary: "name",
-    sort: ["name"],
-  },
+};
+
+/**
+ * Build the view config for a collection from its declared view, dropping
+ * feature-gated fields the collection currently lacks.
+ * @param {string} collectionName - Name of the collection
+ * @param {ViewConfig} viewConfig - Declared view configuration
+ * @param {string[]} availableFields - Field names present on the collection
+ * @returns {ViewConfig} View config restricted to available fields
+ * @throws {Error} If the primary or a sort field is missing, or no fields remain
+ */
+export const buildViewConfig = (
+  collectionName,
+  viewConfig,
+  availableFields,
+) => {
+  const missingRequired = [viewConfig.primary, ...viewConfig.sort].filter(
+    notMemberOf(availableFields),
+  );
+  if (missingRequired.length > 0) {
+    throw new Error(
+      `View config for "${collectionName}" references missing fields: ${unique(missingRequired).join(", ")}`,
+    );
+  }
+
+  const fields = viewConfig.fields.filter(memberOf(availableFields));
+  if (fields.length === 0) {
+    throw new Error(
+      `View config for "${collectionName}" has no available fields`,
+    );
+  }
+
+  return { ...viewConfig, fields };
 };
 
 /**
  * Get validated view configuration for a collection
  * @param {string} collectionName - Name of the collection
  * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {ViewConfig | undefined} Validated view configuration or undefined
  */
-const getValidatedViewConfig = (collectionName, config, fieldContext) => {
-  const rawConfig = RAW_VIEW_CONFIGS[collectionName];
-  if (!rawConfig) return undefined;
+const getValidatedViewConfig = (collectionName, config) => {
+  const viewConfig = VIEW_CONFIGS[collectionName];
+  if (!viewConfig) return undefined;
 
-  const collectionFields = buildCollectionFields(
-    collectionName,
-    config,
-    fieldContext,
+  const collectionFields = buildCollectionFields(collectionName, config);
+  const availableFieldNames = compact(
+    collectionFields.map((field) => field.name),
   );
-  const availableFieldNames = collectionFields.map((f) => f.name);
 
-  return createValidatedViewConfig(rawConfig, availableFieldNames);
+  return buildViewConfig(collectionName, viewConfig, availableFieldNames);
 };
 
 /**
@@ -218,42 +170,30 @@ const DATE_FILENAME_COLLECTIONS = ["news"];
  * Generate configuration for a single collection
  * @param {string} collectionName - Name of the collection (must exist in COLLECTIONS)
  * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {CollectionConfig} Collection configuration
  */
-export const generateCollectionConfig = (
-  collectionName,
-  config,
-  fieldContext,
-) => {
+export const generateCollectionConfig = (collectionName, config) => {
   const collection = getCollection(collectionName, config.hasSrcFolder);
+  if (!collection) {
+    throw new Error(`Unknown collection "${collectionName}" in cms_config`);
+  }
 
-  const collectionConfig = {
+  const viewConfig = getValidatedViewConfig(collectionName, config);
+
+  return {
     name: collectionName,
     label: collection.label,
     path: collection.path,
     type: "collection",
-    subfolders: false,
+    // A translated site keeps each language in a folder (src/pages/es/), so
+    // editors browse into folders and add pages there; see directory-data.js
+    // for the folder-derived URL a new page gets.
+    subfolders: true,
     filename: memberOf(DATE_FILENAME_COLLECTIONS)(collectionName)
       ? "{year}-{month}-{day}-{name}.md"
       : "{name}.md",
     ...(collectionName === "snippets" && { exclude: ["README.md"] }),
+    ...(viewConfig && { view: viewConfig }),
+    fields: buildCollectionFields(collectionName, config),
   };
-
-  const viewConfig = getValidatedViewConfig(
-    collectionName,
-    config,
-    fieldContext,
-  );
-  if (viewConfig) {
-    collectionConfig.view = viewConfig;
-  }
-
-  collectionConfig.fields = buildCollectionFields(
-    collectionName,
-    config,
-    fieldContext,
-  );
-
-  return collectionConfig;
 };

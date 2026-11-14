@@ -1,0 +1,69 @@
+// jscpd:ignore-start -- shared @use import block
+@use "../variables" as *;
+@use "../mixins" as *;
+// jscpd:ignore-end
+
+// =============================================================================
+// CONTACT FORM
+// =============================================================================
+// The form on its own, or beside text when the block has content.
+
+.design-system {
+  // Anything before the form - text, or a quote - sits beside it
+  .contact-form-block:has(> * + .contact-form) {
+    @include two-column-split;
+
+    align-items: center;
+  }
+
+  .contact-form {
+    @include flex-col($space-md);
+
+    label,
+    legend {
+      font-weight: 600;
+    }
+
+    > label {
+      @include flex-col($space-xs);
+    }
+
+    input:not([type="radio"]),
+    textarea,
+    select {
+      @include input-base;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    small {
+      font-weight: 400;
+      color: var(--color-text-muted);
+    }
+
+    fieldset {
+      @include flex-wrap($space-sm);
+
+      padding: 0;
+      border: none;
+
+      label {
+        @include flex-row($space-xs, center);
+
+        font-weight: 400;
+      }
+
+      input {
+        accent-color: var(--color-link);
+      }
+    }
+
+    button {
+      @include button-primary;
+
+      align-self: flex-start;
+    }
+  }
+}

@@ -1,5 +1,7 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+// jscpd:ignore-end
 
 // =============================================================================
 // CTA
@@ -7,7 +9,7 @@
 
 .design-system {
   .cta {
-    @include flex-col($space-lg, center, center);
+    @include centered-col;
 
     border: none;
     text-align: center;
@@ -16,12 +18,15 @@
     @include brand-gradient;
     @include contrast-text-vars;
 
+    // The gradient card lives in a 1200px container; the prose measure keeps
+    // the text (heading and paragraphs) in one centered column inside it.
+    .prose {
+      max-width: $width-narrow;
+    }
+
     p {
       @include body-lg;
 
-      max-width: $width-narrow;
-      margin-right: auto;
-      margin-left: auto;
       opacity: 0.9;
     }
 
@@ -34,10 +39,7 @@
       border-color: var(--color-contrast-text);
       color: var(--color-contrast-text);
 
-      &:hover {
-        color: var(--color-link);
-        background: var(--color-contrast-text);
-      }
+      @include contrast-button-hover;
     }
   }
 }

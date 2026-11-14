@@ -20,6 +20,10 @@ export type {
 // =============================================================================
 // Eleventy Types
 // =============================================================================
+
+/** Build Awesome's official configuration API (Eleventy v4 UserConfig). */
+export type UserConfig = import("@awesome.me/buildawesome/UserConfig").default;
+
 export type {
   // Page data
   EleventyPageData,
@@ -32,6 +36,8 @@ export type {
 
   // Specific item data types
   ProductItemData,
+  ProductOption,
+  QuoteItem,
   CategoryItemData,
   EventItemData,
   ReviewItemData,
@@ -81,11 +87,6 @@ export type {
   PagesCMSFaq,
   PagesCMSFilterAttribute,
   PagesCMSOpeningTime,
-  // Extended types
-  ProductOption,
-  NormalizedProductOption,
-  ProductData,
-  CartAttributesParams,
 } from './content.d.ts';
 
 // =============================================================================

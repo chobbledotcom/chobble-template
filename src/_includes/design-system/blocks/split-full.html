@@ -4,9 +4,9 @@ Split full-width layout with two-tone background sections.
 Parameters (via block object):
   - block.variant: Color variant - "dark-left", "dark-right", "primary-left", "primary-right"
   - block.left_content: Content for left side, with markdown headings (rendered as markdown)
-  - block.left_button: Optional button { text, href, variant }
+  - block.left_button: Optional button { text, href, variant, size }
   - block.right_content: Content for right side, with markdown headings (rendered as markdown)
-  - block.right_button: Optional button { text, href, variant }
+  - block.right_button: Optional button { text, href, variant, size }
   - block.reveal_left: Animation for left side (e.g., "left")
   - block.reveal_right: Animation for right side (e.g., "right")
 {%- endcomment -%}
@@ -16,8 +16,7 @@ Parameters (via block object):
     <div class="stack"{% if block.reveal_left %} data-reveal="{{ block.reveal_left }}"{% endif %}>
       <div class="prose">{{ block.left_content | renderContent: "md" }}</div>
       {%- if block.left_button -%}
-        {%- assign left_variant = block.left_button.variant | default: "secondary" -%}
-        {%- include "design-system/button.html", text: block.left_button.text, href: block.left_button.href, variant: left_variant -%}
+        {%- include "design-system/button.html", text: block.left_button.text, href: block.left_button.href, variant: block.left_button.variant, btn_size: block.left_button.size -%}
       {%- endif -%}
     </div>
   </div>
@@ -25,8 +24,7 @@ Parameters (via block object):
     <div class="stack"{% if block.reveal_right %} data-reveal="{{ block.reveal_right }}"{% endif %}>
       <div class="prose">{{ block.right_content | renderContent: "md" }}</div>
       {%- if block.right_button -%}
-        {%- assign right_variant = block.right_button.variant | default: "secondary" -%}
-        {%- include "design-system/button.html", text: block.right_button.text, href: block.right_button.href, variant: right_variant -%}
+        {%- include "design-system/button.html", text: block.right_button.text, href: block.right_button.href, variant: block.right_button.variant, btn_size: block.right_button.size -%}
       {%- endif -%}
     </div>
   </div>

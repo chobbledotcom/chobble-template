@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import YAML from "yaml";
 import { compactYaml } from "#scripts/customise-cms/compact-yaml.js";
 

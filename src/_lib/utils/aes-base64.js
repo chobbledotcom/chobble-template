@@ -9,14 +9,16 @@ const NONCE_BYTES = 3;
 const BLOCK_BYTES = 16;
 const BITS_PER_BYTE = 8;
 
+/**
+ * The custom alphabet, indexable by symbol value: 0-9 → digits, 10-35 →
+ * lowercase, 36-61 → uppercase, 62 → "_", 63 → "-". One lookup replaces the
+ * value→char range if-chain.
+ */
+const BASE64_SYMBOLS =
+  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-";
+
 /** @param {number} value @returns {string} */
-const getSymbol = (value) => {
-  if (value < 10) return String.fromCharCode(48 + value);
-  if (value < 36) return String.fromCharCode(87 + value);
-  if (value < 62) return String.fromCharCode(29 + value);
-  if (value === 62) return "_";
-  return "-";
-};
+const getSymbol = (value) => BASE64_SYMBOLS.charAt(value);
 
 /** @param {number} code @returns {number} */
 const getValue = (code) => {

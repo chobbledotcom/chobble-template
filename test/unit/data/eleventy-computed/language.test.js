@@ -4,7 +4,7 @@
  * undefined.
  */
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import eleventyComputed from "#data/eleventyComputed.js";
 import { DE, EN, ABOUT_GROUP as GROUP } from "#test/fixtures/languages.js";
 

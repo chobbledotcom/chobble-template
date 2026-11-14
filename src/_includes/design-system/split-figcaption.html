@@ -1,0 +1,9 @@
+{%- comment -%}
+The optional visible caption under a split block's image or video.
+
+Expects:
+  block - the split block, whose figure_caption is the caption text
+{%- endcomment -%}
+{%- if block.figure_caption -%}
+  <figcaption>{{ block.figure_caption }}</figcaption>
+{%- endif -%}

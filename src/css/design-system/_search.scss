@@ -1,5 +1,7 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+// jscpd:ignore-end
 
 // =============================================================================
 // SEARCH
@@ -41,16 +43,14 @@
       @include body-base;
 
       &::placeholder {
-        color: var(--color-text-muted);
+        @include muted-text;
       }
     }
 
     button {
       cursor: pointer;
 
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include flex-center;
 
       margin: 0;
       padding: $space-sm $space-md;
@@ -60,9 +60,8 @@
       border-bottom-left-radius: 0;
 
       font-size: $font-size-base;
-      color: var(--color-contrast-text);
 
-      background: var(--color-link);
+      @include primary-panel;
 
       transition: background $transition-fast;
 
@@ -83,14 +82,14 @@
     @include body-base;
 
     margin: 0;
-    color: var(--color-text-muted);
+
+    @include muted-text;
   }
 
   .search-results-list {
     @include flex-col($space-md);
+    @include reset-spacing;
 
-    margin: 0;
-    padding: 0;
     list-style: none;
   }
 
@@ -133,10 +132,9 @@
     }
 
     p {
-      @include body-sm;
+      @include muted-body-sm;
 
       margin: 0;
-      color: var(--color-text-muted);
 
       mark {
         padding-inline: 2px;

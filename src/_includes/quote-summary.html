@@ -1,0 +1,29 @@
+{%- comment -%}
+The visitor's quote, beside the quote-form block's form. The quote lives in
+the visitor's browser, so public/quote.js fills in the rows, from the
+template, and the total; until it runs, and when the quote is empty, the
+empty message shows instead.
+
+Parameters:
+  - block: The quote-form block, whose optional content leads the summary
+{%- endcomment -%}
+<div class="quote-summary">
+  {%- if block.content -%}
+    {%- include "design-system/blocks/markdown.html" -%}
+  {%- endif -%}
+  <p class="quote-empty">Your quote is empty. Add products to it and they will appear here.</p>
+  <ul class="quote-items"></ul>
+  <p class="quote-total-row" hidden>Estimated total: <strong class="quote-total"></strong></p>
+  <template>
+    <li>
+      <span class="quote-item-name"></span>
+      <label>
+        Quantity
+        <input type="number" min="0" step="1" inputmode="numeric">
+      </label>
+      <span class="quote-item-price"></span>
+      <button type="button">Remove</button>
+    </li>
+  </template>
+  <script type="module" src="{{ '/assets/js/quote.js' | cacheBust }}"></script>
+</div>

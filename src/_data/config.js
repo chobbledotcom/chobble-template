@@ -2,27 +2,21 @@
 
 // Import validated-config to trigger validation at startup
 import "#config/validated-config.js";
-import {
-  DEFAULT_PRODUCT_DATA,
-  DEFAULTS,
-  getFormTarget,
-  getProducts,
-} from "#config/helpers.js";
-import { pickNonNull } from "#toolkit/fp/object.js";
+import { DEFAULTS } from "#config/config-schema.js";
+import { pickNonNull } from "#utils/fp/object.js";
 import configData from "./config.json" with { type: "json" };
 
-const products = { ...DEFAULT_PRODUCT_DATA, ...getProducts(configData) };
 const userConfig = pickNonNull(configData);
-const baseConfig = {
+// validated-config has checked every set value against #config/config-schema.js,
+// so the merged object is the declared type rather than the JSON's inference.
+const baseConfig = /** @type {Omit<SiteConfig, "internal_link_suffix">} */ ({
   ...DEFAULTS,
   ...userConfig,
-  products,
-};
+});
 
 /** @type {SiteConfig} */
 const config = {
   ...baseConfig,
-  form_target: getFormTarget(baseConfig),
   internal_link_suffix: baseConfig.navigation_content_anchor ? "#content" : "",
 };
 

@@ -1,33 +1,33 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { linkableContent } from "#utils/linkable-content.js";
 
 describe("linkableContent", () => {
   test("returns eleventyComputed with permalink for a known type", () => {
-    const result = linkableContent("event");
-    const data = { page: { fileSlug: "my-event" } };
-    expect(result.eleventyComputed.permalink(data)).toBe("/events/my-event/");
+    const result = linkableContent("news");
+    const data = { page: { fileSlug: "my-post" } };
+    expect(result.eleventyComputed.permalink(data)).toBe("/news/my-post/");
   });
 
   test("sets navigationParent from strings", () => {
-    const result = linkableContent("event");
-    expect(result.eleventyComputed.navigationParent()).toBe("Events");
+    const result = linkableContent("news");
+    expect(result.eleventyComputed.navigationParent()).toBe("News");
   });
 
   test("permalink respects existing data.permalink", () => {
-    const result = linkableContent("property");
+    const result = linkableContent("guide");
     const data = { permalink: "/custom/", page: { fileSlug: "ignored" } };
     expect(result.eleventyComputed.permalink(data)).toBe("/custom/");
   });
 
   test("permalink normalises bare slug from frontmatter", () => {
-    const result = linkableContent("property");
+    const result = linkableContent("guide");
     const data = { permalink: "my-custom-page", page: { fileSlug: "ignored" } };
     expect(result.eleventyComputed.permalink(data)).toBe("/my-custom-page/");
   });
 
   test("merges extra computed properties", () => {
     const extra = { myField: (data) => data.name };
-    const result = linkableContent("event", extra);
+    const result = linkableContent("news", extra);
     expect(result.eleventyComputed.myField({ name: "Hello" })).toBe("Hello");
   });
 
@@ -46,11 +46,8 @@ describe("linkableContent", () => {
 
   test("builds correct permalink for each content type", () => {
     const types = [
-      { type: "event", dir: "events" },
-      { type: "property", dir: "properties" },
       { type: "guide", dir: "guide" },
       { type: "news", dir: "news" },
-      { type: "menus", dir: "menus" },
     ];
     for (const { type, dir } of types) {
       const result = linkableContent(type);

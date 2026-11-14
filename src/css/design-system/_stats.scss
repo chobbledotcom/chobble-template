@@ -1,6 +1,8 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
 @use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
 
 // =============================================================================
 // STATS
@@ -9,13 +11,7 @@
 // <dt> (label) and <dd> with <strong> (value), visually reordered via flex
 
 .design-system {
-  dl.stats {
-    @include flex-wrap($space-xl);
-
-    justify-content: center;
-  }
-
-  // Also support legacy div.stats
+  dl.stats,
   div.stats {
     @include flex-wrap($space-xl);
 
@@ -33,7 +29,8 @@
       @include body-base;
 
       order: 1;
-      color: var(--color-text-muted);
+
+      @include muted-text;
     }
 
     dd {

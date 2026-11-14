@@ -1,16 +1,7 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { data } from "#test/test-utils.js";
-import {
-  compareBy,
-  compareStrings,
-  descending,
-  orderThenString,
-} from "#toolkit/fp/sorting.js";
-import {
-  sortByDateDescending,
-  sortItems,
-  sortNavigationItems,
-} from "#utils/sorting.js";
+import { compareBy, orderThenString } from "#utils/fp/sorting.js";
+import { sortByDateDescending, sortItems } from "#utils/sorting.js";
 
 // ============================================
 // Curried Data Factories
@@ -18,9 +9,6 @@ import {
 
 /** Item factory for order/name sorting */
 const orderedItem = data({})("name", "order");
-
-/** Navigation item factory */
-const navItem = data({})("eleventyNavigation", "name");
 
 // Generic helper: sort items and assert extracted values match expected
 const expectSortedValues = (items, comparator, extractor, expected) =>
@@ -131,40 +119,8 @@ describe("sorting", () => {
   });
 
   // ============================================
-  // descending Tests
+  // orderThenString Tests
   // ============================================
-  test("descending reverses ascending comparator to sort descending", () => {
-    const items = [{ age: 10 }, { age: 30 }, { age: 20 }];
-    const byAgeAsc = compareBy((item) => item.age);
-    const byAgeDesc = descending(byAgeAsc);
-    const sorted = [...items].sort(byAgeDesc);
-    expect(sorted.map((i) => i.age)).toEqual([30, 20, 10]);
-  });
-
-  test("descending preserves 0 for equal values", () => {
-    const byValue = compareBy((item) => item.value);
-    const byValueDesc = descending(byValue);
-    const a = { value: 5 };
-    const b = { value: 5 };
-    expect(byValueDesc(a, b)).toBe(0);
-  });
-
-  test("descending can be applied to custom comparators", () => {
-    const byLength = (a, b) => a.length - b.length;
-    const byLengthDesc = descending(byLength);
-    const items = ["a", "aaa", "aa"];
-    const sorted = [...items].sort(byLengthDesc);
-    expect(sorted).toEqual(["aaa", "aa", "a"]);
-  });
-
-  test("compareStrings sorts strings alphabetically", () => {
-    expect(["cherry", "apple", "banana"].sort(compareStrings)).toEqual([
-      "apple",
-      "banana",
-      "cherry",
-    ]);
-  });
-
   test("orderThenString sorts by numeric key then string key", () => {
     const items = [
       { priority: 2, label: "zeta" },
@@ -184,62 +140,6 @@ describe("sorting", () => {
       { priority: 1, label: "beta" },
       { priority: 2, label: "zeta" },
       { priority: 3, label: "omega" },
-    ]);
-  });
-
-  // ============================================
-  // sortNavigationItems Tests
-  // ============================================
-  // Common extractor for nav key
-  const extractNavKey = (i) => i.data.eleventyNavigation.key;
-
-  test("sortNavigationItems sorts by eleventyNavigation.order ascending", () => {
-    const items = navItem(
-      [{ order: 3, key: "C" }, "Item C"],
-      [{ order: 1, key: "A" }, "Item A"],
-      [{ order: 2, key: "B" }, "Item B"],
-    );
-    expectSortedValues(items, sortNavigationItems, extractNavKey, [
-      "A",
-      "B",
-      "C",
-    ]);
-  });
-
-  test("sortNavigationItems falls back to key when orders are equal", () => {
-    const items = navItem(
-      [{ order: 1, key: "Zebra" }, "Z"],
-      [{ order: 1, key: "Apple" }, "A"],
-      [{ order: 1, key: "Mango" }, "M"],
-    );
-    expectSortedValues(items, sortNavigationItems, extractNavKey, [
-      "Apple",
-      "Mango",
-      "Zebra",
-    ]);
-  });
-
-  test("sortNavigationItems defaults missing order to 999", () => {
-    const items = navItem(
-      [{ key: "NoOrder" }, "No Order"],
-      [{ order: 1, key: "First" }, "F"],
-      [{ order: 500, key: "Middle" }, "M"],
-    );
-    expectSortedValues(items, sortNavigationItems, extractNavKey, [
-      "First",
-      "Middle",
-      "NoOrder",
-    ]);
-  });
-
-  test("sortNavigationItems falls back to title when key is missing", () => {
-    const items = navItem(
-      [{ order: 1 }, "Zebra Title"],
-      [{ order: 1 }, "Apple Title"],
-    );
-    expectSortedValues(items, sortNavigationItems, (i) => i.data.name, [
-      "Apple Title",
-      "Zebra Title",
     ]);
   });
 });

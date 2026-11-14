@@ -5,9 +5,14 @@ The frontend search script populates the inner elements.
 {%- endcomment -%}
 
 <div data-pagefind-ignore>
-  <div id="search-results">
+  <div
+    id="search-results"
+    data-no-results-label="{{ pageLanguage.no_results_label }}"
+    data-result-count-one-label="{{ pageLanguage.result_count_one_label }}"
+    data-result-count-other-label="{{ pageLanguage.result_count_other_label }}"
+  >
     <p class="search-message"></p>
     <ul class="search-results-list"></ul>
-    <button class="search-load-more btn btn--secondary" hidden>Load more</button>
+    <button class="search-load-more btn btn--secondary" hidden>{{ pageLanguage.load_more_label }}</button>
   </div>
 </div>

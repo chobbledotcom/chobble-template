@@ -1,12 +1,12 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   buildConfigFromCli,
-  formatCollection,
   generateHelp,
   getCliOptions,
   handleListOptions,
   hasCliFlags,
 } from "#scripts/customise-cms/cli.js";
+import { captureConsole } from "#test/test-utils.js";
 
 describe("hasCliFlags", () => {
   test("returns false for empty values", () => {
@@ -20,10 +20,10 @@ describe("hasCliFlags", () => {
   });
 
   test.each([
-    ["collections", { collections: "pages,products" }],
+    ["collections", { collections: "pages,news" }],
     ["all", { all: true }],
     ["enable", { enable: "faqs" }],
-    ["disable", { disable: "use_visual_editor" }],
+    ["disable", { disable: "faqs" }],
     ["dry-run", { "dry-run": true }],
     ["quiet", { quiet: true }],
     ["regenerate", { regenerate: true }],
@@ -37,23 +37,23 @@ describe("buildConfigFromCli", () => {
   test("--all enables all collections and features", () => {
     const config = buildConfigFromCli({ all: true });
 
-    expect(config.collections.length).toBeGreaterThan(10);
+    expect(config.collections.length).toBeGreaterThanOrEqual(5);
     expect(config.features.permalinks).toBe(true);
     expect(config.features.faqs).toBe(true);
     expect(config.features.galleries).toBe(true);
   });
 
   test("always includes required collections", () => {
-    const config = buildConfigFromCli({ collections: "products" });
+    const config = buildConfigFromCli({ collections: "news" });
 
     expect(config.collections).toContain("pages");
     expect(config.collections).toContain("snippets");
   });
 
   test("resolves dependencies for requested collections", () => {
-    const config = buildConfigFromCli({ collections: "products,news,events" });
+    const config = buildConfigFromCli({ collections: "guide-pages,news" });
 
-    expect(config.collections).toContain("categories");
+    expect(config.collections).toContain("guide-categories");
   });
 
   test("starts with all features disabled without --all", () => {
@@ -61,7 +61,6 @@ describe("buildConfigFromCli", () => {
 
     expect(config.features.permalinks).toBe(false);
     expect(config.features.faqs).toBe(false);
-    expect(config.features.use_visual_editor).toBe(false);
   });
 
   test("--enable selectively enables features", () => {
@@ -73,17 +72,17 @@ describe("buildConfigFromCli", () => {
     expect(config.features).toMatchObject({
       faqs: true,
       galleries: true,
-      use_visual_editor: false,
+      permalinks: false,
     });
   });
 
   test("--disable selectively disables features from --all", () => {
     const config = buildConfigFromCli({
       all: true,
-      disable: "use_visual_editor,faqs",
+      disable: "permalinks,faqs",
     });
 
-    expect(config.features.use_visual_editor).toBe(false);
+    expect(config.features.permalinks).toBe(false);
     expect(config.features.faqs).toBe(false);
     expect(config.features.galleries).toBe(true);
   });
@@ -113,25 +112,10 @@ describe("buildConfigFromCli", () => {
     expect(withSrc.hasSrcFolder).toBe(true);
   });
 
-  test("--custom-home and --no-custom-home control customHomePage", () => {
-    const custom = buildConfigFromCli({
-      collections: "pages",
-      "custom-home": true,
-    });
-    const noCustom = buildConfigFromCli({
-      collections: "pages",
-      "no-custom-home": true,
-    });
-
-    expect(custom.customHomePage).toBe(true);
-    expect(noCustom.customHomePage).toBe(false);
-  });
-
-  test("defaults hasSrcFolder to true and customHomePage to false", () => {
+  test("defaults hasSrcFolder to true", () => {
     const config = buildConfigFromCli({ collections: "pages" });
 
     expect(config.hasSrcFolder).toBe(true);
-    expect(config.customHomePage).toBe(false);
   });
 
   test("--custom-blocks-collections parses comma-separated list", () => {
@@ -151,11 +135,11 @@ describe("buildConfigFromCli", () => {
 
   test("handles whitespace in comma-separated values", () => {
     const config = buildConfigFromCli({
-      collections: " products , news ",
+      collections: " guide-categories , news ",
       enable: " faqs , galleries ",
     });
 
-    expect(config.collections).toContain("products");
+    expect(config.collections).toContain("guide-categories");
     expect(config.collections).toContain("news");
     expect(config.features.faqs).toBe(true);
   });
@@ -205,7 +189,7 @@ describe("generateHelp", () => {
   test("includes usage, options, collections, features, and examples", () => {
     const help = generateHelp();
 
-    expect(help).toContain("Usage:");
+    expect(help).toContain("Usage: npm run customise-cms -- [options]");
     expect(help).toContain("--collections");
     expect(help).toContain("pages");
     expect(help).toContain("permalinks");
@@ -213,36 +197,16 @@ describe("generateHelp", () => {
   });
 });
 
-describe("formatCollection", () => {
-  test("formats name and description", () => {
-    const result = formatCollection({
-      name: "products",
-      description: "Products for sale",
+describe("handleListOptions output", () => {
+  test("collection listing shows names, flags, and descriptions", () => {
+    const lines = captureConsole(() => {
+      handleListOptions({ "list-collections": true });
     });
 
-    expect(result).toContain("products");
-    expect(result).toContain("Products for sale");
-  });
-
-  test("includes required flag when present", () => {
-    const result = formatCollection({
-      name: "pages",
-      description: "Static pages",
-      required: true,
-    });
-
-    expect(result).toContain("(required)");
-  });
-
-  test("includes both required and internal flags", () => {
-    const result = formatCollection({
-      name: "snippets",
-      description: "Reusable content",
-      required: true,
-      internal: true,
-    });
-
-    expect(result).toContain("(required, internal)");
+    const output = lines.join("\n");
+    expect(output).toContain("pages (required)");
+    expect(output).toContain("snippets (required, internal)");
+    expect(output).toContain("Blog posts and news articles");
   });
 });
 

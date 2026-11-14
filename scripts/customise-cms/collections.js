@@ -6,13 +6,10 @@
  * - label: Display label in CMS
  * - path: Path to content files
  * - description: Human-readable description for prompts
- * - supportsFeatures: Whether collection can have features list
- * - supportsGallery: Whether collection can have image gallery
- * - supportsAddOns: Whether collection can have add-ons
  * - dependencies: Other collections this one requires
  */
 
-import { filter, unique } from "#toolkit/fp/array.js";
+import { filter, unique } from "#utils/fp/array.js";
 
 /**
  * @typedef {Object} CollectionDefinition
@@ -20,10 +17,7 @@ import { filter, unique } from "#toolkit/fp/array.js";
  * @property {string} label - Display label in CMS
  * @property {string} path - Path to content files
  * @property {string} description - Human-readable description for prompts
- * @property {boolean} supportsFeatures - Whether collection can have features list
- * @property {boolean} supportsGallery - Whether collection can have image gallery
- * @property {boolean} supportsAddOns - Whether collection can have add-ons
- * @property {string[]} [dependencies] - Other collections this one requires
+ * @property {string[]} dependencies - Collections this one requires (empty when none)
  * @property {boolean} [required] - Whether collection is required (cannot be disabled)
  * @property {boolean} [internal] - Whether collection is internal (not shown to users)
  */
@@ -38,131 +32,43 @@ export const COLLECTIONS = [
     label: "Pages",
     path: "src/pages",
     description: "Static pages (about, contact, etc.)",
-    supportsFeatures: false,
-    supportsGallery: true,
-    supportsAddOns: false,
+    dependencies: [],
     required: true,
-  },
-  {
-    name: "products",
-    label: "Products",
-    path: "src/products",
-    description: "Products for sale or hire",
-    supportsFeatures: true,
-    supportsGallery: true,
-    supportsAddOns: true,
-    dependencies: ["categories"],
-  },
-  {
-    name: "categories",
-    label: "Categories",
-    path: "src/categories",
-    description: "Product/content categories",
-    supportsFeatures: false,
-    supportsGallery: true,
-    supportsAddOns: false,
   },
   {
     name: "news",
     label: "News",
     path: "src/news",
     description: "Blog posts and news articles",
-    supportsFeatures: false,
-    supportsGallery: true,
-    supportsAddOns: false,
+    dependencies: [],
   },
   {
-    name: "events",
-    label: "Events",
-    path: "src/events",
-    description: "Events and recurring activities",
-    supportsFeatures: false,
-    supportsGallery: true,
-    supportsAddOns: false,
-  },
-  {
-    name: "team",
-    label: "Team",
-    path: "src/team",
-    description: "Team member profiles",
-    supportsFeatures: false,
-    supportsGallery: true,
-    supportsAddOns: false,
-  },
-  {
-    name: "reviews",
-    label: "Reviews",
-    path: "src/reviews",
-    description: "Customer reviews and testimonials",
-    supportsFeatures: false,
-    supportsGallery: false,
-    supportsAddOns: false,
-  },
-  {
-    name: "properties",
-    label: "Properties",
-    path: "src/properties",
-    description: "Holiday lets or rental properties",
-    supportsFeatures: true,
-    supportsGallery: true,
-    supportsAddOns: false,
+    name: "products",
+    label: "Products",
+    path: "src/products",
+    description: "Products visitors can add to a quote",
+    dependencies: [],
   },
   {
     name: "guide-categories",
     label: "Guide Categories",
     path: "src/guide-categories",
     description: "Categories for organizing guide pages",
-    supportsFeatures: false,
-    supportsGallery: true,
-    supportsAddOns: false,
+    dependencies: [],
   },
   {
     name: "guide-pages",
     label: "Guide Pages",
     path: "src/guide-pages",
     description: "Individual guide/documentation pages",
-    supportsFeatures: false,
-    supportsGallery: true,
-    supportsAddOns: false,
     dependencies: ["guide-categories"],
-  },
-  {
-    name: "menus",
-    label: "Menus",
-    path: "src/menus",
-    description: "Restaurant/cafe menus",
-    supportsFeatures: false,
-    supportsGallery: true,
-    supportsAddOns: false,
-  },
-  {
-    name: "menu-categories",
-    label: "Menu Categories",
-    path: "src/menu-categories",
-    description: "Menu section categories",
-    supportsFeatures: false,
-    supportsGallery: true,
-    supportsAddOns: false,
-    dependencies: ["menus"],
-  },
-  {
-    name: "menu-items",
-    label: "Menu Items",
-    path: "src/menu-items",
-    description: "Individual menu items",
-    supportsFeatures: false,
-    supportsGallery: true,
-    supportsAddOns: false,
-    dependencies: ["menu-categories"],
   },
   {
     name: "snippets",
     label: "Snippets",
     path: "src/snippets",
     description: "Reusable content snippets",
-    supportsFeatures: false,
-    supportsGallery: false,
-    supportsAddOns: false,
+    dependencies: [],
     internal: true,
     required: true,
   },
@@ -204,9 +110,15 @@ export const getRequiredCollections = () =>
   filter((c) => c.required)(COLLECTIONS);
 
 /**
- * Get direct dependencies for a collection (empty array if none)
+ * Get direct dependencies for a collection. Every definition carries an
+ * explicit dependencies array, so an unknown name fails loudly here.
+ * @param {string} name
  */
-const getCollectionDeps = (name) => getCollection(name)?.dependencies || [];
+const getCollectionDeps = (name) => {
+  const collection = getCollection(name);
+  if (!collection) throw new Error(`Unknown collection "${name}"`);
+  return collection.dependencies;
+};
 
 /**
  * Get all dependencies for selected collections (recursive expansion)

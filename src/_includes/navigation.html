@@ -1,28 +1,39 @@
-<nav>
+{%- comment -%}
+  The site header. Its menu lists the navigation pages written in this page's
+  language, marks the current page with aria-current, and collapses behind a
+  toggle button where config.collapse_menu asks ("mobile", "always", or
+  "never"). The toggle and close buttons ship hidden and the menu expanded;
+  ui/site-menu.js reveals the buttons and collapses the menu, so without
+  JavaScript the links are simply there. A site with no navigation pages gets
+  no menu at all. navigation-start.html and navigation-end.html are the site's
+  own slots before and after the menu; quote-link.html sits before the latter.
+{%- endcomment -%}
+{%- assign navItems = collections.navigationLinks | inLanguage: pageLanguage | eleventyNavigation -%}
+{%- assign activeKey = page.navigationParent | default: eleventyNavigation.key | default: navigationParent -%}
+{%- assign menuHtml = navItems | toNavigation: activeKey, pageLanguage.search_label, page.url -%}
+<nav
+  class="site-nav"
+  aria-label="{{ pageLanguage.navigation_label }}"
+  data-collapse="{{ config.collapse_menu }}"
+  data-submenu-label="{{ pageLanguage.submenu_label }}"
+>
   {%- include "navigation-start.html" -%}
-  {%- if config.sticky_mobile_nav -%}
-    <input
-      type="checkbox"
-      id="nav-toggle"
-      class="toggle"
-      autocomplete="off"
-      aria-label="Toggle navigation menu"
-    >
-    <label
-      for="nav-toggle"
-      class="toggle-label"
-      aria-hidden="true"
-    >
-      <span></span>
-    </label>
+  {%- if menuHtml != "" -%}
+    {%- if config.collapse_menu != "never" -%}
+      <button type="button" class="menu-toggle" aria-controls="site-menu" aria-expanded="false" hidden>
+        <span class="menu-toggle-icon" aria-hidden="true"></span>
+        {{ pageLanguage.menu_label }}
+      </button>
+    {%- endif -%}
+    <div class="site-menu" id="site-menu">
+      {%- if config.collapse_menu != "never" -%}
+        <button type="button" class="menu-close" aria-label="{{ pageLanguage.close_menu_label }}" hidden>
+          {{- "hugeicons:cancel-01" | icon -}}
+        </button>
+      {%- endif -%}
+      {{- menuHtml -}}
+    </div>
   {%- endif -%}
-  {%- assign navItems = collections.navigationLinks | eleventyNavigation -%}
-  {%- if page and page.navigationParent -%}
-    {{ navItems | toNavigation: page.navigationParent -}}
-  {%- elsif eleventyNavigation and eleventyNavigation.key -%}
-    {{- navItems | toNavigation: eleventyNavigation.key -}}
-  {%- else -%}
-    {{- navItems | toNavigation: navigationParent -}}
-  {%- endif -%}
+  {%- include "quote-link.html" -%}
   {%- include "navigation-end.html" -%}
 </nav>

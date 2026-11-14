@@ -7,10 +7,10 @@
 		"**/_site/**",
 		"**/package-lock.json",
 		"**/.test-sites/**",
-		"**/page-layouts/**",
-		"**/packages/**/index.js",
 		"**/marquee-images.html",
-		"**/src/assets/**"
+		"**/src/assets/**",
+		"**/theme-*.scss",
+		"**/_fonts.scss"
 	],
 	"format": ["javascript", "markup", "css", "scss"],
 	"ignorePattern": ["import.*from"],
@@ -19,5 +19,6 @@
 	"exitCode": 1,
 	"minLines": 1,
 	"minTokens": 32,
+	"maxGapLines": 3,
 	"path": ["src", "test", "scripts", ".eleventy.js"]
 }

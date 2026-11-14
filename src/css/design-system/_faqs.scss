@@ -1,8 +1,69 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
 
 .design-system {
   .faqs {
     @include faqs-list;
+  }
+
+  // collapsible: true - one row per question, separated by hairlines, with a
+  // chevron that turns when the answer is open. Native <details>, no JS.
+  .faqs--collapsible {
+    gap: 0;
+  }
+
+  .faqs__item {
+    border-bottom: var(--border);
+  }
+
+  .faqs__question {
+    @include heading-sm;
+
+    cursor: pointer;
+
+    display: flex;
+    gap: $space-md;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-block: $space-md;
+
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::after {
+      content: "";
+
+      transform: rotate(45deg);
+
+      flex: none;
+
+      padding: 3px;
+      border: solid currentcolor;
+      border-width: 0 2px 2px 0;
+
+      transition: transform $transition-normal;
+    }
+  }
+
+  .faqs__item[open] > .faqs__question::after {
+    transform: rotate(-135deg);
+  }
+
+  .faqs__answer {
+    padding-block-end: $space-md;
+    color: var(--color-text-muted);
+  }
+
+  @include breakpoint.reduced-motion {
+    .faqs__question::after {
+      transition: none;
+    }
   }
 }

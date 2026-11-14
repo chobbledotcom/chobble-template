@@ -1,0 +1,109 @@
+// jscpd:ignore-start -- shared @use import block
+@use "../variables" as *;
+@use "../mixins" as *;
+// jscpd:ignore-end
+
+// =============================================================================
+// QUOTE
+// =============================================================================
+// The visitor's quote: the header link to it, a product's add-to-quote
+// button, and the quote-form block's summary beside its form.
+
+.design-system {
+  nav.site-nav .quote-link {
+    @include flex-row($space-xs, center);
+    @include link-plain;
+
+    font-weight: 600;
+
+    &[hidden] {
+      display: none;
+    }
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  .quote-count {
+    @include flex-center;
+
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding-inline: $space-xs;
+    border-radius: 0.75rem;
+
+    font-size: $font-size-sm;
+    color: var(--color-contrast-text);
+
+    background: var(--color-link);
+  }
+
+  .add-to-quote {
+    @include flex-row-wrap($space-sm);
+
+    select {
+      @include input-base;
+
+      width: auto;
+    }
+
+    button {
+      @include button-primary;
+    }
+
+    a[hidden] {
+      display: none;
+    }
+  }
+
+  .quote-form-block {
+    align-items: start;
+  }
+
+  .quote-form-block .contact-form[hidden],
+  .quote-summary [hidden] {
+    display: none;
+  }
+
+  .quote-summary {
+    @include flex-col($space-md);
+  }
+
+  .quote-items {
+    @include flex-col($space-sm);
+
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      @include flex-row-wrap($space-sm);
+      @include box-border;
+
+      align-items: center;
+      padding: $space-sm $space-md;
+    }
+
+    .quote-item-name {
+      flex: 1 1 12rem;
+      font-weight: 600;
+    }
+
+    label {
+      @include flex-row($space-xs);
+      @include body-sm;
+    }
+
+    input {
+      @include input-base;
+
+      width: 4.5rem;
+    }
+
+    button {
+      @include button-ghost;
+    }
+  }
+}

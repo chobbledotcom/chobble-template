@@ -1,13 +1,13 @@
 ---
-name: Quote Request
-meta_description: Review the items in your quote request
-meta_title: Quote Request
+name: Your Quote
+meta_title: Your Quote
+meta_description: Review the products in your quote and send the request.
+permalink: /quote/
 no_index: true
 blocks:
-  - type: markdown
+  - type: quote-form
     content: |
-      ## Review Your Items
+      # Your Quote
 
-      Please review the items below before continuing to submit your enquiry.
-  - type: quote-cart
+      Check the products and quantities, tell us your dates, and send the request - we will confirm the price and availability.
 ---

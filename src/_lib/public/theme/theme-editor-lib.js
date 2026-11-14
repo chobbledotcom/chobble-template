@@ -21,13 +21,11 @@ import {
   compact,
   filter,
   filterMap,
-  flatMap,
-  join,
   map,
   pipe,
   split,
-} from "#toolkit/fp/array.js";
-import { fromPairs, frozenObject } from "#toolkit/fp/object.js";
+} from "#utils/fp/array.js";
+import { fromPairs, frozenObject } from "#utils/fp/object.js";
 
 export const SCOPES = ["header", "nav", "article", "form", "button"];
 
@@ -66,14 +64,14 @@ export function parseThemeContent(themeContent) {
   const rootMatch = themeContent.match(/:root\s*\{([^}]*)\}/s);
   const classesMatch = themeContent.match(/\/\* body_classes: (.+) \*\//);
 
-  const getScopePattern = (scope) =>
-    scope === "button"
-      ? /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/
-      : new RegExp(`(?:^|[\\s;{}])${scope}\\s*\\{([^}]*)\\}`, "s");
-  const parsedScopePairs = flatMap((scope) => {
-    const match = themeContent.match(getScopePattern(scope));
+  const parsedScopePairs = SCOPES.flatMap((scope) => {
+    const pattern =
+      scope === "button"
+        ? /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/
+        : new RegExp(`(?:^|[\\s;{}])${scope}\\s*\\{([^}]*)\\}`, "s");
+    const match = themeContent.match(pattern);
     return match ? [[scope, parseCssBlock(match[1])]] : [];
-  })(SCOPES);
+  });
 
   return {
     root: rootMatch ? parseCssBlock(rootMatch[1]) : {},
@@ -113,38 +111,22 @@ export function parseBorderValue(borderValue) {
  * @returns {string} - Generated theme CSS
  */
 export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
-  const formatCssLine = ([varName, value]) => {
-    const cssVar = varName.startsWith("--") ? varName : `--${varName}`;
-    return `  ${cssVar}: ${value};`;
-  };
-
-  const rootBlock = pipe(
-    Object.entries,
-    map(formatCssLine),
-    join("\n"),
-    (lines) => `:root {\n${lines}\n}`,
-  )(globalVars);
-
-  const buildCssBlock = (selector, vars) =>
-    pipe(
-      Object.entries,
-      map(([varName, value]) => `  ${varName}: ${value};`),
-      join("\n"),
-      (lines) => `${selector} {\n${lines}\n}`,
-    )(vars);
-
-  const scopeHasVars = (scopeVars) => (scope) =>
-    scopeVars[scope] && Object.keys(scopeVars[scope]).length > 0;
-
-  const scopeBlocks = filterMap(scopeHasVars(scopeVars), (scope) =>
-    buildCssBlock(SCOPE_SELECTORS[scope], scopeVars[scope]),
+  const rootLines = Object.entries(globalVars)
+    .map(([varName, value]) => {
+      const cssVar = varName.startsWith("--") ? varName : `--${varName}`;
+      return `  ${cssVar}: ${value};`;
+    })
+    .join("\n");
+  const scopeBlocks = filterMap(
+    (scope) => scopeVars[scope] && Object.keys(scopeVars[scope]).length > 0,
+    (scope) => {
+      const lines = Object.entries(scopeVars[scope])
+        .map(([varName, value]) => `  ${varName}: ${value};`)
+        .join("\n");
+      return `${SCOPE_SELECTORS[scope]} {\n${lines}\n}`;
+    },
   )(SCOPES);
-
-  const cssOutput = pipe(
-    join("\n\n"),
-    (s) => `${s}\n`,
-  )([rootBlock, ...scopeBlocks]);
-
+  const cssOutput = `${[`:root {\n${rootLines}\n}`, ...scopeBlocks].join("\n\n")}\n`;
   return bodyClasses?.length > 0
     ? `${cssOutput}\n/* body_classes: ${bodyClasses.join(", ")} */`
     : cssOutput;
@@ -221,18 +203,6 @@ export const inputToScopedEntry = (docStyle) => (input) => {
 };
 
 /**
- * Toggle a body class and return the value if active
- * @param {HTMLElement} el - The select element
- * @param {boolean} enabled - Whether the control is enabled
- * @returns {Function} (value) => value or null
- */
-const toggleClassAndReturn = (el, enabled) => (value) => {
-  const isActive = value === el.value && enabled;
-  document.body.classList.toggle(value, isActive);
-  return isActive ? value : null;
-};
-
-/**
  * Collect active class values from a select element
  * @param {Function} formEl - Form element selector function
  * @returns {Function} (el) => array of active class names
@@ -243,7 +213,11 @@ export const collectActiveClasses = (formEl) => (el) => {
     Array.from,
     map((o) => o.value),
     filter((v) => v !== ""),
-    map(toggleClassAndReturn(el, enabled)),
+    map((value) => {
+      const isActive = value === el.value && enabled;
+      document.body.classList.toggle(value, isActive);
+      return isActive ? value : null;
+    }),
     compact,
   )(el.querySelectorAll("option"));
 };

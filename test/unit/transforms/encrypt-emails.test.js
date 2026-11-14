@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { wrapHtml } from "#test/test-utils.js";
 import { encryptEmails, hasMailtoLinks } from "#transforms/encrypt-emails.js";
 import { loadDOM } from "#utils/lazy-dom.js";

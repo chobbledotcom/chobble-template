@@ -1,0 +1,77 @@
+name: Fetch Reviews
+
+# Collects new reviews from the sources in the `review_sources` setting,
+# commits them to src/reviews/, and rebuilds the site when there are any.
+# A site with no review sources configured stores nothing and needs no token.
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fetch-reviews:
+    name: Fetch Reviews
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      ref: ${{ steps.commit.outputs.ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Fetch reviews
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+        run: |
+          npm ci
+          npm run fetch-reviews
+
+      - name: Commit new reviews
+        id: commit
+        run: |
+          git add src/reviews src/images/reviewers
+          if git diff --cached --quiet; then
+            echo "No new reviews"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Add new reviews"
+          git push
+          echo "ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  # A push made with the workflow's own token starts no other workflow, so
+  # the shared build is called directly, on the commit that holds the new
+  # reviews. See build-and-deploy.yaml for how it is called.
+  deploy:
+    name: Deploy
+    needs: [fetch-reviews]
+    if: needs.fetch-reviews.outputs.ref != ''
+    permissions:
+      contents: read
+      deployments: write
+    uses: chobbledotcom/chobble-client/.github/workflows/shared-build-and-deploy.yml@main
+    with:
+      standalone: true
+      runs-on: ubuntu-latest
+      ref: ${{ needs.fetch-reviews.outputs.ref }}
+    secrets:
+      BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
+      BUNNY_PRODUCTION_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_PRODUCTION_STORAGE_ZONE_NAME }}
+      BUNNY_STAGING_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_STAGING_STORAGE_ZONE_NAME }}
+      FORMSPARK_ID: ${{ secrets.FORMSPARK_ID }}
+      BOTPOISON_PUBLIC_KEY: ${{ secrets.BOTPOISON_PUBLIC_KEY }}
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}

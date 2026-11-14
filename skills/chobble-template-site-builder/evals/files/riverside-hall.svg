@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="title desc">
+  <title id="title">Riverside Rooms hall</title>
+  <desc id="desc">An illustrated hall with tables arranged for a group activity</desc>
+  <rect width="800" height="450" fill="#e8e4da" />
+  <path d="M80 90h640v280H80z" fill="#f8f6ef" stroke="#274c3b" stroke-width="12" />
+  <path d="M120 130h120v100H120zm440 0h120v100H560z" fill="#bdd1c7" />
+  <path d="M245 280h310v45H245z" fill="#b48845" />
+  <path d="M280 325v55m240-55v55" stroke="#274c3b" stroke-width="14" />
+  <circle cx="320" cy="260" r="34" fill="#d0a96b" />
+  <circle cx="480" cy="260" r="34" fill="#d0a96b" />
+</svg>

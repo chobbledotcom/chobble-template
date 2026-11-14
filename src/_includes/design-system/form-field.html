@@ -1,0 +1,42 @@
+{%- comment -%}
+One field of a contact form. Each control sits inside its label, so labels
+need no ids and a page can hold more than one form.
+
+Parameters:
+  - field: A field of the contact-form block: label, name, type, required,
+    and optional placeholder, note, options, and rows
+{%- endcomment -%}
+{%- case field.type -%}
+  {%- when "heading" -%}
+    <h3>{{ field.label }}</h3>
+    {%- if field.note -%}<p>{{ field.note }}</p>{%- endif -%}
+  {%- when "radio" -%}
+    <fieldset>
+      <legend>{{ field.label }}</legend>
+      {%- if field.note -%}<small>{{ field.note }}</small>{%- endif -%}
+      {%- for option in field.options -%}
+        <label>
+          <input type="radio" name="{{ field.name }}" value="{{ option }}"{% if field.required %} required{% endif %}>
+          {{ option }}
+        </label>
+      {%- endfor -%}
+    </fieldset>
+  {%- else -%}
+    <label>
+      {{ field.label }}
+      {%- case field.type -%}
+        {%- when "textarea" -%}
+          <textarea name="{{ field.name }}" rows="{{ field.rows }}"{% if field.placeholder %} placeholder="{{ field.placeholder }}"{% endif %}{% if field.required %} required{% endif %}></textarea>
+        {%- when "select" -%}
+          <select name="{{ field.name }}"{% if field.required %} required{% endif %}>
+            <option value="" disabled selected>Select an option</option>
+            {%- for option in field.options -%}
+              <option value="{{ option }}">{{ option }}</option>
+            {%- endfor -%}
+          </select>
+        {%- else -%}
+          <input type="{{ field.type }}" name="{{ field.name }}"{% if field.placeholder %} placeholder="{{ field.placeholder }}"{% endif %}{% if field.required %} required{% endif %}>
+      {%- endcase -%}
+      {%- if field.note -%}<small>{{ field.note }}</small>{%- endif -%}
+    </label>
+{%- endcase -%}

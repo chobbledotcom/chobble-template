@@ -1,223 +1,186 @@
 #!/usr/bin/env node
 /**
- * Strict typecheck ratchet - prevents strict type error regressions
+ * Strict typecheck ratchet - prevents strict type error regressions.
  *
- * Runs tsc --strict across the project and ensures:
- * 1. Total error count does not exceed the current baseline
- * 2. Files that are currently strict-clean do not gain errors
+ * Runs `tsc -p tsconfig.strict.json` and compares the reported errors
+ * against the per-file baseline below:
+ *   - files not listed must stay strict-clean (new files start clean)
+ *   - a listed file must not exceed its baseline count
+ *   - fewer errors than the baseline also fails, printing the corrected
+ *     baseline ready to paste, so every win is locked in
  *
- * When you fix strict errors, lower CURRENT_ERROR_COUNT and add
- * any newly-clean files to STRICT_CLEAN_FILES.
+ * The baseline is the complete map of remaining strict debt. It is empty:
+ * the whole codebase is strict-clean, and every file must stay that way.
  */
 
-import { spawnSync } from "node:child_process";
-import { ROOT_DIR } from "#lib/paths.js";
+import { runIfMain } from "#scripts/lib/is-main-module.js";
+import { printRatchetPassed } from "#scripts/lib/ratchet.js";
+import { runToolCapture } from "#scripts/lib/run-tool.js";
+import { frozenObject } from "#utils/fp/object.js";
 
-// Current baseline - lower this as you fix errors
-const CURRENT_ERROR_COUNT = 343;
+const STRICT_ERROR_BASELINE = frozenObject({});
 
-// Files that currently pass strict mode (must not regress)
-const STRICT_CLEAN_FILES = [
-  "packages/js-toolkit/code-quality/index.js",
-  "packages/js-toolkit/code-quality/runner.js",
-  "packages/js-toolkit/code-quality/scanner.js",
-  "packages/js-toolkit/fp/grouping.js",
-  "packages/js-toolkit/fp/index.js",
-  "packages/js-toolkit/fp/memoize.js",
-  "packages/js-toolkit/fp/object.js",
-  "packages/js-toolkit/fp/set.js",
-  "packages/js-toolkit/fp/sorting.js",
-  "packages/js-toolkit/test-utils/assertions.js",
-  "packages/js-toolkit/test-utils/code-analysis.js",
-  "packages/js-toolkit/test-utils/index.js",
-  "packages/js-toolkit/test-utils/mocking.js",
-  "packages/js-toolkit/test-utils/resource.js",
-  "src/_data/altTagsLookup.js",
-  "src/_data/body-classes.js",
-  "src/_data/config.js",
-  "src/_data/contact-form.js",
-  "src/_data/dietaryIndicators.js",
-  "src/_data/eleventyComputed.js",
-  "src/_data/listItemFields.js",
-  "src/_data/metaComputed.js",
-  "src/_data/production.js",
-  "src/_data/propertyOrder.js",
-  "src/_data/quote-fields.js",
-  "src/_data/selectors.js",
-  "src/_data/site.js",
-  "src/_data/strings.js",
-  "src/_lib/build/build-mode.js",
-  "src/_lib/build/css-variable-validator.js",
-  "src/_lib/build/js-bundler.js",
-  "src/_lib/build/theme-compiler.js",
-  "src/_lib/collections/guides.js",
-  "src/_lib/collections/navigation.js",
-  "src/_lib/collections/tags.js",
-  "src/_lib/collections/thumbnail-resolvers.js",
-  "src/_lib/config/form-helpers.js",
-  "src/_lib/config/helpers.js",
-  "src/_lib/config/list-config.js",
-  "src/_lib/config/site-config.js",
-  "src/_lib/eleventy/add-data-filter.js",
-  "src/_lib/eleventy/cache-buster.js",
-  "src/_lib/eleventy/canonical-url.js",
-  "src/_lib/eleventy/file-info.js",
-  "src/_lib/eleventy/format-price.js",
-  "src/_lib/eleventy/git-dates.js",
-  "src/_lib/eleventy/ical.js",
-  "src/_lib/eleventy/js-config.js",
-  "src/_lib/eleventy/layout-aliases.js",
-  "src/_lib/eleventy/opening-times.js",
-  "src/_lib/eleventy/recurring-events.js",
-  "src/_lib/eleventy/video.js",
-  "src/_lib/filters/filter-core.js",
-  "src/_lib/filters/spec-filters.js",
-  "src/_lib/media/image-cache-output.js",
-  "src/_lib/media/image-crop.js",
-  "src/_lib/media/image-frontmatter.js",
-  "src/_lib/media/image-placeholder.js",
-  "src/_lib/media/inline-asset.js",
-  "src/_lib/paths.js",
-  "src/_lib/transforms/images.js",
-  "src/_lib/transforms/linkify.js",
-  "src/_lib/transforms/responsive-tables.js",
-  "src/_lib/utils/canonical-url.js",
-  "src/_lib/utils/console.js",
-  "src/_lib/utils/dietary-utils.js",
-  "src/_lib/utils/dom-builder.js",
-  "src/_lib/utils/format-price.js",
-  "src/_lib/utils/git-dates.js",
-  "src/_lib/utils/lazy-dom.js",
-  "src/_lib/utils/linkable-content.js",
-  "src/_lib/utils/liquid-render.js",
-  "src/_lib/utils/math-utils.js",
-  "src/_lib/utils/mock-filter-attributes.js",
-  "src/_lib/utils/navigation-utils.js",
-  "src/_lib/utils/block-schema.js",
-  "src/_lib/utils/product-cart-data.js",
-  "src/_lib/utils/slug-utils.js",
-  "src/_lib/utils/sorting.js",
-  "src/_lib/utils/thumbnail-finder.js",
-  "src/_lib/utils/video.js",
-  "src/categories/categories.11tydata.js",
-  "src/events/events.11tydata.js",
-  "src/guide-categories/guide-categories.11tydata.js",
-  "src/guide-pages/guide-pages.11tydata.js",
-  "src/locations/locations.11tydata.js",
-  "src/menu-categories/menu-categories.11tydata.js",
-  "src/menu-items/menu-items.11tydata.js",
-  "src/menus/menus.11tydata.js",
-  "src/news/news.11tydata.js",
-  "src/pages/pages.11tydata.js",
-  "src/products/products.11tydata.js",
-  "src/properties/properties.11tydata.js",
-  "src/reviews/reviews.11tydata.js",
+/** Matches one `path(line,col): error TScode: message` diagnostic line. */
+const ERROR_LINE = /^(.+?)\(\d+,\d+\): error TS\d+: /;
+
+/**
+ * Append one diagnostic line to its file's bucket.
+ * @param {Map<string, string[]>} errorsByFile
+ * @param {string} file
+ * @param {string} line
+ */
+const recordError = (errorsByFile, file, line) => {
+  const existing = errorsByFile.get(file);
+  if (existing) existing.push(line);
+  else errorsByFile.set(file, [line]);
+};
+
+/**
+ * Group tsc diagnostic lines by the file they point at.
+ * An "error TS" line with no file prefix is a project-level failure (bad
+ * tsconfig, missing dependency), not type debt - those throw instead of
+ * counting against the baseline.
+ * @param {string} output
+ * @returns {Map<string, string[]>}
+ */
+export const parseErrorsByFile = (output) => {
+  const errorsByFile = new Map();
+  for (const line of output.split("\n")) {
+    const match = line.match(ERROR_LINE);
+    if (match) {
+      recordError(errorsByFile, match[1], line);
+    } else if (line.includes("error TS")) {
+      throw new Error(`tsc reported a project-level error: ${line}`);
+    }
+  }
+  return errorsByFile;
+};
+
+/**
+ * Compare actual per-file error counts against the baseline.
+ * Also covers baseline entries for deleted or no-longer-checked files:
+ * they report zero actual errors, so they surface as improvements and
+ * force a baseline update.
+ * @param {Map<string, string[]>} errorsByFile
+ * @param {Record<string, number>} baseline
+ */
+export const compareToBaseline = (errorsByFile, baseline) => {
+  const files = new Set([...errorsByFile.keys(), ...Object.keys(baseline)]);
+  const compared = [...files].sort().map((file) => {
+    const lines = errorsByFile.get(file);
+    return {
+      file,
+      actual: lines ? lines.length : 0,
+      allowed: file in baseline ? baseline[file] : 0,
+    };
+  });
+  return {
+    regressions: compared.filter(({ actual, allowed }) => actual > allowed),
+    improvements: compared.filter(({ actual, allowed }) => actual < allowed),
+  };
+};
+
+/**
+ * Render the ready-to-paste baseline literal for the current errors.
+ * @param {Map<string, string[]>} errorsByFile
+ */
+export const formatBaseline = (errorsByFile) => {
+  const entries = [...errorsByFile.entries()]
+    .map(([file, lines]) => `  "${file}": ${lines.length},`)
+    .sort()
+    .join("\n");
+  return `const STRICT_ERROR_BASELINE = frozenObject({\n${entries}\n});`;
+};
+
+/**
+ * @param {{ file: string, actual: number, allowed: number }[]} regressions
+ * @param {Map<string, string[]>} errorsByFile
+ * @returns {string[]}
+ */
+export const describeRegressions = (regressions, errorsByFile) => [
+  `\n❌ Strict type errors above baseline in ${regressions.length} file(s):`,
+  ...regressions.flatMap(({ file, actual, allowed }) => {
+    const lines = errorsByFile.get(file);
+    if (!lines) throw new Error(`No recorded errors for ${file}`);
+    return [
+      `\n   ${file}: ${actual} error(s), baseline ${allowed}`,
+      ...lines.map((line) => `      ${line}`),
+    ];
+  }),
+  "\n   Fix the new errors (JSDoc annotations usually suffice) -",
+  "   the baseline only ever goes down.",
 ];
 
-const result = spawnSync(
-  "bun",
-  [
-    "run",
+/**
+ * @param {{ file: string, actual: number, allowed: number }[]} improvements
+ * @param {Map<string, string[]>} errorsByFile
+ * @returns {string[]}
+ */
+export const describeImprovements = (improvements, errorsByFile) => [
+  `\n🎉 Strict errors dropped below baseline in ${improvements.length} file(s):`,
+  ...improvements.map(
+    ({ file, actual, allowed }) =>
+      `   ${file}: ${actual} (baseline ${allowed})`,
+  ),
+  "\n   Lock the win in - replace STRICT_ERROR_BASELINE in",
+  "   scripts/strict-typecheck-ratchet.js with:\n",
+  formatBaseline(errorsByFile),
+];
+
+/**
+ * Run the strict tsc project and return its combined output.
+ * A non-zero exit with no diagnostics means tsc itself broke - throw
+ * rather than reporting a clean ratchet.
+ */
+export const runStrictTsc = () => {
+  const { status, output } = runToolCapture("npx", [
     "tsc",
     "--noEmit",
     "-p",
     "tsconfig.strict.json",
+    "--pretty",
+    "false",
     "--incremental",
     "--tsBuildInfoFile",
     "tsconfig.strict.tsbuildinfo",
-  ],
-  {
-    cwd: ROOT_DIR,
-    stdio: ["inherit", "pipe", "pipe"],
-  },
-);
-
-const output = `${result.stdout?.toString() || ""}${result.stderr?.toString() || ""}`;
-const fullOutput = output.split("\n");
-const errorLines = fullOutput.filter((line) => line.includes("error TS"));
-const errorCount = errorLines.length;
-
-// Parse errors by file with full details
-const errorsByFile = new Map();
-for (const line of errorLines) {
-  const fileMatch = line.match(/^([^:]+):/);
-  if (fileMatch) {
-    const file = fileMatch[1];
-    if (!errorsByFile.has(file)) {
-      errorsByFile.set(file, []);
-    }
-    errorsByFile.get(file).push(line);
+  ]);
+  if (status !== 0 && !output.includes("error TS")) {
+    throw new Error(`tsc exited ${status} without diagnostics:\n${output}`);
   }
-}
+  return output;
+};
 
-// Extract files with errors
-const filesWithErrors = new Set(errorsByFile.keys());
-
-// Check for regressions in clean files
-const regressions = STRICT_CLEAN_FILES.filter((file) =>
-  filesWithErrors.has(file),
-);
-
-let failed = false;
-
-// Check total error count
-if (errorCount > CURRENT_ERROR_COUNT) {
-  const newErrorCount = errorCount - CURRENT_ERROR_COUNT;
-  console.error(
-    `\n❌ Strict typecheck ratchet failed: ${errorCount} errors (limit: ${CURRENT_ERROR_COUNT})`,
+/**
+ * Run the ratchet against a baseline (the real one by default; tests
+ * inject a small one) and report, exiting non-zero on any mismatch.
+ * @param {Record<string, number>} [baseline]
+ */
+export const main = (baseline = STRICT_ERROR_BASELINE) => {
+  const errorsByFile = parseErrorsByFile(runStrictTsc());
+  const { regressions, improvements } = compareToBaseline(
+    errorsByFile,
+    baseline,
   );
-  console.error(`   You've introduced ${newErrorCount} new untyped error(s).`);
-  console.error("");
-  console.error("   📝 What to do:");
-  console.error(
-    "   1. Review the errors below and add proper TypeScript types",
-  );
-  console.error("   2. Consider using 'unknown' instead of implicit 'any'");
-  console.error("   3. Add JSDoc type annotations if needed");
-  console.error("   4. Update CURRENT_ERROR_COUNT when done fixing errors");
-  console.error("");
-  console.error(
-    "   🔍 All errors in non-strict files (review to find what changed):",
-  );
-  for (const [file, errors] of errorsByFile) {
-    if (!STRICT_CLEAN_FILES.includes(file)) {
-      console.error(`\n      ${file}`);
-      for (const error of errors) {
-        console.error(`      ${error}`);
-      }
-    }
+  const problems = [
+    ...(regressions.length > 0
+      ? describeRegressions(regressions, errorsByFile)
+      : []),
+    ...(improvements.length > 0
+      ? describeImprovements(improvements, errorsByFile)
+      : []),
+  ];
+  if (problems.length > 0) {
+    console.error(problems.join("\n"));
+    process.exit(1);
   }
-  failed = true;
-} else if (errorCount < CURRENT_ERROR_COUNT) {
-  console.log(
-    `\n🎉 Strict errors decreased: ${errorCount} (was ${CURRENT_ERROR_COUNT})`,
-  );
-  console.log(
-    `   Update CURRENT_ERROR_COUNT to ${errorCount} in scripts/strict-typecheck-ratchet.js`,
-  );
-}
 
-// Check clean file regressions
-if (regressions.length > 0) {
-  console.error("\n❌ These strict-clean files gained errors (regressions):");
-  for (const file of regressions) {
-    console.error(`\n   ${file}`);
-    const errors = errorsByFile.get(file) || [];
-    for (const error of errors) {
-      console.error(`   ${error}`);
-    }
-  }
-  console.error("");
-  console.error(
-    "   ⚠️  Fix these regressions immediately - they were previously strict-clean.",
+  const total = [...errorsByFile.values()].reduce(
+    (sum, lines) => sum + lines.length,
+    0,
   );
-  failed = true;
-}
+  printRatchetPassed(
+    `Strict typecheck ratchet passed: ${total} known errors across ${errorsByFile.size} files, everything else strict-clean`,
+  );
+};
 
-if (failed) {
-  process.exit(1);
-} else {
-  console.log(
-    `\n✅ Strict typecheck ratchet passed: ${errorCount} errors (limit: ${CURRENT_ERROR_COUNT}), ${STRICT_CLEAN_FILES.length} clean files protected`,
-  );
-}
+await runIfMain(import.meta.url, main);

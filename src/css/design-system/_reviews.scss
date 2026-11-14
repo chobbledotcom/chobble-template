@@ -1,88 +1,63 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
 @use "../breakpoints" as breakpoint;
+// jscpd:ignore-end
 
 // =============================================================================
-// REVIEWS GRID
+// REVIEWS
 // =============================================================================
+// Review cards inside an items grid, slider or masonry layout. The card
+// itself is styled by _items.scss; this lays out what a review holds.
 
 .design-system {
-  .reviews-grid {
-    // Cap at 2 columns even on wide screens
-    @include breakpoint.up("lg") {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  .items.reviews > li {
+    @include flex-col($space-sm);
 
-    // Compact variant: auto-fit with 330px minimum (use on item pages)
-    &--compact {
-      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-    }
-
-    > li {
-      @include card($space-md, $radius-lg);
-      @include flex-col($space-sm);
-
-      @include breakpoint.down("md") {
-        text-align: center;
-      }
-    }
+    padding: $space-md;
 
     .review-header {
       @include flex-between;
+
+      time {
+        @include body-sm;
+
+        color: var(--color-text-muted);
+      }
     }
 
     .rating {
-      font-size: $font-size-lg;
+      color: var(--color-link);
+      letter-spacing: 0.1em;
     }
 
-    .date {
-      @include body-sm;
-
-      margin-inline-start: auto;
-      color: var(--color-text-muted);
-    }
-
+    // A long review scrolls inside its card rather than stretching the row
     .review {
       overflow-y: auto;
       max-height: 160px;
-
-      p {
-        padding-inline: 0 !important;
-      }
-    }
-
-    .products {
-      flex: 1;
-
-      @include body-sm;
-
-      font-style: italic;
-      color: var(--color-text-muted);
-
-      a {
-        @include link-plain;
-      }
     }
 
     .author-info {
-      @include flex-row($space-sm, flex-start);
+      @include flex-row($space-sm, center);
 
       margin-block-start: auto;
+    }
 
-      @include breakpoint.down("md") {
-        flex-direction: column;
-        align-items: center;
-      }
+    .reviewer-avatar {
+      @include flex-center;
 
-      .reviewer-avatar {
-        flex-shrink: 0;
+      flex-shrink: 0;
 
-        width: 40px;
-        height: 40px;
-        border-radius: $radius-full;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
 
-        object-fit: cover;
-      }
+      font-weight: 600;
+      color: var(--color-contrast-text);
+      text-transform: uppercase;
+
+      object-fit: cover;
+      background: var(--color-link);
     }
 
     .author-details {
@@ -93,7 +68,6 @@
 
     .name {
       font-weight: 600;
-      color: var(--color-text);
     }
 
     .review-link {

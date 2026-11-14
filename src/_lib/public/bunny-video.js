@@ -1,29 +1,29 @@
-// Bunny CDN video background support
-// Uses player.js to detect playback start and fade out thumbnail placeholders.
-// Only loaded on pages that use the bunny-video-background block.
-
+// Bunny Stream video backgrounds, loaded only by pages that hold one.
+// player.js talks to the Bunny player inside the iframe, so the thumbnail
+// covering it can fade out once the video is actually playing.
 import playerjs from "player.js";
 import { onReady } from "#public/utils/on-ready.js";
-import { eachVideoBackground } from "#public/utils/video-background.js";
 
-const init = () => {
-  eachVideoBackground("[data-bunny-video]", ({ iframe, thumbnail }) => {
-    const player = new playerjs.Player(iframe);
-
-    // Module scripts are deferred until after DOM parsing, so the iframe
-    // may have already loaded and emitted its player.js "ready" event.
-    // Force loaded so the "addEventListener ready" command reaches the
-    // iframe, which will re-emit "ready" if already initialized.
+/**
+ * Start every Bunny background on the page and hide its thumbnail when it
+ * plays.
+ */
+export const initBunnyVideos = () => {
+  for (const container of document.querySelectorAll(
+    ".design-system [data-bunny-video]",
+  )) {
+    const thumbnail = container.querySelector(".video-background__thumbnail");
+    const player = new playerjs.Player(container.querySelector("iframe"));
+    // This script runs after the page is parsed, so the iframe may already
+    // have announced it is ready. Marking the player loaded sends the
+    // request for "ready" straight away, and the iframe announces it again.
     player.loaded = true;
-
     player.on("ready", () => {
-      player.on("play", () => {
-        thumbnail.classList.add("is-hidden");
-      });
+      player.on("play", () => thumbnail.classList.add("is-hidden"));
       player.mute();
       player.play();
     });
-  });
+  }
 };
 
-onReady(init);
+onReady(initBunnyVideos);

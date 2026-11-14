@@ -7,7 +7,8 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { SRC_DIR } from "#lib/paths.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoize } from "#utils/fp/memoize.js";
+import { isExternalUrl } from "#utils/url-utils.js";
 
 // Memoize the file existence check since the same images are checked repeatedly
 const checkImageExists = memoize(
@@ -16,53 +17,25 @@ const checkImageExists = memoize(
 );
 
 /**
- * Validates an image path from frontmatter.
- * Returns true for valid external URLs or existing local files.
- * Throws an error if a local file path is provided but doesn't exist.
- *
- * @param {string | undefined} imagePath - Image path to validate
- * @param {string} baseDir - Base src directory (defaults to SRC_DIR)
- * @returns {boolean} True if image is valid (external URL or exists on disk)
- * @throws {Error} If local file path doesn't exist
- */
-export const isValidImage = (imagePath, baseDir = SRC_DIR) => {
-  if (!imagePath || imagePath.trim() === "") return false;
-  if (imagePath.indexOf("http") === 0) return true;
-
-  // Remove leading slash and strip "src/" prefix if present
-  const relativePath = imagePath.replace(/^\//, "").replace(/^src\//, "");
-  const fullPath = join(baseDir, relativePath);
-
-  if (checkImageExists(fullPath)) return true;
-
-  throw new Error(`Image file not found: ${fullPath}`);
-};
-
-/**
- * Normalize a frontmatter image path to an absolute site URL path.
- * Keeps external URLs unchanged.
- *
- * @param {string | undefined | null} imagePath
- * @returns {string | undefined | null}
- */
-export const toAbsoluteImageUrl = (imagePath) => {
-  if (imagePath == null) return imagePath;
-  if (typeof imagePath !== "string") return imagePath;
-  if (imagePath.trim() === "") return imagePath;
-  if (imagePath.indexOf("http") === 0) return imagePath;
-  if (imagePath.startsWith("/")) return imagePath;
-  if (imagePath.startsWith("src/"))
-    return `/${imagePath.replace(/^src\//, "")}`;
-  if (imagePath.startsWith("images/")) return `/${imagePath}`;
-  return `/images/${imagePath}`;
-};
-
-/**
  * Returns the first valid image from an array of candidates.
  *
- * @param {(string | undefined)[]} candidates - Array of image paths to check
+ * @param {(string | null | undefined)[]} candidates - Array of image paths to check
  * @param {string} baseDir - Base src directory (defaults to SRC_DIR)
  * @returns {string | undefined} First valid image path, or undefined if none found
+ * @throws {Error} If a local candidate doesn't exist before a valid image is found
  */
 export const getFirstValidImage = (candidates, baseDir = SRC_DIR) =>
-  candidates.find((path) => isValidImage(path, baseDir));
+  candidates.find(
+    /** @returns {imagePath is string} */ (imagePath) => {
+      if (!imagePath || imagePath.trim() === "") return false;
+      if (isExternalUrl(imagePath)) return true;
+
+      // Remove leading slash and strip "src/" prefix if present
+      const relativePath = imagePath.replace(/^\//, "").replace(/^src\//, "");
+      const fullPath = join(baseDir, relativePath);
+
+      if (checkImageExists(fullPath)) return true;
+
+      throw new Error(`Image file not found: ${fullPath}`);
+    },
+  );

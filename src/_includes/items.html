@@ -1,28 +1,26 @@
+{%- comment -%}
+A list of cards, as a grid, a horizontal slider or a masonry layout.
+
+Parameters:
+  - items: The collection items to render
+  - horizontal: If true, renders as a horizontal slider
+  - masonry: If true, renders as a masonry grid
+  - reviews: If true, the items are reviews and render as review cards
+  - image_aspect_ratio: Aspect ratio for item thumbnails
+{%- endcomment -%}
 {%- if items.size > 0 -%}
-{%- assign firstItemTags = items[0].data.tags -%}
-{%- assign isReviewCollection = firstItemTags contains "reviews" -%}
+{%- capture _list_class -%}items{% if reviews %} reviews{% endif %}{% if horizontal %} slider{% elsif masonry %} masonry{% endif %}{%- endcapture -%}
 {%- if horizontal -%}
 <div class="slider-container">
-  <ul class="items slider{% if isReviewCollection %} reviews-grid{% if compact %} reviews-grid--compact{% endif %}{% endif %}">
-{%- elsif masonry -%}
-<ul class="items masonry{% if isReviewCollection %} reviews-grid{% if compact %} reviews-grid--compact{% endif %}{% endif %}">
-{%- elsif isReviewCollection -%}
-<ul class="grid reviews-grid{% if compact %} reviews-grid--compact{% endif %}">
-{%- else -%}
-<ul class="items">
 {%- endif -%}
-{%- if isReviewCollection -%}
-  {%- assign product_links = true -%}
-  {%- for review in items -%}
-    {%- if review.content != "" -%}
-      {%- include "reviews-list-item.html", review: review, product_links: product_links -%}
-    {%- endif -%}
-  {%- endfor -%}
-{%- else -%}
-  {%- for item in items -%}
+<ul class="{{ _list_class }}">
+{%- for item in items -%}
+  {%- if reviews -%}
+    {%- include "review-list-item.html", review: item -%}
+  {%- else -%}
     {%- include "list-item.html", image_aspect_ratio: image_aspect_ratio -%}
-  {%- endfor -%}
-{%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
 </ul>
 {%- if horizontal -%}
   {% include "slider-nav.html" %}

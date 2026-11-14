@@ -1,0 +1,36 @@
+{%- comment -%}
+One review as a card: its rating and date, the reviewer's words, then who
+wrote it and a link back to where they wrote it.
+
+Parameters:
+  - review: An item from the reviews collection
+{%- endcomment -%}
+<li>
+  <div class="review-header">
+    <span class="rating" role="img" aria-label="{{ review.data.rating }} out of 5 stars">
+      {%- for _star in (1..review.data.rating) -%}★{%- endfor -%}
+    </span>
+    <time datetime="{{ review.date | date: "%Y-%m-%d" }}">{{ review.date | date: "%b %Y" }}</time>
+  </div>
+  <div class="review">{{ review.content }}</div>
+  <div class="author-info">
+    {%- if review.data.avatar -%}
+      <img class="reviewer-avatar" src="{{ review.data.avatar }}" alt="" width="40" height="40" loading="lazy">
+    {%- else -%}
+      <span class="reviewer-avatar" aria-hidden="true">{{ review.data.name | slice: 0 }}</span>
+    {%- endif -%}
+    <div class="author-details">
+      <span class="name">{{ review.data.name }}</span>
+      {%- if review.data.url -%}
+        <a href="{{ review.data.url }}" class="review-link" rel="nofollow noopener">
+          {%- case review.data.source -%}
+            {%- when "google" -%}View on Google
+            {%- when "facebook" -%}View on Facebook
+            {%- when "trustpilot" -%}View on Trustpilot
+            {%- else -%}View review
+          {%- endcase -%}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</li>

@@ -1,7 +1,6 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
-import path from "node:path";
 import { runInternalLinkCheck } from "#scripts/internal-links.js";
+import { runOutputCheck } from "#scripts/lib/run-output-check.js";
 
-const outputDir = path.resolve(process.argv[2] || "_site");
-process.exit(runInternalLinkCheck(outputDir));
+await runOutputCheck(runInternalLinkCheck);

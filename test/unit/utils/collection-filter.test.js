@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { filterItems } from "#utils/collection-filter.js";
 
 const makeItems = (...urls) =>

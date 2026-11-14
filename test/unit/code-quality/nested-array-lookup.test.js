@@ -22,15 +22,15 @@
  *   const categoryById = indexBy((c) => c.id)(categories);
  *   products.map((p) => ({ ...p, category: categoryById[p.categoryId] }));
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   assertNoViolations,
+  combineFileLists,
   isCommentLine,
   readSource,
   removeStrings,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 // Match .find( or .filter( — the array lookup methods that suggest linear scans
 const LOOKUP_PATTERN = /\.(?:find|filter)\s*\(/;
@@ -46,7 +46,7 @@ const ITERATION_CONTEXT_PATTERNS = [
   /\.reduce\s*\(/, // .reduce() callback
 ];
 
-// Curried toolkit function patterns: map(, flatMap(, reduce( without a dot
+// Curried fp function patterns: map(, flatMap(, reduce( without a dot
 const CURRIED_ITERATION_PATTERNS = [/(?:^|[^\w.])(?:map|flatMap|reduce)\s*\(/];
 
 // Detect expression arrow (=> without a following {) on iteration lines
@@ -77,17 +77,6 @@ const hasNestedLookupInParens = (cleaned) => {
     return opens - closes > 0;
   });
 };
-
-/**
- * Pre-existing violations surfaced by the expression-arrow detection fix.
- * These are genuine O(n*m) patterns or sub-collection filters in code that
- * predates the scanner improvement. Each should be fixed and removed.
- */
-const KNOWN_VIOLATIONS = frozenSet([
-  "src/_lib/eleventy/pdf.js:61",
-  "src/_lib/utils/block-columns.js:181",
-  "src/_lib/utils/block-schema.js:358",
-]);
 
 /**
  * Scan source code for .find()/.filter() calls nested inside iteration
@@ -386,11 +375,12 @@ describe("nested-array-lookup", () => {
   });
 
   test("No nested array lookups in source files", () => {
-    const violations = SRC_JS_FILES()
-      .flatMap((file) =>
-        findNestedLookups(readSource(file)).map(toViolation(file)),
-      )
-      .filter((v) => !KNOWN_VIOLATIONS.has(`${v.file}:${v.line}`));
+    const violations = combineFileLists([
+      SRC_JS_FILES(),
+      SCRIPT_JS_FILES(),
+    ]).flatMap((file) =>
+      findNestedLookups(readSource(file)).map(toViolation(file)),
+    );
 
     assertNoViolations(violations, {
       singular: "nested array lookup",

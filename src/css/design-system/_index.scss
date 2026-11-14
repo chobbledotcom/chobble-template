@@ -18,10 +18,12 @@
 
 // Core
 @forward "base";
+@forward "skip-link";
 @forward "navigation";
 
 // Content
 @forward "prose";
+@forward "table-of-contents";
 
 // Components
 @forward "icon";
@@ -39,30 +41,24 @@
 @forward "page-columns";
 @forward "slider";
 @forward "items";
-@forward "reviews";
 @forward "code-block";
 @forward "footer";
-@forward "video-background";
 @forward "image-background";
-@forward "contact-form-block";
+@forward "video-background";
+@forward "reviews";
+@forward "contact-form";
+@forward "quote";
 @forward "search";
-@forward "property";
 @forward "guide";
 @forward "theme-switcher";
-@forward "cart-icon";
-@forward "cart";
-@forward "quote-cart";
-@forward "freetobook";
 @forward "iframe-embed";
-@forward "buy-options";
-@forward "add-to-cart-block";
 @forward "link-button";
 @forward "link-columns";
 @forward "icon-links";
 @forward "downloads";
 @forward "marquee-images";
-@forward "menu";
 @forward "faqs";
+@forward "table-of-contents";
 
 // Utilities (last to allow overrides)
 @forward "utilities";

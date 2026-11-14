@@ -1,13 +1,5 @@
-import { describe, expect, test } from "bun:test";
-import { collectItemErrors, validateItem } from "#utils/validate-item.js";
-
-/** Run collectItemErrors on a tagged page with a single block and return errors */
-const errorsForBlock = (blockType, blockData) =>
-  collectItemErrors({
-    name: "My Page",
-    tags: ["pages"],
-    blocks: [{ type: blockType, ...blockData }],
-  });
+import { describe, expect, test } from "vitest";
+import { collectItemErrors } from "#utils/validate-item.js";
 
 describe("collectItemErrors", () => {
   test("returns empty array when name is present", () => {
@@ -16,35 +8,8 @@ describe("collectItemErrors", () => {
     ).toEqual([]);
   });
 
-  test("returns error when an untagged page is missing name", () => {
-    const errors = collectItemErrors({ subtitle: "A plain page" });
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('missing required "name" field');
-  });
-
-  test("returns empty array for an untagged utility template without name", () => {
-    expect(
-      collectItemErrors({
-        subtitle: "A utility page",
-        eleventyExcludeFromCollections: true,
-      }),
-    ).toEqual([]);
-  });
-
-  test("returns empty array for a permalink-false partial without name", () => {
-    expect(
-      collectItemErrors({ subtitle: "A snippet", permalink: false }),
-    ).toEqual([]);
-  });
-
-  test("still requires a name when a tagged item opts out of output", () => {
-    const errors = collectItemErrors({
-      tags: ["products"],
-      subtitle: "A product",
-      permalink: false,
-    });
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('missing required "name" field');
+  test("returns empty array for untagged utility templates without name", () => {
+    expect(collectItemErrors({ subtitle: "A utility page" })).toEqual([]);
   });
 
   test("returns empty array for excluded pagination templates without name", () => {
@@ -82,104 +47,13 @@ describe("collectItemErrors", () => {
     ).toEqual([]);
   });
 
-  test("returns empty array for block types without named object-list fields", () => {
+  test("leaves block validation to the shared block-schema validator", () => {
     expect(
       collectItemErrors({
         name: "My Item",
         tags: ["pages"],
-        blocks: [{ type: "markdown", content: "Hello" }],
+        blocks: [{ type: "markdown" }],
       }),
     ).toEqual([]);
-  });
-
-  test("returns error for features block item missing name", () => {
-    const errors = errorsForBlock("features", {
-      items: [
-        { icon: "star", name: "Good Feature", description: "Works" },
-        { icon: "heart", description: "Missing name" },
-      ],
-    });
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('"features"');
-    expect(errors[0]).toContain('"items[1]"');
-    expect(errors[0]).toContain('"name"');
-  });
-
-  test("returns error for features block item missing multiple fields", () => {
-    const errors = errorsForBlock("features", {
-      items: [{ name: "Good", icon: "star", description: "Desc" }, {}],
-    });
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('"name"');
-  });
-
-  test("returns error for video-cards block video missing name", () => {
-    const errors = errorsForBlock("video-cards", {
-      videos: [{ id: "abc123", name: "Good Video" }, { id: "xyz789" }],
-    });
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('"video-cards"');
-    expect(errors[0]).toContain('"videos[1]"');
-  });
-
-  test("aggregates multiple missing name errors across blocks", () => {
-    const data = {
-      name: "My Page",
-      tags: ["pages"],
-      blocks: [
-        {
-          type: "features",
-          items: [{ description: "no name 1" }, { description: "no name 2" }],
-        },
-        { type: "image-cards", items: [{ image: "/img.jpg" }] },
-      ],
-    };
-    expect(collectItemErrors(data)).toHaveLength(3);
-  });
-});
-
-describe("validateItem", () => {
-  test("does not throw when item has name and valid blocks", () => {
-    expect(() =>
-      validateItem({
-        name: "Valid Item",
-        tags: ["pages"],
-        blocks: [{ type: "markdown", content: "Hello" }],
-      }),
-    ).not.toThrow();
-  });
-
-  test("throws when an untagged page is missing name", () => {
-    expect(() => validateItem({ subtitle: "A plain page" })).toThrow(
-      'missing required "name" field',
-    );
-  });
-
-  test("throws when tagged item is missing name", () => {
-    expect(() =>
-      validateItem({ tags: ["pages"], subtitle: "No name" }, " in test.md"),
-    ).toThrow('missing required "name" field');
-  });
-
-  test("throws when nested block item is missing name", () => {
-    expect(() =>
-      validateItem({
-        name: "My Page",
-        tags: ["pages"],
-        blocks: [{ type: "features", items: [{ icon: "star" }] }],
-      }),
-    ).toThrow('"features"');
-  });
-
-  test("throws all errors at once when multiple names are missing", () => {
-    expect(() =>
-      validateItem({
-        tags: ["pages"],
-        blocks: [
-          { type: "features", items: [{ description: "no name" }] },
-          { type: "video-cards", videos: [{ id: "abc" }] },
-        ],
-      }),
-    ).toThrow(/Item is missing required[\s\S]*"features"[\s\S]*"video-cards"/);
   });
 });

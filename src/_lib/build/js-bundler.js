@@ -1,9 +1,17 @@
+import { build } from "esbuild";
+
+/**
+ * @param {string} name
+ * @param {boolean} isDevelopment
+ * @param {import("esbuild").BuildOptions} [options]
+ */
 const buildBundle = (name, isDevelopment, options = {}) =>
-  Bun.build({
-    entrypoints: [`src/_lib/public/${name}.js`],
-    outdir: "_site/assets/js",
-    naming: `${name}.js`,
-    target: "browser",
+  build({
+    entryPoints: [`src/_lib/public/${name}.js`],
+    outfile: `_site/assets/js/${name}.js`,
+    bundle: true,
+    format: "esm",
+    platform: "browser",
     sourcemap: "linked",
     minify: !isDevelopment,
     ...options,
@@ -19,9 +27,10 @@ export const configureJsBundler = (eleventyConfig) => {
         external: ["/pagefind/pagefind.js"],
       }),
       buildBundle("design-system", isDevelopment),
-      buildBundle("bunny-video", isDevelopment),
-      buildBundle("youtube-video", isDevelopment),
       buildBundle("masonry", isDevelopment),
+      buildBundle("contact-form", isDevelopment),
+      buildBundle("bunny-video", isDevelopment),
+      buildBundle("quote", isDevelopment),
     ]);
 
     if (isDevelopment) {

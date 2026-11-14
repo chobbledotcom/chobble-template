@@ -1,9 +1,14 @@
+/* jscpd:ignore-start -- block schema declaration data */
 /**
  * Shared constants and field factories for block modules.
  *
  * Each unified field object combines CMS metadata (type, label, required,
- * fields, list) with documentation metadata (description, default).
- * Fields WITH a `label` are CMS-exposed; fields WITHOUT are doc-only.
+ * fields, list) with documentation metadata (description) and an optional
+ * typed `default`. Fields WITH a `label` are CMS-exposed; fields WITHOUT are
+ * doc-only. `default` is executable: the block pipeline fills omitted fields
+ * from it (see `applyBlockDefaults` in `#utils/block-schema.js`), so templates
+ * never restate it. A function default derives its value from the object
+ * that owns the field.
  */
 
 /** @param {string} label @param {object} [extras] */
@@ -12,8 +17,8 @@ export const str = (label, extras) => ({ type: "string", label, ...extras });
 export const md = (label, extras) => ({ type: "markdown", label, ...extras });
 /** @param {string} label */
 export const num = (label) => ({ type: "number", label });
-/** @param {string} label */
-export const bool = (label) => ({ type: "boolean", label });
+/** @param {string} label @param {object} [extras] */
+export const bool = (label, extras) => ({ type: "boolean", label, ...extras });
 /** @param {string} label @param {object} [extras] */
 export const img = (label, extras) => ({ type: "image", label, ...extras });
 /** @param {string} label @param {Record<string, object>} fields */
@@ -30,51 +35,34 @@ export const objectField = (label, fields) => ({
   fields,
 });
 
-/** Container wrapper fields common to every CMS block. */
+/** Container wrapper fields common to every block. */
 export const CONTAINER_FIELDS = {
-  dark: bool("Dark"),
+  dark: bool("Dark", { default: false }),
   compact: bool("Compact"),
 };
 
-/** Button fields shared between hero, split, and cta blocks. */
-export const BUTTON_FIELDS_BASE = {
+/**
+ * Button fields used by every block that renders a button. Blocks differ
+ * only in the style an omitted `variant` (and, for the CTA, `size`) takes.
+ * @param {{ variant: string, size?: string }} defaults
+ */
+export const buttonFields = ({ variant, size }) => ({
   text: str("Button Text", { required: true }),
   href: str("URL", { required: true }),
-  variant: str("Variant"),
-};
-
-/** Button fields with an additional size option. */
-export const BUTTON_FIELDS_WITH_SIZE = {
-  ...BUTTON_FIELDS_BASE,
-  size: str("Size"),
-};
-
-/** Documented button styling fields shared by link-button-style blocks. */
-export const LINK_BUTTON_STYLE_FIELDS = {
-  variant: {
-    ...str("Variant"),
-    default: '"primary"',
-    description: '`"primary"`, `"secondary"`, or `"ghost"`.',
-  },
-  size: {
-    ...str("Size"),
-    description: '`"sm"`, `"lg"`, or omit for default.',
-  },
-  reveal: {
-    ...str("Reveal Animation"),
-    description: "`data-reveal` value.",
-  },
-};
-
-/** Pre-built required name field. */
-export const NAME_REQUIRED = str("Name", { required: true });
-
-/** Filter object field shared between items and items-array. */
-export const FILTER_FIELD = objectField("Filter", {
-  property: str("Property (e.g. url, data.name)"),
-  includes: str("Contains"),
-  equals: str("Equals"),
+  variant: str("Variant", { default: variant }),
+  size: size ? str("Size", { default: size }) : str("Size"),
 });
+
+/** Collection filter shared by the collection-driven blocks. */
+export const FILTER_FIELD = {
+  ...objectField("Filter", {
+    property: str("Property (e.g. url, data.name)"),
+    includes: str("Contains"),
+    equals: str("Equals"),
+  }),
+  description:
+    'Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.name"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value.',
+};
 
 /** Shared SCSS and htmlRoot for card-grid blocks (image-cards, gallery). */
 export const ITEMS_GRID_META = {
@@ -91,7 +79,7 @@ export const INTRO_CONTENT_FIELD = {
 /** Horizontal slider toggle shared between items-like blocks. */
 export const HORIZONTAL_FIELD = {
   ...bool("Horizontal Slider"),
-  default: "false",
+  default: false,
   description:
     "If true, renders as a horizontal slider instead of a wrapping grid.",
 };
@@ -99,7 +87,7 @@ export const HORIZONTAL_FIELD = {
 /** Masonry grid toggle shared between items-like blocks. */
 export const MASONRY_FIELD = {
   ...bool("Masonry Grid"),
-  default: "false",
+  default: false,
   description:
     "If true, renders as a masonry grid using uWrap for zero-reflow height prediction.",
 };
@@ -111,67 +99,43 @@ export const IMAGE_ASPECT_RATIO_FIELD = {
 };
 
 /**
- * Presentation fields shared by every items-style block (items, items-array,
- * category-products, …). Anything that controls *how* items render — but not
- * *which* items — lives here so the blocks stay in lock-step.
+ * Fields for blocks whose items editors choose themselves (items,
+ * items-array): how the items render, which of them to show, and the
+ * per-block aspect-ratio override.
  */
-export const ITEMS_PRESENTATION_FIELDS = {
+export const ITEMS_FILTERABLE_FIELDS = {
   intro_content: INTRO_CONTENT_FIELD,
   horizontal: HORIZONTAL_FIELD,
   masonry: MASONRY_FIELD,
-};
-
-/**
- * Items-style fields plus the generic `filter` selector. Used by blocks that
- * let editors choose their own items (items, items-array). Sugar blocks like
- * `category-products` deliberately omit `filter` because they hardcode it.
- */
-export const ITEMS_COMMON_FIELDS = {
-  ...ITEMS_PRESENTATION_FIELDS,
-  filter: {
-    ...FILTER_FIELD,
-    description:
-      'Filter object: `{property, includes, equals}`. `property` is a dot-notation path (e.g. `"url"`, `"data.name"`). When the resolved value is an array, the operator runs against each element (per-element exact match for `equals`, per-element substring for `includes`). `includes` matches substring; `equals` matches exact value.',
-  },
-};
-
-/**
- * Field set for "items-style sugar" blocks — those that hardcode the
- * collection and filter (e.g. `category-products`, `child-categories`) and
- * only need to expose how items render.
- */
-export const ITEMS_SUGAR_FIELDS = {
-  ...ITEMS_PRESENTATION_FIELDS,
+  filter: FILTER_FIELD,
   image_aspect_ratio: IMAGE_ASPECT_RATIO_FIELD,
 };
 
-export const REVEAL_BOOLEAN_FIELD = {
+/**
+ * Doc-only toggle, on by default, that adds `data-reveal` to what a block renders.
+ * @param {string} target - What gets revealed, e.g. "each stat"
+ */
+export const revealToggleField = (target) => ({
   type: "boolean",
-  default: "true",
-  description: "Adds `data-reveal` to each item.",
-};
+  default: true,
+  description: `Adds \`data-reveal\` to ${target}.`,
+});
 
+/** Doc-only `data-reveal` value for blocks that animate as a whole. */
 export const REVEAL_STRING_FIELD = {
   type: "string",
   description: "`data-reveal` value.",
 };
 
+/** @param {string} description */
 export const collectionField = (description) => ({
   ...str("Collection Name"),
   required: true,
   description,
 });
 
-/** @param {object} itemsField */
-export const imageCardGridFields = (itemsField) => ({
-  items: itemsField,
-  reveal: REVEAL_BOOLEAN_FIELD,
-  image_aspect_ratio: IMAGE_ASPECT_RATIO_FIELD,
-  intro_content: INTRO_CONTENT_FIELD,
-});
-
 /**
- * Hero-style content fields shared by `hero` and the `*-background` blocks:
+ * Hero-style content fields shared by `hero` and `image-background`:
  * optional badge, markdown content rendered in `.prose`, and action buttons.
  * Rendered by `design-system/hero-content.html`.
  */
@@ -186,29 +150,67 @@ export const HERO_CONTENT_FIELDS = {
     description: "Markdown content rendered in `.prose`.",
   },
   buttons: {
-    ...objectList("Buttons", BUTTON_FIELDS_WITH_SIZE),
+    ...objectList("Buttons", buttonFields({ variant: "primary" })),
     description:
       'Action buttons below the content. Each: `{text, href, variant, size}`. Variants: `"primary"` (filled), `"secondary"` (outlined), `"ghost"` (transparent). Sizes: `"sm"`, `"lg"`, or omit for default.',
   },
   reveal: REVEAL_STRING_FIELD,
 };
-
-/** Overlay content + class fields shared between background blocks. */
-export const OVERLAY_CONTENT_FIELDS = {
-  class: { ...str("CSS Class"), description: "Extra CSS classes." },
-  ...HERO_CONTENT_FIELDS,
+/**
+ * Fields of a block that shows a form posting to the site's form service,
+ * rendered by `design-system/blocks/contact-form.html`. Each form block
+ * differs only in what it asks and where it lands.
+ * @param {{ fields: object[], fieldsSummary: string, submitText: string, redirect: string }} defaults
+ */
+export const formBlockFields = ({
+  fields,
+  fieldsSummary,
+  submitText,
+  redirect,
+}) => ({
   content: {
-    ...HERO_CONTENT_FIELDS.content,
+    ...md("Content"),
     description:
-      "Markdown overlay content rendered in `.prose` inside the `<figcaption>`.",
+      "Text shown beside the form, rendered as markdown. Without it the form takes the full width.",
   },
-};
-
-export const VIDEO_BG_SHARED_FIELDS = {
-  video_title: {
-    ...str("Video Title"),
-    default: '"Background video"',
-    description: "Accessible `title` on the iframe.",
+  fields: {
+    ...objectList("Form Fields", {
+      label: str("Label", { required: true }),
+      name: {
+        ...str("Name"),
+        default: (/** @type {{ label: string }} */ field) => field.label,
+        description:
+          "Name the answer is submitted under. Defaults to the label.",
+      },
+      type: {
+        ...str("Type"),
+        default: "text",
+        description:
+          "`textarea`, `select`, `radio`, `heading` (a sub-heading between fields, with `note` as its text), or any HTML input type such as `text`, `email`, `tel`, `date`, or `number`.",
+      },
+      required: bool("Required", { default: false }),
+      placeholder: str("Placeholder"),
+      note: str("Help Note"),
+      options: {
+        ...str("Options"),
+        list: true,
+        description: "Choices of a `select` or `radio` field.",
+      },
+      rows: {
+        ...num("Rows"),
+        default: 6,
+        description: "Height of a `textarea`, in lines of text.",
+      },
+    }),
+    default: fields,
+    description: `The form's fields, in order. Defaults to ${fieldsSummary}.`,
   },
-  ...OVERLAY_CONTENT_FIELDS,
-};
+  submit_text: str("Submit Button Text", { default: submitText }),
+  redirect: {
+    ...str("Redirect"),
+    default: redirect,
+    description: "Page a visitor lands on after sending the form.",
+  },
+  intro_content: INTRO_CONTENT_FIELD,
+});
+/* jscpd:ignore-end */

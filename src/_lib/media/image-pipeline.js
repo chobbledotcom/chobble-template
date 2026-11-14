@@ -13,8 +13,28 @@ import {
   removeLqip,
 } from "#media/image-lqip.js";
 import { JPEG_FALLBACK_WIDTH } from "#media/image-utils.js";
-import { wrapImageHtml } from "#media/image-wrapper.js";
-import { parseHtml } from "#utils/dom-builder.js";
+import { createHtml, parseHtml } from "#utils/dom-builder.js";
+import { join } from "#utils/fp/array.js";
+
+/**
+ * Wrap image HTML in the standard image wrapper.
+ * @param {string} innerHtml
+ * @param {Object} options
+ * @param {string | null | undefined} options.classes
+ * @param {string | null | undefined} options.style
+ * @returns {Promise<string>}
+ */
+export const wrapImageHtml = (innerHtml, { classes, style }) => {
+  const classParts = classes ? ["image-wrapper", classes] : ["image-wrapper"];
+  const className = join(" ")(classParts);
+  const styleAttr = style === undefined ? null : style;
+  return createHtml("div", { class: className, style: styleAttr }, innerHtml);
+};
+
+/**
+ * Metadata returned by eleventy-img: format name -> generated variants.
+ * @typedef {Record<string, Array<{ width: number, outputPath: string }>>} ImageMetadata
+ */
 
 /**
  * Process image through parallel webp + jpeg format generation.
@@ -23,7 +43,7 @@ import { parseHtml } from "#utils/dom-builder.js";
  * @param {Object} baseOptions - Base options (outputDir, filenameFormat, etc.)
  * @param {(number | string)[]} webpWidths - Widths for webp format (includes "auto" for original)
  * @param {(number | string)[]} [jpegWidths] - Widths for the JPEG fallback
- * @returns {Promise<Object>} Combined webp + jpeg image metadata
+ * @returns {Promise<ImageMetadata>} Combined webp + jpeg image metadata
  */
 export const processFormats = async (
   imageFn,
@@ -47,9 +67,9 @@ export const processFormats = async (
  * Extract LQIP and prepare metadata for HTML generation.
  * When shouldExtract is true, extracts the LQIP base64 background image
  * and removes the LQIP-width entry from metadata.
- * @param {Object} imageMetadata - Combined metadata from processFormats
+ * @param {ImageMetadata} imageMetadata - Combined metadata from processFormats
  * @param {boolean} [shouldExtract=true] - Whether to extract LQIP
- * @returns {Promise<{bgImage: string|null, htmlMetadata: Object}>}
+ * @returns {Promise<{bgImage: string|null, htmlMetadata: Record<string, Array<{ width: number }>>}>}
  */
 export const prepareLqipMetadata = async (
   imageMetadata,
@@ -62,22 +82,6 @@ export const prepareLqipMetadata = async (
     ? removeLqip(imageMetadata)
     : imageMetadata;
   return { bgImage, htmlMetadata };
-};
-
-/**
- * Generate picture element HTML from processed metadata.
- * @param {Object} htmlMetadata - Metadata (with LQIP filtered out)
- * @param {Object} imgAttributes - Image element attributes
- * @param {Object} pictureAttributes - Picture element attributes
- * @returns {Promise<string>} Generated HTML
- */
-export const generatePictureHtml = async (
-  htmlMetadata,
-  imgAttributes,
-  pictureAttributes,
-) => {
-  const { generateHTML } = await getEleventyImg();
-  return generateHTML(htmlMetadata, imgAttributes, pictureAttributes);
 };
 
 /**
@@ -97,7 +101,8 @@ export const wrapProcessedImage = async (
   pictureAttributes,
   { classes, style },
 ) => {
-  const innerHTML = await generatePictureHtml(
+  const { generateHTML } = await getEleventyImg();
+  const innerHTML = generateHTML(
     htmlMetadata,
     imgAttributes,
     pictureAttributes,
@@ -106,11 +111,16 @@ export const wrapProcessedImage = async (
 };
 
 /**
- * Convert HTML string to DOM Element if requested.
+ * Convert HTML string to DOM Element if requested. Wrapped image HTML is
+ * never empty, so a null parse is a broken invariant, not a result.
  * @param {string} html - HTML string
  * @param {boolean} returnElement - Whether to return Element
  * @param {Document|null} document - Document for element creation
- * @returns {Promise<string|Element|null>}
+ * @returns {Promise<string|Element>}
  */
-export const resolveOutput = async (html, returnElement, document) =>
-  returnElement ? await parseHtml(html, document) : html;
+export const resolveOutput = async (html, returnElement, document) => {
+  if (!returnElement) return html;
+  const element = await parseHtml(html, document);
+  if (!element) throw new Error(`Image HTML parsed to no element: ${html}`);
+  return element;
+};

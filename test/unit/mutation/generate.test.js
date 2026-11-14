@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { applyMutant, generateMutants } from "#scripts/mutation/generate.js";
 import { binaryOperators } from "#scripts/mutation/operators.js";
 

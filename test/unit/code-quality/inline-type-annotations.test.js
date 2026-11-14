@@ -29,15 +29,16 @@
  *     return items;
  *   };
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   assertNoViolations,
+  combineFileLists,
   createBraceDepthScanner,
   expectScanResult,
   isCommentLine,
   readSource,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 // Pattern to match /** @type {something} */ annotations
 const INLINE_TYPE_PATTERN = /\/\*\*\s*@type\s*\{[^}]+\}\s*\*\//;
@@ -162,7 +163,10 @@ const second = () => {
   });
 
   test("No inline @type annotations inside functions in source files", () => {
-    const violations = SRC_JS_FILES().flatMap((file) =>
+    const violations = combineFileLists([
+      SRC_JS_FILES(),
+      SCRIPT_JS_FILES(),
+    ]).flatMap((file) =>
       findInlineTypeAnnotations(readSource(file)).map((v) => ({
         file,
         line: v.lineNumber,

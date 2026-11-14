@@ -1,4 +1,7 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
+@use "../mixins" as *;
+// jscpd:ignore-end
 
 // Marquee Images
 // Continuously scrolling row of images (e.g. brand logos, partner badges).
@@ -33,9 +36,9 @@
   }
 
   .marquee-images__link {
-    display: flex;
+    @include flex-center;
+
     flex-shrink: 0;
-    align-items: center;
   }
 
   .marquee-images .image-wrapper {

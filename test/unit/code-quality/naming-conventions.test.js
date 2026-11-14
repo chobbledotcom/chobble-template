@@ -1,6 +1,8 @@
-import { describe, expect, test } from "bun:test";
-import { fs, path, rootDir, SRC_JS_FILES } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { describe, expect, test } from "vitest";
+import { combineFileLists, readSource } from "#test/code-scanner.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
+import { unique } from "#utils/fp/array.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // Configuration
 const MAX_WORDS = 4;
@@ -29,65 +31,59 @@ const countCamelCaseWords = (str) => {
   return words.length;
 };
 
+// Match camelCase identifiers (starting with lowercase, having at least one uppercase)
+// This catches: variableNames, functionNames, methodNames
+const CAMEL_CASE_PATTERN = /\b([a-z][a-zA-Z0-9]*[A-Z][a-zA-Z0-9]*)\b/g;
+
 /**
- * Extract all camelCase identifiers from JavaScript source code.
- * Returns an array of identifiers.
+ * Extract all camelCase identifiers from JavaScript source code,
+ * deduplicated. Returns an array of identifiers.
  */
 const extractCamelCaseIdentifiers = (source) => {
-  const identifiers = new Set();
-
-  // Remove string literals to avoid false positives
-  const noStrings = source
+  // Strip strings (to avoid scanning their contents), then comments
+  const noComments = source
     .replace(/'(?:[^'\\]|\\.)*'/g, '""')
     .replace(/"(?:[^"\\]|\\.)*"/g, '""')
-    .replace(/`(?:[^`\\]|\\.)*`/g, '""');
-
-  // Remove comments
-  const noComments = noStrings
+    .replace(/`(?:[^`\\]|\\.)*`/g, '""')
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/.*$/gm, "");
 
-  // Match camelCase identifiers (starting with lowercase, having at least one uppercase)
-  // This catches: variableNames, functionNames, methodNames
-  const camelCasePattern = /\b([a-z][a-zA-Z0-9]*[A-Z][a-zA-Z0-9]*)\b/g;
-
-  for (const match of noComments.matchAll(camelCasePattern)) {
-    identifiers.add(match[1]);
-  }
-
-  return Array.from(identifiers);
+  return unique(
+    [...noComments.matchAll(CAMEL_CASE_PATTERN)].map((match) => match[1]),
+  );
 };
 
 /**
  * Analyze the codebase for verbose camelCase names.
  * Returns an object with violations and their occurrence counts.
  */
-const analyzeNamingConventions = () => {
-  const violations = {};
+const analyzeNamingConventions = (
+  files = combineFileLists([SRC_JS_FILES(), SCRIPT_JS_FILES()]),
+  loadSource = readSource,
+) => {
+  // Identifier-file pairs for every too-long name in every source file
+  const occurrences = files.flatMap((relativePath) =>
+    extractCamelCaseIdentifiers(loadSource(relativePath))
+      .filter(
+        (identifier) =>
+          countCamelCaseWords(identifier) > MAX_WORDS &&
+          !IGNORED_IDENTIFIERS.has(identifier),
+      )
+      .map((identifier) => ({ identifier, relativePath })),
+  );
 
-  for (const relativePath of SRC_JS_FILES()) {
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
-    const identifiers = extractCamelCaseIdentifiers(source);
-
-    for (const identifier of identifiers) {
-      const wordCount = countCamelCaseWords(identifier);
-
-      if (wordCount > MAX_WORDS && !IGNORED_IDENTIFIERS.has(identifier)) {
-        if (!violations[identifier]) {
-          violations[identifier] = {
-            wordCount,
-            occurrences: 0,
-            files: new Set(),
-          };
-        }
-        violations[identifier].occurrences++;
-        violations[identifier].files.add(relativePath);
-      }
-    }
-  }
-
-  return violations;
+  return Object.fromEntries(
+    [...Map.groupBy(occurrences, ({ identifier }) => identifier)].map(
+      ([identifier, entries]) => [
+        identifier,
+        {
+          wordCount: countCamelCaseWords(identifier),
+          occurrences: entries.length,
+          files: entries.map(({ relativePath }) => relativePath),
+        },
+      ],
+    ),
+  );
 };
 
 /**
@@ -125,6 +121,22 @@ const formatNamingViolations = (violations) => {
 };
 
 describe("naming-conventions", () => {
+  test("groups verbose identifiers once per file in discovery order", () => {
+    const sources = {
+      "src/first.js": "getActiveUserById(); getActiveUserById();",
+      "scripts/second.js": "getActiveUserById(); getUserById();",
+    };
+    expect(
+      analyzeNamingConventions(Object.keys(sources), (file) => sources[file]),
+    ).toEqual({
+      getActiveUserById: {
+        wordCount: 5,
+        occurrences: 2,
+        files: ["src/first.js", "scripts/second.js"],
+      },
+    });
+  });
+
   test("countCamelCaseWords counts simple cases correctly", () => {
     expect(countCamelCaseWords("get")).toBe(1);
     expect(countCamelCaseWords("getUser")).toBe(2);

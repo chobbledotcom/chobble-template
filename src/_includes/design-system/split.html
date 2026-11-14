@@ -1,7 +1,7 @@
 {%- comment -%}
-Split layout with text content and a figure. Used by all split-* block types:
-split-image, split-video, split-code, split-icon-links, split-html,
-split-buy-options.
+Split layout with text content and a figure. Used by the figure split-* block
+types: split-image, split-video, split-code, split-icon-links, split-html. The block schema
+fills defaults before rendering.
 
 The figure type is derived from the block type (e.g., "split-image" → "image").
 
@@ -10,9 +10,9 @@ Parameters (via block object):
     - block.subtitle: Optional subtitle text (with text-muted styling)
     - block.content: Main content with markdown headings (rendered as markdown)
     - block.reverse: If true, reverses the layout (content on right)
-    - block.reveal_content: Animation for content side (e.g., "left", "right")
-    - block.reveal_figure: Animation for figure side (default: "scale")
-    - block.button: Optional button object { text, href, variant }
+    - block.reveal_content: Animation for the content side
+    - block.reveal_figure: Animation for the figure side
+    - block.button: Optional button object { text, href, variant, size }
 
   Figure fields per block type:
     split-image:        figure_src, figure_alt, figure_caption
@@ -21,63 +21,36 @@ Parameters (via block object):
     split-code:         figure_filename, figure_code, figure_language
     split-icon-links:   figure_items (array of {icon, text, url})
     split-html:         figure_html
-    split-buy-options:  figure_image, figure_name, figure_subtitle,
-                        figure_price, figure_currency, figure_link,
-                        figure_button_text, figure_image_aspect_ratio
+  The code and icon-links figures embed those blocks with `block: false`:
+  they render from figure_* fields, not a block instance of their own, so
+  that block's intro_content and reveal do not apply.
 {%- endcomment -%}
 
-{%- assign reveal_content = block.reveal_content | default: "left" -%}
-{%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
-{%- assign is_buy_options = false -%}
-{%- if block.type == "split-buy-options" -%}
-  {%- assign is_buy_options = true -%}
-{%- endif -%}
-
 <div class="split{% if block.reverse %} split--reverse{% endif %}">
-  {%- include "design-system/split-article.html", block: block, reveal_content: reveal_content -%}
-  <figure data-reveal="{{ reveal_figure }}"{% if is_buy_options %} class="buy-option-figure" itemscope itemtype="https://schema.org/Product"{% endif %}>
+  {%- include "design-system/split-article.html" -%}
+  <figure data-reveal="{{ block.reveal_figure }}">
     {%- case block.type -%}
       {%- when "split-image" -%}
         {%- assign image = block.figure_src -%}
         {%- capture _alt -%}{%- include "get-alt-text.html", fallback: block.figure_alt -%}{%- endcapture -%}
         {% image block.figure_src, _alt %}
-        {%- if block.figure_caption -%}
-          <figcaption>{{ block.figure_caption }}</figcaption>
-        {%- endif -%}
+        {%- include "design-system/split-figcaption.html" -%}
       {%- when "split-video" -%}
         {%- if block.figure_autoplay -%}
           <div class="video-wrapper">
-            {%- include "design-system/video-iframe.html", video_id: block.figure_video_id, name: block.figure_alt, autoplay: true -%}
+            {%- include "design-system/video-iframe.html", video_id: block.figure_video_id, name: block.figure_alt, mode: "autoplay" -%}
           </div>
-        {%- else -%}
-          {%- if block.figure_thumbnail_url -%}
-            {%- assign _thumbnail = block.figure_thumbnail_url -%}
-          {%- elsif block.figure_video_id | is_youtube_id -%}
-            {%- assign _thumbnail = block.figure_video_id | youtube_thumbnail -%}
-          {%- else -%}
-            {%- assign _thumbnail = null -%}
-          {%- endif -%}
-          {%- include "design-system/video-facade.html", video_id: block.figure_video_id, name: block.figure_alt, thumbnail_url: _thumbnail -%}
         {%- endif -%}
-        {%- if block.figure_caption -%}
-          <figcaption>{{ block.figure_caption }}</figcaption>
-        {%- endif -%}
+        {%- unless block.figure_autoplay -%}
+          {%- include "design-system/video-facade.html", video_id: block.figure_video_id, name: block.figure_alt, thumbnail_url: block.figure_thumbnail_url -%}
+        {%- endunless -%}
+        {%- include "design-system/split-figcaption.html" -%}
       {%- when "split-code" -%}
-        {%- include "design-system/blocks/code-block.html", filename: block.figure_filename, code: block.figure_code, language: block.figure_language -%}
+        {%- include "design-system/blocks/code-block.html", block: false, filename: block.figure_filename, code: block.figure_code, language: block.figure_language -%}
       {%- when "split-icon-links" -%}
-        {%- include "design-system/blocks/icon-links.html", items: block.figure_items -%}
+        {%- include "design-system/blocks/icon-links.html", block: false, items: block.figure_items -%}
       {%- when "split-html" -%}
         {{ block.figure_html }}
-      {%- when "split-buy-options" -%}
-        {%- include "design-system/buy-option-card.html",
-           image: block.figure_image,
-           name: block.figure_name,
-           subtitle: block.figure_subtitle,
-           price: block.figure_price,
-           currency: block.figure_currency,
-           link: block.figure_link,
-           button_text: block.figure_button_text,
-           image_aspect_ratio: block.figure_image_aspect_ratio -%}
     {%- endcase -%}
   </figure>
 </div>

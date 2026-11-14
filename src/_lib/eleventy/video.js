@@ -1,36 +1,27 @@
 /**
- * Eleventy configuration for video embed filters.
+ * Liquid filters for the video blocks.
  *
- * Exposes video URL utilities as Liquid filters for use in templates.
+ * Usage in templates:
+ *   {{ video_id | videoEmbedUrl }}               - Click-to-play iframe src
+ *   {{ video_id | videoEmbedUrl: "background" }} - Silent looping iframe src
+ *   {{ video_id | isYouTubeId }}                 - True for a bare YouTube ID
+ *   {{ video_id | isBunnyVideo }}                - True for a Bunny Stream embed URL
+ *   {{ video_id | videoThumbnail: thumbnail }}   - Author's thumbnail, else the provider's
  */
-import { getVideoEmbedUrl, isYouTubeId } from "#utils/video.js";
+import { registerFilters } from "#eleventy/register.js";
+import {
+  isBunnyVideo,
+  isYouTubeId,
+  videoEmbedUrl,
+  videoThumbnail,
+} from "#utils/video.js";
 
-/** @param {*} eleventyConfig */
-const configureVideo = (eleventyConfig) => {
-  eleventyConfig.addFilter(
-    "video_embed_url",
-    /**
-     * @param {string} videoId
-     * @param {boolean} background
-     * @param {boolean} autoplay
-     */
-    (videoId, background = false, autoplay = false) =>
-      getVideoEmbedUrl(videoId, { background, autoplay }),
-  );
-
-  /** Returns true if the video identifier is a YouTube ID (not a URL). */
-  eleventyConfig.addFilter(
-    "is_youtube_id",
-    /** @param {string} videoId */
-    (videoId) => isYouTubeId(videoId),
-  );
-
-  /** Returns the YouTube thumbnail URL for a video ID. */
-  eleventyConfig.addFilter(
-    "youtube_thumbnail",
-    /** @param {string} videoId */
-    (videoId) => `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-  );
+/** @param {import("#lib/types").UserConfig} eleventyConfig */
+export const configureVideo = (eleventyConfig) => {
+  registerFilters(eleventyConfig)({
+    videoEmbedUrl,
+    isYouTubeId,
+    isBunnyVideo,
+  });
+  registerFilters(eleventyConfig, "addAsyncFilter")({ videoThumbnail });
 };
-
-export { configureVideo };

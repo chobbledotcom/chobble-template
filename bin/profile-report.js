@@ -1,29 +1,49 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
+import { readFileSync, writeFileSync } from "node:fs";
+
 /**
  * Parse a Chrome CPU profile and generate a text report
- * Usage: bun profile-report.js <profile.cpuprofile> <output.txt> <project-dir>
+ * Usage: node profile-report.js <profile.cpuprofile> <output.txt> <project-dir>
  */
 
 const [profilePath, outputPath, projectDir] = process.argv.slice(2);
 
 if (!profilePath || !outputPath || !projectDir) {
   console.error(
-    "Usage: bun profile-report.js <profile.cpuprofile> <output.txt> <project-dir>",
+    "Usage: node profile-report.js <profile.cpuprofile> <output.txt> <project-dir>",
   );
   process.exit(1);
 }
 
-const profile = await Bun.file(profilePath).json();
+/**
+ * @typedef {Object} ProfileNode
+ * @property {number} id
+ * @property {{ functionName?: string, url?: string, lineNumber: number }} callFrame
+ * @property {number} [hitCount]
+ *
+ * @typedef {Object} CpuProfile
+ * @property {ProfileNode[]} nodes
+ * @property {number[]} [samples]
+ * @property {number} startTime
+ * @property {number} endTime
+ */
+
+/** @type {CpuProfile} */
+const profile = JSON.parse(readFileSync(profilePath, "utf8"));
 
 // Build node lookup map
 const nodes = new Map(
   profile.nodes.map((node) => [
     node.id,
     {
-      functionName: node.callFrame.functionName || "(anonymous)",
-      url: node.callFrame.url || "",
+      // cpuprofile fields are optional per the format - state the
+      // defaults explicitly rather than coercing falsy values
+      functionName: node.callFrame.functionName
+        ? node.callFrame.functionName
+        : "(anonymous)",
+      url: node.callFrame.url === undefined ? "" : node.callFrame.url,
       lineNumber: node.callFrame.lineNumber,
-      hitCount: node.hitCount || 0,
+      hitCount: node.hitCount === undefined ? 0 : node.hitCount,
     },
   ]),
 );
@@ -34,6 +54,7 @@ const projectPrefix = `file://${projectDir}/`;
 
 for (const node of profile.nodes) {
   const info = nodes.get(node.id);
+  if (!info) throw new Error(`Profile node ${node.id} missing from lookup`);
   const url = info.url.replace(projectPrefix, "");
 
   // Skip internals and dependencies
@@ -42,23 +63,26 @@ for (const node of profile.nodes) {
   const location = `${url}:${info.lineNumber + 1}`;
   const key = `${info.functionName}|${location}`;
 
-  if (!stats.has(key)) {
+  const entry = stats.get(key);
+  if (entry) {
+    entry.hitCount += info.hitCount;
+  } else {
     stats.set(key, {
       functionName: info.functionName,
       location,
-      hitCount: 0,
+      hitCount: info.hitCount,
       selfTime: 0,
     });
   }
-  stats.get(key).hitCount += info.hitCount;
 }
 
-// Calculate self-time from samples
-const sampleInterval = profile.samples?.length
-  ? (profile.endTime - profile.startTime) / profile.samples.length
+// Calculate self-time from samples (absent in a degenerate profile)
+const samples = Array.isArray(profile.samples) ? profile.samples : [];
+const sampleInterval = samples.length
+  ? (profile.endTime - profile.startTime) / samples.length
   : 0;
 
-for (const nodeId of profile.samples || []) {
+for (const nodeId of samples) {
   const info = nodes.get(nodeId);
   if (!info) continue;
 
@@ -105,9 +129,9 @@ lines.push(
   '  2. Click "Load profile..." button',
   "  3. Select: .profile/build.cpuprofile",
   "",
-  "Or use: bunx speedscope .profile/build.cpuprofile",
+  "Or use: npx speedscope .profile/build.cpuprofile",
 );
 
 const report = lines.join("\n");
-await Bun.write(outputPath, report);
+writeFileSync(outputPath, report);
 console.log(report);

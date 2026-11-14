@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   COLLECTIONS,
   getCollection,
@@ -9,9 +9,9 @@ import {
 
 describe("getCollection", () => {
   test("returns collection by name", () => {
-    const products = getCollection("products");
-    expect(products.name).toBe("products");
-    expect(products.label).toBe("Products");
+    const news = getCollection("news");
+    expect(news.name).toBe("news");
+    expect(news.label).toBe("News");
   });
 
   test("returns undefined for unknown collection", () => {
@@ -45,9 +45,9 @@ describe("getSelectableCollections", () => {
   test("includes user-facing collections", () => {
     const names = getSelectableCollections().map((c) => c.name);
 
-    expect(names).toContain("products");
     expect(names).toContain("news");
-    expect(names).toContain("events");
+    expect(names).toContain("guide-categories");
+    expect(names).toContain("guide-pages");
   });
 
   test("does not include pages or snippets", () => {
@@ -83,45 +83,37 @@ describe("resolveDependencies", () => {
     expect(resolved).toHaveLength(2);
   });
 
-  test("adds categories when products is selected", () => {
-    const resolved = resolveDependencies(["products"]);
+  test("adds guide-categories when guide-pages is selected", () => {
+    const resolved = resolveDependencies(["guide-pages"]);
 
-    expect(resolved).toContain("products");
-    expect(resolved).toContain("categories");
-  });
-
-  test("resolves nested dependencies for menu-items", () => {
-    const resolved = resolveDependencies(["menu-items"]);
-
-    expect(resolved).toContain("menu-items");
-    expect(resolved).toContain("menu-categories");
-    expect(resolved).toContain("menus");
+    expect(resolved).toContain("guide-pages");
+    expect(resolved).toContain("guide-categories");
   });
 
   test("deduplicates when dependencies overlap with selections", () => {
-    const resolved = resolveDependencies(["products", "categories"]);
+    const resolved = resolveDependencies(["guide-pages", "guide-categories"]);
 
-    expect(resolved).toContain("products");
-    expect(resolved).toContain("categories");
+    expect(resolved).toContain("guide-pages");
+    expect(resolved).toContain("guide-categories");
     expect(resolved).toHaveLength(2);
   });
 
   test("deduplicates repeated inputs", () => {
-    const resolved = resolveDependencies(["products", "products"]);
-    const productCount = resolved.filter((c) => c === "products").length;
+    const resolved = resolveDependencies(["news", "news"]);
+    const newsCount = resolved.filter((c) => c === "news").length;
 
-    expect(productCount).toBe(1);
+    expect(newsCount).toBe(1);
   });
 
   test("is idempotent", () => {
-    const first = resolveDependencies(["products", "menu-items"]);
+    const first = resolveDependencies(["news", "guide-pages"]);
     const second = resolveDependencies(first);
 
     expect(second.sort()).toEqual(first.sort());
   });
 
   test("does not add spurious dependencies for independent collections", () => {
-    const selected = ["news", "reviews", "properties"];
+    const selected = ["news"];
     const resolved = resolveDependencies(selected);
 
     expect(resolved.sort()).toEqual(selected.sort());
@@ -129,11 +121,12 @@ describe("resolveDependencies", () => {
 });
 
 describe("COLLECTIONS data integrity", () => {
-  test("every collection with dependencies references existing collections", () => {
+  test("every collection declares dependencies that reference existing collections", () => {
     const names = COLLECTIONS.map((c) => c.name);
 
     for (const collection of COLLECTIONS) {
-      for (const dep of collection.dependencies ?? []) {
+      expect(Array.isArray(collection.dependencies)).toBe(true);
+      for (const dep of collection.dependencies) {
         expect(names).toContain(dep);
       }
     }

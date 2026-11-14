@@ -1,11 +1,12 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   analyzeWithAllowlist,
   assertNoViolations,
+  combineFileLists,
   isCommentLine,
   scanLines,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 /**
  * Detect suboptimal short-circuit ordering in && expressions.
@@ -118,7 +119,7 @@ describe("short-circuit-order", () => {
   test("No suboptimal short-circuit ordering in source files", () => {
     const { violations } = analyzeWithAllowlist({
       findFn: findSuboptimalOrder,
-      files: SRC_JS_FILES,
+      files: () => combineFileLists([SRC_JS_FILES(), SCRIPT_JS_FILES()]),
     });
     assertNoViolations(violations, {
       message: "suboptimal short-circuit ordering",

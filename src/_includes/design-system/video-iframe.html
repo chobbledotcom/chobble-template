@@ -1,29 +1,20 @@
 {%- comment -%}
-Shared video iframe partial with privacy-protecting defaults.
-
-Supports both YouTube video IDs and custom embed URLs (starting with "http").
-Custom URLs are used directly as iframe src, while YouTube IDs are converted
-to privacy-respecting youtube-nocookie.com embed URLs.
+Video iframe with privacy-protecting defaults, shared by the video blocks.
 
 Parameters:
-  - video_id: YouTube video ID or custom embed URL (required)
+  - video_id: YouTube video ID, or the embed URL of another provider (required)
   - name: Accessible title for the iframe (required)
-  - background: If true, adds mute/loop/controls params for ambient background
-                video and disables lazy loading so autoplay works (default: false)
-  - autoplay: If true, adds mute/playsinline so the video starts on load with
-              controls still visible, and disables lazy loading (default: false)
-
-Both video-background and video-cards use this partial to ensure consistent
-iframe attributes and privacy settings.
+  - mode: "click" (default) for a video the visitor started, "autoplay" for
+          one that starts muted when it scrolls into view, or "background"
+          for one that loops silently behind content. A background video is
+          not lazy-loaded: it must load to start playing.
 {%- endcomment -%}
 
-{%- assign _eager = background or autoplay -%}
 <iframe
-  src="{{ video_id | video_embed_url: background, autoplay }}"
+  src="{{ video_id | videoEmbedUrl: mode }}"
   title="{{ name }}"
-  frameborder="0"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
   allowfullscreen
-  {% unless _eager %}loading="lazy"{% endunless %}
+  {% unless mode == "background" %}loading="lazy"{% endunless %}
   referrerpolicy="origin"
 ></iframe>

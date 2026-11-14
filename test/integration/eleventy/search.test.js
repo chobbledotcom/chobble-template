@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { withTestSite } from "#test/test-site-factory.js";
 
 const contentFile = (collection, slug, name, extras = {}) => ({
@@ -14,13 +14,16 @@ const contentFile = (collection, slug, name, extras = {}) => ({
 describe("search", () => {
   test("search pages and indexing rules render correctly", async () => {
     const files = [
-      contentFile("products", "widget", "Widget", {
+      contentFile("news", "2024-01-01-widget-post", "Widget Post", {
         redirect_from: ["/old-widget/"],
       }),
-      contentFile("categories", "tools", "Tools"),
       contentFile("pages", "about", "About Us", { permalink: "/about/" }),
-      contentFile("pages", "checkout", "Checkout", {
-        permalink: "/checkout/",
+      contentFile("guide-categories", "getting-started", "Getting Started"),
+      contentFile("guide-pages", "introduction", "Introduction", {
+        "guide-category": "getting-started",
+      }),
+      contentFile("pages", "internal", "Internal", {
+        permalink: "/internal/",
         no_index: true,
       }),
       {
@@ -50,23 +53,30 @@ describe("search", () => {
     ];
 
     await withTestSite({ files }, async (site) => {
-      const productDoc = await site.getDoc("products/widget/index.html");
-      expect(productDoc.querySelector("[data-pagefind-body]") !== null).toBe(
-        true,
-      );
-
-      const categoryDoc = await site.getDoc("categories/tools/index.html");
-      expect(categoryDoc.querySelector("[data-pagefind-body]") !== null).toBe(
-        true,
-      );
+      const newsDoc = await site.getDoc("news/widget-post/index.html");
+      expect(newsDoc.querySelector("[data-pagefind-body]") !== null).toBe(true);
 
       const aboutDoc = await site.getDoc("about/index.html");
       expect(aboutDoc.querySelector("[data-pagefind-body]") !== null).toBe(
         true,
       );
 
-      const checkoutDoc = await site.getDoc("checkout/index.html");
-      expect(checkoutDoc.querySelector("[data-pagefind-body]")).toBe(null);
+      const guideCategoryDoc = await site.getDoc(
+        "guide/getting-started/index.html",
+      );
+      expect(
+        guideCategoryDoc.querySelector("[data-pagefind-body]") !== null,
+      ).toBe(true);
+
+      const guidePageDoc = await site.getDoc(
+        "guide/getting-started/introduction/index.html",
+      );
+      expect(guidePageDoc.querySelector("[data-pagefind-body]") !== null).toBe(
+        true,
+      );
+
+      const internalDoc = await site.getDoc("internal/index.html");
+      expect(internalDoc.querySelector("[data-pagefind-body]")).toBe(null);
 
       const searchDoc = await site.getDoc("search/index.html");
       expect(searchDoc.querySelector(".search-box") !== null).toBe(true);
@@ -82,7 +92,7 @@ describe("search", () => {
       const stubDoc = await site.getDoc("old-widget/index.html");
       expect(stubDoc.querySelector("[data-pagefind-body]")).toBe(null);
       expect(stubDoc.documentElement.getAttribute("lang")).toBe(
-        productDoc.documentElement.getAttribute("lang"),
+        newsDoc.documentElement.getAttribute("lang"),
       );
     });
   }, 30_000);

@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
+import siteData from "#data/site.json" with { type: "json" };
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { DE, EN } from "#test/fixtures/languages.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
@@ -15,6 +16,7 @@ describe("configureBreadcrumbs", () => {
 });
 
 describe("withSchemaBreadcrumbs", () => {
+  const SITE_URL = siteData.url;
   const setupFilter = () => {
     const mockConfig = createMockEleventyConfig();
     configureBreadcrumbs(mockConfig);
@@ -25,51 +27,31 @@ describe("withSchemaBreadcrumbs", () => {
     const filter = setupFilter();
     const meta = { title: "Home" };
     expect(filter(meta, false, { url: "/page/" })).toBe(meta);
-    expect(
-      filter(
-        meta,
-        true,
-        { url: "/" },
-        "Home",
-        "Home",
-        null,
-        null,
-        {},
-        undefined,
-        undefined,
-        EN,
-        [],
-      ),
-    ).toBe(meta);
+    expect(filter(meta, true, { url: "/" }, "Home", "Home", EN, [])).toBe(meta);
   });
 
   test("maps rendered crumbs to absolute schema URLs", () => {
     const filter = setupFilter();
     expect(
       filter(
-        { title: "Widget" },
+        { title: "A Post" },
         true,
-        { url: "/products/widget/" },
-        "Widget",
-        "Products",
-        undefined,
-        undefined,
-        {},
-        undefined,
-        undefined,
+        { url: "/news/a-post/" },
+        "A Post",
+        "News",
         EN,
         [],
       ).breadcrumbs,
     ).toEqual([
-      { name: "Home", url: "https://example.chobble.com", position: 1 },
+      { name: "Home", url: SITE_URL, position: 1 },
       {
-        name: "Products",
-        url: "https://example.chobble.com/products/",
+        name: "News",
+        url: `${SITE_URL}/news/`,
         position: 2,
       },
       {
-        name: "Widget",
-        url: "https://example.chobble.com/products/widget/",
+        name: "A Post",
+        url: `${SITE_URL}/news/a-post/`,
         position: 3,
       },
     ]);
@@ -88,11 +70,6 @@ describe("breadcrumbsFilter", () => {
     page,
     title,
     navigationParent,
-    parentCategory = undefined,
-    itemCategories = undefined,
-    collections = {},
-    parentProperty = undefined,
-    parentGuideCategory = undefined,
     pageLanguage = EN,
     translations = [],
   ) =>
@@ -100,18 +77,13 @@ describe("breadcrumbsFilter", () => {
       page,
       title,
       navigationParent,
-      parentCategory,
-      itemCategories,
-      collections,
-      parentProperty,
-      parentGuideCategory,
       pageLanguage,
       translations,
     );
 
   test("returns empty array for home page", () => {
     const mockConfig = setupFilter();
-    const crumbs = callFilter(mockConfig, { url: "/" }, "Home", "Home", null);
+    const crumbs = callFilter(mockConfig, { url: "/" }, "Home", "Home");
     expect(crumbs).toEqual([]);
   });
 
@@ -122,11 +94,6 @@ describe("breadcrumbsFilter", () => {
       { url: "/de/ueber-uns/" },
       "Über uns",
       null,
-      undefined,
-      undefined,
-      {},
-      undefined,
-      undefined,
       DE,
     );
     expect(crumbs).toEqual([
@@ -142,11 +109,6 @@ describe("breadcrumbsFilter", () => {
       { url: "/de/" },
       "Startseite",
       null,
-      undefined,
-      undefined,
-      {},
-      undefined,
-      undefined,
       DE,
     );
     expect(crumbs).toEqual([]);
@@ -154,25 +116,19 @@ describe("breadcrumbsFilter", () => {
 
   test("returns Home and collection for index page", () => {
     const mockConfig = setupFilter();
-    const crumbs = callFilter(
-      mockConfig,
-      { url: "/products/" },
-      "Products",
-      "Products",
-      null,
-    );
+    const crumbs = callFilter(mockConfig, { url: "/news/" }, "News", "News");
 
     expect(crumbs).toHaveLength(2);
     expect(crumbs[0]).toEqual({ label: "Home", url: "/" });
-    expect(crumbs[1]).toEqual({ label: "Products", url: null });
+    expect(crumbs[1]).toEqual({ label: "News", url: null });
   });
 
   describe("index pages without navigationParent", () => {
     const testCases = [
-      { url: "/products/", title: "Products", navParent: undefined },
-      { url: "/events/", title: "Events", navParent: undefined },
-      { url: "/products/", title: "Our Products", navParent: null },
-      { url: "/events/", title: "All Events", navParent: "" },
+      { url: "/news/", title: "News", navParent: undefined },
+      { url: "/guide/", title: "Guides", navParent: undefined },
+      { url: "/news/", title: "Our News", navParent: null },
+      { url: "/guide/", title: "All Guides", navParent: "" },
     ];
 
     for (const { url, title, navParent } of testCases) {
@@ -185,7 +141,7 @@ describe("breadcrumbsFilter", () => {
 
       test(`uses title "${title}" when navigationParent is ${navParentDesc}`, () => {
         const mockConfig = setupFilter();
-        const crumbs = callFilter(mockConfig, { url }, title, navParent, null);
+        const crumbs = callFilter(mockConfig, { url }, title, navParent);
 
         expect(crumbs).toEqual([
           { label: "Home", url: "/" },
@@ -195,20 +151,19 @@ describe("breadcrumbsFilter", () => {
     }
   });
 
-  test("returns Home, collection link, and item for product page", () => {
+  test("returns Home, collection link, and item for a news post", () => {
     const mockConfig = setupFilter();
     const crumbs = callFilter(
       mockConfig,
-      { url: "/products/test-product/" },
-      "Test Product",
-      "Products",
-      null,
+      { url: "/news/test-post/" },
+      "Test Post",
+      "News",
     );
 
     expect(crumbs).toEqual([
       { label: "Home", url: "/" },
-      { label: "Products", url: "/products/" },
-      { label: "Test Product", url: null },
+      { label: "News", url: "/news/" },
+      { label: "Test Post", url: null },
     ]);
   });
 
@@ -219,7 +174,6 @@ describe("breadcrumbsFilter", () => {
       { url: "/perfect-for/political-organising/" },
       "Political Organising",
       undefined,
-      null,
     );
 
     expect(crumbs).toEqual([
@@ -228,254 +182,23 @@ describe("breadcrumbsFilter", () => {
     ]);
   });
 
-  test("derives URL from page URL for unknown navigation parent", () => {
+  test.each([
+    "Item",
+    "",
+  ])("derives the parent URL and retains the non-linked title %j", (title) => {
     const mockConfig = setupFilter();
     const crumbs = callFilter(
       mockConfig,
       { url: "/custom/item/" },
-      "Item",
+      title,
       "Custom Section",
-      null,
     );
 
     expect(crumbs).toEqual([
       { label: "Home", url: "/" },
       { label: "Custom Section", url: "/custom/" },
-      { label: "Item", url: null },
+      { label: title, url: null },
     ]);
-  });
-
-  describe("category breadcrumbs for products", () => {
-    const widgetCategory = {
-      fileSlug: "widgets",
-      url: "/categories/widgets/",
-      data: { name: "Widgets" },
-    };
-    const premiumWidgets = {
-      fileSlug: "premium-widgets",
-      url: "/categories/premium-widgets/",
-      data: { name: "Premium Widgets", parent: "widgets" },
-    };
-    const categories = [widgetCategory, premiumWidgets];
-    const WIDGETS_CRUMB = { label: "Widgets", url: "/categories/widgets/" };
-
-    test("shows category in breadcrumbs for product with category", () => {
-      const mockConfig = setupFilter();
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/products/my-product/" },
-        "My Product",
-        "Products",
-        undefined,
-        ["widgets"],
-        { categories },
-      );
-
-      expect(crumbs).toHaveLength(4);
-      expect(crumbs[2]).toEqual(WIDGETS_CRUMB);
-      expect(crumbs[3]).toEqual({ label: "My Product", url: null });
-    });
-
-    test("shows parent and child category for product in nested category", () => {
-      const mockConfig = setupFilter();
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/products/my-widget/" },
-        "My Widget",
-        "Products",
-        undefined,
-        ["premium-widgets"],
-        { categories },
-      );
-
-      expect(crumbs).toHaveLength(5);
-      expect(crumbs[2]).toEqual(WIDGETS_CRUMB);
-      expect(crumbs[3]).toEqual({
-        label: "Premium Widgets",
-        url: "/categories/premium-widgets/",
-      });
-      expect(crumbs[4]).toEqual({ label: "My Widget", url: null });
-    });
-  });
-
-  describe("category page breadcrumbs", () => {
-    const widgetCategory = {
-      fileSlug: "widgets",
-      url: "/categories/widgets/",
-      data: { name: "Widgets" },
-    };
-
-    test("handles explicit parentCategory for child category pages", () => {
-      const mockConfig = setupFilter();
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/categories/premium-widgets/" },
-        "Premium Widgets",
-        "Products",
-        "widgets",
-        undefined,
-        { categories: [widgetCategory] },
-      );
-
-      expect(crumbs.map((c) => c.label)).toEqual([
-        "Home",
-        "Products",
-        "Widgets",
-        "Premium Widgets",
-      ]);
-      expect(crumbs[2].url).toBe("/categories/widgets/");
-    });
-
-    test("shows parent category as current when at parent URL", () => {
-      const mockConfig = setupFilter();
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/categories/widgets/" },
-        "Widgets",
-        "Products",
-        "widgets",
-        undefined,
-        { categories: [widgetCategory] },
-      );
-
-      expect(crumbs).toHaveLength(3);
-      expect(crumbs[2]).toEqual({ label: "Widgets", url: null });
-    });
-
-    test("throws when parentCategory is not found in categories", () => {
-      const mockConfig = setupFilter();
-      const categories = [
-        {
-          fileSlug: "other",
-          url: "/categories/other/",
-          data: { name: "Other" },
-        },
-      ];
-
-      expect(() =>
-        callFilter(
-          mockConfig,
-          { url: "/categories/premium-widgets/" },
-          "Premium Widgets",
-          "Products",
-          "widgets",
-          undefined,
-          { categories },
-        ),
-      ).toThrow('Slug "widgets" not found');
-    });
-  });
-
-  describe("property-linked guide category breadcrumbs", () => {
-    const HOME_CRUMB = { label: "Home", url: "/" };
-    const SUNSET_CRUMB = {
-      label: "Sunset Cottage",
-      url: "/properties/sunset-cottage/",
-    };
-
-    const properties = [
-      {
-        fileSlug: "sunset-cottage",
-        url: "/properties/sunset-cottage/",
-        data: { name: "Sunset Cottage" },
-      },
-    ];
-
-    const guideCategories = [
-      {
-        fileSlug: "getting-started",
-        url: "/guide/getting-started/",
-        data: { name: "Getting Started", property: "sunset-cottage" },
-      },
-      {
-        fileSlug: "general",
-        url: "/guide/general/",
-        data: { name: "General" },
-      },
-    ];
-
-    test("shows property as second crumb for guide category with property", () => {
-      const mockConfig = setupFilter();
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/guide/getting-started/" },
-        "Getting Started",
-        "Guide",
-        undefined,
-        undefined,
-        { properties },
-        "sunset-cottage",
-      );
-
-      expect(crumbs).toEqual([
-        HOME_CRUMB,
-        SUNSET_CRUMB,
-        { label: "Getting Started", url: null },
-      ]);
-    });
-
-    test("shows property and category for guide page via parentGuideCategory", () => {
-      const mockConfig = setupFilter();
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/guide/getting-started/my-page/" },
-        "My Page",
-        "Guide",
-        undefined,
-        undefined,
-        { properties, "guide-categories": guideCategories },
-        undefined,
-        "getting-started",
-      );
-
-      expect(crumbs).toEqual([
-        HOME_CRUMB,
-        SUNSET_CRUMB,
-        { label: "Getting Started", url: "/guide/getting-started/" },
-        { label: "My Page", url: null },
-      ]);
-    });
-
-    const HOME_BREADCRUMB = { label: "Home", url: "/" };
-    const GUIDE_BREADCRUMB = { label: "Guide", url: "/guide/" };
-
-    test("falls back to normal breadcrumbs when guide category has no property", () => {
-      const mockConfig = setupFilter();
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/guide/general/my-page/" },
-        "My Page",
-        "Guide",
-        undefined,
-        undefined,
-        { properties, "guide-categories": guideCategories },
-        undefined,
-        "general",
-      );
-
-      expect(crumbs).toEqual([
-        HOME_BREADCRUMB,
-        GUIDE_BREADCRUMB,
-        { label: "My Page", url: null },
-      ]);
-    });
-
-    test("falls back to normal breadcrumbs when no property or guideCategory", () => {
-      const mockConfig = setupFilter();
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/guide/some-category/" },
-        "Some Category",
-        "Guide",
-        null,
-      );
-
-      expect(crumbs).toEqual([
-        HOME_BREADCRUMB,
-        GUIDE_BREADCRUMB,
-        { label: "Some Category", url: null },
-      ]);
-    });
   });
 });
 
@@ -503,40 +226,29 @@ describe("the collection index crumb of a translated page", () => {
   };
 
   const indexCrumb = (filter, page, navigationParent, language, translations) =>
-    filter(
-      page,
-      "A Thing",
-      navigationParent,
-      undefined,
-      undefined,
-      {},
-      undefined,
-      undefined,
-      language,
-      translations,
-    )[1];
+    filter(page, "A Thing", navigationParent, language, translations)[1];
 
   test("points at the index in the page's own language where one is paired", () => {
     const crumb = indexCrumb(
       setupFilter(),
-      { url: "/de/produkte/thing/" },
-      "Products",
+      { url: "/de/nachrichten/thing/" },
+      "News",
       DE,
-      [{ en: "/products/", de: "/de/produkte/" }],
+      [{ en: "/news/", de: "/de/nachrichten/" }],
     );
-    expect(crumb).toEqual({ label: "Products", url: "/de/produkte/" });
+    expect(crumb).toEqual({ label: "News", url: "/de/nachrichten/" });
   });
 
   test("keeps the base-language index when the site pairs none", () => {
     // Better a crumb that exists in another language than one that 404s.
     const crumb = indexCrumb(
       setupFilter(),
-      { url: "/de/produkte/thing/" },
-      "Products",
+      { url: "/de/nachrichten/thing/" },
+      "News",
       DE,
       [],
     );
-    expect(crumb.url).toBe("/products/");
+    expect(crumb.url).toBe("/news/");
   });
 
   test("derives an unnamed parent's index under the language prefix", () => {
@@ -553,7 +265,7 @@ describe("the collection index crumb of a translated page", () => {
   test("leaves a base-language page's index exactly as it was", () => {
     const filter = setupFilter();
     expect(
-      indexCrumb(filter, { url: "/products/thing/" }, "Products", EN, []).url,
-    ).toBe("/products/");
+      indexCrumb(filter, { url: "/news/thing/" }, "News", EN, []).url,
+    ).toBe("/news/");
   });
 });

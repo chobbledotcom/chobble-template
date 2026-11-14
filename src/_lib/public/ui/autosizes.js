@@ -80,7 +80,7 @@
   };
 
   function calculateAndSetSizes(img) {
-    const sizes = elemWidth(img) ?? elemWidth(img.parentElement);
+    const sizes = elemWidth(img) || elemWidth(img.parentElement);
     if (sizes) {
       img.sizes = sizes;
       for (const source of getSibblingSources(img)) {
@@ -98,15 +98,8 @@
     return !src.startsWith("http://") && !src.startsWith("https://");
   };
 
-  // An image is "loaded" only when it actually has rendered content. happy-dom
-  // (20.11+) reports `complete` as true even for images that never loaded, so
-  // relying on `complete` alone would skip deferral entirely. naturalWidth > 0
-  // is true only once the image has content in real browsers, and always false
-  // under happy-dom, which keeps the deferral path working in both.
-  const isImageLoaded = (img) => img.complete && img.naturalWidth > 0;
-
   const shouldProcessImage = (img) =>
-    !isImageLoaded(img) && hasAutoSizesLazy(img) && isLocalSrc(img);
+    !img.complete && hasAutoSizesLazy(img) && isLocalSrc(img);
 
   const storeAttr = (el, attr) => {
     if (!el.hasAttribute(attr)) return;
@@ -121,10 +114,13 @@
     el.removeAttribute(temp);
   };
 
-  function storeAndRemoveAttributes(img) {
-    for (const attr of attributes) storeAttr(img, attr);
-    for (const source of getSibblingSources(img)) storeAttr(source, "srcset");
-  }
+  /** Apply one attribute op to an image and its sibling sources. */
+  const applyToImageAttributes = (apply) => (img) => {
+    for (const attr of attributes) apply(img, attr);
+    for (const source of getSibblingSources(img)) apply(source, "srcset");
+  };
+
+  const storeAndRemoveAttributes = applyToImageAttributes(storeAttr);
 
   const processImageForDefer = (img) => {
     if (!shouldProcessImage(img)) return;
@@ -141,10 +137,7 @@
     }
   };
 
-  const restoreStoredAttributes = (img) => {
-    for (const attr of attributes) restoreAttr(img, attr);
-    for (const source of getSibblingSources(img)) restoreAttr(source, "srcset");
-  };
+  const restoreStoredAttributes = applyToImageAttributes(restoreAttr);
 
   const restoreImageAttributes = () => {
     const images = document.querySelectorAll(

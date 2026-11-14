@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "vitest";
 import { initImagePopup, openImagePopup } from "#public/ui/image-popup.js";
 import { imagePopupDialogHtml, popupSlideAlts } from "#test/test-utils.js";
 
@@ -153,10 +153,22 @@ describe("openImagePopup", () => {
   });
 
   test("keeps the LQIP background while the image is loading", () => {
-    const dialog = openWith(["one"]);
-    const wrapper = dialog.querySelector(".popup-slide .image-wrapper");
+    // happy-dom never loads images, and newer versions report complete=true
+    // anyway - pin the pre-load state the production code branches on.
+    const proto = window.HTMLImageElement.prototype;
+    const original = Object.getOwnPropertyDescriptor(proto, "complete");
+    Object.defineProperty(proto, "complete", {
+      configurable: true,
+      get: () => false,
+    });
+    try {
+      const dialog = openWith(["one"]);
+      const wrapper = dialog.querySelector(".popup-slide .image-wrapper");
 
-    expect(wrapper.style.backgroundImage).toContain("data:image/webp");
+      expect(wrapper.style.backgroundImage).toContain("data:image/webp");
+    } finally {
+      if (original) Object.defineProperty(proto, "complete", original);
+    }
   });
 
   test("eager-loads the current image and its neighbours", () => {

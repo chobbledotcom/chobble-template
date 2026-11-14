@@ -1,5 +1,5 @@
-import { describe, expect, test } from "bun:test";
 import markdownIt from "markdown-it";
+import { describe, expect, test } from "vitest";
 import { amendMarkdown } from "#eleventy/file-utils.js";
 
 const createRenderer = () => {

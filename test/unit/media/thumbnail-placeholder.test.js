@@ -1,30 +1,9 @@
-import { describe, expect, test } from "bun:test";
-import {
-  configureThumbnailPlaceholder,
-  getPlaceholderForPath,
-  hashString,
-  PLACEHOLDER_COLORS,
-} from "#media/thumbnail-placeholder.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
-import { unique } from "#toolkit/fp/array.js";
+import { describe, expect, test } from "vitest";
+import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
+import { fs, path, srcDir } from "#test/test-utils.js";
+import { unique } from "#utils/fp/array.js";
 
 describe("thumbnail-placeholder", () => {
-  describe("hashString", () => {
-    test("returns positive number", () => {
-      expect(hashString("test")).toBeGreaterThanOrEqual(0);
-      expect(hashString("")).toBeGreaterThanOrEqual(0);
-    });
-
-    test("is deterministic", () => {
-      const path = "/products/my-product/";
-      expect(hashString(path)).toBe(hashString(path));
-    });
-
-    test("varies with input", () => {
-      expect(hashString("/a/")).not.toBe(hashString("/b/"));
-    });
-  });
-
   describe("getPlaceholderForPath", () => {
     test("returns svg path", () => {
       const result = getPlaceholderForPath("/products/widget/");
@@ -36,8 +15,16 @@ describe("thumbnail-placeholder", () => {
       expect(getPlaceholderForPath(path)).toBe(getPlaceholderForPath(path));
     });
 
-    test("handles empty input", () => {
-      expect(getPlaceholderForPath("")).toMatch(/\.svg$/);
+    test.each([
+      ["", "green"],
+      ["/products/widget/", "orange"],
+      ["/products/test-product/", "yellow"],
+      ["/caf\u00e9/\u{1f600}/", "yellow"],
+      ["/a/".repeat(100), "green"],
+    ])("preserves the placeholder assignment for %j", (path, color) => {
+      expect(getPlaceholderForPath(path)).toBe(
+        `images/placeholders/${color}.svg`,
+      );
     });
 
     test("distributes paths across placeholders", () => {
@@ -46,21 +33,18 @@ describe("thumbnail-placeholder", () => {
       expect(placeholders.length).toBeGreaterThan(1);
     });
 
-    test("uses defined colors", () => {
-      const result = getPlaceholderForPath("/any/path/");
-      const colorPattern = new RegExp(
-        `^images/placeholders/(${PLACEHOLDER_COLORS.join("|")})\\.svg$`,
-      );
-      expect(result).toMatch(colorPattern);
-    });
-  });
-
-  describe("configureThumbnailPlaceholder", () => {
-    test("registers filter", () => {
-      const config = createMockEleventyConfig();
-      configureThumbnailPlaceholder(config);
-      expect(config.filters.thumbnailPlaceholder).toBeDefined();
-      expect(config.filters.thumbnailPlaceholder("/test/")).toMatch(/\.svg$/);
+    test("assigns every shipped placeholder asset", () => {
+      const results = unique(
+        Array.from({ length: 100 }, (_, i) =>
+          getPlaceholderForPath(`/item/${i}/`),
+        ),
+      ).toSorted();
+      const assets = fs
+        .readdirSync(path.join(srcDir, "images/placeholders"))
+        .filter((file) => file.endsWith(".svg"))
+        .map((file) => `images/placeholders/${file}`)
+        .toSorted();
+      expect(results).toEqual(assets);
     });
   });
 });

@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * In-house mutation tester — "tests for your tests".
  *
@@ -10,19 +10,30 @@
  * The operator tables and AST walk are derived from Mutasaurus (MIT); the
  * execution model is our own — see scripts/mutation/LICENSE.mutasaurus.md.
  *
- * Usage: bun run mutation <source-glob> <test-glob> [options]
+ * Usage: npm run mutation -- <source-glob> <test-glob> [options]
  */
 
 import { existsSync, statSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
+import { globSync } from "tinyglobby";
 import { ROOT_DIR } from "#lib/paths.js";
-import { runMutationTesting } from "./mutation/runner.js";
+import { runIfMain } from "#scripts/lib/is-main-module.js";
 
 const DEFAULT_TIMEOUT = 10_000;
 
+/**
+ * @typedef {Object} ParsedMutationArgs
+ * @property {string | null} error
+ * @property {boolean} exhaustive
+ * @property {boolean} help
+ * @property {string[]} sources
+ * @property {string[]} tests
+ * @property {number} timeout
+ */
+
 const USAGE = `Usage:
-  bun run mutation <source-glob> <test-glob> [options]
-  bun run mutation --source <glob> --test <glob> [--source …] [--test …]
+  npm run mutation -- <source-glob> <test-glob> [options]
+  npm run mutation -- --source <glob> --test <glob> [--source …] [--test …]
 
 Mutates operators in the source file(s), runs the mapped test file(s), and
 reports which mutants survived (were NOT caught by your tests).
@@ -33,10 +44,13 @@ Options:
   -h, --help       Show this help.
 
 Examples:
-  bun run mutation src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
-  bun run mutation 'src/_lib/filters/*.js' 'test/unit/filters/*.test.js' --exhaustive`;
+  npm run mutation -- src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
+  npm run mutation -- 'src/_lib/eleventy/*.js' 'test/unit/eleventy/*.test.js' --exhaustive`;
 
-/** Boolean flags: set a field on the accumulator and consume no extra args. */
+/**
+ * Boolean flags: set a field on the accumulator and consume no extra args.
+ * @type {Record<string, (p: ParsedMutationArgs) => void>}
+ */
 const BOOLEAN_FLAGS = {
   "--exhaustive": (p) => {
     p.exhaustive = true;
@@ -49,7 +63,10 @@ const BOOLEAN_FLAGS = {
   },
 };
 
-/** Value flags: take the next arg as their value. */
+/**
+ * Value flags: take the next arg as their value.
+ * @type {Record<string, (p: ParsedMutationArgs, v: string) => void>}
+ */
 const VALUE_FLAGS = {
   "--source": (p, v) => p.sources.push(v),
   "--test": (p, v) => p.tests.push(v),
@@ -61,6 +78,9 @@ const VALUE_FLAGS = {
 /**
  * Apply a single recognised flag to the accumulator, returning how many
  * extra args it consumed, or null when `arg` is not a known flag.
+ * @param {ParsedMutationArgs} parsed
+ * @param {string} arg
+ * @param {string | undefined} next
  */
 const applyFlag = (parsed, arg, next) => {
   const boolFlag = BOOLEAN_FLAGS[arg];
@@ -81,13 +101,15 @@ const applyFlag = (parsed, arg, next) => {
  * or null. Flag-form (--source/--test) and positional-form are exclusive: a
  * leftover positional alongside flags means a glob expanded past the single
  * value a flag consumed, which would silently narrow the run — reject it.
+ * @param {ParsedMutationArgs} parsed
+ * @param {string[]} positional
  */
 const resolvePositionals = (parsed, positional) => {
   if (parsed.sources.length > 0 || parsed.tests.length > 0) {
     return positional.length > 0
       ? `Unexpected positional argument(s) alongside --source/--test: ${positional.join(", ")}. ` +
           "A glob likely expanded to multiple files — quote it " +
-          "(e.g. --source 'src/_lib/filters/*.js') or pass repeated flags."
+          "(e.g. --source 'src/_lib/eleventy/*.js') or pass repeated flags."
       : null;
   }
   if (positional[0] !== undefined) parsed.sources.push(positional[0]);
@@ -98,16 +120,26 @@ const resolvePositionals = (parsed, positional) => {
     : null;
 };
 
-const validate = (parsed, positional) => {
+/**
+ * @param {ParsedMutationArgs} parsed
+ * @param {string[]} positional
+ */
+const validateParsed = (parsed, positional) => {
   const badTimeout = !Number.isFinite(parsed.timeout) || parsed.timeout < 0;
-  parsed.error =
-    resolvePositionals(parsed, positional) ??
-    (badTimeout
-      ? "Invalid --timeout: expected a non-negative number of milliseconds."
-      : null);
+  const positionalError = resolvePositionals(parsed, positional);
+  if (positionalError !== null) {
+    parsed.error = positionalError;
+  } else if (badTimeout) {
+    parsed.error =
+      "Invalid --timeout: expected a non-negative number of milliseconds.";
+  }
 };
 
-const parseArgs = (args) => {
+/**
+ * @param {string[]} args
+ * @returns {ParsedMutationArgs}
+ */
+export const parseArgs = (args) => {
   const parsed = {
     error: null,
     exhaustive: false,
@@ -124,30 +156,36 @@ const parseArgs = (args) => {
     else index += consumed;
     index += 1;
   }
-  validate(parsed, positional);
+  validateParsed(parsed, positional);
   return parsed;
 };
 
-/** Resolve one glob (or plain path) to absolute file paths. */
+/**
+ * Resolve one glob (or plain path) to absolute file paths.
+ * @param {string} glob
+ */
 const matchGlob = (glob) => {
   // A plain path (absolute or relative, no wildcard) won't match through
-  // Bun.Glob's cwd-relative scan, so take an existing file as-is first.
+  // a cwd-relative glob scan, so take an existing file as-is first.
   const abs = isAbsolute(glob) ? glob : resolve(ROOT_DIR, glob);
   if (existsSync(abs) && statSync(abs).isFile()) return [abs];
-  return [...new Bun.Glob(glob).scanSync({ absolute: true, cwd: ROOT_DIR })];
+  return globSync(glob, { absolute: true, cwd: ROOT_DIR });
 };
 
-/** Expand source/test globs to absolute, sorted, de-duplicated file paths. */
-const expand = (globs) => {
-  const paths = new Set();
-  for (const glob of globs) {
-    for (const path of matchGlob(glob)) paths.add(path);
-  }
-  return [...paths].sort();
-};
+/**
+ * Expand source/test globs to absolute, sorted, de-duplicated file paths.
+ * @param {string[]} globs
+ */
+const expand = (globs) => [...new Set(globs.flatMap(matchGlob))].sort();
 
-const main = async () => {
-  const args = parseArgs(process.argv.slice(2));
+/**
+ * CLI entry: parse args, expand globs, run the mutation tester, and exit
+ * with its code. The runner is imported lazily so importing this module
+ * (for parseArgs, or in tests) never drags in the spawn machinery.
+ * @param {string[]} [argv]
+ */
+export const main = async (argv = process.argv.slice(2)) => {
+  const args = parseArgs(argv);
   if (args.error !== null) {
     console.error(args.error);
     process.exit(1);
@@ -168,6 +206,7 @@ const main = async () => {
     process.exit(1);
   }
 
+  const { runMutationTesting } = await import("#scripts/mutation/runner.js");
   const code = await runMutationTesting({
     exhaustive: args.exhaustive,
     sourceFiles,
@@ -177,4 +216,4 @@ const main = async () => {
   process.exit(code);
 };
 
-main();
+await runIfMain(import.meta.url, main);

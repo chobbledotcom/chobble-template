@@ -6,13 +6,13 @@ falls back to a prose wrapper.
 {%- endcomment -%}
 {%- if has_right_content -%}
   <aside class="right-column">
-    {%- assign right_blocks = "right-content" | sidebar_blocks -%}
+    {%- assign right_blocks = "right-content" | sidebar_blocks: pageLanguage.code -%}
     {%- if right_blocks.size > 0 -%}
       {%- for block in right_blocks -%}
         {%- include "design-system/render-block.html", block: block -%}
       {%- endfor -%}
     {%- else -%}
-      <div class="prose">{% render_snippet "right-content", "" %}</div>
+      <div class="prose">{% render_snippet "right-content", "", pageLanguage.code %}</div>
     {%- endif -%}
   </aside>
 {%- endif -%}

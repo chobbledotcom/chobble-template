@@ -14,8 +14,9 @@
  * {% assign author = collections.team | getBySlug: authorSlug %}
  */
 
-import { unique } from "#toolkit/fp/array.js";
-import { indexBy } from "#toolkit/fp/memoize.js";
+import { registerFilters } from "#eleventy/register.js";
+import { unique } from "#utils/fp/array.js";
+import { indexBy } from "#utils/fp/memoize.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
@@ -67,18 +68,6 @@ export const getBySlug = (collection, slug) => {
     );
   }
   return item;
-};
-
-/**
- * @param {Record<string, unknown>} meta
- * @param {string | null | undefined} authorReference
- * @param {EleventyCollectionItem[]} team
- * @returns {Record<string, unknown>}
- */
-export const withSchemaAuthor = (meta, authorReference, team) => {
-  if (!authorReference) return meta;
-  const author = getBySlug(team, authorReference);
-  return { ...meta, author: { name: author.data.name } };
 };
 
 /**
@@ -140,10 +129,10 @@ export const getItemsByPath = (collection, paths) => {
  * If the slug is not found, the build will fail with an error indicating
  * the problematic slug - this catches data errors early.
  *
- * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
+ * @param {import("#lib/types").UserConfig} eleventyConfig
  */
-export const configureCollectionLookup = (eleventyConfig) => {
-  eleventyConfig.addFilter("getBySlug", getBySlug);
-  eleventyConfig.addFilter("getItemsByPath", getItemsByPath);
-  eleventyConfig.addFilter("withSchemaAuthor", withSchemaAuthor);
-};
+export const configureCollectionLookup = (eleventyConfig) =>
+  registerFilters(eleventyConfig)({
+    getBySlug,
+    getItemsByPath,
+  });

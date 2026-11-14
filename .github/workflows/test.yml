@@ -1,6 +1,11 @@
 name: Test
 
 on:
+  # Pushes to main run the suite too: a site that commits straight to main
+  # would otherwise never learn that its checks broke.
+  push:
+    branches:
+      - main
   workflow_dispatch:
   workflow_call:
   merge_group:
@@ -13,22 +18,16 @@ permissions:
 jobs:
   test:
     name: Run Tests
-    # runs-on: ubuntu-latest  # Uncomment to test on GitHub runners
-    runs-on: ubicloud-standard-8
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Cache bun install cache
-        uses: actions/cache@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: |
-            bun-${{ runner.os }}-
+          node-version: 22
+          cache: npm
 
       # .image-cache: processed images for the site build (keyed on sources)
       # *.tsbuildinfo: incremental tsc state for typecheck + typecheck:strict
@@ -42,12 +41,35 @@ jobs:
             tsconfig.tsbuildinfo
             tsconfig.strict.tsbuildinfo
             /tmp/pages-cms-validation-cache
-          key: test-state-${{ runner.os }}-${{ hashFiles('bun.lock', 'tsconfig.json', 'src/images/**') }}
+          key: test-state-${{ runner.os }}-${{ hashFiles('package-lock.json', 'tsconfig.json', 'src/images/**') }}
           restore-keys: |
             test-state-${{ runner.os }}-
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: npm ci
 
       - name: Run tests
-        run: bun run test --verbose
+        run: npm test -- --verbose
+
+  # The template's tests travel with every site forked from it. This job
+  # deletes the demo content and rewrites the site data the way a fork does,
+  # then runs the whole suite against that copy, so a test that leans on demo
+  # content fails here rather than in the first fork that deletes it.
+  fork-simulation:
+    name: Fork Simulation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests in a simulated fork
+        run: npm run test:fork

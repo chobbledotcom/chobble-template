@@ -1,5 +1,7 @@
+// jscpd:ignore-start -- shared @use import block
 @use "../variables" as *;
 @use "../mixins" as *;
+// jscpd:ignore-end
 
 // =============================================================================
 // SPLIT CALLOUT
@@ -44,8 +46,6 @@
 
     &__subtitle {
       @include body-lg;
-
-      opacity: 0.9;
     }
   }
 }

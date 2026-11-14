@@ -1,10 +1,10 @@
-/* jscpd:ignore-start */
+/* jscpd:ignore-start -- block schema declaration data */
 import {
   INTRO_CONTENT_FIELD,
   objectList,
+  revealToggleField,
   str,
 } from "#utils/block-schema/shared.js";
-/* jscpd:ignore-end */
 
 export const type = "downloads";
 export const containerWidth = "narrow";
@@ -25,19 +25,22 @@ export const fields = {
     required: true,
     description: ITEMS_DESCRIPTION,
   },
-  reveal: {
-    type: "boolean",
-    default: "true",
-    description: "Adds `data-reveal` to each download item.",
-  },
+  reveal: revealToggleField("each download item"),
 };
 
-/* jscpd:ignore-start */
 export const docs = {
   summary:
     "List of downloadable files. Each item auto-detects its icon from the file extension and its size from the filesystem at build time.",
   scss: "src/css/design-system/_downloads.scss",
   htmlRoot: '<ul class="downloads" role="list">',
   notes: FILE_RESOLUTION_NOTE,
+};
+
+export const example = {
+  type: "downloads",
+  intro_content: "## Files to download",
+  items: [
+    { file: "/files/template-overview.txt", label: "Template overview (TXT)" },
+  ],
 };
 /* jscpd:ignore-end */

@@ -1,17 +1,46 @@
 # Snippets
 
-Create a file in this folder called "snippet-name.md" and it'll be rendered in the spot mentioned:
+Snippets are reusable content, not standalone pages. Two filenames have global
+placements in the base layout:
 
-- `homepage-categories-header.md` - Above the homepage categories, if there are any. Defaults to `<h3>Product Categories</h3>`
-- `homepage-news-header.md` - Above the homepage news items, if there are any. Defaults to `<h3>Latest Posts</h3>`
-- `footer-content.md` - The footer, under the social media links. You can
-  also define design-system `blocks` in this snippet's frontmatter; they will
-  be rendered at the end of `<main>` on every page (before the `<footer>`), so
-  you can build a consistent "fancy footer" that appears across the whole site
-- `right-content.md` - An optional right column (sidebar) that appears beside
-  the main content on every page. Define design-system `blocks` in the
-  frontmatter (column-safe types only — no hero, `*-background`,
-  marquee-images, or `split-*`), or just write markdown body content. Width
-  is themable via the `--right-column-width` CSS token. When this file
-  exists, a page whose first block is `image-background` gets that banner
-  hoisted above the columns so it spans content + sidebar
+- `footer-content.md`: Markdown body content renders in `<footer>`, below the
+  social links. Its frontmatter `blocks` render separately at the end of
+  `<main>`, before the footer, on every page using the base layout.
+- `right-content.md`: An optional sidebar beside the main content. Nonempty
+  frontmatter `blocks` render instead of its Markdown body. Use column-safe
+  blocks only; see the [layout reference](../../skills/chobble-template-site-builder/references/layouts.md)
+  for restrictions. Width is themeable via `--right-column-width`. When the
+  sidebar exists, a page's first `image-background` block is hoisted above
+  the columns to span both content and sidebar.
+
+Homepage section headings belong in the homepage's own `blocks` array; there
+are no special homepage heading snippet slots.
+
+## Reusable Blocks
+
+Create `src/snippets/shared-contact-prompt.md` with frontmatter like:
+
+```yaml
+---
+name: Shared contact prompt
+blocks:
+  - type: markdown
+    content: |
+      ## Questions?
+
+      [Contact us](/contact/) for more information.
+---
+```
+
+Then include its blocks on a page by referencing the filename without `.md`:
+
+```yaml
+blocks:
+  - type: snippet
+    reference: shared-contact-prompt
+```
+
+The `snippet` block renders the referenced snippet's blocks, not its Markdown
+body. A reference to a missing snippet fails the build, and snippet blocks are
+validated and default-filled exactly like page blocks. For accepted fields, use the generated
+[block reference](../../skills/chobble-template-site-builder/references/blocks.md).

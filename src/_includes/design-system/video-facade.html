@@ -1,26 +1,26 @@
 {%- comment -%}
-Click-to-play video facade. Renders a thumbnail + play button that lazy-loads
-the iframe on click (no autoplay on page load).
+Click-to-play video facade: a thumbnail and play button that load the video
+only when pressed, so a page of videos costs nothing until one is played.
 
-Used by video-cards (grid of videos) and split-video blocks so video UI is
-consistent across the site. The iframe lives inside a <template> and is
-swapped in by initVideoFacades() in design-system.js when the button is
-clicked; the embed URL still has autoplay=1 so the video starts as soon as
-it appears.
+The iframe waits inside a <template>; design-system.js swaps it in on click.
+Its embed URL autoplays, so the video starts as soon as it appears.
 
 Parameters:
-  - video_id: YouTube video ID or custom embed URL (required)
-  - name: Accessible title/alt for the video (required)
-  - thumbnail_url: Thumbnail image URL. Falsy renders the no-thumbnail variant.
+  - video_id: YouTube video ID, or the embed URL of another provider (required)
+  - name: Name of the video, used for its accessible labels (required)
+  - thumbnail_url: Image path or URL. Defaults to the provider's own
+                   thumbnail for a YouTube ID or a Vimeo URL; other
+                   providers show a plain panel.
 {%- endcomment -%}
 
+{%- assign _thumbnail = video_id | videoThumbnail: thumbnail_url -%}
 <button
   type="button"
-  class="video-facade{% unless thumbnail_url %} video-facade--no-thumbnail{% endunless %}"
+  class="video-facade{% if _thumbnail == "" %} video-facade--no-thumbnail{% endif %}"
   aria-label="Play {{ name }}"
 >
-  {%- if thumbnail_url -%}
-  {%- image thumbnail_url, name, "", "", "", "16/9", "", false, true -%}
+  {%- if _thumbnail != "" -%}
+  {%- image _thumbnail, "", "", "", "", "16/9", "", false, true -%}
   {%- endif -%}
   <span class="video-play-button" aria-hidden="true">
     <svg viewBox="0 0 68 48" width="68" height="48">
@@ -28,5 +28,5 @@ Parameters:
       <path class="video-play-icon" d="M 45,24 27,14 27,34"/>
     </svg>
   </span>
-  <template>{%- include "design-system/video-iframe.html", video_id: video_id, name: name -%}</template>
+  <template>{%- include "design-system/video-iframe.html", video_id: video_id, name: name, mode: "click" -%}</template>
 </button>

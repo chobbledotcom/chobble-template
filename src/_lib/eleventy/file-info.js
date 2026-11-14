@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoize } from "#utils/fp/memoize.js";
 
 /**
  * Build-time file metadata for the `downloads` block.
@@ -14,43 +14,33 @@ import { memoize } from "#toolkit/fp/memoize.js";
 const FORMAT_UNITS = ["B", "KB", "MB", "GB"];
 
 /**
+ * Iconify icon groups: one icon id per extension family, expanded into the
+ * per-extension map below so the grouped data lives here once.
+ * @type {Array<[string, string[]]>}
+ */
+/* jscpd:ignore-start -- declaration data: extension->icon groups */
+const ICON_GROUPS = [
+  ["pdf-02", ["pdf"]],
+  ["doc-01", ["doc", "docx", "odt", "rtf"]],
+  ["txt-01", ["txt", "md"]],
+  ["xls-02", ["xls", "xlsx", "ods", "csv"]],
+  ["ppt-02", ["ppt", "pptx", "odp"]],
+  ["zip-01", ["zip", "tar", "gz", "7z", "rar"]],
+  ["image-01", ["png", "jpg", "jpeg", "gif", "svg", "webp"]],
+  ["music-note-01", ["mp3", "wav", "m4a", "ogg"]],
+  ["video-01", ["mp4", "mov", "webm"]],
+];
+/* jscpd:ignore-end */
+
+/**
  * Extension → Iconify icon id (all icons use the hugeicons set already cached by the project).
  * @type {Record<string, string>}
  */
-const EXTENSION_ICONS = {
-  pdf: "hugeicons:pdf-02",
-  doc: "hugeicons:doc-01",
-  docx: "hugeicons:doc-01",
-  odt: "hugeicons:doc-01",
-  rtf: "hugeicons:doc-01",
-  txt: "hugeicons:txt-01",
-  md: "hugeicons:txt-01",
-  xls: "hugeicons:xls-02",
-  xlsx: "hugeicons:xls-02",
-  ods: "hugeicons:xls-02",
-  csv: "hugeicons:csv-02",
-  ppt: "hugeicons:ppt-02",
-  pptx: "hugeicons:ppt-02",
-  odp: "hugeicons:ppt-02",
-  zip: "hugeicons:zip-01",
-  tar: "hugeicons:zip-01",
-  gz: "hugeicons:zip-01",
-  "7z": "hugeicons:zip-01",
-  rar: "hugeicons:zip-01",
-  png: "hugeicons:image-01",
-  jpg: "hugeicons:image-01",
-  jpeg: "hugeicons:image-01",
-  gif: "hugeicons:image-01",
-  svg: "hugeicons:image-01",
-  webp: "hugeicons:image-01",
-  mp3: "hugeicons:music-note-01",
-  wav: "hugeicons:music-note-01",
-  m4a: "hugeicons:music-note-01",
-  ogg: "hugeicons:music-note-01",
-  mp4: "hugeicons:video-01",
-  mov: "hugeicons:video-01",
-  webm: "hugeicons:video-01",
-};
+const EXTENSION_ICONS = Object.fromEntries(
+  ICON_GROUPS.flatMap(([icon, extensions]) =>
+    extensions.map((extension) => [extension, `hugeicons:${icon}`]),
+  ),
+);
 
 const DEFAULT_ICON = "hugeicons:file-01";
 
@@ -101,11 +91,4 @@ const readFileInfo = memoize(
 const fileInfo = (urlPath, baseDir = process.cwd()) =>
   readFileInfo(urlPath, baseDir);
 
-/**
- * @param {{ addFilter: Function }} eleventyConfig
- */
-const configureFileInfo = (eleventyConfig) => {
-  eleventyConfig.addFilter("fileInfo", fileInfo);
-};
-
-export { configureFileInfo, fileInfo };
+export { fileInfo };

@@ -1,6 +1,7 @@
 import path from "node:path";
-import { filter, map, pipe, sort } from "#toolkit/fp/array.js";
-import { frozenSetFrom, setLacks } from "#toolkit/fp/set.js";
+import { filter, map, pipe, sort } from "#utils/fp/array.js";
+import { frozenSetFrom, setLacks } from "#utils/fp/set.js";
+import { compareStringKeys } from "#utils/fp/sorting.js";
 
 const DEFINITION_PATTERN = /(--[a-z][a-z0-9-]*):/g;
 const USAGE_PATTERN = /var\(--([a-z][a-z0-9-]*)/g;
@@ -23,15 +24,10 @@ const validateCssVariables = (css, inputPath) => {
   const usages = toSet(USAGE_PATTERN, (m) => `--${m[1]}`);
 
   const isUndefined = setLacks(definitions);
-  /**
-   * @param {string} a
-   * @param {string} b
-   */
-  const alphabetical = (a, b) => a.localeCompare(b);
 
   const undefinedVars = pipe(
     filter(isUndefined),
-    sort(alphabetical),
+    sort(compareStringKeys),
   )([...usages]);
 
   if (undefinedVars.length > 0) {

@@ -1,12 +1,12 @@
 /**
  * Sorting utilities - Eleventy-specific comparators and sort helpers.
  *
- * For generic sorting utilities (compareBy, compareStrings, descending,
- * orderThenString), import directly from "#toolkit/fp/sorting.js".
+ * For generic sorting utilities (compareBy, descending, orderThenString),
+ * import directly from "#utils/fp/sorting.js".
  */
-import { orderThenString } from "#toolkit/fp/sorting.js";
+import { orderThenString } from "#utils/fp/sorting.js";
 
-// Eleventy-specific comparators (not in toolkit)
+// Eleventy-specific comparators (the generic ones live in fp/sorting.js)
 
 /**
  * @typedef {Object} CollectionItemData
@@ -43,26 +43,4 @@ const sortByDateDescending = (a, b) => {
   return bTime - aTime;
 };
 
-/**
- * @typedef {Object} NavigationItemData
- * @property {number} [order]
- * @property {string} name
- * @property {{ order?: number, key?: string }} eleventyNavigation
- */
-
-/**
- * @typedef {Object} NavigationItem
- * @property {NavigationItemData} data
- */
-
-/**
- * Comparator for sorting navigation items by order then by key.
- * Falls back to title when eleventyNavigation.key is not set.
- * @type {(a: NavigationItem, b: NavigationItem) => number}
- */
-const sortNavigationItems = orderThenString(
-  (item) => item.data.eleventyNavigation.order ?? 999,
-  (item) => item.data.eleventyNavigation.key || item.data.name,
-);
-
-export { sortByDateDescending, sortItems, sortNavigationItems };
+export { sortByDateDescending, sortItems };

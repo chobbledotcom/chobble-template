@@ -1,242 +1,147 @@
-/**
- * Tests for video URL utilities
- */
-import { afterEach, describe, expect, mock, test } from "bun:test";
-import {
-  getVideoEmbedUrl,
-  getVideoThumbnailUrl,
-  isRickAstleyThumbnail,
-  isYouTubeId,
-  RICK_ASTLEY_VIDEO_ID,
-} from "#utils/video.js";
+import { describe, expect, test } from "vitest";
+import { configureVideo } from "#eleventy/video.js";
+import { withConfiguredMock, withMockFetch } from "#test/test-utils.js";
 
-describe("getVideoEmbedUrl", () => {
-  describe("with YouTube video ID", () => {
-    test("returns youtube-nocookie embed URL with autoplay", () => {
-      const result = getVideoEmbedUrl("dQw4w9WgXcQ");
-      expect(result).toBe(
+const registered = withConfiguredMock(configureVideo)();
+const { videoEmbedUrl, isYouTubeId, isBunnyVideo } = registered.filters;
+const { videoThumbnail } = registered.asyncFilters;
+
+describe("video filters", () => {
+  describe("isYouTubeId", () => {
+    test("is true for a bare video ID", () => {
+      expect(isYouTubeId("dQw4w9WgXcQ")).toBe(true);
+    });
+
+    test("is false for an embed URL", () => {
+      expect(isYouTubeId("https://player.vimeo.com/video/123456")).toBe(false);
+      expect(isYouTubeId("http://example.com/embed/1")).toBe(false);
+    });
+  });
+
+  describe("isBunnyVideo", () => {
+    test("is true for a Bunny Stream embed URL", () => {
+      expect(isBunnyVideo("https://iframe.mediadelivery.net/embed/1/abc")).toBe(
+        true,
+      );
+      expect(
+        isBunnyVideo("https://player.mediadelivery.net/embed/1/abc?loop=true"),
+      ).toBe(true);
+    });
+
+    test("is false for a YouTube ID and for other providers", () => {
+      expect(isBunnyVideo("dQw4w9WgXcQ")).toBe(false);
+      expect(isBunnyVideo("https://player.vimeo.com/video/123456")).toBe(false);
+    });
+  });
+
+  describe("videoThumbnail", () => {
+    test("uses the author's thumbnail when one is given", async () => {
+      expect(await videoThumbnail("dQw4w9WgXcQ", "poster.jpg")).toBe(
+        "poster.jpg",
+      );
+      expect(
+        await videoThumbnail("https://vimeo.com/123456", "poster.jpg"),
+      ).toBe("poster.jpg");
+    });
+
+    test("falls back to YouTube's thumbnail for a YouTube ID", async () => {
+      expect(await videoThumbnail("dQw4w9WgXcQ")).toBe(
+        "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      );
+    });
+
+    test("asks Vimeo for the thumbnail of a Vimeo URL", () =>
+      withMockFetch(
+        { thumbnail_url: "https://i.vimeocdn.example/1001.jpg" },
+        {},
+        async () => {
+          expect(
+            await videoThumbnail("https://player.vimeo.com/video/1001?h=abc"),
+          ).toBe("https://i.vimeocdn.example/1001.jpg");
+        },
+      ));
+
+    test("asks Vimeo once for a video used more than once", async () => {
+      await withMockFetch({ thumbnail_url: "first.jpg" }, {}, () =>
+        videoThumbnail("https://vimeo.com/1002"),
+      );
+      await withMockFetch({ thumbnail_url: "second.jpg" }, {}, async () => {
+        expect(await videoThumbnail("https://vimeo.com/1002")).toBe(
+          "first.jpg",
+        );
+      });
+    });
+
+    test("fails when Vimeo will not describe the video", () =>
+      withMockFetch("", { ok: false, status: 404 }, () =>
+        expect(videoThumbnail("https://vimeo.com/1003")).rejects.toThrow(
+          "Vimeo returned HTTP 404 for the thumbnail of video 1003",
+        ),
+      ));
+
+    test("is empty for another provider with no thumbnail given", async () => {
+      expect(
+        await videoThumbnail("https://iframe.mediadelivery.net/embed/1/abc"),
+      ).toBe("");
+    });
+  });
+
+  describe("videoEmbedUrl for YouTube IDs", () => {
+    test("builds a click-to-play embed on the no-cookie domain by default", () => {
+      expect(videoEmbedUrl("dQw4w9WgXcQ")).toBe(
         "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1",
       );
     });
 
-    test("adds background params when background option is true", () => {
-      const result = getVideoEmbedUrl("dQw4w9WgXcQ", { background: true });
-      expect(result).toBe(
-        "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=dQw4w9WgXcQ",
-      );
-    });
-
-    test("does not add background params when background is false", () => {
-      const result = getVideoEmbedUrl("dQw4w9WgXcQ", { background: false });
-      expect(result).toBe(
-        "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1",
-      );
-    });
-
-    test("adds mute and playsinline when autoplay is true", () => {
-      const result = getVideoEmbedUrl("dQw4w9WgXcQ", { autoplay: true });
-      expect(result).toBe(
+    test("mutes an autoplaying embed and keeps it inline", () => {
+      expect(videoEmbedUrl("dQw4w9WgXcQ", "autoplay")).toBe(
         "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&playsinline=1",
       );
     });
 
-    test("background option wins over autoplay when both are true", () => {
-      const result = getVideoEmbedUrl("dQw4w9WgXcQ", {
-        background: true,
-        autoplay: true,
+    test("loops a background embed silently without controls", () => {
+      const params = new URL(videoEmbedUrl("dQw4w9WgXcQ", "background"))
+        .searchParams;
+      expect(Object.fromEntries(params)).toEqual({
+        autoplay: "1",
+        mute: "1",
+        loop: "1",
+        controls: "0",
+        playsinline: "1",
+        enablejsapi: "1",
+        playlist: "dQw4w9WgXcQ",
       });
-      expect(result).toBe(
-        "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=dQw4w9WgXcQ",
-      );
     });
   });
 
-  describe("with Vimeo URL", () => {
-    test("adds autoplay and loop params to Vimeo player URL", () => {
-      expect(getVideoEmbedUrl("https://player.vimeo.com/video/123456")).toBe(
+  describe("videoEmbedUrl for Vimeo URLs", () => {
+    test("switches on autoplay and loop for click-to-play", () => {
+      expect(videoEmbedUrl("https://player.vimeo.com/video/123456")).toBe(
         "https://player.vimeo.com/video/123456?autoplay=1&loop=1",
       );
     });
 
-    test("adds autoplay and loop params to vimeo.com URL", () => {
-      expect(getVideoEmbedUrl("https://vimeo.com/123456")).toBe(
-        "https://vimeo.com/123456?autoplay=1&loop=1",
+    test("also mutes when the video starts without a click", () => {
+      expect(videoEmbedUrl("https://vimeo.com/123456", "background")).toBe(
+        "https://vimeo.com/123456?autoplay=1&loop=1&muted=1",
+      );
+      expect(videoEmbedUrl("https://vimeo.com/123456", "autoplay")).toBe(
+        "https://vimeo.com/123456?autoplay=1&loop=1&muted=1",
       );
     });
 
-    test("preserves existing autoplay param on Vimeo URL", () => {
+    test("keeps parameters the author already set", () => {
       expect(
-        getVideoEmbedUrl("https://player.vimeo.com/video/123456?autoplay=0"),
-      ).toBe("https://player.vimeo.com/video/123456?autoplay=0&loop=1");
-    });
-
-    test("preserves existing loop param on Vimeo URL", () => {
-      expect(
-        getVideoEmbedUrl("https://player.vimeo.com/video/123456?loop=0"),
-      ).toBe("https://player.vimeo.com/video/123456?loop=0&autoplay=1");
-    });
-
-    test("does not duplicate params when both already present", () => {
-      expect(
-        getVideoEmbedUrl(
-          "https://player.vimeo.com/video/123456?autoplay=1&loop=1",
-        ),
-      ).toBe("https://player.vimeo.com/video/123456?autoplay=1&loop=1");
-    });
-
-    test("preserves existing query params like h= hash", () => {
-      expect(
-        getVideoEmbedUrl("https://player.vimeo.com/video/123456?h=abc123"),
-      ).toBe(
-        "https://player.vimeo.com/video/123456?h=abc123&autoplay=1&loop=1",
-      );
-    });
-
-    test("adds muted param when autoplay is true on Vimeo URL", () => {
-      expect(
-        getVideoEmbedUrl("https://player.vimeo.com/video/123456", {
-          autoplay: true,
-        }),
-      ).toBe("https://player.vimeo.com/video/123456?autoplay=1&loop=1&muted=1");
+        videoEmbedUrl("https://player.vimeo.com/video/123456?loop=0&h=abc"),
+      ).toBe("https://player.vimeo.com/video/123456?loop=0&h=abc&autoplay=1");
     });
   });
 
-  describe("with custom URL", () => {
-    test("returns the URL unchanged for non-Vimeo https URL", () => {
-      const customUrl = "https://example.com/embed/video";
-      expect(getVideoEmbedUrl(customUrl)).toBe(customUrl);
+  describe("videoEmbedUrl for other providers", () => {
+    test("uses the embed URL as written, in every mode", () => {
+      const url = "https://iframe.mediadelivery.net/embed/1/abc?autoplay=true";
+      expect(videoEmbedUrl(url)).toBe(url);
+      expect(videoEmbedUrl(url, "background")).toBe(url);
     });
-
-    test("returns the URL unchanged for http URL", () => {
-      const customUrl = "http://example.com/embed/video";
-      expect(getVideoEmbedUrl(customUrl)).toBe(customUrl);
-    });
-  });
-});
-
-describe("getVideoThumbnailUrl", () => {
-  const originalFetch = globalThis.fetch;
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-  });
-
-  test("returns YouTube thumbnail URL for video ID", async () => {
-    const result = await getVideoThumbnailUrl("dQw4w9WgXcQ");
-    expect(result).toBe("https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg");
-  });
-
-  test("returns null for non-Vimeo custom https URL", async () => {
-    expect(await getVideoThumbnailUrl("https://example.com/embed/video")).toBe(
-      null,
-    );
-  });
-
-  test("returns null for non-Vimeo custom http URL", async () => {
-    expect(await getVideoThumbnailUrl("http://example.com/embed/video")).toBe(
-      null,
-    );
-  });
-
-  test("fetches thumbnail for Vimeo player embed URL via oEmbed", async () => {
-    const thumbnailUrl = "https://i.vimeocdn.com/video/test1_480.jpg";
-    globalThis.fetch = mock(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ thumbnail_url: thumbnailUrl }),
-      }),
-    );
-
-    const result = await getVideoThumbnailUrl(
-      "https://player.vimeo.com/video/900001",
-    );
-    expect(result).toBe(thumbnailUrl);
-    expect(globalThis.fetch).toHaveBeenCalledWith(
-      "https://vimeo.com/api/oembed.json?url=https://vimeo.com/900001&width=480",
-    );
-  });
-
-  test("extracts numeric ID from vimeo.com URL for oEmbed lookup", async () => {
-    globalThis.fetch = mock(() =>
-      Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            thumbnail_url: "https://i.vimeocdn.com/video/regular_480.jpg",
-          }),
-      }),
-    );
-
-    expect(await getVideoThumbnailUrl("https://vimeo.com/900002")).toBe(
-      "https://i.vimeocdn.com/video/regular_480.jpg",
-    );
-    expect(globalThis.fetch).toHaveBeenCalledWith(
-      "https://vimeo.com/api/oembed.json?url=https://vimeo.com/900002&width=480",
-    );
-  });
-
-  test("throws when Vimeo oEmbed API returns non-OK status", async () => {
-    globalThis.fetch = mock(() => Promise.resolve({ ok: false, status: 404 }));
-
-    await expect(
-      getVideoThumbnailUrl("https://player.vimeo.com/video/900003"),
-    ).rejects.toThrow("Vimeo oEmbed API returned 404 for video 900003");
-  });
-
-  test("throws when Vimeo oEmbed fetch fails with network error", async () => {
-    globalThis.fetch = mock(() => Promise.reject(new Error("Network error")));
-
-    await expect(
-      getVideoThumbnailUrl("https://player.vimeo.com/video/900004"),
-    ).rejects.toThrow("Network error");
-  });
-});
-
-describe("isRickAstleyThumbnail", () => {
-  test("returns true for Rick Astley YouTube thumbnail URL", () => {
-    const url = `https://img.youtube.com/vi/${RICK_ASTLEY_VIDEO_ID}/hqdefault.jpg`;
-    expect(isRickAstleyThumbnail(url)).toBe(true);
-  });
-
-  test("returns false for other YouTube thumbnail URLs", () => {
-    expect(
-      isRickAstleyThumbnail(
-        "https://img.youtube.com/vi/9bZkp7q19f0/hqdefault.jpg",
-      ),
-    ).toBe(false);
-  });
-
-  test("returns false for non-string input", () => {
-    expect(isRickAstleyThumbnail(null)).toBe(false);
-    expect(isRickAstleyThumbnail(undefined)).toBe(false);
-  });
-});
-
-describe("isYouTubeId", () => {
-  test("returns true for a YouTube video ID", () => {
-    expect(isYouTubeId("dQw4w9WgXcQ")).toBe(true);
-  });
-
-  test("returns false for an https URL", () => {
-    expect(isYouTubeId("https://example.com/embed/video")).toBe(false);
-  });
-
-  test("returns false for an http URL", () => {
-    expect(isYouTubeId("http://example.com/embed/video")).toBe(false);
-  });
-
-  test("returns false for a Vimeo URL", () => {
-    expect(isYouTubeId("https://player.vimeo.com/video/123456")).toBe(false);
-  });
-
-  test("returns false for non-string input", () => {
-    expect(isYouTubeId(null)).toBe(false);
-    expect(isYouTubeId(undefined)).toBe(false);
-  });
-});
-
-describe("RICK_ASTLEY_VIDEO_ID", () => {
-  test("is the known Rick Astley video ID", () => {
-    expect(RICK_ASTLEY_VIDEO_ID).toBe("dQw4w9WgXcQ");
   });
 });

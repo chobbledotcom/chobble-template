@@ -69,9 +69,11 @@ export const finishTestRun = (output, status) => {
  *
  * Lint / SCSS / knip use the read-only check variants (no `--write` / `--fix`)
  * so a commit hook never mutates the checkout mid-commit. If formatting or
- * dead-code is found the step fails; run `bun run lint:fix` / `bun run
- * knip:fix` and re-stage. The test step uses `--dots` so the runner can stream
- * live `(N/total passed)` progress even when stdout is piped.
+ * dead-code is found the step fails; run `npm run lint:fix` / `npm run
+ * knip:fix` and re-stage. Generated artifacts are checked for freshness, not
+ * regenerated, so a stale index cannot pass via a repaired working tree.
+ * The test step uses the dot reporter so the runner
+ * can stream live `(N/total passed)` progress even when stdout is piped.
  */
 export const getSteps = () => {
   const cachedTotal = existsSync(TEST_COUNT_CACHE)
@@ -79,42 +81,28 @@ export const getSteps = () => {
     : Number.NaN;
 
   return [
-    { name: "install", cmd: ["bun", "install"] },
-    {
-      name: "generate-types",
-      cmd: ["bun", "scripts/generate-pages-cms-types.js"],
-    },
+    { name: "install", cmd: ["npm", "install"] },
     {
       name: "tests:code-quality",
-      cmd: [
-        "bun",
-        "test",
-        "test/unit/code-quality",
-        "--concurrent",
-        "--timeout",
-        "1500",
-      ],
+      cmd: ["npx", "vitest", "run", "test/unit/code-quality"],
     },
-    { name: "lint", cmd: ["bun", "run", "lint"] },
-    { name: "lint:scss", cmd: ["bun", "run", "lint:scss"] },
-    { name: "knip", cmd: ["bun", "run", "knip"] },
-    { name: "typecheck", cmd: ["bun", "run", "typecheck"] },
-    { name: "typecheck:strict", cmd: ["bun", "run", "typecheck:strict"] },
-    { name: "cpd:fp", cmd: ["bun", "run", "cpd:fp"] },
-    { name: "cpd:design-system", cmd: ["bun", "run", "cpd:design-system"] },
-    { name: "cpd", cmd: ["bun", "run", "cpd"] },
-    { name: "cpd:ratchet", cmd: ["bun", "run", "cpd:ratchet"] },
+    { name: "lint", cmd: ["npm", "run", "lint"] },
+    { name: "lint:scss", cmd: ["npm", "run", "lint:scss"] },
+    { name: "knip", cmd: ["npm", "run", "knip"] },
+    { name: "typecheck", cmd: ["npm", "run", "typecheck"] },
+    { name: "typecheck:strict", cmd: ["npm", "run", "typecheck:strict"] },
+    { name: "cpd", cmd: ["npm", "run", "cpd"] },
+    { name: "cpd:ratchet", cmd: ["npm", "run", "cpd:ratchet"] },
     {
       name: "tests",
       cmd: [
-        "bun",
-        "test",
+        "npx",
+        "vitest",
+        "run",
         ...getNonCodeQualityTestFiles("test/**/*.test.js"),
-        "--dots",
+        "--reporter=dot",
         "--reporter=junit",
-        `--reporter-outfile=${TEST_REPORT_FILE}`,
-        "--timeout",
-        "1500",
+        `--outputFile.junit=${TEST_REPORT_FILE}`,
       ],
       preRun: resetTestReport,
       progress: createDotsProgress(

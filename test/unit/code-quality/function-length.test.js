@@ -1,9 +1,11 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
+import { combineFileLists } from "#test/code-scanner.js";
 import {
   extractFunctions,
   fs,
   path,
   rootDir,
+  SCRIPT_JS_FILES,
   SRC_JS_FILES,
 } from "#test/test-utils.js";
 import {
@@ -13,8 +15,8 @@ import {
   map,
   pipe,
   pluralize,
-} from "#toolkit/fp/array.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+} from "#utils/fp/array.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // Configuration
 const MAX_LINES = 30;
@@ -134,7 +136,7 @@ describe("function-length", () => {
       "}",
     ]);
     const functions = extractFunctions(source);
-    expect(functions.length).toBe(2);
+    expect(functions).toHaveLength(2);
 
     const outer = functions.find((f) => f.name === "outer");
     const inner = functions.find((f) => f.name === "inner");
@@ -238,7 +240,7 @@ describe("function-length", () => {
           ),
         )(functions);
       }),
-    )(SRC_JS_FILES());
+    )(combineFileLists([SRC_JS_FILES(), SCRIPT_JS_FILES()]));
 
     if (violations.length > 0) {
       const sorted = violations.toSorted((a, b) => b.lineCount - a.lineCount);
@@ -257,5 +259,6 @@ describe("function-length", () => {
     }
 
     expect(violations.length).toBe(0);
-  });
+    // Scans every src and scripts file; instrumented runs exceed the default timeout
+  }, 5000);
 });

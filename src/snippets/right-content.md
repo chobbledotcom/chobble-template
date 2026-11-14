@@ -2,20 +2,7 @@
 name: Right Content
 ---
 
-### Opening Hours
+### About this column
 
-{% opening_times %}
-
----
-
-### Regular Events
-
-{% recurring_events %}
-
----
-
-### Contact
-
-- Phone: [0161 123 4567](tel:01611234567)
-- Email: [hello@example.com](mailto:hello@example.com)
-- Facebook: [@MyPage](/)
+This sidebar comes from the `right-content` snippet - edit or delete
+`src/snippets/right-content.md` to change it.

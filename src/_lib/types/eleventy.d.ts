@@ -11,7 +11,6 @@
 
 import type {
   PagesCMSImage,
-  PagesCMSOption,
   PagesCMSSpec,
   PagesCMSFaq,
   PagesCMSFilterAttribute,
@@ -60,28 +59,49 @@ export type BaseItemData = {
   thumbnail?: string;
   /** Main image path */
   image?: string;
+  /** Frequently asked questions */
+  faqs?: PagesCMSFaq[];
+};
+
+/**
+ * One option of a product: a size or variant to buy, or a length of hire.
+ */
+export type ProductOption = {
+  /** Option name, e.g. "Large" or "Weekend" */
+  name: string;
+  /** Price of one of this option */
+  unit_price: number;
+  /** Days of hire this option prices; set on every option of a hire product */
+  days?: number;
+};
+
+/**
+ * What a product's add-to-quote button carries. See #utils/quote-item.js.
+ */
+export type QuoteItem = {
+  name: string;
+  /** Most of the product one quote may hold */
+  max_quantity?: number;
+  /** True when the product is hired by the day */
+  hire: boolean;
+  /** Hire prices keyed by days; empty for a product that is bought */
+  hire_prices: Record<number, number>;
+  /** The choices the button offers: label, name in the quote, price */
+  options: { label: string; name: string; unit_price: number }[];
 };
 
 /**
  * Product-specific data fields
  */
 export type ProductItemData = BaseItemData & {
-  /** Product options (sizes, variants, etc.). Defaults to [] via products.json */
-  options: PagesCMSOption[];
-  /** Standalone price field (used when options is empty). May contain currency symbols. */
-  price?: string | number;
-  /** Frequently asked questions */
-  faqs?: PagesCMSFaq[];
-  /** Filter attributes for faceted search. Defaults to [] via products.json */
-  filter_attributes: PagesCMSFilterAttribute[];
-  /** Category slugs this product belongs to */
-  categories: string[];
-  /** Gallery image paths */
-  gallery: string[];
-  /** Event slugs this product is associated with */
-  events?: string[];
-  /** Search keywords for this product (guaranteed [] by 11tydata boundary) */
-  keywords: string[];
+  /** What a visitor can add to a quote */
+  options?: ProductOption[];
+  /** Most of the product one quote may hold */
+  max_quantity?: number;
+  /** Computed from options; null for a product without any */
+  quote_item: QuoteItem | null;
+  /** If true, the product is left out of the products collection */
+  hidden?: boolean;
 };
 
 /**
@@ -120,18 +140,18 @@ export type EventItemData = BaseItemData & {
  * Review-specific data fields
  */
 export type ReviewItemData = BaseItemData & {
-  /** Rating (typically 1-5) */
-  rating?: number;
   /** Reviewer name */
-  reviewer?: string;
-  /** Review date */
-  review_date?: string;
-  /** Product slugs this review is for */
-  products?: string[];
-  /** Category slugs this review is for */
-  categories?: string[];
-  /** Property slugs this review is for */
-  properties?: string[];
+  name: string;
+  /** Rating from 1 to 5 */
+  rating: number;
+  /** Where the review was written, e.g. "google" */
+  source?: string;
+  /** Link to the review where it was written */
+  url?: string;
+  /** Site path of the reviewer's photo, e.g. "/images/reviewers/x.webp" */
+  avatar?: string;
+  /** If true, the review is left out of the reviews collection */
+  hidden?: boolean;
 };
 
 /**
@@ -332,7 +352,10 @@ export type EleventyCollectionItemData = BaseItemData &
       MenuItemData &
       MenuCategoryItemData &
       GuideCategoryItemData
-  >;
+  > & {
+    /** Any other frontmatter keys Eleventy passes through untouched. */
+    [key: string]: unknown;
+  };
 
 /**
  * Generic Eleventy collection item.
@@ -380,6 +403,9 @@ export type EleventyComputedData = EleventyCollectionItemData & {
   metaComputed?: Record<string, unknown>;
   /** Design system blocks for block-based content */
   blocks?: Array<{ type: string; [key: string]: unknown }>;
+  /** Marks the page whose blocks are generated from the canonical
+   * per-type examples - see `#utils/block-gallery.js` */
+  block_gallery?: boolean;
   /** Every language the site publishes, from `_data/languages.json` */
   languages?: import('./utils.d.ts').Language[];
   /** Pages that say the same thing, from `_data/translations.json` */

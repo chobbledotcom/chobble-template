@@ -1,20 +1,9 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import eleventyComputed from "#data/eleventyComputed.js";
 
 const site = { name: "Test Site", url: "https://test.com" };
 
 describe("eleventyComputed.meta", () => {
-  test("returns product-shaped meta when the page is tagged 'products'", () => {
-    const result = eleventyComputed.meta({
-      tags: ["products"],
-      name: "Test Product",
-      site,
-      page: { url: "/products/test/" },
-    });
-    expect(result.name).toBe("Test Product");
-    expect(result.brand).toBe("Test Site");
-  });
-
   test("returns post-shaped meta when the page is tagged 'news'", () => {
     const result = eleventyComputed.meta({
       tags: ["news"],
@@ -23,6 +12,17 @@ describe("eleventyComputed.meta", () => {
       page: { url: "/news/test-post/", date: new Date("2024-01-15") },
     });
     expect(result.author.name).toBe("Test Site");
+    expect(result.published).toBe("2024-01-15");
+  });
+
+  test("a news tag after other tags takes precedence over organization schema", () => {
+    const result = eleventyComputed.meta({
+      tags: ["pages", "news"],
+      schema_type: "organization",
+      title: "Test Post",
+      site,
+      page: { url: "/news/test-post/", date: new Date("2024-01-15") },
+    });
     expect(result.published).toBe("2024-01-15");
   });
 
@@ -37,7 +37,7 @@ describe("eleventyComputed.meta", () => {
     expect(result.url).toBeDefined();
   });
 
-  test("returns base meta for pages without a product/news/contact signal", () => {
+  test("returns base meta for pages without a news/contact signal", () => {
     const result = eleventyComputed.meta({
       tags: ["pages"],
       name: "About Us",
@@ -51,8 +51,8 @@ describe("eleventyComputed.meta", () => {
   test("returns undefined when no_index is set, regardless of tags", () => {
     expect(
       eleventyComputed.meta({
-        tags: ["products"],
-        title: "Secret Product",
+        tags: ["pages"],
+        title: "Secret Page",
         no_index: true,
         site,
         page: { url: "/secret/" },

@@ -6,12 +6,7 @@
  * the browser-side decoder via aes-base64.js.
  */
 import { createCipheriv, randomBytes } from "node:crypto";
-import {
-  BLOCK_BYTES,
-  decodeBase64,
-  encodeBase64,
-  NONCE_BYTES,
-} from "#utils/aes-base64.js";
+import { BLOCK_BYTES, encodeBase64, NONCE_BYTES } from "#utils/aes-base64.js";
 
 const KEY_BYTES = 32; // AES-256
 
@@ -40,4 +35,4 @@ const encrypt = (plainText, keyBytes) => {
   return encodeBase64(new Uint8Array(output));
 };
 
-export { decodeBase64, encodeBase64, encrypt, generateKeyText };
+export { encrypt, generateKeyText };

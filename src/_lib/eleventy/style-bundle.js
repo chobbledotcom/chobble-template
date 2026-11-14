@@ -2,6 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { registerFilters } from "#eleventy/register.js";
 import { slugify } from "#utils/slug-utils.js";
 
 const RIGHT_CONTENT_PATH = "src/snippets/right-content.md";
@@ -14,26 +15,6 @@ const detectRightContent = () =>
   fs.existsSync(path.join(process.cwd(), RIGHT_CONTENT_PATH));
 
 /**
- * Build a page-path CSS class from a URL.
- *
- * "/"                          -> "page--home"
- * "/about-us/"                 -> "page--about-us"
- * "/products/example-product/" -> "page--products--example-product"
- *
- * @param {string} pageUrl
- * @returns {string|null}
- */
-const getPagePathClass = (pageUrl) => {
-  if (typeof pageUrl !== "string") return null;
-  const segments = pageUrl
-    .split("/")
-    .filter(Boolean)
-    .map((segment) => slugify(segment));
-  const suffix = segments.length === 0 ? "home" : segments.join("--");
-  return `page--${suffix}`;
-};
-
-/**
  * Generates body CSS classes based on layout and site config.
  *
  * Called from Liquid templates as:
@@ -42,8 +23,13 @@ const getPagePathClass = (pageUrl) => {
  * hasRightContent is auto-detected from the filesystem.
  * design-system class is handled directly in the template.
  *
+ * The page-path class is derived from pageUrl:
+ * "/"                          -> "page--home"
+ * "/about-us/"                 -> "page--about-us"
+ * "/products/example-product/" -> "page--products--example-product"
+ *
  * @param {string} layout
- * @param {Object} siteConfig - The site config object (snake_case keys)
+ * @param {{ sticky_mobile_nav?: boolean, horizontal_nav?: boolean }} siteConfig - The site config object (snake_case keys)
  * @param {string[]} [extraClasses] - Additional classes from theme body_classes
  * @param {boolean} [featured] - Whether the current page is featured
  * @param {string} [pageUrl] - The current page URL (page.url)
@@ -56,20 +42,31 @@ const getBodyClasses = (
   featured,
   pageUrl,
 ) => {
+  const pagePathClass =
+    typeof pageUrl === "string"
+      ? `page--${
+          pageUrl
+            .split("/")
+            .filter(Boolean)
+            .map((segment) => slugify(segment))
+            .join("--") || "home"
+        }`
+      : null;
   const classes = [
     layout.replace(".html", ""),
     siteConfig.sticky_mobile_nav ? "sticky-mobile-nav" : null,
     siteConfig.horizontal_nav !== false ? "horizontal-nav" : "left-nav",
     detectRightContent() ? "two-columns" : "one-column",
     featured ? "featured" : null,
-    getPagePathClass(pageUrl),
+    pagePathClass,
     ...(Array.isArray(extraClasses) ? extraClasses : []),
   ];
 
   return classes.filter(Boolean).join(" ");
 };
 
+/** @param {import("#lib/types").UserConfig} eleventyConfig */
 export const configureStyleBundle = (eleventyConfig) => {
-  eleventyConfig.addFilter("getBodyClasses", getBodyClasses);
+  registerFilters(eleventyConfig)({ getBodyClasses });
   eleventyConfig.addGlobalData("has_right_content", detectRightContent);
 };
