@@ -104,7 +104,7 @@ Every setting [config.json](../src/_data/config.json) accepts, from the [config 
 
 - [Block reference](../skills/chobble-template-site-builder/references/blocks.md): accepted fields and canonical YAML examples.
 
-- [Layouts](../skills/chobble-template-site-builder/references/layouts.md): columns, sidebars, and styling conventions.
+- [Layouts](../skills/chobble-template-site-builder/references/layouts.md): columns and styling conventions.
 
 ## Themes
 

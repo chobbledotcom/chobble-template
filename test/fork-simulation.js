@@ -54,7 +54,6 @@ const DELETED = [
   "src/pages/theme-editor.md",
   "src/snippets/demo.md",
   "src/snippets/footer-content.md",
-  "src/snippets/right-content.md",
   "src/images/breakfast.jpg",
   "src/images/city-traffic-night.jpg",
   "src/images/dinner.jpg",

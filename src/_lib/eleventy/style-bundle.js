@@ -1,18 +1,7 @@
 // Generates body CSS classes based on layout and config
 
-import fs from "node:fs";
-import path from "node:path";
 import { registerFilters } from "#eleventy/register.js";
 import { slugify } from "#utils/slug-utils.js";
-
-const RIGHT_CONTENT_PATH = "src/snippets/right-content.md";
-
-/**
- * Check whether the right-content snippet file exists.
- * @returns {boolean}
- */
-const detectRightContent = () =>
-  fs.existsSync(path.join(process.cwd(), RIGHT_CONTENT_PATH));
 
 /**
  * Generates body CSS classes based on layout and site config.
@@ -20,7 +9,6 @@ const detectRightContent = () =>
  * Called from Liquid templates as:
  *   layout | getBodyClasses: config, extraClasses, featured, page.url
  *
- * hasRightContent is auto-detected from the filesystem.
  * design-system class is handled directly in the template.
  *
  * The page-path class is derived from pageUrl:
@@ -56,7 +44,6 @@ const getBodyClasses = (
     layout.replace(".html", ""),
     siteConfig.sticky_mobile_nav ? "sticky-mobile-nav" : null,
     siteConfig.horizontal_nav !== false ? "horizontal-nav" : "left-nav",
-    detectRightContent() ? "two-columns" : "one-column",
     featured ? "featured" : null,
     pagePathClass,
     ...(Array.isArray(extraClasses) ? extraClasses : []),
@@ -68,5 +55,4 @@ const getBodyClasses = (
 /** @param {import("#lib/types").UserConfig} eleventyConfig */
 export const configureStyleBundle = (eleventyConfig) => {
   registerFilters(eleventyConfig)({ getBodyClasses });
-  eleventyConfig.addGlobalData("has_right_content", detectRightContent);
 };

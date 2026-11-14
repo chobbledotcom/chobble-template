@@ -3,11 +3,7 @@ import { relative } from "node:path";
 import { globSync } from "tinyglobby";
 import { ROOT_DIR } from "#lib/paths.js";
 
-const IDENTITY_SOURCE = [
-  "src/_data/{site,meta}.json",
-  "src/pages/contact.md",
-  "src/snippets/right-content.md",
-];
+const IDENTITY_SOURCE = ["src/_data/{site,meta}.json", "src/pages/contact.md"];
 
 const PLACEHOLDERS = [
   {

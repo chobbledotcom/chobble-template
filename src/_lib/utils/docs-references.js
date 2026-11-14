@@ -55,7 +55,7 @@ const MANIFEST = [
     source: `${SKILL_REFERENCES}/layouts.md`,
     slug: "layouts",
     name: "Layouts",
-    subtitle: "Rendering architecture, columns, sidebars, and styling",
+    subtitle: "Rendering architecture, columns, and styling",
   },
   {
     source: `${SKILL_REFERENCES}/i18n.md`,

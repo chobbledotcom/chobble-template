@@ -250,23 +250,6 @@ describe("scss", () => {
     expect(result).toContain("font-size: var(--font-size-base, 1rem)");
   });
 
-  test("Design-system sidebar columns stretch and stack item cards", async () => {
-    const result = await compileDesignSystemBundle();
-    const columnsRule =
-      result.match(
-        /\.design-system\.two-columns \.page-columns\s*\{[^}]*\}/,
-      )?.[0] ?? "";
-    const sidebarItemsRule =
-      result.match(
-        /\.design-system \.right-column ul\.items:not\(\.slider, \.masonry\) > li\s*\{[^}]*\}/,
-      )?.[0] ?? "";
-
-    expect(columnsRule).toContain("display: grid");
-    expect(columnsRule).not.toContain("align-items: start");
-    expect(sidebarItemsRule).toContain("flex-basis: 100%");
-    expect(sidebarItemsRule).toContain("max-width: 100%");
-  });
-
   test("Design-system bundle includes scrollable table wrapper styles", async () => {
     const result = await compileDesignSystemBundle();
     const wrapperRule =
