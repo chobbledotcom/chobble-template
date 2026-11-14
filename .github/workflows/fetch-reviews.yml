@@ -69,8 +69,7 @@ jobs:
       ref: ${{ needs.fetch-reviews.outputs.ref }}
     secrets:
       BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
-      BUNNY_PRODUCTION_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_PRODUCTION_STORAGE_ZONE_NAME }}
-      BUNNY_STAGING_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_STAGING_STORAGE_ZONE_NAME }}
+      BUNNY_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_STORAGE_ZONE_NAME }}
       FORMSPARK_ID: ${{ secrets.FORMSPARK_ID }}
       BOTPOISON_PUBLIC_KEY: ${{ secrets.BOTPOISON_PUBLIC_KEY }}
       INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}

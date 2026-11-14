@@ -287,7 +287,7 @@ server, no build-time secrets. `SITE_URL` stamps the public origin into
 canonical URLs, the sitemap, feeds, and social metadata; `PATH_PREFIX`
 rewrites internal URLs for hosts that serve the site from a subpath. The
 repository ships a workflow that builds on every push and deploys to Bunny
-Sites — `main` to production, other branches to staging — plus CI for tests.
+Sites from `main`, plus CI for tests.
 Repository `docs/` publish alongside the site at `/docs/` on that deployment. To host anywhere else, run
 `npm run build` and point any static host or pipeline at `_site/`.
 
