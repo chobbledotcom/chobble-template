@@ -122,7 +122,7 @@ export const renderDeveloperReference = ({
     "- [Project setup](../skills/chobble-template-site-builder/references/project-setup.md): site identity, navigation, CMS, languages, and publishing.",
     "- [Content authoring](../skills/chobble-template-site-builder/references/content-authoring.md): pages, news, guides, snippets, and media.",
     "- [Block reference](../skills/chobble-template-site-builder/references/blocks.md): accepted fields and canonical YAML examples.",
-    "- [Layouts](../skills/chobble-template-site-builder/references/layouts.md): columns, sidebars, and styling conventions.",
+    "- [Layouts](../skills/chobble-template-site-builder/references/layouts.md): columns and styling conventions.",
     "## Themes",
     "Edit [theme.scss](../src/css/theme.scss), browse the theme files in [src/css](../src/css/), or preview and export a theme at `/theme-editor/` on the running site.",
     "Consult the [Sass defaults](../src/css/_variables.scss) and [breakpoints](../src/css/_breakpoints.scss) rather than copying their values into another reference. Prefer theme overrides over changes to core styles.",

@@ -16,7 +16,6 @@ describe("configureBlocks", () => {
       "blockTemplate",
       "splitBlocksForColumns",
       "validatePageBodyContent",
-      "splitHoistedBanner",
     ]) {
       expect(typeof filters[name]).toBe("function");
     }

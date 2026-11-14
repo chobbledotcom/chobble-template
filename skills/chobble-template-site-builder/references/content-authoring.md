@@ -170,10 +170,10 @@ unless there is a clear reason.
 ## Snippets And Shared Regions
 
 Snippet files live in `src/snippets/` and may use either Markdown body content
-or a `blocks` array. `footer-content.md` and `right-content.md` are named global
-regions. Read `src/snippets/README.md` and [layouts](layouts.md) before changing
-them; the [generated compatibility table](blocks.md#column-and-sidebar-compatibility)
-lists column-safe block types for sidebars.
+or a `blocks` array. `footer-content.md` is the named global region. Read
+`src/snippets/README.md` and [layouts](layouts.md) before changing it; the
+[generated compatibility table](blocks.md#column-compatibility)
+lists column-safe block types.
 
 The `snippet` block references a reusable block composition by filename without
 the `.md` extension:

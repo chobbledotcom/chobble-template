@@ -7,7 +7,6 @@ import { toBlockArray } from "#utils/block-columns.js";
 import { normaliseBlocks } from "#utils/block-schema.js";
 import { memoize } from "#utils/fp/memoize.js";
 import { processLiquidStrings } from "#utils/liquid-render.js";
-import { validateSidebarBlocks } from "#utils/sidebar-blocks.js";
 
 /**
  * @typedef {{ type: string, content: string }} MarkdownToken
@@ -202,24 +201,6 @@ const snippetBlocksFilter = (name, language = "") => {
 };
 
 /**
- * The optional right-content sidebar's blocks, restricted to column-safe
- * types, with Liquid resolved against the page (they render without
- * blocks.html).
- *
- * @this {LiquidFilterContext}
- * @param {string} name
- * @param {string} [language] - The page language's code
- */
-async function sidebarBlocksFilter(name, language = "") {
-  return processLiquidStrings(
-    validateSidebarBlocks(
-      readSnippetData(name, process.cwd(), language).blocks,
-    ),
-    this.context.environments,
-  );
-}
-
-/**
  * @this {LiquidFilterContext}
  * @param {Record<string, unknown>[] | undefined | null} blocks
  */
@@ -258,7 +239,6 @@ const configureFileUtils = (eleventyConfig) => {
     eleventyConfig,
     "addAsyncFilter",
   )({
-    sidebar_blocks: sidebarBlocksFilter,
     render_block_liquid: renderBlockLiquidFilter,
   });
 

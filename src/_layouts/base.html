@@ -20,26 +20,21 @@
   {%- unless no_navigation -%}
     {%- include "navigation.html" -%}
   {%- endunless -%}
-  {%- assign banner_split = blocks | splitHoistedBanner: has_right_content -%}
-  {%- include "design-system/hoisted-banner.html", banner: banner_split.banner -%}
-  <div class="page-columns">
-    <main id="content"{% if pagefind_body %} data-pagefind-body{% endif %}>
-      {%- if config.show_breadcrumbs and page.url != pageLanguage.home_url -%}
-        {%- unless no_breadcrumbs -%}
-          {%- include "breadcrumbs-nav.html" -%}
-        {%- endunless -%}
-      {%- endif -%}
-      {{- content | validatePageBodyContent: layout, page.inputPath -}}
-      {%- if banner_split.rest.size > 0 -%}
-        {%- include "design-system/blocks.html", blocks: banner_split.rest -%}
-      {%- endif -%}
-      {%- assign footer_snippet_data = "footer-content" | snippet_data: pageLanguage.code -%}
-      {%- if footer_snippet_data.blocks -%}
-        {%- include "design-system/blocks.html", blocks: footer_snippet_data.blocks -%}
-      {%- endif -%}
-    </main>
-    {%- include "design-system/right-column.html" -%}
-  </div>
+  <main id="content"{% if pagefind_body %} data-pagefind-body{% endif %}>
+    {%- if config.show_breadcrumbs and page.url != pageLanguage.home_url -%}
+      {%- unless no_breadcrumbs -%}
+        {%- include "breadcrumbs-nav.html" -%}
+      {%- endunless -%}
+    {%- endif -%}
+    {{- content | validatePageBodyContent: layout, page.inputPath -}}
+    {%- if blocks.size > 0 -%}
+      {%- include "design-system/blocks.html", blocks: blocks -%}
+    {%- endif -%}
+    {%- assign footer_snippet_data = "footer-content" | snippet_data: pageLanguage.code -%}
+    {%- if footer_snippet_data.blocks -%}
+      {%- include "design-system/blocks.html", blocks: footer_snippet_data.blocks -%}
+    {%- endif -%}
+  </main>
   {%- include "design-system/footer.html" -%}
   {%- include "image-popup.html" -%}
   {%- include "theme-switcher.html" -%}

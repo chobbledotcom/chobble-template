@@ -10,7 +10,7 @@
  *   - optionally `template` and `collections` — dispatch override and CMS allowlist
  *   - optionally `containerWidth` ("full" | "narrow"; defaults to "wide")
  *   - optionally `columnSafe` (false for blocks that need the full width, so
- *     block-columns layouts and the sidebar reject them; defaults to true)
+ *     block-columns layouts reject them; defaults to true)
  *
  * This file aggregates them into:
  *   - `BLOCK_SCHEMAS`    — field definitions per type, used for allowed-key
@@ -173,8 +173,8 @@ const getBlockTemplate = lookupByType((m) =>
 );
 
 /**
- * Whether a block type may render inside a block-columns layout or the
- * narrow right-content sidebar. Full-bleed and two-pane blocks opt out.
+ * Whether a block type may render inside a block-columns layout.
+ * Full-bleed and two-pane blocks opt out.
  * @type {(blockType: string) => boolean}
  */
 const isColumnSafeBlock = lookupByType((m) =>

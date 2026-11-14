@@ -4,7 +4,7 @@
 
 Blocks are entries in a YAML frontmatter `blocks:` array. This reference is generated from the full field schemas and canonical `BLOCK_EXAMPLES`, in deliberate registry order. Regenerate with `npm run generate-references`, or `npm run generate-blocks-reference` for this file alone.
 
-See [Layouts](layouts.md) for rendering architecture, column matching, sidebar behavior, and styling. All source paths below are repository-root-relative.
+See [Layouts](layouts.md) for rendering architecture, column matching, and styling. All source paths below are repository-root-relative.
 
 ## Reading the schemas
 
@@ -16,18 +16,18 @@ The **Default** column shows the value the build fills in when a block omits the
 
 ## Common fields
 
-`type` is a required string selecting a registered block. The common wrapper fields below come from `CONTAINER_FIELDS`. `dark` selects a dark section palette; `compact` reduces section padding. They affect full-width section wrappers, not direct column/sidebar rendering; transparent `snippet` blocks do not acquire their own wrapper.
+`type` is a required string selecting a registered block. The common wrapper fields below come from `CONTAINER_FIELDS`. `dark` selects a dark section palette; `compact` reduces section padding. They affect full-width section wrappers, not direct column rendering; transparent `snippet` blocks do not acquire their own wrapper.
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
 | `dark` | `boolean` | optional | `false` | Dark |  |
 | `compact` | `boolean` | optional | None | Compact |  |
 
-## Column and sidebar compatibility
+## Column compatibility
 
-This table covers registered types only. `No` types are rejected inside columns and the right-content sidebar, but may appear in full-width `before` slots. `Yes` means the type passes the placement check, not that it is context-free. Snippets are reusable compositions: keep their contents appropriate for their destination too.
+This table covers registered types only. `No` types are rejected inside columns, but may appear in full-width `before` slots. `Yes` means the type passes the placement check, not that it is context-free. Snippets are reusable compositions: keep their contents appropriate for their destination too.
 
-| Block | Container width | Columns / sidebar |
+| Block | Container width | Columns |
 | --- | --- | --- |
 | [`section-header`](#section-header) | `wide` | Yes |
 | [`features`](#features) | `wide` | Yes |
@@ -91,7 +91,7 @@ Standalone section header with rich text intro.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -130,7 +130,7 @@ Grid of feature cards with optional icons, names, and descriptions.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -182,7 +182,7 @@ Grid of cards featuring images with names and optional descriptions.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -231,7 +231,7 @@ Key metrics displayed as large numbers with labels.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -273,7 +273,7 @@ Terminal-style code display with macOS-like toolbar header.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -314,7 +314,7 @@ Full-width hero banner with optional badge, markdown content, and action buttons
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -369,7 +369,7 @@ Two-column layout with text content and a responsive image.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -422,7 +422,7 @@ Two-column layout with text content and an embedded video.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -478,7 +478,7 @@ Two-column layout with text content and a code block.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -535,7 +535,7 @@ Two-column layout with text content and an icon-links list.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -594,7 +594,7 @@ Two-column layout with text content and custom HTML.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -641,7 +641,7 @@ Two-column layout with text content and a styled callout box with icon, name, an
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -693,7 +693,7 @@ Full-width two-panel layout with distinct background colors per side.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -756,7 +756,7 @@ Call-to-action banner with gradient background.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -801,7 +801,7 @@ One-column callout/note with icon, name, and short content — for content warni
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -840,7 +840,7 @@ Full-width image background with hero-style overlay content (badge, markdown con
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -891,7 +891,7 @@ Full-width video playing silently behind hero-style overlay content (badge, mark
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -940,7 +940,7 @@ Displays an Eleventy collection as a card grid or horizontal slider.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -982,7 +982,7 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1023,7 +1023,7 @@ Renders a collection as a comma-separated inline list of links, with optional in
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1055,7 +1055,7 @@ Renders a collection as a plain-text unordered list of links arranged in respons
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1094,7 +1094,7 @@ Renders markdown content as rich text.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1138,7 +1138,7 @@ In-page contents built from the headings the page actually renders.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1170,7 +1170,7 @@ Outputs raw HTML without processing.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1205,7 +1205,7 @@ Third-party iframe embed (itch.io widgets, Buttondown, Bandcamp, Stripe buttons,
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1247,7 +1247,7 @@ Includes an arbitrary template file.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1277,7 +1277,7 @@ Renders a news post's metadata: author name plus the post date.
 
 **CMS collection availability:** `news`
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 No block-specific fields. Common fields still apply.
 
@@ -1304,7 +1304,7 @@ Renders question/answer pairs as a definition list, or as collapsed accordions w
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1343,7 +1343,7 @@ Displays the site-wide guide categories.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 No block-specific fields. Common fields still apply.
 
@@ -1370,7 +1370,7 @@ Renders a guide page's heading: title and optional subtitle.
 
 **CMS collection availability:** `guide-pages`, `guide-categories`
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 No block-specific fields. Common fields still apply.
 
@@ -1397,7 +1397,7 @@ Renders a 'Back to \<category>' breadcrumb link for a guide page.
 
 **CMS collection availability:** `guide-pages`
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 No block-specific fields. Common fields still apply.
 
@@ -1424,7 +1424,7 @@ Lists the guide pages that belong to the current guide category (filtered via \`
 
 **CMS collection availability:** `guide-categories`
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 No block-specific fields. Common fields still apply.
 
@@ -1455,7 +1455,7 @@ Standalone centered button linking to an anchor or URL.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1493,7 +1493,7 @@ Image grid with optional aspect ratio cropping and captions.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1541,7 +1541,7 @@ Continuously scrolling marquee of images (e.g. brand logos, partner badges).
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1588,7 +1588,7 @@ Grid of click-to-play video thumbnails. Takes YouTube IDs and the embed URLs of 
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1634,7 +1634,7 @@ Customer reviews as cards, newest first: rating, date, the reviewer's words, and
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1672,7 +1672,7 @@ A contact form, optionally beside text, that posts to a form service.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1738,7 +1738,7 @@ The visitor's quote: the products they added, an estimated price, and a form tha
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** No
+**Columns:** No
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1785,7 +1785,7 @@ An add-to-quote button for the product the page describes.
 
 **CMS collection availability:** `products`
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 No block-specific fields. Common fields still apply.
 
@@ -1816,7 +1816,7 @@ Vertical list of links with icons, rendered as a flex column stack.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1863,7 +1863,7 @@ List of downloadable files. Each item auto-detects its icon from the file extens
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1900,7 +1900,7 @@ Renders blocks from a named snippet file, enabling reusable block compositions.
 
 **CMS collection availability:** All collections with a block editor
 
-**Columns / sidebar:** Yes
+**Columns:** Yes
 
 | Field | Schema type | Presence | Default | CMS label | Description |
 | --- | --- | --- | --- | --- | --- |

@@ -41,8 +41,8 @@ quietly add a server-side subsystem.
   addresses, testimonials, statistics, legal claims, or organization history.
 - Prefer the existing block vocabulary. Read the generated
   [block reference](references/blocks.md) before authoring a block instead of
-  guessing its fields. Read [layouts](references/layouts.md) for columns,
-  sidebars, and rendering context.
+  guessing its fields. Read [layouts](references/layouts.md) for columns
+  and rendering context.
 - Pages, news, guide categories, and guide pages are block-only. Do not add
   Markdown body content below their frontmatter. Snippet body content is the
   intentional exception.

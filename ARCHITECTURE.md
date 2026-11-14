@@ -51,7 +51,7 @@ These recur throughout the system and explain most of its shape:
 | Start a new site or change its shape | [project setup](skills/chobble-template-site-builder/references/project-setup.md) |
 | Author or edit pages, news, guides, snippets | [content authoring](skills/chobble-template-site-builder/references/content-authoring.md) |
 | Know every block's fields and examples | generated [block reference](skills/chobble-template-site-builder/references/blocks.md), or the live `/blocks/` gallery |
-| Understand rendering, columns, sidebars | [layouts](skills/chobble-template-site-builder/references/layouts.md) |
+| Understand rendering and columns | [layouts](skills/chobble-template-site-builder/references/layouts.md) |
 | Publish in more than one language | [languages](skills/chobble-template-site-builder/references/i18n.md) |
 | Rebuild an existing site page for page | [site mirroring](skills/chobble-template-site-builder/references/site-mirroring.md) |
 | Verify a change before handoff | [verification](skills/chobble-template-site-builder/references/verification.md) |
@@ -71,7 +71,7 @@ disagree with reality, regenerate rather than trusting either.
 | `src/pages/` | Site pages: Markdown files whose frontmatter declares `blocks` |
 | `src/news/` | Dated news posts; filenames `YYYY-MM-DD-slug.md` supply the date |
 | `src/guide-categories/`, `src/guide-pages/` | Categorised documentation pages |
-| `src/snippets/` | Reusable regions (`footer-content`, `right-content`) and snippet-block sources, with optional per-language folders |
+| `src/snippets/` | Reusable regions (`footer-content`) and snippet-block sources, with optional per-language folders |
 | `src/images/`, `src/files/`, `src/assets/` | Source media, downloadable files, and static assets such as fonts; copied through to the output |
 | `src/_data/` | Site identity and behaviour: `site.json`, `config.json` (fields and settings declared in `src/_lib/config/site-schema.js` and `config-schema.js`), `languages.json`, `translations.json`, `strings.json`, `meta.json`, `blockLayouts.json` |
 | `src/_includes/` | Templates, including `design-system/blocks/` — one template per block type |
@@ -111,7 +111,7 @@ the Eleventy CLI, then checks every internal link. In order:
    guide category links), so fork templates read one shape regardless of what
    an author wrote.
 4. **Block validation and defaults.** Every authored block array — page
-   frontmatter, snippet blocks, the footer and sidebar regions — is checked
+   frontmatter, snippet blocks, and the footer region — is checked
    against the schema registry in `src/_lib/utils/block-schema.js` and has
    omitted fields filled from schema `default`s, nested fields included.
    Unknown block types and unknown top-level keys fail here with the file and
@@ -175,13 +175,11 @@ blocks:
   [block reference](skills/chobble-template-site-builder/references/blocks.md), the
   PagesCMS field components, and the `/blocks/` gallery that renders the same
   tested examples.
-- **Columns and sidebars** are declarative: `blockLayouts.json` maps page tags
-  to column layouts (a claim-queue matcher, documented in the layouts
-  reference), and the presence of `src/snippets/right-content.md` switches on
-  a site-wide sidebar. Neither needs template edits.
+- **Columns** are declarative: `blockLayouts.json` maps page tags to column
+  layouts (a claim-queue matcher, documented in the layouts reference).
 - **Snippets** are shared regions resolved per language:
   `src/snippets/<language>/<name>.md` overrides `src/snippets/<name>.md`.
-  `footer-content` and `right-content` are the named global regions.
+  `footer-content` is the named global region.
 - **News and guides** are optional collections a site enables through the
   CMS customizer; forks that do not use them delete their demo content, and
   the fork simulation proves the template's own tests still pass afterwards.

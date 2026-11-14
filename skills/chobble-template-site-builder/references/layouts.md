@@ -41,7 +41,7 @@ filter uses the module's width, defaulting to `wide`; `full` omits the container
 wrapper.
 
 Before any of this, every authored block array (page frontmatter, `snippet`
-blocks, the footer and sidebar snippets) is validated and has its omitted
+blocks, and the `footer-content` snippet) is validated and has its omitted
 fields filled from the schema `default`s, nested fields included. Templates
 read those values directly rather than restating defaults. See the generated reference for every resolved width and template.
 
@@ -75,7 +75,7 @@ to a page's first section; footer and nested snippet block arrays also use it.
 
 ### Placement and Rendering
 
-Use the [generated compatibility table](blocks.md#column-and-sidebar-compatibility)
+Use the [generated compatibility table](blocks.md#column-compatibility)
 to choose column-safe types. Full-viewport and split-layout types are rejected
 in columns; they are allowed in full-width `before` slots. Each schema module
 opts out with `export const columnSafe = false`, and a layout naming an
@@ -87,31 +87,6 @@ a `.block-columns.block-columns-N` grid. Each `.block-column` stacks children
 with consistent spacing. Below the `md` breakpoint the columns become one stack.
 Individual children do not get full-width section wrappers, dark backgrounds,
 or compact-section padding from their common wrapper fields.
-
-## Site-Wide Sidebar
-
-Create `src/snippets/right-content.md` to add an
-`<aside class="right-column">` beside `<main>` on pages using `base.html`.
-File presence is the switch; no page flag is needed. The body gets `two-columns`
-instead of `one-column`. The `.page-columns` grid activates at `lg`; below that
-the sidebar stacks under the main content. `--right-column-width` at `:root`
-defaults to `16rem` and can be overridden by the theme.
-
-- **Blocks:** A nonempty `blocks:` frontmatter array renders directly through `render-block.html`, without normal full-width section wrappers. The same placement check used by columns rejects unsafe top-level types with a build error naming the right-content sidebar. Choose context-appropriate content for any referenced snippet too.
-- **Markdown:** Without sidebar blocks, the snippet body renders inside `.prose`. The current `render_snippet` path renders Markdown; it does not run the body through Liquid shortcode expansion. Use sidebar block strings when page-context Liquid interpolation is needed.
-
-The sidebar is a sibling of `<main>`, not its child. Pages using
-`data-pagefind-body` on `<main>` exclude sidebar text from that search body.
-The shared sidebar and per-tag block columns compose: `.page-columns` wraps
-whatever the main block layout renders.
-
-### Banner Hoisting
-
-With the sidebar active, a page's first block is hoisted above `.page-columns`
-only when its type is `image-background`. This spans content plus sidebar.
-Remaining blocks render in `<main>`. No sidebar means no hoisting; later banners
-are not hoisted. See `src/_lib/utils/sidebar-blocks.js` and
-`src/_includes/design-system/hoisted-banner.html`.
 
 ## Styling and Components
 

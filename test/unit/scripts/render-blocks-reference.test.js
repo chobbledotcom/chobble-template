@@ -11,7 +11,7 @@ import {
 } from "#scripts/lib/render-blocks-reference.js";
 import { getTableRows, rootDir } from "#test/test-utils.js";
 import { collectBlockReferences } from "#test/unit/utils/pages-yml-helpers.js";
-import { assertColumnSafeTypes } from "#utils/block-columns.js";
+import { splitBlocksForColumns } from "#utils/block-columns.js";
 import { buildGalleryBlocks } from "#utils/block-gallery.js";
 import { CONTAINER_FIELDS } from "#utils/block-schema/shared.js";
 import {
@@ -132,7 +132,10 @@ describe("block reference", () => {
     expect(rows.map(([type]) => type)).toEqual(Object.keys(BLOCK_SCHEMAS));
     for (const [type, width, compatibility] of rows) {
       expect(width, type).toBe(getBlockContainerWidth(type));
-      const check = () => assertColumnSafeTypes([type], "documentation test");
+      const check = () =>
+        splitBlocksForColumns([{ type }], {
+          columns: [{ types: [type] }],
+        });
       if (compatibility === "No")
         expect(check, type).toThrow(`Block type "${type}"`);
       else {

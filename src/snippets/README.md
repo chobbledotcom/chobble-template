@@ -1,17 +1,11 @@
 # Snippets
 
-Snippets are reusable content, not standalone pages. Two filenames have global
-placements in the base layout:
+Snippets are reusable content, not standalone pages. One filename has a global
+placement in the base layout:
 
 - `footer-content.md`: Markdown body content renders in `<footer>`, below the
   social links. Its frontmatter `blocks` render separately at the end of
   `<main>`, before the footer, on every page using the base layout.
-- `right-content.md`: An optional sidebar beside the main content. Nonempty
-  frontmatter `blocks` render instead of its Markdown body. Use column-safe
-  blocks only; see the [layout reference](../../skills/chobble-template-site-builder/references/layouts.md)
-  for restrictions. Width is themeable via `--right-column-width`. When the
-  sidebar exists, a page's first `image-background` block is hoisted above
-  the columns to span both content and sidebar.
 
 Homepage section headings belong in the homepage's own `blocks` array; there
 are no special homepage heading snippet slots.

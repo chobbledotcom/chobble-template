@@ -39,20 +39,6 @@ import { isColumnSafeBlock } from "#utils/block-schema.js";
 export const toBlockArray = (blocks) => (Array.isArray(blocks) ? blocks : []);
 
 /**
- * Throws if any type is not safe inside a narrow column.
- * @param {string[]} types
- * @param {string} where - Location description for the error message
- */
-export const assertColumnSafeTypes = (types, where) => {
-  const disallowed = types.find((type) => !isColumnSafeBlock(type));
-  if (disallowed) {
-    throw new Error(
-      `Block type "${disallowed}" is not supported inside ${where}.`,
-    );
-  }
-};
-
-/**
  * @typedef {{
  *   before?: string[],
  *   columns?: Array<{ types: string[] }>
@@ -155,10 +141,12 @@ export const splitBlocksForColumns = (blocks, layout) => {
 
     /** @param {Array<{ type: string, ci: number }>} slots */
     const validateLayoutSlots = (slots) => {
-      return assertColumnSafeTypes(
-        slots.map(({ type }) => type),
-        "a block-columns layout",
-      );
+      const disallowed = slots.find(({ type }) => !isColumnSafeBlock(type));
+      if (disallowed) {
+        throw new Error(
+          `Block type "${disallowed.type}" is not supported inside a block-columns layout.`,
+        );
+      }
     };
 
     /** @type {{ columns: Block[][] | null, used: number[] }} */
