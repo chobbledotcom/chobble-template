@@ -10,15 +10,13 @@ blocks:
       ## Deploy to Bunny Sites
 
       The repository ships a workflow that builds the site on every push
-      and deploys it to [Bunny Sites](https://bunny.net/). `main` deploys to
-      the production site; every other branch deploys to the staging site,
-      so a branch can be checked on a real URL before it is merged.
+      and deploys `main` to [Bunny Sites](https://bunny.net/). Other
+      branches only build, so a broken change shows up before it is merged.
 
-      Create the Bunny Sites, then add `BUNNY_ACCESS_KEY` and
-      `BUNNY_PRODUCTION_STORAGE_ZONE_NAME` as repository secrets under
-      **Settings → Secrets and variables → Actions**. Add
-      `BUNNY_STAGING_STORAGE_ZONE_NAME` to deploy branches too. Repository
-      docs publish alongside the site at `/docs/`.
+      Create the Bunny Site, then add `BUNNY_ACCESS_KEY` and
+      `BUNNY_STORAGE_ZONE_NAME` as repository secrets under
+      **Settings → Secrets and variables → Actions**. Repository docs
+      publish alongside the site at `/docs/`.
 
       ## Building for any other host
 

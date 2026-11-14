@@ -52,9 +52,8 @@ blocks:
     content: |
       ## Push to deploy
 
-      A bundled workflow builds the site on every push and deploys it to
-      Bunny Sites: `main` goes to production and every other branch to
-      staging. The steps are the ones every Chobble site shares; any other
+      A bundled workflow builds the site on every push and deploys `main`
+      to Bunny Sites; other branches only build, as a check. The steps are the ones every Chobble site shares; any other
       static host can serve the `_site/` directory instead.
     reverse: true
     figure_filename: .github/workflows/build-and-deploy.yaml
