@@ -70,6 +70,9 @@ jobs:
     secrets:
       BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
       BUNNY_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_STORAGE_ZONE_NAME }}
+      # Older sites kept the site name under this key; the shared workflow
+      # falls back to it when BUNNY_STORAGE_ZONE_NAME is unset.
+      BUNNY_PRODUCTION_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_PRODUCTION_STORAGE_ZONE_NAME }}
       FORMSPARK_ID: ${{ secrets.FORMSPARK_ID }}
       BOTPOISON_PUBLIC_KEY: ${{ secrets.BOTPOISON_PUBLIC_KEY }}
       INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
