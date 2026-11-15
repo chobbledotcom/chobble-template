@@ -284,8 +284,8 @@ The deliverable is the `_site/` directory: self-contained, no application
 server, no build-time secrets. `SITE_URL` stamps the public origin into
 canonical URLs, the sitemap, feeds, and social metadata; `PATH_PREFIX`
 rewrites internal URLs for hosts that serve the site from a subpath. The
-repository ships a workflow that builds on every push and deploys to Bunny
-Sites from `main`, plus CI for tests.
+repository ships a workflow that builds and deploys to Bunny Sites on every
+push to `main`, builds pull requests without deploying, and runs CI for tests.
 Repository `docs/` publish alongside the site at `/docs/` on that deployment. To host anywhere else, run
 `npm run build` and point any static host or pipeline at `_site/`.
 

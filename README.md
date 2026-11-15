@@ -169,9 +169,9 @@ there is something new.
 ## Deployment
 
 The repo ships a deploy workflow (`.github/workflows/build-and-deploy.yaml`)
-that builds the site on every push and deploys `main` to
-[Bunny Sites](https://bunny.net/) with Bunny's own deploy action; other
-branches only build, as a check. The steps
+that builds and deploys on every push to `main`, and builds pull requests
+without deploying, so a broken change fails before it is merged. It deploys
+[Bunny Sites](https://bunny.net/) with Bunny's own deploy action. The steps
 themselves live in the
 [shared workflow](https://github.com/chobbledotcom/chobble-client/blob/main/.github/workflows/shared-build-and-deploy.yml)
 every Chobble site builds with, which this one calls.
@@ -190,7 +190,9 @@ under **Settings → Secrets and variables → Actions**:
 | `APIFY_API_TOKEN` | Optional. [Apify](https://apify.com/) token the reviews workflow fetches reviews with |
 
 A deploy is skipped while its site name is missing, so a fresh fork builds
-cleanly before it has hosting. The workflow also merges
+cleanly before it has hosting. An existing `BUNNY_PRODUCTION_STORAGE_ZONE_NAME`
+secret is used when `BUNNY_STORAGE_ZONE_NAME` is unset, so sites that predate
+the rename keep deploying. The workflow also merges
 `docs/` into the built site, so the generated
 [Site Builder Reference](docs/developer-reference.md) is served under `/docs/`
 on the deployment's base URL.
