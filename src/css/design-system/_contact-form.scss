@@ -28,7 +28,23 @@
       @include flex-col($space-xs);
     }
 
-    input:not([type="radio"]),
+    // A checkbox and its text share a line, like a radio button's
+    > label:has(> input[type="checkbox"]) {
+      @include flex-row($space-xs, center);
+
+      flex-wrap: wrap;
+      font-weight: 400;
+
+      small {
+        flex-basis: 100%;
+      }
+    }
+
+    input[type="checkbox"] {
+      accent-color: var(--color-link);
+    }
+
+    input:not([type="radio"], [type="checkbox"]),
     textarea,
     select {
       @include input-base;

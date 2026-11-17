@@ -1,6 +1,7 @@
 {%- comment -%}
 One field of a contact form. Each control sits inside its label, so labels
-need no ids and a page can hold more than one form.
+need no ids and a page can hold more than one form. A checkbox comes before
+its label text, as a radio button does, so the two sit on one line.
 
 Parameters:
   - field: A field of the contact-form block: label, name, type, required,
@@ -23,8 +24,12 @@ Parameters:
     </fieldset>
   {%- else -%}
     <label>
+      {%- if field.type == "checkbox" -%}
+        <input type="checkbox" name="{{ field.name }}"{% if field.required %} required{% endif %}>
+      {%- endif -%}
       {{ field.label }}
       {%- case field.type -%}
+        {%- when "checkbox" -%}
         {%- when "textarea" -%}
           <textarea name="{{ field.name }}" rows="{{ field.rows }}"{% if field.placeholder %} placeholder="{{ field.placeholder }}"{% endif %}{% if field.required %} required{% endif %}></textarea>
         {%- when "select" -%}
