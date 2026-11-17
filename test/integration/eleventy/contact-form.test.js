@@ -16,6 +16,7 @@ const CUSTOM_FIELDS = [
     note: "Pick one.",
   },
   { label: "Message", type: "textarea", rows: 3, placeholder: "Hello" },
+  { label: "Call me back", name: "callback", type: "checkbox" },
 ];
 
 const pages = [
@@ -110,6 +111,7 @@ describe("contact-form block", () => {
       ["method", "input", "radio", true],
       ["method", "input", "radio", true],
       ["Message", "textarea", null, false],
+      ["callback", "input", "checkbox", false],
     ]);
     expect(form.querySelector("h3").textContent).toBe("Your details");
     expect(form.querySelector("h3 + p").textContent).toBe("So we can reply.");
@@ -138,6 +140,17 @@ describe("contact-form block", () => {
     expect(
       [...form.querySelectorAll('input[type="radio"]')].map((el) => el.value),
     ).toEqual(["Email", "Phone"]);
+  });
+
+  test("puts a checkbox before its label text", async () => {
+    const doc = await getFormsparkSite().getDoc("custom-form/index.html");
+    const label = doc.querySelector('input[name="callback"]').parentElement;
+    expect(label.tagName).toBe("LABEL");
+    const parts = [...label.childNodes]
+      .filter((node) => node.nodeType === 1 || node.textContent.trim())
+      .map((node) => node.nodeName);
+    expect(parts).toEqual(["INPUT", "#text"]);
+    expect(label.textContent.trim()).toBe("Call me back");
   });
 
   test("puts a block's content beside the form", async () => {
