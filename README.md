@@ -190,9 +190,7 @@ under **Settings → Secrets and variables → Actions**:
 | `APIFY_API_TOKEN` | Optional. [Apify](https://apify.com/) token the reviews workflow fetches reviews with |
 
 A deploy is skipped while its site name is missing, so a fresh fork builds
-cleanly before it has hosting. An existing `BUNNY_PRODUCTION_STORAGE_ZONE_NAME`
-secret is used when `BUNNY_STORAGE_ZONE_NAME` is unset, so sites that predate
-the rename keep deploying. The workflow also merges
+cleanly before it has hosting. The workflow also merges
 `docs/` into the built site, so the generated
 [Site Builder Reference](docs/developer-reference.md) is served under `/docs/`
 on the deployment's base URL.

@@ -25,6 +25,6 @@ blocks:
       no application server and no application-secret requirement.
 faqs:
   - question: Why did the workflow build but not deploy?
-    answer: The deploy step is skipped while `BUNNY_STORAGE_ZONE_NAME` is missing (a site that predates the rename can set `BUNNY_PRODUCTION_STORAGE_ZONE_NAME` instead), so a fresh fork builds cleanly before it has hosting. Add the secrets under **Settings → Secrets and variables → Actions**, then re-run the workflow.
+    answer: The deploy step is skipped while `BUNNY_STORAGE_ZONE_NAME` is missing, so a fresh fork builds cleanly before it has hosting. Add the secrets under **Settings → Secrets and variables → Actions**, then re-run the workflow.
     order: 1
 ---
